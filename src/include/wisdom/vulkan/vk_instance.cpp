@@ -7,10 +7,6 @@
 #include <wisdom/vulkan/detail/vk_detail.hpp>
 #include <algorithm>
 
-using namespace wis;
-using namespace wis::impl;
-using namespace wis::detail;
-
 namespace wis::detail {
 //-----------------------------------------------------------------------------
 /**
@@ -62,18 +58,18 @@ wisVKCreateInstance(const WisDebugDesc*            debug_desc,
                     size_t                         extension_count,
                     WisVKInstance*                 instance)
 {
-    auto header = wis::make_unique<VKInstanceControlBlock>();
+    auto header = wis::make_unique<wis::detail::VKInstanceControlBlock>();
     if (!header) {
-        return make_result<Func(), "Failed to allocate memory for Vulkan instance header">(VK_ERROR_OUT_OF_HOST_MEMORY);
+        return wis::detail::make_result<wis::detail::Func(), "Failed to allocate memory for Vulkan instance header">(VK_ERROR_OUT_OF_HOST_MEMORY);
     }
 
-    header->header.library = unique_library{ wis::detail::InitializeVulkanLibrary() };
+    header->header.library = wis::detail::unique_library{ wis::detail::InitializeVulkanLibrary() };
     if (!header->header.library) {
-        return make_result<Func(), "Failed to load Vulkan library">(VK_ERROR_UNKNOWN);
+        return wis::detail::make_result<wis::detail::Func(), "Failed to load Vulkan library">(VK_ERROR_UNKNOWN);
     }
 
     if (!header->header.global_table.Init(header->header.library.get())) {
-        return make_result<Func(), "Failed to initialize Vulkan global function table">(VK_ERROR_UNKNOWN);
+        return wis::detail::make_result<wis::detail::Func(), "Failed to initialize Vulkan global function table">(VK_ERROR_UNKNOWN);
     }
 
     const auto& gt = header->header.global_table;
@@ -81,18 +77,18 @@ wisVKCreateInstance(const WisDebugDesc*            debug_desc,
     VkResult vr      = VK_SUCCESS;
     uint32_t version = 0;
     if (!gt.vkEnumerateInstanceVersion) {
-        return make_result<Func(), "The Vulkan version is too old!">(VK_ERROR_UNKNOWN);
+        return wis::detail::make_result<wis::detail::Func(), "The Vulkan version is too old!">(VK_ERROR_UNKNOWN);
     }
 
     // Get Vulkan instance version
     vr = gt.vkEnumerateInstanceVersion(&version);
-    if (!succeeded(vr)) {
-        return make_result<Func(), "Failed to enumerate Vulkan instance version">(vr);
+    if (!wis::detail::succeeded(vr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to enumerate Vulkan instance version">(vr);
     }
 
     // Gather extensions
-    WisResult res = vk_success;
-    VKInstanceExtensionCollector collector{ gt, res };
+    WisResult                         res = wis::detail::vk_success;
+    wis::VKInstanceExtensionCollector collector{ gt, res };
     if (res.status != WisStatusOk) {
         return res;
     }
@@ -118,9 +114,9 @@ wisVKCreateInstance(const WisDebugDesc*            debug_desc,
     }
 
     // Prepare debug callback thunk
-    std::unique_ptr<VKDebugCallbackThunk> debug_layer_thunk;
+    std::unique_ptr<wis::detail::VKDebugCallbackThunk> debug_layer_thunk;
     if (debug_desc && debug_desc->callback) {
-        debug_layer_thunk = make_unique<VKDebugCallbackThunk>();
+        debug_layer_thunk = wis::make_unique<wis::detail::VKDebugCallbackThunk>();
         if (debug_layer_thunk) {
             debug_layer_thunk->callback  = debug_desc->callback;
             debug_layer_thunk->user_data = debug_desc->user_data;
@@ -147,7 +143,7 @@ wisVKCreateInstance(const WisDebugDesc*            debug_desc,
                 VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
         .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
                 VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
-        .pfnUserCallback = VKDebugCallbackThunk::DebugUtilsMessengerCallbackThunk,
+        .pfnUserCallback = wis::detail::VKDebugCallbackThunk::DebugUtilsMessengerCallbackThunk,
         .pUserData       = debug_layer_thunk.get(),
     };
     const VkInstanceCreateInfo create_info{
@@ -163,21 +159,21 @@ wisVKCreateInstance(const WisDebugDesc*            debug_desc,
 
     VkInstance instance_handle = VK_NULL_HANDLE;
     vr                         = gt.vkCreateInstance(&create_info, nullptr, &instance_handle);
-    if (!succeeded(vr)) {
-        return make_result<Func(), "Failed to create Vulkan instance">(vr);
+    if (!wis::detail::succeeded(vr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to create Vulkan instance">(vr);
     }
 
     // Initialize instance table
     auto& instance_table = header->header.instance_table;
     if (!instance_table.Init(instance_handle, gt.vkGetInstanceProcAddr)) {
         instance_table.vkDestroyInstance(instance_handle, nullptr); // cleanup
-        return make_result<Func(), "Failed to initialize Vulkan instance function table">(VK_ERROR_UNKNOWN);
+        return wis::detail::make_result<wis::detail::Func(), "Failed to initialize Vulkan instance function table">(VK_ERROR_UNKNOWN);
     }
 
     // Initialize adapter table
     if (!header->header.adapter_table.Init(instance_handle, gt.vkGetInstanceProcAddr)) {
         instance_table.vkDestroyInstance(instance_handle, nullptr); // cleanup
-        return make_result<Func(), "Failed to initialize Vulkan adapter function table">(VK_ERROR_UNKNOWN);
+        return wis::detail::make_result<wis::detail::Func(), "Failed to initialize Vulkan adapter function table">(VK_ERROR_UNKNOWN);
     }
 
     // Setup debug messenger if requested
@@ -192,7 +188,7 @@ wisVKCreateInstance(const WisDebugDesc*            debug_desc,
     }
 
     // Fill instance impl
-    auto& impl         = *new (instance) VKInstanceImpl();
+    auto& impl         = *new (instance) wis::impl::VKInstanceImpl();
     impl.instance      = instance_handle;
     impl.shared_header = header.release();
 
@@ -202,7 +198,7 @@ wisVKCreateInstance(const WisDebugDesc*            debug_desc,
 
     // Initialize instance extensions
     for (auto* ext : wis::span<WisVKInstanceExtensionHeader*>{ extensions, extension_count }) {
-        if (auto* table = reinterpret_cast<VKInstanceExtensionHeader*>(ext)) {
+        if (auto* table = reinterpret_cast<wis::VKInstanceExtensionHeader*>(ext)) {
             if (auto xres = table->init_fptr(table, &impl, &collector); xres.status != WisStatusOk) {
                 res.status        = WisStatusPartial; // mark as partial success if any extension fails
                 res.error         = xres.error;
@@ -216,12 +212,12 @@ wisVKCreateInstance(const WisDebugDesc*            debug_desc,
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyInstance(WisVKInstance* self)
 {
-    auto& impl = *reinterpret_cast<VKInstanceImpl*>(self);
+    auto& impl = *reinterpret_cast<wis::impl::VKInstanceImpl*>(self);
     if (!impl.instance) {
         return;
     }
 
-    detail::release_vk_instance(impl.instance, impl.shared_header);
+    wis::detail::release_vk_instance(impl.instance, impl.shared_header);
     impl.shared_header = nullptr;
     impl.instance      = VK_NULL_HANDLE;
 }
@@ -232,7 +228,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKInstanceQueryAdapters(const WisVKInstance
                                                              WisVKAdapterQuery*   query)
 {
     // Query can come as partially constructed from C side
-    auto& instance_impl = *reinterpret_cast<const VKInstanceImpl*>(self);
+    auto& instance_impl = *reinterpret_cast<const wis::impl::VKInstanceImpl*>(self);
 
     const auto& header = *instance_impl.shared_header;
     const auto& table  = header.header.instance_table;
@@ -245,46 +241,46 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKInstanceQueryAdapters(const WisVKInstance
     // Get number of physical devices
     uint32_t device_count = 0;
     VkResult vr           = table.vkEnumeratePhysicalDevices(instance_impl.instance, &device_count, nullptr);
-    if (!succeeded(vr)) {
-        return make_result<Func(), "Failed to enumerate Vulkan physical devices">(vr);
+    if (!wis::detail::succeeded(vr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to enumerate Vulkan physical devices">(vr);
     }
     if (device_count == 0) {
-        return make_result<Func(), "No Vulkan physical devices found">(VK_ERROR_INITIALIZATION_FAILED);
+        return wis::detail::make_result<wis::detail::Func(), "No Vulkan physical devices found">(VK_ERROR_INITIALIZATION_FAILED);
     }
 
     // Get physical devices
-    devices_ref = make_unique<VkPhysicalDevice[]>(device_count);
+    devices_ref = wis::make_unique<VkPhysicalDevice[]>(device_count);
     if (!devices_ref) {
-        return make_result<Func(), "Not enough memory for physical devices array">(VK_ERROR_OUT_OF_HOST_MEMORY);
+        return wis::detail::make_result<wis::detail::Func(), "Not enough memory for physical devices array">(VK_ERROR_OUT_OF_HOST_MEMORY);
     }
 
     vr = table.vkEnumeratePhysicalDevices(instance_impl.instance, &device_count, devices_ref.get());
-    if (!succeeded(vr)) {
-        return make_result<Func(), "Failed to enumerate Vulkan physical devices">(vr);
+    if (!wis::detail::succeeded(vr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to enumerate Vulkan physical devices">(vr);
     }
 
     if (preference == WisAdapterPreference::WisAdapterPreferenceNone) {
         // No sorting needed
-        auto& impl            = *new (query) VKAdapterQueryImpl();
+        auto& impl            = *new (query) wis::impl::VKAdapterQueryImpl();
         impl.adapter_count    = device_count;
         impl.physical_devices = devices_ref.release();
         impl.instance         = instance_impl.instance;
         impl.shared_header    = instance_impl.shared_header;
         impl.shared_header->AddRef(); // hold reference to instance header
-        return vk_success;
+        return wis::detail::vk_success;
     }
 
     // Sort devices based on preference
     constexpr static std::size_t max_align      = std::max(alignof(VkPhysicalDeviceProperties), alignof(std::uintptr_t));
     std::size_t                  total_aux_size = sizeof(VkPhysicalDeviceProperties) * device_count + device_count * sizeof(std::uintptr_t);
 
-    aux_pool = make_unique<std::byte[]>(total_aux_size + max_align - 1);
+    aux_pool = wis::make_unique<std::byte[]>(total_aux_size + max_align - 1);
     if (!aux_pool) {
-        return make_result<Func(), "Not enough memory for auxiliary sorting buffer">(VK_ERROR_OUT_OF_HOST_MEMORY);
+        return wis::detail::make_result<wis::detail::Func(), "Not enough memory for auxiliary sorting buffer">(VK_ERROR_OUT_OF_HOST_MEMORY);
     }
 
     // Aligned pointers
-    auto*                                 aux_ptr = aligned_address(aux_pool.get(), max_align);
+    auto*                                 aux_ptr = wis::aligned_address(aux_pool.get(), max_align);
     wis::span<VkPhysicalDeviceProperties> properties_span{
         reinterpret_cast<VkPhysicalDeviceProperties*>(aux_ptr),
         device_count,
@@ -355,13 +351,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKInstanceQueryAdapters(const WisVKInstance
     }
 
     // Fill query impl
-    auto& impl            = *new (query) VKAdapterQueryImpl();
+    auto& impl            = *new (query) wis::impl::VKAdapterQueryImpl();
     impl.adapter_count    = device_count;
     impl.physical_devices = devices_ref.release();
     impl.instance         = instance_impl.instance;
     impl.shared_header    = instance_impl.shared_header;
     impl.shared_header->AddRef(); // hold reference to instance header
-    return vk_success;
+    return wis::detail::vk_success;
 }
 
 #endif // !WIS_VK_INSTANCE_CPP

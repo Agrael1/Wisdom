@@ -7,9 +7,7 @@
 #include <wisdom/vulkan/detail/vk_utils.hpp>
 #include <wisdom/util/allocation.hpp>
 
-using namespace wis;
-using namespace wis::impl;
-using namespace wis::detail;
+
 
 namespace wis::detail {
 inline VkImageCreateInfo VKFillImageDesc(const WisTextureDesc& desc) noexcept
@@ -18,9 +16,9 @@ inline VkImageCreateInfo VKFillImageDesc(const WisTextureDesc& desc) noexcept
         .sType         = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
         .pNext         = nullptr,
         .flags         = 0,
-        .format        = convert_vk(desc.format),
+        .format        = wis::detail::convert_vk(desc.format),
         .samples       = VK_SAMPLE_COUNT_1_BIT,
-        .usage         = convert_vk(desc.usage_flags),
+        .usage         = wis::detail::convert_vk(desc.usage_flags),
         .sharingMode   = VK_SHARING_MODE_EXCLUSIVE,
         .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
     };
@@ -63,14 +61,14 @@ inline VkImageCreateInfo VKFillImageDesc(const WisTextureDesc& desc) noexcept
         info.extent      = { desc.width, desc.height, 1 };
         info.mipLevels   = 1;
         info.arrayLayers = 1;
-        info.samples     = convert_vk(desc.sample_count);
+        info.samples     = wis::detail::convert_vk(desc.sample_count);
         break;
     case WisTextureLayoutTexture2DMSArray:
         info.imageType   = VK_IMAGE_TYPE_2D;
         info.extent      = { desc.width, desc.height, 1 };
         info.mipLevels   = 1;
         info.arrayLayers = desc.depth_or_array_size;
-        info.samples     = convert_vk(desc.sample_count);
+        info.samples     = wis::detail::convert_vk(desc.sample_count);
         break;
     }
     return info;
@@ -80,14 +78,14 @@ inline VkImageCreateInfo VKFillImageDesc(const WisTextureDesc& desc) noexcept
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyResourceAllocator(WisVKResourceAllocator* self)
 {
-    auto& impl = *reinterpret_cast<VKResourceAllocatorImpl*>(self);
+    auto& impl = *reinterpret_cast<wis::impl::VKResourceAllocatorImpl*>(self);
     if (impl.allocator) {
 
         // Get device from allocator
         VmaAllocatorInfo allocator_info{};
         vmaGetAllocatorInfo(impl.allocator, &allocator_info);
 
-        detail::release_vk_device(allocator_info.device, impl.device_header);
+        wis::detail::release_vk_device(allocator_info.device, impl.device_header);
         impl.allocator = nullptr;
     }
 }
@@ -97,15 +95,15 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateBuffer(const WisVK
                                                                      const WisBufferDesc*          desc,
                                                                      WisVKBuffer*                  buffer)
 {
-    auto& allocator = *reinterpret_cast<const VKResourceAllocatorImpl*>(self);
+    auto& allocator = *reinterpret_cast<const wis::impl::VKResourceAllocatorImpl*>(self);
 
     VkBufferCreateInfo buffer_info{
         .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-        .size  = aligned_size(desc->size_bytes, 265u), // align to uniform buffer alignment for safety
-        .usage = (VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | convert_vk(desc->usage_flags)),
+        .size  = wis::aligned_size(desc->size_bytes, 265u), // align to uniform buffer alignment for safety
+        .usage = (VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | wis::detail::convert_vk(desc->usage_flags)),
     };
 
-    VmaAllocationCreateFlags flags = convert_vk(desc->memory_flags);
+    VmaAllocationCreateFlags flags = wis::detail::convert_vk(desc->memory_flags);
     if (desc->memory_flags & WisMemoryFlagsMapped) {
         switch (desc->memory_type) {
         case WisMemoryTypeUpload:
@@ -124,7 +122,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateBuffer(const WisVK
     VmaAllocationCreateInfo alloc_info{
         .flags         = flags,
         .usage         = VmaMemoryUsage::VMA_MEMORY_USAGE_AUTO,
-        .requiredFlags = convert_vk(desc->memory_type)
+        .requiredFlags = wis::detail::convert_vk(desc->memory_type)
     };
     VkBuffer      buffer_handle     = VK_NULL_HANDLE;
     VmaAllocation allocation_handle = VK_NULL_HANDLE;
@@ -135,27 +133,27 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateBuffer(const WisVK
             &buffer_handle,
             &allocation_handle,
             nullptr);
-    if (!succeeded(vr)) {
-        return make_result<Func(), "Buffer creation failed">(vr);
+    if (!wis::detail::succeeded(vr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Buffer creation failed">(vr);
     }
 
     void* mapped_ptr = nullptr;
     if (desc->memory_flags & WisMemoryFlagsMapped) {
         vr = vmaMapMemory(allocator.allocator, allocation_handle, &mapped_ptr);
-        if (!succeeded(vr)) {
+        if (!wis::detail::succeeded(vr)) {
             vmaDestroyBuffer(allocator.allocator, buffer_handle, allocation_handle);
-            return make_result<Func(), "Buffer memory mapping failed">(vr);
+            return wis::detail::make_result<wis::detail::Func(), "Buffer memory mapping failed">(vr);
         }
     }
 
-    auto& impl         = *new (buffer) VKBufferImpl;
+    auto& impl         = *new (buffer) wis::impl::VKBufferImpl;
     impl.buffer        = buffer_handle;
     impl.mapped_ptr    = mapped_ptr;
     impl.allocation    = allocation_handle;
     impl.device_header = allocator.device_header;
     impl.device_header->AddRef();
 
-    return vk_success;
+    return wis::detail::vk_success;
 }
 
 //-----------------------------------------------------------------------------
@@ -163,19 +161,19 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateTexture(const WisV
                                                                       const WisTextureDesc*         desc,
                                                                       WisVKTexture*                 buffer)
 {
-    auto& allocator = *reinterpret_cast<const VKResourceAllocatorImpl*>(self);
+    auto& allocator = *reinterpret_cast<const wis::impl::VKResourceAllocatorImpl*>(self);
     // Check memory type, you can't create a texture with upload or readback memory types
     if (desc->memory_type == WisMemoryTypeUpload || desc->memory_type == WisMemoryTypeReadback) {
-        return make_result<Func(), "Invalid memory type for texture creation">(VK_ERROR_UNKNOWN);
+        return wis::detail::make_result<wis::detail::Func(), "Invalid memory type for texture creation">(VK_ERROR_UNKNOWN);
     }
 
-    VkImageCreateInfo image_info = detail::VKFillImageDesc(*desc);
+    VkImageCreateInfo image_info = wis::detail::VKFillImageDesc(*desc);
 
-    VmaAllocationCreateFlags flags = convert_vk(desc->memory_flags) & ~VMA_ALLOCATION_CREATE_MAPPED_BIT;
+    VmaAllocationCreateFlags flags = wis::detail::convert_vk(desc->memory_flags) & ~VMA_ALLOCATION_CREATE_MAPPED_BIT;
     VmaAllocationCreateInfo  alloc_info{
          .flags         = flags,
          .usage         = VmaMemoryUsage::VMA_MEMORY_USAGE_AUTO,
-         .requiredFlags = convert_vk(desc->memory_type)
+         .requiredFlags = wis::detail::convert_vk(desc->memory_type)
     };
     VkImage       image_handle      = VK_NULL_HANDLE;
     VmaAllocation allocation_handle = VK_NULL_HANDLE;
@@ -186,17 +184,17 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateTexture(const WisV
             &image_handle,
             &allocation_handle,
             nullptr);
-    if (!succeeded(vr)) {
-        return make_result<Func(), "Buffer creation failed">(vr);
+    if (!wis::detail::succeeded(vr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Buffer creation failed">(vr);
     }
 
-    auto& impl         = *new (buffer) VKTextureImpl;
+    auto& impl         = *new (buffer) wis::impl::VKTextureImpl;
     impl.image         = image_handle;
     impl.allocation    = allocation_handle;
     impl.device_header = allocator.device_header;
     impl.device_header->AddRef();
 
-    return vk_success;
+    return wis::detail::vk_success;
 }
 
 #endif // WIS_VK_RESOURCE_ALLOCATOR_CPP

@@ -138,7 +138,7 @@ public:
         auto* cmd_list_i = static_cast<ID3D12GraphicsCommandList4*>(std::get<0>(cmd_list));
         cmd_list_i->CopyRaytracingAccelerationStructure(std::get<0>(dst),
                                                         std::get<0>(src),
-                                                        convert_dx(mode));
+                                                        wis::detail::convert_dx(mode));
     }
 
     void BuildTopLevelAS(wis::DX12CommandListView           cmd_list,
@@ -202,15 +202,15 @@ public:
 DX12CreateGeometryDesc(const wis::AcceleratedGeometryInput& desc) noexcept
 {
     D3D12_RAYTRACING_GEOMETRY_DESC geometry{
-        .Type  = convert_dx(desc.geometry_type),
-        .Flags = convert_dx(desc.flags),
+        .Type  = wis::detail::convert_dx(desc.geometry_type),
+        .Flags = wis::detail::convert_dx(desc.flags),
     };
     switch (desc.geometry_type) {
     case wis::ASGeometryType::Triangles:
         geometry.Triangles = {
             .Transform3x4 = desc.transform_matrix_address,
-            .IndexFormat  = convert_dx(desc.index_format),
-            .VertexFormat = convert_dx(desc.vertex_format),
+            .IndexFormat  = wis::detail::convert_dx(desc.index_format),
+            .VertexFormat = wis::detail::convert_dx(desc.vertex_format),
             .IndexCount   = desc.triangle_or_aabb_count * 3,
             .VertexCount  = desc.vertex_count,
             .IndexBuffer  = desc.index_buffer_address,

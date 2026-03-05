@@ -18,8 +18,8 @@ wis::ImplDX12ResourceAllocator::CreateBuffer(wis::Result& result, uint64_t size,
     DX12FillBufferDesc(size, usage, buffer_desc);
 
     D3D12MA::ALLOCATION_DESC all_desc{
-        .Flags    = convert_dx(mem_flags),
-        .HeapType = convert_dx(memory),
+        .Flags    = wis::detail::convert_dx(mem_flags),
+        .HeapType = wis::detail::convert_dx(memory),
     };
     if (usage & wis::BufferUsage::AccelerationStructureBuffer) {
         return DX12CreateResource2(result, all_desc, buffer_desc, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE);
@@ -33,8 +33,8 @@ wis::ImplDX12ResourceAllocator::CreateTexture(wis::Result& result, const wis::Te
     DX12FillTextureDesc(desc, tex_desc);
 
     D3D12MA::ALLOCATION_DESC all_desc{
-        .Flags    = convert_dx(mem_flags),
-        .HeapType = convert_dx(memory),
+        .Flags    = wis::detail::convert_dx(mem_flags),
+        .HeapType = wis::detail::convert_dx(memory),
     };
 
     return DX12CreateResource(result, all_desc, tex_desc, D3D12_RESOURCE_STATE_COMMON);
@@ -98,8 +98,8 @@ wis::ImplDX12ResourceAllocator::AllocateTextureMemory(wis::Result& result, uint6
     });
 
     D3D12MA::ALLOCATION_DESC all_desc{
-        .Flags          = convert_dx(mem_flags),
-        .HeapType       = convert_dx(memory),
+        .Flags          = wis::detail::convert_dx(mem_flags),
+        .HeapType       = wis::detail::convert_dx(memory),
         .ExtraHeapFlags = flags
     };
 
@@ -135,8 +135,8 @@ wis::ImplDX12ResourceAllocator::AllocateBufferMemory(wis::Result& result, uint64
 
     auto                     info = GetBufferAllocationInfo(size, usage);
     D3D12MA::ALLOCATION_DESC all_desc{
-        .Flags          = convert_dx(mem_flags),
-        .HeapType       = convert_dx(memory),
+        .Flags          = wis::detail::convert_dx(mem_flags),
+        .HeapType       = wis::detail::convert_dx(memory),
         .ExtraHeapFlags = flags
     };
 
@@ -230,80 +230,80 @@ void wis::ImplDX12ResourceAllocator::DX12FillBufferDesc(uint64_t size, BufferUsa
 {
     uint64_t alignment = flags & wis::BufferUsage::ConstantBuffer ? D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT : 1;
     size               = wis::detail::aligned_size(size, alignment);
-    info               = CD3DX12_RESOURCE_DESC1::Buffer(size, convert_dx(flags));
+    info               = CD3DX12_RESOURCE_DESC1::Buffer(size, wis::detail::convert_dx(flags));
 }
 void wis::ImplDX12ResourceAllocator::DX12FillTextureDesc(const TextureDesc& desc, D3D12_RESOURCE_DESC1& info) noexcept
 {
     switch (desc.layout) {
     case wis::TextureLayout::Texture1D:
         info = CD3DX12_RESOURCE_DESC1::Tex1D(
-                convert_dx(desc.format),
+                wis::detail::convert_dx(desc.format),
                 desc.size.width,
                 uint16_t(1),
                 uint16_t(desc.mip_levels),
-                convert_dx(desc.usage));
+                wis::detail::convert_dx(desc.usage));
         break;
     default:
     case wis::TextureLayout::Texture2D:
         info = CD3DX12_RESOURCE_DESC1::Tex2D(
-                convert_dx(desc.format),
+                wis::detail::convert_dx(desc.format),
                 desc.size.width,
                 desc.size.height,
                 uint16_t(1),
                 uint16_t(desc.mip_levels),
                 1,
                 0,
-                convert_dx(desc.usage));
+                wis::detail::convert_dx(desc.usage));
         break;
     case wis::TextureLayout::Texture3D:
         info = CD3DX12_RESOURCE_DESC1::Tex3D(
-                convert_dx(desc.format),
+                wis::detail::convert_dx(desc.format),
                 desc.size.width,
                 desc.size.height,
                 uint16_t(desc.size.depth_or_layers),
                 uint16_t(desc.mip_levels),
-                convert_dx(desc.usage));
+                wis::detail::convert_dx(desc.usage));
         break;
     case wis::TextureLayout::Texture1DArray:
         info = CD3DX12_RESOURCE_DESC1::Tex1D(
-                convert_dx(desc.format),
+                wis::detail::convert_dx(desc.format),
                 desc.size.width,
                 uint16_t(desc.size.depth_or_layers),
                 uint16_t(desc.mip_levels),
-                convert_dx(desc.usage));
+                wis::detail::convert_dx(desc.usage));
         break;
     case wis::TextureLayout::Texture2DArray:
         info = CD3DX12_RESOURCE_DESC1::Tex2D(
-                convert_dx(desc.format),
+                wis::detail::convert_dx(desc.format),
                 desc.size.width,
                 desc.size.height,
                 uint16_t(desc.size.depth_or_layers),
                 uint16_t(desc.mip_levels),
                 1,
                 0,
-                convert_dx(desc.usage));
+                wis::detail::convert_dx(desc.usage));
         break;
     case wis::TextureLayout::Texture2DMS:
         info = CD3DX12_RESOURCE_DESC1::Tex2D(
-                convert_dx(desc.format),
+                wis::detail::convert_dx(desc.format),
                 desc.size.width,
                 desc.size.height,
                 uint16_t(1),
                 uint16_t(1),
-                convert_dx(desc.sample_count),
+                wis::detail::convert_dx(desc.sample_count),
                 4,
-                convert_dx(desc.usage));
+                wis::detail::convert_dx(desc.usage));
         break;
     case wis::TextureLayout::Texture2DMSArray:
         info = CD3DX12_RESOURCE_DESC1::Tex2D(
-                convert_dx(desc.format),
+                wis::detail::convert_dx(desc.format),
                 desc.size.width,
                 desc.size.height,
                 uint16_t(desc.size.depth_or_layers),
                 uint16_t(1),
-                convert_dx(desc.sample_count),
+                wis::detail::convert_dx(desc.sample_count),
                 4,
-                convert_dx(desc.usage));
+                wis::detail::convert_dx(desc.usage));
         break;
     }
 }

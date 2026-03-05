@@ -37,14 +37,14 @@ constexpr WisStatus convert_dx(const HRESULT hr) noexcept
  * @tparam func A compile-time pair of indices representing the start and end positions of the function name in the source location's function name string. This is used to extract the function name for the error message.
  * @tparam message A compile-time fixed string that provides additional context about the error. This message is included in the generated error string to give more information about the failure.
  * @param hr The HRESULT value returned by a DirectX 12 function call that indicates the result of the operation.
- * @param sl The source location information, which defaults to the current location where make_result is called. This is used to extract the function name for the error message.
+ * @param sl The source location information, which defaults to the current location where wis::detail::make_result is called. This is used to extract the function name for the error message.
  * @return A WisResult object that contains the converted WisStatus, original HRESULT, and a descriptive error message that includes both the function name and the custom message.
  */
 template<func_pair func, wis::fixed_string message>
 WIS_CONSTEXPR23 inline WisResult make_result(HRESULT hr, std::source_location sl = std::source_location::current()) noexcept
 {
     static const auto str = wis::detail::make_error_string<message, func>(sl);
-    return { convert_dx(hr), hr, str.c_str() };
+    return { wis::detail::convert_dx(hr), hr, str.c_str() };
 }
 
 //-----------------------------------------------------------------------------

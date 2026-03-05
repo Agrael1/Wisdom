@@ -23,7 +23,7 @@ wis::Result wis::detail::DX12SwapChainCreateInfo::InitBackBuffers() noexcept
 
     for (uint32_t n = 0; n < frame_count; n++) {
         auto& bb_internal = back_buffers[n].GetMutableInternal();
-        if (!succeeded(chain->GetBuffer(n, __uuidof(*bb_internal.resource), bb_internal.resource.put_void()))) {
+        if (!wis::detail::succeeded(chain->GetBuffer(n, __uuidof(*bb_internal.resource), bb_internal.resource.put_void()))) {
             back_buffer_count = n + 1;
             break;
         }
@@ -54,7 +54,7 @@ wis::Result wis::ImplDX12SwapChain::Resize(uint32_t width, uint32_t height) noex
 
     for (uint32_t n = 0; n < back_buffer_count; n++) {
         auto& bb_internal = back_buffers[n].GetMutableInternal();
-        if (!succeeded(chain->GetBuffer(n, __uuidof(*bb_internal.resource), bb_internal.resource.put_void()))) {
+        if (!wis::detail::succeeded(chain->GetBuffer(n, __uuidof(*bb_internal.resource), bb_internal.resource.put_void()))) {
             back_buffer_count = n + 1;
             break;
         }

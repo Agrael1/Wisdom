@@ -21,10 +21,10 @@
 inline wis::detail::QueueResidency
 GetQueueFamilies(VkPhysicalDevice adapter, const wis::VKMainInstance& itable) noexcept
 {
-    using namespace wis::detail;
+    
     using wis::operator+;
 
-    VkResult result = VK_SUCCESS;
+    VkResult result = wis::detail::vk_success;
     uint32_t count  = 0;
     itable.vkGetPhysicalDeviceQueueFamilyProperties(adapter, &count, nullptr);
     auto family_props = wis::detail::make_fixed_allocation<VkQueueFamilyProperties>(count);
@@ -388,7 +388,7 @@ wis::ImplVKDevice::CreateFence(wis::Result& result, uint64_t initial_value, wis:
 
     VkResult vr = device.table().vkCreateSemaphore(device.get(), &desc, nullptr, internal.fence.put(device, device.table().vkDestroySemaphore));
 
-    if (!succeeded(vr)) {
+    if (!wis::detail::succeeded(vr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "vkCreateSemaphore failed to create a timeline semaphore.">(vr);
         return out_fence;
     }
@@ -470,7 +470,7 @@ wis::ImplVKDevice::CreateGraphicsPipeline(wis::Result& result, const wis::VKGrap
         auto& ia    = ia_data[i];
         auto& a     = desc.input_layout.attributes[i];
         ia.binding  = a.input_slot;
-        ia.format   = convert_vk(a.format);
+        ia.format   = wis::detail::convert_vk(a.format);
         ia.location = a.location;
         ia.offset   = a.offset_bytes;
     }
@@ -520,9 +520,9 @@ wis::ImplVKDevice::CreateGraphicsPipeline(wis::Result& result, const wis::VKGrap
             .flags                   = 0,
             .depthClampEnable        = desc.rasterizer->depth_clip_enable,
             .rasterizerDiscardEnable = false,
-            .polygonMode             = convert_vk(desc.rasterizer->fill_mode),
-            .cullMode                = convert_vk(desc.rasterizer->cull_mode),
-            .frontFace               = convert_vk(desc.rasterizer->front_face),
+            .polygonMode             = wis::detail::convert_vk(desc.rasterizer->fill_mode),
+            .cullMode                = wis::detail::convert_vk(desc.rasterizer->cull_mode),
+            .frontFace               = wis::detail::convert_vk(desc.rasterizer->front_face),
             .depthBiasEnable         = desc.rasterizer->depth_bias_enable,
             .depthBiasConstantFactor = desc.rasterizer->depth_bias,
             .depthBiasClamp          = desc.rasterizer->depth_bias_clamp,
@@ -535,7 +535,7 @@ wis::ImplVKDevice::CreateGraphicsPipeline(wis::Result& result, const wis::VKGrap
         .sType                  = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
         .pNext                  = nullptr,
         .flags                  = 0,
-        .topology               = convert_vk(desc.topology_type),
+        .topology               = wis::detail::convert_vk(desc.topology_type),
         .primitiveRestartEnable = false,
     };
 
@@ -543,7 +543,7 @@ wis::ImplVKDevice::CreateGraphicsPipeline(wis::Result& result, const wis::VKGrap
     uint32_t rt_size = std::min(desc.attachments.attachments_count, wis::max_render_targets);
     VkFormat rt_formats[8]{};
     for (uint32_t i = 0; i < rt_size; i++) {
-        rt_formats[i] = convert_vk(desc.attachments.attachment_formats[i]);
+        rt_formats[i] = wis::detail::convert_vk(desc.attachments.attachment_formats[i]);
     }
 
     VkPipelineRenderingCreateInfo dynamic_rendering{
@@ -552,7 +552,7 @@ wis::ImplVKDevice::CreateGraphicsPipeline(wis::Result& result, const wis::VKGrap
         .viewMask                = ext1.GetFeatures().multiview ? desc.view_mask : 0,
         .colorAttachmentCount    = rt_size,
         .pColorAttachmentFormats = rt_formats,
-        .depthAttachmentFormat   = convert_vk(desc.attachments.depth_attachment),
+        .depthAttachmentFormat   = wis::detail::convert_vk(desc.attachments.depth_attachment),
         .stencilAttachmentFormat = VK_FORMAT_UNDEFINED // TODO: formats for pure stencils
     };
 
@@ -580,12 +580,12 @@ wis::ImplVKDevice::CreateGraphicsPipeline(wis::Result& result, const wis::VKGrap
                 auto& a               = blend.attachments[i];
                 auto& b               = color_blend_attachment[i];
                 b.blendEnable         = a.blend_enable;
-                b.srcColorBlendFactor = convert_vk(a.src_color_blend);
-                b.dstColorBlendFactor = convert_vk(a.dst_color_blend);
-                b.colorBlendOp        = convert_vk(a.color_blend_op);
-                b.srcAlphaBlendFactor = convert_vk(a.src_alpha_blend);
-                b.dstAlphaBlendFactor = convert_vk(a.dst_alpha_blend);
-                b.alphaBlendOp        = convert_vk(a.alpha_blend_op);
+                b.srcColorBlendFactor = wis::detail::convert_vk(a.src_color_blend);
+                b.dstColorBlendFactor = wis::detail::convert_vk(a.dst_color_blend);
+                b.colorBlendOp        = wis::detail::convert_vk(a.color_blend_op);
+                b.srcAlphaBlendFactor = wis::detail::convert_vk(a.src_alpha_blend);
+                b.dstAlphaBlendFactor = wis::detail::convert_vk(a.dst_alpha_blend);
+                b.alphaBlendOp        = wis::detail::convert_vk(a.alpha_blend_op);
                 b.colorWriteMask      = VkColorComponentFlags(a.color_write_mask);
             }
         }
@@ -595,7 +595,7 @@ wis::ImplVKDevice::CreateGraphicsPipeline(wis::Result& result, const wis::VKGrap
             .pNext           = nullptr,
             .flags           = 0,
             .logicOpEnable   = blend.logic_op_enable,
-            .logicOp         = convert_vk(blend.logic_op),
+            .logicOp         = wis::detail::convert_vk(blend.logic_op),
             .attachmentCount = blend.logic_op_enable ? 0u : blend.attachment_count,
             .pAttachments    = blend.logic_op_enable ? nullptr : color_blend_attachment,
             .blendConstants  = { 0.0f, 0.0f, 0.0f, 0.0f },
@@ -631,7 +631,7 @@ wis::ImplVKDevice::CreateGraphicsPipeline(wis::Result& result, const wis::VKGrap
             .sType                 = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
             .pNext                 = nullptr,
             .flags                 = 0,
-            .rasterizationSamples  = convert_vk(desc.sample->rate),
+            .rasterizationSamples  = wis::detail::convert_vk(desc.sample->rate),
             .sampleShadingEnable   = true,
             .minSampleShading      = desc.sample->quality,
             .pSampleMask           = &desc.sample->sample_mask,
@@ -658,25 +658,25 @@ wis::ImplVKDevice::CreateGraphicsPipeline(wis::Result& result, const wis::VKGrap
             .flags                 = 0,
             .depthTestEnable       = ds.depth_enable,
             .depthWriteEnable      = ds.depth_write_enable,
-            .depthCompareOp        = convert_vk(ds.depth_comp),
+            .depthCompareOp        = wis::detail::convert_vk(ds.depth_comp),
             .depthBoundsTestEnable = ds.depth_bound_test,
             .stencilTestEnable     = ds.stencil_enable,
             .front =
                     VkStencilOpState{
-                                     .failOp      = convert_vk(ds.stencil_front.fail_op),
-                                     .passOp      = convert_vk(ds.stencil_front.pass_op),
-                                     .depthFailOp = convert_vk(ds.stencil_front.depth_fail_op),
-                                     .compareOp   = convert_vk(ds.stencil_front.comparison),
+                                     .failOp      = wis::detail::convert_vk(ds.stencil_front.fail_op),
+                                     .passOp      = wis::detail::convert_vk(ds.stencil_front.pass_op),
+                                     .depthFailOp = wis::detail::convert_vk(ds.stencil_front.depth_fail_op),
+                                     .compareOp   = wis::detail::convert_vk(ds.stencil_front.comparison),
                                      .compareMask = ds.stencil_front.read_mask,
                                      .writeMask   = ds.stencil_front.write_mask,
                                      .reference   = 0,
                                      },
             .back =
                     VkStencilOpState{
-                                     .failOp      = convert_vk(ds.stencil_back.fail_op),
-                                     .passOp      = convert_vk(ds.stencil_back.pass_op),
-                                     .depthFailOp = convert_vk(ds.stencil_back.depth_fail_op),
-                                     .compareOp   = convert_vk(ds.stencil_back.comparison),
+                                     .failOp      = wis::detail::convert_vk(ds.stencil_back.fail_op),
+                                     .passOp      = wis::detail::convert_vk(ds.stencil_back.pass_op),
+                                     .depthFailOp = wis::detail::convert_vk(ds.stencil_back.depth_fail_op),
+                                     .compareOp   = wis::detail::convert_vk(ds.stencil_back.comparison),
                                      .compareMask = ds.stencil_back.read_mask,
                                      .writeMask   = ds.stencil_back.write_mask,
                                      .reference   = 0,
@@ -710,7 +710,7 @@ wis::ImplVKDevice::CreateGraphicsPipeline(wis::Result& result, const wis::VKGrap
         .pDynamicStates    = dynamic_state_enables.data()
     };
 
-    VkPipelineCreateFlags flags = convert_vk(desc.flags);
+    VkPipelineCreateFlags flags = wis::detail::convert_vk(desc.flags);
 
     VkGraphicsPipelineCreateInfo info{
         .sType               = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
@@ -730,7 +730,7 @@ wis::ImplVKDevice::CreateGraphicsPipeline(wis::Result& result, const wis::VKGrap
     };
 
     auto vr = device.table().vkCreateGraphicsPipelines(device.get(), nullptr, 1u, &info, nullptr, internal.pipeline.put_unsafe(device, device.table().vkDestroyPipeline));
-    if (!succeeded(vr)) {
+    if (!wis::detail::succeeded(vr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create a graphics pipeline">(vr);
     }
     return out_pipeline;
@@ -755,7 +755,7 @@ wis::ImplVKDevice::CreateComputePipeline(wis::Result& result, const wis::VKCompu
         .basePipelineIndex  = -1,
     };
     auto vr = device.table().vkCreateComputePipelines(device.get(), nullptr, 1u, &info, nullptr, internal.pipeline.put_unsafe(device, device.table().vkDestroyPipeline));
-    if (!succeeded(vr)) {
+    if (!wis::detail::succeeded(vr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create a compute pipeline">(vr);
     }
     return out_pipeline;
@@ -777,7 +777,7 @@ wis::ImplVKDevice::CreateCommandList(wis::Result& result, wis::QueueType type) c
     wis::scoped_handle<VkCommandPool> cmd_pool;
     auto                              vr =
             dtable.vkCreateCommandPool(device.get(), &cmd_pool_create_info, nullptr, cmd_pool.put(device.get(), dtable.vkDestroyCommandPool));
-    if (!succeeded(vr)) {
+    if (!wis::detail::succeeded(vr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create a command pool">(vr);
         return out_list;
     }
@@ -791,7 +791,7 @@ wis::ImplVKDevice::CreateCommandList(wis::Result& result, wis::QueueType type) c
     };
 
     vr = dtable.vkAllocateCommandBuffers(device.get(), &cmd_buf_alloc_info, &internal.command_list);
-    if (!succeeded(vr)) {
+    if (!wis::detail::succeeded(vr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to allocate a command buffer">(vr);
         return out_list;
     }
@@ -806,7 +806,7 @@ wis::ImplVKDevice::CreateCommandList(wis::Result& result, wis::QueueType type) c
         .pInheritanceInfo = nullptr,
     };
     vr = dtable.vkBeginCommandBuffer(internal.command_list, &desc);
-    if (!succeeded(vr)) {
+    if (!wis::detail::succeeded(vr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "vkBeginCommandBuffer failed">(vr);
     }
     return out_list;
@@ -827,7 +827,7 @@ wis::ImplVKDevice::CreateShader(wis::Result& result, void* bytecode, uint32_t si
     };
     auto vr = device.table().vkCreateShaderModule(device.get(), &desc, nullptr, internal.shader.put(device, device.table().vkDestroyShaderModule));
 
-    if (!succeeded(vr)) {
+    if (!wis::detail::succeeded(vr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create a shader module">(vr);
     }
     return out_shader;
@@ -925,7 +925,7 @@ wis::ImplVKDevice::VKCreateAllocator(wis::Result& result, bool interop) const no
     wis::shared_handle<VmaAllocator> out_allocator;
     VkResult                         vr = vmaCreateAllocator(&allocatorInfo, out_allocator.put_unsafe(device));
 
-    if (!succeeded(vr)) {
+    if (!wis::detail::succeeded(vr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create an Allocator">(vr);
     }
     return out_allocator;
@@ -953,7 +953,7 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface sur
 
             VkBool32 supported = false;
             auto     vr        = itable.vkGetPhysicalDeviceSurfaceSupportKHR(hadapter, x.family_index, surface.get(), &supported);
-            if (!succeeded(vr)) {
+            if (!wis::detail::succeeded(vr)) {
                 result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to check if the queue supports presentation to the surface">(vr);
                 return out_swapchain;
             }
@@ -988,13 +988,13 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface sur
     }
     auto vr = itable.vkGetPhysicalDeviceSurfaceFormatsKHR(hadapter, surface.get(), &format_count, surface_formats.get());
 
-    if (!succeeded(vr)) {
+    if (!wis::detail::succeeded(vr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to get surface formats">(vr);
         return out_swapchain;
     }
 
     auto format = std::ranges::find_if(surface_formats, [=](VkSurfaceFormatKHR fmt) {
-        return fmt.format == convert_vk(desc.format);
+        return fmt.format == wis::detail::convert_vk(desc.format);
     });
 
     if (format == surface_formats.end() || format->format == VkFormat::VK_FORMAT_UNDEFINED) {
@@ -1004,7 +1004,7 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface sur
 
     VkSurfaceCapabilitiesKHR cap{};
     vr = itable.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(hadapter, surface.get(), &cap);
-    if (!succeeded(vr)) {
+    if (!wis::detail::succeeded(vr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to get surface capabilities">(vr);
         return out_swapchain;
     }
@@ -1044,7 +1044,7 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface sur
     VkSwapchainPresentScalingCreateInfoEXT scaling_create_info{
         .sType           = VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_EXT,
         .pNext           = nullptr,
-        .scalingBehavior = convert_vk(desc.scaling),
+        .scalingBehavior = wis::detail::convert_vk(desc.scaling),
         .presentGravityX = VK_PRESENT_GRAVITY_CENTERED_BIT_EXT,
         .presentGravityY = VK_PRESENT_GRAVITY_CENTERED_BIT_EXT
     };
@@ -1055,7 +1055,7 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface sur
         .flags           = 0,
         .surface         = surface.get(),
         .minImageCount   = desc.buffer_count,
-        .imageFormat     = convert_vk(desc.format),
+        .imageFormat     = wis::detail::convert_vk(desc.format),
         .imageColorSpace = format->colorSpace,
         .imageExtent     = {
                             std::clamp(desc.size.width, cap.minImageExtent.width, cap.maxImageExtent.width),
@@ -1082,7 +1082,7 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface sur
     wis::scoped_handle<VkSwapchainKHR> swapchain;
     vr = dtable.vkCreateSwapchainKHR(device.get(), &swap_info, nullptr, swapchain.put(device.get(), dtable.vkDestroySwapchainKHR));
 
-    if (!succeeded(vr)) {
+    if (!wis::detail::succeeded(vr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create a swapchain">(vr);
         return out_swapchain;
     }
@@ -1096,7 +1096,7 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface sur
     };
     wis::scoped_handle<VkCommandPool> cmd_pool;
     vr = dtable.vkCreateCommandPool(device.get(), &cmd_pool_create_info, nullptr, cmd_pool.put(device.get(), dtable.vkDestroyCommandPool));
-    if (!succeeded(vr)) {
+    if (!wis::detail::succeeded(vr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create a command pool">(vr);
         return out_swapchain;
     }
@@ -1111,7 +1111,7 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface sur
 
     VkCommandBuffer cmd_buf;
     vr = dtable.vkAllocateCommandBuffers(device.get(), &cmd_buf_alloc_info, &cmd_buf);
-    if (!succeeded(vr)) {
+    if (!wis::detail::succeeded(vr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to allocate a command buffer">(vr);
         return out_swapchain;
     }
@@ -1199,7 +1199,7 @@ wis::ImplVKDevice::CreateRenderTarget(wis::Result& result, wis::VKTextureView te
     VKRenderTarget out_render_target;
     auto&          internal = out_render_target.GetMutableInternal();
 
-    auto                  vk_format = convert_vk(desc.format);
+    auto                  vk_format = wis::detail::convert_vk(desc.format);
     VkImageViewCreateInfo info{
         .sType  = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
         .pNext  = nullptr,
@@ -1277,7 +1277,7 @@ wis::ImplVKDevice::CreateRenderTarget(wis::Result& result, wis::VKTextureView te
     }
 
     auto vr = device.table().vkCreateImageView(device.get(), &info, nullptr, internal.view.put(device, device.table().vkDestroyImageView));
-    if (!succeeded(vr)) {
+    if (!wis::detail::succeeded(vr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create an image view">(vr);
         return out_render_target;
     }
@@ -1347,24 +1347,24 @@ wis::ImplVKDevice::CreateSampler(wis::Result& result, const wis::SamplerDesc& de
         .sType            = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
         .pNext            = &custom_border_color,
         .flags            = 0,
-        .magFilter        = convert_vk(desc.mag_filter),
-        .minFilter        = convert_vk(desc.min_filter),
+        .magFilter        = wis::detail::convert_vk(desc.mag_filter),
+        .minFilter        = wis::detail::convert_vk(desc.min_filter),
         .mipmapMode       = VkSamplerMipmapMode(desc.mip_filter),
-        .addressModeU     = convert_vk(desc.address_u),
-        .addressModeV     = convert_vk(desc.address_v),
-        .addressModeW     = convert_vk(desc.address_w),
+        .addressModeU     = wis::detail::convert_vk(desc.address_u),
+        .addressModeV     = wis::detail::convert_vk(desc.address_v),
+        .addressModeW     = wis::detail::convert_vk(desc.address_w),
         .mipLodBias       = desc.mip_lod_bias,
         .anisotropyEnable = desc.anisotropic,
         .maxAnisotropy    = float(desc.max_anisotropy),
         .compareEnable    = desc.comparison_op != wis::Compare::Never,
-        .compareOp        = convert_vk(desc.comparison_op),
+        .compareOp        = wis::detail::convert_vk(desc.comparison_op),
         .minLod           = desc.min_lod,
         .maxLod           = desc.max_lod,
         .borderColor      = VkBorderColor::VK_BORDER_COLOR_FLOAT_CUSTOM_EXT
     };
 
     auto vr = device.table().vkCreateSampler(device.get(), &info, nullptr, internal.sampler.put(device, device.table().vkDestroySampler));
-    if (!succeeded(vr)) {
+    if (!wis::detail::succeeded(vr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create a sampler">(vr);
     }
     return out_sampler;
@@ -1380,16 +1380,16 @@ wis::ImplVKDevice::CreateShaderResource(wis::Result& result, wis::VKTextureView 
         .sType      = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
         .pNext      = nullptr,
         .image      = std::get<0>(texture),
-        .viewType   = convert_vk(desc.view_type),
-        .format     = convert_vk(desc.format),
+        .viewType   = wis::detail::convert_vk(desc.view_type),
+        .format     = wis::detail::convert_vk(desc.format),
         .components = {
-                       .r = convert_vk(desc.component_mapping.r),
-                       .g = convert_vk(desc.component_mapping.g),
-                       .b = convert_vk(desc.component_mapping.b),
-                       .a = convert_vk(desc.component_mapping.a),
+                       .r = wis::detail::convert_vk(desc.component_mapping.r),
+                       .g = wis::detail::convert_vk(desc.component_mapping.g),
+                       .b = wis::detail::convert_vk(desc.component_mapping.b),
+                       .a = wis::detail::convert_vk(desc.component_mapping.a),
                        },
         .subresourceRange = {
-                       .aspectMask = aspect_flags(convert_vk(desc.format)),
+                       .aspectMask = aspect_flags(wis::detail::convert_vk(desc.format)),
                        },
     };
 
@@ -1442,7 +1442,7 @@ wis::ImplVKDevice::CreateShaderResource(wis::Result& result, wis::VKTextureView 
     }
 
     auto res = device.table().vkCreateImageView(device.get(), &info, nullptr, internal.view.put(device, device.table().vkDestroyImageView));
-    if (!succeeded(res)) {
+    if (!wis::detail::succeeded(res)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create an image view">(res);
     }
     return out_resource;
@@ -1476,7 +1476,7 @@ wis::ImplVKDevice::CreateDescriptorStorage(wis::Result&                      res
     std::span<uint32_t>              pool_size_data{ reinterpret_cast<uint32_t*>(pool_sizes.data() + descriptor_bindings_count), descriptor_bindings_count }; // For variable descriptor count
 
     for (size_t i = 0; i < descriptor_bindings_count; i++) {
-        pool_sizes[i].type            = convert_vk(descriptor_bindings[i].binding_type);
+        pool_sizes[i].type            = wis::detail::convert_vk(descriptor_bindings[i].binding_type);
         pool_sizes[i].descriptorCount = descriptor_bindings[i].binding_count;
         pool_size_data[i]             = descriptor_bindings[i].binding_count;
     }
@@ -1491,7 +1491,7 @@ wis::ImplVKDevice::CreateDescriptorStorage(wis::Result&                      res
     };
     wis::scoped_handle<VkDescriptorPool> pool;
     auto                                 res = device.table().vkCreateDescriptorPool(device.get(), &pool_info, nullptr, pool.put(device.get(), device.table().vkDestroyDescriptorPool));
-    if (!succeeded(res)) {
+    if (!wis::detail::succeeded(res)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create a descriptor pool">(res);
         return out_storage;
     }
@@ -1517,13 +1517,13 @@ wis::ImplVKDevice::CreateDescriptorStorage(wis::Result&                      res
     };
 
     for (uint32_t i = 0; i < descriptor_bindings_count; i++) {
-        binding_layout.descriptorType  = convert_vk(descriptor_bindings[i].binding_type);
+        binding_layout.descriptorType  = wis::detail::convert_vk(descriptor_bindings[i].binding_type);
         binding_layout.descriptorCount = descriptor_bindings[i].binding_type == wis::DescriptorType::Sampler
                 ? wis::max_descriptor_storage_sampler_count
                 : wis::max_descriptor_storage_resource_count; // Max descriptor count
 
         res = device.table().vkCreateDescriptorSetLayout(device.get(), &desc_layout_info, nullptr, &desc_layouts[i]);
-        if (!succeeded(res)) {
+        if (!wis::detail::succeeded(res)) {
             result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create a descriptor set layout">(res);
             for (uint32_t j = 0; j < i; j++) {
                 device.table().vkDestroyDescriptorSetLayout(device.get(), desc_layouts[j], nullptr);
@@ -1553,7 +1553,7 @@ wis::ImplVKDevice::CreateDescriptorStorage(wis::Result&                      res
     res = device.table().vkAllocateDescriptorSets(device.get(), &desc_alloc_info, internal.descriptor_sets.get());
 
     // Destroy descriptor set layouts
-    if (!succeeded(res)) {
+    if (!wis::detail::succeeded(res)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to allocate descriptor sets">(res);
         return out_storage;
     }
@@ -1590,9 +1590,9 @@ wis::ImplVKDevice::CreateRootSignature(wis::Result& result, const wis::PushConst
             auto& r           = push_descriptors[i];
             auto& b           = push_bindings[i];
             b.binding         = i;
-            b.descriptorType  = convert_vk(r.type);
+            b.descriptorType  = wis::detail::convert_vk(r.type);
             b.descriptorCount = 1; // Push descriptors are always single
-            b.stageFlags      = convert_vk(r.stage);
+            b.stageFlags      = wis::detail::convert_vk(r.stage);
         }
         VkDescriptorSetLayoutCreateInfo push_desc_info{
             .sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
@@ -1602,7 +1602,7 @@ wis::ImplVKDevice::CreateRootSignature(wis::Result& result, const wis::PushConst
             .pBindings    = push_bindings,
         };
         auto res = device.table().vkCreateDescriptorSetLayout(device.get(), &push_desc_info, nullptr, &internal.vk_dsls[0]);
-        if (!succeeded(res)) {
+        if (!wis::detail::succeeded(res)) {
             result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create a push descriptor set layout">(res);
             return out_signature;
         }
@@ -1630,13 +1630,13 @@ wis::ImplVKDevice::CreateRootSignature(wis::Result& result, const wis::PushConst
 
     auto desc_layouts = internal.vk_dsls.get() + 1;
     for (uint32_t i = 0; i < descriptor_bindings_count; i++) {
-        binding_layout.descriptorType  = convert_vk(descriptor_bindings[i].binding_type);
+        binding_layout.descriptorType  = wis::detail::convert_vk(descriptor_bindings[i].binding_type);
         binding_layout.descriptorCount = descriptor_bindings[i].binding_type == wis::DescriptorType::Sampler
                 ? wis::max_descriptor_storage_sampler_count
                 : wis::max_descriptor_storage_resource_count;
 
         auto res = device.table().vkCreateDescriptorSetLayout(device.get(), &desc_layout_info, nullptr, &desc_layouts[i]);
-        if (!succeeded(res)) {
+        if (!wis::detail::succeeded(res)) {
             result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create a descriptor set layout">(res);
             for (uint32_t j = 0; j < i; j++) {
                 device.table().vkDestroyDescriptorSetLayout(device.get(), desc_layouts[j], nullptr);
@@ -1650,7 +1650,7 @@ wis::ImplVKDevice::CreateRootSignature(wis::Result& result, const wis::PushConst
     for (uint32_t i = 0; i < constants_count; i++) {
         auto& c      = xpush_constants[i];
         auto& r      = push_constants[i];
-        c.stageFlags = convert_vk(r.stage);
+        c.stageFlags = wis::detail::convert_vk(r.stage);
         c.offset     = 0;
         c.size       = r.size_bytes;
     }
@@ -1665,7 +1665,7 @@ wis::ImplVKDevice::CreateRootSignature(wis::Result& result, const wis::PushConst
         .pPushConstantRanges    = xpush_constants,
     };
     auto vr = device.table().vkCreatePipelineLayout(device.get(), &pipeline_layout_info, nullptr, internal.root.put(device, device.table().vkDestroyPipelineLayout));
-    if (!succeeded(vr)) {
+    if (!wis::detail::succeeded(vr)) {
         // Destroy descriptor set layouts + push descriptor set layout
         for (uint32_t i = 0; i < descriptor_bindings_count + 1; i++) {
             device.table().vkDestroyDescriptorSetLayout(device.get(), desc_layouts[i], nullptr);

@@ -7,14 +7,13 @@
 #include <wisdom/dx12/detail/dx12_utils.hpp>
 #include <bit>
 
-using namespace wis;
-using namespace wis::impl;
-using namespace wis::detail;
+
+
 
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyCommandList(WisDX12CommandList* self)
 {
-    auto& impl = *reinterpret_cast<DX12CommandListImpl*>(self);
+    auto& impl = *reinterpret_cast<wis::impl::DX12CommandListImpl*>(self);
     if (!impl.list) {
         return;
     }
@@ -26,25 +25,25 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyCommandList(WisDX12CommandList* self)
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisDX12CommandListBegin(const WisDX12CommandList* self)
 {
-    auto& impl = *reinterpret_cast<const DX12CommandListImpl*>(self);
+    auto& impl = *reinterpret_cast<const wis::impl::DX12CommandListImpl*>(self);
     auto  hr   = impl.list->Reset(impl.allocator, nullptr);
-    if (!succeeded(hr)) {
-        return make_result<Func(), "Failed to reset command list for recording">(hr);
+    if (!wis::detail::succeeded(hr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to reset command list for recording">(hr);
     }
 
-    return dx_success;
+    return wis::detail::dx_success;
 }
 
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisDX12CommandListEnd(const WisDX12CommandList* self)
 {
-    auto& impl = *reinterpret_cast<const DX12CommandListImpl*>(self);
+    auto& impl = *reinterpret_cast<const wis::impl::DX12CommandListImpl*>(self);
     auto  hr   = impl.list->Close();
-    if (!succeeded(hr)) {
-        return make_result<Func(), "Failed to reset command list for recording">(hr);
+    if (!wis::detail::succeeded(hr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to reset command list for recording">(hr);
     }
 
-    return dx_success;
+    return wis::detail::dx_success;
 }
 
 //-----------------------------------------------------------------------------
@@ -52,17 +51,17 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetDescriptorHeaps(const WisDX12C
                                                                   const WisDX12DescriptorHeap* resource_heap,
                                                                   const WisDX12DescriptorHeap* sampler_heap)
 {
-    auto& impl = *reinterpret_cast<const DX12CommandListImpl*>(self);
+    auto& impl = *reinterpret_cast<const wis::impl::DX12CommandListImpl*>(self);
 
     uint32_t              heap_offset = (resource_heap == 0);
     uint32_t              heap_count  = (resource_heap != 0) + (sampler_heap != 0);
     ID3D12DescriptorHeap* heaps[]     = {
-        resource_heap ? reinterpret_cast<const DX12DescriptorHeapImpl*>(resource_heap)->descriptor_heap : nullptr,
-        sampler_heap ? reinterpret_cast<const DX12DescriptorHeapImpl*>(sampler_heap)->descriptor_heap : nullptr,
+        resource_heap ? reinterpret_cast<const wis::impl::DX12DescriptorHeapImpl*>(resource_heap)->descriptor_heap : nullptr,
+        sampler_heap ? reinterpret_cast<const wis::impl::DX12DescriptorHeapImpl*>(sampler_heap)->descriptor_heap : nullptr,
     };
 
-    impl.descriptor_handle = resource_heap ? reinterpret_cast<const DX12DescriptorHeapImpl*>(resource_heap)->gpu_handle : D3D12_GPU_DESCRIPTOR_HANDLE{ 0 };
-    impl.sampler_handle    = sampler_heap ? reinterpret_cast<const DX12DescriptorHeapImpl*>(sampler_heap)->gpu_handle : D3D12_GPU_DESCRIPTOR_HANDLE{ 0 };
+    impl.descriptor_handle = resource_heap ? reinterpret_cast<const wis::impl::DX12DescriptorHeapImpl*>(resource_heap)->gpu_handle : D3D12_GPU_DESCRIPTOR_HANDLE{ 0 };
+    impl.sampler_handle    = sampler_heap ? reinterpret_cast<const wis::impl::DX12DescriptorHeapImpl*>(sampler_heap)->gpu_handle : D3D12_GPU_DESCRIPTOR_HANDLE{ 0 };
 
     if (heap_count > 0) {
         impl.list->SetDescriptorHeaps(heap_count, heaps + heap_offset);
@@ -74,7 +73,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetRootSignature(const WisDX12Com
                                                                 WisDX12RootSignatureView  signature,
                                                                 WisPipelineType           pipeline)
 {
-    auto& impl = *reinterpret_cast<const DX12CommandListImpl*>(self);
+    auto& impl = *reinterpret_cast<const wis::impl::DX12CommandListImpl*>(self);
     auto* sig  = std::bit_cast<ID3D12RootSignature*>(signature);
 
     switch (pipeline) {
@@ -93,7 +92,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetRootSignature(const WisDX12Com
 WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetPushConstants(const WisDX12CommandList*      self,
                                                                 const WisPushConstantDataDesc* data)
 {
-    auto& impl = *reinterpret_cast<const DX12CommandListImpl*>(self);
+    auto& impl = *reinterpret_cast<const wis::impl::DX12CommandListImpl*>(self);
     switch (data->pipeline) {
     default:
     case WisPipelineTypeGraphics:
@@ -109,7 +108,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetPushConstants(const WisDX12Com
 WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetPushDescriptor(const WisDX12CommandList*        self,
                                                                  const WisPushDescriptorDataDesc* data)
 {
-    auto& impl = *reinterpret_cast<const DX12CommandListImpl*>(self);
+    auto& impl = *reinterpret_cast<const wis::impl::DX12CommandListImpl*>(self);
 
     switch (data->pipeline) {
     default:
@@ -152,7 +151,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetPushDescriptor(const WisDX12Co
 WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetDescriptorTable(const WisDX12CommandList*         self,
                                                                   const WisDescriptorTableDataDesc* data)
 {
-    auto& impl   = *reinterpret_cast<const DX12CommandListImpl*>(self);
+    auto& impl   = *reinterpret_cast<const wis::impl::DX12CommandListImpl*>(self);
     auto  handle = (data->heap_type == WisDescriptorHeapTypeSampler) ? impl.sampler_handle : impl.descriptor_handle;
     auto  stride = (data->heap_type == WisDescriptorHeapTypeSampler) ? impl.sampler_size : impl.descriptor_size;
     switch (data->pipeline) {

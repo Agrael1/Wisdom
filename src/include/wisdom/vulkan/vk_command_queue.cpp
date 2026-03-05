@@ -7,16 +7,15 @@
 #include <wisdom/vulkan/detail/vk_utils.hpp>
 #include <bit>
 
-using namespace wis;
-using namespace wis::impl;
-using namespace wis::detail;
+
+
 
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyCommandQueue(WisVKCommandQueue* self)
 {
-    auto& impl = *reinterpret_cast<VKCommandQueueImpl*>(self);
+    auto& impl = *reinterpret_cast<wis::impl::VKCommandQueueImpl*>(self);
     if (impl.queue) {
-        detail::release_vk_device(impl.device, impl.device_header);
+        wis::detail::release_vk_device(impl.device, impl.device_header);
         impl.device_header = nullptr;
         impl.device        = VK_NULL_HANDLE;
         impl.queue         = VK_NULL_HANDLE;
@@ -28,7 +27,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCommandQueueSubmit(const WisVKCommandQueu
                                                           const WisVKCommandListView* lists,
                                                           size_t                      count)
 {
-    auto& impl = *reinterpret_cast<const VKCommandQueueImpl*>(self);
+    auto& impl = *reinterpret_cast<const wis::impl::VKCommandQueueImpl*>(self);
 
     // I am not sorry, reinterpret_cast is the only way to convert from WisVKCommandListView
     // (which is a pointer to an opaque handle) to VkCommandBuffer* without violating strict aliasing rules.
@@ -40,10 +39,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCommandQueueSubmit(const WisVKCommandQueu
     };
 
     auto vr = impl.device_header->header.command_queue_table.vkQueueSubmit(impl.queue, 1, &submit_info, nullptr);
-    if (!succeeded(vr)) {
-        return make_result<Func(), "vkQueueSubmit failed to submit command list(s)">(vr);
+    if (!wis::detail::succeeded(vr)) {
+        return wis::detail::make_result<wis::detail::Func(), "vkQueueSubmit failed to submit command list(s)">(vr);
     }
-    return vk_success;
+    return wis::detail::vk_success;
 }
 
 //-----------------------------------------------------------------------------
@@ -51,7 +50,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCommandQueueSignalFence(const WisVKComman
                                                                WisVKFenceView           fence,
                                                                uint64_t                 value)
 {
-    auto&                 impl  = *reinterpret_cast<const VKCommandQueueImpl*>(self);
+    auto&                 impl  = *reinterpret_cast<const wis::impl::VKCommandQueueImpl*>(self);
     VkQueue               queue = impl.queue;
     VkSemaphore           sem   = std::bit_cast<VkSemaphore>(fence);
     VkSemaphoreSubmitInfo sem_submit{
@@ -67,10 +66,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCommandQueueSignalFence(const WisVKComman
         .pSignalSemaphoreInfos    = &sem_submit
     };
     VkResult result = impl.device_header->header.command_queue_table.vkQueueSubmit2(queue, 1, &info, nullptr);
-    if (!succeeded(result)) {
-        return make_result<Func(), "vkQueueSubmit failed to signal fence">(result);
+    if (!wis::detail::succeeded(result)) {
+        return wis::detail::make_result<wis::detail::Func(), "vkQueueSubmit failed to signal fence">(result);
     }
-    return vk_success;
+    return wis::detail::vk_success;
 }
 
 //-----------------------------------------------------------------------------
@@ -78,7 +77,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCommandQueueWaitFence(const WisVKCommandQ
                                                              WisVKFenceView           fence,
                                                              uint64_t                 value)
 {
-    auto&                 impl  = *reinterpret_cast<const VKCommandQueueImpl*>(self);
+    auto&                 impl  = *reinterpret_cast<const wis::impl::VKCommandQueueImpl*>(self);
     VkQueue               queue = impl.queue;
     VkSemaphore           sem   = std::bit_cast<VkSemaphore>(fence);
     VkSemaphoreSubmitInfo sem_submit{
@@ -94,10 +93,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCommandQueueWaitFence(const WisVKCommandQ
         .pWaitSemaphoreInfos    = &sem_submit
     };
     VkResult result = impl.device_header->header.command_queue_table.vkQueueSubmit2(queue, 1, &info, nullptr);
-    if (!succeeded(result)) {
-        return make_result<Func(), "vkQueueSubmit failed to signal fence">(result);
+    if (!wis::detail::succeeded(result)) {
+        return wis::detail::make_result<wis::detail::Func(), "vkQueueSubmit failed to signal fence">(result);
     }
-    return vk_success;
+    return wis::detail::vk_success;
 }
 
 #endif // WIS_VK_FENCE_CPP

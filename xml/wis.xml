@@ -187,6 +187,11 @@ Can still be enqueued after the signal.">
       <arg type="BufferBinding" name="data" mod="const,ref" doc="points to {BufferBinding::}, which describes the shader resource view descriptors to write."/>
       <arg type="u32" name="index" doc="defines the index in the descriptor heap to write the descriptors to."/>
     </func>
+    <func for="DescriptorHeap" name="WriteSampler" version="0.7.0" mod="const" doc="Writes {DescriptorType::Sampler} descriptor to the descriptor heap.">
+      <ret type="Result" name="result" doc="Result of operation."/>
+      <arg type="SamplerDesc" name="sampler" mod="const,ref" doc="points to {SamplerDesc::}, which describes the sampler descriptor to write."/>
+      <arg type="u32" name="index" doc="defines the index in the descriptor heap to write the descriptor to."/>
+    </func>
 
     <!-- Command Allocator -->
     <func for="CommandAllocator" name="Reset" version="0.7.0" mod="const" doc="Resets the command allocator, so it can be reused for allocating new command lists.">

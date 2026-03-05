@@ -7,28 +7,27 @@
 #include <wisdom/util/allocation.hpp>
 #include <bit>
 
-using namespace wis;
-using namespace wis::impl;
-using namespace wis::detail;
+
+
 
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyCommandList(WisVKCommandList* self)
 {
-    auto& impl = *reinterpret_cast<VKCommandListImpl*>(self);
+    auto& impl = *reinterpret_cast<wis::impl::VKCommandListImpl*>(self);
     if (impl.command_buffer != VK_NULL_HANDLE) {
         // free command buffer
         auto& header = impl.command_pool_header->header;
         impl.command_list_table->vkFreeCommandBuffers(header.device, impl.command_pool, 1, &impl.command_buffer);
         impl.command_buffer = VK_NULL_HANDLE;
 
-        detail::release_vk_command_pool(impl.command_pool, impl.command_pool_header);
+        wis::detail::release_vk_command_pool(impl.command_pool, impl.command_pool_header);
     }
 }
 
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisVKCommandListBegin(const WisVKCommandList* self)
 {
-    auto& impl = *reinterpret_cast<const VKCommandListImpl*>(self);
+    auto& impl = *reinterpret_cast<const wis::impl::VKCommandListImpl*>(self);
 
     VkCommandBufferBeginInfo begin_info{
         .sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
@@ -37,21 +36,21 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCommandListBegin(const WisVKCommandList* 
         .pInheritanceInfo = nullptr, // Optional, only relevant for secondary command buffers
     };
     auto vr = impl.command_list_table->vkBeginCommandBuffer(impl.command_buffer, &begin_info);
-    if (!succeeded(vr)) {
-        return make_result<Func(), "Failed to begin Vulkan command buffer recording">(vr);
+    if (!wis::detail::succeeded(vr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to begin Vulkan command buffer recording">(vr);
     }
-    return vk_success;
+    return wis::detail::vk_success;
 }
 
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisVKCommandListEnd(const WisVKCommandList* self)
 {
-    auto& impl = *reinterpret_cast<const VKCommandListImpl*>(self);
+    auto& impl = *reinterpret_cast<const wis::impl::VKCommandListImpl*>(self);
     auto  vr   = impl.command_list_table->vkEndCommandBuffer(impl.command_buffer);
-    if (!succeeded(vr)) {
-        return make_result<Func(), "Failed to end Vulkan command buffer recording">(vr);
+    if (!wis::detail::succeeded(vr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to end Vulkan command buffer recording">(vr);
     }
-    return vk_success;
+    return wis::detail::vk_success;
 }
 
 //-----------------------------------------------------------------------------
@@ -63,10 +62,10 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetDescriptorHeaps(const WisVKComma
     return; // Descriptor heap binding is not supported, silently ignore
 #endif
 
-    auto& impl = *reinterpret_cast<const VKCommandListImpl*>(self);
+    auto& impl = *reinterpret_cast<const wis::impl::VKCommandListImpl*>(self);
 
     if (resource_heap) {
-        auto&             res_heap                          = *reinterpret_cast<const VKDescriptorHeapImpl*>(resource_heap);
+        auto&             res_heap                          = *reinterpret_cast<const wis::impl::VKDescriptorHeapImpl*>(resource_heap);
         VkDeviceSize      reserved_resource_descriptor_size = static_cast<std::size_t>(res_heap.reserved_size) * res_heap.descriptor_size;
         VkDeviceSize      total_resource_heap_size          = static_cast<std::size_t>(res_heap.heap_size) * res_heap.descriptor_size + reserved_resource_descriptor_size;
         VkBindHeapInfoEXT bind_resource_info{
@@ -80,7 +79,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetDescriptorHeaps(const WisVKComma
     }
 
     if (sampler_heap) {
-        auto&             samp_heap                        = *reinterpret_cast<const VKDescriptorHeapImpl*>(sampler_heap);
+        auto&             samp_heap                        = *reinterpret_cast<const wis::impl::VKDescriptorHeapImpl*>(sampler_heap);
         VkDeviceSize      reserved_sampler_descriptor_size = static_cast<std::size_t>(samp_heap.reserved_size) * samp_heap.descriptor_size;
         VkDeviceSize      total_sampler_heap_size          = static_cast<std::size_t>(samp_heap.heap_size) * samp_heap.descriptor_size + reserved_sampler_descriptor_size;
         VkBindHeapInfoEXT bind_sampler_info{
@@ -103,8 +102,8 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetRootSignature(const WisVKCommand
     return; // Descriptor heap binding is not supported, silently ignore
 #endif
 
-    auto& impl                 = *reinterpret_cast<const VKCommandListImpl*>(self);
-    auto* sig                  = std::bit_cast<detail::VKRootSignatureControlBlock*>(signature);
+    auto& impl                 = *reinterpret_cast<const wis::impl::VKCommandListImpl*>(self);
+    auto* sig                  = std::bit_cast<wis::detail::VKRootSignatureControlBlock*>(signature);
     impl.root_signature_header = sig;
 }
 
@@ -116,7 +115,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetPushConstants(const WisVKCommand
     return; // Descriptor heap binding is not supported, silently ignore
 #endif
 
-    auto& impl = *reinterpret_cast<const VKCommandListImpl*>(self);
+    auto& impl = *reinterpret_cast<const wis::impl::VKCommandListImpl*>(self);
     auto* sig  = impl.root_signature_header;
 
     uint32_t          push_constant_offset = sig->GetRootBindingOffsets()[data->root_index] + data->push_offset / 4;
@@ -137,7 +136,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetPushDescriptor(const WisVKComman
     return; // Descriptor heap binding is not supported, silently ignore
 #endif
 
-    auto& impl = *reinterpret_cast<const VKCommandListImpl*>(self);
+    auto& impl = *reinterpret_cast<const wis::impl::VKCommandListImpl*>(self);
     auto* sig  = impl.root_signature_header;
 
     uint32_t          push_desc_offset = sig->GetRootBindingOffsets()[data->root_index];
@@ -158,7 +157,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetDescriptorTable(const WisVKComma
     return; // Descriptor heap binding is not supported, silently ignore
 #endif
 
-    auto& impl = *reinterpret_cast<const VKCommandListImpl*>(self);
+    auto& impl = *reinterpret_cast<const wis::impl::VKCommandListImpl*>(self);
     auto* sig  = impl.root_signature_header;
 
     uint32_t          push_desc_offset = sig->GetRootBindingOffsets()[data->root_index];

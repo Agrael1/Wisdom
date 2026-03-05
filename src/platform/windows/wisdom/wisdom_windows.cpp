@@ -12,13 +12,13 @@ inline void ToSwapchainDesc(DXGI_SWAP_CHAIN_DESC1& swap_desc, const wis::Swapcha
 {
     swap_desc.Width              = desc.size.width;
     swap_desc.Height             = desc.size.height;
-    swap_desc.Format             = convert_dx(desc.format);
+    swap_desc.Format             = wis::detail::convert_dx(desc.format);
     swap_desc.Stereo             = desc.stereo;
     swap_desc.SampleDesc.Count   = 1u;
     swap_desc.SampleDesc.Quality = 0u;
     swap_desc.BufferUsage        = DXGI_USAGE_RENDER_TARGET_OUTPUT;
     swap_desc.BufferCount        = desc.buffer_count;
-    swap_desc.Scaling            = convert_dx(desc.scaling);
+    swap_desc.Scaling            = wis::detail::convert_dx(desc.scaling);
     swap_desc.SwapEffect         = DXGI_SWAP_EFFECT_FLIP_DISCARD;
     swap_desc.AlphaMode          = DXGI_ALPHA_MODE_UNSPECIFIED;
     swap_desc.Flags              = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;

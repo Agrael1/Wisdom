@@ -36,7 +36,7 @@ inline void check_context() noexcept
 }
 
 template<wis::fixed_string func, wis::fixed_string message>
-WIS_CONSTEXPR23 inline wis::Result make_result(HRESULT hr) noexcept
+WIS_CONSTEXPR23 inline wis::Result wis::detail::make_result(HRESULT hr) noexcept
 {
     static WIS_CONSTEXPR23 auto str = wis::make_error_string<func, message>();
     return wis::Result{ convert(hr), str.c_str() };

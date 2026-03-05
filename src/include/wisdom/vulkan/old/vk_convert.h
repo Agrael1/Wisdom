@@ -7,10 +7,10 @@
 
 WISDOM_EXPORT
 namespace wis {
-inline constexpr wis::Status convert_vk(VkResult hr) noexcept
+inline constexpr wis::Status wis::detail::convert_vk(VkResult hr) noexcept
 {
     switch (hr) {
-    case VK_SUCCESS:
+    case wis::detail::vk_success:
         return wis::Status::Ok;
     case VK_TIMEOUT:
         return wis::Status::Timeout;
@@ -27,7 +27,7 @@ inline constexpr wis::Status convert_vk(VkResult hr) noexcept
         return wis::Status::Error;
     }
 }
-inline constexpr wis::Severity convert_vk(VkDebugUtilsMessageSeverityFlagBitsEXT sev) noexcept
+inline constexpr wis::Severity wis::detail::convert_vk(VkDebugUtilsMessageSeverityFlagBitsEXT sev) noexcept
 {
     switch (sev) {
     case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:

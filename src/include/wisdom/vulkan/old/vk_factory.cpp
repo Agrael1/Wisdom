@@ -225,7 +225,7 @@ VkResult wis::ImplVKFactory::VKEnumeratePhysicalDevices() noexcept
             adapter.index_consumption = i;
         }
     }
-    return VK_SUCCESS;
+    return wis::detail::vk_success;
 }
 
 #endif // VK_CREATE_FACTORY_CPP

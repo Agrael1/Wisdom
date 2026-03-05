@@ -7,9 +7,6 @@
 #include <wisdom/dx12/detail/dx12_utils.hpp>
 #include <d3dx12/d3dx12_resource_helpers.h>
 
-using namespace wis;
-using namespace wis::impl;
-using namespace wis::detail;
 
 namespace wis::detail {
 //-----------------------------------------------------------------------------
@@ -28,16 +25,16 @@ inline WisResult DX12CreateResource(const D3D12MA::ALLOCATION_DESC& all_desc,
                                             allocation.put_unchecked(),
                                             resource.iid(),
                                             resource.put_void_unchecked());
-    if (!succeeded(hr)) {
-        return make_result<Func(), "Resource Allocation failed">(hr);
+    if (!wis::detail::succeeded(hr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Resource Allocation failed">(hr);
     }
 
-    auto& impl      = *new (buffer) DX12BufferImpl;
+    auto& impl      = *new (buffer) wis::impl::DX12BufferImpl;
     impl.allocation = allocation.detach();
     impl.resource   = resource.detach();
     impl.allocator  = allocator; // store allocator to ensure correct release order
     impl.allocator->AddRef();
-    return dx_success;
+    return wis::detail::dx_success;
 }
 
 //-----------------------------------------------------------------------------
@@ -59,16 +56,16 @@ inline WisResult DX12CreateResource2(const D3D12MA::ALLOCATION_DESC& all_desc,
                                             resource.iid(),
                                             resource.put_void_unchecked());
 
-    if (!succeeded(hr)) {
-        return make_result<Func(), "Resource Allocation failed">(hr);
+    if (!wis::detail::succeeded(hr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Resource Allocation failed">(hr);
     }
 
-    auto& impl      = *new (buffer) DX12BufferImpl;
+    auto& impl      = *new (buffer) wis::impl::DX12BufferImpl;
     impl.allocation = allocation.detach();
     impl.resource   = resource.detach();
     impl.allocator  = allocator; // store allocator to ensure correct release order
     impl.allocator->AddRef();
-    return dx_success;
+    return wis::detail::dx_success;
 }
 
 //-----------------------------------------------------------------------------
@@ -80,10 +77,10 @@ inline D3D12_RESOURCE_DESC1 DX12FillTextureDesc(const WisTextureDesc& desc) noex
         .Height           = desc.height,
         .DepthOrArraySize = desc.depth_or_array_size,
         .MipLevels        = desc.mip_levels,
-        .Format           = convert_dx(desc.format),
+        .Format           = wis::detail::convert_dx(desc.format),
         .SampleDesc       = { 1, 0 },
         .Layout           = D3D12_TEXTURE_LAYOUT_UNKNOWN,
-        .Flags            = convert_dx(desc.usage_flags),
+        .Flags            = wis::detail::convert_dx(desc.usage_flags),
     };
     switch (desc.layout) {
     case WisTextureLayoutTexture1D:
@@ -109,13 +106,13 @@ inline D3D12_RESOURCE_DESC1 DX12FillTextureDesc(const WisTextureDesc& desc) noex
     case WisTextureLayoutTexture2DMS:
         out.Dimension          = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
         out.DepthOrArraySize   = 1;
-        out.SampleDesc.Count   = convert_dx(desc.sample_count);
+        out.SampleDesc.Count   = wis::detail::convert_dx(desc.sample_count);
         out.SampleDesc.Quality = 4;
         out.MipLevels          = 1;
         return out;
     case WisTextureLayoutTexture2DMSArray:
         out.Dimension          = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-        out.SampleDesc.Count   = convert_dx(desc.sample_count);
+        out.SampleDesc.Count   = wis::detail::convert_dx(desc.sample_count);
         out.SampleDesc.Quality = 4;
         out.MipLevels          = 1;
         return out;
@@ -140,7 +137,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12ResourceAllocatorCreateBuffer(const Wis
                                                                        WisDX12Buffer*                  buffer)
 {
     auto& [allocator]         = *reinterpret_cast<const wis::impl::DX12ResourceAllocatorImpl*>(self);
-    uint64_t             size = aligned_size(desc->size_bytes, static_cast<uint64_t>(D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT));
+    uint64_t             size = wis::aligned_size(desc->size_bytes, static_cast<uint64_t>(D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT));
     D3D12_RESOURCE_DESC1 buffer_desc{
         .Dimension                = D3D12_RESOURCE_DIMENSION_BUFFER,
         .Alignment                = 0,
@@ -151,18 +148,18 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12ResourceAllocatorCreateBuffer(const Wis
         .Format                   = DXGI_FORMAT_UNKNOWN,
         .SampleDesc               = { 1, 0 },
         .Layout                   = D3D12_TEXTURE_LAYOUT_ROW_MAJOR,
-        .Flags                    = convert_dx(desc->usage_flags),
+        .Flags                    = wis::detail::convert_dx(desc->usage_flags),
         .SamplerFeedbackMipRegion = { 0, 0, 0 },
     };
 
     D3D12MA::ALLOCATION_DESC all_desc{
-        .Flags    = convert_dx(desc->memory_flags),
-        .HeapType = convert_dx(desc->memory_type),
+        .Flags    = wis::detail::convert_dx(desc->memory_flags),
+        .HeapType = wis::detail::convert_dx(desc->memory_type),
     };
     if (desc->usage_flags & WisBufferUsageFlagsAccelerationStructureBuffer) {
-        return DX12CreateResource2(all_desc, buffer_desc, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, allocator, buffer);
+        return wis::detail::DX12CreateResource2(all_desc, buffer_desc, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE, allocator, buffer);
     }
-    return DX12CreateResource(all_desc, buffer_desc, D3D12_RESOURCE_STATE_COMMON, allocator, buffer);
+    return wis::detail::DX12CreateResource(all_desc, buffer_desc, D3D12_RESOURCE_STATE_COMMON, allocator, buffer);
 }
 
 //-----------------------------------------------------------------------------
@@ -171,12 +168,12 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12ResourceAllocatorCreateTexture(const Wi
                                                                         WisDX12Texture*                 buffer)
 {
     auto& [allocator]                 = *reinterpret_cast<const wis::impl::DX12ResourceAllocatorImpl*>(self);
-    D3D12_RESOURCE_DESC1     tex_desc = DX12FillTextureDesc(*desc);
+    D3D12_RESOURCE_DESC1     tex_desc = wis::detail::DX12FillTextureDesc(*desc);
     D3D12MA::ALLOCATION_DESC all_desc{
-        .Flags    = convert_dx(desc->memory_flags),
-        .HeapType = convert_dx(desc->memory_type),
+        .Flags    = wis::detail::convert_dx(desc->memory_flags),
+        .HeapType = wis::detail::convert_dx(desc->memory_type),
     };
-    return DX12CreateResource(all_desc, tex_desc, D3D12_RESOURCE_STATE_COMMON, allocator, buffer);
+    return wis::detail::DX12CreateResource(all_desc, tex_desc, D3D12_RESOURCE_STATE_COMMON, allocator, buffer);
 }
 
 #endif // WIS_DX12_RESOURCE_ALLOCATOR_CPP

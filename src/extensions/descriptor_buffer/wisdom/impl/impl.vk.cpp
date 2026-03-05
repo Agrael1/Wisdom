@@ -100,9 +100,9 @@ wis::ImplVKDescriptorBufferExtension::CreateRootSignature(wis::Result& result, c
             auto& r           = push_descriptors[i];
             auto& b           = push_bindings[i];
             b.binding         = 0; // Push descriptors always have binding 0
-            b.descriptorType  = convert_vk(r.type);
+            b.descriptorType  = wis::detail::convert_vk(r.type);
             b.descriptorCount = 1; // Push descriptors are always single
-            b.stageFlags      = convert_vk(r.stage);
+            b.stageFlags      = wis::detail::convert_vk(r.stage);
         }
         VkDescriptorSetLayoutCreateInfo push_desc_info{
             .sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
@@ -112,7 +112,7 @@ wis::ImplVKDescriptorBufferExtension::CreateRootSignature(wis::Result& result, c
             .pBindings    = push_bindings,
         };
         auto res = device.table().vkCreateDescriptorSetLayout(device.get(), &push_desc_info, nullptr, &internal.vk_dsls[0]);
-        if (!succeeded(res)) {
+        if (!wis::detail::succeeded(res)) {
             result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create a push descriptor set layout">(res);
             return out_signature;
         }
@@ -122,7 +122,7 @@ wis::ImplVKDescriptorBufferExtension::CreateRootSignature(wis::Result& result, c
     for (uint32_t i = 0; i < constants_size; i++) {
         auto& c      = push_constants[i];
         auto& r      = constants[i];
-        c.stageFlags = convert_vk(r.stage);
+        c.stageFlags = wis::detail::convert_vk(r.stage);
         c.offset     = 0;
         c.size       = r.size_bytes;
     }
@@ -149,7 +149,7 @@ wis::ImplVKDescriptorBufferExtension::CreateRootSignature(wis::Result& result, c
         .pPushConstantRanges    = push_constants,
     };
     auto vr = device.table().vkCreatePipelineLayout(device.get(), &pipeline_layout_info, nullptr, internal.root.put(device, device.table().vkDestroyPipelineLayout));
-    if (!succeeded(vr)) {
+    if (!wis::detail::succeeded(vr)) {
         for (uint32_t i = 0; i < tables_count; i++) {
             device.table().vkDestroyDescriptorSetLayout(device.get(), internal.vk_dsls[i], nullptr);
         }
@@ -193,7 +193,7 @@ wis::ImplVKDescriptorBufferExtension::CreateDescriptorBuffer(wis::Result& result
         .preferredFlags = 0,
     };
     auto vr = vmaCreateBuffer(allocator.get(), &info, &alloc_info, &internal.buffer, &internal.allocation, nullptr);
-    if (!succeeded(vr)) {
+    if (!wis::detail::succeeded(vr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create a descriptor heap buffer">(vr);
         return out_buffer;
     }
@@ -296,7 +296,7 @@ wis::ImplVKDescriptorBufferExtension::VKCreateDescriptorSetDescriptorLayout(wis:
             .binding            = entry.binding,
             .descriptorType     = VK_DESCRIPTOR_TYPE_MUTABLE_EXT,
             .descriptorCount    = entry.count,
-            .stageFlags         = uint32_t(convert_vk(table->stage)),
+            .stageFlags         = uint32_t(wis::detail::convert_vk(table->stage)),
             .pImmutableSamplers = nullptr,
         };
         if (entry.count == UINT32_MAX) {
@@ -321,7 +321,7 @@ wis::ImplVKDescriptorBufferExtension::VKCreateDescriptorSetDescriptorLayout(wis:
 
     VkDescriptorSetLayout layout;
     auto                  vr = device.table().vkCreateDescriptorSetLayout(device.get(), &desc, nullptr, &layout);
-    if (!succeeded(vr)) {
+    if (!wis::detail::succeeded(vr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create a descriptor set layout">(vr);
     }
     return layout;
@@ -338,7 +338,7 @@ wis::ImplVKDescriptorBufferExtension::VKCreateDescriptorSetSamplerLayout(wis::Re
             .binding            = entry.binding,
             .descriptorType     = VK_DESCRIPTOR_TYPE_SAMPLER,
             .descriptorCount    = entry.count,
-            .stageFlags         = uint32_t(convert_vk(table->stage)),
+            .stageFlags         = uint32_t(wis::detail::convert_vk(table->stage)),
             .pImmutableSamplers = nullptr,
         };
     }
@@ -353,7 +353,7 @@ wis::ImplVKDescriptorBufferExtension::VKCreateDescriptorSetSamplerLayout(wis::Re
 
     VkDescriptorSetLayout layout;
     auto                  vr = device.table().vkCreateDescriptorSetLayout(device.get(), &desc, nullptr, &layout);
-    if (!succeeded(vr)) {
+    if (!wis::detail::succeeded(vr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create a descriptor set layout">(vr);
     }
     return layout;

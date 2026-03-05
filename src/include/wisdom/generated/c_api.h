@@ -769,7 +769,6 @@ typedef enum WisStaticBorder {
     WisStaticBorderTransparentBlack = 0, ///< Transparent black border color.
     WisStaticBorderOpaqueBlack      = 1, ///< Opaque black border color.
     WisStaticBorderOpaqueWhite      = 2, ///< Opaque white border color.
-    WisStaticBorderCustom           = 3, ///< Custom border color defined by the user.
 } WisStaticBorder;
 
 /**
@@ -1009,7 +1008,7 @@ typedef struct WisSamplerDesc {
     WisFilter           mag_filter; ///< Magnification filter.
     WisFilter           mip_filter; ///< Mip level filter.
     bool                is_anisotropic; ///< Anisotropic filtering enable.
-    uint32_t            max_anisotropy; ///< Max anisotropy level. Max is 16.
+    uint32_t            max_anisotropy; ///< Max anisotropy level. Min is 1, Max is 16.
     WisAddressMode      address_u; ///< Address mode for U coordinate.
     WisAddressMode      address_v; ///< Address mode for V coordinate.
     WisAddressMode      address_w; ///< Address mode for W coordinate.
@@ -1018,7 +1017,6 @@ typedef struct WisSamplerDesc {
     float               mip_lod_bias; ///< Mip LOD bias value.
     WisCompareOperation comparison_op; ///< Comparison operation for comparison samplers.
     WisStaticBorder     static_border_color; ///< Static border color. Used if any address mode is set to wis::AddressMode.
-    float               border_color[4]; ///< Border color. Used if any address mode is set to wis::AddressMode and static_border_color is set to `WisStaticBorderCustom`.
     WisSamplerFlags     flags; ///< Sampler flags. Used to set additional sampler options.
 } WisSamplerDesc;
 

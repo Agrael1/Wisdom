@@ -698,9 +698,6 @@ a 4-bit A component in bits 12..15.">
         <impl name="dx" value="D3D12_STATIC_BORDER_COLOR_OPAQUE_WHITE"/>
         <impl name="vk" value="VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE"/>
       </value>
-      <value name="Custom" value="3" doc="Custom border color defined by the user.">
-        <impl name="vk" value="VK_BORDER_COLOR_FLOAT_CUSTOM_EXT"/>
-      </value>
     </type>
 
     <type name="DescriptorHeapType" category="enum" version="0.7.0" doc="Descriptor heap type.">

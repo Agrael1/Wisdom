@@ -8,9 +8,8 @@
 #include <algorithm>
 #include <bitset>
 
-using namespace wis;
-using namespace wis::impl;
-using namespace wis::detail;
+
+
 
 namespace wis::detail {
 struct VKQueueResidencyInfo {
@@ -210,7 +209,7 @@ get_sorted_queue_families(wis::span<VkQueueFamilyProperties2> props_span) noexce
     return qcom;
 }
 
-VKQueueResidencyInfo get_queue_residency_info(const VKMainAdapter&           adapter_table,
+VKQueueResidencyInfo get_queue_residency_info(const wis::impl::VKMainAdapter& adapter_table,
                                               VkPhysicalDevice               adapter,
                                               const WisVKDeviceRequirements* requirements,
                                               const VKDeviceFeatures&        device_features,
@@ -226,7 +225,7 @@ VKQueueResidencyInfo get_queue_residency_info(const VKMainAdapter&           ada
     wis::span<const WisCommandQueueDesc> queue_descs{ requirements->queue_descs, requirements->queue_desc_count };
 
     if (queue_descs.size() > WisCommandQueueTypeCount) {
-        out_result = make_result<Func(), "Too many queue types in requirements">(VK_ERROR_INITIALIZATION_FAILED);
+        out_result = wis::detail::make_result<wis::detail::Func(), "Too many queue types in requirements">(VK_ERROR_INITIALIZATION_FAILED);
         return info;
     }
 
@@ -240,7 +239,7 @@ VKQueueResidencyInfo get_queue_residency_info(const VKMainAdapter&           ada
     if (queue_family_count == 0) {
         // No queues available, return empty info
         if (!queue_descs.empty()) {
-            out_result = make_result<Func(), "No queue families found for the adapter">(VK_ERROR_INITIALIZATION_FAILED);
+            out_result = wis::detail::make_result<wis::detail::Func(), "No queue families found for the adapter">(VK_ERROR_INITIALIZATION_FAILED);
         }
         return info;
     }
@@ -276,7 +275,7 @@ VKQueueResidencyInfo get_queue_residency_info(const VKMainAdapter&           ada
     }
 
     if (props_span.data() == nullptr) {
-        out_result = make_result<Func(), "Not enough memory for device queue family properties array">(VK_ERROR_OUT_OF_HOST_MEMORY);
+        out_result = wis::detail::make_result<wis::detail::Func(), "Not enough memory for device queue family properties array">(VK_ERROR_OUT_OF_HOST_MEMORY);
     }
     adapter_table.vkGetPhysicalDeviceQueueFamilyProperties2(adapter, &queue_family_count, props_span.data());
 
@@ -286,7 +285,7 @@ VKQueueResidencyInfo get_queue_residency_info(const VKMainAdapter&           ada
     for (std::size_t i = 0; i < queue_descs.size(); ++i) {
         auto& desc = queue_descs[i];
         if (desc.type >= WisCommandQueueTypeCount) {
-            out_result = make_result<Func(), "Invalid command queue type in requirements">(VK_ERROR_INITIALIZATION_FAILED);
+            out_result = wis::detail::make_result<wis::detail::Func(), "Invalid command queue type in requirements">(VK_ERROR_INITIALIZATION_FAILED);
             return info;
         }
 
@@ -342,10 +341,10 @@ VKQueueResidencyInfo get_queue_residency_info(const VKMainAdapter&           ada
     return info;
 }
 
-inline WisResult init_resource_allocator(VkDevice         device,
-                                         VkPhysicalDevice adapter,
+inline WisResult init_resource_allocator(VkDevice          device,
+                                         VkPhysicalDevice  adapter,
                                          VKInstanceHeader& instance_header,
-                                         VKDeviceHeader&  device_header)
+                                         VKDeviceHeader&   device_header)
 {
     uint32_t version = instance_header.api_version;
     auto&    gtable  = instance_header.global_table;
@@ -418,28 +417,28 @@ inline WisResult init_resource_allocator(VkDevice         device,
 #endif // _WIN32
 
     VkResult vr = vmaCreateAllocator(&allocatorInfo, &device_header.allocator);
-    if (!succeeded(vr)) {
-        return make_result<Func(), "Failed to create Vulkan memory allocator">(vr);
+    if (!wis::detail::succeeded(vr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to create Vulkan memory allocator">(vr);
     }
 
-    return vk_success;
+    return wis::detail::vk_success;
 }
 } // namespace wis::detail
 
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyAdapterQuery(WisVKAdapterQuery* self)
 {
-    auto& impl = *reinterpret_cast<VKAdapterQueryImpl*>(self);
+    auto& impl = *reinterpret_cast<wis::impl::VKAdapterQueryImpl*>(self);
     if (impl.physical_devices) {
         delete[] impl.physical_devices;
-        detail::release_vk_instance(impl.instance, impl.shared_header);
+        wis::detail::release_vk_instance(impl.instance, impl.shared_header);
     }
 }
 
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API size_t wisVKAdapterQueryGetAdapterCount(const WisVKAdapterQuery* self)
 {
-    return reinterpret_cast<const VKAdapterQueryImpl*>(self)->adapter_count;
+    return reinterpret_cast<const wis::impl::VKAdapterQueryImpl*>(self)->adapter_count;
 }
 
 //-----------------------------------------------------------------------------
@@ -447,9 +446,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryGetAdapterDesc(const WisVKAda
                                                                   size_t                   index,
                                                                   WisAdapterDesc*          desc)
 {
-    const auto& impl = *reinterpret_cast<const VKAdapterQueryImpl*>(self);
+    const auto& impl = *reinterpret_cast<const wis::impl::VKAdapterQueryImpl*>(self);
     if (index >= impl.adapter_count) {
-        return make_result<Func(), "Adapter index out of bounds">(VK_ERROR_INITIALIZATION_FAILED);
+        return wis::detail::make_result<wis::detail::Func(), "Adapter index out of bounds">(VK_ERROR_INITIALIZATION_FAILED);
     }
     const auto& atable  = impl.shared_header->header.adapter_table;
     auto        adapter = impl.physical_devices[index];
@@ -511,7 +510,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryGetAdapterDesc(const WisVKAda
 
     std::copy_n(got_desc.deviceName, sizeof(desc->description) - 1, desc->description);
     std::copy_n(id_props.deviceUUID, sizeof(desc->adapter_uuid), desc->adapter_uuid);
-    return vk_success;
+    return wis::detail::vk_success;
 }
 
 //-----------------------------------------------------------------------------
@@ -520,16 +519,16 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
                                                                 const WisVKDeviceRequirements* requirements,
                                                                 WisVKDevice*                   device)
 {
-    auto& impl = *reinterpret_cast<const VKAdapterQueryImpl*>(self);
+    auto& impl = *reinterpret_cast<const wis::impl::VKAdapterQueryImpl*>(self);
     if (index >= impl.adapter_count) {
-        return make_result<Func(), "Adapter index out of bounds">(VK_ERROR_INITIALIZATION_FAILED);
+        return wis::detail::make_result<wis::detail::Func(), "Adapter index out of bounds">(VK_ERROR_INITIALIZATION_FAILED);
     }
 
     auto& atable  = impl.shared_header->header.adapter_table;
     auto& adapter = impl.physical_devices[index];
 
-    WisResult                  res = vk_success;
-    VKDeviceExtensionCollector collector{ atable, adapter, res };
+    WisResult                       res = wis::detail::vk_success;
+    wis::VKDeviceExtensionCollector collector{ atable, adapter, res };
     if (res.status != WisStatusOk) {
         return res;
     }
@@ -545,8 +544,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
         }
     }
 
-    detail::DeviceExtension1 device_ext1;
-    auto                     xres = device_ext1.CollectInfo(collector);
+    wis::detail::DeviceExtension1 device_ext1;
+    auto                          xres = device_ext1.CollectInfo(collector);
     // Non-fatal, allow to silently fail
     (void)xres;
 
@@ -622,27 +621,26 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
     };
     VkDevice device_handle = VK_NULL_HANDLE;
     VkResult vr            = atable.vkCreateDevice(adapter, &device_create_info, nullptr, &device_handle);
-    if (!succeeded(vr)) {
-        return make_result<Func(), "Failed to create Vulkan device">(vr);
+    if (!wis::detail::succeeded(vr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to create Vulkan device">(vr);
     }
 
-    static_assert(alignof(VKDeviceControlBlock) <= __STDCPP_DEFAULT_NEW_ALIGNMENT__, "VKDeviceControlBlock must be well aligned to safely use operator new for allocation");
-    std::size_t control_block_size = sizeof(VKDeviceControlBlock); // allocate extra space for semaphores
+    static_assert(alignof(wis::detail::VKDeviceControlBlock) <= __STDCPP_DEFAULT_NEW_ALIGNMENT__, "VKDeviceControlBlock must be well aligned to safely use operator new for allocation");
+    std::size_t control_block_size = sizeof(wis::detail::VKDeviceControlBlock); // allocate extra space for semaphores
     std::size_t semaphore_count    = 0;
     for (size_t i = 0; i < queue_info.queue_type_count; ++i) {
         semaphore_count += queue_info.data[i].queueCount;
     }
     control_block_size += sizeof(std::binary_semaphore) * semaphore_count;
 
-    std::unique_ptr<VKDeviceControlBlock> header{ reinterpret_cast<VKDeviceControlBlock*>(operator new(control_block_size, std::nothrow)) };
+    std::unique_ptr<wis::detail::VKDeviceControlBlock> header{ reinterpret_cast<wis::detail::VKDeviceControlBlock*>(operator new(control_block_size, std::nothrow)) };
     if (!header) {
-        return make_result<Func(), "Failed to allocate memory for Vulkan device header">(VK_ERROR_OUT_OF_HOST_MEMORY);
+        return wis::detail::make_result<wis::detail::Func(), "Failed to allocate memory for Vulkan device header">(VK_ERROR_OUT_OF_HOST_MEMORY);
     }
 
     // Start header lifetime
     std::construct_at(header.get());
     header->header.instance = impl.instance; // store instance handle in device header for later use in resource allocator
-
 
     wis::span<std::binary_semaphore> semaphores{ reinterpret_cast<std::binary_semaphore*>(header.get() + 1), semaphore_count };
     for (auto& sem : semaphores) {
@@ -663,7 +661,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
         if (queue_family.pNext) {
             // Global priority info is present in the pNext chain, store it in the device header
             const auto* global_priority_info = reinterpret_cast<const VkDeviceQueueGlobalPriorityCreateInfo*>(queue_family.pNext);
-            family_info.queue_priority       = static_cast<uint8_t>(convert_global_priority(global_priority_info->globalPriority));
+            family_info.queue_priority       = static_cast<uint8_t>(wis::detail::convert_global_priority(global_priority_info->globalPriority));
         }
 
         semaphore_offset += family_info.queue_count;
@@ -679,19 +677,19 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
     auto& gtable       = impl.shared_header->header.global_table;
     if (!device_table.Init(device_handle, gtable.vkGetDeviceProcAddr)) {
         device_table.vkDestroyDevice(device_handle, nullptr); // cleanup
-        return make_result<Func(), "Failed to initialize Vulkan device function table">(VK_ERROR_UNKNOWN);
+        return wis::detail::make_result<wis::detail::Func(), "Failed to initialize Vulkan device function table">(VK_ERROR_UNKNOWN);
     }
 
     // Initialize command queue table
     if (!header->header.command_queue_table.Init(device_handle, gtable.vkGetDeviceProcAddr)) {
         device_table.vkDestroyDevice(device_handle, nullptr); // cleanup
-        return make_result<Func(), "Failed to initialize Vulkan command queue function table">(VK_ERROR_UNKNOWN);
+        return wis::detail::make_result<wis::detail::Func(), "Failed to initialize Vulkan command queue function table">(VK_ERROR_UNKNOWN);
     }
 
     // Initialize command list table
     if (!header->header.command_list_table.Init(device_handle, gtable.vkGetDeviceProcAddr)) {
         device_table.vkDestroyDevice(device_handle, nullptr); // cleanup
-        return make_result<Func(), "Failed to initialize Vulkan command list function table">(VK_ERROR_UNKNOWN);
+        return wis::detail::make_result<wis::detail::Func(), "Failed to initialize Vulkan command list function table">(VK_ERROR_UNKNOWN);
     }
 
     // Create resource allocator
@@ -702,7 +700,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
     }
 
     // Fill device impl
-    auto& device_impl           = *new (device) VKDeviceImpl();
+    auto& device_impl           = *new (device) wis::impl::VKDeviceImpl();
     device_impl.device_header   = header.release();
     device_impl.device          = device_handle;
     device_impl.physical_device = adapter;
@@ -710,7 +708,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
     auto& device_header         = device_impl.device_header->header;
     device_header.shared_header = impl.shared_header;
     device_header.shared_header->AddRef(); // hold reference to instance header
-     
+
     auto res2 = device_ext1.Init(device_impl, collector);
     // Non-fatal, allow to silently fail
     (void)res2;

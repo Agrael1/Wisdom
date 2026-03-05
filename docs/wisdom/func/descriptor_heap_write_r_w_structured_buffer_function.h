@@ -7,7 +7,7 @@
  * <hr>
  *
  * \cond WIS_GEN_CODE
- *  *  C Version:
+ *  C Version:
  * ```c
  * // Provided by Wisdom 0.7.0. 
  * WisResult wisDescriptorHeapWriteRWStructuredBuffer(const WisDescriptorHeap* self,
@@ -34,27 +34,40 @@
  * 
  * C++ Version:
  * ```cpp
- * namespace wis
+ * namespace wis{
+ * // Provided by Wisdom 0.7.0. 
+ * wis::Result DescriptorHeap::WriteRWStructuredBuffer(wis::BufferView           buffer,
+ *                                                     const wis::BufferBinding& data,
+ *                                                     std::uint32_t             index) const noexcept;
+ * }
  * ```
  * <details>
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
- * namespace wis
+ * namespace wis{
+ * // Provided by Wisdom 0.7.0. 
+ * wis::Result VKDescriptorHeap::WriteRWStructuredBuffer(wis::VKBufferView         buffer,
+ *                                                       const wis::BufferBinding& data,
+ *                                                       std::uint32_t             index) const noexcept;
+ * 
+ * // Provided by Wisdom 0.7.0. 
+ * wis::Result DX12DescriptorHeap::WriteRWStructuredBuffer(wis::DX12BufferView       buffer,
+ *                                                         const wis::BufferBinding& data,
+ *                                                         std::uint32_t             index) const noexcept;
+ * }
  * ```
  * </details>
- * 
  * \endcond
  *
  * @section wisDescriptorHeapWriteRWStructuredBuffer_memb Parameters
  * <hr>
  * \cond WIS_GEN_DESC
- *  * - **this** `self` self is a pointer to the valid WisDescriptorHeap instance.
+ * - **this** `self` self is a pointer to the valid WisDescriptorHeap instance.
  * - `buffer` points to WisBuffer to write the descriptor for.
  * - `data` points to WisBufferBinding, which describes the shader resource view descriptors to write.
  * - `index` defines the index in the descriptor heap to write the descriptors to.
  * 
  * - **return** denoting the outcome of operation.
- * 
  * \endcond
  *
  * @section wisDescriptorHeapWriteRWStructuredBuffer_descr Description

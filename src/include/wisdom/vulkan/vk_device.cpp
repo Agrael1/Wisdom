@@ -7,9 +7,7 @@
 #include <wisdom/util/allocation.hpp>
 #include <bit>
 
-using namespace wis;
-using namespace wis::impl;
-using namespace wis::detail;
+
 
 namespace wis::detail {
 struct VKMappingOffsetInfo {
@@ -108,11 +106,11 @@ GetMappingOffsetPerShaderType(wis::span<uint32_t, WisShaderVisibilityCount> map_
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyDevice(WisVKDevice* self)
 {
-    auto& impl = *reinterpret_cast<VKDeviceImpl*>(self);
+    auto& impl = *reinterpret_cast<wis::impl::VKDeviceImpl*>(self);
     if (!impl.device) {
         return;
     }
-    detail::release_vk_device(impl.device, impl.device_header);
+    wis::detail::release_vk_device(impl.device, impl.device_header);
     impl.device_header = nullptr;
     impl.device        = VK_NULL_HANDLE;
 }
@@ -122,21 +120,21 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandQueue(const WisVKDevic
                                                                 WisCommandQueueType type,
                                                                 WisVKCommandQueue*  queue)
 {
-    WisResult res      = vk_success;
-    auto&     device   = *reinterpret_cast<const VKDeviceImpl*>(self);
+    WisResult res      = wis::detail::vk_success;
+    auto&     device   = *reinterpret_cast<const wis::impl::VKDeviceImpl*>(self);
     VkQueue   vk_queue = VK_NULL_HANDLE;
 
     // Sanity check: lower and upper bound
     using QueueTypeUnderlying = std::underlying_type_t<WisCommandQueueType>;
     if (static_cast<QueueTypeUnderlying>(type) < 0 ||
         static_cast<size_t>(type) >= WisCommandQueueTypeCount) {
-        return make_result<Func(), "Invalid command queue type specified">(VK_ERROR_INITIALIZATION_FAILED);
+        return wis::detail::make_result<wis::detail::Func(), "Invalid command queue type specified">(VK_ERROR_INITIALIZATION_FAILED);
     }
 
     // Get queue family index based on type
     uint8_t queue_family_index = device.device_header->header.queue_residency[static_cast<size_t>(type)];
-    if (queue_family_index == VKQueueFamilyProperties::invalid_family_index) {
-        return make_result<Func(), "No suitable queue family found for the requested queue type">(VK_ERROR_FEATURE_NOT_PRESENT);
+    if (queue_family_index == wis::detail::VKQueueFamilyProperties::invalid_family_index) {
+        return wis::detail::make_result<wis::detail::Func(), "No suitable queue family found for the requested queue type">(VK_ERROR_FEATURE_NOT_PRESENT);
     }
 
     auto& queue_family = device.device_header->header.queue_families[queue_family_index];
@@ -151,7 +149,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandQueue(const WisVKDevic
     device.device_header->header.device_table.vkGetDeviceQueue2(device.device, &queue_info, &vk_queue);
 
     // Fill command queue impl
-    auto& queue_impl         = *new (queue) VKCommandQueueImpl();
+    auto& queue_impl         = *new (queue) wis::impl::VKCommandQueueImpl();
     queue_impl.queue         = vk_queue;
     queue_impl.device        = device.device;
     queue_impl.device_header = device.device_header;
@@ -167,25 +165,25 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandAllocator(const WisVKD
                                                                     WisCommandQueueType    type,
                                                                     WisVKCommandAllocator* allocator)
 {
-    auto& device = *reinterpret_cast<const VKDeviceImpl*>(self);
+    auto& device = *reinterpret_cast<const wis::impl::VKDeviceImpl*>(self);
     auto& table  = device.device_header->header.device_table;
 
     // Sanity check: lower and upper bound
     using QueueTypeUnderlying = std::underlying_type_t<WisCommandQueueType>;
     if (static_cast<QueueTypeUnderlying>(type) < 0 ||
         static_cast<size_t>(type) >= WisCommandQueueTypeCount) {
-        return make_result<Func(), "Invalid command queue type specified">(VK_ERROR_INITIALIZATION_FAILED);
+        return wis::detail::make_result<wis::detail::Func(), "Invalid command queue type specified">(VK_ERROR_INITIALIZATION_FAILED);
     }
 
     // Get queue family index based on type
     uint8_t queue_family_index = device.device_header->header.queue_residency[static_cast<size_t>(type)];
-    if (queue_family_index == VKQueueFamilyProperties::invalid_family_index) {
-        return make_result<Func(), "No suitable queue family found for the requested queue type">(VK_ERROR_FEATURE_NOT_PRESENT);
+    if (queue_family_index == wis::detail::VKQueueFamilyProperties::invalid_family_index) {
+        return wis::detail::make_result<wis::detail::Func(), "No suitable queue family found for the requested queue type">(VK_ERROR_FEATURE_NOT_PRESENT);
     }
 
-    std::unique_ptr<detail::VKCommandPoolControlBlock> pool_control_block = wis::make_unique<detail::VKCommandPoolControlBlock>();
+    std::unique_ptr<wis::detail::VKCommandPoolControlBlock> pool_control_block = wis::make_unique<wis::detail::VKCommandPoolControlBlock>();
     if (!pool_control_block) {
-        return make_result<Func(), "Failed to allocate memory for command pool control block">(VK_ERROR_OUT_OF_HOST_MEMORY);
+        return wis::detail::make_result<wis::detail::Func(), "Failed to allocate memory for command pool control block">(VK_ERROR_OUT_OF_HOST_MEMORY);
     }
 
     uint8_t queue_family = device.device_header->header.queue_families[queue_family_index].family_index;
@@ -198,27 +196,27 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandAllocator(const WisVKD
     };
     VkCommandPool command_pool = VK_NULL_HANDLE;
     VkResult      vr           = table.vkCreateCommandPool(device.device, &pool_info, nullptr, &command_pool);
-    if (!succeeded(vr)) {
-        return make_result<Func(), "Failed to create Vulkan command pool">(vr);
+    if (!wis::detail::succeeded(vr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to create Vulkan command pool">(vr);
     }
 
     pool_control_block->header.device        = device.device;
     pool_control_block->header.device_header = device.device_header;
     pool_control_block->header.device_header->AddRef(); // hold reference to device header for command pool control block
 
-    auto& allocator_impl               = *new (allocator) VKCommandAllocatorImpl();
+    auto& allocator_impl               = *new (allocator) wis::impl::VKCommandAllocatorImpl();
     allocator_impl.command_pool        = command_pool;
     allocator_impl.command_pool_header = pool_control_block.release();
 
-    return vk_success;
+    return wis::detail::vk_success;
 }
 
 WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateFence(const WisVKDevice* self,
                                                          uint64_t           initial_value,
                                                          WisVKFence*        fence)
 {
-    WisResult res    = vk_success;
-    auto&     device = *reinterpret_cast<const VKDeviceImpl*>(self);
+    WisResult res    = wis::detail::vk_success;
+    auto&     device = *reinterpret_cast<const wis::impl::VKDeviceImpl*>(self);
 
     VkSemaphoreTypeCreateInfo timeline_desc{
         .sType         = VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO,
@@ -235,11 +233,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateFence(const WisVKDevice* self
     VkSemaphore semaphore = VK_NULL_HANDLE;
     auto&       table     = device.device_header->header.device_table;
     VkResult    vr        = table.vkCreateSemaphore(device.device, &desc, nullptr, &semaphore);
-    if (!succeeded(vr)) {
-        return make_result<Func(), "Failed to create Vulkan timeline semaphore">(vr);
+    if (!wis::detail::succeeded(vr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to create Vulkan timeline semaphore">(vr);
     }
     // Fill fence impl
-    auto& out_fence         = *new (fence) VKFenceImpl();
+    auto& out_fence         = *new (fence) wis::impl::VKFenceImpl();
     out_fence.fence         = semaphore;
     out_fence.device        = device.device;
     out_fence.device_header = device.device_header;
@@ -251,14 +249,14 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateFence(const WisVKDevice* self
 WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceGetResourceAllocator(const WisVKDevice*      self,
                                                                   WisVKResourceAllocator* allocator)
 {
-    auto& device = *reinterpret_cast<const VKDeviceImpl*>(self);
+    auto& device = *reinterpret_cast<const wis::impl::VKDeviceImpl*>(self);
 
     // Fill allocator impl
-    auto& allocator_impl         = *new (allocator) VKResourceAllocatorImpl();
+    auto& allocator_impl         = *new (allocator) wis::impl::VKResourceAllocatorImpl();
     allocator_impl.allocator     = device.device_header->header.allocator;
     allocator_impl.device_header = device.device_header;
     allocator_impl.device_header->AddRef(); // hold reference to device header
-    return vk_success;
+    return wis::detail::vk_success;
 }
 
 //-----------------------------------------------------------------------------
@@ -266,14 +264,14 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(const WisVKDev
                                                                   const WisDescriptorHeapDesc* desc,
                                                                   WisVKDescriptorHeap*         heap)
 {
-    auto& device   = *reinterpret_cast<const VKDeviceImpl*>(self);
+    auto& device   = *reinterpret_cast<const wis::impl::VKDeviceImpl*>(self);
     auto& header   = device.device_header->header;
     auto& features = header.features;
     auto& table    = header.device_table;
 
     // 0. If heap is supported
     if (!features.descriptor_heap) {
-        return make_result<Func(), "Descriptor heaps are not supported by this Vulkan device">(VK_ERROR_FEATURE_NOT_PRESENT);
+        return wis::detail::make_result<wis::detail::Func(), "Descriptor heaps are not supported by this Vulkan device">(VK_ERROR_FEATURE_NOT_PRESENT);
     }
 
     // 1. Calculate descriptor memory requirements based on desc
@@ -306,18 +304,18 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(const WisVKDev
             heap_alignment);
 
     if (is_shader_heap && required_size > max_heap_size) {
-        return make_result<Func(), "Requested descriptor heap size exceeds the maximum supported by this Vulkan device">(VK_ERROR_INITIALIZATION_FAILED);
+        return wis::detail::make_result<wis::detail::Func(), "Requested descriptor heap size exceeds the maximum supported by this Vulkan device">(VK_ERROR_INITIALIZATION_FAILED);
     }
 
     if (!is_shader_heap) {
         // 2a. For non-shader visible heaps, we can use a simple host allocation
         VkBuffer buffer = reinterpret_cast<VkBuffer>(std::malloc(required_size));
         if (!buffer) {
-            return make_result<Func(), "Failed to allocate memory for non-shader visible descriptor heap">(VK_ERROR_OUT_OF_HOST_MEMORY);
+            return wis::detail::make_result<wis::detail::Func(), "Failed to allocate memory for non-shader visible descriptor heap">(VK_ERROR_OUT_OF_HOST_MEMORY);
         }
 
         // Fill descriptor heap impl
-        auto& heap_impl           = *new (heap) VKDescriptorHeapImpl();
+        auto& heap_impl           = *new (heap) wis::impl::VKDescriptorHeapImpl();
         heap_impl.buffer          = buffer;
         heap_impl.allocation      = VK_NULL_HANDLE; // No VMA allocation for non-shader visible heaps
         heap_impl.mapped_ptr      = buffer; // For non-shader visible heaps, the buffer pointer itself serves as the mapped pointer
@@ -328,7 +326,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(const WisVKDev
         heap_impl.device          = device.device;
         heap_impl.device_header   = device.device_header;
         heap_impl.device_header->AddRef(); // hold reference to device header
-        return vk_success;
+        return wis::detail::vk_success;
     }
 
     // 2. Create buffer
@@ -358,8 +356,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(const WisVKDev
             &allocation,
             &alloc_info_out);
 
-    if (!succeeded(vr)) {
-        return make_result<Func(), "Failed to create buffer for shader visible descriptor heap">(vr);
+    if (!wis::detail::succeeded(vr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to create buffer for shader visible descriptor heap">(vr);
     }
 
     // Get GPU address of the buffer
@@ -369,7 +367,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(const WisVKDev
         .buffer = buffer
     };
 
-    auto& heap_impl           = *new (heap) VKDescriptorHeapImpl();
+    auto& heap_impl           = *new (heap) wis::impl::VKDescriptorHeapImpl();
     heap_impl.buffer          = buffer;
     heap_impl.allocation      = allocation;
     heap_impl.mapped_ptr      = alloc_info_out.pMappedData;
@@ -380,7 +378,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(const WisVKDev
     heap_impl.device          = device.device;
     heap_impl.device_header   = device.device_header;
     heap_impl.device_header->AddRef(); // hold reference to device header
-    return vk_success;
+    return wis::detail::vk_success;
 }
 
 //-----------------------------------------------------------------------------
@@ -388,12 +386,12 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(const WisVKDevi
                                                                  const WisRootSignatureDesc* desc,
                                                                  WisVKRootSignature*         layout)
 {
-    auto& device   = *reinterpret_cast<const VKDeviceImpl*>(self);
+    auto& device   = *reinterpret_cast<const wis::impl::VKDeviceImpl*>(self);
     auto& header   = device.device_header->header;
     auto& features = header.features;
 
     if (!features.descriptor_heap) {
-        return make_result<Func(), "Descriptor heaps are not supported by this Vulkan device">(VK_ERROR_FEATURE_NOT_PRESENT);
+        return wis::detail::make_result<wis::detail::Func(), "Descriptor heaps are not supported by this Vulkan device">(VK_ERROR_FEATURE_NOT_PRESENT);
     }
 
     // Use only 64 DWORDs, same as DX12
@@ -402,7 +400,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(const WisVKDevi
     for (std::size_t i = 0; i < desc->push_constant_count; ++i) {
         const auto& push_constant = desc->push_constants[i];
         if (push_constant.size_bytes % 4 != 0) {
-            return make_result<Func(), "Push constant size must be divisible by 4 bytes">(VK_ERROR_INITIALIZATION_FAILED);
+            return wis::detail::make_result<wis::detail::Func(), "Push constant size must be divisible by 4 bytes">(VK_ERROR_INITIALIZATION_FAILED);
         }
         push_constant_size += push_constant.size_bytes;
     }
@@ -412,26 +410,26 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(const WisVKDevi
     std::size_t total_dwords_needed = push_constant_size + desc->push_descriptor_count * 2 + desc->descriptor_table_count;
 
     if (total_dwords_needed > max_root_parameters) {
-        return make_result<Func(), "Root signature requires more than 64 DWORDs, which is not supported by this implementation">(VK_ERROR_INITIALIZATION_FAILED);
+        return wis::detail::make_result<wis::detail::Func(), "Root signature requires more than 64 DWORDs, which is not supported by this implementation">(VK_ERROR_INITIALIZATION_FAILED);
     }
 
     // 2. Count the number of VkDescriptorSetAndBindingMappingEXT structures
     // Hard part is to pack the tables into a contiguous arrays for each shader type
-    uint32_t                                                  total_table_count        = 0;
-    std::array<uint32_t, WisShaderVisibilityCount>            table_counts_per_shader  = detail::GetMapCountPerShaderType(*desc);
-    std::array<VKMappingOffsetInfo, WisShaderVisibilityCount> table_offsets_per_shader = detail::GetMappingOffsetPerShaderType(table_counts_per_shader, total_table_count);
-    std::array<VKMappingOffsetInfo, WisShaderVisibilityCount> local_offsets_per_shader = table_offsets_per_shader;
+    uint32_t                                                               total_table_count        = 0;
+    std::array<uint32_t, WisShaderVisibilityCount>                         table_counts_per_shader  = wis::detail::GetMapCountPerShaderType(*desc);
+    std::array<wis::detail::VKMappingOffsetInfo, WisShaderVisibilityCount> table_offsets_per_shader = wis::detail::GetMappingOffsetPerShaderType(table_counts_per_shader, total_table_count);
+    std::array<wis::detail::VKMappingOffsetInfo, WisShaderVisibilityCount> local_offsets_per_shader = table_offsets_per_shader;
 
     std::size_t root_param_count     = desc->push_constant_count + desc->push_descriptor_count + desc->descriptor_table_count;
     std::size_t static_sampler_count = 0;
 
     // allocate root signature table
-    std::size_t root_sig_size = sizeof(detail::VKRootSignatureControlBlock) +
+    std::size_t root_sig_size = sizeof(wis::detail::VKRootSignatureControlBlock) +
             wis::aligned_size(root_param_count, 2u) * sizeof(uint32_t) + // Root parameter binding indices, aligned to 8 bytes
             total_table_count * sizeof(VkDescriptorSetAndBindingMappingEXT);
 
-    std::unique_ptr<detail::VKRootSignatureControlBlock> root_sig_control_block{
-        reinterpret_cast<detail::VKRootSignatureControlBlock*>(operator new(root_sig_size, std::nothrow))
+    std::unique_ptr<wis::detail::VKRootSignatureControlBlock> root_sig_control_block{
+        reinterpret_cast<wis::detail::VKRootSignatureControlBlock*>(operator new(root_sig_size, std::nothrow))
     };
 
     // start lifetime
@@ -456,7 +454,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(const WisVKDevi
     auto     mappings            = root_sig_control_block->GetMappings();
     auto     root_param_offsets  = root_sig_control_block->GetRootBindingOffsets();
     uint32_t push_address_offset = 0;
-    uint32_t root_param_index   = 0;
+    uint32_t root_param_index    = 0;
 
     // Push constants
     for (std::size_t i = 0; i < desc->push_constant_count; ++i) {
@@ -468,7 +466,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(const WisVKDevi
             .descriptorSet = src.bind_space,
             .firstBinding  = src.bind_register,
             .bindingCount  = 1,
-            .resourceMask  = cbv_mask,
+            .resourceMask  = wis::detail::cbv_mask,
             .source        = VK_DESCRIPTOR_MAPPING_SOURCE_PUSH_DATA_EXT,
             .sourceData    = { .pushAddressOffset = push_address_offset }
         };
@@ -487,7 +485,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(const WisVKDevi
             .descriptorSet = src.bind_space,
             .firstBinding  = src.bind_register,
             .bindingCount  = 1,
-            .resourceMask  = GetResourceTypeFlags(src.type), // Push descriptors can be any type
+            .resourceMask  = wis::detail::GetResourceTypeFlags(src.type), // Push descriptors can be any type
             .source        = VK_DESCRIPTOR_MAPPING_SOURCE_PUSH_ADDRESS_EXT,
             .sourceData    = { .pushAddressOffset = static_cast<uint32_t>(push_address_offset + i * 2 * sizeof(uint32_t)) }
         };
@@ -513,7 +511,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(const WisVKDevi
             // Check for unbounded array
             if (entry.count == std::numeric_limits<uint32_t>::max()) {
                 if (j != src.entry_count - 1) {
-                    return make_result<Func(), "Unbounded array descriptor table entry must be the last entry in the table">(VK_ERROR_INITIALIZATION_FAILED);
+                    return wis::detail::make_result<wis::detail::Func(), "Unbounded array descriptor table entry must be the last entry in the table">(VK_ERROR_INITIALIZATION_FAILED);
                 }
                 local_count = 1;
             }
@@ -530,7 +528,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(const WisVKDevi
                 .descriptorSet = entry.bind_space,
                 .firstBinding  = entry.bind_register,
                 .bindingCount  = local_count,
-                .resourceMask  = GetResourceTypeFlags(entry.type),
+                .resourceMask  = wis::detail::GetResourceTypeFlags(entry.type),
                 .source        = VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_PUSH_INDEX_EXT,
                 .sourceData    = { .pushIndex = {
                                            .heapOffset      = local_offset,
@@ -553,10 +551,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(const WisVKDevi
     }
 
     // Fill root signature impl
-    auto& layout_impl                 = *new (layout) VKRootSignatureImpl();
+    auto& layout_impl                 = *new (layout) wis::impl::VKRootSignatureImpl();
     layout_impl.root_signature_header = root_sig_control_block.release();
 
-    return vk_success;
+    return wis::detail::vk_success;
 }
 
 WIS_EXTERN_C WISDOM_API void wisVKDeviceQueryProperties(const WisVKDevice* self,
@@ -566,7 +564,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDeviceQueryProperties(const WisVKDevice* self,
         return;
     }
 
-    auto& device = *reinterpret_cast<const VKDeviceImpl*>(self);
+    auto& device = *reinterpret_cast<const wis::impl::VKDeviceImpl*>(self);
     auto& header = device.device_header->header;
     void* next   = properties;
 
@@ -579,7 +577,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDeviceQueryProperties(const WisVKDevice* self,
             auto* props = static_cast<WisDeviceCommandQueuesProperties*>(next);
             for (size_t i = 0; i < WisCommandQueueTypeCount; ++i) {
                 auto&                   family_index = header.queue_residency[i];
-                bool                    supported    = family_index != VKQueueFamilyProperties::invalid_family_index;
+                bool                    supported    = family_index != wis::detail::VKQueueFamilyProperties::invalid_family_index;
                 WisCommandQueuePriority priority     = WisCommandQueuePriority(supported ? (header.queue_families[family_index].queue_priority) : 0);
 
                 props->supported_queues[i]   = supported;
