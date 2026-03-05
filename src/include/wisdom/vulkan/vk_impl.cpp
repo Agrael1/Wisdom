@@ -6,14 +6,13 @@
 #include <wisdom/vulkan/detail/vk_ext1.hpp>
 #include <wisdom/util/allocation.hpp>
 
-using namespace wis;
-using namespace wis::impl;
-using namespace wis::detail;
+
+
 
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyBuffer(WisVKBuffer* self)
 {
-    auto& impl = *reinterpret_cast<VKBufferImpl*>(self);
+    auto& impl = *reinterpret_cast<wis::impl::VKBufferImpl*>(self);
     if (impl.buffer != VK_NULL_HANDLE) {
         // get allocator
         VmaAllocator allocator = impl.device_header->header.allocator;
@@ -29,7 +28,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyBuffer(WisVKBuffer* self)
         VmaAllocatorInfo allocator_info{};
         vmaGetAllocatorInfo(allocator, &allocator_info);
 
-        detail::release_vk_device(allocator_info.device, impl.device_header);
+        wis::detail::release_vk_device(allocator_info.device, impl.device_header);
         impl.device_header = nullptr;
     }
 }
@@ -37,14 +36,14 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyBuffer(WisVKBuffer* self)
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void* wisVKBufferMap(const WisVKBuffer* self)
 {
-    auto& impl = *reinterpret_cast<const VKBufferImpl*>(self);
+    auto& impl = *reinterpret_cast<const wis::impl::VKBufferImpl*>(self);
     return impl.mapped_ptr;
 }
 
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API uint64_t wisVKBufferGetGPUAddress(const WisVKBuffer* self)
 {
-    auto& impl   = *reinterpret_cast<const VKBufferImpl*>(self);
+    auto& impl   = *reinterpret_cast<const wis::impl::VKBufferImpl*>(self);
     auto& header = impl.device_header->header;
     auto& table  = header.device_table;
 
@@ -63,7 +62,7 @@ WIS_EXTERN_C WISDOM_API uint64_t wisVKBufferGetGPUAddress(const WisVKBuffer* sel
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyTexture(WisVKTexture* self)
 {
-    auto& impl = *reinterpret_cast<VKTextureImpl*>(self);
+    auto& impl = *reinterpret_cast<wis::impl::VKTextureImpl*>(self);
     if (impl.image != VK_NULL_HANDLE) {
         // get allocator
         VmaAllocator allocator = impl.device_header->header.allocator;
@@ -75,7 +74,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyTexture(WisVKTexture* self)
         VmaAllocatorInfo allocator_info{};
         vmaGetAllocatorInfo(allocator, &allocator_info);
 
-        detail::release_vk_device(allocator_info.device, impl.device_header);
+        wis::detail::release_vk_device(allocator_info.device, impl.device_header);
         impl.device_header = nullptr;
     }
 }
@@ -83,7 +82,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyTexture(WisVKTexture* self)
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyRootSignature(WisVKRootSignature* self)
 {
-    auto& impl = *reinterpret_cast<VKRootSignatureImpl*>(self);
+    auto& impl = *reinterpret_cast<wis::impl::VKRootSignatureImpl*>(self);
     if (impl.root_signature_header != nullptr) {
         delete impl.root_signature_header;
         impl.root_signature_header = nullptr;

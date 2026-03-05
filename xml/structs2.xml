@@ -53,7 +53,7 @@
       <member type="Filter" name="mag_filter" doc="Magnification filter."/>
       <member type="Filter" name="mip_filter" doc="Mip level filter."/>
       <member type="bool" name="is_anisotropic" doc="Anisotropic filtering enable."/>
-      <member type="u32" name="max_anisotropy" doc="Max anisotropy level. Max is 16."/>
+      <member type="u32" name="max_anisotropy" doc="Max anisotropy level. Min is 1, Max is 16."/>
       <member type="AddressMode" name="address_u" doc="Address mode for U coordinate."/>
       <member type="AddressMode" name="address_v" doc="Address mode for V coordinate."/>
       <member type="AddressMode" name="address_w" doc="Address mode for W coordinate."/>
@@ -62,7 +62,6 @@
       <member type="f32" name="mip_lod_bias" doc="Mip LOD bias value."/>
       <member type="CompareOperation" name="comparison_op" doc="Comparison operation for comparison samplers."/>
       <member type="StaticBorder" name="static_border_color" doc="Static border color. Used if any address mode is set to {AddressMode::Border}."/>
-      <member type="f32" name="border_color" array="4" doc="Border color. Used if any address mode is set to {AddressMode::Border} and static_border_color is set to {StaticBorder::Custom}."/>
       <member type="SamplerFlags" name="flags" doc="Sampler flags. Used to set additional sampler options."/>
     </type>
 

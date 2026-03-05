@@ -103,7 +103,7 @@ public:
                                                        VK_EXTERNAL_MEMORY_HANDLE_TYPE_HOST_ALLOCATION_BIT_EXT,
                                                        mapping,
                                                        &props);
-        if (res != VK_SUCCESS) {
+        if (res != wis::detail::vk_success) {
             result = wis::make_result<wis::Func<wis::FuncD()>(), "vkGetMemoryHostPointerPropertiesEXT failed: ">(res);
             return buffer;
         }
@@ -144,12 +144,12 @@ public:
             .memoryTypeIndex = mem_idx,
         };
         res = shared_device.table().vkAllocateMemory(shared_device.get(), &alloc_info, nullptr, &buffer.memory);
-        if (res != VK_SUCCESS) {
+        if (res != wis::detail::vk_success) {
             result = wis::make_result<wis::Func<wis::FuncD()>(), "vkAllocateMemory failed: ">(res);
             return buffer;
         }
         res = shared_device.table().vkCreateBuffer(shared_device.get(), &buffer_info, nullptr, &buffer.buffer);
-        if (res != VK_SUCCESS) {
+        if (res != wis::detail::vk_success) {
             shared_device.table().vkFreeMemory(shared_device.get(), buffer.memory, nullptr);
             buffer.memory = nullptr;
 
@@ -158,7 +158,7 @@ public:
         }
 
         res = shared_device.table().vkBindBufferMemory(shared_device.get(), buffer.buffer, buffer.memory, 0);
-        if (res != VK_SUCCESS) {
+        if (res != wis::detail::vk_success) {
             shared_device.table().vkDestroyBuffer(shared_device.get(), buffer.buffer, nullptr);
             shared_device.table().vkFreeMemory(shared_device.get(), buffer.memory, nullptr);
             buffer.buffer = nullptr;

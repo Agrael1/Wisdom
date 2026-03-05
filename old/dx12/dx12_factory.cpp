@@ -31,7 +31,7 @@ wis::ImplDX12Factory::GetAdapter(wis::Result& result, uint32_t index, AdapterPre
     wis::DX12Adapter adapter;
     auto&            internal = adapter.GetMutableInternal();
 
-    auto hr = factory->EnumAdapterByGpuPreference(index, convert_dx(preference), internal.adapter.iid(), internal.adapter.put_void());
+    auto hr = factory->EnumAdapterByGpuPreference(index, wis::detail::convert_dx(preference), internal.adapter.iid(), internal.adapter.put_void());
     if (!wis::succeeded(hr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to get adapter">(hr);
     }

@@ -66,7 +66,7 @@ public:
         auto&                   as_i = as.GetMutableInternal();
 
         auto res = table.vkCreateAccelerationStructureKHR(device.get(), &create_info, nullptr, &as_i.handle);
-        if (res != VK_SUCCESS) {
+        if (res != wis::detail::vk_success) {
             result = wis::make_result<wis::Func<wis::FuncD()>(), "Acceleration structure creation failed">(res);
             return as;
         }
@@ -156,8 +156,8 @@ VKCreateGeometryDesc(const wis::AcceleratedGeometryInput& desc) noexcept
     wis::VKAcceleratedGeometryDesc out;
     out.first = {
         .sType        = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR,
-        .geometryType = convert_vk(desc.geometry_type),
-        .flags        = convert_vk(desc.flags)
+        .geometryType = wis::detail::convert_vk(desc.geometry_type),
+        .flags        = wis::detail::convert_vk(desc.flags)
     };
     out.second = {
         .primitiveCount = desc.triangle_or_aabb_count,
@@ -166,11 +166,11 @@ VKCreateGeometryDesc(const wis::AcceleratedGeometryInput& desc) noexcept
     case wis::ASGeometryType::Triangles:
         out.first.geometry.triangles = {
             .sType         = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR,
-            .vertexFormat  = convert_vk(desc.vertex_format),
+            .vertexFormat  = wis::detail::convert_vk(desc.vertex_format),
             .vertexData    = { .deviceAddress = desc.vertex_or_aabb_buffer_address },
             .vertexStride  = desc.vertex_or_aabb_buffer_stride,
             .maxVertex     = desc.vertex_count,
-            .indexType     = convert_vk(desc.index_format),
+            .indexType     = wis::detail::convert_vk(desc.index_format),
             .indexData     = { .deviceAddress = desc.index_buffer_address },
             .transformData = { .deviceAddress = desc.transform_matrix_address }
         };

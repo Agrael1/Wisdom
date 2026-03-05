@@ -134,8 +134,15 @@ int main()
         .memory_type      = WisDescriptorMemoryTypeShaderVisible,
         .descriptor_count = 100,
     };
+    WisDescriptorHeapDesc sampler_heap_desc = {
+        .type             = WisDescriptorHeapTypeSampler,
+        .memory_type      = WisDescriptorMemoryTypeShaderVisible,
+        .descriptor_count = 100,
+    };
     WisDescriptorHeap descriptor_heap = { 0 };
+    WisDescriptorHeap sampler_heap    = { 0 };
     result                            = wisDeviceCreateDescriptorHeap(&device, &descriptor_heap_desc, &descriptor_heap);
+    result                            = wisDeviceCreateDescriptorHeap(&device, &sampler_heap_desc, &sampler_heap);
 
     WisBufferDesc buffer_desc = {
         .size_bytes   = 1024,
@@ -150,11 +157,28 @@ int main()
     uint64_t buffer_gpu_address = wisBufferGetGPUAddress(&buffer);
     void*    mapped_ptr         = wisBufferMap(&buffer);
 
+    WisSamplerDesc sampler_desc = {
+        .min_filter          = WisFilterLinear,
+        .mag_filter          = WisFilterLinear,
+        .mip_filter          = WisFilterLinear,
+        .is_anisotropic      = false,
+        .max_anisotropy      = 1,
+        .address_u           = WisAddressModeRepeat,
+        .address_v           = WisAddressModeRepeat,
+        .address_w           = WisAddressModeRepeat,
+        .min_lod             = 0.0f,
+        .max_lod             = 1000.0f,
+        .mip_lod_bias        = 0.0f,
+        .comparison_op       = WisCompareOperationNever,
+        .static_border_color = WisStaticBorderOpaqueBlack,
+        .flags               = WisSamplerFlagsNone,
+    };
     WisConstantBufferBinding cb_binding = {
         .buffer_address = buffer_gpu_address,
         .size_bytes     = 1024,
     };
     result = wisDescriptorHeapWriteConstantBuffer(&descriptor_heap, &cb_binding, 0);
+    result = wisDescriptorHeapWriteSampler(&sampler_heap, &sampler_desc, 0);
 
     WisTextureDesc texture_desc = {
         .width               = 256,
@@ -192,18 +216,32 @@ int main()
         .count             = 1,
         .descriptor_offset = 0,
     };
-    WisDescriptorTable descriptor_table = {
-        .visibility  = WisShaderVisibilityAll,
-        .entries     = &descriptor_table_entry,
-        .entry_count = 1,
+    WisDescriptorTableEntry descriptor_table_entry2 = {
+        .type              = WisDescriptorTypeSampler,
+        .bind_register     = 0,
+        .bind_space        = 0,
+        .count             = 1,
+        .descriptor_offset = 0,
+    };
+    WisDescriptorTable descriptor_tables[] = {
+        {
+         .visibility  = WisShaderVisibilityAll,
+         .entries     = &descriptor_table_entry,
+         .entry_count = 1,
+         },
+        {
+         .visibility  = WisShaderVisibilityPixel,
+         .entries     = &descriptor_table_entry2,
+         .entry_count = 1,
+         }
     };
     WisRootSignatureDesc root_signature_desc = {
         .push_constants         = &push_constant,
         .push_constant_count    = 1,
         .push_descriptors       = &push_descriptor,
         .push_descriptor_count  = 1,
-        .descriptor_tables      = &descriptor_table,
-        .descriptor_table_count = 1,
+        .descriptor_tables      = descriptor_tables,
+        .descriptor_table_count = 2,
     };
     WisRootSignature root_signature = { 0 };
     result                          = wisDeviceCreateRootSignature(&device, &root_signature_desc, &root_signature);
@@ -235,7 +273,7 @@ int main()
     wisCommandListSetRootSignature(&command_list, wisGetView(&root_signature), WisPipelineTypeGraphics);
     wisCommandListSetPushConstants(&command_list, &push_constant_data_desc);
     wisCommandListSetPushDescriptor(&command_list, &push_descriptor_data_desc);
-    wisCommandListSetDescriptorHeaps(&command_list, &descriptor_heap, NULL);
+    wisCommandListSetDescriptorHeaps(&command_list, &descriptor_heap, &sampler_heap);
     wisCommandListSetDescriptorTable(&command_list, &descriptor_table_data_desc);
     wisCommandListEnd(&command_list);
 
@@ -253,6 +291,7 @@ int main()
     wisDestroyResourceAllocator(&allocator);
     wisDestroyCommandList(&command_list);
     wisDestroyDescriptorHeap(&descriptor_heap);
+    wisDestroyDescriptorHeap(&sampler_heap);
     wisDestroyBuffer(&buffer);
     wisDestroyTexture(&texture);
     wisDestroyCommandAllocator(&command_allocator);

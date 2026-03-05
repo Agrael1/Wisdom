@@ -24,11 +24,11 @@ wis::ImplDX12ExtendedAllocation::CreateGPUUploadTexture(wis::Result& result, con
     DX12ResourceAllocator::DX12FillTextureDesc(desc, tex_desc);
 
     D3D12MA::ALLOCATION_DESC all_desc{
-        .Flags          = convert_dx(flags),
-        .HeapType       = convert_dx(wis::MemoryType::GPUUpload),
+        .Flags          = wis::detail::convert_dx(flags),
+        .HeapType       = wis::detail::convert_dx(wis::MemoryType::GPUUpload),
         .ExtraHeapFlags = D3D12_HEAP_FLAG_DENY_BUFFERS
     };
-    HRESULT hr = allocator.GetInternal().allocator->CreateResource3(&all_desc, &tex_desc, convert_dx(initial_state), nullptr, 0, nullptr, mem_internal.allocation.put(), __uuidof(*internal.resource), internal.resource.put_void());
+    HRESULT hr = allocator.GetInternal().allocator->CreateResource3(&all_desc, &tex_desc, wis::detail::convert_dx(initial_state), nullptr, 0, nullptr, mem_internal.allocation.put(), __uuidof(*internal.resource), internal.resource.put_void());
 
     if (!wis::succeeded(hr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Buffer Allocation failed">(hr);

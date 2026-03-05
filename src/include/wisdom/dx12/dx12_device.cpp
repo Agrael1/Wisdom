@@ -10,14 +10,12 @@
 #include <bit>
 #include <ranges>
 
-using namespace wis;
-using namespace wis::impl;
-using namespace wis::detail;
+
 
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyDevice(WisDX12Device* self)
 {
-    auto& impl = *reinterpret_cast<DX12DeviceImpl*>(self);
+    auto& impl = *reinterpret_cast<wis::impl::DX12DeviceImpl*>(self);
     if (!impl.device) {
         return;
     }
@@ -33,30 +31,30 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandQueue(const WisDX12D
                                                                   WisCommandQueueType  type,
                                                                   WisDX12CommandQueue* queue)
 {
-    auto& device = *reinterpret_cast<const DX12DeviceImpl*>(self);
+    auto& device = *reinterpret_cast<const wis::impl::DX12DeviceImpl*>(self);
 
     bool supported = (device.queue_priorities[type] & ~0x7fu) != 0;
     if (!supported) {
-        return make_result<Func(), "Requested command queue type is not supported or not enabled by the device">(E_INVALIDARG);
+        return wis::detail::make_result<wis::detail::Func(), "Requested command queue type is not supported or not enabled by the device">(E_INVALIDARG);
     }
 
     D3D12_COMMAND_QUEUE_DESC desc{
-        .Type     = convert_dx(type),
-        .Priority = convert_dx(WisCommandQueuePriority(device.queue_priorities[type] & 0x7f)),
+        .Type     = wis::detail::convert_dx(type),
+        .Priority = wis::detail::convert_dx(WisCommandQueuePriority(device.queue_priorities[type] & 0x7f)),
         .Flags    = D3D12_COMMAND_QUEUE_FLAG_NONE,
         .NodeMask = 0,
     };
 
-    com_ptr<ID3D12CommandQueue> out_queue;
+    wis::com_ptr<ID3D12CommandQueue> out_queue;
 
     HRESULT hr = device.device->CreateCommandQueue(&desc, IID_ID3D12CommandQueue, out_queue.put_void_unchecked());
-    if (!succeeded(hr)) {
-        return make_result<Func(), "Failed to create command queue">(hr);
+    if (!wis::detail::succeeded(hr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to create command queue">(hr);
     }
 
-    auto& internal = *new (queue) DX12CommandQueueImpl();
+    auto& internal = *new (queue) wis::impl::DX12CommandQueueImpl();
     internal.queue = out_queue.detach();
-    return dx_success;
+    return wis::detail::dx_success;
 }
 
 //-----------------------------------------------------------------------------
@@ -64,20 +62,20 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandAllocator(const WisD
                                                                       WisCommandQueueType      type,
                                                                       WisDX12CommandAllocator* list)
 {
-    WisResult                            result = dx_success;
-    auto&                                device = *reinterpret_cast<const DX12DeviceImpl*>(self);
+    WisResult                            result = wis::detail::dx_success;
+    auto&                                device = *reinterpret_cast<const wis::impl::DX12DeviceImpl*>(self);
     wis::com_ptr<ID3D12CommandAllocator> allocator;
 
-    auto hr = device.device->CreateCommandAllocator(convert_dx(type),
+    auto hr = device.device->CreateCommandAllocator(wis::detail::convert_dx(type),
                                                     IID_ID3D12CommandAllocator,
                                                     allocator.put_void_unchecked());
-    if (!succeeded(hr)) {
-        return make_result<Func(), "Failed to create command allocator">(hr);
+    if (!wis::detail::succeeded(hr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to create command allocator">(hr);
     }
 
-    auto& internal     = *new (list) DX12CommandAllocatorImpl();
+    auto& internal     = *new (list) wis::impl::DX12CommandAllocatorImpl();
     internal.allocator = allocator.detach();
-    internal.type      = convert_dx(type);
+    internal.type      = wis::detail::convert_dx(type);
     internal.device    = device.device; // store device pointer for later use when creating command lists with this allocator (don't refcount)
     return result;
 }
@@ -87,24 +85,26 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateFence(const WisDX12Device* 
                                                            uint64_t             initial_value,
                                                            WisDX12Fence*        fence)
 {
-    WisResult            result = dx_success;
-    auto&                device = *reinterpret_cast<const DX12DeviceImpl*>(self);
-    com_ptr<ID3D12Fence> out_fence;
-    auto                 hr = device.device->CreateFence(initial_value,
+    WisResult result = wis::detail::dx_success;
+    auto&     device = *reinterpret_cast<const wis::impl::DX12DeviceImpl*>(self);
+
+    wis::com_ptr<ID3D12Fence> out_fence;
+
+    auto hr = device.device->CreateFence(initial_value,
                                          D3D12_FENCE_FLAG_NONE,
                                          IID_ID3D12Fence,
                                          out_fence.put_void_unchecked());
-    if (!succeeded(hr)) {
-        return make_result<Func(), "Failed to create fence">(hr);
+    if (!wis::detail::succeeded(hr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to create fence">(hr);
     }
 
     // Create event handle
     auto event_handle = CreateEventW(nullptr, false, false, nullptr);
     if (!event_handle) {
-        return make_result<Func(), "Failed to create fence event handle">(HRESULT_FROM_WIN32(GetLastError()));
+        return wis::detail::make_result<wis::detail::Func(), "Failed to create fence event handle">(HRESULT_FROM_WIN32(GetLastError()));
     }
 
-    auto& internal = *new (fence) DX12FenceImpl();
+    auto& internal = *new (fence) wis::impl::DX12FenceImpl();
     internal.fence = out_fence.detach();
     internal.event = event_handle;
     return result;
@@ -114,13 +114,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateFence(const WisDX12Device* 
 WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceGetResourceAllocator(const WisDX12Device*      self,
                                                                     WisDX12ResourceAllocator* allocator)
 {
-    auto& device = *reinterpret_cast<const DX12DeviceImpl*>(self);
+    auto& device = *reinterpret_cast<const wis::impl::DX12DeviceImpl*>(self);
 
     // Fill allocator impl
-    auto& allocator_impl     = *new (allocator) DX12ResourceAllocatorImpl();
+    auto& allocator_impl     = *new (allocator) wis::impl::DX12ResourceAllocatorImpl();
     allocator_impl.allocator = device.allocator;
     allocator_impl.allocator->AddRef(); // hold reference to allocator
-    return dx_success;
+    return wis::detail::dx_success;
 }
 
 //-----------------------------------------------------------------------------
@@ -128,29 +128,29 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateDescriptorHeap(const WisDX1
                                                                     const WisDescriptorHeapDesc* desc,
                                                                     WisDX12DescriptorHeap*       heap)
 {
-    auto& device = *reinterpret_cast<const DX12DeviceImpl*>(self);
+    auto& device = *reinterpret_cast<const wis::impl::DX12DeviceImpl*>(self);
 
     // Create descriptor heap container
     D3D12_DESCRIPTOR_HEAP_DESC heap_desc{
-        .Type           = convert_dx(desc->type),
+        .Type           = wis::detail::convert_dx(desc->type),
         .NumDescriptors = static_cast<UINT>(desc->descriptor_count),
-        .Flags          = convert_dx(desc->memory_type),
+        .Flags          = wis::detail::convert_dx(desc->memory_type),
         .NodeMask       = 0,
     };
 
     wis::com_ptr<ID3D12DescriptorHeap> descriptor_heap;
     HRESULT                            hr = device.device->CreateDescriptorHeap(&heap_desc, IID_ID3D12DescriptorHeap, descriptor_heap.put_void_unchecked());
-    if (!succeeded(hr)) {
-        return make_result<Func(), "Failed to create descriptor heap">(hr);
+    if (!wis::detail::succeeded(hr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to create descriptor heap">(hr);
     }
 
-    auto& heap_impl           = *new (heap) DX12DescriptorHeapImpl();
+    auto& heap_impl           = *new (heap) wis::impl::DX12DescriptorHeapImpl();
     heap_impl.descriptor_heap = descriptor_heap.detach();
     heap_impl.device          = device.device;
     heap_impl.gpu_handle      = heap_impl.descriptor_heap->GetGPUDescriptorHandleForHeapStart();
     heap_impl.cpu_handle      = heap_impl.descriptor_heap->GetCPUDescriptorHandleForHeapStart();
     heap_impl.descriptor_size = device.device->GetDescriptorHandleIncrementSize(heap_desc.Type);
-    return dx_success;
+    return wis::detail::dx_success;
 }
 
 //-----------------------------------------------------------------------------
@@ -158,8 +158,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(const WisDX12
                                                                    const WisRootSignatureDesc* desc,
                                                                    WisDX12RootSignature*       layout)
 {
-    auto&     device = *reinterpret_cast<const DX12DeviceImpl*>(self);
-    WisResult res    = dx_success;
+    auto&     device = *reinterpret_cast<const wis::impl::DX12DeviceImpl*>(self);
+    WisResult res    = wis::detail::dx_success;
 
     // https://learn.microsoft.com/en-us/windows/win32/direct3d12/root-signature-limits
     static constexpr std::size_t max_root_parameters = 64;
@@ -167,7 +167,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(const WisDX12
     for (std::size_t i = 0; i < desc->push_constant_count; ++i) {
         const auto& push_constant = desc->push_constants[i];
         if (push_constant.size_bytes % 4 != 0) {
-            return make_result<Func(), "Push constant size must be divisible by 4 bytes">(E_INVALIDARG);
+            return wis::detail::make_result<wis::detail::Func(), "Push constant size must be divisible by 4 bytes">(E_INVALIDARG);
         }
         push_constant_size += push_constant.size_bytes;
     }
@@ -175,7 +175,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(const WisDX12
 
     // Check limits
     if (push_constant_size + 2 * desc->push_descriptor_count + desc->descriptor_table_count > max_root_parameters) {
-        return make_result<Func(), "Exceeded maximum number of root parameters">(E_INVALIDARG);
+        return wis::detail::make_result<wis::detail::Func(), "Exceeded maximum number of root parameters">(E_INVALIDARG);
     }
 
     D3D12_ROOT_PARAMETER1            root_parameters[max_root_parameters];
@@ -192,7 +192,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(const WisDX12
                               .RegisterSpace  = static_cast<UINT>(src.bind_space),
                               .Num32BitValues = static_cast<UINT>(src.size_bytes / 4),
                               },
-            .ShaderVisibility = convert_dx(src.visibility),
+            .ShaderVisibility = wis::detail::convert_dx(src.visibility),
         };
     }
     root_parameters_span = root_parameters_span.subspan(desc->push_constant_count);
@@ -201,18 +201,18 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(const WisDX12
     for (std::size_t i = 0; i < desc->push_descriptor_count; ++i) {
         auto& src = desc->push_descriptors[i];
 
-        if (!detail::dx12_is_pushable(src.type)) {
-            return make_result<Func(), "Descriptor type is not pushable to DX12 root signature">(E_INVALIDARG);
+        if (!wis::detail::dx12_is_pushable(src.type)) {
+            return wis::detail::make_result<wis::detail::Func(), "Descriptor type is not pushable to DX12 root signature">(E_INVALIDARG);
         }
 
         root_parameters_span[i] = {
-            .ParameterType = detail::dx12_root_parameter_type(src.type),
+            .ParameterType = wis::detail::dx12_root_parameter_type(src.type),
             .Descriptor    = {
                               .ShaderRegister = src.bind_register,
                               .RegisterSpace  = src.bind_space,
                               .Flags          = D3D12_ROOT_DESCRIPTOR_FLAG_NONE,
                               },
-            .ShaderVisibility = convert_dx(src.visibility),
+            .ShaderVisibility = wis::detail::convert_dx(src.visibility),
         };
     }
     root_parameters_span = root_parameters_span.subspan(desc->push_descriptor_count);
@@ -229,9 +229,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(const WisDX12
             range_count += static_cast<uint32_t>(src.entry_count);
         }
 
-        ranges = make_unique<D3D12_DESCRIPTOR_RANGE1[]>(range_count);
+        ranges = wis::make_unique<D3D12_DESCRIPTOR_RANGE1[]>(range_count);
         if (!ranges) {
-            return make_result<Func(), "Out of memory while creating descriptor ranges">(E_OUTOFMEMORY);
+            return wis::detail::make_result<wis::detail::Func(), "Out of memory while creating descriptor ranges">(E_OUTOFMEMORY);
         }
 
         wis::span<D3D12_DESCRIPTOR_RANGE1> ranges_span{ ranges.get(), range_count };
@@ -242,7 +242,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(const WisDX12
             for (size_t i = 0; i < table.entry_count; ++i) {
                 auto& src                     = table.entries[i];
                 ranges_span[i + range_offset] = {
-                    .RangeType                         = convert_dx(src.type),
+                    .RangeType                         = wis::detail::convert_dx(src.type),
                     .NumDescriptors                    = (src.count == 0 ? 1 : src.count),
                     .BaseShaderRegister                = src.bind_register,
                     .RegisterSpace                     = src.bind_space,
@@ -257,7 +257,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(const WisDX12
                                     .NumDescriptorRanges = static_cast<uint32_t>(table.entry_count),
                                     .pDescriptorRanges   = ranges.get() + range_offset,
                                     },
-                .ShaderVisibility = detail::convert_dx(table.visibility),
+                .ShaderVisibility = wis::detail::convert_dx(table.visibility),
             };
             range_offset += table.entry_count;
         }
@@ -279,14 +279,14 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(const WisDX12
     HRESULT                hr = D3D12SerializeVersionedRootSignature(&rsig_desc, signature.put(), error.put());
 
     // Check for serialization errors
-    if (!succeeded(hr)) {
+    if (!wis::detail::succeeded(hr)) {
         // If error blob is available, include its message into debug output
 #ifdef _DEBUG
         if (error) {
             // Query debug info queue
             wis::com_ptr<ID3D12InfoQueue> info_queue;
             auto                          hr2 = device.device->QueryInterface(IID_ID3D12InfoQueue, info_queue.put_void_unchecked());
-            if (succeeded(hr2) && info_queue) {
+            if (wis::detail::succeeded(hr2) && info_queue) {
                 info_queue->AddMessage(D3D12_MESSAGE_CATEGORY::D3D12_MESSAGE_CATEGORY_COMPILATION,
                                        D3D12_MESSAGE_SEVERITY_ERROR,
                                        D3D12_MESSAGE_ID::D3D12_MESSAGE_ID_CREATE_ROOTSIGNATURE,
@@ -298,7 +298,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(const WisDX12
         }
 #endif
 
-        return make_result<Func(), "Failed to serialize root signature">(hr);
+        return wis::detail::make_result<wis::detail::Func(), "Failed to serialize root signature">(hr);
     }
 
     wis::com_ptr<ID3D12RootSignature> root_signature;
@@ -307,11 +307,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(const WisDX12
                                             signature->GetBufferSize(),
                                             IID_ID3D12RootSignature,
                                             root_signature.put_void_unchecked());
-    if (!succeeded(hr)) {
-        return make_result<Func(), "Failed to create root signature">(hr);
+    if (!wis::detail::succeeded(hr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to create root signature">(hr);
     }
 
-    auto& layout_impl          = *new (layout) DX12RootSignatureImpl();
+    auto& layout_impl          = *new (layout) wis::impl::DX12RootSignatureImpl();
     layout_impl.root_signature = root_signature.detach();
     return res;
 }
@@ -323,7 +323,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DeviceQueryProperties(const WisDX12Device* s
         return;
     }
 
-    auto& device = *reinterpret_cast<const DX12DeviceImpl*>(self);
+    auto& device = *reinterpret_cast<const wis::impl::DX12DeviceImpl*>(self);
     void* next   = properties;
 
     do {
@@ -341,7 +341,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DeviceQueryProperties(const WisDX12Device* s
         case WisQueryPropertyTypeDeviceDescriptorHeapProperties: {
             auto*                              props     = static_cast<WisDeviceDescriptorHeapProperties*>(next);
             D3D12_FEATURE_DATA_D3D12_OPTIONS19 options19 = {};
-            if (succeeded(device.device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS19, &options19, sizeof(options19)))) {
+            if (wis::detail::succeeded(device.device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS19, &options19, sizeof(options19)))) {
                 props->max_descriptor_heap_size            = options19.MaxViewDescriptorHeapSize;
                 props->max_sampler_heap_size               = options19.MaxSamplerDescriptorHeapSize;
                 props->max_sampler_heap_size_with_embedded = options19.MaxSamplerDescriptorHeapSizeWithStaticSamplers;
@@ -352,7 +352,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DeviceQueryProperties(const WisDX12Device* s
         case WisQueryPropertyTypeDeviceMemoryProperties: {
             auto*                              props     = static_cast<WisDeviceMemoryProperties*>(next);
             D3D12_FEATURE_DATA_D3D12_OPTIONS16 options16 = {};
-            if (succeeded(device.device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS16, &options16, sizeof(options16)))) {
+            if (wis::detail::succeeded(device.device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS16, &options16, sizeof(options16)))) {
                 props->gpu_upload_supported      = options16.GPUUploadHeapSupported;
                 props->host_image_copy_supported = options16.GPUUploadHeapSupported;
             }

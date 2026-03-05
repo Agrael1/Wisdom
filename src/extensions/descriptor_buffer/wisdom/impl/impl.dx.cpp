@@ -73,7 +73,7 @@ wis::ImplDX12DescriptorBufferExtension::CreateRootSignature(wis::Result& result,
                               .ShaderRegister = i,
                               .RegisterSpace  = 0, // always 0 for push descriptors
             },
-            .ShaderVisibility = convert_dx(descriptor.stage),
+            .ShaderVisibility = wis::detail::convert_dx(descriptor.stage),
         };
     }
 
@@ -96,7 +96,7 @@ wis::ImplDX12DescriptorBufferExtension::CreateRootSignature(wis::Result& result,
         for (size_t j = offset; j < table.entry_count + offset; j++) {
             auto& entry = table.entries[j - offset];
             memory[j]   = {
-                  .RangeType                         = convert_dx(entry.type),
+                  .RangeType                         = wis::detail::convert_dx(entry.type),
                   .NumDescriptors                    = entry.count,
                   .BaseShaderRegister                = entry.bind_register,
                   .RegisterSpace                     = entry.binding_space,
@@ -146,13 +146,13 @@ wis::ImplDX12DescriptorBufferExtension::CreateDescriptorBuffer(wis::Result& resu
     DX12DescriptorBuffer out_buffer;
     auto&                internal = out_buffer.GetMutableInternal();
 
-    auto                       xheap_type   = convert_dx(heap_type);
+    auto                       xheap_type   = wis::detail::convert_dx(heap_type);
     auto                       inc_size     = device->GetDescriptorHandleIncrementSize(xheap_type);
     auto                       aligned_size = wis::detail::aligned_size(memory_bytes, uint64_t(inc_size));
     D3D12_DESCRIPTOR_HEAP_DESC desc{
-        .Type           = convert_dx(heap_type),
+        .Type           = wis::detail::convert_dx(heap_type),
         .NumDescriptors = uint32_t(aligned_size / inc_size),
-        .Flags          = convert_dx(memory_type),
+        .Flags          = wis::detail::convert_dx(memory_type),
         .NodeMask       = 0,
     };
 

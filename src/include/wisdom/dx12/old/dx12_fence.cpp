@@ -11,7 +11,7 @@ wis::Result wis::ImplDX12Fence::Wait(uint64_t value, uint64_t wait_ns) const noe
     }
 
     HRESULT hr = fence->SetEventOnCompletion(value, fence_event.get());
-    if (!succeeded(hr)) {
+    if (!wis::detail::succeeded(hr)) {
         return wis::make_result<wis::Func<wis::FuncD()>(), "Failed to set event">(hr);
     }
 

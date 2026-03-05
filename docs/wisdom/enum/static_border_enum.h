@@ -13,7 +13,6 @@
  *     WisStaticBorderTransparentBlack = 0,
  *     WisStaticBorderOpaqueBlack = 1,
  *     WisStaticBorderOpaqueWhite = 2,
- *     WisStaticBorderCustom = 3,
  * } WisStaticBorder;
  * ```
  * C++ version:
@@ -24,7 +23,6 @@
  *     TransparentBlack = 0,
  *     OpaqueBlack = 1,
  *     OpaqueWhite = 2,
- *     Custom = 3,
  * };
  * }
  * ```
@@ -41,7 +39,6 @@
  * - `WisStaticBorderTransparentBlack = 0`: Transparent black border color.
  * - `WisStaticBorderOpaqueBlack = 1`: Opaque black border color.
  * - `WisStaticBorderOpaqueWhite = 2`: Opaque white border color.
- * - `WisStaticBorderCustom = 3`: Custom border color defined by the user.
  * \endcond
  *
  *

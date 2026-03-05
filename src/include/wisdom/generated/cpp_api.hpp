@@ -766,7 +766,6 @@ enum class StaticBorder {
     TransparentBlack = 0, ///< Transparent black border color.
     OpaqueBlack      = 1, ///< Opaque black border color.
     OpaqueWhite      = 2, ///< Opaque white border color.
-    Custom           = 3, ///< Custom border color defined by the user.
 };
 
 /**
@@ -1006,7 +1005,7 @@ struct SamplerDesc {
     wis::Filter           mag_filter; ///< Magnification filter.
     wis::Filter           mip_filter; ///< Mip level filter.
     bool                  is_anisotropic; ///< Anisotropic filtering enable.
-    std::uint32_t         max_anisotropy; ///< Max anisotropy level. Max is 16.
+    std::uint32_t         max_anisotropy; ///< Max anisotropy level. Min is 1, Max is 16.
     wis::AddressMode      address_u; ///< Address mode for U coordinate.
     wis::AddressMode      address_v; ///< Address mode for V coordinate.
     wis::AddressMode      address_w; ///< Address mode for W coordinate.
@@ -1015,7 +1014,6 @@ struct SamplerDesc {
     float                 mip_lod_bias; ///< Mip LOD bias value.
     wis::CompareOperation comparison_op; ///< Comparison operation for comparison samplers.
     wis::StaticBorder     static_border_color; ///< Static border color. Used if any address mode is set to wis::AddressMode.
-    std::array<float, 4>  border_color; ///< Border color. Used if any address mode is set to wis::AddressMode and static_border_color is set to `wis::StaticBorder::Custom`.
     wis::SamplerFlags     flags; ///< Sampler flags. Used to set additional sampler options.
 };
 

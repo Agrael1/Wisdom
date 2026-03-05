@@ -64,7 +64,7 @@ wis::ImplVKExtendedAllocation::CreateGPUUploadTexture(wis::Result& result, const
             .pNext            = nullptr,
             .image            = texture.GetInternal().buffer,
             .oldLayout        = VK_IMAGE_LAYOUT_UNDEFINED,
-            .newLayout        = convert_vk(initial_state),
+            .newLayout        = wis::detail::convert_vk(initial_state),
             .subresourceRange = {
                                  .aspectMask     = wis::aspect_flags(tex_i.format),
                                  .baseMipLevel   = 0,
@@ -118,7 +118,7 @@ wis::ImplVKExtendedAllocation::WriteMemoryToSubresourceDirect(const void*       
         .pNext          = nullptr,
         .flags          = 0,
         .dstImage       = std::get<0>(dst_texture),
-        .dstImageLayout = convert_vk(initial_state),
+        .dstImageLayout = wis::detail::convert_vk(initial_state),
         .regionCount    = 1,
         .pRegions       = &copy_region,
     };
@@ -139,7 +139,7 @@ bool wis::ImplVKExtendedAllocation::SupportedDirectGPUUpload(wis::DataFormat for
     VkPhysicalDeviceImageFormatInfo2 format_info{
         .sType  = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_IMAGE_FORMAT_INFO_2,
         .pNext  = nullptr,
-        .format = convert_vk(format),
+        .format = wis::detail::convert_vk(format),
         .type   = VK_IMAGE_TYPE_2D,
         .tiling = VK_IMAGE_TILING_OPTIMAL,
         .usage  = VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT,

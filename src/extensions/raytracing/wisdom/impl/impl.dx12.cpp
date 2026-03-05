@@ -163,7 +163,7 @@ wis::ImplDX12Raytracing::CreateRaytracingPipeline(wis::Result& result, const wis
     for (uint32_t i = 0; i < desc.hit_group_count; ++i) {
         auto& hg          = desc.hit_groups[i];
         hit_group_span[i] = {
-            .Type                     = convert_dx(desc.hit_groups[i].type),
+            .Type                     = wis::detail::convert_dx(desc.hit_groups[i].type),
             .AnyHitShaderImport       = hg.any_hit_export_index == UINT32_MAX ? nullptr : export_span[hg.any_hit_export_index].Name,
             .ClosestHitShaderImport   = hg.closest_hit_export_index == UINT32_MAX ? nullptr : export_span[hg.closest_hit_export_index].Name,
             .IntersectionShaderImport = hg.intersection_export_index == UINT32_MAX ? nullptr : export_span[hg.intersection_export_index].Name

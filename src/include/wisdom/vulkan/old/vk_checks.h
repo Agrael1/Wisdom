@@ -16,11 +16,11 @@ inline bool succeeded(VkResult hr) noexcept
 }
 
 template<wis::fixed_string func, wis::fixed_string message>
-WIS_CONSTEXPR23 inline wis::Result make_result(VkResult hr) noexcept
+WIS_CONSTEXPR23 inline wis::Result wis::detail::make_result(VkResult hr) noexcept
 {
     using namespace wis::literals;
     WIS_CONSTEXPR23 static auto str = make_error_string<func, message>();
-    return wis::Result{ convert_vk(hr), str.c_str() };
+    return wis::Result{ wis::detail::convert_vk(hr), str.c_str() };
 }
 } // namespace wis
 

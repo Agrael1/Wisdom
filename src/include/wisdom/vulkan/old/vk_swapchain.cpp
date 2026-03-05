@@ -40,7 +40,7 @@ wis::Result wis::detail::VKSwapChainCreateInfo::InitBackBuffers(VkExtent2D image
     }
 
     result = table.vkResetCommandBuffer(initialization, 0);
-    if (!succeeded(result)) {
+    if (!wis::detail::succeeded(result)) {
         return wis::make_result<wis::Func<wis::FuncD()>(), "vkResetCommandBuffer failed">(result);
     }
 
@@ -51,7 +51,7 @@ wis::Result wis::detail::VKSwapChainCreateInfo::InitBackBuffers(VkExtent2D image
         .pInheritanceInfo = nullptr,
     };
     result = table.vkBeginCommandBuffer(initialization, &desc);
-    if (!succeeded(result)) {
+    if (!wis::detail::succeeded(result)) {
         return wis::make_result<wis::Func<wis::FuncD()>(), "vkBeginCommandBuffer failed">(result);
     }
 
@@ -82,8 +82,8 @@ wis::Result wis::detail::VKSwapChainCreateInfo::InitBackBuffers(VkExtent2D image
     table.vkCmdPipelineBarrier2(initialization, &dependency);
 
     result = table.vkEndCommandBuffer(initialization);
-    if (!succeeded(result)) {
-        return make_result<wis::Func<wis::FuncD()>(), "vkEndCommandBuffer failed">(result);
+    if (!wis::detail::succeeded(result)) {
+        return wis::detail::make_result<wis::Func<wis::FuncD()>(), "vkEndCommandBuffer failed">(result);
     }
 
     VkSubmitInfo submit{
@@ -313,7 +313,7 @@ wis::ImplVKSwapChain::VKRecreateSwapchain(uint32_t width, uint32_t height, void*
     }
 
     auto result = dtable.vkCreateSwapchainKHR(device.get(), &desc, nullptr, &swapchain);
-    if (!succeeded(result)) {
+    if (!wis::detail::succeeded(result)) {
         return wis::make_result<wis::Func<wis::FuncD()>(), "vkCreateSwapchainKHR failed">(result);
     }
 

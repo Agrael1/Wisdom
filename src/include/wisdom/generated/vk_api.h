@@ -517,6 +517,18 @@ WISDOM_API WisResult wisVKDescriptorHeapWriteRWStructuredBuffer(const WisVKDescr
                                                                 uint32_t                   index);
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Writes `WisDescriptorTypeSampler` descriptor to the descriptor heap.
+ * @param self is a pointer to the valid WisDescriptorHeap instance.
+ * @param sampler points to WisSamplerDesc, which describes the sampler descriptor to write.
+ * @param index defines the index in the descriptor heap to write the descriptor to.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKDescriptorHeapWriteSampler(const WisVKDescriptorHeap* self,
+                                                     const WisSamplerDesc*      sampler,
+                                                     uint32_t                   index);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Resets the command allocator, so it can be reused for allocating new command lists.
  * @param self is a pointer to the valid WisCommandAllocator instance.
  * @return Result denoting the outcome of operation.

@@ -86,6 +86,7 @@ typedef struct WisDX12DeviceRequirements      WisDeviceRequirements;
 #define wisDescriptorHeapWriteConstantBuffer     wisDX12DescriptorHeapWriteConstantBuffer
 #define wisDescriptorHeapWriteStructuredBuffer   wisDX12DescriptorHeapWriteStructuredBuffer
 #define wisDescriptorHeapWriteRWStructuredBuffer wisDX12DescriptorHeapWriteRWStructuredBuffer
+#define wisDescriptorHeapWriteSampler            wisDX12DescriptorHeapWriteSampler
 #define wisCommandAllocatorReset                 wisDX12CommandAllocatorReset
 #define wisCommandAllocatorCreateCommandList     wisDX12CommandAllocatorCreateCommandList
 #define wisCommandListBegin                      wisDX12CommandListBegin
@@ -185,6 +186,7 @@ typedef struct WisVKDeviceRequirements      WisDeviceRequirements;
 #define wisDescriptorHeapWriteConstantBuffer     wisVKDescriptorHeapWriteConstantBuffer
 #define wisDescriptorHeapWriteStructuredBuffer   wisVKDescriptorHeapWriteStructuredBuffer
 #define wisDescriptorHeapWriteRWStructuredBuffer wisVKDescriptorHeapWriteRWStructuredBuffer
+#define wisDescriptorHeapWriteSampler            wisVKDescriptorHeapWriteSampler
 #define wisCommandAllocatorReset                 wisVKCommandAllocatorReset
 #define wisCommandAllocatorCreateCommandList     wisVKCommandAllocatorCreateCommandList
 #define wisCommandListBegin                      wisVKCommandListBegin

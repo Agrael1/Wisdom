@@ -26,7 +26,7 @@ wis::ImplVKResourceAllocator::CreateBuffer(wis::Result& result, uint64_t size, w
     VkBufferCreateInfo desc;
     VKFillBufferDesc(size, usage, desc);
 
-    VmaAllocationCreateFlags flags = wis::convert_vk(mem_flags);
+    VmaAllocationCreateFlags flags = wis::wis::detail::convert_vk(mem_flags);
     if (mem_flags & wis::MemoryFlags::Mapped) {
         switch (memory) {
         case wis::MemoryType::Upload:
@@ -45,7 +45,7 @@ wis::ImplVKResourceAllocator::CreateBuffer(wis::Result& result, uint64_t size, w
     VmaAllocationCreateInfo alloc{
         .flags         = flags,
         .usage         = VmaMemoryUsage::VMA_MEMORY_USAGE_AUTO,
-        .requiredFlags = wis::convert_vk(memory)
+        .requiredFlags = wis::wis::detail::convert_vk(memory)
     };
     return VKCreateBuffer(result, desc, alloc);
 }
@@ -57,9 +57,9 @@ wis::ImplVKResourceAllocator::CreateTexture(wis::Result& result, const wis::Text
     VKFillImageDesc(desc, img_desc);
 
     VmaAllocationCreateInfo alloc{
-        .flags         = wis::convert_vk(mem_flags) & ~VMA_ALLOCATION_CREATE_MAPPED_BIT,
+        .flags         = wis::wis::detail::convert_vk(mem_flags) & ~VMA_ALLOCATION_CREATE_MAPPED_BIT,
         .usage         = VmaMemoryUsage::VMA_MEMORY_USAGE_AUTO,
-        .requiredFlags = wis::convert_vk(memory)
+        .requiredFlags = wis::wis::detail::convert_vk(memory)
     };
     return VKCreateTexture(result, img_desc, alloc);
 }
@@ -119,9 +119,9 @@ wis::ImplVKResourceAllocator::AllocateTextureMemory(wis::Result& result, uint64_
     }
 
     VmaAllocationCreateInfo alloc_desc{
-        .flags         = convert_vk(mem_flags),
+        .flags         = wis::detail::convert_vk(mem_flags),
         .usage         = vma_usage,
-        .requiredFlags = wis::convert_vk(memory),
+        .requiredFlags = wis::wis::detail::convert_vk(memory),
     };
 
     auto& alloc_ref = mem_flags & wis::MemoryFlags::Exportable ? export_memory_allocator : allocator;
@@ -159,9 +159,9 @@ wis::ImplVKResourceAllocator::AllocateBufferMemory(wis::Result& result, uint64_t
     auto& alloc_ref = mem_flags & wis::MemoryFlags::Exportable ? export_memory_allocator : allocator;
 
     VmaAllocationCreateInfo alloc_desc{
-        .flags         = convert_vk(mem_flags),
+        .flags         = wis::detail::convert_vk(mem_flags),
         .usage         = vma_usage,
-        .requiredFlags = wis::convert_vk(memory),
+        .requiredFlags = wis::wis::detail::convert_vk(memory),
     };
     auto vr = vmaAllocateMemory(alloc_ref.get(), &req.memoryRequirements, &alloc_desc, &internal.allocation, nullptr);
 
@@ -327,7 +327,7 @@ void wis::ImplVKResourceAllocator::VKFillBufferDesc(uint64_t size, wis::BufferUs
     info = {
         .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
         .size  = size,
-        .usage = VkBufferUsageFlags(VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | convert_vk(flags)),
+        .usage = VkBufferUsageFlags(VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | wis::detail::convert_vk(flags)),
     };
 }
 void wis::ImplVKResourceAllocator::VKFillImageDesc(const wis::TextureDesc& desc, VkImageCreateInfo& info) noexcept
@@ -336,9 +336,9 @@ void wis::ImplVKResourceAllocator::VKFillImageDesc(const wis::TextureDesc& desc,
         .sType         = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
         .pNext         = nullptr,
         .flags         = 0,
-        .format        = convert_vk(desc.format),
+        .format        = wis::detail::convert_vk(desc.format),
         .samples       = VK_SAMPLE_COUNT_1_BIT,
-        .usage         = convert_vk(desc.usage),
+        .usage         = wis::detail::convert_vk(desc.usage),
         .sharingMode   = VK_SHARING_MODE_EXCLUSIVE,
         .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
     };
@@ -381,14 +381,14 @@ void wis::ImplVKResourceAllocator::VKFillImageDesc(const wis::TextureDesc& desc,
         info.extent      = { desc.size.width, desc.size.height, 1 };
         info.mipLevels   = 1;
         info.arrayLayers = 1;
-        info.samples     = convert_vk(desc.sample_count);
+        info.samples     = wis::detail::convert_vk(desc.sample_count);
         break;
     case wis::TextureLayout::Texture2DMSArray:
         info.imageType   = VK_IMAGE_TYPE_2D;
         info.extent      = { desc.size.width, desc.size.height, 1 };
         info.mipLevels   = 1;
         info.arrayLayers = desc.size.depth_or_layers;
-        info.samples     = convert_vk(desc.sample_count);
+        info.samples     = wis::detail::convert_vk(desc.sample_count);
         break;
     }
 }

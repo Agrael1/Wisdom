@@ -146,15 +146,15 @@ struct DX12VertexBufferBinding {
     uint32_t            offset; ///< Offset in buffer in bytes. Default is 0.
 };
 
-inline constexpr DXGI_GPU_PREFERENCE convert_dx(AdapterPreference value) noexcept
+inline constexpr DXGI_GPU_PREFERENCE wis::detail::convert_dx(AdapterPreference value) noexcept
 {
     return static_cast<DXGI_GPU_PREFERENCE>(value);
 }
-inline constexpr D3D12_SHADER_VISIBILITY convert_dx(ShaderStages value) noexcept
+inline constexpr D3D12_SHADER_VISIBILITY wis::detail::convert_dx(ShaderStages value) noexcept
 {
     return static_cast<D3D12_SHADER_VISIBILITY>(value);
 }
-inline constexpr D3D12_HIT_GROUP_TYPE convert_dx(HitGroupType value) noexcept
+inline constexpr D3D12_HIT_GROUP_TYPE wis::detail::convert_dx(HitGroupType value) noexcept
 {
     switch (value) {
     default:
@@ -165,7 +165,7 @@ inline constexpr D3D12_HIT_GROUP_TYPE convert_dx(HitGroupType value) noexcept
         return D3D12_HIT_GROUP_TYPE_PROCEDURAL_PRIMITIVE;
     }
 }
-inline constexpr D3D12_DESCRIPTOR_RANGE_TYPE convert_dx(DescriptorType value) noexcept
+inline constexpr D3D12_DESCRIPTOR_RANGE_TYPE wis::detail::convert_dx(DescriptorType value) noexcept
 {
     switch (value) {
     default:
@@ -186,47 +186,47 @@ inline constexpr D3D12_DESCRIPTOR_RANGE_TYPE convert_dx(DescriptorType value) no
         return D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
     }
 }
-inline constexpr DXGI_FORMAT convert_dx(DataFormat value) noexcept
+inline constexpr DXGI_FORMAT wis::detail::convert_dx(DataFormat value) noexcept
 {
     return static_cast<DXGI_FORMAT>(value);
 }
-inline constexpr D3D12_FILL_MODE convert_dx(FillMode value) noexcept
+inline constexpr D3D12_FILL_MODE wis::detail::convert_dx(FillMode value) noexcept
 {
     return static_cast<D3D12_FILL_MODE>(value);
 }
-inline constexpr D3D12_CULL_MODE convert_dx(CullMode value) noexcept
+inline constexpr D3D12_CULL_MODE wis::detail::convert_dx(CullMode value) noexcept
 {
     return static_cast<D3D12_CULL_MODE>(value);
 }
-inline constexpr BOOL convert_dx(WindingOrder value) noexcept
+inline constexpr BOOL wis::detail::convert_dx(WindingOrder value) noexcept
 {
     return static_cast<BOOL>(value);
 }
-inline constexpr uint32_t convert_dx(SampleRate value) noexcept
+inline constexpr uint32_t wis::detail::convert_dx(SampleRate value) noexcept
 {
     return static_cast<uint32_t>(value);
 }
-inline constexpr D3D12_COMPARISON_FUNC convert_dx(Compare value) noexcept
+inline constexpr D3D12_COMPARISON_FUNC wis::detail::convert_dx(Compare value) noexcept
 {
     return static_cast<D3D12_COMPARISON_FUNC>(value);
 }
-inline constexpr D3D12_STENCIL_OP convert_dx(StencilOp value) noexcept
+inline constexpr D3D12_STENCIL_OP wis::detail::convert_dx(StencilOp value) noexcept
 {
     return static_cast<D3D12_STENCIL_OP>(value);
 }
-inline constexpr D3D12_BLEND convert_dx(BlendFactor value) noexcept
+inline constexpr D3D12_BLEND wis::detail::convert_dx(BlendFactor value) noexcept
 {
     return static_cast<D3D12_BLEND>(value);
 }
-inline constexpr D3D12_BLEND_OP convert_dx(BlendOp value) noexcept
+inline constexpr D3D12_BLEND_OP wis::detail::convert_dx(BlendOp value) noexcept
 {
     return static_cast<D3D12_BLEND_OP>(value);
 }
-inline constexpr D3D12_LOGIC_OP convert_dx(LogicOp value) noexcept
+inline constexpr D3D12_LOGIC_OP wis::detail::convert_dx(LogicOp value) noexcept
 {
     return static_cast<D3D12_LOGIC_OP>(value);
 }
-inline constexpr D3D12_HEAP_TYPE convert_dx(MemoryType value) noexcept
+inline constexpr D3D12_HEAP_TYPE wis::detail::convert_dx(MemoryType value) noexcept
 {
     switch (value) {
     default:
@@ -241,7 +241,7 @@ inline constexpr D3D12_HEAP_TYPE convert_dx(MemoryType value) noexcept
         return D3D12_HEAP_TYPE_GPU_UPLOAD;
     }
 }
-inline constexpr D3D12_BARRIER_LAYOUT convert_dx(TextureState value) noexcept
+inline constexpr D3D12_BARRIER_LAYOUT wis::detail::convert_dx(TextureState value) noexcept
 {
     switch (value) {
     default:
@@ -276,15 +276,15 @@ inline constexpr D3D12_BARRIER_LAYOUT convert_dx(TextureState value) noexcept
         return D3D12_BARRIER_LAYOUT_VIDEO_DECODE_WRITE;
     }
 }
-inline constexpr D3D12_DESCRIPTOR_HEAP_TYPE convert_dx(DescriptorHeapType value) noexcept
+inline constexpr D3D12_DESCRIPTOR_HEAP_TYPE wis::detail::convert_dx(DescriptorHeapType value) noexcept
 {
     return static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(value);
 }
-inline constexpr D3D12_DESCRIPTOR_HEAP_FLAGS convert_dx(DescriptorMemory value) noexcept
+inline constexpr D3D12_DESCRIPTOR_HEAP_FLAGS wis::detail::convert_dx(DescriptorMemory value) noexcept
 {
     return static_cast<D3D12_DESCRIPTOR_HEAP_FLAGS>(value);
 }
-inline constexpr D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE convert_dx(LoadOperation value) noexcept
+inline constexpr D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE wis::detail::convert_dx(LoadOperation value) noexcept
 {
     switch (value) {
     default:
@@ -297,7 +297,7 @@ inline constexpr D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE convert_dx(LoadOperatio
         return D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_DISCARD;
     }
 }
-inline constexpr D3D12_RENDER_PASS_ENDING_ACCESS_TYPE convert_dx(StoreOperation value) noexcept
+inline constexpr D3D12_RENDER_PASS_ENDING_ACCESS_TYPE wis::detail::convert_dx(StoreOperation value) noexcept
 {
     switch (value) {
     default:
@@ -310,7 +310,7 @@ inline constexpr D3D12_RENDER_PASS_ENDING_ACCESS_TYPE convert_dx(StoreOperation 
         return D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_RESOLVE;
     }
 }
-inline constexpr D3D_PRIMITIVE_TOPOLOGY convert_dx(PrimitiveTopology value) noexcept
+inline constexpr D3D_PRIMITIVE_TOPOLOGY wis::detail::convert_dx(PrimitiveTopology value) noexcept
 {
     switch (value) {
     default:
@@ -337,7 +337,7 @@ inline constexpr D3D_PRIMITIVE_TOPOLOGY convert_dx(PrimitiveTopology value) noex
         return D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP_ADJ;
     }
 }
-inline constexpr D3D12_PRIMITIVE_TOPOLOGY_TYPE convert_dx(TopologyType value) noexcept
+inline constexpr D3D12_PRIMITIVE_TOPOLOGY_TYPE wis::detail::convert_dx(TopologyType value) noexcept
 {
     switch (value) {
     default:
@@ -352,7 +352,7 @@ inline constexpr D3D12_PRIMITIVE_TOPOLOGY_TYPE convert_dx(TopologyType value) no
         return D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
     }
 }
-inline constexpr D3D12_FILTER_TYPE convert_dx(Filter value) noexcept
+inline constexpr D3D12_FILTER_TYPE wis::detail::convert_dx(Filter value) noexcept
 {
     switch (value) {
     default:
@@ -363,7 +363,7 @@ inline constexpr D3D12_FILTER_TYPE convert_dx(Filter value) noexcept
         return D3D12_FILTER_TYPE_LINEAR;
     }
 }
-inline constexpr D3D12_TEXTURE_ADDRESS_MODE convert_dx(AddressMode value) noexcept
+inline constexpr D3D12_TEXTURE_ADDRESS_MODE wis::detail::convert_dx(AddressMode value) noexcept
 {
     switch (value) {
     default:
@@ -380,7 +380,7 @@ inline constexpr D3D12_TEXTURE_ADDRESS_MODE convert_dx(AddressMode value) noexce
         return D3D12_TEXTURE_ADDRESS_MODE_MIRROR_ONCE;
     }
 }
-inline constexpr D3D12_SRV_DIMENSION convert_dx(TextureViewType value) noexcept
+inline constexpr D3D12_SRV_DIMENSION wis::detail::convert_dx(TextureViewType value) noexcept
 {
     switch (value) {
     default:
@@ -405,11 +405,11 @@ inline constexpr D3D12_SRV_DIMENSION convert_dx(TextureViewType value) noexcept
         return D3D12_SRV_DIMENSION_TEXTURECUBEARRAY;
     }
 }
-inline constexpr D3D12_SHADER_COMPONENT_MAPPING convert_dx(ComponentSwizzle value) noexcept
+inline constexpr D3D12_SHADER_COMPONENT_MAPPING wis::detail::convert_dx(ComponentSwizzle value) noexcept
 {
     return static_cast<D3D12_SHADER_COMPONENT_MAPPING>(value);
 }
-inline constexpr DXGI_FORMAT convert_dx(IndexType value) noexcept
+inline constexpr DXGI_FORMAT wis::detail::convert_dx(IndexType value) noexcept
 {
     switch (value) {
     default:
@@ -420,7 +420,7 @@ inline constexpr DXGI_FORMAT convert_dx(IndexType value) noexcept
         return DXGI_FORMAT_R32_UINT;
     }
 }
-inline constexpr D3D12_RAYTRACING_GEOMETRY_TYPE convert_dx(ASGeometryType value) noexcept
+inline constexpr D3D12_RAYTRACING_GEOMETRY_TYPE wis::detail::convert_dx(ASGeometryType value) noexcept
 {
     switch (value) {
     default:
@@ -431,7 +431,7 @@ inline constexpr D3D12_RAYTRACING_GEOMETRY_TYPE convert_dx(ASGeometryType value)
         return D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS;
     }
 }
-inline constexpr DXGI_SCALING convert_dx(SwapchainScaling value) noexcept
+inline constexpr DXGI_SCALING wis::detail::convert_dx(SwapchainScaling value) noexcept
 {
     switch (value) {
     default:
@@ -444,7 +444,7 @@ inline constexpr DXGI_SCALING convert_dx(SwapchainScaling value) noexcept
         return DXGI_SCALING_ASPECT_RATIO_STRETCH;
     }
 }
-inline constexpr D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE convert_dx(ASCopyMode value) noexcept
+inline constexpr D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE wis::detail::convert_dx(ASCopyMode value) noexcept
 {
     switch (value) {
     default:
@@ -459,7 +459,7 @@ inline constexpr D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE convert_dx(AS
         return D3D12_RAYTRACING_ACCELERATION_STRUCTURE_COPY_MODE_DESERIALIZE;
     }
 }
-inline constexpr D3D12_RESOURCE_FLAGS convert_dx(BufferUsage value) noexcept
+inline constexpr D3D12_RESOURCE_FLAGS wis::detail::convert_dx(BufferUsage value) noexcept
 {
     D3D12_RESOURCE_FLAGS output = {};
     if (value & BufferUsage::StorageBuffer) {
@@ -470,7 +470,7 @@ inline constexpr D3D12_RESOURCE_FLAGS convert_dx(BufferUsage value) noexcept
     }
     return output;
 }
-inline constexpr D3D12MA::ALLOCATION_FLAGS convert_dx(MemoryFlags value) noexcept
+inline constexpr D3D12MA::ALLOCATION_FLAGS wis::detail::convert_dx(MemoryFlags value) noexcept
 {
     D3D12MA::ALLOCATION_FLAGS output = {};
     if (value & MemoryFlags::DedicatedAllocation) {
@@ -481,7 +481,7 @@ inline constexpr D3D12MA::ALLOCATION_FLAGS convert_dx(MemoryFlags value) noexcep
     }
     return output;
 }
-inline constexpr D3D12_BARRIER_SYNC convert_dx(BarrierSync value) noexcept
+inline constexpr D3D12_BARRIER_SYNC wis::detail::convert_dx(BarrierSync value) noexcept
 {
     D3D12_BARRIER_SYNC output = {};
     if (value & BarrierSync::All) {
@@ -543,7 +543,7 @@ inline constexpr D3D12_BARRIER_SYNC convert_dx(BarrierSync value) noexcept
     }
     return output;
 }
-inline constexpr D3D12_BARRIER_ACCESS convert_dx(ResourceAccess value) noexcept
+inline constexpr D3D12_BARRIER_ACCESS wis::detail::convert_dx(ResourceAccess value) noexcept
 {
     D3D12_BARRIER_ACCESS output = {};
     if (value & ResourceAccess::VertexBuffer) {
@@ -611,7 +611,7 @@ inline constexpr D3D12_BARRIER_ACCESS convert_dx(ResourceAccess value) noexcept
     }
     return output;
 }
-inline constexpr D3D12_RENDER_PASS_FLAGS convert_dx(RenderPassFlags value) noexcept
+inline constexpr D3D12_RENDER_PASS_FLAGS wis::detail::convert_dx(RenderPassFlags value) noexcept
 {
     D3D12_RENDER_PASS_FLAGS output = {};
     if (value & RenderPassFlags::Suspending) {
@@ -622,7 +622,7 @@ inline constexpr D3D12_RENDER_PASS_FLAGS convert_dx(RenderPassFlags value) noexc
     }
     return output;
 }
-inline constexpr D3D12_RESOURCE_FLAGS convert_dx(TextureUsage value) noexcept
+inline constexpr D3D12_RESOURCE_FLAGS wis::detail::convert_dx(TextureUsage value) noexcept
 {
     D3D12_RESOURCE_FLAGS output = {};
     if (value & TextureUsage::RenderTarget) {
@@ -648,7 +648,7 @@ inline constexpr D3D12_RESOURCE_FLAGS convert_dx(TextureUsage value) noexcept
     }
     return output;
 }
-inline constexpr D3D12_FENCE_FLAGS convert_dx(FenceFlags value) noexcept
+inline constexpr D3D12_FENCE_FLAGS wis::detail::convert_dx(FenceFlags value) noexcept
 {
     D3D12_FENCE_FLAGS output = {};
     if (value & FenceFlags::Shared) {
@@ -656,12 +656,12 @@ inline constexpr D3D12_FENCE_FLAGS convert_dx(FenceFlags value) noexcept
     }
     return output;
 }
-inline constexpr D3D12_PIPELINE_STATE_FLAGS convert_dx(PipelineFlags value) noexcept
+inline constexpr D3D12_PIPELINE_STATE_FLAGS wis::detail::convert_dx(PipelineFlags value) noexcept
 {
     D3D12_PIPELINE_STATE_FLAGS output = {};
     return output;
 }
-inline constexpr D3D12_RAYTRACING_GEOMETRY_FLAGS convert_dx(ASGeometryFlags value) noexcept
+inline constexpr D3D12_RAYTRACING_GEOMETRY_FLAGS wis::detail::convert_dx(ASGeometryFlags value) noexcept
 {
     D3D12_RAYTRACING_GEOMETRY_FLAGS output = {};
     if (value & ASGeometryFlags::Opaque) {
@@ -672,7 +672,7 @@ inline constexpr D3D12_RAYTRACING_GEOMETRY_FLAGS convert_dx(ASGeometryFlags valu
     }
     return output;
 }
-inline constexpr D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS convert_dx(AccelerationStructureFlags value) noexcept
+inline constexpr D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS wis::detail::convert_dx(AccelerationStructureFlags value) noexcept
 {
     D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS output = {};
     if (value & AccelerationStructureFlags::AllowUpdate) {
@@ -692,7 +692,7 @@ inline constexpr D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS convert_dx(
     }
     return output;
 }
-inline constexpr D3D12_RAYTRACING_INSTANCE_FLAGS convert_dx(ASInstanceFlags value) noexcept
+inline constexpr D3D12_RAYTRACING_INSTANCE_FLAGS wis::detail::convert_dx(ASInstanceFlags value) noexcept
 {
     D3D12_RAYTRACING_INSTANCE_FLAGS output = {};
     if (value & ASInstanceFlags::TriangleCullDisable) {

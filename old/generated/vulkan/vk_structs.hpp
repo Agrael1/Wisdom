@@ -145,7 +145,7 @@ struct VKVertexBufferBinding {
     uint32_t          offset; ///< Offset in buffer in bytes. Default is 0.
 };
 
-inline constexpr VkShaderStageFlagBits convert_vk(ShaderStages value) noexcept
+inline constexpr VkShaderStageFlagBits wis::detail::convert_vk(ShaderStages value) noexcept
 {
     switch (value) {
     default:
@@ -168,7 +168,7 @@ inline constexpr VkShaderStageFlagBits convert_vk(ShaderStages value) noexcept
         return VK_SHADER_STAGE_MESH_BIT_NV;
     }
 }
-inline constexpr VkShaderStageFlagBits convert_vk(RaytracingShaderType value) noexcept
+inline constexpr VkShaderStageFlagBits wis::detail::convert_vk(RaytracingShaderType value) noexcept
 {
     switch (value) {
     default:
@@ -187,7 +187,7 @@ inline constexpr VkShaderStageFlagBits convert_vk(RaytracingShaderType value) no
         return VK_SHADER_STAGE_CALLABLE_BIT_KHR;
     }
 }
-inline constexpr VkRayTracingShaderGroupTypeKHR convert_vk(HitGroupType value) noexcept
+inline constexpr VkRayTracingShaderGroupTypeKHR wis::detail::convert_vk(HitGroupType value) noexcept
 {
     switch (value) {
     default:
@@ -198,7 +198,7 @@ inline constexpr VkRayTracingShaderGroupTypeKHR convert_vk(HitGroupType value) n
         return VK_RAY_TRACING_SHADER_GROUP_TYPE_PROCEDURAL_HIT_GROUP_KHR;
     }
 }
-inline constexpr VkDescriptorType convert_vk(DescriptorType value) noexcept
+inline constexpr VkDescriptorType wis::detail::convert_vk(DescriptorType value) noexcept
 {
     switch (value) {
     default:
@@ -219,7 +219,7 @@ inline constexpr VkDescriptorType convert_vk(DescriptorType value) noexcept
         return VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR;
     }
 }
-inline constexpr VkFormat convert_vk(DataFormat value) noexcept
+inline constexpr VkFormat wis::detail::convert_vk(DataFormat value) noexcept
 {
     switch (value) {
     default:
@@ -360,7 +360,7 @@ inline constexpr VkFormat convert_vk(DataFormat value) noexcept
         return VK_FORMAT_A4R4G4B4_UNORM_PACK16;
     }
 }
-inline constexpr VkPolygonMode convert_vk(FillMode value) noexcept
+inline constexpr VkPolygonMode wis::detail::convert_vk(FillMode value) noexcept
 {
     switch (value) {
     default:
@@ -371,7 +371,7 @@ inline constexpr VkPolygonMode convert_vk(FillMode value) noexcept
         return VK_POLYGON_MODE_FILL;
     }
 }
-inline constexpr VkCullModeFlags convert_vk(CullMode value) noexcept
+inline constexpr VkCullModeFlags wis::detail::convert_vk(CullMode value) noexcept
 {
     switch (value) {
     default:
@@ -384,7 +384,7 @@ inline constexpr VkCullModeFlags convert_vk(CullMode value) noexcept
         return VK_CULL_MODE_BACK_BIT;
     }
 }
-inline constexpr VkFrontFace convert_vk(WindingOrder value) noexcept
+inline constexpr VkFrontFace wis::detail::convert_vk(WindingOrder value) noexcept
 {
     switch (value) {
     default:
@@ -395,7 +395,7 @@ inline constexpr VkFrontFace convert_vk(WindingOrder value) noexcept
         return VK_FRONT_FACE_COUNTER_CLOCKWISE;
     }
 }
-inline constexpr VkSampleCountFlagBits convert_vk(SampleRate value) noexcept
+inline constexpr VkSampleCountFlagBits wis::detail::convert_vk(SampleRate value) noexcept
 {
     switch (value) {
     default:
@@ -412,7 +412,7 @@ inline constexpr VkSampleCountFlagBits convert_vk(SampleRate value) noexcept
         return VK_SAMPLE_COUNT_16_BIT;
     }
 }
-inline constexpr VkCompareOp convert_vk(Compare value) noexcept
+inline constexpr VkCompareOp wis::detail::convert_vk(Compare value) noexcept
 {
     switch (value) {
     default:
@@ -437,7 +437,7 @@ inline constexpr VkCompareOp convert_vk(Compare value) noexcept
         return VK_COMPARE_OP_ALWAYS;
     }
 }
-inline constexpr VkStencilOp convert_vk(StencilOp value) noexcept
+inline constexpr VkStencilOp wis::detail::convert_vk(StencilOp value) noexcept
 {
     switch (value) {
     default:
@@ -460,7 +460,7 @@ inline constexpr VkStencilOp convert_vk(StencilOp value) noexcept
         return VK_STENCIL_OP_DECREMENT_AND_WRAP;
     }
 }
-inline constexpr VkBlendFactor convert_vk(BlendFactor value) noexcept
+inline constexpr VkBlendFactor wis::detail::convert_vk(BlendFactor value) noexcept
 {
     switch (value) {
     default:
@@ -501,7 +501,7 @@ inline constexpr VkBlendFactor convert_vk(BlendFactor value) noexcept
         return VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA;
     }
 }
-inline constexpr VkBlendOp convert_vk(BlendOp value) noexcept
+inline constexpr VkBlendOp wis::detail::convert_vk(BlendOp value) noexcept
 {
     switch (value) {
     default:
@@ -518,7 +518,7 @@ inline constexpr VkBlendOp convert_vk(BlendOp value) noexcept
         return VK_BLEND_OP_MAX;
     }
 }
-inline constexpr VkLogicOp convert_vk(LogicOp value) noexcept
+inline constexpr VkLogicOp wis::detail::convert_vk(LogicOp value) noexcept
 {
     switch (value) {
     default:
@@ -557,7 +557,7 @@ inline constexpr VkLogicOp convert_vk(LogicOp value) noexcept
         return VK_LOGIC_OP_OR_INVERTED;
     }
 }
-inline constexpr VkMemoryPropertyFlags convert_vk(MemoryType value) noexcept
+inline constexpr VkMemoryPropertyFlags wis::detail::convert_vk(MemoryType value) noexcept
 {
     switch (value) {
     default:
@@ -572,7 +572,7 @@ inline constexpr VkMemoryPropertyFlags convert_vk(MemoryType value) noexcept
         return VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
     }
 }
-inline constexpr VkImageLayout convert_vk(TextureState value) noexcept
+inline constexpr VkImageLayout wis::detail::convert_vk(TextureState value) noexcept
 {
     switch (value) {
     default:
@@ -607,7 +607,7 @@ inline constexpr VkImageLayout convert_vk(TextureState value) noexcept
         return VK_IMAGE_LAYOUT_VIDEO_DECODE_DST_KHR;
     }
 }
-inline constexpr VkAttachmentLoadOp convert_vk(LoadOperation value) noexcept
+inline constexpr VkAttachmentLoadOp wis::detail::convert_vk(LoadOperation value) noexcept
 {
     switch (value) {
     default:
@@ -620,7 +620,7 @@ inline constexpr VkAttachmentLoadOp convert_vk(LoadOperation value) noexcept
         return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
     }
 }
-inline constexpr VkAttachmentStoreOp convert_vk(StoreOperation value) noexcept
+inline constexpr VkAttachmentStoreOp wis::detail::convert_vk(StoreOperation value) noexcept
 {
     switch (value) {
     default:
@@ -633,7 +633,7 @@ inline constexpr VkAttachmentStoreOp convert_vk(StoreOperation value) noexcept
         return VK_ATTACHMENT_STORE_OP_STORE;
     }
 }
-inline constexpr VkPrimitiveTopology convert_vk(PrimitiveTopology value) noexcept
+inline constexpr VkPrimitiveTopology wis::detail::convert_vk(PrimitiveTopology value) noexcept
 {
     switch (value) {
     default:
@@ -660,7 +660,7 @@ inline constexpr VkPrimitiveTopology convert_vk(PrimitiveTopology value) noexcep
         return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP_WITH_ADJACENCY;
     }
 }
-inline constexpr VkPrimitiveTopology convert_vk(TopologyType value) noexcept
+inline constexpr VkPrimitiveTopology wis::detail::convert_vk(TopologyType value) noexcept
 {
     switch (value) {
     default:
@@ -675,7 +675,7 @@ inline constexpr VkPrimitiveTopology convert_vk(TopologyType value) noexcept
         return VK_PRIMITIVE_TOPOLOGY_PATCH_LIST;
     }
 }
-inline constexpr VkFilter convert_vk(Filter value) noexcept
+inline constexpr VkFilter wis::detail::convert_vk(Filter value) noexcept
 {
     switch (value) {
     default:
@@ -686,7 +686,7 @@ inline constexpr VkFilter convert_vk(Filter value) noexcept
         return VK_FILTER_LINEAR;
     }
 }
-inline constexpr VkSamplerAddressMode convert_vk(AddressMode value) noexcept
+inline constexpr VkSamplerAddressMode wis::detail::convert_vk(AddressMode value) noexcept
 {
     switch (value) {
     default:
@@ -703,7 +703,7 @@ inline constexpr VkSamplerAddressMode convert_vk(AddressMode value) noexcept
         return VK_SAMPLER_ADDRESS_MODE_MIRROR_CLAMP_TO_EDGE;
     }
 }
-inline constexpr VkImageViewType convert_vk(TextureViewType value) noexcept
+inline constexpr VkImageViewType wis::detail::convert_vk(TextureViewType value) noexcept
 {
     switch (value) {
     default:
@@ -728,7 +728,7 @@ inline constexpr VkImageViewType convert_vk(TextureViewType value) noexcept
         return VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
     }
 }
-inline constexpr VkComponentSwizzle convert_vk(ComponentSwizzle value) noexcept
+inline constexpr VkComponentSwizzle wis::detail::convert_vk(ComponentSwizzle value) noexcept
 {
     switch (value) {
     default:
@@ -747,7 +747,7 @@ inline constexpr VkComponentSwizzle convert_vk(ComponentSwizzle value) noexcept
         return VK_COMPONENT_SWIZZLE_ONE;
     }
 }
-inline constexpr VkIndexType convert_vk(IndexType value) noexcept
+inline constexpr VkIndexType wis::detail::convert_vk(IndexType value) noexcept
 {
     switch (value) {
     default:
@@ -758,7 +758,7 @@ inline constexpr VkIndexType convert_vk(IndexType value) noexcept
         return VK_INDEX_TYPE_UINT32;
     }
 }
-inline constexpr VkGeometryTypeKHR convert_vk(ASGeometryType value) noexcept
+inline constexpr VkGeometryTypeKHR wis::detail::convert_vk(ASGeometryType value) noexcept
 {
     switch (value) {
     default:
@@ -769,7 +769,7 @@ inline constexpr VkGeometryTypeKHR convert_vk(ASGeometryType value) noexcept
         return VK_GEOMETRY_TYPE_AABBS_KHR;
     }
 }
-inline constexpr VkPresentScalingFlagsEXT convert_vk(SwapchainScaling value) noexcept
+inline constexpr VkPresentScalingFlagsEXT wis::detail::convert_vk(SwapchainScaling value) noexcept
 {
     switch (value) {
     default:
@@ -782,7 +782,7 @@ inline constexpr VkPresentScalingFlagsEXT convert_vk(SwapchainScaling value) noe
         return VK_PRESENT_SCALING_ASPECT_RATIO_STRETCH_BIT_EXT;
     }
 }
-inline constexpr VkCopyAccelerationStructureModeKHR convert_vk(ASCopyMode value) noexcept
+inline constexpr VkCopyAccelerationStructureModeKHR wis::detail::convert_vk(ASCopyMode value) noexcept
 {
     switch (value) {
     default:
@@ -797,7 +797,7 @@ inline constexpr VkCopyAccelerationStructureModeKHR convert_vk(ASCopyMode value)
         return VK_COPY_ACCELERATION_STRUCTURE_MODE_DESERIALIZE_KHR;
     }
 }
-inline constexpr VkBufferUsageFlags convert_vk(BufferUsage value) noexcept
+inline constexpr VkBufferUsageFlags wis::detail::convert_vk(BufferUsage value) noexcept
 {
     VkBufferUsageFlags output = {};
     if (value & BufferUsage::CopySrc) {
@@ -832,7 +832,7 @@ inline constexpr VkBufferUsageFlags convert_vk(BufferUsage value) noexcept
     }
     return output;
 }
-inline constexpr VmaAllocationCreateFlags convert_vk(MemoryFlags value) noexcept
+inline constexpr VmaAllocationCreateFlags wis::detail::convert_vk(MemoryFlags value) noexcept
 {
     VmaAllocationCreateFlags output = {};
     if (value & MemoryFlags::DedicatedAllocation) {
@@ -843,7 +843,7 @@ inline constexpr VmaAllocationCreateFlags convert_vk(MemoryFlags value) noexcept
     }
     return output;
 }
-inline constexpr VkPipelineStageFlags2 convert_vk(BarrierSync value) noexcept
+inline constexpr VkPipelineStageFlags2 wis::detail::convert_vk(BarrierSync value) noexcept
 {
     VkPipelineStageFlags2 output = {};
     if (value & BarrierSync::All) {
@@ -905,7 +905,7 @@ inline constexpr VkPipelineStageFlags2 convert_vk(BarrierSync value) noexcept
     }
     return output;
 }
-inline constexpr VkAccessFlags2 convert_vk(ResourceAccess value) noexcept
+inline constexpr VkAccessFlags2 wis::detail::convert_vk(ResourceAccess value) noexcept
 {
     VkAccessFlags2 output = {};
     if (value & ResourceAccess::VertexBuffer) {
@@ -973,7 +973,7 @@ inline constexpr VkAccessFlags2 convert_vk(ResourceAccess value) noexcept
     }
     return output;
 }
-inline constexpr VkRenderingFlags convert_vk(RenderPassFlags value) noexcept
+inline constexpr VkRenderingFlags wis::detail::convert_vk(RenderPassFlags value) noexcept
 {
     VkRenderingFlags output = {};
     if (value & RenderPassFlags::Suspending) {
@@ -984,7 +984,7 @@ inline constexpr VkRenderingFlags convert_vk(RenderPassFlags value) noexcept
     }
     return output;
 }
-inline constexpr VkImageUsageFlags convert_vk(TextureUsage value) noexcept
+inline constexpr VkImageUsageFlags wis::detail::convert_vk(TextureUsage value) noexcept
 {
     VkImageUsageFlags output = {};
     if (value & TextureUsage::RenderTarget) {
@@ -1010,7 +1010,7 @@ inline constexpr VkImageUsageFlags convert_vk(TextureUsage value) noexcept
     }
     return output;
 }
-inline constexpr VkPipelineCreateFlags convert_vk(PipelineFlags value) noexcept
+inline constexpr VkPipelineCreateFlags wis::detail::convert_vk(PipelineFlags value) noexcept
 {
     VkPipelineCreateFlags output = {};
     if (value & PipelineFlags::DescriptorBuffer) {
@@ -1018,7 +1018,7 @@ inline constexpr VkPipelineCreateFlags convert_vk(PipelineFlags value) noexcept
     }
     return output;
 }
-inline constexpr VkGeometryFlagsKHR convert_vk(ASGeometryFlags value) noexcept
+inline constexpr VkGeometryFlagsKHR wis::detail::convert_vk(ASGeometryFlags value) noexcept
 {
     VkGeometryFlagsKHR output = {};
     if (value & ASGeometryFlags::Opaque) {
@@ -1029,7 +1029,7 @@ inline constexpr VkGeometryFlagsKHR convert_vk(ASGeometryFlags value) noexcept
     }
     return output;
 }
-inline constexpr VkBuildAccelerationStructureFlagsKHR convert_vk(AccelerationStructureFlags value) noexcept
+inline constexpr VkBuildAccelerationStructureFlagsKHR wis::detail::convert_vk(AccelerationStructureFlags value) noexcept
 {
     VkBuildAccelerationStructureFlagsKHR output = {};
     if (value & AccelerationStructureFlags::AllowUpdate) {
@@ -1049,7 +1049,7 @@ inline constexpr VkBuildAccelerationStructureFlagsKHR convert_vk(AccelerationStr
     }
     return output;
 }
-inline constexpr VkGeometryInstanceFlagsKHR convert_vk(ASInstanceFlags value) noexcept
+inline constexpr VkGeometryInstanceFlagsKHR wis::detail::convert_vk(ASInstanceFlags value) noexcept
 {
     VkGeometryInstanceFlagsKHR output = {};
     if (value & ASInstanceFlags::TriangleCullDisable) {

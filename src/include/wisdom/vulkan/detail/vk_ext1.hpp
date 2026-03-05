@@ -88,15 +88,6 @@ public:
             });
         }
 
-        if (collector.IsExtensionPresent(VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME)) {
-            features.push_descriptor = true;
-            collector.EnableExtension({
-                    .name                 = VK_KHR_PUSH_DESCRIPTOR_EXTENSION_NAME,
-                    .property_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PUSH_DESCRIPTOR_PROPERTIES,
-                    .property_struct_size = sizeof(VkPhysicalDevicePushDescriptorPropertiesKHR),
-            });
-        }
-
         // Descriptor heap extension is required for bindless support, so we enable it if present
         if (collector.IsExtensionPresent(VK_EXT_DESCRIPTOR_HEAP_EXTENSION_NAME)) {
             features.descriptor_heap = true;
@@ -129,7 +120,7 @@ public:
             });
         }
 
-        return vk_success;
+        return wis::detail::vk_success;
     }
     ::WisResult Init([[maybe_unused]] const impl::VKDeviceImpl& device_impl,
                      const VKDeviceExtensionCollector&          collector) noexcept
@@ -155,7 +146,7 @@ public:
         }
 
         // Nothing to initialize for now
-        return vk_success;
+        return wis::detail::vk_success;
     }
 };
 } // namespace wis::detail

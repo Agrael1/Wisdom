@@ -133,7 +133,7 @@ wis::Result wis::ImplVKCommandList::Reset(wis::VKPipelineView new_pipeline) noex
 
     auto& dtable = device.table();
     auto  result = dtable.vkResetCommandBuffer(command_list, {});
-    if (!succeeded(result)) {
+    if (!wis::detail::succeeded(result)) {
         return wis::make_result<wis::Func<wis::FuncD()>(), "vkResetCommandBuffer failed">(result);
     }
     auto pipeline = std::move(std::get<0>(new_pipeline));
@@ -145,7 +145,7 @@ wis::Result wis::ImplVKCommandList::Reset(wis::VKPipelineView new_pipeline) noex
         .pInheritanceInfo = nullptr,
     };
     result = dtable.vkBeginCommandBuffer(command_list, &desc);
-    if (!succeeded(result)) {
+    if (!wis::detail::succeeded(result)) {
         return wis::make_result<wis::Func<wis::FuncD()>(), "vkBeginCommandBuffer failed">(result);
     }
     closed = false;
@@ -174,10 +174,10 @@ inline VkBufferMemoryBarrier2 to_vk(wis::BufferBarrier barrier, VkBuffer buffer)
     return VkBufferMemoryBarrier2{
         .sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2,
         .pNext               = nullptr,
-        .srcStageMask        = convert_vk(barrier.sync_before),
-        .srcAccessMask       = convert_vk(barrier.access_before),
-        .dstStageMask        = convert_vk(barrier.sync_after),
-        .dstAccessMask       = convert_vk(barrier.access_after),
+        .srcStageMask        = wis::detail::convert_vk(barrier.sync_before),
+        .srcAccessMask       = wis::detail::convert_vk(barrier.access_before),
+        .dstStageMask        = wis::detail::convert_vk(barrier.sync_after),
+        .dstAccessMask       = wis::detail::convert_vk(barrier.access_after),
         .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .buffer              = buffer,
@@ -193,12 +193,12 @@ inline VkImageMemoryBarrier2 to_vk(wis::TextureBarrier barrier, VkImage texture,
     return VkImageMemoryBarrier2{
         .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
         .pNext               = nullptr,
-        .srcStageMask        = convert_vk(barrier.sync_before),
-        .srcAccessMask       = convert_vk(barrier.access_before),
-        .dstStageMask        = convert_vk(barrier.sync_after),
-        .dstAccessMask       = convert_vk(barrier.access_after),
-        .oldLayout           = convert_vk(barrier.state_before),
-        .newLayout           = convert_vk(barrier.state_after),
+        .srcStageMask        = wis::detail::convert_vk(barrier.sync_before),
+        .srcAccessMask       = wis::detail::convert_vk(barrier.access_before),
+        .dstStageMask        = wis::detail::convert_vk(barrier.sync_after),
+        .dstAccessMask       = wis::detail::convert_vk(barrier.access_after),
+        .oldLayout           = wis::detail::convert_vk(barrier.state_before),
+        .newLayout           = wis::detail::convert_vk(barrier.state_after),
         .srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED,
         .image               = texture,
@@ -301,8 +301,8 @@ void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc& pass_d
                  .pNext       = nullptr,
                  .imageView   = std::get<0>(target.target),
                  .imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-                 .loadOp      = convert_vk(target.load_op),
-                 .storeOp     = convert_vk(target.store_op),
+                 .loadOp      = wis::detail::convert_vk(target.load_op),
+                 .storeOp     = wis::detail::convert_vk(target.store_op),
         };
         if (data[i].loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR) {
             data[i].clearValue = {
@@ -319,8 +319,8 @@ void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc& pass_d
             .pNext       = nullptr,
             .imageView   = std::get<0>(pass_desc.depth_stencil->target),
             .imageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL,
-            .loadOp      = convert_vk(pass_desc.depth_stencil->load_op_depth),
-            .storeOp     = convert_vk(pass_desc.depth_stencil->store_op_depth),
+            .loadOp      = wis::detail::convert_vk(pass_desc.depth_stencil->load_op_depth),
+            .storeOp     = wis::detail::convert_vk(pass_desc.depth_stencil->store_op_depth),
         };
         if (d_info.loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR) {
             d_info.clearValue = {
@@ -334,8 +334,8 @@ void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc& pass_d
             .pNext       = nullptr,
             .imageView   = std::get<0>(pass_desc.depth_stencil->target),
             .imageLayout = VK_IMAGE_LAYOUT_STENCIL_ATTACHMENT_OPTIMAL,
-            .loadOp      = convert_vk(pass_desc.depth_stencil->load_op_stencil),
-            .storeOp     = convert_vk(pass_desc.depth_stencil->store_op_stencil),
+            .loadOp      = wis::detail::convert_vk(pass_desc.depth_stencil->load_op_stencil),
+            .storeOp     = wis::detail::convert_vk(pass_desc.depth_stencil->store_op_stencil),
         };
         if (s_info.loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR) {
             s_info.clearValue = {
@@ -347,7 +347,7 @@ void wis::ImplVKCommandList::BeginRenderPass(const wis::VKRenderPassDesc& pass_d
     VkRenderingInfo info{
         .sType      = VK_STRUCTURE_TYPE_RENDERING_INFO,
         .pNext      = nullptr,
-        .flags      = convert_vk(pass_desc.flags),
+        .flags      = wis::detail::convert_vk(pass_desc.flags),
         .renderArea = {
                        .offset = { 0, 0 },
                        .extent = { extent.width, extent.height },
@@ -421,7 +421,7 @@ void wis::ImplVKCommandList::RSSetScissors(const wis::Scissor* vp, uint32_t coun
 
 void wis::ImplVKCommandList::IASetPrimitiveTopology(wis::PrimitiveTopology topology) noexcept
 {
-    device.table().vkCmdSetPrimitiveTopology(command_list, convert_vk(topology));
+    device.table().vkCmdSetPrimitiveTopology(command_list, wis::detail::convert_vk(topology));
 }
 
 void wis::ImplVKCommandList::SetRootSignature(wis::VKRootSignatureView root_signature) noexcept
@@ -459,11 +459,11 @@ void wis::ImplVKCommandList::IASetVertexBuffers(const wis::VKVertexBufferBinding
 
 void wis::ImplVKCommandList::IASetIndexBuffer(wis::VKBufferView buffer, wis::IndexType type, uint64_t offset) noexcept
 {
-    device.table().vkCmdBindIndexBuffer(command_list, std::get<0>(buffer), offset, convert_vk(type));
+    device.table().vkCmdBindIndexBuffer(command_list, std::get<0>(buffer), offset, wis::detail::convert_vk(type));
 }
 void wis::ImplVKCommandList::IASetIndexBuffer2(wis::VKBufferView buffer, wis::IndexType type, uint32_t size, uint64_t offset) noexcept
 {
-    device.table().vkCmdBindIndexBuffer2(command_list, std::get<0>(buffer), offset, size, convert_vk(type));
+    device.table().vkCmdBindIndexBuffer2(command_list, std::get<0>(buffer), offset, size, wis::detail::convert_vk(type));
 }
 
 void wis::ImplVKCommandList::DrawIndexedInstanced(uint32_t vertex_count_per_instance,
@@ -490,7 +490,7 @@ void wis::ImplVKCommandList::Dispatch(uint32_t x, uint32_t y, uint32_t z) noexce
 
 void wis::ImplVKCommandList::SetPushConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes, wis::ShaderStages stage) noexcept
 {
-    device.table().vkCmdPushConstants(command_list, pipeline_layout, convert_vk(stage), offset_4bytes * 4, size_4bytes * 4, data);
+    device.table().vkCmdPushConstants(command_list, pipeline_layout, wis::detail::convert_vk(stage), offset_4bytes * 4, size_4bytes * 4, data);
 }
 
 void wis::ImplVKCommandList::VKPushDescriptor(wis::DescriptorType type, uint32_t binding, wis::VKBufferView view, uint32_t offset, VkPipelineBindPoint binding_point) noexcept
@@ -507,7 +507,7 @@ void wis::ImplVKCommandList::VKPushDescriptor(wis::DescriptorType type, uint32_t
         .dstBinding      = binding,
         .dstArrayElement = 0,
         .descriptorCount = 1,
-        .descriptorType  = convert_vk(type),
+        .descriptorType  = wis::detail::convert_vk(type),
         .pBufferInfo     = &buffer_info
     };
     device.table().vkCmdPushDescriptorSet(command_list,

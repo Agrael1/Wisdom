@@ -159,6 +159,20 @@ public:
                                                                            reinterpret_cast<const WisBufferBinding*>(&data),
                                                                            index));
     }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Writes `wis::DescriptorType::Sampler` descriptor to the descriptor heap.
+     * @param sampler points to wis::SamplerDesc, which describes the sampler descriptor to write.
+     * @param index defines the index in the descriptor heap to write the descriptor to.
+     * @return Result denoting the outcome of operation.
+     *
+     * */
+    inline wis::Result WriteSampler(const wis::SamplerDesc& sampler,
+                                    std::uint32_t           index) const noexcept
+    {
+        return convert_result(::wisVKDescriptorHeapWriteSampler(&_impl_storage,
+                                                                reinterpret_cast<const WisSamplerDesc*>(&sampler),
+                                                                index));
+    }
 };
 
 struct VKRootSignatureDeleter {
