@@ -31,16 +31,6 @@ public:
             });
         }
 
-        if (collector.IsExtensionPresent(VK_KHR_MAINTENANCE_4_EXTENSION_NAME)) {
-            collector.EnableExtension({
-                    .name                 = VK_KHR_MAINTENANCE_4_EXTENSION_NAME,
-                    .feature_struct       = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_FEATURES,
-                    .feature_struct_size  = sizeof(VkPhysicalDeviceMaintenance4Features),
-                    .property_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_4_PROPERTIES,
-                    .property_struct_size = sizeof(VkPhysicalDeviceMaintenance4Properties),
-            });
-        }
-
         if (collector.IsExtensionPresent(VK_KHR_MAINTENANCE_5_EXTENSION_NAME)) {
             features.index_buffer_range = true;
             collector.EnableExtension({
@@ -49,33 +39,6 @@ public:
                     .feature_struct_size  = sizeof(VkPhysicalDeviceMaintenance5FeaturesKHR),
                     .property_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_5_PROPERTIES_KHR,
                     .property_struct_size = sizeof(VkPhysicalDeviceMaintenance5PropertiesKHR),
-            });
-        }
-
-        if (collector.IsExtensionPresent(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME)) {
-            features.dynamic_rendering = true;
-            collector.EnableExtension({
-                    .name                = VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,
-                    .feature_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES,
-                    .feature_struct_size = sizeof(VkPhysicalDeviceDynamicRenderingFeatures),
-            });
-        }
-
-        if (collector.IsExtensionPresent(VK_EXT_EXTENDED_DYNAMIC_STATE_2_EXTENSION_NAME)) {
-            features.extended_dynamic_state = true;
-            collector.EnableExtension({
-                    .name                = VK_EXT_EXTENDED_DYNAMIC_STATE_2_EXTENSION_NAME,
-                    .feature_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTENDED_DYNAMIC_STATE_2_FEATURES_EXT,
-                    .feature_struct_size = sizeof(VkPhysicalDeviceExtendedDynamicState2FeaturesEXT),
-            });
-        }
-
-        if (collector.IsExtensionPresent(VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME)) {
-            features.synchronization_2 = true;
-            collector.EnableExtension({
-                    .name                = VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME,
-                    .feature_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SYNCHRONIZATION_2_FEATURES,
-                    .feature_struct_size = sizeof(VkPhysicalDeviceSynchronization2FeaturesKHR),
             });
         }
 

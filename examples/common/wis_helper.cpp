@@ -12,7 +12,7 @@ void ex::ExampleSetup::DebugCallback(wis::Severity severity, const char* message
 
 wis::Factory ex::ExampleSetup::InitDefaultFactory(wis::FactoryExtension* platform_ext)
 {
-    using namespace wis;
+    
     wis::DebugExtension debug_ext; // no need to store it, it will be destroyed when it goes out of scope
 
     wis::Result res;

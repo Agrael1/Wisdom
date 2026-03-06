@@ -19,6 +19,7 @@
  *     WisSampleCount       sample_count;
  *     WisTextureLayout     layout;
  *     WisTextureUsageFlags usage_flags;
+ *     WisTextureFlags      flags;
  *     WisMemoryType        memory_type;
  *     WisMemoryFlags       memory_flags;
  * } WisTextureDesc;
@@ -37,6 +38,7 @@
  *     wis::SampleCount       sample_count;
  *     wis::TextureLayout     layout;
  *     wis::TextureUsageFlags usage_flags;
+ *     wis::TextureFlags      flags;
  *     wis::MemoryType        memory_type;
  *     wis::MemoryFlags       memory_flags;
  * };
@@ -55,6 +57,7 @@
  * - `sample_count` Number of samples per pixel. Used only for multisampled textures.
  * - `layout` Texture layout. Default is `WisTextureLayoutTexture2D`.
  * - `usage_flags` Texture usage flags. Describe how the texture will be used.
+ * - `flags` Texture flags. Describe additional options for the texture.
  * - `memory_type` indicates where the texture will be allocated.
  * - `memory_flags` The flags of the memory to allocate for the texture.
  * \endcond

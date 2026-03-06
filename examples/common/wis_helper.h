@@ -125,7 +125,7 @@ public:
     template<typename T>
     wis::Buffer CreateAndUploadBuffer(std::span<T> data, wis::BufferUsage usage)
     {
-        using namespace wis;
+        
         auto upload = Unwrap(allocator.CreateUploadBuffer(data.size_bytes()));
         auto buffer = Unwrap(allocator.CreateBuffer(data.size_bytes(), usage | wis::BufferUsage::CopyDst));
 

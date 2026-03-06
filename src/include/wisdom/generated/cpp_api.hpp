@@ -633,6 +633,8 @@ enum class TextureLayout {
     Texture2DMS      = 6, ///< Texture is 2D multisampled image.
     Texture2DMSArray = 7, ///< Texture is an array of 2D multisampled images.
     Texture3D        = 8, ///< Texture is 3D volume.
+    TextureCube      = 9, ///< Texture is a cube map. Behaves similarly to Texture2DArray with 6 layers.
+    TextureCubeArray = 10, ///< Texture is an array of cube maps. Behaves similarly to Texture2DArray with 6 layers per cube map.
 };
 
 /**
@@ -787,14 +789,17 @@ enum class DescriptorMemoryType {
 };
 
 /**
- * @brief Provided by Wisdom 0.7.0. Descriptor storage tier. Decides how many descriptors can be allocated in a single heap.
+ * @brief Provided by Wisdom 0.7.0. Component swizzle for texture sampling.
  *
  * */
-enum class DescriptorStorageTier {
-    Tier1 = 0, ///< Tier 1: VkDescriptorSets and VkDescriptorPools.
-    Tier2 = 1, ///< Tier 2: Descriptor Buffer with no mutable descriptor type.
-    Tier3 = 2, ///< Tier 3: Descriptor Buffer with mutable descriptor type.
-    Tier4 = 3, ///< Tier 4: Descriptor Heap.
+enum class ComponentSwizzle {
+    Identity = 0, ///< Use the component as is for sampling.
+    Red      = 1, ///< Use the red component for sampling.
+    Green    = 2, ///< Use the green component for sampling.
+    Blue     = 3, ///< Use the blue component for sampling.
+    Alpha    = 4, ///< Use the alpha component for sampling.
+    Zero     = 5, ///< Use zero for sampling.
+    One      = 6, ///< Use one for sampling.
 };
 
 /**
@@ -932,6 +937,24 @@ enum class MemoryFlags : uint32_t {
      * Outside of AllocateXMemory the flag is ignored.
      * */
     Exportable = (1 << 2),
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Texture creation flags. Reserved for future features.
+ *
+ * */
+enum class TextureFlags : uint32_t {
+    None = 0, ///< No flags set. Texture is regular.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Texture binding flags, used for extra options.
+ *
+ * */
+enum class TextureBindingFlags : uint32_t {
+    None        = 0, ///< No flags set. Texture view is regular. Implies color read.
+    DepthView   = (1 << 0), ///< Texture view is used to read depth. Used for special formats that feature depth and stencil. The bound texture @wis_must be in TODO: specific layout before being used by shader.
+    StencilView = (1 << 1), ///< Texture view is used to read stencil. Used for special formats that feature depth and stencil. The bound texture @wis_must be in TODO: specific layout before being used by shader. Cannot be combined with `wis::TextureBindingFlags::DepthView`.
 };
 
 //==============================================================
@@ -1092,6 +1115,29 @@ struct DescriptorHeapDesc {
 };
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Component mapping for .
+ *
+ * */
+struct ComponentMapping {
+    wis::ComponentSwizzle r; ///< Component mapping for Red channel. Default is `wis::ComponentSwizzle::Red`.
+    wis::ComponentSwizzle g; ///< Component mapping for Green channel. Default is `wis::ComponentSwizzle::Green`.
+    wis::ComponentSwizzle b; ///< Component mapping for Blue channel. Default is `wis::ComponentSwizzle::Blue`.
+    wis::ComponentSwizzle a; ///< Component mapping for Alpha channel. Default is `wis::ComponentSwizzle::Alpha`.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Subresource description for texture data updates and copies.
+ *
+ * */
+struct SubresourceRange {
+    std::uint16_t base_mip_level; ///< Mipmap level of the subresource.
+    std::uint16_t mip_level_count; ///< Number of mip levels in the subresource.
+    std::uint16_t base_array_layer; ///< Array layer of the subresource. For 3D textures, this defines the depth slice.
+    std::uint16_t array_layer_count; ///< Number of array layers in the subresource. For 3D textures, this defines the number of depth slices.
+    std::uint16_t plane_slice; ///< Base depth slice of the subresource. Used only for 2D textures (YUV). Max value is 3.
+};
+
+/**
  * @brief Provided by Wisdom 0.7.0. Buffer description for wis::Buffer creation.
  *
  * */
@@ -1115,6 +1161,7 @@ struct TextureDesc {
     wis::SampleCount       sample_count; ///< Number of samples per pixel. Used only for multisampled textures.
     wis::TextureLayout     layout; ///< Texture layout. Default is `wis::TextureLayout::Texture2D`.
     wis::TextureUsageFlags usage_flags; ///< Texture usage flags. Describe how the texture will be used.
+    wis::TextureFlags      flags; ///< Texture flags. Describe additional options for the texture.
     wis::MemoryType        memory_type; ///< indicates where the texture will be allocated.
     wis::MemoryFlags       memory_flags; ///< The flags of the memory to allocate for the texture.
 };
@@ -1154,7 +1201,7 @@ struct DescriptorTableDataDesc {
 };
 
 /**
- * @brief Provided by Wisdom 0.7.0. Constant buffer binding description for wis::DescriptorHeap.
+ * @brief Provided by Wisdom 0.7.0. Constant buffer binding description for wis::DescriptorHeap and wis::DescriptorHeap.
  *
  * */
 struct ConstantBufferBinding {
@@ -1170,6 +1217,18 @@ struct BufferBinding {
     std::uint64_t array_offset; ///< defines offset in buffer in structures.
     std::uint32_t stride_bytes; ///< defines the size of the single structure in buffer.
     std::uint32_t structure_count; ///< defines the number of structures in the buffer region to bind.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Texture binding description for wis::DescriptorHeap and wis::DescriptorHeap.
+ *
+ * */
+struct TextureBinding {
+    wis::DataFormat          format; ///< defines the format of the view.
+    wis::TextureLayout       layout; ///< defines the layout of the texture. Default is `wis::TextureLayout::Texture2D`.
+    wis::TextureBindingFlags flags; ///< Texture binding flags. Describe additional options for the texture binding.
+    wis::ComponentMapping    component_mapping; ///< Component mapping for the texture view.
+    wis::SubresourceRange    range; ///< Subresource description for the texture view.
 };
 
 /**

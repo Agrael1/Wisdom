@@ -77,7 +77,7 @@ void TransferNode::Resize(uint32_t width, uint32_t height)
 
 void TransferNode::VKCreateInputBuffer(wis::Size2D frame)
 {
-    using namespace wis;
+    
 
     auto [result, buffer] = allocator.CreateBuffer(wis::detail::aligned_size(uint64_t(frame.width * frame.height * 4), 4096ull),
                                                    wis::BufferUsage::CopySrc,

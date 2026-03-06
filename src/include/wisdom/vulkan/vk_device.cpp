@@ -7,8 +7,6 @@
 #include <wisdom/util/allocation.hpp>
 #include <bit>
 
-
-
 namespace wis::detail {
 struct VKMappingOffsetInfo {
     uint32_t offset : 31 = 0x7FFFFFF;
@@ -70,7 +68,7 @@ GetMapCountPerShaderType(const WisRootSignatureDesc& desc) noexcept
     return counts;
 }
 
-std::array<VKMappingOffsetInfo, WisShaderVisibilityCount>
+inline std::array<VKMappingOffsetInfo, WisShaderVisibilityCount>
 GetMappingOffsetPerShaderType(wis::span<uint32_t, WisShaderVisibilityCount> map_count, uint32_t& total_count) noexcept
 {
     total_count = 0;
@@ -88,14 +86,15 @@ GetMappingOffsetPerShaderType(wis::span<uint32_t, WisShaderVisibilityCount> map_
             continue;
         }
 
-        if ((non_empty_stage_count & 1) == 0) {
-            total_count += all_count; // Place "all" maps in between stages
-        }
-
         offsets[i] = {
             total_count,
             (non_empty_stage_count & 1) == 0
         }; // Store odd/even stage information in the highest bit of the offset
+
+        if ((non_empty_stage_count & 1) == 0) {
+            total_count += all_count; // Place "all" maps in between stages
+        }
+
         total_count += map_count[i];
         non_empty_stage_count++;
     }
@@ -417,8 +416,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(const WisVKDevi
     // Hard part is to pack the tables into a contiguous arrays for each shader type
     uint32_t                                                               total_table_count        = 0;
     std::array<uint32_t, WisShaderVisibilityCount>                         table_counts_per_shader  = wis::detail::GetMapCountPerShaderType(*desc);
-    std::array<wis::detail::VKMappingOffsetInfo, WisShaderVisibilityCount> table_offsets_per_shader = wis::detail::GetMappingOffsetPerShaderType(table_counts_per_shader, total_table_count);
-    std::array<wis::detail::VKMappingOffsetInfo, WisShaderVisibilityCount> local_offsets_per_shader = table_offsets_per_shader;
+    std::array<wis::detail::VKMappingOffsetInfo, WisShaderVisibilityCount> local_offsets_per_shader = wis::detail::GetMappingOffsetPerShaderType(table_counts_per_shader, total_table_count);
 
     std::size_t root_param_count     = desc->push_constant_count + desc->push_descriptor_count + desc->descriptor_table_count;
     std::size_t static_sampler_count = 0;
@@ -440,17 +438,25 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(const WisVKDevi
     root_sig_control_block->root_parameter_count   = static_cast<uint32_t>(root_param_count);
 
     // Fill mapping data
-    for (uint32_t i = 0; i < table_offsets_per_shader.size(); ++i) {
+    uint32_t all_offset = 0;
+    for (uint32_t i = 1; i < local_offsets_per_shader.size(); ++i) {
         if (table_counts_per_shader[i] == 0) {
             continue;
         }
 
-        root_sig_control_block->shader_mapping_offset[i] = table_offsets_per_shader[i].offset -
-                        table_offsets_per_shader[i].even
-                ? 0
-                : table_counts_per_shader[0]; // If even, "all" maps are before this stage, if odd, "all" maps are after this stage
+        root_sig_control_block->shader_mapping_offset[i] = local_offsets_per_shader[i].offset -
+                (local_offsets_per_shader[i].even
+                         ? 0
+                         : table_counts_per_shader[0]); // If even, "all" maps are after this stage, if odd, "all" maps are before this stage
+        if (!all_offset) {
+            // Set as an offset after mapping[0]
+            all_offset = local_offsets_per_shader[i].offset + table_counts_per_shader[i];
+        }
     }
-
+    root_sig_control_block->shader_mapping_offset[0] = all_offset;
+    local_offsets_per_shader[0]                      = { all_offset, true };
+    
+    
     auto     mappings            = root_sig_control_block->GetMappings();
     auto     root_param_offsets  = root_sig_control_block->GetRootBindingOffsets();
     uint32_t push_address_offset = 0;
@@ -544,8 +550,16 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(const WisVKDevi
     }
 
     // Fill "all" visibility mappings in between stages
+    bool first_skipped = true;
     for (uint32_t i = 1; i < local_offsets_per_shader.size(); ++i) {
-        if (local_offsets_per_shader[i].even) {
+        if (local_offsets_per_shader[i].offset!=0x7ffffff && local_offsets_per_shader[i].even) {
+
+            // Skip the first even stage, since this is where the mappings actually are
+            if (first_skipped) {
+                first_skipped = false;
+                continue;
+            }
+
             std::copy_n(mappings.data(), table_counts_per_shader[0], mappings.data() + local_offsets_per_shader[i].offset);
         }
     }

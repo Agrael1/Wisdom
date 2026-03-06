@@ -6,9 +6,6 @@
 #include <wisdom/vulkan/detail/vk_ext1.hpp>
 #include <wisdom/util/allocation.hpp>
 
-
-
-
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyCommandAllocator(WisVKCommandAllocator* self)
 {
@@ -36,7 +33,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCommandAllocatorReset(const WisVKCommandA
 
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisVKCommandAllocatorCreateCommandList(const WisVKCommandAllocator* self,
-                                                              WisVKCommandList*            list)
+                                                                         WisVKCommandList*            list)
 {
     auto& impl          = *reinterpret_cast<const wis::impl::VKCommandAllocatorImpl*>(self);
     auto& header        = impl.command_pool_header->header;

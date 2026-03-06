@@ -227,7 +227,7 @@ public:
     // Create resources
     void CreateFirstPassResources()
     {
-        using namespace wis; // for flag OR operations
+         // for flag OR operations
         auto& device = setup.device;
         auto& cmd = cmd_list[0];
         ex::CheckResult(cmd.Reset());

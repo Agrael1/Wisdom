@@ -8,9 +8,6 @@
 #include <algorithm>
 #include <bitset>
 
-
-
-
 namespace wis::detail {
 struct VKQueueResidencyInfo {
     static constexpr uint32_t invalid_index = std::numeric_limits<uint32_t>::max();
@@ -210,10 +207,10 @@ get_sorted_queue_families(wis::span<VkQueueFamilyProperties2> props_span) noexce
 }
 
 VKQueueResidencyInfo get_queue_residency_info(const wis::impl::VKMainAdapter& adapter_table,
-                                              VkPhysicalDevice               adapter,
-                                              const WisVKDeviceRequirements* requirements,
-                                              const VKDeviceFeatures&        device_features,
-                                              WisResult&                     out_result)
+                                              VkPhysicalDevice                adapter,
+                                              const WisVKDeviceRequirements*  requirements,
+                                              const VKDeviceFeatures&         device_features,
+                                              WisResult&                      out_result)
 {
     VKQueueResidencyInfo      info{};
     constexpr static uint32_t reasonable_queue_family_count = 32;
@@ -556,9 +553,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
     }
 
     // Create default enabled features
+    VkPhysicalDeviceVulkan13Features vulkan13_features{};
+    vulkan13_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
+    vulkan13_features.pNext = feature_structs; // link to extension features
+
     VkPhysicalDeviceVulkan12Features vulkan12_features{};
     vulkan12_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
-    vulkan12_features.pNext = feature_structs; // link to extension features
+    vulkan12_features.pNext = &vulkan13_features;
 
     VkPhysicalDeviceVulkan11Features vulkan11_features{};
     vulkan11_features.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES;
@@ -576,9 +577,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
     collector.ForceBindFeatureStruct(&vulkan12_features);
 
     // Create properties structures
+    VkPhysicalDeviceVulkan13Properties vulkan13_properties{};
+    vulkan13_properties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_PROPERTIES;
+    vulkan13_properties.pNext = property_structs; // link to extension properties
+
     VkPhysicalDeviceVulkan12Properties vulkan12_properties{};
     vulkan12_properties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_PROPERTIES;
-    vulkan12_properties.pNext = property_structs; // link to extension properties
+    vulkan12_properties.pNext = &vulkan13_properties;
 
     VkPhysicalDeviceVulkan11Properties vulkan11_properties{};
     vulkan11_properties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_PROPERTIES;

@@ -207,7 +207,7 @@ public:
 private:
     void CreateSizeDependentResources(uint32_t width, uint32_t height)
     {
-        using namespace wis; // for flag operators
+         // for flag operators
         wis::Result result = wis::success;
 
         // Create UAV texture
@@ -282,7 +282,7 @@ private:
     }
     void CreateAccelerationStructures()
     {
-        using namespace wis; // for flag operators
+         // for flag operators
         wis::Result result = wis::success;
 
         rtas_instance_buffer = setup.allocator.CreateBuffer(result, sizeof(wis::AccelerationInstance), wis::BufferUsage::AccelerationStructureInput, wis::MemoryType::Upload, wis::MemoryFlags::Mapped);

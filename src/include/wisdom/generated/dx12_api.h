@@ -12,6 +12,14 @@ extern "C" {
  *
  * */
 WIS_DEFINE_HANDLE(WisDX12Texture, 3);
+WIS_DEFINE_HANDLE_VIEW(WisDX12Texture, 1);
+
+static inline WisDX12TextureView wisGetDX12TextureView(const WisDX12Texture* handle)
+{
+    WisDX12TextureView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
 
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a GPU buffer resource.
@@ -527,6 +535,46 @@ WISDOM_API WisResult wisDX12DescriptorHeapWriteRWStructuredBuffer(const WisDX12D
 WISDOM_API WisResult wisDX12DescriptorHeapWriteSampler(const WisDX12DescriptorHeap* self,
                                                        const WisSamplerDesc*        sampler,
                                                        uint32_t                     index);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Writes a descriptor to the descriptor heap.
+ * @param self is a pointer to the valid WisDescriptorHeap instance.
+ * @param texture points to WisTexture to write the descriptor for.
+ * @param data points to , which describes the texture view to write.
+ * @param index defines the index in the descriptor heap to write the descriptor to.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DescriptorHeapWriteTexture(const WisDX12DescriptorHeap* self,
+                                                       WisDX12TextureView           texture,
+                                                       const WisTextureBinding*     data,
+                                                       uint32_t                     index);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Writes a texture view to the descriptor heap.
+ * @param self is a pointer to the valid WisDescriptorHeap instance.
+ * @param texture points to WisTexture to write the descriptor for.
+ * @param data points to , which describes the texture view to write.
+ * @param index defines the index in the descriptor heap to write the descriptor to.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DescriptorHeapWriteRWTexture(const WisDX12DescriptorHeap* self,
+                                                         WisDX12TextureView           texture,
+                                                         const WisTextureBinding*     data,
+                                                         uint32_t                     index);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Writes a raytracing acceleration to the descriptor heap.
+ * @param self is a pointer to the valid WisDescriptorHeap instance.
+ * @param address GPU address of a raytracing acceleration structure.
+ * @param index defines the index in the descriptor heap to write the descriptor to.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DescriptorHeapWriteAccelerationStructure(const WisDX12DescriptorHeap* self,
+                                                                     uint64_t                     address,
+                                                                     uint32_t                     index);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Resets the command allocator, so it can be reused for allocating new command lists.

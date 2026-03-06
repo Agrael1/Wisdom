@@ -98,13 +98,13 @@ using unique_library = std::unique_ptr<void, LibraryDeleter>;
 #define ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, name) \
     name = reinterpret_cast<decltype(name)>(vkGetDeviceProcAddr(device, #name))
 #define ASSIGN_DEVICE_PROC_ADDR_CHECK(device, name)                                  \
-    do {                                                                        \
+    do {                                                                             \
         name = reinterpret_cast<decltype(name)>(vkGetDeviceProcAddr(device, #name)); \
-        if (name == nullptr) {                                                  \
-            return false;                                                     \
-        }                                                                     \
+        if (name == nullptr) {                                                       \
+            return false;                                                            \
+        }                                                                            \
     } while (0)
-#define ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, name, ...)                                        \
+#define ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, name, ...)                                         \
     do {                                                                                             \
         constexpr static const char* name##_strings[]{ #name, __VA_ARGS__ };                         \
         for (auto name##_it : name##_strings) {                                                      \

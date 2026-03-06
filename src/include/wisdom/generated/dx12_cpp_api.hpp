@@ -27,6 +27,7 @@ struct DX12TextureDeleter {
         ::wisDX12DestroyTexture(handle);
     }
 };
+using DX12TextureView = WisDX12TextureView;
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a GPU texture resource.
  *
@@ -37,6 +38,16 @@ public:
     using ImplType::ImplType;
 
 public:
+    WIS_NODISCARD DX12TextureView GetView() const noexcept
+    {
+        DX12TextureView v;
+        std::memcpy(&v, &_impl_storage, sizeof(v));
+        return v;
+    }
+    WIS_NODISCARD operator DX12TextureView() const noexcept
+    {
+        return GetView();
+    }
 };
 
 struct DX12BufferDeleter {
@@ -172,6 +183,54 @@ public:
         return convert_result(::wisDX12DescriptorHeapWriteSampler(&_impl_storage,
                                                                   reinterpret_cast<const WisSamplerDesc*>(&sampler),
                                                                   index));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Writes a descriptor to the descriptor heap.
+     * @param texture points to wis::Texture to write the descriptor for.
+     * @param data points to , which describes the texture view to write.
+     * @param index defines the index in the descriptor heap to write the descriptor to.
+     * @return Result denoting the outcome of operation.
+     *
+     * */
+    inline wis::Result WriteTexture(wis::DX12TextureView       texture,
+                                    const wis::TextureBinding& data,
+                                    std::uint32_t              index) const noexcept
+    {
+        return convert_result(::wisDX12DescriptorHeapWriteTexture(&_impl_storage,
+                                                                  texture,
+                                                                  reinterpret_cast<const WisTextureBinding*>(&data),
+                                                                  index));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Writes a texture view to the descriptor heap.
+     * @param texture points to wis::Texture to write the descriptor for.
+     * @param data points to , which describes the texture view to write.
+     * @param index defines the index in the descriptor heap to write the descriptor to.
+     * @return Result denoting the outcome of operation.
+     *
+     * */
+    inline wis::Result WriteRWTexture(wis::DX12TextureView       texture,
+                                      const wis::TextureBinding& data,
+                                      std::uint32_t              index) const noexcept
+    {
+        return convert_result(::wisDX12DescriptorHeapWriteRWTexture(&_impl_storage,
+                                                                    texture,
+                                                                    reinterpret_cast<const WisTextureBinding*>(&data),
+                                                                    index));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Writes a raytracing acceleration to the descriptor heap.
+     * @param address GPU address of a raytracing acceleration structure.
+     * @param index defines the index in the descriptor heap to write the descriptor to.
+     * @return Result denoting the outcome of operation.
+     *
+     * */
+    inline wis::Result WriteAccelerationStructure(std::uint64_t address,
+                                                  std::uint32_t index) const noexcept
+    {
+        return convert_result(::wisDX12DescriptorHeapWriteAccelerationStructure(&_impl_storage,
+                                                                                address,
+                                                                                index));
     }
 };
 

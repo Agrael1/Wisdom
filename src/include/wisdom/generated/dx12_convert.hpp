@@ -146,6 +146,26 @@ inline D3D12_DESCRIPTOR_HEAP_FLAGS convert_dx(WisDescriptorMemoryType value) noe
     return static_cast<D3D12_DESCRIPTOR_HEAP_FLAGS>(value);
 }
 
+inline D3D12_SHADER_COMPONENT_MAPPING convert_dx(WisComponentSwizzle value) noexcept
+{
+    switch (value) {
+    case WisComponentSwizzleRed:
+        return D3D12_SHADER_COMPONENT_MAPPING_FROM_MEMORY_COMPONENT_0;
+    case WisComponentSwizzleGreen:
+        return D3D12_SHADER_COMPONENT_MAPPING_FROM_MEMORY_COMPONENT_1;
+    case WisComponentSwizzleBlue:
+        return D3D12_SHADER_COMPONENT_MAPPING_FROM_MEMORY_COMPONENT_2;
+    case WisComponentSwizzleAlpha:
+        return D3D12_SHADER_COMPONENT_MAPPING_FROM_MEMORY_COMPONENT_3;
+    case WisComponentSwizzleZero:
+        return D3D12_SHADER_COMPONENT_MAPPING_FORCE_VALUE_0;
+    case WisComponentSwizzleOne:
+        return D3D12_SHADER_COMPONENT_MAPPING_FORCE_VALUE_1;
+    default:
+        return static_cast<D3D12_SHADER_COMPONENT_MAPPING>(0);
+    }
+}
+
 inline D3D12_HEAP_TYPE convert_dx(WisMemoryType value) noexcept
 {
     switch (value) {

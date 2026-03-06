@@ -229,7 +229,7 @@ public:
 
         // Create constant buffer
         {
-            using namespace wis;
+            
             for (size_t i = 0; i < ex::flight_frames; i++) {
                 constant_buffersx[i] = ex::Unwrap(setup.allocator.CreateBuffer(sizeof(float), wis::BufferUsage::CopySrc | wis::BufferUsage::ConstantBuffer, wis::MemoryType::Upload, wis::MemoryFlags::Mapped));
                 constant_buffersy[i] = ex::Unwrap(setup.allocator.CreateBuffer(sizeof(float), wis::BufferUsage::CopySrc | wis::BufferUsage::ConstantBuffer, wis::MemoryType::Upload, wis::MemoryFlags::Mapped));

@@ -9,6 +9,7 @@
     <handle name="Texture" version="0.7.0" doc="Class representing a GPU texture resource.">
       <impl for="vk" size="3"/>
       <impl for="dx" size="3"/>
+      <view size="1"/>
     </handle>
     <handle name="Buffer" version="0.7.0" doc="Class representing a GPU buffer resource.">
       <impl for="vk" size="4"/>
@@ -192,6 +193,24 @@ Can still be enqueued after the signal.">
       <arg type="SamplerDesc" name="sampler" mod="const,ref" doc="points to {SamplerDesc::}, which describes the sampler descriptor to write."/>
       <arg type="u32" name="index" doc="defines the index in the descriptor heap to write the descriptor to."/>
     </func>
+    <func for="DescriptorHeap" name="WriteTexture" version="0.7.0" mod="const" doc="Writes a descriptor to the descriptor heap.">
+      <ret type="Result" name="result" doc="Result of operation."/>
+      <arg type="TextureView" name="texture" doc="points to {Texture::} to write the descriptor for."/>
+      <arg type="TextureBinding" name="data" mod="const,ref" doc="points to {TextureDataDesc::}, which describes the texture view to write."/>
+      <arg type="u32" name="index" doc="defines the index in the descriptor heap to write the descriptor to."/>
+    </func>
+    <func for="DescriptorHeap" name="WriteRWTexture" version="0.7.0" mod="const" doc="Writes a texture view to the descriptor heap.">
+      <ret type="Result" name="result" doc="Result of operation."/>
+      <arg type="TextureView" name="texture" doc="points to {Texture::} to write the descriptor for."/>
+      <arg type="TextureBinding" name="data" mod="const,ref" doc="points to {TextureDataDesc::}, which describes the texture view to write."/>
+      <arg type="u32" name="index" doc="defines the index in the descriptor heap to write the descriptor to."/>
+    </func>
+    <func for="DescriptorHeap" name="WriteAccelerationStructure" version="0.7.0" mod="const" doc="Writes a raytracing acceleration to the descriptor heap.">
+      <ret type="Result" name="result" doc="Result of operation."/>
+      <arg type="u64" name="address" doc="GPU address of a raytracing acceleration structure."/>
+      <arg type="u32" name="index" doc="defines the index in the descriptor heap to write the descriptor to."/>
+    </func>
+    
 
     <!-- Command Allocator -->
     <func for="CommandAllocator" name="Reset" version="0.7.0" mod="const" doc="Resets the command allocator, so it can be reused for allocating new command lists.">

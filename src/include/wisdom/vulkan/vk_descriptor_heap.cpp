@@ -7,9 +7,222 @@
 #include <wisdom/vulkan/detail/vk_utils.hpp>
 #include <bit>
 
-using namespace wis;
+namespace wis::detail {
+inline VkImageAspectFlags VKGetAspectFlags(const WisTextureBinding& binding) noexcept
+{
+    if ((binding.flags & WisTextureBindingFlagsStencilView) && (binding.format == WisDataFormatD24UnormS8Uint || binding.format == WisDataFormatD32FloatS8Uint)) {
+        return VK_IMAGE_ASPECT_STENCIL_BIT;
+    }
+    if ((binding.flags & WisTextureBindingFlagsDepthView) && (binding.format == WisDataFormatD32FloatS8Uint || binding.format == WisDataFormatD24UnormS8Uint) || (binding.format == WisDataFormatD16Unorm || binding.format == WisDataFormatD32Float)) {
+        return VK_IMAGE_ASPECT_DEPTH_BIT;
+    }
+    if (binding.range.plane_slice) {
+        return VK_IMAGE_ASPECT_PLANE_0_BIT << (binding.range.plane_slice - 1);
+    }
+    return VK_IMAGE_ASPECT_COLOR_BIT;
+}
 
+inline VkImageViewCreateInfo
+VKGetSRVDesc(const WisTextureBinding& binding) noexcept
+{
+    VkImageViewCreateInfo srv_desc{
+        .sType      = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+        .pNext      = nullptr,
+        .flags      = 0,
+        .format     = wis::detail::convert_vk(binding.format),
+        .components = {
+                       .r = wis::detail::convert_vk(binding.component_mapping.r),
+                       .g = wis::detail::convert_vk(binding.component_mapping.g),
+                       .b = wis::detail::convert_vk(binding.component_mapping.b),
+                       .a = wis::detail::convert_vk(binding.component_mapping.a),
+                       },
+    };
+    auto aspect_flags = VKGetAspectFlags(binding);
 
+    switch (binding.layout) {
+    case WisTextureLayoutTexture1D:
+        srv_desc.viewType         = VK_IMAGE_VIEW_TYPE_1D;
+        srv_desc.subresourceRange = {
+            .aspectMask     = aspect_flags,
+            .baseMipLevel   = binding.range.base_mip_level,
+            .levelCount     = binding.range.mip_level_count,
+            .baseArrayLayer = 0,
+            .layerCount     = 1
+        };
+        break;
+    case WisTextureLayoutTexture1DArray:
+        srv_desc.viewType         = VK_IMAGE_VIEW_TYPE_1D_ARRAY;
+        srv_desc.subresourceRange = {
+            .aspectMask     = aspect_flags,
+            .baseMipLevel   = binding.range.base_mip_level,
+            .levelCount     = binding.range.mip_level_count,
+            .baseArrayLayer = binding.range.base_array_layer,
+            .layerCount     = binding.range.array_layer_count
+        };
+        break;
+    case WisTextureLayoutTexture2D:
+        srv_desc.viewType         = VK_IMAGE_VIEW_TYPE_2D;
+        srv_desc.subresourceRange = {
+            .aspectMask     = aspect_flags,
+            .baseMipLevel   = binding.range.base_mip_level,
+            .levelCount     = binding.range.mip_level_count,
+            .baseArrayLayer = 0,
+            .layerCount     = 1
+        };
+        break;
+    default:
+    case WisTextureLayoutTexture2DArray:
+        srv_desc.viewType         = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+        srv_desc.subresourceRange = {
+            .aspectMask     = aspect_flags,
+            .baseMipLevel   = binding.range.base_mip_level,
+            .levelCount     = binding.range.mip_level_count,
+            .baseArrayLayer = binding.range.base_array_layer,
+            .layerCount     = binding.range.array_layer_count
+        };
+        break;
+    case WisTextureLayoutTexture3D:
+        srv_desc.viewType         = VK_IMAGE_VIEW_TYPE_3D;
+        srv_desc.subresourceRange = {
+            .aspectMask     = aspect_flags,
+            .baseMipLevel   = binding.range.base_mip_level,
+            .levelCount     = binding.range.mip_level_count,
+            .baseArrayLayer = 0,
+            .layerCount     = 1
+        };
+        break;
+    case WisTextureLayoutTexture2DMS:
+        srv_desc.viewType         = VK_IMAGE_VIEW_TYPE_2D;
+        srv_desc.subresourceRange = {
+            .aspectMask     = aspect_flags,
+            .baseMipLevel   = 0,
+            .levelCount     = 1,
+            .baseArrayLayer = 0,
+            .layerCount     = 1
+        };
+        break;
+    case WisTextureLayoutTexture2DMSArray:
+        srv_desc.viewType         = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+        srv_desc.subresourceRange = {
+            .aspectMask     = aspect_flags,
+            .baseMipLevel   = 0,
+            .levelCount     = 1,
+            .baseArrayLayer = binding.range.base_array_layer,
+            .layerCount     = binding.range.array_layer_count
+        };
+        break;
+    case WisTextureLayoutTextureCube:
+        srv_desc.viewType         = VK_IMAGE_VIEW_TYPE_CUBE;
+        srv_desc.subresourceRange = {
+            .aspectMask     = aspect_flags,
+            .baseMipLevel   = binding.range.base_mip_level,
+            .levelCount     = binding.range.mip_level_count,
+            .baseArrayLayer = 0,
+            .layerCount     = 6
+        };
+        break;
+    case WisTextureLayoutTextureCubeArray:
+        srv_desc.viewType         = VK_IMAGE_VIEW_TYPE_CUBE_ARRAY;
+        srv_desc.subresourceRange = {
+            .aspectMask     = aspect_flags,
+            .baseMipLevel   = binding.range.base_mip_level,
+            .levelCount     = binding.range.mip_level_count,
+            .baseArrayLayer = binding.range.base_array_layer,
+            .layerCount     = binding.range.array_layer_count
+        };
+        break;
+    }
+    return srv_desc;
+}
+
+inline VkImageViewCreateInfo
+VKGetUAVDesc(const WisTextureBinding& binding) noexcept
+{
+    VkImageViewCreateInfo srv_desc{
+        .sType      = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+        .pNext      = nullptr,
+        .flags      = 0,
+        .format     = wis::detail::convert_vk(binding.format),
+        .components = {},
+    };
+    auto aspect_flags = VKGetAspectFlags(binding);
+
+    switch (binding.layout) {
+    case WisTextureLayoutTexture1D:
+        srv_desc.viewType         = VK_IMAGE_VIEW_TYPE_1D;
+        srv_desc.subresourceRange = {
+            .aspectMask     = aspect_flags,
+            .baseMipLevel   = binding.range.base_mip_level,
+            .levelCount     = 1,
+            .baseArrayLayer = 0,
+            .layerCount     = 1
+        };
+        break;
+    case WisTextureLayoutTexture1DArray:
+        srv_desc.viewType         = VK_IMAGE_VIEW_TYPE_1D_ARRAY;
+        srv_desc.subresourceRange = {
+            .aspectMask     = aspect_flags,
+            .baseMipLevel   = binding.range.base_mip_level,
+            .levelCount     = 1,
+            .baseArrayLayer = binding.range.base_array_layer,
+            .layerCount     = binding.range.array_layer_count
+        };
+        break;
+    case WisTextureLayoutTexture2D:
+        srv_desc.viewType         = VK_IMAGE_VIEW_TYPE_2D;
+        srv_desc.subresourceRange = {
+            .aspectMask     = aspect_flags,
+            .baseMipLevel   = binding.range.base_mip_level,
+            .levelCount     = 1,
+            .baseArrayLayer = 0,
+            .layerCount     = 1
+        };
+        break;
+    default:
+    case WisTextureLayoutTexture2DArray:
+        srv_desc.viewType         = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+        srv_desc.subresourceRange = {
+            .aspectMask     = aspect_flags,
+            .baseMipLevel   = binding.range.base_mip_level,
+            .levelCount     = 1,
+            .baseArrayLayer = binding.range.base_array_layer,
+            .layerCount     = binding.range.array_layer_count
+        };
+        break;
+    case WisTextureLayoutTexture3D:
+        srv_desc.viewType         = VK_IMAGE_VIEW_TYPE_3D;
+        srv_desc.subresourceRange = {
+            .aspectMask     = aspect_flags,
+            .baseMipLevel   = binding.range.base_mip_level,
+            .levelCount     = 1,
+            .baseArrayLayer = binding.range.base_array_layer,
+            .layerCount     = binding.range.array_layer_count
+        };
+        break;
+    case WisTextureLayoutTexture2DMS:
+        srv_desc.viewType         = VK_IMAGE_VIEW_TYPE_2D;
+        srv_desc.subresourceRange = {
+            .aspectMask     = aspect_flags,
+            .baseMipLevel   = 0,
+            .levelCount     = 1,
+            .baseArrayLayer = 0,
+            .layerCount     = 1
+        };
+        break;
+    case WisTextureLayoutTexture2DMSArray:
+        srv_desc.viewType         = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+        srv_desc.subresourceRange = {
+            .aspectMask     = aspect_flags,
+            .baseMipLevel   = 0,
+            .levelCount     = 1,
+            .baseArrayLayer = binding.range.base_array_layer,
+            .layerCount     = binding.range.array_layer_count
+        };
+        break;
+    }
+    return srv_desc;
+}
+} // namespace wis::detail
 
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyDescriptorHeap(WisVKDescriptorHeap* self)
@@ -20,11 +233,10 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyDescriptorHeap(WisVKDescriptorHeap* sel
         if (impl.gpu_address == 0) {
             std::free(impl.buffer);
         } else {
-            vmaUnmapMemory(impl.device_header->header.allocator, impl.allocation);
             vmaDestroyBuffer(impl.device_header->header.allocator, impl.buffer, impl.allocation);
         }
 
-        detail::release_vk_device(impl.device, impl.device_header);
+        wis::detail::release_vk_device(impl.device, impl.device_header);
         impl.buffer = VK_NULL_HANDLE;
     }
 }
@@ -150,6 +362,107 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDescriptorHeapWriteSampler(const WisVKDes
     VkResult result = table.vkWriteSamplerDescriptorsEXT(heap.device, 1, &sampler_info, &host_range);
     if (!wis::detail::succeeded(result)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to write resource descriptor for storage buffer view">(result);
+    }
+    return wis::detail::vk_success;
+}
+
+//-----------------------------------------------------------------------------
+WISDOM_API WisResult wisVKDescriptorHeapWriteTexture(const WisVKDescriptorHeap* self,
+                                                     WisVKTextureView           view,
+                                                     const WisTextureBinding*   data,
+                                                     uint32_t                   index)
+{
+    auto& heap  = *reinterpret_cast<const wis::impl::VKDescriptorHeapImpl*>(self);
+    auto& table = heap.device_header->header.device_table;
+
+    VkHostAddressRangeEXT host_range{
+        .address = static_cast<uint8_t*>(heap.mapped_ptr) + index * heap.descriptor_size,
+        .size    = heap.descriptor_size,
+    };
+
+    VkImageViewCreateInfo view_create_info = wis::detail::VKGetSRVDesc(*data);
+    view_create_info.image                 = std::bit_cast<VkImage>(view);
+
+    VkImageDescriptorInfoEXT image_desc{
+        .sType  = VK_STRUCTURE_TYPE_IMAGE_DESCRIPTOR_INFO_EXT,
+        .pNext  = nullptr,
+        .pView  = &view_create_info,
+        .layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, // TODO: Granular layout for depth stencil
+    };
+    VkResourceDescriptorInfoEXT resource_desc{
+        .sType = VK_STRUCTURE_TYPE_RESOURCE_DESCRIPTOR_INFO_EXT,
+        .pNext = nullptr,
+        .type  = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,
+        .data  = { .pImage = &image_desc }
+    };
+    VkResult result = table.vkWriteResourceDescriptorsEXT(heap.device, 1, &resource_desc, &host_range);
+    if (!wis::detail::succeeded(result)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to write resource descriptor for constant buffer view">(result);
+    }
+    return wis::detail::vk_success;
+}
+
+//-----------------------------------------------------------------------------
+WISDOM_API WisResult wisVKDescriptorHeapWriteRWTexture(const WisVKDescriptorHeap* self,
+                                                       WisVKTextureView           view,
+                                                       const WisTextureBinding*   data,
+                                                       uint32_t                   index)
+{
+    auto& heap  = *reinterpret_cast<const wis::impl::VKDescriptorHeapImpl*>(self);
+    auto& table = heap.device_header->header.device_table;
+
+    VkHostAddressRangeEXT host_range{
+        .address = static_cast<uint8_t*>(heap.mapped_ptr) + index * heap.descriptor_size,
+        .size    = heap.descriptor_size,
+    };
+
+    VkImageViewCreateInfo view_create_info = wis::detail::VKGetUAVDesc(*data);
+    view_create_info.image                 = std::bit_cast<VkImage>(view);
+
+    VkImageDescriptorInfoEXT image_desc{
+        .sType  = VK_STRUCTURE_TYPE_IMAGE_DESCRIPTOR_INFO_EXT,
+        .pNext  = nullptr,
+        .pView  = &view_create_info,
+        .layout = VK_IMAGE_LAYOUT_GENERAL, // TODO: Granular layout for depth stencil
+    };
+    VkResourceDescriptorInfoEXT resource_desc{
+        .sType = VK_STRUCTURE_TYPE_RESOURCE_DESCRIPTOR_INFO_EXT,
+        .pNext = nullptr,
+        .type  = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+        .data  = { .pImage = &image_desc }
+    };
+    VkResult result = table.vkWriteResourceDescriptorsEXT(heap.device, 1, &resource_desc, &host_range);
+    if (!wis::detail::succeeded(result)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to write resource descriptor for constant buffer view">(result);
+    }
+    return wis::detail::vk_success;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisVKDescriptorHeapWriteAccelerationStructure(const WisVKDescriptorHeap* self,
+                                                                                uint64_t                   address,
+                                                                                uint32_t                   index)
+{
+    auto& heap  = *reinterpret_cast<const wis::impl::VKDescriptorHeapImpl*>(self);
+    auto& table = heap.device_header->header.device_table;
+
+    VkHostAddressRangeEXT host_range{
+        .address = static_cast<uint8_t*>(heap.mapped_ptr) + index * heap.descriptor_size,
+        .size    = heap.descriptor_size,
+    };
+    VkDeviceAddressRangeEXT address_range{
+        .address = address,
+        .size    = 0,
+    };
+    VkResourceDescriptorInfoEXT resource_desc{
+        .sType = VK_STRUCTURE_TYPE_RESOURCE_DESCRIPTOR_INFO_EXT,
+        .pNext = nullptr,
+        .type  = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR,
+        .data  = { .pAddressRange = &address_range }
+    };
+    VkResult result = table.vkWriteResourceDescriptorsEXT(heap.device, 1, &resource_desc, &host_range);
+    if (!wis::detail::succeeded(result)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to write resource descriptor for constant buffer view">(result);
     }
     return wis::detail::vk_success;
 }

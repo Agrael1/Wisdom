@@ -157,6 +157,23 @@ int main()
     uint64_t buffer_gpu_address = wisBufferGetGPUAddress(&buffer);
     void*    mapped_ptr         = wisBufferMap(&buffer);
 
+    WisTextureDesc texture_desc = {
+        .width               = 256,
+        .height              = 256,
+        .depth_or_array_size = 1,
+        .mip_levels          = 1,
+        .format              = WisDataFormatRGBA8Unorm,
+        .sample_count        = WisSampleCountS1,
+        .layout              = WisTextureLayoutTexture2D,
+        .usage_flags         = WisTextureUsageFlagsCopyDst | WisTextureUsageFlagsShaderResource,
+        .memory_type         = WisMemoryTypeDeviceLocal,
+        .memory_flags        = WisMemoryFlagsNone,
+    };
+
+    WisTexture texture = { 0 };
+    result             = wisResourceAllocatorCreateTexture(&allocator, &texture_desc, &texture);
+    printf("CreateTexture result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+
     WisSamplerDesc sampler_desc = {
         .min_filter          = WisFilterLinear,
         .mag_filter          = WisFilterLinear,
@@ -177,25 +194,20 @@ int main()
         .buffer_address = buffer_gpu_address,
         .size_bytes     = 1024,
     };
+    WisTextureBinding texture_binding = {
+        .format = WisDataFormatRGBA8Unorm,
+        .layout = WisTextureLayoutTexture2D,
+        .flags  = WisTextureBindingFlagsNone,
+        .range  = {
+                   .base_mip_level    = 0,
+                   .mip_level_count   = 1,
+                   .base_array_layer  = 0,
+                   .array_layer_count = 1,
+                   }
+    };
     result = wisDescriptorHeapWriteConstantBuffer(&descriptor_heap, &cb_binding, 0);
     result = wisDescriptorHeapWriteSampler(&sampler_heap, &sampler_desc, 0);
-
-    WisTextureDesc texture_desc = {
-        .width               = 256,
-        .height              = 256,
-        .depth_or_array_size = 1,
-        .mip_levels          = 1,
-        .format              = WisDataFormatRGBA8Unorm,
-        .sample_count        = WisSampleCountS1,
-        .layout              = WisTextureLayoutTexture2D,
-        .usage_flags         = WisTextureUsageFlagsCopyDst | WisTextureUsageFlagsShaderResource,
-        .memory_type         = WisMemoryTypeDeviceLocal,
-        .memory_flags        = WisMemoryFlagsNone,
-    };
-
-    WisTexture texture = { 0 };
-    result             = wisResourceAllocatorCreateTexture(&allocator, &texture_desc, &texture);
-    printf("CreateTexture result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+    result = wisDescriptorHeapWriteTexture(&descriptor_heap, wisGetView(&texture), &texture_binding, 1);
 
     WisPushConstant push_constant = {
         .visibility    = WisShaderVisibilityAll,
@@ -209,12 +221,21 @@ int main()
         .bind_register = 1,
         .bind_space    = 0,
     };
-    WisDescriptorTableEntry descriptor_table_entry = {
-        .type              = WisDescriptorTypeConstantBuffer,
-        .bind_register     = 2,
-        .bind_space        = 0,
-        .count             = 1,
-        .descriptor_offset = 0,
+    WisDescriptorTableEntry descriptor_table_entries[] = {
+        {
+         .type              = WisDescriptorTypeConstantBuffer,
+         .bind_register     = 2,
+         .bind_space        = 0,
+         .count             = 1,
+         .descriptor_offset = 0,
+         },
+        {
+         .type              = WisDescriptorTypeTexture,
+         .bind_register     = 3,
+         .bind_space        = 0,
+         .count             = 1,
+         .descriptor_offset = 1,
+         }
     };
     WisDescriptorTableEntry descriptor_table_entry2 = {
         .type              = WisDescriptorTypeSampler,
@@ -226,8 +247,8 @@ int main()
     WisDescriptorTable descriptor_tables[] = {
         {
          .visibility  = WisShaderVisibilityAll,
-         .entries     = &descriptor_table_entry,
-         .entry_count = 1,
+         .entries     = descriptor_table_entries,
+         .entry_count = 2,
          },
         {
          .visibility  = WisShaderVisibilityPixel,
