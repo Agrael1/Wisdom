@@ -636,6 +636,8 @@ typedef enum WisTextureLayout {
     WisTextureLayoutTexture2DMS      = 6, ///< Texture is 2D multisampled image.
     WisTextureLayoutTexture2DMSArray = 7, ///< Texture is an array of 2D multisampled images.
     WisTextureLayoutTexture3D        = 8, ///< Texture is 3D volume.
+    WisTextureLayoutTextureCube      = 9, ///< Texture is a cube map. Behaves similarly to Texture2DArray with 6 layers.
+    WisTextureLayoutTextureCubeArray = 10, ///< Texture is an array of cube maps. Behaves similarly to Texture2DArray with 6 layers per cube map.
 } WisTextureLayout;
 
 /**
@@ -790,15 +792,18 @@ typedef enum WisDescriptorMemoryType {
 } WisDescriptorMemoryType;
 
 /**
- * @brief Provided by Wisdom 0.7.0. Descriptor storage tier. Decides how many descriptors can be allocated in a single heap.
+ * @brief Provided by Wisdom 0.7.0. Component swizzle for texture sampling.
  *
  * */
-typedef enum WisDescriptorStorageTier {
-    WisDescriptorStorageTierTier1 = 0, ///< Tier 1: VkDescriptorSets and VkDescriptorPools.
-    WisDescriptorStorageTierTier2 = 1, ///< Tier 2: Descriptor Buffer with no mutable descriptor type.
-    WisDescriptorStorageTierTier3 = 2, ///< Tier 3: Descriptor Buffer with mutable descriptor type.
-    WisDescriptorStorageTierTier4 = 3, ///< Tier 4: Descriptor Heap.
-} WisDescriptorStorageTier;
+typedef enum WisComponentSwizzle {
+    WisComponentSwizzleIdentity = 0, ///< Use the component as is for sampling.
+    WisComponentSwizzleRed      = 1, ///< Use the red component for sampling.
+    WisComponentSwizzleGreen    = 2, ///< Use the green component for sampling.
+    WisComponentSwizzleBlue     = 3, ///< Use the blue component for sampling.
+    WisComponentSwizzleAlpha    = 4, ///< Use the alpha component for sampling.
+    WisComponentSwizzleZero     = 5, ///< Use zero for sampling.
+    WisComponentSwizzleOne      = 6, ///< Use one for sampling.
+} WisComponentSwizzle;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Query type for GPU queries.
@@ -936,6 +941,24 @@ typedef enum WisMemoryFlags {
      * */
     WisMemoryFlagsExportable = (1 << 2),
 } WisMemoryFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Texture creation flags. Reserved for future features.
+ *
+ * */
+typedef enum WisTextureFlags {
+    WisTextureFlagsNone = 0, ///< No flags set. Texture is regular.
+} WisTextureFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Texture binding flags, used for extra options.
+ *
+ * */
+typedef enum WisTextureBindingFlags {
+    WisTextureBindingFlagsNone        = 0, ///< No flags set. Texture view is regular. Implies color read.
+    WisTextureBindingFlagsDepthView   = (1 << 0), ///< Texture view is used to read depth. Used for special formats that feature depth and stencil. The bound texture @wis_must be in TODO: specific layout before being used by shader.
+    WisTextureBindingFlagsStencilView = (1 << 1), ///< Texture view is used to read stencil. Used for special formats that feature depth and stencil. The bound texture @wis_must be in TODO: specific layout before being used by shader. Cannot be combined with `WisTextureBindingFlags::DepthView`.
+} WisTextureBindingFlags;
 
 //==============================================================
 // Delegates
@@ -1099,6 +1122,29 @@ typedef struct WisDescriptorHeapDesc {
 } WisDescriptorHeapDesc;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Component mapping for .
+ *
+ * */
+typedef struct WisComponentMapping {
+    WisComponentSwizzle r; ///< Component mapping for Red channel. Default is `WisComponentSwizzleRed`.
+    WisComponentSwizzle g; ///< Component mapping for Green channel. Default is `WisComponentSwizzleGreen`.
+    WisComponentSwizzle b; ///< Component mapping for Blue channel. Default is `WisComponentSwizzleBlue`.
+    WisComponentSwizzle a; ///< Component mapping for Alpha channel. Default is `WisComponentSwizzleAlpha`.
+} WisComponentMapping;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Subresource description for texture data updates and copies.
+ *
+ * */
+typedef struct WisSubresourceRange {
+    uint16_t base_mip_level; ///< Mipmap level of the subresource.
+    uint16_t mip_level_count; ///< Number of mip levels in the subresource.
+    uint16_t base_array_layer; ///< Array layer of the subresource. For 3D textures, this defines the depth slice.
+    uint16_t array_layer_count; ///< Number of array layers in the subresource. For 3D textures, this defines the number of depth slices.
+    uint16_t plane_slice; ///< Base depth slice of the subresource. Used only for 2D textures (YUV). Max value is 3.
+} WisSubresourceRange;
+
+/**
  * @brief Provided by Wisdom 0.7.0. Buffer description for WisBuffer creation.
  *
  * */
@@ -1122,6 +1168,7 @@ typedef struct WisTextureDesc {
     WisSampleCount       sample_count; ///< Number of samples per pixel. Used only for multisampled textures.
     WisTextureLayout     layout; ///< Texture layout. Default is `WisTextureLayoutTexture2D`.
     WisTextureUsageFlags usage_flags; ///< Texture usage flags. Describe how the texture will be used.
+    WisTextureFlags      flags; ///< Texture flags. Describe additional options for the texture.
     WisMemoryType        memory_type; ///< indicates where the texture will be allocated.
     WisMemoryFlags       memory_flags; ///< The flags of the memory to allocate for the texture.
 } WisTextureDesc;
@@ -1161,7 +1208,7 @@ typedef struct WisDescriptorTableDataDesc {
 } WisDescriptorTableDataDesc;
 
 /**
- * @brief Provided by Wisdom 0.7.0. Constant buffer binding description for WisDescriptorHeap.
+ * @brief Provided by Wisdom 0.7.0. Constant buffer binding description for WisDescriptorHeap and WisDescriptorHeap.
  *
  * */
 typedef struct WisConstantBufferBinding {
@@ -1178,6 +1225,18 @@ typedef struct WisBufferBinding {
     uint32_t stride_bytes; ///< defines the size of the single structure in buffer.
     uint32_t structure_count; ///< defines the number of structures in the buffer region to bind.
 } WisBufferBinding;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Texture binding description for WisDescriptorHeap and WisDescriptorHeap.
+ *
+ * */
+typedef struct WisTextureBinding {
+    WisDataFormat          format; ///< defines the format of the view.
+    WisTextureLayout       layout; ///< defines the layout of the texture. Default is `WisTextureLayoutTexture2D`.
+    WisTextureBindingFlags flags; ///< Texture binding flags. Describe additional options for the texture binding.
+    WisComponentMapping    component_mapping; ///< Component mapping for the texture view.
+    WisSubresourceRange    range; ///< Subresource description for the texture view.
+} WisTextureBinding;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Query struct header. Used as a header for all query structs.

@@ -7,8 +7,6 @@
 #include <wisdom/vulkan/detail/vk_utils.hpp>
 #include <wisdom/util/allocation.hpp>
 
-
-
 namespace wis::detail {
 inline VkImageCreateInfo VKFillImageDesc(const WisTextureDesc& desc) noexcept
 {
@@ -51,7 +49,7 @@ inline VkImageCreateInfo VKFillImageDesc(const WisTextureDesc& desc) noexcept
         break;
     case WisTextureLayoutTexture3D:
         info.imageType   = VK_IMAGE_TYPE_3D;
-        info.flags       = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT;
+        info.flags       = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT | VK_IMAGE_CREATE_2D_VIEW_COMPATIBLE_BIT_EXT;
         info.extent      = { desc.width, desc.height, desc.depth_or_array_size };
         info.mipLevels   = desc.mip_levels;
         info.arrayLayers = 1;
@@ -69,6 +67,20 @@ inline VkImageCreateInfo VKFillImageDesc(const WisTextureDesc& desc) noexcept
         info.mipLevels   = 1;
         info.arrayLayers = desc.depth_or_array_size;
         info.samples     = wis::detail::convert_vk(desc.sample_count);
+        break;
+    case WisTextureLayoutTextureCube:
+        info.imageType   = VK_IMAGE_TYPE_2D;
+        info.flags       = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
+        info.extent      = { desc.width, desc.height, 1 };
+        info.mipLevels   = 1;
+        info.arrayLayers = 6;
+        break;
+    case WisTextureLayoutTextureCubeArray:
+        info.imageType   = VK_IMAGE_TYPE_2D;
+        info.flags       = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
+        info.extent      = { desc.width, desc.height, 1 };
+        info.mipLevels   = 1;
+        info.arrayLayers = desc.depth_or_array_size / 6 + (desc.depth_or_array_size % 6 != 0);
         break;
     }
     return info;

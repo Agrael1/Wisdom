@@ -301,6 +301,28 @@ inline VkBorderColor convert_vk(WisStaticBorder value) noexcept
     }
 }
 
+inline VkComponentSwizzle convert_vk(WisComponentSwizzle value) noexcept
+{
+    switch (value) {
+    case WisComponentSwizzleIdentity:
+        return VK_COMPONENT_SWIZZLE_IDENTITY;
+    case WisComponentSwizzleRed:
+        return VK_COMPONENT_SWIZZLE_R;
+    case WisComponentSwizzleGreen:
+        return VK_COMPONENT_SWIZZLE_G;
+    case WisComponentSwizzleBlue:
+        return VK_COMPONENT_SWIZZLE_B;
+    case WisComponentSwizzleAlpha:
+        return VK_COMPONENT_SWIZZLE_A;
+    case WisComponentSwizzleZero:
+        return VK_COMPONENT_SWIZZLE_ZERO;
+    case WisComponentSwizzleOne:
+        return VK_COMPONENT_SWIZZLE_ONE;
+    default:
+        return static_cast<VkComponentSwizzle>(0);
+    }
+}
+
 inline VkMemoryPropertyFlags convert_vk(WisMemoryType value) noexcept
 {
     switch (value) {

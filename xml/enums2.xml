@@ -489,6 +489,8 @@ a 4-bit A component in bits 12..15.">
       <value name="Texture2DMS" value="6" doc="Texture is 2D multisampled image."/>
       <value name="Texture2DMSArray" value="7" doc="Texture is an array of 2D multisampled images."/>
       <value name="Texture3D" value="8" doc="Texture is 3D volume."/>
+      <value name="TextureCube" value="9" doc="Texture is a cube map. Behaves similarly to Texture2DArray with 6 layers."/>
+      <value name="TextureCubeArray" value="10" doc="Texture is an array of cube maps. Behaves similarly to Texture2DArray with 6 layers per cube map."/>
     </type>
 
     <type name="AdapterPreference" category="enum" version="0.7.0" doc="Orders the adapters according to preference using builtin heuristics of underlying APIs. For DirectX 12, this translates directly to `DXGI_GPU_PREFERENCE`. For Vulkan, sorting is based on `VkPhysicalDeviceType` heuristics.">
@@ -712,11 +714,36 @@ a 4-bit A component in bits 12..15.">
       <value name="ShaderVisible" value="1" doc="Descriptors are visible to GPU. Descriptors can be bound to the GPU pipeline directly, but can't be copied from."/>
     </type>
 
-    <type name="DescriptorStorageTier" category="enum" version="0.7.0" doc="Descriptor storage tier. Decides how many descriptors can be allocated in a single heap.">
-      <value name="Tier1" value="0" doc="Tier 1: VkDescriptorSets and VkDescriptorPools."/>
-      <value name="Tier2" value="1" doc="Tier 2: Descriptor Buffer with no mutable descriptor type."/>
-      <value name="Tier3" value="2" doc="Tier 3: Descriptor Buffer with mutable descriptor type."/>
-      <value name="Tier4" value="3" doc="Tier 4: Descriptor Heap."/>
+    <type name="ComponentSwizzle" category="enum" version="0.7.0" doc="Component swizzle for texture sampling.">
+      <impl_type for="dx" name="D3D12_SHADER_COMPONENT_MAPPING"/>
+      <impl_type for="vk" name="VkComponentSwizzle"/>
+      <value name="Identity" value="0" doc="Use the component as is for sampling.">
+        <impl name="vk" value="VK_COMPONENT_SWIZZLE_IDENTITY"/>
+      </value>
+      <value name="Red" value="1" doc="Use the red component for sampling.">
+        <impl name="vk" value="VK_COMPONENT_SWIZZLE_R"/>
+        <impl name="dx" value="D3D12_SHADER_COMPONENT_MAPPING_FROM_MEMORY_COMPONENT_0"/>
+      </value>
+      <value name="Green" value="2" doc="Use the green component for sampling.">
+        <impl name="vk" value="VK_COMPONENT_SWIZZLE_G"/>
+        <impl name="dx" value="D3D12_SHADER_COMPONENT_MAPPING_FROM_MEMORY_COMPONENT_1"/>
+      </value>
+      <value name="Blue" value="3" doc="Use the blue component for sampling.">
+        <impl name="vk" value="VK_COMPONENT_SWIZZLE_B"/>
+        <impl name="dx" value="D3D12_SHADER_COMPONENT_MAPPING_FROM_MEMORY_COMPONENT_2"/>
+      </value>
+      <value name="Alpha" value="4" doc="Use the alpha component for sampling.">
+        <impl name="vk" value="VK_COMPONENT_SWIZZLE_A"/>
+        <impl name="dx" value="D3D12_SHADER_COMPONENT_MAPPING_FROM_MEMORY_COMPONENT_3"/>
+      </value>
+      <value name="Zero" value="5" doc="Use zero for sampling.">
+        <impl name="vk" value="VK_COMPONENT_SWIZZLE_ZERO"/>
+        <impl name="dx" value="D3D12_SHADER_COMPONENT_MAPPING_FORCE_VALUE_0"/>
+      </value>
+      <value name="One" value="6" doc="Use one for sampling.">
+        <impl name="vk" value="VK_COMPONENT_SWIZZLE_ONE"/>
+        <impl name="dx" value="D3D12_SHADER_COMPONENT_MAPPING_FORCE_VALUE_1"/>
+      </value>
     </type>
 
     <type name="QueryPropertyType" category="enum" version="0.7.0" doc="Query type for GPU queries.">
@@ -870,6 +897,18 @@ Used in combination with {MemoryType::Upload} or {MemoryType::Readback} to map m
 If set, memory can be exported to other processes or APIs.
 Works only with Device Local memory ({MemoryType::Default}) and only on AllocateXMemory calls.
 Outside of AllocateXMemory the flag is ignored."/>
+    </type>
+
+
+    <type name="TextureFlags" category="bitmask" version="0.7.0" doc="Texture creation flags. Reserved for future features.">
+      <impl type="" for="vk" name="VkImageCreateFlags"/>
+      <value name="None" value="0" doc="No flags set. Texture is regular."/>
+    </type>
+    
+    <type name="TextureBindingFlags" category="bitmask" version="0.7.0" doc="Texture binding flags, used for extra options.">
+      <value name="None" value="0" doc="No flags set. Texture view is regular. Implies color read."/>
+      <value name="DepthView" bit="0" doc="Texture view is used to read depth. Used for special formats that feature depth and stencil. The bound texture @wis_must be in TODO: specific layout before being used by shader."/>
+      <value name="StencilView" bit="1" doc="Texture view is used to read stencil. Used for special formats that feature depth and stencil. The bound texture @wis_must be in TODO: specific layout before being used by shader. Cannot be combined with {TextureBindingFlags::DepthView}."/>
     </type>
 
   </types>

@@ -193,7 +193,7 @@ public:
     // Create resources
     void CreateResources()
     {
-        using namespace wis; // for flag OR operations
+         // for flag OR operations
         auto& device = setup.device;
         auto& cmd = cmd_list[0];
         ex::CheckResult(cmd.Reset());
@@ -264,7 +264,7 @@ public:
         lut_data_buffer.Unmap();
 
         {
-            using namespace wis;
+            
 
             // Create 3D texture for LUT
             wis::TextureDesc desc{
@@ -347,7 +347,7 @@ public:
 
         {
             // Create Texture
-            using namespace wis;
+            
             wis::TextureDesc desc{
                 .format = wis::DataFormat::RGBA8Unorm,
                 .size = { png_data.width, png_data.height, 1 },

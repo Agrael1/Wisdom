@@ -117,6 +117,21 @@
       <member type="DescriptorHeapFlags" name="flags" doc="describe additional options for the descriptor heap."/>
     </type>
 
+    <type name="ComponentMapping" category="struct" version="0.7.0" doc="Component mapping for {ShaderResourceDesc::}.">
+      <member type="ComponentSwizzle" name="r" default="Red" doc="Component mapping for Red channel. Default is {ComponentSwizzle::Red}."/>
+      <member type="ComponentSwizzle" name="g" default="Green" doc="Component mapping for Green channel. Default is {ComponentSwizzle::Green}."/>
+      <member type="ComponentSwizzle" name="b" default="Blue" doc="Component mapping for Blue channel. Default is {ComponentSwizzle::Blue}."/>
+      <member type="ComponentSwizzle" name="a" default="Alpha" doc="Component mapping for Alpha channel. Default is {ComponentSwizzle::Alpha}."/>
+    </type>
+
+    <type name="SubresourceRange" category="struct" version="0.7.0" doc="Subresource description for texture data updates and copies.">
+      <member type="u16" name="base_mip_level" default="0" doc="Mipmap level of the subresource."/>
+      <member type="u16" name="mip_level_count" default="1" doc="Number of mip levels in the subresource."/>
+      <member type="u16" name="base_array_layer" default="0" doc="Array layer of the subresource. For 3D textures, this defines the depth slice."/>
+      <member type="u16" name="array_layer_count" default="1" doc="Number of array layers in the subresource. For 3D textures, this defines the number of depth slices."/>
+      <member type="u16" name="plane_slice" default="0" doc="Base depth slice of the subresource. Used only for 2D textures (YUV). Max value is 3."/>
+    </type>
+
     <type name="BufferDesc" category="struct" version="0.7.0" doc="Buffer description for {Buffer::} creation.">
       <member type="u64" name="size_bytes" doc="Size of the buffer in bytes."/>
       <member type="BufferUsageFlags" name="usage_flags" doc="Buffer usage flags. Describe how the buffer will be used."/>
@@ -133,6 +148,7 @@
       <member type="SampleCount" name="sample_count" default="S1" doc="Number of samples per pixel. Used only for multisampled textures."/>
       <member type="TextureLayout" name="layout" default="Texture2D" doc="Texture layout. Default is {TextureLayout::Texture2D}."/>
       <member type="TextureUsageFlags" name="usage_flags" doc="Texture usage flags. Describe how the texture will be used."/>
+      <member type="TextureFlags" name="flags" doc="Texture flags. Describe additional options for the texture."/>
       <member type="MemoryType" name="memory_type" doc="indicates where the texture will be allocated."/>
       <member type="MemoryFlags" name="memory_flags" default="None" doc="The flags of the memory to allocate for the texture."/>
     </type>
@@ -159,7 +175,7 @@
       <member type="u32" name="heap_offset" doc="defines the offset in descriptors from the start of the heap to set the descriptor table to. Used for calculating descriptor indices when binding descriptor tables."/>
     </type>
 
-    <type name="ConstantBufferBinding" category="struct" version="0.7.0" doc="Constant buffer binding description for {DescriptorHeap::WriteConstantBuffer}.">
+    <type name="ConstantBufferBinding" category="struct" version="0.7.0" doc="Constant buffer binding description for {DescriptorHeap::WriteConstantBuffer} and {DescriptorHeap::WriteRWConstantBuffer}.">
       <member type="u64" name="buffer_address" doc="defines buffer device address to bind."/>
       <member type="u32" name="size_bytes" doc="defines the size of the buffer region to bind in bytes."/>
     </type>
@@ -167,6 +183,13 @@
       <member type="u64" name="array_offset" doc="defines offset in buffer in structures."/>
       <member type="u32" name="stride_bytes" doc="defines the size of the single structure in buffer."/>
       <member type="u32" name="structure_count" doc="defines the number of structures in the buffer region to bind."/>
+    </type>
+    <type name="TextureBinding" category="struct" version="0.7.0" doc="Texture binding description for {DescriptorHeap::WriteTexture} and {DescriptorHeap::WriteRWTexture}.">
+      <member type="DataFormat" name="format" doc="defines the format of the view."/>
+      <member type="TextureLayout" name="layout" default="Texture2D" doc="defines the layout of the texture. Default is {TextureLayout::Texture2D}."/>
+      <member type="TextureBindingFlags" name="flags" doc="Texture binding flags. Describe additional options for the texture binding."/>
+      <member type="ComponentMapping" name="component_mapping" doc="Component mapping for the texture view."/>
+      <member type="SubresourceRange" name="range" doc="Subresource description for the texture view."/>
     </type>
 
     <!-- Variants -->

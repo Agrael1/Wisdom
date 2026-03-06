@@ -17,6 +17,8 @@
  *     WisTextureLayoutTexture2DMS = 6,
  *     WisTextureLayoutTexture2DMSArray = 7,
  *     WisTextureLayoutTexture3D = 8,
+ *     WisTextureLayoutTextureCube = 9,
+ *     WisTextureLayoutTextureCubeArray = 10,
  * } WisTextureLayout;
  * ```
  * C++ version:
@@ -31,6 +33,8 @@
  *     Texture2DMS = 6,
  *     Texture2DMSArray = 7,
  *     Texture3D = 8,
+ *     TextureCube = 9,
+ *     TextureCubeArray = 10,
  * };
  * }
  * ```
@@ -49,6 +53,8 @@
  * - `WisTextureLayoutTexture2DMS = 6`: Texture is 2D multisampled image.
  * - `WisTextureLayoutTexture2DMSArray = 7`: Texture is an array of 2D multisampled images.
  * - `WisTextureLayoutTexture3D = 8`: Texture is 3D volume.
+ * - `WisTextureLayoutTextureCube = 9`: Texture is a cube map. Behaves similarly to Texture2DArray with 6 layers.
+ * - `WisTextureLayoutTextureCubeArray = 10`: Texture is an array of cube maps. Behaves similarly to Texture2DArray with 6 layers per cube map.
  * \endcond
  *
  *
@@ -56,6 +62,6 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisTextureDesc
+ * @see WisTextureDesc, WisTextureBinding
  * \endcond
  */

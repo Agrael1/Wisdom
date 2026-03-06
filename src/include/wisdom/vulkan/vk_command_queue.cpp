@@ -7,9 +7,6 @@
 #include <wisdom/vulkan/detail/vk_utils.hpp>
 #include <bit>
 
-
-
-
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyCommandQueue(WisVKCommandQueue* self)
 {

@@ -113,5 +113,31 @@ int main()
         return int(result.status);
     }
 
+    wis::DescriptorHeapDesc srv_heap_desc{
+        .type             = wis::DescriptorHeapType::Descriptor,
+        .memory_type      = wis::DescriptorMemoryType::ShaderVisible,
+        .descriptor_count = 10,
+        .flags            = wis::DescriptorHeapFlags::None,
+    };
+    wis::DescriptorHeap srv_heap = device.CreateDescriptorHeap(srv_heap_desc, result);
+    if (result.status != wis::Status::Ok) {
+        std::cerr << "Failed to create descriptor heap: " << result.error << "\n";
+        return int(result.status);
+    }
+
+    wis::TextureDesc texture_desc{
+        .width               = 256,
+        .height              = 256,
+        .depth_or_array_size = 1,
+        .mip_levels          = 1,
+        .format              = wis::DataFormat::BGRA8Unorm,
+        .sample_count        = wis::SampleCount::S1,
+        .layout              = wis::TextureLayout::Texture2D,
+        .usage_flags         = wis::TextureUsageFlags(uint32_t(wis::TextureUsageFlags::CopyDst) | uint32_t(wis::TextureUsageFlags::ShaderResource)),
+        .memory_type         = wis::MemoryType::DeviceLocal,
+        .memory_flags        = wis::MemoryFlags::None,
+    };
+    wis::Texture texture = resource_allocator.CreateTexture(texture_desc, result);
+
     return 0;
 }

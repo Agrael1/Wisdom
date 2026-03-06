@@ -101,7 +101,7 @@ CreateWorkNode(wis::Adapter&& adapter)
 
     // Create LUT Texture
     {
-        using namespace wis;
+        
         LutLoader loader;
         auto lut_data = loader.LoadLut("lut.cube");
         if (lut_data.type == LutType::Undefined) {
@@ -134,7 +134,7 @@ CreateWorkNode(wis::Adapter&& adapter)
 
     // Create Texture
     {
-        using namespace wis;
+        
         auto data = LoadPNGImage("image.png");
 
         wis::TextureDesc desc{
@@ -163,7 +163,7 @@ CreateWorkNode(wis::Adapter&& adapter)
 
     // Create SRV LUT
     {
-        using namespace wis;
+        
         ShaderResourceDesc desc{
             .format = wis::DataFormat::RGBA32Float,
             .view_type = wis::TextureViewType::Texture3D,
@@ -178,7 +178,7 @@ CreateWorkNode(wis::Adapter&& adapter)
 
     // Create SRV Texture
     {
-        using namespace wis;
+        
         ShaderResourceDesc desc{
             .format = wis::DataFormat::RGBA8Unorm,
             .view_type = wis::TextureViewType::Texture2D,
@@ -240,7 +240,7 @@ CreateWorkNode(wis::Adapter&& adapter)
 
     // Create Root Signature
     {
-        using namespace wis;
+        
         wis::DescriptorTableEntry entries[] = {
             {
                     .type = wis::DescriptorType::Texture,
@@ -385,7 +385,7 @@ void WorkNode::PrepareResources()
 
 void WorkNode::CreateOutputTexture(wis::Size2D frame)
 {
-    using namespace wis;
+    
     width = frame.width;
     height = frame.height;
 

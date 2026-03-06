@@ -126,7 +126,7 @@ CreateTransferNode(wis::Adapter&& adapter)
 
     // Create Root Signature
     {
-        using namespace wis;
+        
         wis::DescriptorTableEntry entries[] = {
             {
                     .type = wis::DescriptorType::Texture,
@@ -281,7 +281,7 @@ void TransferNode::Resize(uint32_t width, uint32_t height, uint32_t swapn)
 
 void TransferNode::VKImportFrame(wis::Size2D frame, void* mapping)
 {
-    using namespace wis;
+    
     // create an external buffer
     wis::Result result = success;
     input_buffer = ext_mem_host.CreateExternalBuffer(result, allocator, mapping, frame.width * frame.height * 4);

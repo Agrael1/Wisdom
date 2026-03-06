@@ -119,18 +119,12 @@ struct VKInstanceControlBlock : public VKControlBlock<VKInstanceHeader> {
 
 //-----------------------------------------------------------------------------
 struct VKDeviceFeatures {
-    uint32_t has_custom_border_color : 1 = false;
-    uint32_t dynamic_rendering       : 1 = false;
-    uint32_t extended_dynamic_state  : 1 = false;
-    uint32_t synchronization_2       : 1 = false;
-
+    uint32_t has_custom_border_color           : 1 = false;
     uint32_t dynamic_render_unused_attachments : 1 = false;
-    uint32_t push_descriptor                   : 1 = false;
     uint32_t index_buffer_range                : 1 = false;
     uint32_t descriptor_heap                   : 1 = false;
-
-    uint32_t global_priority : 1 = false;
-    uint32_t host_image_copy : 1 = false;
+    uint32_t global_priority                   : 1 = false;
+    uint32_t host_image_copy                   : 1 = false;
 
     // Properties
     uint16_t resource_desc_size                       = 0;
@@ -266,14 +260,14 @@ struct alignas(void*) VKRootSignatureControlBlock {
     wis::span<VkDescriptorSetAndBindingMappingEXT> GetMappings() noexcept
     {
         return wis::span<VkDescriptorSetAndBindingMappingEXT>{
-            reinterpret_cast<VkDescriptorSetAndBindingMappingEXT*>(this + 1),
+            reinterpret_cast<VkDescriptorSetAndBindingMappingEXT*>(GetRootBindingOffsets().end()),
             mapping_count
         };
     }
     wis::span<const VkDescriptorSetAndBindingMappingEXT> GetMappings() const noexcept
     {
         return wis::span<const VkDescriptorSetAndBindingMappingEXT>{
-            reinterpret_cast<const VkDescriptorSetAndBindingMappingEXT*>(this + 1),
+            reinterpret_cast<const VkDescriptorSetAndBindingMappingEXT*>(GetRootBindingOffsets().end()),
             mapping_count
         };
     }

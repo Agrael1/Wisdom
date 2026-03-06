@@ -7,9 +7,6 @@
 #include <wisdom/util/allocation.hpp>
 #include <bit>
 
-
-
-
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyCommandList(WisVKCommandList* self)
 {
@@ -58,10 +55,6 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetDescriptorHeaps(const WisVKComma
                                                                 const WisVKDescriptorHeap* resource_heap,
                                                                 const WisVKDescriptorHeap* sampler_heap)
 {
-#if !WISDOM_VULKAN_ALPHA_DESCRIPTOR_HEAP_SUPPORT
-    return; // Descriptor heap binding is not supported, silently ignore
-#endif
-
     auto& impl = *reinterpret_cast<const wis::impl::VKCommandListImpl*>(self);
 
     if (resource_heap) {
@@ -98,10 +91,6 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetRootSignature(const WisVKCommand
                                                               WisVKRootSignatureView  signature,
                                                               WisPipelineType         pipeline)
 {
-#if !WISDOM_VULKAN_ALPHA_DESCRIPTOR_HEAP_SUPPORT
-    return; // Descriptor heap binding is not supported, silently ignore
-#endif
-
     auto& impl                 = *reinterpret_cast<const wis::impl::VKCommandListImpl*>(self);
     auto* sig                  = std::bit_cast<wis::detail::VKRootSignatureControlBlock*>(signature);
     impl.root_signature_header = sig;
@@ -111,10 +100,6 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetRootSignature(const WisVKCommand
 WIS_EXTERN_C WISDOM_API void wisVKCommandListSetPushConstants(const WisVKCommandList*        self,
                                                               const WisPushConstantDataDesc* data)
 {
-#if !WISDOM_VULKAN_ALPHA_DESCRIPTOR_HEAP_SUPPORT
-    return; // Descriptor heap binding is not supported, silently ignore
-#endif
-
     auto& impl = *reinterpret_cast<const wis::impl::VKCommandListImpl*>(self);
     auto* sig  = impl.root_signature_header;
 
@@ -132,10 +117,6 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetPushConstants(const WisVKCommand
 WIS_EXTERN_C WISDOM_API void wisVKCommandListSetPushDescriptor(const WisVKCommandList*          self,
                                                                const WisPushDescriptorDataDesc* data)
 {
-#if !WISDOM_VULKAN_ALPHA_DESCRIPTOR_HEAP_SUPPORT
-    return; // Descriptor heap binding is not supported, silently ignore
-#endif
-
     auto& impl = *reinterpret_cast<const wis::impl::VKCommandListImpl*>(self);
     auto* sig  = impl.root_signature_header;
 
@@ -153,10 +134,6 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetPushDescriptor(const WisVKComman
 WIS_EXTERN_C WISDOM_API void wisVKCommandListSetDescriptorTable(const WisVKCommandList*           self,
                                                                 const WisDescriptorTableDataDesc* data)
 {
-#if !WISDOM_VULKAN_ALPHA_DESCRIPTOR_HEAP_SUPPORT
-    return; // Descriptor heap binding is not supported, silently ignore
-#endif
-
     auto& impl = *reinterpret_cast<const wis::impl::VKCommandListImpl*>(self);
     auto* sig  = impl.root_signature_header;
 
