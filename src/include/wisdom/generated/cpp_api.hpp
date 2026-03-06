@@ -803,6 +803,15 @@ enum class ComponentSwizzle {
 };
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Determines the behavior when wait for multiple fences is issued.
+ *
+ * */
+enum class MutiWaitType {
+    All = 0, ///< All the fences in the batch are triggered.
+    Any = 1, ///< At least one of the fences from the batch is triggered.
+};
+
+/**
  * @brief Provided by Wisdom 0.7.0. Query type for GPU queries.
  *
  * */

@@ -467,4 +467,17 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDescriptorHeapWriteAccelerationStructure(
     return wis::detail::vk_success;
 }
 
+//-----------------------------------------------------------------------------
+WISDOM_API void wisVKDescriptorHeapCopyDescriptors(const WisVKDescriptorHeap* self,
+                                                   uint32_t                   dst_index,
+                                                   const void*                src_ptr,
+                                                   uint32_t                   src_index,
+                                                   uint32_t                   count)
+{
+    auto& heap = *reinterpret_cast<const wis::impl::VKDescriptorHeapImpl*>(self);
+    std::memcpy(static_cast<uint8_t*>(heap.mapped_ptr) + static_cast<size_t>(dst_index) * heap.descriptor_size,
+                static_cast<const uint8_t*>(src_ptr) + static_cast<size_t>(src_index) * heap.descriptor_size,
+                static_cast<size_t>(count) * heap.descriptor_size);
+}
+
 #endif // WIS_VK_DESCRIPTOR_HEAP_CPP

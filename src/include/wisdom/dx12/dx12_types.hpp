@@ -81,8 +81,9 @@ struct DX12DescriptorHeapImpl {
     ID3D12DescriptorHeap*       descriptor_heap;
     ID3D12Device10*             device;
     D3D12_GPU_DESCRIPTOR_HANDLE gpu_handle; // store GPU handle for heap start to avoid calling GetGPUDescriptorHandleForHeapStart every time we need it
-    D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle; 
+    D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle;
     uint32_t                    descriptor_size; // store descriptor size for heap type to avoid calling GetDescriptorHandleIncrementSize every time we need it
+    D3D12_DESCRIPTOR_HEAP_TYPE  type;
 };
 
 struct DX12BufferImpl {

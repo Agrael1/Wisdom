@@ -90,31 +90,44 @@
     </func>
 
     <!-- Device Functions -->
-    <func name="CreateCommandQueue" version="0.7.0" for="Device" mod="const" doc="Creates a command queue of given type.">
+    <func for="Device" name="CreateCommandQueue" version="0.7.0" mod="const" doc="Creates a command queue of given type.">
       <ret type="CommandQueue" name="queue" result="true" doc="points to {CommandQueue::}, which is initialized on success."/>
       <arg type="CommandQueueType" name="type" doc="defines the type of the command queue to create."/>
     </func>
-    <func name="CreateCommandAllocator" version="0.7.0" for="Device" mod="const" doc="Creates a command allocator to allocate command lists with.">
+    <func for="Device" name="CreateCommandAllocator" version="0.7.0" mod="const" doc="Creates a command allocator to allocate command lists with.">
       <ret type="CommandAllocator" name="allocator" result="true" doc="points to {CommandAllocator::}, which is initialized on success."/>
       <arg type="CommandQueueType" name="type" doc="defines the type of the command list this pool is able to allocate."/>
     </func>
-    <func name="CreateFence" version="0.7.0" for="Device" mod="const"  doc="Creates a fence for GPU-CPU and GPU-GPU synchronization.">
+    <func for="Device" name="CreateFence" version="0.7.0" mod="const" doc="Creates a fence for GPU-CPU and GPU-GPU synchronization.">
       <ret type="Fence" name="fence" result="true" doc="points to {Fence::}, which is initialized on success."/>
       <arg type="u64" name="initial_value" default="0" doc="defines the initial value of the fence."/>
     </func>
-    <func name="GetResourceAllocator" version="0.7.0" mod="const" for="Device" doc="Creates a resource allocator for managing GPU resources.">
+    <func for="Device" name="GetResourceAllocator" version="0.7.0" mod="const" doc="Creates a resource allocator for managing GPU resources.">
       <ret type="ResourceAllocator" name="allocator" result="true" doc="points to {ResourceAllocator::}, which is initialized on success."/>
     </func>
-    <func name="CreateRootSignature" version="0.7.0" for="Device" mod="const" doc="Creates a pipeline layout with given descriptor.">
+    <func for="Device" name="CreateRootSignature" version="0.7.0" mod="const" doc="Creates a pipeline layout with given descriptor.">
       <ret type="RootSignature" name="layout" result="true" doc="points to {RootSignature::}, which is initialized on success."/>
       <arg type="RootSignatureDesc" name="desc" mod="const,ref" doc="points to {RootSignatureDesc::}, which describes the pipeline layout to create."/>
     </func>
-    <func name="CreateDescriptorHeap" version="0.7.0" for="Device" mod="const" doc="Creates a descriptor storage with given descriptor.">
+    <func for="Device" name="CreateDescriptorHeap" version="0.7.0" mod="const" doc="Creates a descriptor storage with given descriptor.">
       <ret type="DescriptorHeap" name="heap" result="true" doc="points to {DescriptorHeap::}, which is initialized on success."/>
       <arg type="DescriptorHeapDesc" name="desc" mod="const,ref" doc="points to {DescriptorHeapDesc::}, which describes the descriptor heap to create."/>
     </func>
-    <func name="QueryProperties" version="0.7.0" for="Device" mod="const" doc="Queries the properties of the device.">
+    <func for="Device" name="QueryProperties" version="0.7.0" mod="const" doc="Queries the properties of the device.">
       <arg type="void" name="properties" mod="ptr" doc="points to one of the query structs, which is filled with device properties."/>
+    </func>
+    <func for="Device" name="WaitForMultipleFences" version="0.7.0" mod="const" doc="Waits on multiple fences simultaneously.
+If wait_all is {MutiWaitType::All}, waits for all fences to be signaled.
+Otherwise waits for any fence to be signaled.">
+      <ret type="Result" name="result" doc="Result of operation."/>
+      <arg type="FenceView" name="fences" mod="const,ptr" doc="Array of fence views to wait on."/>
+      <arg type="u64" name="fence_values" mod="const,span" doc="Fence values to wait fences to reach. Array must have fence_count values."/>
+      <arg type="size" name="fence_count" doc="How many fences to wait on."/>
+      <arg type="MutiWaitType" name="wait_for" default="All" doc="Specifies the kind of wait.
+All - waits for all fences to be signaled.
+Any - waits for any fence to be signaled.
+Default is {MutiWaitType::All}"/>
+      <arg type="u64" name="timeout" default="UINT64_MAX" doc="The timeout in nanoseconds. If UINT64_MAX, waits indefinitely."/>
     </func>
 
     <!-- Fence Functions -->
@@ -210,7 +223,14 @@ Can still be enqueued after the signal.">
       <arg type="u64" name="address" doc="GPU address of a raytracing acceleration structure."/>
       <arg type="u32" name="index" doc="defines the index in the descriptor heap to write the descriptor to."/>
     </func>
-    
+    <func for="DescriptorHeap" name="CopyDescriptors" version="0.7.0" mod="const" doc="Copies descriptors from one heap to another.">
+      <ret type="void"/>
+      <arg type="u32" name="dst_index" doc="defines the index in the destination descriptor heap to copy descriptors to."/>
+      <arg type="void" name="src_ptr" mod="const,ptr" doc="points to {DescriptorHeap::} to copy descriptors from. Source heap @wis_must be CPU Only heap."/>
+      <arg type="u32" name="src_index" doc="defines the index in the source descriptor heap to copy descriptors from."/>
+      <arg type="u32" name="count" doc="defines the number of descriptors to copy."/>
+    </func>
+
 
     <!-- Command Allocator -->
     <func for="CommandAllocator" name="Reset" version="0.7.0" mod="const" doc="Resets the command allocator, so it can be reused for allocating new command lists.">

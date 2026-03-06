@@ -746,6 +746,11 @@ a 4-bit A component in bits 12..15.">
       </value>
     </type>
 
+    <type name="MutiWaitType" category="enum" version="0.7.0" doc="Determines the behavior when wait for multiple fences is issued.">
+      <value name="All" value="0" doc="All the fences in the batch are triggered."/>
+      <value name="Any" value="1" doc="At least one of the fences from the batch is triggered."/>
+    </type>
+
     <type name="QueryPropertyType" category="enum" version="0.7.0" doc="Query type for GPU queries.">
       <value name="DeviceCommandQueueProperties" value="0" doc="Properties of the device command queues. Expects a {DeviceCommandQueueProperties::} struct."/>
       <value name="DeviceDescriptorHeapProperties" value="1" doc="Properties of the device descriptor heap. Expects a {DeviceDescriptorHeapProperties::} struct."/>
@@ -904,7 +909,7 @@ Outside of AllocateXMemory the flag is ignored."/>
       <impl type="" for="vk" name="VkImageCreateFlags"/>
       <value name="None" value="0" doc="No flags set. Texture is regular."/>
     </type>
-    
+
     <type name="TextureBindingFlags" category="bitmask" version="0.7.0" doc="Texture binding flags, used for extra options.">
       <value name="None" value="0" doc="No flags set. Texture view is regular. Implies color read."/>
       <value name="DepthView" bit="0" doc="Texture view is used to read depth. Used for special formats that feature depth and stencil. The bound texture @wis_must be in TODO: specific layout before being used by shader."/>

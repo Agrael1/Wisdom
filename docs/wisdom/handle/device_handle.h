@@ -22,6 +22,6 @@
  * @section WisDevice_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see wisDestroyDevice, wisAdapterQueryCreateDevice, wisDeviceCreateCommandQueue, wisDeviceCreateCommandAllocator, wisDeviceCreateFence, wisDeviceGetResourceAllocator, wisDeviceCreateRootSignature, wisDeviceCreateDescriptorHeap, wisDeviceQueryProperties
+ * @see wisDestroyDevice, wisAdapterQueryCreateDevice, wisDeviceCreateCommandQueue, wisDeviceCreateCommandAllocator, wisDeviceCreateFence, wisDeviceGetResourceAllocator, wisDeviceCreateRootSignature, wisDeviceCreateDescriptorHeap, wisDeviceQueryProperties, wisDeviceWaitForMultipleFences
  * \endcond
  */
