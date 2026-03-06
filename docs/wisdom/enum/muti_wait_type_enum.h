@@ -6,7 +6,7 @@
  * <hr>
  *
  * \cond WIS_GEN_CODE
- *  * C version:
+ * C version:
  * ```c
  * // Provided by Wisdom 0.7.0. 
  * typedef enum WisMutiWaitType {
@@ -24,18 +24,16 @@
  * };
  * }
  * ```
- * 
  * \endcond
  *
  * @section WisMutiWaitType_descr Description
  * <hr>
  * \cond WIS_GEN_DESC
- *  * Determines the behavior when wait for multiple fences is issued.
+ * Determines the behavior when wait for multiple fences is issued.
  * 
  * Values:
  * - `WisMutiWaitTypeAll = 0`: All the fences in the batch are triggered.
  * - `WisMutiWaitTypeAny = 1`: At least one of the fences from the batch is triggered.
- * 
  * \endcond
  *
  *
@@ -43,6 +41,6 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * RESERVED
+ * @see wisDeviceWaitForMultipleFences
  * \endcond
  */

@@ -7,7 +7,7 @@
  * <hr>
  *
  * \cond WIS_GEN_CODE
- *  *  C Version:
+ *  C Version:
  * ```c
  * // Provided by Wisdom 0.7.0. 
  * WisResult wisDeviceWaitForMultipleFences(const WisDevice* self,
@@ -40,21 +40,38 @@
  * 
  * C++ Version:
  * ```cpp
- * namespace wis
+ * namespace wis{
+ * // Provided by Wisdom 0.7.0. 
+ * wis::Result Device::WaitForMultipleFences(const wis::FenceView*          fences,
+ *                                           wis::span<const std::uint64_t> fence_values,
+ *                                           wis::MutiWaitType              wait_for,
+ *                                           std::uint64_t                  timeout) const noexcept;
+ * }
  * ```
  * <details>
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
- * namespace wis
+ * namespace wis{
+ * // Provided by Wisdom 0.7.0. 
+ * wis::Result VKDevice::WaitForMultipleFences(const wis::VKFenceView*        fences,
+ *                                             wis::span<const std::uint64_t> fence_values,
+ *                                             wis::MutiWaitType              wait_for,
+ *                                             std::uint64_t                  timeout) const noexcept;
+ * 
+ * // Provided by Wisdom 0.7.0. 
+ * wis::Result DX12Device::WaitForMultipleFences(const wis::DX12FenceView*      fences,
+ *                                               wis::span<const std::uint64_t> fence_values,
+ *                                               wis::MutiWaitType              wait_for,
+ *                                               std::uint64_t                  timeout) const noexcept;
+ * }
  * ```
  * </details>
- * 
  * \endcond
  *
  * @section wisDeviceWaitForMultipleFences_memb Parameters
  * <hr>
  * \cond WIS_GEN_DESC
- *  * - **this** `self` self is a pointer to the valid WisDevice instance.
+ * - **this** `self` self is a pointer to the valid WisDevice instance.
  * - `fences` Array of fence views to wait on.
  * - `fence_values` Fence values to wait fences to reach. Array @wis_must have fence_count values.
  * - `fence_count` How many fences to wait on.
@@ -65,7 +82,6 @@
  * - `timeout` The timeout in nanoseconds. If UINT64_MAX, waits indefinitely.
  * 
  * - **return** denoting the outcome of operation.
- * 
  * \endcond
  *
  * @section wisDeviceWaitForMultipleFences_descr Description

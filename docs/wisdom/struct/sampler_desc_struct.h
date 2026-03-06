@@ -14,6 +14,7 @@
  *     WisFilter           min_filter;
  *     WisFilter           mag_filter;
  *     WisFilter           mip_filter;
+ *     WisReductionMode    reduction_mode;
  *     bool                is_anisotropic;
  *     uint32_t            max_anisotropy;
  *     WisAddressMode      address_u;
@@ -36,6 +37,7 @@
  *     wis::Filter           min_filter;
  *     wis::Filter           mag_filter;
  *     wis::Filter           mip_filter;
+ *     wis::ReductionMode    reduction_mode;
  *     bool                  is_anisotropic;
  *     std::uint32_t         max_anisotropy;
  *     wis::AddressMode      address_u;
@@ -58,6 +60,7 @@
  * - `min_filter` Minification filter.
  * - `mag_filter` Magnification filter.
  * - `mip_filter` Mip level filter.
+ * - `reduction_mode` Reduction mode for min/mag/mip filters.
  * - `is_anisotropic` Anisotropic filtering enable.
  * - `max_anisotropy` Max anisotropy level. Min is 1, Max is 16.
  * - `address_u` Address mode for U coordinate.

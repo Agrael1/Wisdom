@@ -18,8 +18,8 @@ namespace wis::detail {
  * The DX12DebugLayerThunk class is responsible for registering the callback with the DirectX 12 info queue and translating DirectX 12 debug messages into the format expected by the user's callback.
  * The thunk class also manages the lifetime of the callback registration and ensures that the callback is properly unregistered when the debug layer is destroyed.
  */
-struct DX12DebugLayer final : public IUnknownImpl<IUnknown> {
-private:
+struct DX12DebugLayer final : public IUnknownImpl<DX12DebugLayer, IUnknown> {
+public:
     ~DX12DebugLayer() = default;
 
 public:
@@ -34,7 +34,7 @@ public:
  * The class also manages the registration cookie to ensure that the callback is properly unregistered when the
  * DX12DebugLayerThunk instance is destroyed. This class is not exposed to users and is used internally by the DX12DebugLayer to handle debug messages.
  */
-struct DX12DebugLayerThunk final : public IUnknownImpl<IUnknown> {
+struct DX12DebugLayerThunk final : public IUnknownImpl<DX12DebugLayerThunk, IUnknown> {
 public:
     DX12DebugLayerThunk(ID3D12InfoQueue1* in_info_queue,
                         uint64_t          device,
@@ -54,8 +54,6 @@ public:
             (void)hr;
         }
     }
-
-private:
     ~DX12DebugLayerThunk()
     {
         if (info_queue && cookie != 0) {

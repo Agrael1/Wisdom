@@ -287,6 +287,20 @@ inline VkFilter convert_vk(WisFilter value) noexcept
     }
 }
 
+inline VkSamplerReductionModeEXT convert_vk(WisReductionMode value) noexcept
+{
+    switch (value) {
+    case WisReductionModeStandard:
+        return VK_SAMPLER_REDUCTION_MODE_WEIGHTED_AVERAGE_EXT;
+    case WisReductionModeMin:
+        return VK_SAMPLER_REDUCTION_MODE_MIN_EXT;
+    case WisReductionModeMax:
+        return VK_SAMPLER_REDUCTION_MODE_MAX_EXT;
+    default:
+        return VK_SAMPLER_REDUCTION_MODE_WEIGHTED_AVERAGE_EXT;
+    }
+}
+
 inline VkBorderColor convert_vk(WisStaticBorder value) noexcept
 {
     switch (value) {

@@ -685,6 +685,23 @@ a 4-bit A component in bits 12..15.">
       </value>
     </type>
 
+    <type name="ReductionMode" category="enum" version="0.7.0" doc="Reduction mode for texture sampling when min and mag filters are different.">
+      <impl_type for="vk" name="VkSamplerReductionModeEXT" default="VK_SAMPLER_REDUCTION_MODE_WEIGHTED_AVERAGE_EXT"/>
+      <impl_type for="dx" name="D3D12_FILTER_REDUCTION_TYPE" default="D3D12_FILTER_REDUCTION_TYPE_STANDARD"/>
+      <value name="Standard" value="0" doc="Standard filtering behavior.">
+        <impl name="vk" value="VK_SAMPLER_REDUCTION_MODE_WEIGHTED_AVERAGE_EXT"/>
+        <impl name="dx" value="D3D12_FILTER_REDUCTION_TYPE_STANDARD"/>
+      </value>
+      <value name="Min" value="1" doc="Use the minimum value of the samples for filtering.">
+        <impl name="vk" value="VK_SAMPLER_REDUCTION_MODE_MIN_EXT"/>
+        <impl name="dx" value="D3D12_FILTER_REDUCTION_TYPE_MINIMUM"/>
+      </value>
+      <value name="Max" value="2" doc="Use the maximum value of the samples for filtering.">
+        <impl name="vk" value="VK_SAMPLER_REDUCTION_MODE_MAX_EXT"/>
+        <impl name="dx" value="D3D12_FILTER_REDUCTION_TYPE_MAXIMUM"/>
+      </value>
+    </type>
+
     <type name="StaticBorder" category="enum" version="0.7.0" doc="Predefined static border colors for samplers. Used when address mode is set to Border.">
       <impl_type for="dx" name="D3D12_STATIC_BORDER_COLOR" default="D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK"/>
       <impl_type for="vk" name="VkBorderColor" default="VK_BORDER_COLOR_FLOAT_TRANSPARENT_BLACK"/>

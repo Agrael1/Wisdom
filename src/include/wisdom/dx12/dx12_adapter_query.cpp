@@ -116,7 +116,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(const WisDX12A
             const wis::com_ptr<wis::detail::DX12DebugLayerThunk> thunk{ new wis::detail::DX12DebugLayerThunk(info_queue.get(),
                                                                                                              reinterpret_cast<uint64_t>(device_ref.get()),
                                                                                                              impl.debug_layer->callback,
-                                                                                                             impl.debug_layer->user_data) };
+                                                                                                             impl.debug_layer->user_data), wis::take_ownership };
 
             // Debug layer creation failure is allowed to silently fail
             if (thunk) {
