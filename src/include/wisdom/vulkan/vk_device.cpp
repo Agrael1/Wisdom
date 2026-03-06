@@ -455,8 +455,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(const WisVKDevi
     }
     root_sig_control_block->shader_mapping_offset[0] = all_offset;
     local_offsets_per_shader[0]                      = { all_offset, true };
-    
-    
+
     auto     mappings            = root_sig_control_block->GetMappings();
     auto     root_param_offsets  = root_sig_control_block->GetRootBindingOffsets();
     uint32_t push_address_offset = 0;
@@ -552,7 +551,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(const WisVKDevi
     // Fill "all" visibility mappings in between stages
     bool first_skipped = true;
     for (uint32_t i = 1; i < local_offsets_per_shader.size(); ++i) {
-        if (local_offsets_per_shader[i].offset!=0x7ffffff && local_offsets_per_shader[i].even) {
+        if (local_offsets_per_shader[i].offset != 0x7ffffff && local_offsets_per_shader[i].even) {
 
             // Skip the first even stage, since this is where the mappings actually are
             if (first_skipped) {
@@ -636,6 +635,30 @@ WIS_EXTERN_C WISDOM_API void wisVKDeviceQueryProperties(const WisVKDevice* self,
         }
         next = header_local.next_in_chain;
     } while (next);
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceWaitForMultipleFences(const WisVKDevice*    self,
+                                                                   const WisVKFenceView* fences,
+                                                                   const uint64_t*       fence_values,
+                                                                   size_t                fence_count,
+                                                                   WisMutiWaitType       wait_for,
+                                                                   uint64_t              timeout)
+{
+    auto&               device = *reinterpret_cast<const wis::impl::VKDeviceImpl*>(self);
+    VkSemaphoreWaitInfo waitInfo{
+        .sType          = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO,
+        .pNext          = nullptr,
+        .flags          = VkSemaphoreWaitFlags(wait_for),
+        .semaphoreCount = static_cast<uint32_t>(fence_count),
+        .pSemaphores    = reinterpret_cast<const VkSemaphore*>(fences),
+        .pValues        = fence_values
+    };
+    VkResult result = device.device_header->header.device_table.vkWaitSemaphores(device.device, &waitInfo, timeout);
+    if (!wis::detail::succeeded(result)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to wait for multiple fences">(result);
+    }
+    return wis::detail::vk_success;
 }
 
 #endif // WIS_VK_DEVICE_CPP

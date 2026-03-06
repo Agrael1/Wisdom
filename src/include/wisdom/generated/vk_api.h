@@ -370,6 +370,29 @@ WISDOM_API void wisVKDeviceQueryProperties(const WisVKDevice* self,
                                            void*              properties);
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Waits on multiple fences simultaneously.
+ * If wait_all is `WisMutiWaitTypeAll`, waits for all fences to be signaled.
+ * Otherwise waits for any fence to be signaled.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param fences Array of fence views to wait on.
+ * @param fence_values Fence values to wait fences to reach. Array @wis_must have fence_count values.
+ * @param fence_count How many fences to wait on.
+ * @param wait_for Specifies the kind of wait.
+ * All - waits for all fences to be signaled.
+ * Any - waits for any fence to be signaled.
+ * Default is `WisMutiWaitTypeAll`
+ * @param timeout The timeout in nanoseconds. If UINT64_MAX, waits indefinitely.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKDeviceWaitForMultipleFences(const WisVKDevice*    self,
+                                                      const WisVKFenceView* fences,
+                                                      const uint64_t*       fence_values,
+                                                      size_t                fence_count,
+                                                      WisMutiWaitType       wait_for,
+                                                      uint64_t              timeout);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Get the current value of the fence.
  * @param self is a pointer to the valid WisFence instance.
  * @return u64 Value of the fence.
@@ -575,6 +598,22 @@ WISDOM_API WisResult wisVKDescriptorHeapWriteRWTexture(const WisVKDescriptorHeap
 WISDOM_API WisResult wisVKDescriptorHeapWriteAccelerationStructure(const WisVKDescriptorHeap* self,
                                                                    uint64_t                   address,
                                                                    uint32_t                   index);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Copies descriptors from one heap to another.
+ * @param self is a pointer to the valid WisDescriptorHeap instance.
+ * @param dst_index defines the index in the destination descriptor heap to copy descriptors to.
+ * @param src_ptr points to WisDescriptorHeap to copy descriptors from. Source heap @wis_must be CPU Only heap.
+ * @param src_index defines the index in the source descriptor heap to copy descriptors from.
+ * @param count defines the number of descriptors to copy.
+ * @return void
+ *
+ * */
+WISDOM_API void wisVKDescriptorHeapCopyDescriptors(const WisVKDescriptorHeap* self,
+                                                   uint32_t                   dst_index,
+                                                   const void*                src_ptr,
+                                                   uint32_t                   src_index,
+                                                   uint32_t                   count);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Resets the command allocator, so it can be reused for allocating new command lists.

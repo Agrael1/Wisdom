@@ -73,6 +73,7 @@ typedef struct WisDX12DeviceRequirements      WisDeviceRequirements;
 #define wisDeviceCreateRootSignature                wisDX12DeviceCreateRootSignature
 #define wisDeviceCreateDescriptorHeap               wisDX12DeviceCreateDescriptorHeap
 #define wisDeviceQueryProperties                    wisDX12DeviceQueryProperties
+#define wisDeviceWaitForMultipleFences              wisDX12DeviceWaitForMultipleFences
 #define wisFenceGetCompletedValue                   wisDX12FenceGetCompletedValue
 #define wisFenceWait                                wisDX12FenceWait
 #define wisFenceSignal                              wisDX12FenceSignal
@@ -91,6 +92,7 @@ typedef struct WisDX12DeviceRequirements      WisDeviceRequirements;
 #define wisDescriptorHeapWriteTexture               wisDX12DescriptorHeapWriteTexture
 #define wisDescriptorHeapWriteRWTexture             wisDX12DescriptorHeapWriteRWTexture
 #define wisDescriptorHeapWriteAccelerationStructure wisDX12DescriptorHeapWriteAccelerationStructure
+#define wisDescriptorHeapCopyDescriptors            wisDX12DescriptorHeapCopyDescriptors
 #define wisCommandAllocatorReset                    wisDX12CommandAllocatorReset
 #define wisCommandAllocatorCreateCommandList        wisDX12CommandAllocatorCreateCommandList
 #define wisCommandListBegin                         wisDX12CommandListBegin
@@ -180,6 +182,7 @@ typedef struct WisVKDeviceRequirements      WisDeviceRequirements;
 #define wisDeviceCreateRootSignature                wisVKDeviceCreateRootSignature
 #define wisDeviceCreateDescriptorHeap               wisVKDeviceCreateDescriptorHeap
 #define wisDeviceQueryProperties                    wisVKDeviceQueryProperties
+#define wisDeviceWaitForMultipleFences              wisVKDeviceWaitForMultipleFences
 #define wisFenceGetCompletedValue                   wisVKFenceGetCompletedValue
 #define wisFenceWait                                wisVKFenceWait
 #define wisFenceSignal                              wisVKFenceSignal
@@ -198,6 +201,7 @@ typedef struct WisVKDeviceRequirements      WisDeviceRequirements;
 #define wisDescriptorHeapWriteTexture               wisVKDescriptorHeapWriteTexture
 #define wisDescriptorHeapWriteRWTexture             wisVKDescriptorHeapWriteRWTexture
 #define wisDescriptorHeapWriteAccelerationStructure wisVKDescriptorHeapWriteAccelerationStructure
+#define wisDescriptorHeapCopyDescriptors            wisVKDescriptorHeapCopyDescriptors
 #define wisCommandAllocatorReset                    wisVKCommandAllocatorReset
 #define wisCommandAllocatorCreateCommandList        wisVKCommandAllocatorCreateCommandList
 #define wisCommandListBegin                         wisVKCommandListBegin

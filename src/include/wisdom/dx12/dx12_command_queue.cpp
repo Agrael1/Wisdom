@@ -42,6 +42,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CommandQueueSignalFence(const WisDX12Co
 
     return wis::detail::dx_success;
 }
+
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisDX12CommandQueueWaitFence(const WisDX12CommandQueue* self,
                                                                WisDX12FenceView           fence,

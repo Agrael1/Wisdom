@@ -232,6 +232,26 @@ public:
                                                                               address,
                                                                               index));
     }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Copies descriptors from one heap to another.
+     * @param dst_index defines the index in the destination descriptor heap to copy descriptors to.
+     * @param src_ptr points to wis::DescriptorHeap to copy descriptors from. Source heap @wis_must be CPU Only heap.
+     * @param src_index defines the index in the source descriptor heap to copy descriptors from.
+     * @param count defines the number of descriptors to copy.
+     * @return void
+     *
+     * */
+    WIS_NODISCARD inline void CopyDescriptors(std::uint32_t dst_index,
+                                              const void*   src_ptr,
+                                              std::uint32_t src_index,
+                                              std::uint32_t count) const noexcept
+    {
+        return (::wisVKDescriptorHeapCopyDescriptors(&_impl_storage,
+                                                     dst_index,
+                                                     src_ptr,
+                                                     src_index,
+                                                     count));
+    }
 };
 
 struct VKRootSignatureDeleter {
@@ -694,6 +714,32 @@ public:
     {
         ::wisVKDeviceQueryProperties(&_impl_storage,
                                      properties);
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Waits on multiple fences simultaneously.
+     * If wait_all is `wis::MutiWaitType::All`, waits for all fences to be signaled.
+     * Otherwise waits for any fence to be signaled.
+     * @param fences Array of fence views to wait on.
+     * @param fence_values Fence values to wait fences to reach. Array @wis_must have fence_count values.
+     * @param wait_for Specifies the kind of wait.
+     * All - waits for all fences to be signaled.
+     * Any - waits for any fence to be signaled.
+     * Default is `wis::MutiWaitType::All`
+     * @param timeout The timeout in nanoseconds. If UINT64_MAX, waits indefinitely.
+     * @return Result denoting the outcome of operation.
+     *
+     * */
+    inline wis::Result WaitForMultipleFences(const wis::VKFenceView*        fences,
+                                             wis::span<const std::uint64_t> fence_values,
+                                             wis::MutiWaitType              wait_for,
+                                             std::uint64_t                  timeout) const noexcept
+    {
+        return convert_result(::wisVKDeviceWaitForMultipleFences(&_impl_storage,
+                                                                 fences,
+                                                                 reinterpret_cast<const uint64_t*>(fence_values.data()),
+                                                                 fence_values.size(),
+                                                                 static_cast<WisMutiWaitType>(wait_for),
+                                                                 timeout));
     }
 };
 

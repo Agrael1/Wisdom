@@ -10,8 +10,6 @@
 #include <bit>
 #include <ranges>
 
-
-
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyDevice(WisDX12Device* self)
 {
@@ -150,6 +148,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateDescriptorHeap(const WisDX1
     heap_impl.gpu_handle      = heap_impl.descriptor_heap->GetGPUDescriptorHandleForHeapStart();
     heap_impl.cpu_handle      = heap_impl.descriptor_heap->GetCPUDescriptorHandleForHeapStart();
     heap_impl.descriptor_size = device.device->GetDescriptorHandleIncrementSize(heap_desc.Type);
+    heap_impl.type            = heap_desc.Type;
     return wis::detail::dx_success;
 }
 
@@ -362,6 +361,36 @@ WIS_EXTERN_C WISDOM_API void wisDX12DeviceQueryProperties(const WisDX12Device* s
         }
         next = header_local.next_in_chain;
     } while (next);
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceWaitForMultipleFences(const WisDX12Device*    self,
+                                                                     const WisDX12FenceView* fences,
+                                                                     const uint64_t*         fence_values,
+                                                                     size_t                  fence_count,
+                                                                     WisMutiWaitType         wait_for,
+                                                                     uint64_t                timeout)
+{
+    auto& device = *reinterpret_cast<const wis::impl::DX12DeviceImpl*>(self);
+
+    HANDLE event_handle = CreateEventW(nullptr, false, false, nullptr);
+    if (!event_handle) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to create fence event handle">(HRESULT_FROM_WIN32(GetLastError()));
+    }
+
+    auto hr = device.device->SetEventOnMultipleFenceCompletion(
+            reinterpret_cast<ID3D12Fence* const*>(fences),
+            fence_values,
+            static_cast<UINT>(fence_count),
+            static_cast<D3D12_MULTIPLE_FENCE_WAIT_FLAGS>(wait_for),
+            event_handle);
+
+    CloseHandle(event_handle);
+
+    if (!wis::detail::succeeded(hr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to set event on multiple fence completion">(hr);
+    }
+    return wis::detail::dx_success;
 }
 
 #endif // WIS_DX12_DEVICE_CPP

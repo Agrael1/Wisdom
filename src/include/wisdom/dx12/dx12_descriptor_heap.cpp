@@ -353,4 +353,20 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DescriptorHeapWriteAccelerationStructur
     return wis::detail::dx_success;
 }
 
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisDX12DescriptorHeapCopyDescriptors(const WisDX12DescriptorHeap* self,
+                                                                  uint32_t                     dst_index,
+                                                                  const void*                  src_ptr,
+                                                                  uint32_t                     src_index,
+                                                                  uint32_t                     count)
+{
+    auto& heap = *reinterpret_cast<const wis::impl::DX12DescriptorHeapImpl*>(self);
+    heap.device->CopyDescriptorsSimple(
+            count,
+            { heap.cpu_handle.ptr + static_cast<uint64_t>(dst_index) * heap.descriptor_size },
+            { std::bit_cast<std::size_t>(src_ptr) + static_cast<uint64_t>(src_index) * heap.descriptor_size },
+            heap.type
+    );
+}
+
 #endif // WIS_DX12_DESCRIPTOR_HEAP_CPP

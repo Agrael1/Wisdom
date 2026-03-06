@@ -806,6 +806,15 @@ typedef enum WisComponentSwizzle {
 } WisComponentSwizzle;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Determines the behavior when wait for multiple fences is issued.
+ *
+ * */
+typedef enum WisMutiWaitType {
+    WisMutiWaitTypeAll = 0, ///< All the fences in the batch are triggered.
+    WisMutiWaitTypeAny = 1, ///< At least one of the fences from the batch is triggered.
+} WisMutiWaitType;
+
+/**
  * @brief Provided by Wisdom 0.7.0. Query type for GPU queries.
  *
  * */
