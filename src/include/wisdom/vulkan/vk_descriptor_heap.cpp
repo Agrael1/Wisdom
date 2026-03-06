@@ -339,9 +339,16 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDescriptorHeapWriteSampler(const WisVKDes
         .address = static_cast<uint8_t*>(heap.mapped_ptr) + index * heap.descriptor_size,
         .size    = heap.descriptor_size,
     };
+    VkSamplerReductionModeCreateInfo reduction_mode_info{
+        .sType         = VK_STRUCTURE_TYPE_SAMPLER_REDUCTION_MODE_CREATE_INFO,
+        .pNext         = nullptr, // Custom border?
+        .reductionMode = sampler->comparison_op != WisCompareOperationNever 
+        ? VK_SAMPLER_REDUCTION_MODE_WEIGHTED_AVERAGE 
+        : wis::detail::convert_vk(sampler->reduction_mode)
+    };
     VkSamplerCreateInfo sampler_info{
         .sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
-        .pNext                   = nullptr, // no support for custom border color for now
+        .pNext                   = &reduction_mode_info,
         .flags                   = 0,
         .magFilter               = wis::detail::convert_vk(sampler->mag_filter),
         .minFilter               = wis::detail::convert_vk(sampler->min_filter),

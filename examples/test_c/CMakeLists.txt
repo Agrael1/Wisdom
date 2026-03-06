@@ -26,6 +26,6 @@ if(WISDOM_BUILD_SHARED)
   add_dependencies(${PROJECT_NAME}-shared copy_dll)
 endif()
 
-# if(POSTFIX STREQUAL "dx12") wis_make_exports_dx(${PROJECT_NAME}) # install the
-# d3d12 agility sdk, for # examples this is enough # for the main project, use
-# wis_installdeps(${PROJECT_NAME}) instead endif()
+if(POSTFIX STREQUAL "dx12")
+    wis_install_deps(${PROJECT_NAME})
+endif()

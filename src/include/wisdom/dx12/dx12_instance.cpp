@@ -8,9 +8,6 @@
 #include <wisdom/generated/dx12_cpp_api.hpp>
 #include <wisdom/util/com_ptr.hpp>
 
-
-
-
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisDX12CreateInstance(const WisDebugDesc*              debug_desc,
                                                         WisDX12InstanceExtensionHeader** extensions,
@@ -18,7 +15,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CreateInstance(const WisDebugDesc*     
                                                         WisDX12Instance*                 instance)
 {
     wis::com_ptr<IDXGIFactory6> ref;
-    uint32_t               debug_layer = debug_desc && debug_desc->enable_debug_layer;
+    uint32_t                    debug_layer = debug_desc && debug_desc->enable_debug_layer;
 
     auto hr = CreateDXGIFactory2(debug_layer * DXGI_CREATE_FACTORY_DEBUG,
                                  IID_IDXGIFactory6,
@@ -32,7 +29,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CreateInstance(const WisDebugDesc*     
     auto& impl = *new (instance) wis::impl::DX12InstanceImpl();
     if (debug_layer) {
         wis::com_ptr<ID3D12Debug> debug_controller;
-        auto                 hr2 = D3D12GetDebugInterface(IID_ID3D12Debug, reinterpret_cast<void**>(debug_controller.put_void_unchecked()));
+        auto                      hr2 = D3D12GetDebugInterface(IID_ID3D12Debug, reinterpret_cast<void**>(debug_controller.put_void_unchecked()));
         if (wis::detail::succeeded(hr2)) {
             debug_controller->EnableDebugLayer();
             wis::com_ptr<wis::detail::DX12DebugLayer> debug_layer_impl{ new wis::detail::DX12DebugLayer, wis::take_ownership };

@@ -5,8 +5,6 @@
 #include <wisdom/generated/dx12_convert.hpp>
 #include <wisdom/dx12/dx12_types.hpp>
 #include <wisdom/dx12/detail/dx12_utils.hpp>
-#include <d3dx12/d3dx12_resource_helpers.h>
-
 
 namespace wis::detail {
 //-----------------------------------------------------------------------------
@@ -117,11 +115,11 @@ inline D3D12_RESOURCE_DESC1 DX12FillTextureDesc(const WisTextureDesc& desc) noex
         out.MipLevels          = 1;
         return out;
     case WisTextureLayoutTextureCube:
-        out.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+        out.Dimension        = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
         out.DepthOrArraySize = 6;
         return out;
     case WisTextureLayoutTextureCubeArray:
-        out.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
+        out.Dimension        = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
         out.DepthOrArraySize = desc.depth_or_array_size / 6 + (desc.depth_or_array_size % 6 != 0);
         return out;
     }

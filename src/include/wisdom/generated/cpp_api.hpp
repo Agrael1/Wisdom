@@ -761,6 +761,16 @@ enum class Filter {
 };
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Reduction mode for texture sampling when min and mag filters are different.
+ *
+ * */
+enum class ReductionMode {
+    Standard = 0, ///< Standard filtering behavior.
+    Min      = 1, ///< Use the minimum value of the samples for filtering.
+    Max      = 2, ///< Use the maximum value of the samples for filtering.
+};
+
+/**
  * @brief Provided by Wisdom 0.7.0. Predefined static border colors for samplers. Used when address mode is set to Border.
  *
  * */
@@ -1036,6 +1046,7 @@ struct SamplerDesc {
     wis::Filter           min_filter; ///< Minification filter.
     wis::Filter           mag_filter; ///< Magnification filter.
     wis::Filter           mip_filter; ///< Mip level filter.
+    wis::ReductionMode    reduction_mode; ///< Reduction mode for min/mag/mip filters.
     bool                  is_anisotropic; ///< Anisotropic filtering enable.
     std::uint32_t         max_anisotropy; ///< Max anisotropy level. Min is 1, Max is 16.
     wis::AddressMode      address_u; ///< Address mode for U coordinate.

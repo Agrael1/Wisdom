@@ -283,9 +283,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DescriptorHeapWriteSampler(const WisDX1
 {
     auto& heap = *reinterpret_cast<const wis::impl::DX12DescriptorHeapImpl*>(self);
 
-    auto min_filter   = !sampler->is_anisotropic ? wis::detail::convert_dx(sampler->min_filter) : D3D12_FILTER_TYPE_LINEAR;
-    auto mag_filter   = !sampler->is_anisotropic ? wis::detail::convert_dx(sampler->mag_filter) : D3D12_FILTER_TYPE_LINEAR;
-    auto basic_filter = D3D12_ENCODE_BASIC_FILTER(min_filter, mag_filter, wis::detail::convert_dx(sampler->mip_filter), D3D12_FILTER_REDUCTION_TYPE::D3D12_FILTER_REDUCTION_TYPE_STANDARD);
+    auto min_filter     = !sampler->is_anisotropic ? wis::detail::convert_dx(sampler->min_filter) : D3D12_FILTER_TYPE_LINEAR;
+    auto mag_filter     = !sampler->is_anisotropic ? wis::detail::convert_dx(sampler->mag_filter) : D3D12_FILTER_TYPE_LINEAR;
+    auto reduction_mode = sampler->comparison_op != WisCompareOperationNone
+            ? D3D12_FILTER_REDUCTION_TYPE::D3D12_FILTER_REDUCTION_TYPE_COMPARISON
+            : wis::detail::convert_dx(sampler->reduction_mode);
+
+    auto basic_filter = D3D12_ENCODE_BASIC_FILTER(min_filter, mag_filter, wis::detail::convert_dx(sampler->mip_filter), reduction_mode);
     auto filter       = D3D12_FILTER(sampler->is_anisotropic * D3D12_ANISOTROPIC_FILTERING_BIT | basic_filter);
 
     constexpr static std::array<float, 4> border_colors[] = {
@@ -365,8 +369,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DescriptorHeapCopyDescriptors(const WisDX12D
             count,
             { heap.cpu_handle.ptr + static_cast<uint64_t>(dst_index) * heap.descriptor_size },
             { std::bit_cast<std::size_t>(src_ptr) + static_cast<uint64_t>(src_index) * heap.descriptor_size },
-            heap.type
-    );
+            heap.type);
 }
 
 #endif // WIS_DX12_DESCRIPTOR_HEAP_CPP

@@ -52,6 +52,7 @@
       <member type="Filter" name="min_filter" doc="Minification filter."/>
       <member type="Filter" name="mag_filter" doc="Magnification filter."/>
       <member type="Filter" name="mip_filter" doc="Mip level filter."/>
+      <member type="ReductionMode" name="reduction_mode" doc="Reduction mode for min/mag/mip filters."/>
       <member type="bool" name="is_anisotropic" doc="Anisotropic filtering enable."/>
       <member type="u32" name="max_anisotropy" doc="Max anisotropy level. Min is 1, Max is 16."/>
       <member type="AddressMode" name="address_u" doc="Address mode for U coordinate."/>

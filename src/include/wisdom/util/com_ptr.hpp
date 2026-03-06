@@ -604,7 +604,7 @@ private:
  *          AddRef, and Release implementations. The template parameter T is used
  *          to determine the correct GUID for QueryInterface.
  */
-template<class T>
+template<class CRTP, class T>
 class IUnknownImpl : public T
 {
 protected:
@@ -640,7 +640,7 @@ public:
         uint32_t count = ref_count.fetch_sub(1, std::memory_order_release) - 1;
         if (count == 0) {
             std::atomic_thread_fence(std::memory_order_acquire);
-            delete this;
+            delete static_cast<CRTP*>(this);
         }
         return count;
     }

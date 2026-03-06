@@ -122,6 +122,20 @@ inline D3D12_FILTER_TYPE convert_dx(WisFilter value) noexcept
     }
 }
 
+inline D3D12_FILTER_REDUCTION_TYPE convert_dx(WisReductionMode value) noexcept
+{
+    switch (value) {
+    case WisReductionModeStandard:
+        return D3D12_FILTER_REDUCTION_TYPE_STANDARD;
+    case WisReductionModeMin:
+        return D3D12_FILTER_REDUCTION_TYPE_MINIMUM;
+    case WisReductionModeMax:
+        return D3D12_FILTER_REDUCTION_TYPE_MAXIMUM;
+    default:
+        return D3D12_FILTER_REDUCTION_TYPE_STANDARD;
+    }
+}
+
 inline D3D12_STATIC_BORDER_COLOR convert_dx(WisStaticBorder value) noexcept
 {
     switch (value) {

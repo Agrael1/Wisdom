@@ -764,6 +764,16 @@ typedef enum WisFilter {
 } WisFilter;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Reduction mode for texture sampling when min and mag filters are different.
+ *
+ * */
+typedef enum WisReductionMode {
+    WisReductionModeStandard = 0, ///< Standard filtering behavior.
+    WisReductionModeMin      = 1, ///< Use the minimum value of the samples for filtering.
+    WisReductionModeMax      = 2, ///< Use the maximum value of the samples for filtering.
+} WisReductionMode;
+
+/**
  * @brief Provided by Wisdom 0.7.0. Predefined static border colors for samplers. Used when address mode is set to Border.
  *
  * */
@@ -1039,6 +1049,7 @@ typedef struct WisSamplerDesc {
     WisFilter           min_filter; ///< Minification filter.
     WisFilter           mag_filter; ///< Magnification filter.
     WisFilter           mip_filter; ///< Mip level filter.
+    WisReductionMode    reduction_mode; ///< Reduction mode for min/mag/mip filters.
     bool                is_anisotropic; ///< Anisotropic filtering enable.
     uint32_t            max_anisotropy; ///< Max anisotropy level. Min is 1, Max is 16.
     WisAddressMode      address_u; ///< Address mode for U coordinate.

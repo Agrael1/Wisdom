@@ -1,6 +1,3 @@
-# include(cmake/deps.cmake) add_example(common) add_subdirectory(basic)
-# add_subdirectory(custom)
-
 set(EXAMPLE_BIN_OUTPUT ${CMAKE_BINARY_DIR}/bin/examples)
 
 function(add_example_suite NAME)
@@ -30,3 +27,4 @@ endif()
 
 add_example_suite(test)
 add_example_suite(test_c)
+
