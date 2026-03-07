@@ -113,7 +113,7 @@ std::string Generator::MakeCBitmask(const WisBitmask& s, DocKind kind)
 
     for (auto& m : s.values) {
         if (m.is_bit) {
-            st_decl += MakeValueDocumentation(s, m, wis::format("    Wis{}{} = (1 << {}),", s.name, m.name, m.value_or_bit), kind);
+            st_decl += MakeValueDocumentation(s, m, wis::format("    Wis{}{} = (1u << {}),", s.name, m.name, m.value_or_bit), kind);
             continue;
         }
         st_decl += MakeValueDocumentation(s, m, wis::format("    Wis{}{} = {},", s.name, m.name, m.value_or_bit), kind);
@@ -133,12 +133,17 @@ std::string Generator::MakeCPPBitmask(const WisBitmask& s, DocKind kind)
     }
     for (auto& m : s.values) {
         if (m.is_bit) {
-            st_decl += MakeValueDocumentation<Lang::CPP>(s, m, wis::format("    {} = (1 << {}),", m.name, m.value_or_bit), kind);
+            st_decl += MakeValueDocumentation<Lang::CPP>(s, m, wis::format("    {} = (1u << {}),", m.name, m.value_or_bit), kind);
             continue;
         }
         st_decl += MakeValueDocumentation<Lang::CPP>(s, m, wis::format("    {} = {},", m.name, m.value_or_bit), kind);
     }
     st_decl += "};\n";
+
+    if (kind == DocKind::VersionOnly) {
+        return st_decl;
+    }
+    st_decl += wis::format("WISDOM_DEFINE_ENUM_OPERATORS({})\n\n", s.name);
     return st_decl;
 }
 
@@ -212,7 +217,7 @@ std::string Generator::MakeBitmaskConverter(const WisBitmask& s, std::string_vie
             if (convert_value.empty()) {
                 continue;
             }
-            converters += wis::format("    if (value & {}{}) {{ result |= {}; }}\n",
+            converters += wis::format("    if (value & {}{}) {{ result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>({})); }}\n",
                                       GetCFullTypename(s.name, impl),
                                       m.name,
                                       convert_value);

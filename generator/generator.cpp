@@ -574,6 +574,18 @@ namespace wis {
 
 namespace wis {
 )";
+    // Write Views for handles
+    for (auto& handle_name : views_in_order) {
+        auto& handle_def = handle_map[handle_name];
+        if (handle_def.GetViewSize(ImplementedFor::DX12) > 0) {
+            file_dx << MakeCPPView(handle_def, "dx");
+            file_dx << "\n";
+        }
+        if (handle_def.GetViewSize(ImplementedFor::Vulkan) > 0) {
+            file_vk << MakeCPPView(handle_def, "vk");
+            file_vk << "\n";
+        }
+    }
 
     // Write variants
     for (auto& variant_name : variants_in_order) {

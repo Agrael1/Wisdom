@@ -80,9 +80,11 @@ public:
     std::string MakeCPPStruct(const WisStruct& s, DocKind kind = DocKind::Full);
     std::string MakeCPPVariant(const WisStruct& s, std::string_view impl = "", DocKind kind = DocKind::Full);
     std::string MakeCPPHandle(const WisHandle& s, std::string_view impl = "", DocKind kind = DocKind::Full);
+    std::string MakeCPPView(const WisHandle& s, std::string_view impl = "", DocKind kind = DocKind::Full);
     std::string MakeCPPFunctionProto(const WisFunction& func, std::string_view impl = "", std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full, ProtoType type = ProtoType::Prefixed);
     std::string MakeCPPFunctionImpl(const WisFunction& func, std::string_view impl = "", std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full, ProtoType type = ProtoType::Prefixed);
     std::string MakeCPPDelegate(const WisFunction& func, DocKind kind = DocKind::Full);
+
 
     // Write
     void WriteCAPI(std::filesystem::path path);

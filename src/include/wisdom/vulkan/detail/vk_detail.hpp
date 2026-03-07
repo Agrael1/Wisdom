@@ -125,6 +125,7 @@ struct VKDeviceFeatures {
     uint32_t descriptor_heap                   : 1 = false;
     uint32_t global_priority                   : 1 = false;
     uint32_t host_image_copy                   : 1 = false;
+    uint32_t maintenance9                      : 1 = false; // nop QFOT barriers and empty device
 
     // Properties
     uint16_t resource_desc_size                       = 0;

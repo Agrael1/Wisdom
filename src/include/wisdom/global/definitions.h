@@ -39,6 +39,16 @@
 #endif
 
 #define WIS_EXTERN_C extern "C"
+
+#define WISDOM_DEFINE_ENUM_OPERATORS(T)                                                                                    \
+    inline T  operator|(T a, T b) noexcept { return static_cast<T>(static_cast<uint32_t>(a) | static_cast<uint32_t>(b)); } \
+    inline T  operator&(T a, T b) noexcept { return static_cast<T>(static_cast<uint32_t>(a) & static_cast<uint32_t>(b)); } \
+    inline T  operator^(T a, T b) noexcept { return static_cast<T>(static_cast<uint32_t>(a) ^ static_cast<uint32_t>(b)); } \
+    inline T  operator~(T a) noexcept { return static_cast<T>(~static_cast<uint32_t>(a)); }                                \
+    inline T& operator|=(T& a, T b) noexcept { return a = a | b; }                                                        \
+    inline T& operator&=(T& a, T b) noexcept { return a = a & b; }                                                        \
+    inline T& operator^=(T& a, T b) noexcept { return a = a ^ b; }
+
 #else
 #define WIS_EXTERN_C
 #endif // __cplusplus

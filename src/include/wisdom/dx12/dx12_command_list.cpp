@@ -7,8 +7,16 @@
 #include <wisdom/dx12/detail/dx12_utils.hpp>
 #include <bit>
 
-
-
+namespace wis::detail {
+inline uint8_t* DX12AllocateScratchSpace(const wis::impl::DX12CommandListImpl& impl, uint32_t new_size)
+{
+    if (new_size > impl.scratch_memory_size) {
+        delete[] impl.scratch_memory;
+        impl.scratch_memory = new (std::nothrow) uint8_t[new_size];
+    }
+    return impl.scratch_memory;
+}
+} // namespace wis::detail
 
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyCommandList(WisDX12CommandList* self)
@@ -20,6 +28,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyCommandList(WisDX12CommandList* self)
 
     impl.list->Release();
     impl.allocator->Release();
+    delete[] impl.scratch_memory;
 }
 
 //-----------------------------------------------------------------------------
@@ -163,6 +172,74 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetDescriptorTable(const WisDX12C
     case WisPipelineTypeCompute:
         impl.list->SetComputeRootDescriptorTable(data->root_index, { handle.ptr + data->heap_offset * stride });
     }
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisDX12CommandListInsertBarriers(const WisDX12CommandList*  self,
+                                                              const WisDX12BarrierGroup* barriers)
+{
+    if (barriers->buffer_barrier_count == 0) {
+        return;
+    }
+
+    auto& impl = *reinterpret_cast<const wis::impl::DX12CommandListImpl*>(self);
+
+    constexpr static uint32_t max_barrier_size = std::max(sizeof(D3D12_BUFFER_BARRIER), sizeof(D3D12_TEXTURE_BARRIER));
+    constexpr static uint32_t static_size      = static_cast<uint32_t>(wis::TransientMaxBarrierCount * max_barrier_size);
+    uint8_t                   local_scratch[static_size]{};
+    uint8_t*                  real_data = local_scratch;
+
+    uint32_t needed_size = static_cast<uint32_t>(barriers->buffer_barrier_count * sizeof(D3D12_BUFFER_BARRIER));
+    if (needed_size > static_size) {
+        // allocate from the command list's scratch memory if the needed size exceeds the local scratch buffer size. This is to avoid large stack allocations.
+        real_data = wis::detail::DX12AllocateScratchSpace(impl, needed_size);
+    }
+
+    auto* buffer_barriers = local_scratch;
+
+    wis::span<D3D12_BUFFER_BARRIER> buffer_barriers_span{ reinterpret_cast<D3D12_BUFFER_BARRIER*>(buffer_barriers), barriers->buffer_barrier_count };
+    uint32_t                        real_buffer_barrier_count = barriers->buffer_barrier_count;
+    // convert buffer barriers
+    for (size_t i = 0; i < barriers->buffer_barrier_count; ++i) {
+        auto& src = barriers->buffer_barriers[i];
+
+        // skip barriers that only perform queue ownership transfer without any actual synchronization or access changes,
+        // as they don't require an explicit barrier in D3D12 and can be handled implicitly by the driver.
+        // But the acquisition barrier must be submitted
+        if (src.queue_type_after != src.queue_type_before && src.queue_type_before == impl.queue_type) {
+            real_buffer_barrier_count--;
+            continue;
+        }
+
+        buffer_barriers_span[i] = D3D12_BUFFER_BARRIER{
+            .SyncBefore   = wis::detail::convert_dx(src.sync_before),
+            .SyncAfter    = wis::detail::convert_dx(src.sync_after),
+            .AccessBefore = wis::detail::convert_dx(src.access_before),
+            .AccessAfter  = wis::detail::convert_dx(src.access_after),
+            .pResource    = std::bit_cast<ID3D12Resource*>(src.buffer),
+            .Offset       = src.offset,
+            .Size         = src.size,
+        };
+    }
+
+    uint32_t memory_offset = barriers->buffer_barrier_count * sizeof(D3D12_BUFFER_BARRIER);
+
+    D3D12_BARRIER_GROUP groups[]{
+        {
+         .Type            = D3D12_BARRIER_TYPE_BUFFER,
+         .NumBarriers     = real_buffer_barrier_count,
+         .pBufferBarriers = buffer_barriers_span.data(),
+         },
+        {
+         .Type             = D3D12_BARRIER_TYPE_TEXTURE,
+         .NumBarriers      = 0,
+         .pTextureBarriers = nullptr,
+         }
+    };
+    uint32_t group_count  = barriers->buffer_barrier_count != 0;
+    uint32_t group_offset = barriers->buffer_barrier_count == 0;
+
+    impl.list->Barrier(group_count, groups + group_offset);
 }
 
 #endif // WIS_DX12_COMMAND_LIST_CPP

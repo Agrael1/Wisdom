@@ -133,7 +133,7 @@ int main()
         .format              = wis::DataFormat::BGRA8Unorm,
         .sample_count        = wis::SampleCount::S1,
         .layout              = wis::TextureLayout::Texture2D,
-        .usage_flags         = wis::TextureUsageFlags(uint32_t(wis::TextureUsageFlags::CopyDst) | uint32_t(wis::TextureUsageFlags::ShaderResource)),
+        .usage_flags         = wis::TextureUsageFlags::CopyDst | wis::TextureUsageFlags::ShaderResource,
         .memory_type         = wis::MemoryType::DeviceLocal,
         .memory_flags        = wis::MemoryFlags::None,
     };

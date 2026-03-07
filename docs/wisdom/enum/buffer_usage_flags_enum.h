@@ -11,16 +11,16 @@
  * // Provided by Wisdom 0.7.0. 
  * typedef enum WisBufferUsageFlags {
  *     WisBufferUsageFlagsNone = 0,
- *     WisBufferUsageFlagsCopySrc = (1 << 0),
- *     WisBufferUsageFlagsCopyDst = (1 << 1),
- *     WisBufferUsageFlagsConstantBuffer = (1 << 2),
- *     WisBufferUsageFlagsIndexBuffer = (1 << 3),
- *     WisBufferUsageFlagsVertexBuffer = (1 << 4),
- *     WisBufferUsageFlagsIndirectBuffer = (1 << 5),
- *     WisBufferUsageFlagsStorageBuffer = (1 << 6),
- *     WisBufferUsageFlagsAccelerationStructureBuffer = (1 << 7),
- *     WisBufferUsageFlagsAccelerationStructureInput = (1 << 8),
- *     WisBufferUsageFlagsShaderBindingTable = (1 << 9),
+ *     WisBufferUsageFlagsCopySrc = (1u << 0),
+ *     WisBufferUsageFlagsCopyDst = (1u << 1),
+ *     WisBufferUsageFlagsConstantBuffer = (1u << 2),
+ *     WisBufferUsageFlagsIndexBuffer = (1u << 3),
+ *     WisBufferUsageFlagsVertexBuffer = (1u << 4),
+ *     WisBufferUsageFlagsIndirectBuffer = (1u << 5),
+ *     WisBufferUsageFlagsStorageBuffer = (1u << 6),
+ *     WisBufferUsageFlagsAccelerationStructureBuffer = (1u << 7),
+ *     WisBufferUsageFlagsAccelerationStructureInput = (1u << 8),
+ *     WisBufferUsageFlagsShaderBindingTable = (1u << 9),
  * } WisBufferUsageFlags;
  * ```
  * C++ version:
@@ -29,16 +29,16 @@
  * // Provided by Wisdom 0.7.0. 
  * enum class BufferUsageFlags : uint32_t {
  *     None = 0,
- *     CopySrc = (1 << 0),
- *     CopyDst = (1 << 1),
- *     ConstantBuffer = (1 << 2),
- *     IndexBuffer = (1 << 3),
- *     VertexBuffer = (1 << 4),
- *     IndirectBuffer = (1 << 5),
- *     StorageBuffer = (1 << 6),
- *     AccelerationStructureBuffer = (1 << 7),
- *     AccelerationStructureInput = (1 << 8),
- *     ShaderBindingTable = (1 << 9),
+ *     CopySrc = (1u << 0),
+ *     CopyDst = (1u << 1),
+ *     ConstantBuffer = (1u << 2),
+ *     IndexBuffer = (1u << 3),
+ *     VertexBuffer = (1u << 4),
+ *     IndirectBuffer = (1u << 5),
+ *     StorageBuffer = (1u << 6),
+ *     AccelerationStructureBuffer = (1u << 7),
+ *     AccelerationStructureInput = (1u << 8),
+ *     ShaderBindingTable = (1u << 9),
  * };
  * }
  * ```

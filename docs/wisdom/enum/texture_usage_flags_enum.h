@@ -11,13 +11,13 @@
  * // Provided by Wisdom 0.7.0. 
  * typedef enum WisTextureUsageFlags {
  *     WisTextureUsageFlagsNone = 0,
- *     WisTextureUsageFlagsRenderTarget = (1 << 0),
- *     WisTextureUsageFlagsDepthStencil = (1 << 1),
- *     WisTextureUsageFlagsCopySrc = (1 << 2),
- *     WisTextureUsageFlagsCopyDst = (1 << 3),
- *     WisTextureUsageFlagsShaderResource = (1 << 4),
- *     WisTextureUsageFlagsUnorderedAccess = (1 << 5),
- *     WisTextureUsageFlagsHostCopy = (1 << 7),
+ *     WisTextureUsageFlagsRenderTarget = (1u << 0),
+ *     WisTextureUsageFlagsDepthStencil = (1u << 1),
+ *     WisTextureUsageFlagsCopySrc = (1u << 2),
+ *     WisTextureUsageFlagsCopyDst = (1u << 3),
+ *     WisTextureUsageFlagsShaderResource = (1u << 4),
+ *     WisTextureUsageFlagsUnorderedAccess = (1u << 5),
+ *     WisTextureUsageFlagsHostCopy = (1u << 7),
  * } WisTextureUsageFlags;
  * ```
  * C++ version:
@@ -26,13 +26,13 @@
  * // Provided by Wisdom 0.7.0. 
  * enum class TextureUsageFlags : uint32_t {
  *     None = 0,
- *     RenderTarget = (1 << 0),
- *     DepthStencil = (1 << 1),
- *     CopySrc = (1 << 2),
- *     CopyDst = (1 << 3),
- *     ShaderResource = (1 << 4),
- *     UnorderedAccess = (1 << 5),
- *     HostCopy = (1 << 7),
+ *     RenderTarget = (1u << 0),
+ *     DepthStencil = (1u << 1),
+ *     CopySrc = (1u << 2),
+ *     CopyDst = (1u << 3),
+ *     ShaderResource = (1u << 4),
+ *     UnorderedAccess = (1u << 5),
+ *     HostCopy = (1u << 7),
  * };
  * }
  * ```

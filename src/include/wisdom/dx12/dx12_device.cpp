@@ -73,7 +73,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandAllocator(const WisD
 
     auto& internal     = *new (list) wis::impl::DX12CommandAllocatorImpl();
     internal.allocator = allocator.detach();
-    internal.type      = wis::detail::convert_dx(type);
+    internal.type      = type;
     internal.device    = device.device; // store device pointer for later use when creating command lists with this allocator (don't refcount)
     return result;
 }

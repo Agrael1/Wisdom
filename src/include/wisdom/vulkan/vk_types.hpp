@@ -65,6 +65,13 @@ struct VKCommandListImpl {
 
     VkCommandPool                      command_pool;
     detail::VKCommandPoolControlBlock* command_pool_header;
+
+    std::array<uint8_t, WisCommandQueueTypeCount> queue_residency;
+    uint32_t                                      maintenance9 : 1;
+    WisCommandQueueType                           queue_type   : 7;
+
+    mutable uint32_t scratch_memory_size; // Size of the scratch memory in bytes.
+    mutable uint8_t* scratch_memory; // Used for temporary allocations that need to be freed when the command list is destroyed.
 };
 
 struct VKFenceImpl {

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <registry>
   <includes>
-    <include>structs2.xml</include>
+    <include>structs.xml</include>
     <include>validation.xml</include>
     <include>consts.xml</include>
   </includes>
@@ -36,8 +36,8 @@
       <view size="1"/>
     </handle>
     <handle name="CommandList" version="0.7.0" doc="Class representing a command list for recording GPU commands.">
-      <impl for="vk" size="5"/>
-      <impl for="dx" size="5"/>
+      <impl for="vk" size="8"/>
+      <impl for="dx" size="7"/>
       <view size="1"/>
     </handle>
     <handle name="CommandAllocator" version="0.7.0" doc="Class representing a pool allocator for command lists for recording GPU commands.">
@@ -265,7 +265,10 @@ Can still be enqueued after the signal.">
     <func for="CommandList" name="SetDescriptorTable" version="0.7.0" mod="const" doc="Sets the descriptor table offset in descriptor heap for the command list, so it can be used for resource binding.">
       <arg type="DescriptorTableDataDesc" name="data" mod="const,ref" doc="defines the root parameter index to set the descriptor table for."/>
     </func>
-
+    
+    <func for="CommandList" name="InsertBarriers" version="0.7.0" mod="const" doc="Inserts one or more barriers on the current command list.">
+      <arg type="BarrierGroup" name="barriers" mod="const,ref" doc="points to an array of barriers to insert."/>
+    </func>
 
   </functions>
 

@@ -7,6 +7,17 @@
 #include <wisdom/util/allocation.hpp>
 #include <bit>
 
+namespace wis::detail {
+inline uint8_t* VKAllocateScratchSpace(const wis::impl::VKCommandListImpl& impl, uint32_t new_size)
+{
+    if (new_size > impl.scratch_memory_size) {
+        delete[] impl.scratch_memory;
+        impl.scratch_memory = new (std::nothrow) uint8_t[new_size];
+    }
+    return impl.scratch_memory;
+}
+} // namespace wis::detail
+
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyCommandList(WisVKCommandList* self)
 {
@@ -145,6 +156,77 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetDescriptorTable(const WisVKComma
         .data   = { .address = &data->heap_offset, .size = sizeof(uint32_t) }
     };
     impl.command_list_table->vkCmdPushDataEXT(impl.command_buffer, &push_data_info);
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisVKCommandListInsertBarriers(const WisVKCommandList*  self,
+                                                            const WisVKBarrierGroup* barriers)
+{
+    if (barriers->buffer_barrier_count == 0) {
+        return;
+    }
+
+    auto& impl = *reinterpret_cast<const wis::impl::VKCommandListImpl*>(self);
+
+    static constexpr uint32_t max_barrier_size = std::max(sizeof(VkBufferMemoryBarrier2), sizeof(VkImageMemoryBarrier2));
+    static constexpr uint32_t static_size      = static_cast<uint32_t>(wis::TransientMaxBarrierCount * max_barrier_size);
+    uint8_t                   local_scratch[static_size]{};
+    uint8_t*                  real_data = local_scratch;
+
+    uint32_t needed_size = static_cast<uint32_t>(barriers->buffer_barrier_count * sizeof(VkBufferMemoryBarrier2));
+    if (needed_size > static_size) {
+        // allocate from the command list's scratch memory if the needed size exceeds the local scratch buffer size. This is to avoid large stack allocations.
+        real_data = wis::detail::VKAllocateScratchSpace(impl, needed_size);
+    }
+
+    auto* buffer_barriers = local_scratch;
+
+    wis::span<VkBufferMemoryBarrier2> buffer_barriers_span{ reinterpret_cast<VkBufferMemoryBarrier2*>(buffer_barriers), barriers->buffer_barrier_count };
+    uint32_t                          real_buffer_barrier_count = barriers->buffer_barrier_count;
+
+    for (size_t i = 0; i < barriers->buffer_barrier_count; i++) {
+        const auto& src = barriers->buffer_barriers[i];
+
+        auto q1 = VK_QUEUE_FAMILY_IGNORED;
+        auto q2 = VK_QUEUE_FAMILY_IGNORED;
+        if (src.queue_type_before != src.queue_type_after) {
+            // skip barriers that only perform queue ownership transfer
+            if (impl.maintenance9 && impl.queue_type == src.queue_type_before) {
+                real_buffer_barrier_count--;
+                continue;
+            }
+
+            if (!impl.maintenance9) {
+                q1 = src.queue_type_before >= WisCommandQueueTypeCount ? VK_QUEUE_FAMILY_IGNORED : impl.queue_residency[src.queue_type_before];
+                q2 = src.queue_type_after >= WisCommandQueueTypeCount ? VK_QUEUE_FAMILY_IGNORED : impl.queue_residency[src.queue_type_after];
+            }
+        }
+
+        buffer_barriers_span[i] = {
+            .sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2,
+            .pNext               = nullptr,
+            .srcStageMask        = wis::detail::convert_vk(src.sync_before),
+            .srcAccessMask       = wis::detail::convert_vk(src.access_before),
+            .dstStageMask        = wis::detail::convert_vk(src.sync_after),
+            .dstAccessMask       = wis::detail::convert_vk(src.access_after),
+            .srcQueueFamilyIndex = q1,
+            .dstQueueFamilyIndex = q2,
+            .buffer              = std::bit_cast<VkBuffer>(src.buffer),
+            .offset              = src.offset,
+            .size                = src.size,
+        };
+    }
+
+    // future work: support image barriers
+    VkDependencyInfo dependency_info{
+        .sType                    = VK_STRUCTURE_TYPE_DEPENDENCY_INFO,
+        .pNext                    = nullptr,
+        .bufferMemoryBarrierCount = real_buffer_barrier_count,
+        .pBufferMemoryBarriers    = buffer_barriers_span.data(),
+        .imageMemoryBarrierCount  = 0,
+        .pImageMemoryBarriers     = nullptr,
+    };
+    impl.command_list_table->vkCmdPipelineBarrier2(impl.command_buffer, &dependency_info);
 }
 
 #endif // WIS_VK_COMMAND_LIST_CPP

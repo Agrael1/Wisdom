@@ -10,13 +10,13 @@
  * Vulkan Version:
  * ```c
  * // Provided by Wisdom 0.7.0. 
- * WIS_DEFINE_HANDLE(WisVKCommandList,5);
+ * WIS_DEFINE_HANDLE(WisVKCommandList,8);
  * WIS_DEFINE_HANDLE_VIEW(WisVKCommandList,1);
  * ```
  * DX12 Version:
  * ```c
  * // Provided by Wisdom 0.7.0. 
- * WIS_DEFINE_HANDLE(WisDX12CommandList,5);
+ * WIS_DEFINE_HANDLE(WisDX12CommandList,7);
  * WIS_DEFINE_HANDLE_VIEW(WisDX12CommandList,1);
  * ```
  * \endcond
@@ -24,6 +24,6 @@
  * @section WisCommandList_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see wisDestroyCommandList, wisCommandAllocatorCreateCommandList, wisCommandListBegin, wisCommandListEnd, wisCommandListSetDescriptorHeaps, wisCommandListSetRootSignature, wisCommandListSetPushConstants, wisCommandListSetPushDescriptor, wisCommandListSetDescriptorTable
+ * @see wisDestroyCommandList, wisCommandAllocatorCreateCommandList, wisCommandListBegin, wisCommandListEnd, wisCommandListSetDescriptorHeaps, wisCommandListSetRootSignature, wisCommandListSetPushConstants, wisCommandListSetPushDescriptor, wisCommandListSetDescriptorTable, wisCommandListInsertBarriers
  * \endcond
  */
