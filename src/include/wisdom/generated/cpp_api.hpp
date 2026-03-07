@@ -1296,6 +1296,22 @@ struct DeviceMemoryProperties {
     bool                   host_image_copy_supported; ///< Indicates if host image copy is supported. This feature allows copying data directly from CPU memory to optimal tiled image layout on GPU, without the need for an intermediate staging buffer. It is supported on Windows 10 22H2 and later with WDDM 3.0 or later. On Vulkan it requires `VK_EXT_host_image_copy` extension.
 };
 
+//==============================================================
+// Constants
+//==============================================================
+
+/// @brief Provided by Wisdom 0.7.0. Append descriptor table entry after previous table.
+static constexpr std::uint32_t DescriptorOffsetAppend = 0xffffffff;
+
+/// @brief Provided by Wisdom 0.7.0. Select all remaining array layers.
+static constexpr std::uint32_t RemainingLayers = 0xffffffff;
+
+/// @brief Provided by Wisdom 0.7.0. Select all remaining mip levels.
+static constexpr std::uint32_t RemainingMips = 0xffffffff;
+
+/// @brief Provided by Wisdom 0.7.0. Defines the amount of usable space in root signature.
+static constexpr std::uint32_t RootSignatureDwords = 64;
+
 } // namespace wis
 #endif // __cplusplus
 #endif // WISDOM_CPP_API_HPP

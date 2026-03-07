@@ -285,6 +285,15 @@ static inline constexpr Severity from_chars(std::string_view input) noexcept
     return Severity::Info;
 }
 
+struct WisConstant {
+    std::string_view name;
+    std::string_view type;
+    std::string_view value;
+    std::string_view doc;
+    std::string_view version;
+    Modifier         modifier = Modifier::None;
+};
+
 struct Validation {
     std::string_view type_name;
     std::string_view id;

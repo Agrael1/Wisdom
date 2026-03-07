@@ -90,6 +90,20 @@ public:
         return &_impl_storage;
     }
 
+    /// @brief Check if the handle holds a valid object
+    /// @return true if the first 8 bytes of storage are non-zero
+    [[nodiscard]] bool IsValid() const noexcept
+    {
+        static constexpr std::uint64_t zero = 0;
+        return std::memcmp(&_impl_storage, &zero, sizeof(std::uint64_t)) != 0;
+    }
+
+    /// @brief Bool conversion, checks handle validity
+    explicit operator bool() const noexcept
+    {
+        return IsValid();
+    }
+
 public:
     Storage _impl_storage;
 };

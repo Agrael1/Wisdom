@@ -43,6 +43,7 @@ void Generator::WriteMainAPIDoc()
     WriteHandleDocumentation(handle_output_path);
     WriteFunctionDocumentation(func_output_path);
     WriteDelegateDocumentation(func_output_path);
+    WriteConstantDocumentation(doc_output_path / "wisdom");
 }
 
 //-----------------------------------------------------------------------------
@@ -71,6 +72,10 @@ void Generator::ParseFile(tinyxml2::XMLDocument& doc)
 
     if (auto* va = root->FirstChildElement("validations")) {
         ParseValidations(va);
+    }
+
+    if (auto* consts = root->FirstChildElement("constants")) {
+        ParseConstants(consts);
     }
 }
 
@@ -170,6 +175,16 @@ extern "C" {
         file << "\n";
     }
 
+    file << "\n//==============================================================\n"
+            "// Constants\n"
+            "//==============================================================\n\n";
+    // Write constants
+    for (auto& const_name : constants_in_order) {
+        auto& const_def = constant_map[const_name];
+        file << MakeCConstant(const_def);
+        file << "\n";
+    }
+
     // Write footer
     file << R"(
 #ifdef __cplusplus
@@ -232,6 +247,16 @@ namespace wis {
     for (auto& struct_name : structs_in_order) {
         auto& struct_def = struct_map[struct_name];
         file << MakeCPPStruct(struct_def);
+        file << "\n";
+    }
+
+    file << "\n//==============================================================\n"
+            "// Constants\n"
+            "//==============================================================\n\n";
+    // Write constants
+    for (auto& const_name : constants_in_order) {
+        auto& const_def = constant_map[const_name];
+        file << MakeCPPConstant(const_def);
         file << "\n";
     }
 
@@ -493,6 +518,12 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 #else
 #error "No API selected for Wisdom. Define WISDOM_DX12 or WISDOM_VULKAN."
 #endif // API selection
+
+static inline bool wisHandleValid(const void* handle) {
+    const uint64_t zero = 0;
+    return memcmp(handle, &zero, sizeof(uint64_t)) != 0;
+}
+
 #endif // WISDOM_H
 )";
 }
