@@ -11,8 +11,8 @@
  * // Provided by Wisdom 0.7.0. 
  * typedef enum WisTextureBindingFlags {
  *     WisTextureBindingFlagsNone = 0,
- *     WisTextureBindingFlagsDepthView = (1 << 0),
- *     WisTextureBindingFlagsStencilView = (1 << 1),
+ *     WisTextureBindingFlagsDepthView = (1u << 0),
+ *     WisTextureBindingFlagsStencilView = (1u << 1),
  * } WisTextureBindingFlags;
  * ```
  * C++ version:
@@ -21,8 +21,8 @@
  * // Provided by Wisdom 0.7.0. 
  * enum class TextureBindingFlags : uint32_t {
  *     None = 0,
- *     DepthView = (1 << 0),
- *     StencilView = (1 << 1),
+ *     DepthView = (1u << 0),
+ *     StencilView = (1u << 1),
  * };
  * }
  * ```

@@ -52,7 +52,7 @@ struct DX12CommandQueueImpl {
 struct DX12CommandAllocatorImpl {
     ID3D12CommandAllocator* allocator;
     ID3D12Device10*         device;
-    D3D12_COMMAND_LIST_TYPE type;
+    WisCommandQueueType     type;
 };
 
 struct DX12CommandListImpl {
@@ -60,8 +60,11 @@ struct DX12CommandListImpl {
     ID3D12CommandAllocator*             allocator;
     mutable D3D12_GPU_DESCRIPTOR_HANDLE descriptor_handle;
     mutable D3D12_GPU_DESCRIPTOR_HANDLE sampler_handle;
-    uint32_t                            descriptor_size;
-    uint32_t                            sampler_size;
+    uint16_t                            descriptor_size;
+    uint16_t                            sampler_size;
+    WisCommandQueueType                 queue_type;
+    mutable uint32_t                    scratch_memory_size;
+    mutable uint8_t*                    scratch_memory;
 };
 
 struct DX12FenceImpl {
@@ -81,7 +84,7 @@ struct DX12DescriptorHeapImpl {
     ID3D12DescriptorHeap*       descriptor_heap;
     ID3D12Device10*             device;
     D3D12_GPU_DESCRIPTOR_HANDLE gpu_handle; // store GPU handle for heap start to avoid calling GetGPUDescriptorHandleForHeapStart every time we need it
-    D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle; 
+    D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle;
     uint32_t                    descriptor_size; // store descriptor size for heap type to avoid calling GetDescriptorHandleIncrementSize every time we need it
     D3D12_DESCRIPTOR_HEAP_TYPE  type;
 };

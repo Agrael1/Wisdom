@@ -79,7 +79,7 @@ static inline WisDX12FenceView wisGetDX12FenceView(const WisDX12Fence* handle)
  * @brief Provided by Wisdom 0.7.0. Class representing a command list for recording GPU commands.
  *
  * */
-WIS_DEFINE_HANDLE(WisDX12CommandList, 5);
+WIS_DEFINE_HANDLE(WisDX12CommandList, 7);
 WIS_DEFINE_HANDLE_VIEW(WisDX12CommandList, 1);
 
 static inline WisDX12CommandListView wisGetDX12CommandListView(const WisDX12CommandList* handle)
@@ -145,6 +145,31 @@ typedef struct WisDX12DeviceRequirements {
     WisDX12DeviceExtensionHeader** extensions; ///< points to an array of extensions that are to be initialized with pointers to WisDeviceExtensionHeader.
     size_t                         extension_count; ///< counts the number of extensions in the wisAdapterQueryCreateDevice array.
 } WisDX12DeviceRequirements;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Buffer barrier with the buffer handle.
+ *
+ * */
+typedef struct WisDX12BufferBarrier {
+    WisBarrierSync      sync_before; ///< Synchronization scope before the barrier.
+    WisBarrierSync      sync_after; ///< Synchronization scope after the barrier.
+    WisResourceAccess   access_before; ///< Access scope before the barrier.
+    WisResourceAccess   access_after; ///< Access scope after the barrier.
+    WisDX12BufferView   buffer; ///< Buffer view.
+    uint64_t            offset; ///< Offset in bytes from the start of the buffer. Default is 0.
+    uint64_t            size; ///< Barrier size in bytes. Default is `UINT64_MAX`, which means the whole buffer range.
+    WisCommandQueueType queue_type_before; ///< Type of the queue the barrier is executed on before the synchronization point. Used for cross-queue barriers.
+    WisCommandQueueType queue_type_after; ///< Type of the queue the barrier is executed on after the synchronization point. Used for cross-queue barriers.
+} WisDX12BufferBarrier;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Barrier group for multiple barriers submission.
+ *
+ * */
+typedef struct WisDX12BarrierGroup {
+    const WisDX12BufferBarrier* buffer_barriers; ///< Array of buffer barriers.
+    size_t                      buffer_barrier_count; ///< Number of buffer barriers in the `WisBarrierGroup::buffer_barriers` array.
+} WisDX12BarrierGroup;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisTexture handle.
@@ -697,6 +722,15 @@ WISDOM_API void wisDX12CommandListSetPushDescriptor(const WisDX12CommandList*   
  * */
 WISDOM_API void wisDX12CommandListSetDescriptorTable(const WisDX12CommandList*         self,
                                                      const WisDescriptorTableDataDesc* data);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Inserts one or more barriers on the current command list.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param barriers points to an array of barriers to insert.
+ *
+ * */
+WISDOM_API void wisDX12CommandListInsertBarriers(const WisDX12CommandList*  self,
+                                                 const WisDX12BarrierGroup* barriers);
 
 #ifdef __cplusplus
 }

@@ -83,6 +83,18 @@ public:
             });
         }
 
+        // maintenance 9
+        if (collector.IsExtensionPresent(VK_KHR_MAINTENANCE_9_EXTENSION_NAME)) {
+            features.maintenance9 = true;
+            collector.EnableExtension({
+                    .name                 = VK_KHR_MAINTENANCE_9_EXTENSION_NAME,
+                    .feature_struct       = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_9_FEATURES_KHR,
+                    .feature_struct_size  = sizeof(VkPhysicalDeviceMaintenance9FeaturesKHR),
+                    .property_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MAINTENANCE_9_PROPERTIES_KHR,
+                    .property_struct_size = sizeof(VkPhysicalDeviceMaintenance9PropertiesKHR),
+            });
+        }
+
         return wis::detail::vk_success;
     }
     ::WisResult Init([[maybe_unused]] const impl::VKDeviceImpl& device_impl,

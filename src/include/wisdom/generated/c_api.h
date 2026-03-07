@@ -873,8 +873,8 @@ typedef enum WisMemoryType {
  * */
 typedef enum WisAdapterFlags {
     WisAdapterFlagsNone     = 0, ///< No flags set. Adapter @wis_may be discrete or embedded.
-    WisAdapterFlagsRemote   = (1 << 0), ///< Adapter is remote. Used for remote rendering.
-    WisAdapterFlagsSoftware = (1 << 1), ///< Adapter is software. Uses CPU for software rendering.
+    WisAdapterFlagsRemote   = (1u << 0), ///< Adapter is remote. Used for remote rendering.
+    WisAdapterFlagsSoftware = (1u << 1), ///< Adapter is software. Uses CPU for software rendering.
 } WisAdapterFlags;
 
 /**
@@ -883,7 +883,7 @@ typedef enum WisAdapterFlags {
  * */
 typedef enum WisDescriptorHeapFlags {
     WisDescriptorHeapFlagsNone                     = 0, ///< No flags set.
-    WisDescriptorHeapFlagsDisallowEmbeddedSamplers = (1 << 1), ///< Heap is used in full for dynamic samplers. There @wis_must_not be any shader that use embedded samplers that uses that heap. User @wis_may allocate more samplers in the heap than it would normally be.
+    WisDescriptorHeapFlagsDisallowEmbeddedSamplers = (1u << 1), ///< Heap is used in full for dynamic samplers. There @wis_must_not be any shader that use embedded samplers that uses that heap. User @wis_may allocate more samplers in the heap than it would normally be.
 } WisDescriptorHeapFlags;
 
 /**
@@ -892,7 +892,7 @@ typedef enum WisDescriptorHeapFlags {
  * */
 typedef enum WisSamplerFlags {
     WisSamplerFlagsNone                     = 0, ///< No flags set.
-    WisSamplerFlagsNonNormalizedCoordinates = (1 << 0), ///< Use non-normalized texture coordinates.
+    WisSamplerFlagsNonNormalizedCoordinates = (1u << 0), ///< Use non-normalized texture coordinates.
 } WisSamplerFlags;
 
 /**
@@ -902,16 +902,16 @@ typedef enum WisSamplerFlags {
  * */
 typedef enum WisBufferUsageFlags {
     WisBufferUsageFlagsNone                        = 0, ///< No flags set. Buffer is not used.
-    WisBufferUsageFlagsCopySrc                     = (1 << 0), ///< Buffer is used as a source for copy operations.
-    WisBufferUsageFlagsCopyDst                     = (1 << 1), ///< Buffer is used as a destination for copy operations.
-    WisBufferUsageFlagsConstantBuffer              = (1 << 2), ///< Buffer is used as a constant buffer.
-    WisBufferUsageFlagsIndexBuffer                 = (1 << 3), ///< Buffer is used as an index buffer.
-    WisBufferUsageFlagsVertexBuffer                = (1 << 4), ///< Buffer is used as a vertex buffer or an instance buffer.
-    WisBufferUsageFlagsIndirectBuffer              = (1 << 5), ///< Buffer is used as an indirect buffer.
-    WisBufferUsageFlagsStorageBuffer               = (1 << 6), ///< Buffer is used as a storage unordered access buffer.
-    WisBufferUsageFlagsAccelerationStructureBuffer = (1 << 7), ///< Buffer is used as an acceleration structure buffer.
-    WisBufferUsageFlagsAccelerationStructureInput  = (1 << 8), ///< Buffer is used as a read only acceleration instance input buffer.
-    WisBufferUsageFlagsShaderBindingTable          = (1 << 9), ///< Buffer is used as a shader binding table buffer.
+    WisBufferUsageFlagsCopySrc                     = (1u << 0), ///< Buffer is used as a source for copy operations.
+    WisBufferUsageFlagsCopyDst                     = (1u << 1), ///< Buffer is used as a destination for copy operations.
+    WisBufferUsageFlagsConstantBuffer              = (1u << 2), ///< Buffer is used as a constant buffer.
+    WisBufferUsageFlagsIndexBuffer                 = (1u << 3), ///< Buffer is used as an index buffer.
+    WisBufferUsageFlagsVertexBuffer                = (1u << 4), ///< Buffer is used as a vertex buffer or an instance buffer.
+    WisBufferUsageFlagsIndirectBuffer              = (1u << 5), ///< Buffer is used as an indirect buffer.
+    WisBufferUsageFlagsStorageBuffer               = (1u << 6), ///< Buffer is used as a storage unordered access buffer.
+    WisBufferUsageFlagsAccelerationStructureBuffer = (1u << 7), ///< Buffer is used as an acceleration structure buffer.
+    WisBufferUsageFlagsAccelerationStructureInput  = (1u << 8), ///< Buffer is used as a read only acceleration instance input buffer.
+    WisBufferUsageFlagsShaderBindingTable          = (1u << 9), ///< Buffer is used as a shader binding table buffer.
 } WisBufferUsageFlags;
 
 /**
@@ -921,13 +921,13 @@ typedef enum WisBufferUsageFlags {
  * */
 typedef enum WisTextureUsageFlags {
     WisTextureUsageFlagsNone            = 0, ///< No flags set. Texture is not used.
-    WisTextureUsageFlagsRenderTarget    = (1 << 0), ///< Texture is used as a render target.
-    WisTextureUsageFlagsDepthStencil    = (1 << 1), ///< Texture is used as a depth stencil buffer.
-    WisTextureUsageFlagsCopySrc         = (1 << 2), ///< Texture is used as a source for copy operations.
-    WisTextureUsageFlagsCopyDst         = (1 << 3), ///< Texture is used as a destination for copy operations.
-    WisTextureUsageFlagsShaderResource  = (1 << 4), ///< Texture is used as a shader resource.
-    WisTextureUsageFlagsUnorderedAccess = (1 << 5), ///< Texture is used as an unordered access resource.
-    WisTextureUsageFlagsHostCopy        = (1 << 7), ///< Texture is used for host copy operations. Works with GPUUpload heap.
+    WisTextureUsageFlagsRenderTarget    = (1u << 0), ///< Texture is used as a render target.
+    WisTextureUsageFlagsDepthStencil    = (1u << 1), ///< Texture is used as a depth stencil buffer.
+    WisTextureUsageFlagsCopySrc         = (1u << 2), ///< Texture is used as a source for copy operations.
+    WisTextureUsageFlagsCopyDst         = (1u << 3), ///< Texture is used as a destination for copy operations.
+    WisTextureUsageFlagsShaderResource  = (1u << 4), ///< Texture is used as a shader resource.
+    WisTextureUsageFlagsUnorderedAccess = (1u << 5), ///< Texture is used as an unordered access resource.
+    WisTextureUsageFlagsHostCopy        = (1u << 7), ///< Texture is used for host copy operations. Works with GPUUpload heap.
 } WisTextureUsageFlags;
 
 /**
@@ -944,13 +944,13 @@ typedef enum WisMemoryFlags {
      * Useful for big resources that are not shared with other resources.
      * E.g. fullscreen textures, big buffers, etc.
      * */
-    WisMemoryFlagsDedicatedAllocation = (1 << 0),
+    WisMemoryFlagsDedicatedAllocation = (1u << 0),
     /**
      * @brief
      * Memory is mapped.
      * Used in combination with `WisMemoryTypeUpload` or `WisMemoryTypeReadback` to map memory for CPU access.
      * */
-    WisMemoryFlagsMapped = (1 << 1),
+    WisMemoryFlagsMapped = (1u << 1),
     /**
      * @brief
      * Memory is exportable.
@@ -958,7 +958,7 @@ typedef enum WisMemoryFlags {
      * Works only with Device Local memory (`WisMemoryTypeDefault`) and only on AllocateXMemory calls.
      * Outside of AllocateXMemory the flag is ignored.
      * */
-    WisMemoryFlagsExportable = (1 << 2),
+    WisMemoryFlagsExportable = (1u << 2),
 } WisMemoryFlags;
 
 /**
@@ -975,9 +975,65 @@ typedef enum WisTextureFlags {
  * */
 typedef enum WisTextureBindingFlags {
     WisTextureBindingFlagsNone        = 0, ///< No flags set. Texture view is regular. Implies color read.
-    WisTextureBindingFlagsDepthView   = (1 << 0), ///< Texture view is used to read depth. Used for special formats that feature depth and stencil. The bound texture @wis_must be in TODO: specific layout before being used by shader.
-    WisTextureBindingFlagsStencilView = (1 << 1), ///< Texture view is used to read stencil. Used for special formats that feature depth and stencil. The bound texture @wis_must be in TODO: specific layout before being used by shader. Cannot be combined with `WisTextureBindingFlags::DepthView`.
+    WisTextureBindingFlagsDepthView   = (1u << 0), ///< Texture view is used to read depth. Used for special formats that feature depth and stencil. The bound texture @wis_must be in TODO: specific layout before being used by shader.
+    WisTextureBindingFlagsStencilView = (1u << 1), ///< Texture view is used to read stencil. Used for special formats that feature depth and stencil. The bound texture @wis_must be in TODO: specific layout before being used by shader. Cannot be combined with `WisTextureBindingFlags::DepthView`.
 } WisTextureBindingFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Barrier synchronization flags for resource barriers.
+ *
+ * */
+typedef enum WisBarrierSync {
+    WisBarrierSyncNone            = 0, ///< No synchronization is performed.
+    WisBarrierSyncAll             = (1u << 0), ///< Synchronize all commands.
+    WisBarrierSyncDraw            = (1u << 1), ///< Synchronize draw commands.
+    WisBarrierSyncIndexInput      = (1u << 2), ///< Synchronize index input commands.
+    WisBarrierSyncVertexShading   = (1u << 3), ///< Synchronize vertex shading commands.
+    WisBarrierSyncPixelShading    = (1u << 4), ///< Synchronize pixel shading commands.
+    WisBarrierSyncDepthStencil    = (1u << 5), ///< Synchronize depth-stencil commands.
+    WisBarrierSyncRenderTarget    = (1u << 6), ///< Synchronize render target commands.
+    WisBarrierSyncCompute         = (1u << 7), ///< Synchronize compute commands.
+    WisBarrierSyncRaytracing      = (1u << 8), ///< Synchronize ray tracing commands.
+    WisBarrierSyncCopy            = (1u << 9), ///< Synchronize copy commands.
+    WisBarrierSyncResolve         = (1u << 10), ///< Synchronize resolve commands.
+    WisBarrierSyncExecuteIndirect = (1u << 11), ///< Synchronize execute indirect commands.
+    WisBarrierSyncAllShading      = (1u << 12), ///< Synchronize all shading commands.
+    WisBarrierSyncNonPixelShading = (1u << 13), ///< Synchronize non-pixel shading commands.
+    WisBarrierSyncClearUAV        = (1u << 14), ///< Synchronize UAV clear commands.
+    WisBarrierSyncVideoDecode     = (1u << 15), ///< Synchronize video decode commands.
+    WisBarrierSyncVideoEncode     = (1u << 16), ///< Synchronize video encode commands.
+    WisBarrierSyncBuildRTAS       = (1u << 17), ///< Synchronize ray tracing acceleration structure build commands.
+    WisBarrierSyncCopyRTAS        = (1u << 18), ///< Synchronize ray tracing acceleration structure copy commands.
+} WisBarrierSync;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Resource access flags for resource barriers.
+ *
+ * */
+typedef enum WisResourceAccess {
+    WisResourceAccessCommon                     = 0, ///< Common access.
+    WisResourceAccessVertexBuffer               = (1u << 0), ///< Vertex buffer access. Applies only to buffers.
+    WisResourceAccessConstantBuffer             = (1u << 1), ///< Constant buffer access. Applies only to buffers.
+    WisResourceAccessIndexBuffer                = (1u << 2), ///< Index buffer access. Applies only to buffers.
+    WisResourceAccessRenderTarget               = (1u << 3), ///< Render target access. Applies only to textures.
+    WisResourceAccessUnorderedAccess            = (1u << 4), ///< Unordered access.
+    WisResourceAccessDepthWrite                 = (1u << 5), ///< Depth write access. Applies only to depth-stencil textures.
+    WisResourceAccessDepthRead                  = (1u << 6), ///< Depth read access. Applies only to depth-stencil textures.
+    WisResourceAccessShaderResource             = (1u << 7), ///< Shader resource access.
+    WisResourceAccessStreamOutput               = (1u << 8), ///< Stream output access. Applies only to buffers.
+    WisResourceAccessIndirectArgument           = (1u << 9), ///< Indirect argument access.
+    WisResourceAccessCopyDest                   = (1u << 10), ///< Copy destination access.
+    WisResourceAccessCopySource                 = (1u << 11), ///< Copy source access.
+    WisResourceAccessConditionalRendering       = (1u << 12), ///< Conditional rendering access.
+    WisResourceAccessAccelerationStructureRead  = (1u << 13), ///< Acceleration structure read access.
+    WisResourceAccessAccelerationStructureWrite = (1u << 14), ///< Acceleration structure write access.
+    WisResourceAccessShadingRate                = (1u << 15), ///< Shading rate access.
+    WisResourceAccessVideoDecodeRead            = (1u << 16), ///< Video decode read access.
+    WisResourceAccessVideoDecodeWrite           = (1u << 17), ///< Video decode write access.
+    WisResourceAccessResolveDest                = (1u << 18), ///< Resolve destination access.
+    WisResourceAccessResolveSource              = (1u << 19), ///< Resolve source access.
+    WisResourceAccessNoAccess                   = (1u << 31), ///< No access. Used to indicate no access throughout the pipeline.
+} WisResourceAccess;
 
 //==============================================================
 // Delegates
@@ -1318,6 +1374,12 @@ typedef struct WisDeviceMemoryProperties {
 
 /// @brief Provided by Wisdom 0.7.0. Defines the amount of usable space in root signature.
 #define WIS_ROOT_SIGNATURE_DWORDS ((uint32_t)64)
+
+/// @brief Provided by Wisdom 0.7.0. Defines the amount of barriers of all types that will not trigger allocation.
+#define WIS_TRANSIENT_MAX_BARRIER_COUNT ((uint32_t)32)
+
+/// @brief Provided by Wisdom 0.7.0. Select whole size of a resource.
+#define WIS_WHOLE_SIZE ((uint64_t)0xffffffffffffffff)
 
 #ifdef __cplusplus
 }

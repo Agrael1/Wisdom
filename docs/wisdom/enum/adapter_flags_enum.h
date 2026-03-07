@@ -13,8 +13,8 @@
  * // Provided by Wisdom 0.7.0. 
  * typedef enum WisAdapterFlags {
  *     WisAdapterFlagsNone = 0,
- *     WisAdapterFlagsRemote = (1 << 0),
- *     WisAdapterFlagsSoftware = (1 << 1),
+ *     WisAdapterFlagsRemote = (1u << 0),
+ *     WisAdapterFlagsSoftware = (1u << 1),
  * } WisAdapterFlags;
  * ```
  * C++ version:
@@ -23,8 +23,8 @@
  * // Provided by Wisdom 0.7.0. 
  * enum class AdapterFlags : uint32_t {
  *     None = 0,
- *     Remote = (1 << 0),
- *     Software = (1 << 1),
+ *     Remote = (1u << 0),
+ *     Software = (1u << 1),
  * };
  * }
  * ```

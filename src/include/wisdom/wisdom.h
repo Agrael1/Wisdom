@@ -44,6 +44,8 @@ typedef struct WisDX12CommandListView   WisCommandListView;
 typedef struct WisDX12DeviceExtensionHeader   WisDeviceExtensionHeader;
 typedef struct WisDX12InstanceExtensionHeader WisInstanceExtensionHeader;
 typedef struct WisDX12DeviceRequirements      WisDeviceRequirements;
+typedef struct WisDX12BufferBarrier           WisBufferBarrier;
+typedef struct WisDX12BarrierGroup            WisBarrierGroup;
 
 //==============================================================
 // Functions
@@ -102,6 +104,7 @@ typedef struct WisDX12DeviceRequirements      WisDeviceRequirements;
 #define wisCommandListSetPushConstants              wisDX12CommandListSetPushConstants
 #define wisCommandListSetPushDescriptor             wisDX12CommandListSetPushDescriptor
 #define wisCommandListSetDescriptorTable            wisDX12CommandListSetDescriptorTable
+#define wisCommandListInsertBarriers                wisDX12CommandListInsertBarriers
 #define wisGetTextureView                           wisGetDX12TextureView
 #define wisGetBufferView                            wisGetDX12BufferView
 #define wisGetRootSignatureView                     wisGetDX12RootSignatureView
@@ -153,6 +156,8 @@ typedef struct WisVKCommandListView   WisCommandListView;
 typedef struct WisVKDeviceExtensionHeader   WisDeviceExtensionHeader;
 typedef struct WisVKInstanceExtensionHeader WisInstanceExtensionHeader;
 typedef struct WisVKDeviceRequirements      WisDeviceRequirements;
+typedef struct WisVKBufferBarrier           WisBufferBarrier;
+typedef struct WisVKBarrierGroup            WisBarrierGroup;
 
 //==============================================================
 // Functions
@@ -211,6 +216,7 @@ typedef struct WisVKDeviceRequirements      WisDeviceRequirements;
 #define wisCommandListSetPushConstants              wisVKCommandListSetPushConstants
 #define wisCommandListSetPushDescriptor             wisVKCommandListSetPushDescriptor
 #define wisCommandListSetDescriptorTable            wisVKCommandListSetDescriptorTable
+#define wisCommandListInsertBarriers                wisVKCommandListInsertBarriers
 #define wisGetTextureView                           wisGetVKTextureView
 #define wisGetBufferView                            wisGetVKBufferView
 #define wisGetRootSignatureView                     wisGetVKRootSignatureView

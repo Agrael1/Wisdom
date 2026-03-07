@@ -6,9 +6,6 @@
 #include <wisdom/generated/dx12_convert.hpp>
 #include <wisdom/dx12/detail/dx12_utils.hpp>
 
-
-
-
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyCommandAllocator(WisDX12CommandAllocator* self)
 {
@@ -40,7 +37,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CommandAllocatorCreateCommandList(const
     wis::com_ptr<ID3D12GraphicsCommandList7> command_list;
 
     auto hr = device->CreateCommandList1(0,
-                                         type,
+                                         wis::detail::convert_dx(type),
                                          D3D12_COMMAND_LIST_FLAG_NONE,
                                          IID_ID3D12GraphicsCommandList7,
                                          command_list.put_void_unchecked());
@@ -49,14 +46,18 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CommandAllocatorCreateCommandList(const
         return wis::detail::make_result<wis::detail::Func(), "Failed to create command list">(hr);
     }
 
-    auto& internal     = *new (list) wis::impl::DX12CommandListImpl();
-    internal.list      = command_list.detach();
-    internal.allocator = allocator;
+    auto& internal = *new (list) wis::impl::DX12CommandListImpl{
+        .list                = command_list.detach(),
+        .allocator           = allocator,
+        .descriptor_handle   = { 0 },
+        .sampler_handle      = { 0 },
+        .descriptor_size     = static_cast<uint16_t>(device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV)),
+        .sampler_size        = static_cast<uint16_t>(device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER)),
+        .queue_type          = type,
+        .scratch_memory_size = 0,
+        .scratch_memory      = nullptr,
+    };
     internal.allocator->AddRef();
-    internal.descriptor_handle.ptr = 0;
-    internal.sampler_handle.ptr    = 0;
-    internal.descriptor_size       = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-    internal.sampler_size          = device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
 
     return wis::detail::dx_success;
 }

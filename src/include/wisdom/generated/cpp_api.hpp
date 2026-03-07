@@ -870,9 +870,10 @@ enum class MemoryType {
  * */
 enum class AdapterFlags : uint32_t {
     None     = 0, ///< No flags set. Adapter @wis_may be discrete or embedded.
-    Remote   = (1 << 0), ///< Adapter is remote. Used for remote rendering.
-    Software = (1 << 1), ///< Adapter is software. Uses CPU for software rendering.
+    Remote   = (1u << 0), ///< Adapter is remote. Used for remote rendering.
+    Software = (1u << 1), ///< Adapter is software. Uses CPU for software rendering.
 };
+WISDOM_DEFINE_ENUM_OPERATORS(AdapterFlags)
 
 /**
  * @brief Provided by Wisdom 0.7.0. Flags for descriptor heap creation.
@@ -880,8 +881,9 @@ enum class AdapterFlags : uint32_t {
  * */
 enum class DescriptorHeapFlags : uint32_t {
     None                     = 0, ///< No flags set.
-    DisallowEmbeddedSamplers = (1 << 1), ///< Heap is used in full for dynamic samplers. There @wis_must_not be any shader that use embedded samplers that uses that heap. User @wis_may allocate more samplers in the heap than it would normally be.
+    DisallowEmbeddedSamplers = (1u << 1), ///< Heap is used in full for dynamic samplers. There @wis_must_not be any shader that use embedded samplers that uses that heap. User @wis_may allocate more samplers in the heap than it would normally be.
 };
+WISDOM_DEFINE_ENUM_OPERATORS(DescriptorHeapFlags)
 
 /**
  * @brief Provided by Wisdom 0.7.0. Flags for sampler creation.
@@ -889,8 +891,9 @@ enum class DescriptorHeapFlags : uint32_t {
  * */
 enum class SamplerFlags : uint32_t {
     None                     = 0, ///< No flags set.
-    NonNormalizedCoordinates = (1 << 0), ///< Use non-normalized texture coordinates.
+    NonNormalizedCoordinates = (1u << 0), ///< Use non-normalized texture coordinates.
 };
+WISDOM_DEFINE_ENUM_OPERATORS(SamplerFlags)
 
 /**
  * @brief Provided by Wisdom 0.7.0. Buffer usage flags.
@@ -899,17 +902,18 @@ enum class SamplerFlags : uint32_t {
  * */
 enum class BufferUsageFlags : uint32_t {
     None                        = 0, ///< No flags set. Buffer is not used.
-    CopySrc                     = (1 << 0), ///< Buffer is used as a source for copy operations.
-    CopyDst                     = (1 << 1), ///< Buffer is used as a destination for copy operations.
-    ConstantBuffer              = (1 << 2), ///< Buffer is used as a constant buffer.
-    IndexBuffer                 = (1 << 3), ///< Buffer is used as an index buffer.
-    VertexBuffer                = (1 << 4), ///< Buffer is used as a vertex buffer or an instance buffer.
-    IndirectBuffer              = (1 << 5), ///< Buffer is used as an indirect buffer.
-    StorageBuffer               = (1 << 6), ///< Buffer is used as a storage unordered access buffer.
-    AccelerationStructureBuffer = (1 << 7), ///< Buffer is used as an acceleration structure buffer.
-    AccelerationStructureInput  = (1 << 8), ///< Buffer is used as a read only acceleration instance input buffer.
-    ShaderBindingTable          = (1 << 9), ///< Buffer is used as a shader binding table buffer.
+    CopySrc                     = (1u << 0), ///< Buffer is used as a source for copy operations.
+    CopyDst                     = (1u << 1), ///< Buffer is used as a destination for copy operations.
+    ConstantBuffer              = (1u << 2), ///< Buffer is used as a constant buffer.
+    IndexBuffer                 = (1u << 3), ///< Buffer is used as an index buffer.
+    VertexBuffer                = (1u << 4), ///< Buffer is used as a vertex buffer or an instance buffer.
+    IndirectBuffer              = (1u << 5), ///< Buffer is used as an indirect buffer.
+    StorageBuffer               = (1u << 6), ///< Buffer is used as a storage unordered access buffer.
+    AccelerationStructureBuffer = (1u << 7), ///< Buffer is used as an acceleration structure buffer.
+    AccelerationStructureInput  = (1u << 8), ///< Buffer is used as a read only acceleration instance input buffer.
+    ShaderBindingTable          = (1u << 9), ///< Buffer is used as a shader binding table buffer.
 };
+WISDOM_DEFINE_ENUM_OPERATORS(BufferUsageFlags)
 
 /**
  * @brief Provided by Wisdom 0.7.0. Texture usage flags.
@@ -918,14 +922,15 @@ enum class BufferUsageFlags : uint32_t {
  * */
 enum class TextureUsageFlags : uint32_t {
     None            = 0, ///< No flags set. Texture is not used.
-    RenderTarget    = (1 << 0), ///< Texture is used as a render target.
-    DepthStencil    = (1 << 1), ///< Texture is used as a depth stencil buffer.
-    CopySrc         = (1 << 2), ///< Texture is used as a source for copy operations.
-    CopyDst         = (1 << 3), ///< Texture is used as a destination for copy operations.
-    ShaderResource  = (1 << 4), ///< Texture is used as a shader resource.
-    UnorderedAccess = (1 << 5), ///< Texture is used as an unordered access resource.
-    HostCopy        = (1 << 7), ///< Texture is used for host copy operations. Works with GPUUpload heap.
+    RenderTarget    = (1u << 0), ///< Texture is used as a render target.
+    DepthStencil    = (1u << 1), ///< Texture is used as a depth stencil buffer.
+    CopySrc         = (1u << 2), ///< Texture is used as a source for copy operations.
+    CopyDst         = (1u << 3), ///< Texture is used as a destination for copy operations.
+    ShaderResource  = (1u << 4), ///< Texture is used as a shader resource.
+    UnorderedAccess = (1u << 5), ///< Texture is used as an unordered access resource.
+    HostCopy        = (1u << 7), ///< Texture is used for host copy operations. Works with GPUUpload heap.
 };
+WISDOM_DEFINE_ENUM_OPERATORS(TextureUsageFlags)
 
 /**
  * @brief Provided by Wisdom 0.7.0. Memory flags.
@@ -941,13 +946,13 @@ enum class MemoryFlags : uint32_t {
      * Useful for big resources that are not shared with other resources.
      * E.g. fullscreen textures, big buffers, etc.
      * */
-    DedicatedAllocation = (1 << 0),
+    DedicatedAllocation = (1u << 0),
     /**
      * @brief
      * Memory is mapped.
      * Used in combination with `wis::MemoryType::Upload` or `wis::MemoryType::Readback` to map memory for CPU access.
      * */
-    Mapped = (1 << 1),
+    Mapped = (1u << 1),
     /**
      * @brief
      * Memory is exportable.
@@ -955,8 +960,9 @@ enum class MemoryFlags : uint32_t {
      * Works only with Device Local memory (`wis::MemoryType::Default`) and only on AllocateXMemory calls.
      * Outside of AllocateXMemory the flag is ignored.
      * */
-    Exportable = (1 << 2),
+    Exportable = (1u << 2),
 };
+WISDOM_DEFINE_ENUM_OPERATORS(MemoryFlags)
 
 /**
  * @brief Provided by Wisdom 0.7.0. Texture creation flags. Reserved for future features.
@@ -965,6 +971,7 @@ enum class MemoryFlags : uint32_t {
 enum class TextureFlags : uint32_t {
     None = 0, ///< No flags set. Texture is regular.
 };
+WISDOM_DEFINE_ENUM_OPERATORS(TextureFlags)
 
 /**
  * @brief Provided by Wisdom 0.7.0. Texture binding flags, used for extra options.
@@ -972,9 +979,68 @@ enum class TextureFlags : uint32_t {
  * */
 enum class TextureBindingFlags : uint32_t {
     None        = 0, ///< No flags set. Texture view is regular. Implies color read.
-    DepthView   = (1 << 0), ///< Texture view is used to read depth. Used for special formats that feature depth and stencil. The bound texture @wis_must be in TODO: specific layout before being used by shader.
-    StencilView = (1 << 1), ///< Texture view is used to read stencil. Used for special formats that feature depth and stencil. The bound texture @wis_must be in TODO: specific layout before being used by shader. Cannot be combined with `wis::TextureBindingFlags::DepthView`.
+    DepthView   = (1u << 0), ///< Texture view is used to read depth. Used for special formats that feature depth and stencil. The bound texture @wis_must be in TODO: specific layout before being used by shader.
+    StencilView = (1u << 1), ///< Texture view is used to read stencil. Used for special formats that feature depth and stencil. The bound texture @wis_must be in TODO: specific layout before being used by shader. Cannot be combined with `wis::TextureBindingFlags::DepthView`.
 };
+WISDOM_DEFINE_ENUM_OPERATORS(TextureBindingFlags)
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Barrier synchronization flags for resource barriers.
+ *
+ * */
+enum class BarrierSync : uint32_t {
+    None            = 0, ///< No synchronization is performed.
+    All             = (1u << 0), ///< Synchronize all commands.
+    Draw            = (1u << 1), ///< Synchronize draw commands.
+    IndexInput      = (1u << 2), ///< Synchronize index input commands.
+    VertexShading   = (1u << 3), ///< Synchronize vertex shading commands.
+    PixelShading    = (1u << 4), ///< Synchronize pixel shading commands.
+    DepthStencil    = (1u << 5), ///< Synchronize depth-stencil commands.
+    RenderTarget    = (1u << 6), ///< Synchronize render target commands.
+    Compute         = (1u << 7), ///< Synchronize compute commands.
+    Raytracing      = (1u << 8), ///< Synchronize ray tracing commands.
+    Copy            = (1u << 9), ///< Synchronize copy commands.
+    Resolve         = (1u << 10), ///< Synchronize resolve commands.
+    ExecuteIndirect = (1u << 11), ///< Synchronize execute indirect commands.
+    AllShading      = (1u << 12), ///< Synchronize all shading commands.
+    NonPixelShading = (1u << 13), ///< Synchronize non-pixel shading commands.
+    ClearUAV        = (1u << 14), ///< Synchronize UAV clear commands.
+    VideoDecode     = (1u << 15), ///< Synchronize video decode commands.
+    VideoEncode     = (1u << 16), ///< Synchronize video encode commands.
+    BuildRTAS       = (1u << 17), ///< Synchronize ray tracing acceleration structure build commands.
+    CopyRTAS        = (1u << 18), ///< Synchronize ray tracing acceleration structure copy commands.
+};
+WISDOM_DEFINE_ENUM_OPERATORS(BarrierSync)
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Resource access flags for resource barriers.
+ *
+ * */
+enum class ResourceAccess : uint32_t {
+    Common                     = 0, ///< Common access.
+    VertexBuffer               = (1u << 0), ///< Vertex buffer access. Applies only to buffers.
+    ConstantBuffer             = (1u << 1), ///< Constant buffer access. Applies only to buffers.
+    IndexBuffer                = (1u << 2), ///< Index buffer access. Applies only to buffers.
+    RenderTarget               = (1u << 3), ///< Render target access. Applies only to textures.
+    UnorderedAccess            = (1u << 4), ///< Unordered access.
+    DepthWrite                 = (1u << 5), ///< Depth write access. Applies only to depth-stencil textures.
+    DepthRead                  = (1u << 6), ///< Depth read access. Applies only to depth-stencil textures.
+    ShaderResource             = (1u << 7), ///< Shader resource access.
+    StreamOutput               = (1u << 8), ///< Stream output access. Applies only to buffers.
+    IndirectArgument           = (1u << 9), ///< Indirect argument access.
+    CopyDest                   = (1u << 10), ///< Copy destination access.
+    CopySource                 = (1u << 11), ///< Copy source access.
+    ConditionalRendering       = (1u << 12), ///< Conditional rendering access.
+    AccelerationStructureRead  = (1u << 13), ///< Acceleration structure read access.
+    AccelerationStructureWrite = (1u << 14), ///< Acceleration structure write access.
+    ShadingRate                = (1u << 15), ///< Shading rate access.
+    VideoDecodeRead            = (1u << 16), ///< Video decode read access.
+    VideoDecodeWrite           = (1u << 17), ///< Video decode write access.
+    ResolveDest                = (1u << 18), ///< Resolve destination access.
+    ResolveSource              = (1u << 19), ///< Resolve source access.
+    NoAccess                   = (1u << 31), ///< No access. Used to indicate no access throughout the pipeline.
+};
+WISDOM_DEFINE_ENUM_OPERATORS(ResourceAccess)
 
 //==============================================================
 // Delegates
@@ -1311,6 +1377,12 @@ static constexpr std::uint32_t RemainingMips = 0xffffffff;
 
 /// @brief Provided by Wisdom 0.7.0. Defines the amount of usable space in root signature.
 static constexpr std::uint32_t RootSignatureDwords = 64;
+
+/// @brief Provided by Wisdom 0.7.0. Defines the amount of barriers of all types that will not trigger allocation.
+static constexpr std::uint32_t TransientMaxBarrierCount = 32;
+
+/// @brief Provided by Wisdom 0.7.0. Select whole size of a resource.
+static constexpr std::uint64_t WholeSize = 0xffffffffffffffff;
 
 } // namespace wis
 #endif // __cplusplus

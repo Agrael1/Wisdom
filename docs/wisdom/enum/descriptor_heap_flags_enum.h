@@ -11,7 +11,7 @@
  * // Provided by Wisdom 0.7.0. 
  * typedef enum WisDescriptorHeapFlags {
  *     WisDescriptorHeapFlagsNone = 0,
- *     WisDescriptorHeapFlagsDisallowEmbeddedSamplers = (1 << 1),
+ *     WisDescriptorHeapFlagsDisallowEmbeddedSamplers = (1u << 1),
  * } WisDescriptorHeapFlags;
  * ```
  * C++ version:
@@ -20,7 +20,7 @@
  * // Provided by Wisdom 0.7.0. 
  * enum class DescriptorHeapFlags : uint32_t {
  *     None = 0,
- *     DisallowEmbeddedSamplers = (1 << 1),
+ *     DisallowEmbeddedSamplers = (1u << 1),
  * };
  * }
  * ```

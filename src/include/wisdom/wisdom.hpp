@@ -46,6 +46,8 @@ using CommandListView   = wis::DX12CommandListView;
 using DeviceExtensionHeader   = wis::DX12DeviceExtensionHeader;
 using InstanceExtensionHeader = wis::DX12InstanceExtensionHeader;
 using DeviceRequirements      = wis::DX12DeviceRequirements;
+using BufferBarrier           = wis::DX12BufferBarrier;
+using BarrierGroup            = wis::DX12BarrierGroup;
 
 //==============================================================
 // Functions
@@ -107,6 +109,8 @@ using CommandListView   = wis::VKCommandListView;
 using DeviceExtensionHeader   = wis::VKDeviceExtensionHeader;
 using InstanceExtensionHeader = wis::VKInstanceExtensionHeader;
 using DeviceRequirements      = wis::VKDeviceRequirements;
+using BufferBarrier           = wis::VKBufferBarrier;
+using BarrierGroup            = wis::VKBarrierGroup;
 
 //==============================================================
 // Functions

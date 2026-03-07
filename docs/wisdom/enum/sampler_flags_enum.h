@@ -11,7 +11,7 @@
  * // Provided by Wisdom 0.7.0. 
  * typedef enum WisSamplerFlags {
  *     WisSamplerFlagsNone = 0,
- *     WisSamplerFlagsNonNormalizedCoordinates = (1 << 0),
+ *     WisSamplerFlagsNonNormalizedCoordinates = (1u << 0),
  * } WisSamplerFlags;
  * ```
  * C++ version:
@@ -20,7 +20,7 @@
  * // Provided by Wisdom 0.7.0. 
  * enum class SamplerFlags : uint32_t {
  *     None = 0,
- *     NonNormalizedCoordinates = (1 << 0),
+ *     NonNormalizedCoordinates = (1u << 0),
  * };
  * }
  * ```

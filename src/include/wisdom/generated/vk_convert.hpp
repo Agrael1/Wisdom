@@ -357,34 +357,34 @@ inline VkBufferUsageFlags convert_vk(WisBufferUsageFlags value) noexcept
 {
     VkBufferUsageFlags result = static_cast<VkBufferUsageFlags>(0);
     if (value & WisBufferUsageFlagsCopySrc) {
-        result |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_BUFFER_USAGE_TRANSFER_SRC_BIT));
     }
     if (value & WisBufferUsageFlagsCopyDst) {
-        result |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_BUFFER_USAGE_TRANSFER_DST_BIT));
     }
     if (value & WisBufferUsageFlagsConstantBuffer) {
-        result |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT));
     }
     if (value & WisBufferUsageFlagsIndexBuffer) {
-        result |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_BUFFER_USAGE_INDEX_BUFFER_BIT));
     }
     if (value & WisBufferUsageFlagsVertexBuffer) {
-        result |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT));
     }
     if (value & WisBufferUsageFlagsIndirectBuffer) {
-        result |= VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT));
     }
     if (value & WisBufferUsageFlagsStorageBuffer) {
-        result |= VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_BUFFER_USAGE_STORAGE_BUFFER_BIT));
     }
     if (value & WisBufferUsageFlagsAccelerationStructureBuffer) {
-        result |= VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT));
     }
     if (value & WisBufferUsageFlagsAccelerationStructureInput) {
-        result |= VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR;
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR));
     }
     if (value & WisBufferUsageFlagsShaderBindingTable) {
-        result |= VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR;
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR));
     }
     return result;
 }
@@ -393,25 +393,25 @@ inline VkImageUsageFlags convert_vk(WisTextureUsageFlags value) noexcept
 {
     VkImageUsageFlags result = static_cast<VkImageUsageFlags>(0);
     if (value & WisTextureUsageFlagsRenderTarget) {
-        result |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT));
     }
     if (value & WisTextureUsageFlagsDepthStencil) {
-        result |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT));
     }
     if (value & WisTextureUsageFlagsCopySrc) {
-        result |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_IMAGE_USAGE_TRANSFER_SRC_BIT));
     }
     if (value & WisTextureUsageFlagsCopyDst) {
-        result |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_IMAGE_USAGE_TRANSFER_DST_BIT));
     }
     if (value & WisTextureUsageFlagsShaderResource) {
-        result |= VK_IMAGE_USAGE_SAMPLED_BIT;
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_IMAGE_USAGE_SAMPLED_BIT));
     }
     if (value & WisTextureUsageFlagsUnorderedAccess) {
-        result |= VK_IMAGE_USAGE_STORAGE_BIT;
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_IMAGE_USAGE_STORAGE_BIT));
     }
     if (value & WisTextureUsageFlagsHostCopy) {
-        result |= VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT;
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT));
     }
     return result;
 }
@@ -420,10 +420,142 @@ inline VmaAllocationCreateFlags convert_vk(WisMemoryFlags value) noexcept
 {
     VmaAllocationCreateFlags result = static_cast<VmaAllocationCreateFlags>(0);
     if (value & WisMemoryFlagsDedicatedAllocation) {
-        result |= VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT));
     }
     if (value & WisMemoryFlagsMapped) {
-        result |= VMA_ALLOCATION_CREATE_MAPPED_BIT;
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VMA_ALLOCATION_CREATE_MAPPED_BIT));
+    }
+    return result;
+}
+
+inline VkPipelineStageFlags2 convert_vk(WisBarrierSync value) noexcept
+{
+    VkPipelineStageFlags2 result = static_cast<VkPipelineStageFlags2>(0);
+    if (value & WisBarrierSyncAll) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT));
+    }
+    if (value & WisBarrierSyncDraw) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_VERTEX_ATTRIBUTE_INPUT_BIT | VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT | VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT));
+    }
+    if (value & WisBarrierSyncIndexInput) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT));
+    }
+    if (value & WisBarrierSyncVertexShading) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT));
+    }
+    if (value & WisBarrierSyncPixelShading) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT));
+    }
+    if (value & WisBarrierSyncDepthStencil) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT));
+    }
+    if (value & WisBarrierSyncRenderTarget) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT));
+    }
+    if (value & WisBarrierSyncCompute) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT));
+    }
+    if (value & WisBarrierSyncRaytracing) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_RAY_TRACING_SHADER_BIT_KHR));
+    }
+    if (value & WisBarrierSyncCopy) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_COPY_BIT));
+    }
+    if (value & WisBarrierSyncResolve) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_COPY_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_2_RESOLVE_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT));
+    }
+    if (value & WisBarrierSyncExecuteIndirect) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT));
+    }
+    if (value & WisBarrierSyncAllShading) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT));
+    }
+    if (value & WisBarrierSyncNonPixelShading) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT));
+    }
+    if (value & WisBarrierSyncClearUAV) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT));
+    }
+    if (value & WisBarrierSyncVideoDecode) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_VIDEO_DECODE_BIT_KHR));
+    }
+    if (value & WisBarrierSyncVideoEncode) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_VIDEO_ENCODE_BIT_KHR));
+    }
+    if (value & WisBarrierSyncBuildRTAS) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR));
+    }
+    if (value & WisBarrierSyncCopyRTAS) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_COPY_BIT_KHR));
+    }
+    return result;
+}
+
+inline VkAccessFlags2 convert_vk(WisResourceAccess value) noexcept
+{
+    VkAccessFlags2 result = static_cast<VkAccessFlags2>(0);
+    if (value & WisResourceAccessVertexBuffer) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_VERTEX_ATTRIBUTE_READ_BIT));
+    }
+    if (value & WisResourceAccessConstantBuffer) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_UNIFORM_READ_BIT));
+    }
+    if (value & WisResourceAccessIndexBuffer) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_INDEX_READ_BIT));
+    }
+    if (value & WisResourceAccessRenderTarget) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT));
+    }
+    if (value & WisResourceAccessUnorderedAccess) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_SHADER_WRITE_BIT | VK_ACCESS_2_SHADER_READ_BIT));
+    }
+    if (value & WisResourceAccessDepthWrite) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT));
+    }
+    if (value & WisResourceAccessDepthRead) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT));
+    }
+    if (value & WisResourceAccessShaderResource) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_SHADER_READ_BIT));
+    }
+    if (value & WisResourceAccessStreamOutput) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_TRANSFORM_FEEDBACK_WRITE_BIT_EXT));
+    }
+    if (value & WisResourceAccessIndirectArgument) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT | VK_ACCESS_2_SHADER_READ_BIT));
+    }
+    if (value & WisResourceAccessCopyDest) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_TRANSFER_WRITE_BIT));
+    }
+    if (value & WisResourceAccessCopySource) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_TRANSFER_READ_BIT));
+    }
+    if (value & WisResourceAccessConditionalRendering) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_CONDITIONAL_RENDERING_READ_BIT_EXT));
+    }
+    if (value & WisResourceAccessAccelerationStructureRead) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_ACCELERATION_STRUCTURE_READ_BIT_KHR));
+    }
+    if (value & WisResourceAccessAccelerationStructureWrite) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_ACCELERATION_STRUCTURE_WRITE_BIT_KHR));
+    }
+    if (value & WisResourceAccessShadingRate) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_FRAGMENT_SHADING_RATE_ATTACHMENT_READ_BIT_KHR));
+    }
+    if (value & WisResourceAccessVideoDecodeRead) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_VIDEO_DECODE_READ_BIT_KHR));
+    }
+    if (value & WisResourceAccessVideoDecodeWrite) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR));
+    }
+    if (value & WisResourceAccessResolveDest) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_TRANSFER_WRITE_BIT | VK_ACCESS_2_SHADER_WRITE_BIT));
+    }
+    if (value & WisResourceAccessResolveSource) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_TRANSFER_READ_BIT | VK_ACCESS_2_SHADER_READ_BIT));
+    }
+    if (value & WisResourceAccessNoAccess) {
+        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_NONE));
     }
     return result;
 }

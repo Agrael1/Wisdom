@@ -151,10 +151,6 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, std::string_view impl, 
                                       full_name,
                                       impl_string,
                                       s.name);
-    std::string view_decl;
-    if (s.GetViewSize(impl_code) > 0) {
-        view_decl = wis::format("using {}{}View = {}View;\n", impl_string, s.name, full_name);
-    }
 
     if (!s.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation<Lang::CPP>(s, kind);
@@ -201,7 +197,20 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, std::string_view impl, 
     deleter += "    }\n};\n";
 
     st_decl += "};\n";
-    return deleter + view_decl + st_decl;
+    return deleter + st_decl;
+}
+
+std::string Generator::MakeCPPView(const WisHandle& s, std::string_view impl, DocKind kind)
+{
+    ImplementedFor impl_code   = ImplCode(impl);
+    auto           impl_string = GetImplString(impl_code);
+    auto           full_name   = GetCFullTypename(s.name, impl_string);
+
+    std::string view_decl;
+    if (s.GetViewSize(impl_code) > 0) {
+        view_decl = wis::format("using {}{}View = {}View;\n", impl_string, s.name, full_name);
+    }
+    return view_decl;
 }
 
 //-----------------------------------------------------------------------------

@@ -11,9 +11,9 @@
  * // Provided by Wisdom 0.7.0. 
  * typedef enum WisMemoryFlags {
  *     WisMemoryFlagsNone = 0,
- *     WisMemoryFlagsDedicatedAllocation = (1 << 0),
- *     WisMemoryFlagsMapped = (1 << 1),
- *     WisMemoryFlagsExportable = (1 << 2),
+ *     WisMemoryFlagsDedicatedAllocation = (1u << 0),
+ *     WisMemoryFlagsMapped = (1u << 1),
+ *     WisMemoryFlagsExportable = (1u << 2),
  * } WisMemoryFlags;
  * ```
  * C++ version:
@@ -22,9 +22,9 @@
  * // Provided by Wisdom 0.7.0. 
  * enum class MemoryFlags : uint32_t {
  *     None = 0,
- *     DedicatedAllocation = (1 << 0),
- *     Mapped = (1 << 1),
- *     Exportable = (1 << 2),
+ *     DedicatedAllocation = (1u << 0),
+ *     Mapped = (1u << 1),
+ *     Exportable = (1u << 2),
  * };
  * }
  * ```

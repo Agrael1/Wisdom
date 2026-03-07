@@ -11,6 +11,15 @@
 #include <wisdom/vulkan/vk_types.hpp>
 
 namespace wis {
+using VKTextureView = WisVKTextureView;
+
+using VKBufferView = WisVKBufferView;
+
+using VKRootSignatureView = WisVKRootSignatureView;
+
+using VKFenceView = WisVKFenceView;
+
+using VKCommandListView = WisVKCommandListView;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Device requirements. Used to specify required features and properties for device creation.
@@ -21,13 +30,36 @@ struct VKDeviceRequirements {
     wis::span<wis::VKDeviceExtensionHeader*> extensions; ///< points to an array of extensions that are to be initialized with pointers to wis::DeviceExtensionHeader.
 };
 
+/**
+ * @brief Provided by Wisdom 0.7.0. Buffer barrier with the buffer handle.
+ *
+ * */
+struct VKBufferBarrier {
+    wis::BarrierSync      sync_before; ///< Synchronization scope before the barrier.
+    wis::BarrierSync      sync_after; ///< Synchronization scope after the barrier.
+    wis::ResourceAccess   access_before; ///< Access scope before the barrier.
+    wis::ResourceAccess   access_after; ///< Access scope after the barrier.
+    wis::VKBufferView     buffer; ///< Buffer view.
+    std::uint64_t         offset; ///< Offset in bytes from the start of the buffer. Default is 0.
+    std::uint64_t         size; ///< Barrier size in bytes. Default is `UINT64_MAX`, which means the whole buffer range.
+    wis::CommandQueueType queue_type_before; ///< Type of the queue the barrier is executed on before the synchronization point. Used for cross-queue barriers.
+    wis::CommandQueueType queue_type_after; ///< Type of the queue the barrier is executed on after the synchronization point. Used for cross-queue barriers.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Barrier group for multiple barriers submission.
+ *
+ * */
+struct VKBarrierGroup {
+    wis::span<const wis::VKBufferBarrier> buffer_barriers; ///< Array of buffer barriers.
+};
+
 struct VKTextureDeleter {
     void operator()(WisVKTexture* handle) noexcept
     {
         ::wisVKDestroyTexture(handle);
     }
 };
-using VKTextureView = WisVKTextureView;
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a GPU texture resource.
  *
@@ -56,7 +88,6 @@ struct VKBufferDeleter {
         ::wisVKDestroyBuffer(handle);
     }
 };
-using VKBufferView = WisVKBufferView;
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a GPU buffer resource.
  *
@@ -260,7 +291,6 @@ struct VKRootSignatureDeleter {
         ::wisVKDestroyRootSignature(handle);
     }
 };
-using VKRootSignatureView = WisVKRootSignatureView;
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a pipeline layout and a constant data storage, which defines resource bindings for shaders.
  *
@@ -339,7 +369,6 @@ struct VKFenceDeleter {
         ::wisVKDestroyFence(handle);
     }
 };
-using VKFenceView = WisVKFenceView;
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a fence for GPU-CPU and GPU-GPU synchronization.
  *
@@ -402,7 +431,6 @@ struct VKCommandListDeleter {
         ::wisVKDestroyCommandList(handle);
     }
 };
-using VKCommandListView = WisVKCommandListView;
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a command list for recording GPU commands.
  *
@@ -496,6 +524,16 @@ public:
     {
         ::wisVKCommandListSetDescriptorTable(&_impl_storage,
                                              reinterpret_cast<const WisDescriptorTableDataDesc*>(&data));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Inserts one or more barriers on the current command list.
+     * @param barriers points to an array of barriers to insert.
+     *
+     * */
+    inline void InsertBarriers(const wis::VKBarrierGroup& barriers) const noexcept
+    {
+        ::wisVKCommandListInsertBarriers(&_impl_storage,
+                                         reinterpret_cast<const WisVKBarrierGroup*>(&barriers));
     }
 };
 
