@@ -1303,6 +1303,22 @@ typedef struct WisDeviceMemoryProperties {
     bool                 host_image_copy_supported; ///< Indicates if host image copy is supported. This feature allows copying data directly from CPU memory to optimal tiled image layout on GPU, without the need for an intermediate staging buffer. It is supported on Windows 10 22H2 and later with WDDM 3.0 or later. On Vulkan it requires `VK_EXT_host_image_copy` extension.
 } WisDeviceMemoryProperties;
 
+//==============================================================
+// Constants
+//==============================================================
+
+/// @brief Provided by Wisdom 0.7.0. Append descriptor table entry after previous table.
+#define WIS_DESCRIPTOR_OFFSET_APPEND ((uint32_t)0xffffffff)
+
+/// @brief Provided by Wisdom 0.7.0. Select all remaining array layers.
+#define WIS_REMAINING_LAYERS ((uint32_t)0xffffffff)
+
+/// @brief Provided by Wisdom 0.7.0. Select all remaining mip levels.
+#define WIS_REMAINING_MIPS ((uint32_t)0xffffffff)
+
+/// @brief Provided by Wisdom 0.7.0. Defines the amount of usable space in root signature.
+#define WIS_ROOT_SIGNATURE_DWORDS ((uint32_t)64)
+
 #ifdef __cplusplus
 }
 #endif // __cplusplus

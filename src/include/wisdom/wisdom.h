@@ -233,4 +233,11 @@ typedef struct WisVKDeviceRequirements      WisDeviceRequirements;
 #else
 #error "No API selected for Wisdom. Define WISDOM_DX12 or WISDOM_VULKAN."
 #endif // API selection
+
+static inline bool wisHandleValid(const void* handle)
+{
+    const uint64_t zero = 0;
+    return memcmp(handle, &zero, sizeof(uint64_t)) != 0;
+}
+
 #endif // WISDOM_H

@@ -178,6 +178,7 @@ int main()
         .min_filter          = WisFilterLinear,
         .mag_filter          = WisFilterLinear,
         .mip_filter          = WisFilterLinear,
+        .reduction_mode      = WisReductionModeStandard,
         .is_anisotropic      = false,
         .max_anisotropy      = 1,
         .address_u           = WisAddressModeRepeat,
@@ -203,6 +204,7 @@ int main()
                    .mip_level_count   = 1,
                    .base_array_layer  = 0,
                    .array_layer_count = 1,
+                   .plane_slice       = 0,
                    }
     };
     result = wisDescriptorHeapWriteConstantBuffer(&descriptor_heap, &cb_binding, 0);
@@ -234,7 +236,7 @@ int main()
          .bind_register     = 3,
          .bind_space        = 0,
          .count             = 1,
-         .descriptor_offset = 1,
+         .descriptor_offset = WIS_DESCRIPTOR_OFFSET_APPEND,
          }
     };
     WisDescriptorTableEntry descriptor_table_entry2 = {

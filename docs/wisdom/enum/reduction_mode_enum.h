@@ -6,7 +6,7 @@
  * <hr>
  *
  * \cond WIS_GEN_CODE
- *  * C version:
+ * C version:
  * ```c
  * // Provided by Wisdom 0.7.0. 
  * typedef enum WisReductionMode {
@@ -26,13 +26,12 @@
  * };
  * }
  * ```
- * 
  * \endcond
  *
  * @section WisReductionMode_descr Description
  * <hr>
  * \cond WIS_GEN_DESC
- *  * Reduction mode for texture sampling when min and mag filters are different.
+ * Reduction mode for texture sampling when min and mag filters are different.
  * 
  * \note Translates to  `D3D12_FILTER_REDUCTION_TYPE` for DirectX 12 implementation, and `VkSamplerReductionModeEXT` for Vulkan implementation.
  * 
@@ -40,7 +39,6 @@
  * - `WisReductionModeStandard = 0`: Standard filtering behavior.
  * - `WisReductionModeMin = 1`: Use the minimum value of the samples for filtering.
  * - `WisReductionModeMax = 2`: Use the maximum value of the samples for filtering.
- * 
  * \endcond
  *
  *
@@ -48,6 +46,6 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * RESERVED
+ * @see WisSamplerDesc
  * \endcond
  */

@@ -46,6 +46,7 @@ public:
     void ParseValidations(tinyxml2::XMLElement* validations);
     void ParseBitmask(tinyxml2::XMLElement* type);
     void ParseDelegate(tinyxml2::XMLElement* type);
+    void ParseConstants(tinyxml2::XMLElement* constants);
 
     // Make
     std::string MakeCEnum(const WisEnum& s, DocKind kind = DocKind::Full);
@@ -56,6 +57,9 @@ public:
     std::string MakeCFunctionProto(const WisFunction& func, std::string_view impl = "", std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full);
     std::string MakeCFunctionDecl(const WisFunction& func, std::string_view impl = "", std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full);
     std::string MakeCDelegate(const WisFunction& func, DocKind kind = DocKind::Full);
+    std::string MakeCConstant(const WisConstant& c, DocKind kind = DocKind::Full);
+    std::string MakeCPPConstant(const WisConstant& c, DocKind kind = DocKind::Full);
+    std::string MakeConstantDescription(const WisConstant& c);
 
     std::string MakeEnumDescription(const WisEnum& s);
     std::string MakeBitmaskDescription(const WisBitmask& s);
@@ -95,6 +99,7 @@ public:
     void WriteHandleDocumentation(std::filesystem::path handle_output_path);
     void WriteFunctionDocumentation(std::filesystem::path func_output_path);
     void WriteDelegateDocumentation(std::filesystem::path func_output_path);
+    void WriteConstantDocumentation(std::filesystem::path const_output_path);
     void WriteDocumentation(std::filesystem::path doc_output_path,
                             std::string_view      doc_template,
                             std::string_view      object_name,
@@ -119,6 +124,7 @@ public:
     static InlineTypeInfo             FindInlineType(std::string_view str);
     static std::string                MakeVersionString(std::string_view version, bool newline = false);
     static std::string                MakeSnakeCase(std::string_view str);
+    static std::string                MakeUpperSnakeCase(std::string_view str);
     static Modifier                   GetModifiers(std::string_view mod_str) noexcept;
     static constexpr std::string_view GetImplString(ImplementedFor impl) noexcept
     {
@@ -294,6 +300,7 @@ private:
     std::unordered_map<std::string_view, WisHandle>   handle_map;
     std::unordered_map<std::string_view, WisFunction> function_map;
     std::unordered_map<std::string_view, WisFunction> delegate_map;
+    std::unordered_map<std::string_view, WisConstant>  constant_map;
     std::unordered_set<std::string_view> view_set;
 
     std::unordered_map<std::string_view, Dependencies>   dependency_tree;
@@ -307,6 +314,7 @@ private:
     std::vector<std::string_view>      handles_in_order;
     std::vector<std::string_view>      functions_in_order;
     std::vector<std::string_view>      delegates_in_order;
+    std::vector<std::string_view>      constants_in_order;
     std::vector<std::string_view>      free_functions_in_order;
     std::vector<std::string_view>      views_in_order;
     std::vector<std::filesystem::path> files;
