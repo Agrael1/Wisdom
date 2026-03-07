@@ -40,14 +40,43 @@
 
 #define WIS_EXTERN_C extern "C"
 
-#define WISDOM_DEFINE_ENUM_OPERATORS(T)                                                                                    \
-    inline T  operator|(T a, T b) noexcept { return static_cast<T>(static_cast<uint32_t>(a) | static_cast<uint32_t>(b)); } \
-    inline T  operator&(T a, T b) noexcept { return static_cast<T>(static_cast<uint32_t>(a) & static_cast<uint32_t>(b)); } \
-    inline T  operator^(T a, T b) noexcept { return static_cast<T>(static_cast<uint32_t>(a) ^ static_cast<uint32_t>(b)); } \
-    inline T  operator~(T a) noexcept { return static_cast<T>(~static_cast<uint32_t>(a)); }                                \
-    inline T& operator|=(T& a, T b) noexcept { return a = a | b; }                                                        \
-    inline T& operator&=(T& a, T b) noexcept { return a = a & b; }                                                        \
-    inline T& operator^=(T& a, T b) noexcept { return a = a ^ b; }
+#define WISDOM_DEFINE_ENUM_OPERATORS(T)                                                                                       \
+    inline T operator|(T a, T b) noexcept                                                                                     \
+    {                                                                                                                         \
+        return static_cast<T>(static_cast<std::underlying_type<T>::type>(a) | static_cast<std::underlying_type<T>::type>(b)); \
+    }                                                                                                                         \
+    inline T operator&(T a, T b) noexcept                                                                                     \
+    {                                                                                                                         \
+        return static_cast<T>(static_cast<std::underlying_type<T>::type>(a) & static_cast<std::underlying_type<T>::type>(b)); \
+    }                                                                                                                         \
+    inline T operator^(T a, T b) noexcept                                                                                     \
+    {                                                                                                                         \
+        return static_cast<T>(static_cast<std::underlying_type<T>::type>(a) ^ static_cast<std::underlying_type<T>::type>(b)); \
+    }                                                                                                                         \
+    inline T operator~(T a) noexcept                                                                                          \
+    {                                                                                                                         \
+        return static_cast<T>(~static_cast<std::underlying_type<T>::type>(a));                                                \
+    }                                                                                                                         \
+    inline T& operator|=(T& a, T b) noexcept                                                                                  \
+    {                                                                                                                         \
+        return a = a | b;                                                                                                     \
+    }                                                                                                                         \
+    inline T& operator&=(T& a, T b) noexcept                                                                                  \
+    {                                                                                                                         \
+        return a = a & b;                                                                                                     \
+    }                                                                                                                         \
+    inline T& operator^=(T& a, T b) noexcept                                                                                  \
+    {                                                                                                                         \
+        return a = a ^ b;                                                                                                     \
+    }                                                                                                                         \
+    inline std::underlying_type_t<T> to_underlying(T value) noexcept                                                          \
+    {                                                                                                                         \
+        return static_cast<std::underlying_type_t<T>>(value);                                                                 \
+    }                                                                                                                         \
+    inline std::underlying_type_t<T> operator+(T value) noexcept                                                              \
+    {                                                                                                                         \
+        return static_cast<std::underlying_type_t<T>>(value);                                                                 \
+    }
 
 #else
 #define WIS_EXTERN_C

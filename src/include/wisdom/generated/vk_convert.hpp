@@ -11,7 +11,7 @@
 namespace wis {
 namespace detail {
 
-inline VkFormat convert_vk(WisDataFormat value) noexcept
+constexpr inline VkFormat convert_vk(WisDataFormat value) noexcept
 {
     switch (value) {
     case WisDataFormatRGBA32Float:
@@ -153,7 +153,7 @@ inline VkFormat convert_vk(WisDataFormat value) noexcept
     }
 }
 
-inline VkSampleCountFlagBits convert_vk(WisSampleCount value) noexcept
+constexpr inline VkSampleCountFlagBits convert_vk(WisSampleCount value) noexcept
 {
     switch (value) {
     case WisSampleCountS1:
@@ -171,7 +171,7 @@ inline VkSampleCountFlagBits convert_vk(WisSampleCount value) noexcept
     }
 }
 
-inline VkQueueGlobalPriorityEXT convert_vk(WisCommandQueuePriority value) noexcept
+constexpr inline VkQueueGlobalPriorityEXT convert_vk(WisCommandQueuePriority value) noexcept
 {
     switch (value) {
     case WisCommandQueuePriorityNormal:
@@ -185,7 +185,7 @@ inline VkQueueGlobalPriorityEXT convert_vk(WisCommandQueuePriority value) noexce
     }
 }
 
-inline VkShaderStageFlags convert_vk(WisShaderVisibility value) noexcept
+constexpr inline VkShaderStageFlags convert_vk(WisShaderVisibility value) noexcept
 {
     switch (value) {
     case WisShaderVisibilityAll:
@@ -209,7 +209,7 @@ inline VkShaderStageFlags convert_vk(WisShaderVisibility value) noexcept
     }
 }
 
-inline VkDescriptorType convert_vk(WisDescriptorType value) noexcept
+constexpr inline VkDescriptorType convert_vk(WisDescriptorType value) noexcept
 {
     switch (value) {
     case WisDescriptorTypeSampler:
@@ -231,7 +231,7 @@ inline VkDescriptorType convert_vk(WisDescriptorType value) noexcept
     }
 }
 
-inline VkCompareOp convert_vk(WisCompareOperation value) noexcept
+constexpr inline VkCompareOp convert_vk(WisCompareOperation value) noexcept
 {
     switch (value) {
     case WisCompareOperationNone:
@@ -257,7 +257,7 @@ inline VkCompareOp convert_vk(WisCompareOperation value) noexcept
     }
 }
 
-inline VkSamplerAddressMode convert_vk(WisAddressMode value) noexcept
+constexpr inline VkSamplerAddressMode convert_vk(WisAddressMode value) noexcept
 {
     switch (value) {
     case WisAddressModeRepeat:
@@ -275,7 +275,7 @@ inline VkSamplerAddressMode convert_vk(WisAddressMode value) noexcept
     }
 }
 
-inline VkFilter convert_vk(WisFilter value) noexcept
+constexpr inline VkFilter convert_vk(WisFilter value) noexcept
 {
     switch (value) {
     case WisFilterPoint:
@@ -287,7 +287,7 @@ inline VkFilter convert_vk(WisFilter value) noexcept
     }
 }
 
-inline VkSamplerReductionModeEXT convert_vk(WisReductionMode value) noexcept
+constexpr inline VkSamplerReductionModeEXT convert_vk(WisReductionMode value) noexcept
 {
     switch (value) {
     case WisReductionModeStandard:
@@ -301,7 +301,7 @@ inline VkSamplerReductionModeEXT convert_vk(WisReductionMode value) noexcept
     }
 }
 
-inline VkBorderColor convert_vk(WisStaticBorder value) noexcept
+constexpr inline VkBorderColor convert_vk(WisStaticBorder value) noexcept
 {
     switch (value) {
     case WisStaticBorderTransparentBlack:
@@ -315,7 +315,7 @@ inline VkBorderColor convert_vk(WisStaticBorder value) noexcept
     }
 }
 
-inline VkComponentSwizzle convert_vk(WisComponentSwizzle value) noexcept
+constexpr inline VkComponentSwizzle convert_vk(WisComponentSwizzle value) noexcept
 {
     switch (value) {
     case WisComponentSwizzleIdentity:
@@ -337,7 +337,7 @@ inline VkComponentSwizzle convert_vk(WisComponentSwizzle value) noexcept
     }
 }
 
-inline VkMemoryPropertyFlags convert_vk(WisMemoryType value) noexcept
+constexpr inline VkMemoryPropertyFlags convert_vk(WisMemoryType value) noexcept
 {
     switch (value) {
     case WisMemoryTypeDeviceLocal:
@@ -353,209 +353,209 @@ inline VkMemoryPropertyFlags convert_vk(WisMemoryType value) noexcept
     }
 }
 
-inline VkBufferUsageFlags convert_vk(WisBufferUsageFlags value) noexcept
+constexpr inline VkBufferUsageFlags convert_vk(WisBufferUsageFlags value) noexcept
 {
     VkBufferUsageFlags result = static_cast<VkBufferUsageFlags>(0);
     if (value & WisBufferUsageFlagsCopySrc) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_BUFFER_USAGE_TRANSFER_SRC_BIT));
+        result |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
     }
     if (value & WisBufferUsageFlagsCopyDst) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_BUFFER_USAGE_TRANSFER_DST_BIT));
+        result |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
     }
     if (value & WisBufferUsageFlagsConstantBuffer) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT));
+        result |= VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
     }
     if (value & WisBufferUsageFlagsIndexBuffer) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_BUFFER_USAGE_INDEX_BUFFER_BIT));
+        result |= VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
     }
     if (value & WisBufferUsageFlagsVertexBuffer) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT));
+        result |= VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
     }
     if (value & WisBufferUsageFlagsIndirectBuffer) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT));
+        result |= VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
     }
     if (value & WisBufferUsageFlagsStorageBuffer) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_BUFFER_USAGE_STORAGE_BUFFER_BIT));
+        result |= VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
     }
     if (value & WisBufferUsageFlagsAccelerationStructureBuffer) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT));
+        result |= VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_STORAGE_BIT_KHR | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
     }
     if (value & WisBufferUsageFlagsAccelerationStructureInput) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR));
+        result |= VK_BUFFER_USAGE_ACCELERATION_STRUCTURE_BUILD_INPUT_READ_ONLY_BIT_KHR;
     }
     if (value & WisBufferUsageFlagsShaderBindingTable) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR));
+        result |= VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR;
     }
     return result;
 }
 
-inline VkImageUsageFlags convert_vk(WisTextureUsageFlags value) noexcept
+constexpr inline VkImageUsageFlags convert_vk(WisTextureUsageFlags value) noexcept
 {
     VkImageUsageFlags result = static_cast<VkImageUsageFlags>(0);
     if (value & WisTextureUsageFlagsRenderTarget) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT));
+        result |= VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
     }
     if (value & WisTextureUsageFlagsDepthStencil) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT));
+        result |= VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
     }
     if (value & WisTextureUsageFlagsCopySrc) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_IMAGE_USAGE_TRANSFER_SRC_BIT));
+        result |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
     }
     if (value & WisTextureUsageFlagsCopyDst) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_IMAGE_USAGE_TRANSFER_DST_BIT));
+        result |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
     }
     if (value & WisTextureUsageFlagsShaderResource) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_IMAGE_USAGE_SAMPLED_BIT));
+        result |= VK_IMAGE_USAGE_SAMPLED_BIT;
     }
     if (value & WisTextureUsageFlagsUnorderedAccess) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_IMAGE_USAGE_STORAGE_BIT));
+        result |= VK_IMAGE_USAGE_STORAGE_BIT;
     }
     if (value & WisTextureUsageFlagsHostCopy) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT));
+        result |= VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT;
     }
     return result;
 }
 
-inline VmaAllocationCreateFlags convert_vk(WisMemoryFlags value) noexcept
+constexpr inline VmaAllocationCreateFlags convert_vk(WisMemoryFlags value) noexcept
 {
     VmaAllocationCreateFlags result = static_cast<VmaAllocationCreateFlags>(0);
     if (value & WisMemoryFlagsDedicatedAllocation) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT));
+        result |= VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT;
     }
     if (value & WisMemoryFlagsMapped) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VMA_ALLOCATION_CREATE_MAPPED_BIT));
+        result |= VMA_ALLOCATION_CREATE_MAPPED_BIT;
     }
     return result;
 }
 
-inline VkPipelineStageFlags2 convert_vk(WisBarrierSync value) noexcept
+constexpr inline VkPipelineStageFlags2 convert_vk(WisBarrierSync value) noexcept
 {
     VkPipelineStageFlags2 result = static_cast<VkPipelineStageFlags2>(0);
     if (value & WisBarrierSyncAll) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT));
+        result |= VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
     }
     if (value & WisBarrierSyncDraw) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_VERTEX_ATTRIBUTE_INPUT_BIT | VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT | VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT));
+        result |= VK_PIPELINE_STAGE_2_VERTEX_ATTRIBUTE_INPUT_BIT | VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT | VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
     }
     if (value & WisBarrierSyncIndexInput) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT));
+        result |= VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT;
     }
     if (value & WisBarrierSyncVertexShading) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT));
+        result |= VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT;
     }
     if (value & WisBarrierSyncPixelShading) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT));
+        result |= VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT;
     }
     if (value & WisBarrierSyncDepthStencil) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT));
+        result |= VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT;
     }
     if (value & WisBarrierSyncRenderTarget) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT));
+        result |= VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
     }
     if (value & WisBarrierSyncCompute) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT));
+        result |= VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
     }
     if (value & WisBarrierSyncRaytracing) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_RAY_TRACING_SHADER_BIT_KHR));
+        result |= VK_PIPELINE_STAGE_2_RAY_TRACING_SHADER_BIT_KHR;
     }
     if (value & WisBarrierSyncCopy) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_COPY_BIT));
+        result |= VK_PIPELINE_STAGE_2_COPY_BIT;
     }
     if (value & WisBarrierSyncResolve) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_COPY_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_2_RESOLVE_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT));
+        result |= VK_PIPELINE_STAGE_2_COPY_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_2_RESOLVE_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
     }
     if (value & WisBarrierSyncExecuteIndirect) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT));
+        result |= VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
     }
     if (value & WisBarrierSyncAllShading) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT));
+        result |= VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
     }
     if (value & WisBarrierSyncNonPixelShading) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT));
+        result |= VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
     }
     if (value & WisBarrierSyncClearUAV) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT));
+        result |= VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
     }
     if (value & WisBarrierSyncVideoDecode) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_VIDEO_DECODE_BIT_KHR));
+        result |= VK_PIPELINE_STAGE_2_VIDEO_DECODE_BIT_KHR;
     }
     if (value & WisBarrierSyncVideoEncode) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_VIDEO_ENCODE_BIT_KHR));
+        result |= VK_PIPELINE_STAGE_2_VIDEO_ENCODE_BIT_KHR;
     }
     if (value & WisBarrierSyncBuildRTAS) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR));
+        result |= VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_BUILD_BIT_KHR;
     }
     if (value & WisBarrierSyncCopyRTAS) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_COPY_BIT_KHR));
+        result |= VK_PIPELINE_STAGE_2_ACCELERATION_STRUCTURE_COPY_BIT_KHR;
     }
     return result;
 }
 
-inline VkAccessFlags2 convert_vk(WisResourceAccess value) noexcept
+constexpr inline VkAccessFlags2 convert_vk(WisResourceAccess value) noexcept
 {
     VkAccessFlags2 result = static_cast<VkAccessFlags2>(0);
     if (value & WisResourceAccessVertexBuffer) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_VERTEX_ATTRIBUTE_READ_BIT));
+        result |= VK_ACCESS_2_VERTEX_ATTRIBUTE_READ_BIT;
     }
     if (value & WisResourceAccessConstantBuffer) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_UNIFORM_READ_BIT));
+        result |= VK_ACCESS_2_UNIFORM_READ_BIT;
     }
     if (value & WisResourceAccessIndexBuffer) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_INDEX_READ_BIT));
+        result |= VK_ACCESS_2_INDEX_READ_BIT;
     }
     if (value & WisResourceAccessRenderTarget) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT));
+        result |= VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT;
     }
     if (value & WisResourceAccessUnorderedAccess) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_SHADER_WRITE_BIT | VK_ACCESS_2_SHADER_READ_BIT));
+        result |= VK_ACCESS_2_SHADER_WRITE_BIT | VK_ACCESS_2_SHADER_READ_BIT;
     }
     if (value & WisResourceAccessDepthWrite) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT));
+        result |= VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
     }
     if (value & WisResourceAccessDepthRead) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT));
+        result |= VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT;
     }
     if (value & WisResourceAccessShaderResource) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_SHADER_READ_BIT));
+        result |= VK_ACCESS_2_SHADER_READ_BIT;
     }
     if (value & WisResourceAccessStreamOutput) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_TRANSFORM_FEEDBACK_WRITE_BIT_EXT));
+        result |= VK_ACCESS_2_TRANSFORM_FEEDBACK_WRITE_BIT_EXT;
     }
     if (value & WisResourceAccessIndirectArgument) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT | VK_ACCESS_2_SHADER_READ_BIT));
+        result |= VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT | VK_ACCESS_2_SHADER_READ_BIT;
     }
     if (value & WisResourceAccessCopyDest) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_TRANSFER_WRITE_BIT));
+        result |= VK_ACCESS_2_TRANSFER_WRITE_BIT;
     }
     if (value & WisResourceAccessCopySource) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_TRANSFER_READ_BIT));
+        result |= VK_ACCESS_2_TRANSFER_READ_BIT;
     }
     if (value & WisResourceAccessConditionalRendering) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_CONDITIONAL_RENDERING_READ_BIT_EXT));
+        result |= VK_ACCESS_2_CONDITIONAL_RENDERING_READ_BIT_EXT;
     }
     if (value & WisResourceAccessAccelerationStructureRead) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_ACCELERATION_STRUCTURE_READ_BIT_KHR));
+        result |= VK_ACCESS_2_ACCELERATION_STRUCTURE_READ_BIT_KHR;
     }
     if (value & WisResourceAccessAccelerationStructureWrite) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_ACCELERATION_STRUCTURE_WRITE_BIT_KHR));
+        result |= VK_ACCESS_2_ACCELERATION_STRUCTURE_WRITE_BIT_KHR;
     }
     if (value & WisResourceAccessShadingRate) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_FRAGMENT_SHADING_RATE_ATTACHMENT_READ_BIT_KHR));
+        result |= VK_ACCESS_2_FRAGMENT_SHADING_RATE_ATTACHMENT_READ_BIT_KHR;
     }
     if (value & WisResourceAccessVideoDecodeRead) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_VIDEO_DECODE_READ_BIT_KHR));
+        result |= VK_ACCESS_2_VIDEO_DECODE_READ_BIT_KHR;
     }
     if (value & WisResourceAccessVideoDecodeWrite) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR));
+        result |= VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR;
     }
     if (value & WisResourceAccessResolveDest) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_TRANSFER_WRITE_BIT | VK_ACCESS_2_SHADER_WRITE_BIT));
+        result |= VK_ACCESS_2_TRANSFER_WRITE_BIT | VK_ACCESS_2_SHADER_WRITE_BIT;
     }
     if (value & WisResourceAccessResolveSource) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_TRANSFER_READ_BIT | VK_ACCESS_2_SHADER_READ_BIT));
+        result |= VK_ACCESS_2_TRANSFER_READ_BIT | VK_ACCESS_2_SHADER_READ_BIT;
     }
     if (value & WisResourceAccessNoAccess) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(VK_ACCESS_2_NONE));
+        result |= VK_ACCESS_2_NONE;
     }
     return result;
 }

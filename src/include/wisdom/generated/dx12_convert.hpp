@@ -13,22 +13,22 @@
 namespace wis {
 namespace detail {
 
-inline DXGI_FORMAT convert_dx(WisDataFormat value) noexcept
+constexpr inline DXGI_FORMAT convert_dx(WisDataFormat value) noexcept
 {
     return static_cast<DXGI_FORMAT>(value);
 }
 
-inline uint32_t convert_dx(WisSampleCount value) noexcept
+constexpr inline uint32_t convert_dx(WisSampleCount value) noexcept
 {
     return static_cast<uint32_t>(value);
 }
 
-inline DXGI_GPU_PREFERENCE convert_dx(WisAdapterPreference value) noexcept
+constexpr inline DXGI_GPU_PREFERENCE convert_dx(WisAdapterPreference value) noexcept
 {
     return static_cast<DXGI_GPU_PREFERENCE>(value);
 }
 
-inline D3D12_COMMAND_LIST_TYPE convert_dx(WisCommandQueueType value) noexcept
+constexpr inline D3D12_COMMAND_LIST_TYPE convert_dx(WisCommandQueueType value) noexcept
 {
     switch (value) {
     case WisCommandQueueTypeGraphics:
@@ -46,7 +46,7 @@ inline D3D12_COMMAND_LIST_TYPE convert_dx(WisCommandQueueType value) noexcept
     }
 }
 
-inline D3D12_COMMAND_QUEUE_PRIORITY convert_dx(WisCommandQueuePriority value) noexcept
+constexpr inline D3D12_COMMAND_QUEUE_PRIORITY convert_dx(WisCommandQueuePriority value) noexcept
 {
     switch (value) {
     case WisCommandQueuePriorityNormal:
@@ -60,12 +60,12 @@ inline D3D12_COMMAND_QUEUE_PRIORITY convert_dx(WisCommandQueuePriority value) no
     }
 }
 
-inline D3D12_SHADER_VISIBILITY convert_dx(WisShaderVisibility value) noexcept
+constexpr inline D3D12_SHADER_VISIBILITY convert_dx(WisShaderVisibility value) noexcept
 {
     return static_cast<D3D12_SHADER_VISIBILITY>(value);
 }
 
-inline D3D12_DESCRIPTOR_RANGE_TYPE convert_dx(WisDescriptorType value) noexcept
+constexpr inline D3D12_DESCRIPTOR_RANGE_TYPE convert_dx(WisDescriptorType value) noexcept
 {
     switch (value) {
     case WisDescriptorTypeSampler:
@@ -87,12 +87,12 @@ inline D3D12_DESCRIPTOR_RANGE_TYPE convert_dx(WisDescriptorType value) noexcept
     }
 }
 
-inline D3D12_COMPARISON_FUNC convert_dx(WisCompareOperation value) noexcept
+constexpr inline D3D12_COMPARISON_FUNC convert_dx(WisCompareOperation value) noexcept
 {
     return static_cast<D3D12_COMPARISON_FUNC>(value);
 }
 
-inline D3D12_TEXTURE_ADDRESS_MODE convert_dx(WisAddressMode value) noexcept
+constexpr inline D3D12_TEXTURE_ADDRESS_MODE convert_dx(WisAddressMode value) noexcept
 {
     switch (value) {
     case WisAddressModeRepeat:
@@ -110,7 +110,7 @@ inline D3D12_TEXTURE_ADDRESS_MODE convert_dx(WisAddressMode value) noexcept
     }
 }
 
-inline D3D12_FILTER_TYPE convert_dx(WisFilter value) noexcept
+constexpr inline D3D12_FILTER_TYPE convert_dx(WisFilter value) noexcept
 {
     switch (value) {
     case WisFilterPoint:
@@ -122,7 +122,7 @@ inline D3D12_FILTER_TYPE convert_dx(WisFilter value) noexcept
     }
 }
 
-inline D3D12_FILTER_REDUCTION_TYPE convert_dx(WisReductionMode value) noexcept
+constexpr inline D3D12_FILTER_REDUCTION_TYPE convert_dx(WisReductionMode value) noexcept
 {
     switch (value) {
     case WisReductionModeStandard:
@@ -136,7 +136,7 @@ inline D3D12_FILTER_REDUCTION_TYPE convert_dx(WisReductionMode value) noexcept
     }
 }
 
-inline D3D12_STATIC_BORDER_COLOR convert_dx(WisStaticBorder value) noexcept
+constexpr inline D3D12_STATIC_BORDER_COLOR convert_dx(WisStaticBorder value) noexcept
 {
     switch (value) {
     case WisStaticBorderTransparentBlack:
@@ -150,17 +150,17 @@ inline D3D12_STATIC_BORDER_COLOR convert_dx(WisStaticBorder value) noexcept
     }
 }
 
-inline D3D12_DESCRIPTOR_HEAP_TYPE convert_dx(WisDescriptorHeapType value) noexcept
+constexpr inline D3D12_DESCRIPTOR_HEAP_TYPE convert_dx(WisDescriptorHeapType value) noexcept
 {
     return static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(value);
 }
 
-inline D3D12_DESCRIPTOR_HEAP_FLAGS convert_dx(WisDescriptorMemoryType value) noexcept
+constexpr inline D3D12_DESCRIPTOR_HEAP_FLAGS convert_dx(WisDescriptorMemoryType value) noexcept
 {
     return static_cast<D3D12_DESCRIPTOR_HEAP_FLAGS>(value);
 }
 
-inline D3D12_SHADER_COMPONENT_MAPPING convert_dx(WisComponentSwizzle value) noexcept
+constexpr inline D3D12_SHADER_COMPONENT_MAPPING convert_dx(WisComponentSwizzle value) noexcept
 {
     switch (value) {
     case WisComponentSwizzleRed:
@@ -180,7 +180,7 @@ inline D3D12_SHADER_COMPONENT_MAPPING convert_dx(WisComponentSwizzle value) noex
     }
 }
 
-inline D3D12_HEAP_TYPE convert_dx(WisMemoryType value) noexcept
+constexpr inline D3D12_HEAP_TYPE convert_dx(WisMemoryType value) noexcept
 {
     switch (value) {
     case WisMemoryTypeDeviceLocal:
@@ -196,194 +196,194 @@ inline D3D12_HEAP_TYPE convert_dx(WisMemoryType value) noexcept
     }
 }
 
-inline D3D12_SAMPLER_FLAGS convert_dx(WisSamplerFlags value) noexcept
+constexpr inline D3D12_SAMPLER_FLAGS convert_dx(WisSamplerFlags value) noexcept
 {
     D3D12_SAMPLER_FLAGS result = static_cast<D3D12_SAMPLER_FLAGS>(0);
     if (value & WisSamplerFlagsNonNormalizedCoordinates) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_SAMPLER_FLAG_NON_NORMALIZED_COORDINATES));
+        result |= D3D12_SAMPLER_FLAG_NON_NORMALIZED_COORDINATES;
     }
     return result;
 }
 
-inline D3D12_RESOURCE_FLAGS convert_dx(WisBufferUsageFlags value) noexcept
+constexpr inline D3D12_RESOURCE_FLAGS convert_dx(WisBufferUsageFlags value) noexcept
 {
     D3D12_RESOURCE_FLAGS result = static_cast<D3D12_RESOURCE_FLAGS>(0);
     if (value & WisBufferUsageFlagsStorageBuffer) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS));
+        result |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
     }
     if (value & WisBufferUsageFlagsAccelerationStructureBuffer) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS | D3D12_RESOURCE_FLAG_RAYTRACING_ACCELERATION_STRUCTURE));
+        result |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS | D3D12_RESOURCE_FLAG_RAYTRACING_ACCELERATION_STRUCTURE;
     }
     return result;
 }
 
-inline D3D12_RESOURCE_FLAGS convert_dx(WisTextureUsageFlags value) noexcept
+constexpr inline D3D12_RESOURCE_FLAGS convert_dx(WisTextureUsageFlags value) noexcept
 {
     D3D12_RESOURCE_FLAGS result = static_cast<D3D12_RESOURCE_FLAGS>(0);
     if (value & WisTextureUsageFlagsRenderTarget) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET));
+        result |= D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
     }
     if (value & WisTextureUsageFlagsDepthStencil) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL));
+        result |= D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL;
     }
     if (value & WisTextureUsageFlagsCopySrc) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_RESOURCE_FLAG_NONE));
+        result |= D3D12_RESOURCE_FLAG_NONE;
     }
     if (value & WisTextureUsageFlagsCopyDst) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_RESOURCE_FLAG_NONE));
+        result |= D3D12_RESOURCE_FLAG_NONE;
     }
     if (value & WisTextureUsageFlagsShaderResource) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_RESOURCE_FLAG_NONE));
+        result |= D3D12_RESOURCE_FLAG_NONE;
     }
     if (value & WisTextureUsageFlagsUnorderedAccess) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS));
+        result |= D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
     }
     if (value & WisTextureUsageFlagsHostCopy) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_RESOURCE_FLAG_NONE));
+        result |= D3D12_RESOURCE_FLAG_NONE;
     }
     return result;
 }
 
-inline D3D12MA::ALLOCATION_FLAGS convert_dx(WisMemoryFlags value) noexcept
+constexpr inline D3D12MA::ALLOCATION_FLAGS convert_dx(WisMemoryFlags value) noexcept
 {
     D3D12MA::ALLOCATION_FLAGS result = static_cast<D3D12MA::ALLOCATION_FLAGS>(0);
     if (value & WisMemoryFlagsDedicatedAllocation) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12MA::ALLOCATION_FLAG_COMMITTED));
+        result = static_cast<D3D12MA::ALLOCATION_FLAGS>(result | D3D12MA::ALLOCATION_FLAG_COMMITTED);
     }
     if (value & WisMemoryFlagsMapped) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12MA::ALLOCATION_FLAG_NONE));
+        result = static_cast<D3D12MA::ALLOCATION_FLAGS>(result | D3D12MA::ALLOCATION_FLAG_NONE);
     }
     return result;
 }
 
-inline D3D12_BARRIER_SYNC convert_dx(WisBarrierSync value) noexcept
+constexpr inline D3D12_BARRIER_SYNC convert_dx(WisBarrierSync value) noexcept
 {
     D3D12_BARRIER_SYNC result = static_cast<D3D12_BARRIER_SYNC>(0);
     if (value & WisBarrierSyncAll) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_SYNC_ALL));
+        result |= D3D12_BARRIER_SYNC_ALL;
     }
     if (value & WisBarrierSyncDraw) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_SYNC_DRAW));
+        result |= D3D12_BARRIER_SYNC_DRAW;
     }
     if (value & WisBarrierSyncIndexInput) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_SYNC_INDEX_INPUT));
+        result |= D3D12_BARRIER_SYNC_INDEX_INPUT;
     }
     if (value & WisBarrierSyncVertexShading) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_SYNC_VERTEX_SHADING));
+        result |= D3D12_BARRIER_SYNC_VERTEX_SHADING;
     }
     if (value & WisBarrierSyncPixelShading) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_SYNC_PIXEL_SHADING));
+        result |= D3D12_BARRIER_SYNC_PIXEL_SHADING;
     }
     if (value & WisBarrierSyncDepthStencil) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_SYNC_DEPTH_STENCIL));
+        result |= D3D12_BARRIER_SYNC_DEPTH_STENCIL;
     }
     if (value & WisBarrierSyncRenderTarget) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_SYNC_RENDER_TARGET));
+        result |= D3D12_BARRIER_SYNC_RENDER_TARGET;
     }
     if (value & WisBarrierSyncCompute) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_SYNC_COMPUTE_SHADING));
+        result |= D3D12_BARRIER_SYNC_COMPUTE_SHADING;
     }
     if (value & WisBarrierSyncRaytracing) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_SYNC_RAYTRACING));
+        result |= D3D12_BARRIER_SYNC_RAYTRACING;
     }
     if (value & WisBarrierSyncCopy) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_SYNC_COPY));
+        result |= D3D12_BARRIER_SYNC_COPY;
     }
     if (value & WisBarrierSyncResolve) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_SYNC_RESOLVE));
+        result |= D3D12_BARRIER_SYNC_RESOLVE;
     }
     if (value & WisBarrierSyncExecuteIndirect) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_SYNC_EXECUTE_INDIRECT));
+        result |= D3D12_BARRIER_SYNC_EXECUTE_INDIRECT;
     }
     if (value & WisBarrierSyncAllShading) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_SYNC_ALL_SHADING));
+        result |= D3D12_BARRIER_SYNC_ALL_SHADING;
     }
     if (value & WisBarrierSyncNonPixelShading) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_SYNC_NON_PIXEL_SHADING));
+        result |= D3D12_BARRIER_SYNC_NON_PIXEL_SHADING;
     }
     if (value & WisBarrierSyncClearUAV) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_SYNC_CLEAR_UNORDERED_ACCESS_VIEW));
+        result |= D3D12_BARRIER_SYNC_CLEAR_UNORDERED_ACCESS_VIEW;
     }
     if (value & WisBarrierSyncVideoDecode) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_SYNC_VIDEO_DECODE));
+        result |= D3D12_BARRIER_SYNC_VIDEO_DECODE;
     }
     if (value & WisBarrierSyncVideoEncode) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_SYNC_VIDEO_ENCODE));
+        result |= D3D12_BARRIER_SYNC_VIDEO_ENCODE;
     }
     if (value & WisBarrierSyncBuildRTAS) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_SYNC_BUILD_RAYTRACING_ACCELERATION_STRUCTURE));
+        result |= D3D12_BARRIER_SYNC_BUILD_RAYTRACING_ACCELERATION_STRUCTURE;
     }
     if (value & WisBarrierSyncCopyRTAS) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_SYNC_COPY_RAYTRACING_ACCELERATION_STRUCTURE));
+        result |= D3D12_BARRIER_SYNC_COPY_RAYTRACING_ACCELERATION_STRUCTURE;
     }
     return result;
 }
 
-inline D3D12_BARRIER_ACCESS convert_dx(WisResourceAccess value) noexcept
+constexpr inline D3D12_BARRIER_ACCESS convert_dx(WisResourceAccess value) noexcept
 {
     D3D12_BARRIER_ACCESS result = static_cast<D3D12_BARRIER_ACCESS>(0);
     if (value & WisResourceAccessVertexBuffer) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_ACCESS_VERTEX_BUFFER));
+        result |= D3D12_BARRIER_ACCESS_VERTEX_BUFFER;
     }
     if (value & WisResourceAccessConstantBuffer) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_ACCESS_CONSTANT_BUFFER));
+        result |= D3D12_BARRIER_ACCESS_CONSTANT_BUFFER;
     }
     if (value & WisResourceAccessIndexBuffer) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_ACCESS_INDEX_BUFFER));
+        result |= D3D12_BARRIER_ACCESS_INDEX_BUFFER;
     }
     if (value & WisResourceAccessRenderTarget) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_ACCESS_RENDER_TARGET));
+        result |= D3D12_BARRIER_ACCESS_RENDER_TARGET;
     }
     if (value & WisResourceAccessUnorderedAccess) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_ACCESS_UNORDERED_ACCESS));
+        result |= D3D12_BARRIER_ACCESS_UNORDERED_ACCESS;
     }
     if (value & WisResourceAccessDepthWrite) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_ACCESS_DEPTH_STENCIL_WRITE));
+        result |= D3D12_BARRIER_ACCESS_DEPTH_STENCIL_WRITE;
     }
     if (value & WisResourceAccessDepthRead) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_ACCESS_DEPTH_STENCIL_READ));
+        result |= D3D12_BARRIER_ACCESS_DEPTH_STENCIL_READ;
     }
     if (value & WisResourceAccessShaderResource) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_ACCESS_SHADER_RESOURCE));
+        result |= D3D12_BARRIER_ACCESS_SHADER_RESOURCE;
     }
     if (value & WisResourceAccessStreamOutput) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_ACCESS_STREAM_OUTPUT));
+        result |= D3D12_BARRIER_ACCESS_STREAM_OUTPUT;
     }
     if (value & WisResourceAccessIndirectArgument) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_ACCESS_INDIRECT_ARGUMENT));
+        result |= D3D12_BARRIER_ACCESS_INDIRECT_ARGUMENT;
     }
     if (value & WisResourceAccessCopyDest) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_ACCESS_COPY_DEST));
+        result |= D3D12_BARRIER_ACCESS_COPY_DEST;
     }
     if (value & WisResourceAccessCopySource) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_ACCESS_COPY_SOURCE));
+        result |= D3D12_BARRIER_ACCESS_COPY_SOURCE;
     }
     if (value & WisResourceAccessConditionalRendering) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_ACCESS_PREDICATION));
+        result |= D3D12_BARRIER_ACCESS_PREDICATION;
     }
     if (value & WisResourceAccessAccelerationStructureRead) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_ACCESS_RAYTRACING_ACCELERATION_STRUCTURE_READ));
+        result |= D3D12_BARRIER_ACCESS_RAYTRACING_ACCELERATION_STRUCTURE_READ;
     }
     if (value & WisResourceAccessAccelerationStructureWrite) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_ACCESS_RAYTRACING_ACCELERATION_STRUCTURE_WRITE));
+        result |= D3D12_BARRIER_ACCESS_RAYTRACING_ACCELERATION_STRUCTURE_WRITE;
     }
     if (value & WisResourceAccessShadingRate) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_ACCESS_SHADING_RATE_SOURCE));
+        result |= D3D12_BARRIER_ACCESS_SHADING_RATE_SOURCE;
     }
     if (value & WisResourceAccessVideoDecodeRead) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_ACCESS_VIDEO_DECODE_READ));
+        result |= D3D12_BARRIER_ACCESS_VIDEO_DECODE_READ;
     }
     if (value & WisResourceAccessVideoDecodeWrite) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_ACCESS_VIDEO_DECODE_WRITE));
+        result |= D3D12_BARRIER_ACCESS_VIDEO_DECODE_WRITE;
     }
     if (value & WisResourceAccessResolveDest) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_ACCESS_RESOLVE_DEST));
+        result |= D3D12_BARRIER_ACCESS_RESOLVE_DEST;
     }
     if (value & WisResourceAccessResolveSource) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_ACCESS_RESOLVE_SOURCE));
+        result |= D3D12_BARRIER_ACCESS_RESOLVE_SOURCE;
     }
     if (value & WisResourceAccessNoAccess) {
-        result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>(D3D12_BARRIER_ACCESS_NO_ACCESS));
+        result |= D3D12_BARRIER_ACCESS_NO_ACCESS;
     }
     return result;
 }

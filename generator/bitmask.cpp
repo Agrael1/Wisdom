@@ -196,13 +196,13 @@ std::string Generator::MakeBitmaskConverter(const WisBitmask& s, std::string_vie
         return converters;
     }
     if (cvt.direct) {
-        converters = wis::format("inline {} convert_{}({} value) noexcept {{\n    return static_cast<{}>(value);\n}}\n\n",
+        converters = wis::format("constexpr inline {} convert_{}({} value) noexcept {{\n    return static_cast<{}>(value);\n}}\n\n",
                                  cvt.value,
                                  impl,
                                  GetCFullTypename(s.name, impl),
                                  cvt.value);
     } else {
-        converters = wis::format("inline {} convert_{}({} value) noexcept {{\n",
+        converters = wis::format("constexpr inline {} convert_{}({} value) noexcept {{\n",
                                  cvt.value,
                                  impl,
                                  GetCFullTypename(s.name, impl));
@@ -211,17 +211,31 @@ std::string Generator::MakeBitmaskConverter(const WisBitmask& s, std::string_vie
         converters += wis::format("    {} result = static_cast<{}>(0);\n",
                                   cvt.value,
                                   cvt.value);
-
-        for (auto& m : s.values) {
-            auto convert_value = m.converts[static_cast<size_t>(impl_code)];
-            if (convert_value.empty()) {
-                continue;
+        if (auto nam = cvt.value.find("::"); nam != std::string::npos) {
+            for (auto& m : s.values) {
+                auto convert_value = m.converts[static_cast<size_t>(impl_code)];
+                if (convert_value.empty()) {
+                    continue;
+                }
+                converters += wis::format("    if (value & {}{}) {{ result = static_cast<{}>(result | {}); }}\n",
+                                          GetCFullTypename(s.name, impl),
+                                          m.name,
+                                          cvt.value,
+                                          convert_value);
             }
-            converters += wis::format("    if (value & {}{}) {{ result = static_cast<decltype(result)>(static_cast<uint32_t>(result) | static_cast<uint32_t>({})); }}\n",
-                                      GetCFullTypename(s.name, impl),
-                                      m.name,
-                                      convert_value);
+        } else {
+            for (auto& m : s.values) {
+                auto convert_value = m.converts[static_cast<size_t>(impl_code)];
+                if (convert_value.empty()) {
+                    continue;
+                }
+                converters += wis::format("    if (value & {}{}) {{ result |= {}; }}\n",
+                                          GetCFullTypename(s.name, impl),
+                                          m.name,
+                                          convert_value);
+            }
         }
+
         converters += wis::format("    return result;\n}}\n\n");
     }
     return converters;
