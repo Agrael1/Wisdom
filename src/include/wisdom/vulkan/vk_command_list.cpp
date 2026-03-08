@@ -8,6 +8,9 @@
 #include <bit>
 
 namespace wis::detail {
+constexpr static uint32_t vk_max_barrier_size = std::max({ sizeof(VkBufferMemoryBarrier), sizeof(VkImageMemoryBarrier2), sizeof(VkMemoryBarrier2) });
+constexpr static uint32_t vk_static_size      = wis::TransientMaxBarrierCount * vk_max_barrier_size;
+
 inline uint8_t* VKAllocateScratchSpace(const wis::impl::VKCommandListImpl& impl, uint32_t new_size)
 {
     if (new_size > impl.scratch_memory_size) {
@@ -40,6 +43,99 @@ VKExtractAspectFlags(WisSubresourceRange subresource, WisBarrierFlags flags) noe
         aspect_flags |= VK_IMAGE_ASPECT_PLANE_0_BIT << plane;
     }
     return aspect_flags;
+}
+
+inline std::array<wis::span<uint8_t>, 3>
+VKAllocateBarriers(const wis::impl::VKCommandListImpl& impl,
+                   uint8_t*                            local_scratch,
+                   const WisVKBarrierGroup&            barriers)
+{
+    std::array<wis::span<uint8_t>, 3> spans;
+    std::size_t                       needed_size = barriers.buffer_barrier_count * sizeof(VkBufferMemoryBarrier2) +
+            barriers.texture_barrier_count * sizeof(VkImageMemoryBarrier2) +
+            barriers.global_barrier_count * sizeof(VkMemoryBarrier2);
+
+    if (needed_size <= vk_static_size) {
+        spans[0] = { local_scratch, barriers.buffer_barrier_count * sizeof(VkBufferMemoryBarrier2) };
+        spans[1] = { spans[0].end(), barriers.texture_barrier_count * sizeof(VkImageMemoryBarrier2) };
+        spans[2] = { spans[1].end(), barriers.global_barrier_count * sizeof(VkMemoryBarrier2) };
+        return spans;
+    }
+
+    std::size_t sizes[] = { barriers.buffer_barrier_count * sizeof(VkBufferMemoryBarrier2),
+                            barriers.texture_barrier_count * sizeof(VkImageMemoryBarrier2),
+                            barriers.global_barrier_count * sizeof(VkMemoryBarrier2),
+                            0,
+                            0,
+                            0 };
+
+    sizes[3] = sizes[0] + sizes[1];
+    sizes[4] = sizes[1] + sizes[2];
+    sizes[5] = sizes[0] + sizes[2];
+
+    // find closest value from below
+    uint32_t closest_size = 0;
+    int      index        = -1;
+    for (int i = std::size(sizes) - 1; i >= 0; --i) {
+        if (sizes[i] > vk_static_size) {
+            continue;
+        }
+
+        // less than or equal to static size, check if it's the closest one
+        if (vk_static_size - sizes[i] < vk_static_size - closest_size) {
+            closest_size = sizes[i];
+            index        = i;
+        }
+    }
+
+    uint32_t allocated_size = needed_size - closest_size;
+
+    // allocate from the command list's scratch memory if the needed size exceeds the local scratch buffer size. This is to avoid large stack allocations.
+    auto* allocated_data = wis::detail::VKAllocateScratchSpace(impl, allocated_size);
+
+    // set pointers to the right offsets in the allocated scratch memory
+    switch (index) {
+    default:
+    case -1:
+        // no single group can fit into the local scratch, allocate all from the command list's scratch memory
+        spans[0] = { allocated_data, barriers.buffer_barrier_count * sizeof(VkBufferMemoryBarrier2) };
+        spans[1] = { spans[0].end(), barriers.texture_barrier_count * sizeof(VkImageMemoryBarrier2) };
+        spans[2] = { spans[1].end(), barriers.global_barrier_count * sizeof(VkMemoryBarrier2) };
+        return spans;
+    case 0:
+        // buffer barriers fit into local scratch, texture and global barriers allocated from command list's scratch
+        spans[0] = { local_scratch, barriers.buffer_barrier_count * sizeof(VkBufferMemoryBarrier2) };
+        spans[1] = { allocated_data, barriers.texture_barrier_count * sizeof(VkImageMemoryBarrier2) };
+        spans[2] = { spans[1].end(), barriers.global_barrier_count * sizeof(VkMemoryBarrier2) };
+        return spans;
+    case 1:
+        // texture barriers fit into local scratch, buffer and global barriers allocated from command list's scratch
+        spans[0] = { allocated_data, barriers.buffer_barrier_count * sizeof(VkBufferMemoryBarrier2) };
+        spans[1] = { local_scratch, barriers.texture_barrier_count * sizeof(VkImageMemoryBarrier2) };
+        spans[2] = { spans[0].end(), barriers.global_barrier_count * sizeof(VkMemoryBarrier2) };
+        return spans;
+    case 2:
+        // global barriers fit into local scratch, buffer and texture barriers allocated from command list's scratch
+        spans[0] = { allocated_data, barriers.buffer_barrier_count * sizeof(VkBufferMemoryBarrier2) };
+        spans[1] = { spans[0].end(), barriers.texture_barrier_count * sizeof(VkImageMemoryBarrier2) };
+        spans[2] = { local_scratch, barriers.global_barrier_count * sizeof(VkMemoryBarrier2) };
+        return spans;
+    case 3:
+        spans[0] = { local_scratch, barriers.buffer_barrier_count * sizeof(VkBufferMemoryBarrier2) };
+        spans[1] = { spans[0].end(), barriers.texture_barrier_count * sizeof(VkImageMemoryBarrier2) };
+        spans[2] = { allocated_data, barriers.global_barrier_count * sizeof(VkMemoryBarrier2) };
+        return spans;
+    case 4:
+        spans[0] = { allocated_data, barriers.buffer_barrier_count * sizeof(VkBufferMemoryBarrier2) };
+        spans[1] = { local_scratch, barriers.texture_barrier_count * sizeof(VkImageMemoryBarrier2) };
+        spans[2] = { spans[1].end(), barriers.global_barrier_count * sizeof(VkMemoryBarrier2) };
+        return spans;
+    case 5:
+        spans[0] = { local_scratch, barriers.buffer_barrier_count * sizeof(VkBufferMemoryBarrier2) };
+        spans[1] = { allocated_data, barriers.texture_barrier_count * sizeof(VkImageMemoryBarrier2) };
+        spans[2] = { spans[0].end(), barriers.global_barrier_count * sizeof(VkMemoryBarrier2) };
+        return spans;
+    }
 }
 } // namespace wis::detail
 
@@ -195,22 +291,17 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListInsertBarriers(const WisVKCommandLi
     }
     // clang-format on
 
-    auto& impl          = *reinterpret_cast<const wis::impl::VKCommandListImpl*>(self);
-    auto& device_header = impl.command_pool_header->header;
+    auto&   impl          = *reinterpret_cast<const wis::impl::VKCommandListImpl*>(self);
+    auto&   device_header = impl.command_pool_header->header;
+    uint8_t local_scratch[wis::detail::vk_static_size]{};
 
-    static constexpr uint32_t max_barrier_size = std::max(sizeof(VkBufferMemoryBarrier2), sizeof(VkImageMemoryBarrier2));
-    static constexpr uint32_t static_size      = static_cast<uint32_t>(wis::TransientMaxBarrierCount * max_barrier_size);
-    uint8_t                   local_scratch[static_size]{};
-    uint8_t*                  real_data = local_scratch;
+    auto [buffer_span, texture_span, global_span] = wis::detail::VKAllocateBarriers(impl, local_scratch, *barriers);
 
-    uint32_t needed_size = static_cast<uint32_t>(barriers->buffer_barrier_count * sizeof(VkBufferMemoryBarrier2));
-    if (needed_size > static_size) {
-        // allocate from the command list's scratch memory if the needed size exceeds the local scratch buffer size. This is to avoid large stack allocations.
-        real_data = wis::detail::VKAllocateScratchSpace(impl, needed_size);
-    }
-
-    wis::span<VkBufferMemoryBarrier2> buffer_barriers_span{ reinterpret_cast<VkBufferMemoryBarrier2*>(real_data), barriers->buffer_barrier_count };
-    uint32_t                          real_buffer_barrier_count = barriers->buffer_barrier_count;
+    wis::span<VkBufferMemoryBarrier2> buffer_barriers_span{
+        reinterpret_cast<VkBufferMemoryBarrier2*>(buffer_span.data()),
+        barriers->buffer_barrier_count
+    };
+    uint32_t real_buffer_barrier_count = barriers->buffer_barrier_count;
 
     for (size_t i = 0; i < barriers->buffer_barrier_count; i++) {
         const auto& src = barriers->buffer_barriers[i];
@@ -244,7 +335,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListInsertBarriers(const WisVKCommandLi
 
     // convert texture barriers
     wis::span<VkImageMemoryBarrier2> texture_barriers_span{
-        reinterpret_cast<VkImageMemoryBarrier2*>(buffer_barriers_span.subspan(real_buffer_barrier_count).end()),
+        reinterpret_cast<VkImageMemoryBarrier2*>(texture_span.data()),
         barriers->texture_barrier_count
     };
     uint32_t real_texture_barrier_count = barriers->texture_barrier_count;
@@ -307,7 +398,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListInsertBarriers(const WisVKCommandLi
 
     // convert global barriers
     wis::span<VkMemoryBarrier2> global_barriers_span{
-        reinterpret_cast<VkMemoryBarrier2*>(texture_barriers_span.subspan(real_texture_barrier_count).end()),
+        reinterpret_cast<VkMemoryBarrier2*>(global_span.data()),
         barriers->global_barrier_count
     };
 

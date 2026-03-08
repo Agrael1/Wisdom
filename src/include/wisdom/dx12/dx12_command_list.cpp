@@ -8,6 +8,9 @@
 #include <bit>
 
 namespace wis::detail {
+constexpr static uint32_t dx12_max_barrier_size = std::max({ sizeof(D3D12_BUFFER_BARRIER), sizeof(D3D12_TEXTURE_BARRIER), sizeof(D3D12_GLOBAL_BARRIER) });
+constexpr static uint32_t dx12_static_size      = wis::TransientMaxBarrierCount * dx12_max_barrier_size;
+
 inline uint8_t* DX12AllocateScratchSpace(const wis::impl::DX12CommandListImpl& impl, uint32_t new_size)
 {
     if (new_size > impl.scratch_memory_size) {
@@ -56,6 +59,97 @@ DX12GetOptimalBarrierLayout(WisCommandQueueType type, WisTextureState state) noe
         }
     default:
         return wis::detail::convert_dx(state);
+    }
+}
+
+inline std::array<wis::span<uint8_t>, 3>
+DX12AllocateBarriers(const wis::impl::DX12CommandListImpl& impl,
+                     uint8_t*                              local_scratch,
+                     const WisDX12BarrierGroup&            barriers)
+{
+    std::array<wis::span<uint8_t>, 3> spans;
+    std::size_t                       needed_size = barriers.buffer_barrier_count * sizeof(D3D12_BUFFER_BARRIER) +
+            barriers.texture_barrier_count * sizeof(D3D12_TEXTURE_BARRIER) +
+            barriers.global_barrier_count * sizeof(D3D12_GLOBAL_BARRIER);
+
+    if (needed_size <= dx12_static_size) {
+        spans[0] = { local_scratch, barriers.buffer_barrier_count * sizeof(D3D12_BUFFER_BARRIER) };
+        spans[1] = { spans[0].end(), barriers.texture_barrier_count * sizeof(D3D12_TEXTURE_BARRIER) };
+        spans[2] = { spans[1].end(), barriers.global_barrier_count * sizeof(D3D12_GLOBAL_BARRIER) };
+        return spans;
+    }
+
+    std::size_t sizes[] = { barriers.buffer_barrier_count * sizeof(D3D12_BUFFER_BARRIER),
+                            barriers.texture_barrier_count * sizeof(D3D12_TEXTURE_BARRIER),
+                            barriers.global_barrier_count * sizeof(D3D12_GLOBAL_BARRIER),
+                            0,0,0 };
+
+    sizes[3]            = sizes[0] + sizes[1];
+    sizes[4]            = sizes[1] + sizes[2];
+    sizes[5]            = sizes[0] + sizes[2];
+
+    // find closest value from below
+    uint32_t closest_size = 0;
+    int      index        = -1;
+    for (int i = std::size(sizes) - 1; i >= 0; --i) {
+        if (sizes[i] > dx12_static_size) {
+            continue;
+        }
+
+        // less than or equal to static size, check if it's the closest one
+        if (dx12_static_size - sizes[i] < dx12_static_size - closest_size) {
+            closest_size = sizes[i];
+            index        = i;
+        }
+    }
+
+    uint32_t allocated_size = needed_size - closest_size;
+
+    // allocate from the command list's scratch memory if the needed size exceeds the local scratch buffer size. This is to avoid large stack allocations.
+    auto* allocated_data = wis::detail::DX12AllocateScratchSpace(impl, allocated_size);
+
+    // set pointers to the right offsets in the allocated scratch memory
+    switch (index) {
+    default:
+    case -1:
+        // no single group can fit into the local scratch, allocate all from the command list's scratch memory
+        spans[0] = { allocated_data, barriers.buffer_barrier_count * sizeof(D3D12_BUFFER_BARRIER) };
+        spans[1] = { spans[0].end(), barriers.texture_barrier_count * sizeof(D3D12_TEXTURE_BARRIER) };
+        spans[2] = { spans[1].end(), barriers.global_barrier_count * sizeof(D3D12_GLOBAL_BARRIER) };
+        return spans;
+    case 0:
+        // buffer barriers fit into local scratch, texture and global barriers allocated from command list's scratch
+        spans[0] = { local_scratch, barriers.buffer_barrier_count * sizeof(D3D12_BUFFER_BARRIER) };
+        spans[1] = { allocated_data, barriers.texture_barrier_count * sizeof(D3D12_TEXTURE_BARRIER) };
+        spans[2] = { spans[1].end(), barriers.global_barrier_count * sizeof(D3D12_GLOBAL_BARRIER) };
+        return spans;
+    case 1:
+        // texture barriers fit into local scratch, buffer and global barriers allocated from command list's scratch
+        spans[0] = { allocated_data, barriers.buffer_barrier_count * sizeof(D3D12_BUFFER_BARRIER) };
+        spans[1] = { local_scratch, barriers.texture_barrier_count * sizeof(D3D12_TEXTURE_BARRIER) };
+        spans[2] = { spans[0].end(), barriers.global_barrier_count * sizeof(D3D12_GLOBAL_BARRIER) };
+        return spans;
+    case 2:
+        // global barriers fit into local scratch, buffer and texture barriers allocated from command list's scratch
+        spans[0] = { allocated_data, barriers.buffer_barrier_count * sizeof(D3D12_BUFFER_BARRIER) };
+        spans[1] = { spans[0].end(), barriers.texture_barrier_count * sizeof(D3D12_TEXTURE_BARRIER) };
+        spans[2] = { local_scratch, barriers.global_barrier_count * sizeof(D3D12_GLOBAL_BARRIER) };
+        return spans;
+    case 3:
+        spans[0] = { local_scratch, barriers.buffer_barrier_count * sizeof(D3D12_BUFFER_BARRIER) };
+        spans[1] = { spans[0].end(), barriers.texture_barrier_count * sizeof(D3D12_TEXTURE_BARRIER) };
+        spans[2] = { allocated_data, barriers.global_barrier_count * sizeof(D3D12_GLOBAL_BARRIER) };
+        return spans;
+    case 4:
+        spans[0] = { allocated_data, barriers.buffer_barrier_count * sizeof(D3D12_BUFFER_BARRIER) };
+        spans[1] = { local_scratch, barriers.texture_barrier_count * sizeof(D3D12_TEXTURE_BARRIER) };
+        spans[2] = { spans[1].end(), barriers.global_barrier_count * sizeof(D3D12_GLOBAL_BARRIER) };
+        return spans;
+    case 5:
+        spans[0] = { local_scratch, barriers.buffer_barrier_count * sizeof(D3D12_BUFFER_BARRIER) };
+        spans[1] = { allocated_data, barriers.texture_barrier_count * sizeof(D3D12_TEXTURE_BARRIER) };
+        spans[2] = { spans[0].end(), barriers.global_barrier_count * sizeof(D3D12_GLOBAL_BARRIER) };
+        return spans;
     }
 }
 } // namespace wis::detail
@@ -233,15 +327,11 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListInsertBarriers(const WisDX12Comma
     constexpr static uint32_t max_barrier_size = std::max(sizeof(D3D12_BUFFER_BARRIER), sizeof(D3D12_TEXTURE_BARRIER));
     constexpr static uint32_t static_size      = static_cast<uint32_t>(wis::TransientMaxBarrierCount * max_barrier_size);
     uint8_t                   local_scratch[static_size]{};
-    uint8_t*                  real_data = local_scratch;
 
-    uint32_t needed_size = static_cast<uint32_t>(barriers->buffer_barrier_count * sizeof(D3D12_BUFFER_BARRIER));
-    if (needed_size > static_size) {
-        // allocate from the command list's scratch memory if the needed size exceeds the local scratch buffer size. This is to avoid large stack allocations.
-        real_data = wis::detail::DX12AllocateScratchSpace(impl, needed_size);
-    }
+    auto [buffer_span, texture_span, global_span] = wis::detail::DX12AllocateBarriers(impl, local_scratch, *barriers);
 
-    wis::span<D3D12_BUFFER_BARRIER> buffer_barriers_span{ reinterpret_cast<D3D12_BUFFER_BARRIER*>(real_data), barriers->buffer_barrier_count };
+
+    wis::span<D3D12_BUFFER_BARRIER> buffer_barriers_span{ reinterpret_cast<D3D12_BUFFER_BARRIER*>(buffer_span.data()), barriers->buffer_barrier_count };
     uint32_t                        real_buffer_barrier_count = barriers->buffer_barrier_count;
     // convert buffer barriers
     for (size_t i = 0; i < barriers->buffer_barrier_count; ++i) {
@@ -267,7 +357,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListInsertBarriers(const WisDX12Comma
 
     // convert texture barriers
     wis::span<D3D12_TEXTURE_BARRIER> texture_barriers_span{
-        reinterpret_cast<D3D12_TEXTURE_BARRIER*>(buffer_barriers_span.subspan(real_buffer_barrier_count).end()),
+        reinterpret_cast<D3D12_TEXTURE_BARRIER*>(texture_span.data()),
         barriers->texture_barrier_count
     };
     for (size_t i = 0; i < barriers->texture_barrier_count; ++i) {
@@ -306,7 +396,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListInsertBarriers(const WisDX12Comma
 
     // convert global barriers
     wis::span<D3D12_GLOBAL_BARRIER> global_barriers_span{
-        reinterpret_cast<D3D12_GLOBAL_BARRIER*>(texture_barriers_span.subspan(barriers->texture_barrier_count).end()),
+        reinterpret_cast<D3D12_GLOBAL_BARRIER*>(global_span.data()),
         barriers->global_barrier_count
     };
     for (size_t i = 0; i < barriers->global_barrier_count; ++i) {
