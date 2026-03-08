@@ -1162,7 +1162,7 @@ Outside of AllocateXMemory the flag is ignored."/>
         <impl name="dx" value="D3D12_BARRIER_ACCESS_RESOLVE_SOURCE"/>
         <impl name="vk" value="VK_ACCESS_2_TRANSFER_READ_BIT | VK_ACCESS_2_SHADER_READ_BIT"/>
       </value>
-      <value name="NoAccess" bit="31" doc="No access. Used to indicate no access throughout the pipeline.">
+      <value name="None" bit="31" doc="No access. Used to indicate no access throughout the pipeline.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_NO_ACCESS"/>
         <impl name="vk" value="VK_ACCESS_2_NONE"/>
       </value>

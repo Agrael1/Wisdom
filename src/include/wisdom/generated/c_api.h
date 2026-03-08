@@ -1053,7 +1053,7 @@ typedef enum WisResourceAccess {
     WisResourceAccessVideoDecodeWrite           = (1u << 17), ///< Video decode write access.
     WisResourceAccessResolveDst                 = (1u << 18), ///< Resolve destination access.
     WisResourceAccessResolveSrc                 = (1u << 19), ///< Resolve source access.
-    WisResourceAccessNoAccess                   = (1u << 31), ///< No access. Used to indicate no access throughout the pipeline.
+    WisResourceAccessNone                       = (1u << 31), ///< No access. Used to indicate no access throughout the pipeline.
 } WisResourceAccess;
 
 /**

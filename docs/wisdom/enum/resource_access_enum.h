@@ -31,7 +31,7 @@
  *     WisResourceAccessVideoDecodeWrite = (1u << 17),
  *     WisResourceAccessResolveDst = (1u << 18),
  *     WisResourceAccessResolveSrc = (1u << 19),
- *     WisResourceAccessNoAccess = (1u << 31),
+ *     WisResourceAccessNone = (1u << 31),
  * } WisResourceAccess;
  * ```
  * C++ version:
@@ -60,7 +60,7 @@
  *     VideoDecodeWrite = (1u << 17),
  *     ResolveDst = (1u << 18),
  *     ResolveSrc = (1u << 19),
- *     NoAccess = (1u << 31),
+ *     None = (1u << 31),
  * };
  * }
  * ```
@@ -94,7 +94,7 @@
  * - `WisResourceAccessVideoDecodeWrite = (1 << 17)`: Video decode write access.
  * - `WisResourceAccessResolveDst = (1 << 18)`: Resolve destination access.
  * - `WisResourceAccessResolveSrc = (1 << 19)`: Resolve source access.
- * - `WisResourceAccessNoAccess = (1 << 31)`: No access. Used to indicate no access throughout the pipeline.
+ * - `WisResourceAccessNone = (1 << 31)`: No access. Used to indicate no access throughout the pipeline.
  * \endcond
  *
  *

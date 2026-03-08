@@ -418,7 +418,7 @@ constexpr inline D3D12_BARRIER_ACCESS convert_dx(WisResourceAccess value) noexce
     if (value & WisResourceAccessResolveSrc) {
         result |= D3D12_BARRIER_ACCESS_RESOLVE_SOURCE;
     }
-    if (value & WisResourceAccessNoAccess) {
+    if (value & WisResourceAccessNone) {
         result |= D3D12_BARRIER_ACCESS_NO_ACCESS;
     }
     return result;

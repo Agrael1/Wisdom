@@ -82,11 +82,13 @@ DX12AllocateBarriers(const wis::impl::DX12CommandListImpl& impl,
     std::size_t sizes[] = { barriers.buffer_barrier_count * sizeof(D3D12_BUFFER_BARRIER),
                             barriers.texture_barrier_count * sizeof(D3D12_TEXTURE_BARRIER),
                             barriers.global_barrier_count * sizeof(D3D12_GLOBAL_BARRIER),
-                            0,0,0 };
+                            0,
+                            0,
+                            0 };
 
-    sizes[3]            = sizes[0] + sizes[1];
-    sizes[4]            = sizes[1] + sizes[2];
-    sizes[5]            = sizes[0] + sizes[2];
+    sizes[3] = sizes[0] + sizes[1];
+    sizes[4] = sizes[1] + sizes[2];
+    sizes[5] = sizes[0] + sizes[2];
 
     // find closest value from below
     uint32_t closest_size = 0;
@@ -330,7 +332,6 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListInsertBarriers(const WisDX12Comma
 
     auto [buffer_span, texture_span, global_span] = wis::detail::DX12AllocateBarriers(impl, local_scratch, *barriers);
 
-
     wis::span<D3D12_BUFFER_BARRIER> buffer_barriers_span{ reinterpret_cast<D3D12_BUFFER_BARRIER*>(buffer_span.data()), barriers->buffer_barrier_count };
     uint32_t                        real_buffer_barrier_count = barriers->buffer_barrier_count;
     // convert buffer barriers
@@ -367,10 +368,10 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListInsertBarriers(const WisDX12Comma
         bool acquire_barrier = qfot_barrier && src.queue_type_after == impl.queue_type;
         bool release_barrier = qfot_barrier && src.queue_type_before == impl.queue_type;
 
-        auto layout_before = wis::detail::DX12GetOptimalBarrierLayout(
-                impl.queue_type,
-                acquire_barrier ? src.state_before : WisTextureStateCommon);
-        auto layout_after = wis::detail::DX12GetOptimalBarrierLayout(
+        auto layout_before = src.flags & WisBarrierFlagsDiscardContent
+                ? D3D12_BARRIER_LAYOUT_UNDEFINED
+                : wis::detail::DX12GetOptimalBarrierLayout(impl.queue_type, acquire_barrier ? src.state_before : WisTextureStateCommon);
+        auto layout_after  = wis::detail::DX12GetOptimalBarrierLayout(
                 impl.queue_type,
                 release_barrier ? src.state_after : WisTextureStateCommon);
 
