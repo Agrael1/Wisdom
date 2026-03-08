@@ -130,7 +130,8 @@
       <member type="u16" name="mip_level_count" default="1" doc="Number of mip levels in the subresource."/>
       <member type="u16" name="base_array_layer" default="0" doc="Array layer of the subresource. For 3D textures, this defines the depth slice."/>
       <member type="u16" name="array_layer_count" default="1" doc="Number of array layers in the subresource. For 3D textures, this defines the number of depth slices."/>
-      <member type="u16" name="plane_slice" default="0" doc="Base depth slice of the subresource. Used only for 2D textures (YUV). Max value is 3."/>
+      <member type="u16" name="plane_slice" default="0" doc="Base depth slice of the subresource. Used only for 2D textures (YUV)."/>
+      <member type="u16" name="plane_slice_count" default="1" doc="Number of depth slices in the subresource. Used only for 2D textures (YUV). Max value is 3."/>
     </type>
 
     <type name="BufferDesc" category="struct" version="0.7.0" doc="Buffer description for {Buffer::} creation.">
@@ -227,6 +228,7 @@
 
       <!-- Command Queues -->
       <member type="bool" name="supported_queues" array="5" doc="Array of supported queue types. If a queue type is supported, the value is `1`, otherwise `0`. Order of queue types is the same as in {CommandQueueType::} enum."/>
+      <member type="bool" name="relaxed_queue_transition" doc="Indicates if relaxed queue transition is supported. This feature allows executing command lists that contain buffers used on different queue types without explicit resource state transitions when the buffers is used on a different queue type. It is supported on Windows 10 22H2 and later with WDDM 3.0 or later. On Vulkan it requires `VK_KHR_maintenance9` extension."/>
       <member type="CommandQueuePriority" name="max_queue_priority" array="5" doc="Array of maximum supported priorities for each queue type. If a queue type is not supported, the value is `0`. Order of queue types is the same as in {CommandQueueType::} enum."/>
     </type>
 
@@ -250,11 +252,35 @@
       <member type="CommandQueueType" name="queue_type_after" doc="Type of the queue the barrier is executed on after the synchronization point. Used for cross-queue barriers."/>
     </type>
 
+    <type name="GlobalBarrier" category="variant" version="0.7.0" doc="Global barrier without resource handles.">
+      <member type="BarrierSync" name="sync_before" doc="Synchronization scope before the barrier."/>
+      <member type="BarrierSync" name="sync_after" doc="Synchronization scope after the barrier."/>
+      <member type="ResourceAccess" name="access_before" doc="Access scope before the barrier."/>
+      <member type="ResourceAccess" name="access_after" doc="Access scope after the barrier."/>
+    </type>
+
+    <type name="TextureBarrier" category="variant" version="0.7.0" doc="Texture barrier with the texture handle.">
+      <member type="BarrierSync" name="sync_before" doc="Synchronization scope before the barrier."/>
+      <member type="BarrierSync" name="sync_after" doc="Synchronization scope after the barrier."/>
+      <member type="ResourceAccess" name="access_before" doc="Access scope before the barrier."/>
+      <member type="ResourceAccess" name="access_after" doc="Access scope after the barrier."/>
+      <member type="TextureState" name="state_before" doc="Texture state before the barrier."/>
+      <member type="TextureState" name="state_after" doc="Texture state after the barrier."/>
+      <member type="BarrierFlags" name="flags" doc="Barrier flags. Describe additional options for the barrier."/>
+      <member type="TextureView" name="texture" doc="Texture view."/>
+      <member type="SubresourceRange" name="subresource_range" doc="Subresource range for the barrier."/>
+      <member type="CommandQueueType" name="queue_type_before" doc="Type of the queue the barrier is executed on before the synchronization point. Used for cross-queue barriers."/>
+      <member type="CommandQueueType" name="queue_type_after" doc="Type of the queue the barrier is executed on after the synchronization point. Used for cross-queue barriers."/>
+    </type>
+
     <type name="BarrierGroup" category="variant" version="0.7.0" doc="Barrier group for multiple barriers submission.">
       <member type="BufferBarrier" name="buffer_barriers" mod="const,span" default="nullptr" doc="Array of buffer barriers."/>
       <member type="size" name="buffer_barrier_count" default="0" doc="Number of buffer barriers in the {BarrierGroup::buffer_barriers} array."/>
-      <!-- Texture barriers and other barrier types can be added here in the future. -->
+      <member type="TextureBarrier" name="texture_barriers" mod="const,span" default="nullptr" doc="Array of texture barriers."/>
+      <member type="size" name="texture_barrier_count" default="0" doc="Number of texture barriers in the {BarrierGroup::texture_barriers} array."/>
+      <member type="GlobalBarrier" name="global_barriers" mod="const,span" default="nullptr" doc="Array of global barriers."/>
+      <member type="size" name="global_barrier_count" default="0" doc="Number of global barriers in the {BarrierGroup::global_barriers} array."/>
     </type>
-    
+
   </types>
 </registry>

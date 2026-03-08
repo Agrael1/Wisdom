@@ -196,6 +196,42 @@ constexpr inline D3D12_HEAP_TYPE convert_dx(WisMemoryType value) noexcept
     }
 }
 
+constexpr inline D3D12_BARRIER_LAYOUT convert_dx(WisTextureState value) noexcept
+{
+    switch (value) {
+    case WisTextureStateUndefined:
+        return D3D12_BARRIER_LAYOUT_UNDEFINED;
+    case WisTextureStateCommon:
+        return D3D12_BARRIER_LAYOUT_COMMON;
+    case WisTextureStateRead:
+        return D3D12_BARRIER_LAYOUT_GENERIC_READ;
+    case WisTextureStateRenderTarget:
+        return D3D12_BARRIER_LAYOUT_RENDER_TARGET;
+    case WisTextureStateUnorderedAccess:
+        return D3D12_BARRIER_LAYOUT_UNORDERED_ACCESS;
+    case WisTextureStateDepthStencilWrite:
+        return D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_WRITE;
+    case WisTextureStateDepthStencilRead:
+        return D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_READ;
+    case WisTextureStateShaderResource:
+        return D3D12_BARRIER_LAYOUT_SHADER_RESOURCE;
+    case WisTextureStateCopySrc:
+        return D3D12_BARRIER_LAYOUT_COPY_SOURCE;
+    case WisTextureStateCopyDst:
+        return D3D12_BARRIER_LAYOUT_COPY_DEST;
+    case WisTextureStatePresent:
+        return D3D12_BARRIER_LAYOUT_PRESENT;
+    case WisTextureStateShadingRate:
+        return D3D12_BARRIER_LAYOUT_SHADING_RATE_SOURCE;
+    case WisTextureStateVideoDecodeRead:
+        return D3D12_BARRIER_LAYOUT_VIDEO_DECODE_READ;
+    case WisTextureStateVideoDecodeWrite:
+        return D3D12_BARRIER_LAYOUT_VIDEO_DECODE_WRITE;
+    default:
+        return static_cast<D3D12_BARRIER_LAYOUT>(0);
+    }
+}
+
 constexpr inline D3D12_SAMPLER_FLAGS convert_dx(WisSamplerFlags value) noexcept
 {
     D3D12_SAMPLER_FLAGS result = static_cast<D3D12_SAMPLER_FLAGS>(0);
@@ -352,10 +388,10 @@ constexpr inline D3D12_BARRIER_ACCESS convert_dx(WisResourceAccess value) noexce
     if (value & WisResourceAccessIndirectArgument) {
         result |= D3D12_BARRIER_ACCESS_INDIRECT_ARGUMENT;
     }
-    if (value & WisResourceAccessCopyDest) {
+    if (value & WisResourceAccessCopyDst) {
         result |= D3D12_BARRIER_ACCESS_COPY_DEST;
     }
-    if (value & WisResourceAccessCopySource) {
+    if (value & WisResourceAccessCopySrc) {
         result |= D3D12_BARRIER_ACCESS_COPY_SOURCE;
     }
     if (value & WisResourceAccessConditionalRendering) {
@@ -376,10 +412,10 @@ constexpr inline D3D12_BARRIER_ACCESS convert_dx(WisResourceAccess value) noexce
     if (value & WisResourceAccessVideoDecodeWrite) {
         result |= D3D12_BARRIER_ACCESS_VIDEO_DECODE_WRITE;
     }
-    if (value & WisResourceAccessResolveDest) {
+    if (value & WisResourceAccessResolveDst) {
         result |= D3D12_BARRIER_ACCESS_RESOLVE_DEST;
     }
-    if (value & WisResourceAccessResolveSource) {
+    if (value & WisResourceAccessResolveSrc) {
         result |= D3D12_BARRIER_ACCESS_RESOLVE_SOURCE;
     }
     if (value & WisResourceAccessNoAccess) {

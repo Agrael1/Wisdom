@@ -16,6 +16,7 @@
  *     uint16_t base_array_layer;
  *     uint16_t array_layer_count;
  *     uint16_t plane_slice;
+ *     uint16_t plane_slice_count;
  * } WisSubresourceRange;
  * 
  * ```
@@ -29,6 +30,7 @@
  *     std::uint16_t base_array_layer;
  *     std::uint16_t array_layer_count;
  *     std::uint16_t plane_slice;
+ *     std::uint16_t plane_slice_count;
  * };
  * }
  * ```
@@ -41,7 +43,8 @@
  * - `mip_level_count` Number of mip levels in the subresource.
  * - `base_array_layer` Array layer of the subresource. For 3D textures, this defines the depth slice.
  * - `array_layer_count` Number of array layers in the subresource. For 3D textures, this defines the number of depth slices.
- * - `plane_slice` Base depth slice of the subresource. Used only for 2D textures (YUV). Max value is 3.
+ * - `plane_slice` Base depth slice of the subresource. Used only for 2D textures (YUV).
+ * - `plane_slice_count` Number of depth slices in the subresource. Used only for 2D textures (YUV). Max value is 3.
  * \endcond
  *
  * @section WisSubresourceRange_descr Description
@@ -53,6 +56,6 @@
  * @section WisSubresourceRange_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see WisTextureBinding
+ * @see WisTextureBinding, WisTextureBarrier
  * \endcond
  */

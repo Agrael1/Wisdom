@@ -11,7 +11,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyCommandAllocator(WisVKCommandAllocator*
 {
     auto& impl = *reinterpret_cast<wis::impl::VKCommandAllocatorImpl*>(self);
     if (impl.command_pool != VK_NULL_HANDLE) {
-        wis::detail::release_vk_command_pool(impl.command_pool, impl.command_pool_header);
+        wis::detail::release_vk_command_pool(impl.command_pool_header);
         impl.command_pool = VK_NULL_HANDLE;
     }
 }
@@ -59,11 +59,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCommandAllocatorCreateCommandList(const W
         .command_buffer     = command_buffer,
         .command_list_table = &device_header.command_list_table, // point to main command list table for faster access
 
-        .command_pool        = impl.command_pool,
         .command_pool_header = impl.command_pool_header,
 
-        .queue_residency = device_header.queue_residency, // copy queue residency from command allocator
-        .maintenance9    = device_header.features.maintenance9, // copy maintenance9 support from command allocator
+        .queue_indices = header.device_header->header.queue_family_extras.data(),
+        .maintenance9  = device_header.features.maintenance9, // copy maintenance9 support from command allocator
     };
     list_impl.command_pool_header->AddRef(); // hold reference to command pool header for command list impl
     return wis::detail::vk_success;

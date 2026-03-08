@@ -10,10 +10,12 @@
 
 namespace wis::detail {
 struct VKQueueResidencyInfo {
-    static constexpr uint32_t invalid_index = std::numeric_limits<uint32_t>::max();
+    static constexpr uint32_t invalid_index             = std::numeric_limits<uint32_t>::max();
+    static constexpr uint32_t reasonable_queue_families = 32u;
 
     std::array<VkDeviceQueueCreateInfo, WisCommandQueueTypeCount> data;
     std::array<uint8_t, WisCommandQueueTypeCount>                 residency;
+    std::array<uint32_t, WisCommandQueueTypeCount>                transfer_masks{};
 
     uint32_t queue_type_count = 0;
 
@@ -57,7 +59,7 @@ static constexpr VkDeviceQueueGlobalPriorityCreateInfo vk_global_priorities[]{
 
 //-----------------------------------------------------------------------------
 constexpr const VkDeviceQueueGlobalPriorityCreateInfo*
-get_global_priority_info(WisCommandQueuePriority type) noexcept
+VKGetGlobalPriorityInfo(WisCommandQueuePriority type) noexcept
 {
     switch (type) {
     default:
@@ -72,7 +74,7 @@ get_global_priority_info(WisCommandQueuePriority type) noexcept
 
 //-----------------------------------------------------------------------------
 constexpr const VkDeviceQueueGlobalPriorityCreateInfo*
-get_global_priority_info(VkQueueGlobalPriority type) noexcept
+VKGetGlobalPriorityInfo(VkQueueGlobalPriority type) noexcept
 {
     switch (type) {
     default:
@@ -87,7 +89,7 @@ get_global_priority_info(VkQueueGlobalPriority type) noexcept
 
 //-----------------------------------------------------------------------------
 constexpr WisCommandQueuePriority
-convert_global_priority(VkQueueGlobalPriority vk_priority) noexcept
+VKConvertGlobalPriority(VkQueueGlobalPriority vk_priority) noexcept
 {
     switch (vk_priority) {
     default:
@@ -102,7 +104,7 @@ convert_global_priority(VkQueueGlobalPriority vk_priority) noexcept
 
 //-----------------------------------------------------------------------------
 inline std::array<uint32_t, WisCommandQueueTypeCount>
-get_sorted_queue_families(wis::span<VkQueueFamilyProperties2> props_span) noexcept
+VKGetSortedQueueFamilies(wis::span<VkQueueFamilyProperties2> props_span) noexcept
 {
     static constexpr uint32_t                      invalid_index = VKQueueResidencyInfo::invalid_index;
     std::array<uint32_t, WisCommandQueueTypeCount> qcom{};
@@ -206,14 +208,15 @@ get_sorted_queue_families(wis::span<VkQueueFamilyProperties2> props_span) noexce
     return qcom;
 }
 
-VKQueueResidencyInfo get_queue_residency_info(const wis::impl::VKMainAdapter& adapter_table,
-                                              VkPhysicalDevice                adapter,
-                                              const WisVKDeviceRequirements*  requirements,
-                                              const VKDeviceFeatures&         device_features,
-                                              WisResult&                      out_result)
+//-----------------------------------------------------------------------------
+inline VKQueueResidencyInfo VKGetQueueResidencyInfo(const wis::impl::VKMainAdapter& adapter_table,
+                                                    VkPhysicalDevice                adapter,
+                                                    const WisVKDeviceRequirements*  requirements,
+                                                    const VKDeviceFeatures&         device_features,
+                                                    WisResult&                      out_result)
 {
     VKQueueResidencyInfo      info{};
-    constexpr static uint32_t reasonable_queue_family_count = 32;
+    constexpr static uint32_t reasonable_queue_family_count = VKQueueResidencyInfo::reasonable_queue_families;
     if (!requirements) {
         // No requirements provided, return empty info
         return info;
@@ -242,22 +245,9 @@ VKQueueResidencyInfo get_queue_residency_info(const wis::impl::VKMainAdapter& ad
     }
 
     // Allocate array for queue family properties, use stack if count is reasonable to avoid heap allocation
-    VkQueueFamilyProperties2              default_props[reasonable_queue_family_count]; // avoid heap allocation for up to 32 queue families
-    VkQueueFamilyGlobalPriorityProperties default_global_props[reasonable_queue_family_count];
-
-    std::unique_ptr<uint8_t[]> family_props;
-
-    wis::span<VkQueueFamilyProperties2>              props_span;
-    wis::span<VkQueueFamilyGlobalPriorityProperties> global_props_span;
-
-    if (queue_family_count <= reasonable_queue_family_count) {
-        props_span        = wis::span{ default_props, queue_family_count };
-        global_props_span = wis::span{ default_global_props, queue_family_count };
-    } else {
-        family_props      = make_unique<uint8_t[]>(sizeof(VkQueueFamilyProperties2) * queue_family_count + sizeof(VkQueueFamilyGlobalPriorityProperties) * queue_family_count);
-        props_span        = wis::span{ reinterpret_cast<VkQueueFamilyProperties2*>(family_props.get()), queue_family_count };
-        global_props_span = wis::span{ reinterpret_cast<VkQueueFamilyGlobalPriorityProperties*>(family_props.get() + sizeof(VkQueueFamilyProperties2) * queue_family_count), queue_family_count };
-    }
+    std::array<VkQueueFamilyProperties2, reasonable_queue_family_count>                    props_span;
+    std::array<VkQueueFamilyGlobalPriorityProperties, reasonable_queue_family_count>       global_props_span;
+    std::array<VkQueueFamilyOwnershipTransferPropertiesKHR, reasonable_queue_family_count> transfer_props_span;
 
     // Initialize the pNext chain for each queue family property to query global priority support
     for (uint32_t i = 0; i < queue_family_count; ++i) {
@@ -267,6 +257,10 @@ VKQueueResidencyInfo get_queue_residency_info(const wis::impl::VKMainAdapter& ad
         };
         global_props_span[i] = {
             .sType = VK_STRUCTURE_TYPE_QUEUE_FAMILY_GLOBAL_PRIORITY_PROPERTIES_KHR,
+            .pNext = device_features.maintenance9 ? &transfer_props_span[i] : nullptr,
+        };
+        transfer_props_span[i] = {
+            .sType = VK_STRUCTURE_TYPE_QUEUE_FAMILY_OWNERSHIP_TRANSFER_PROPERTIES_KHR,
             .pNext = nullptr,
         };
     }
@@ -278,7 +272,7 @@ VKQueueResidencyInfo get_queue_residency_info(const wis::impl::VKMainAdapter& ad
 
     // Sort all families
     uint32_t allocated_queue_count = 0;
-    auto     selection             = get_sorted_queue_families(props_span);
+    auto     selection             = VKGetSortedQueueFamilies(props_span);
     for (std::size_t i = 0; i < queue_descs.size(); ++i) {
         auto& desc = queue_descs[i];
         if (desc.type >= WisCommandQueueTypeCount) {
@@ -296,15 +290,17 @@ VKQueueResidencyInfo get_queue_residency_info(const wis::impl::VKMainAdapter& ad
 
         const VkDeviceQueueGlobalPriorityCreateInfo* priority_next = nullptr;
         if (device_features.global_priority && desc.priority > WisCommandQueuePriorityNormal) {
-            auto* global_priority_info = get_global_priority_info(desc.priority);
+            auto* global_priority_info = VKGetGlobalPriorityInfo(desc.priority);
             // Clamp the requested priority to the maximum supported by this family
             for (uint32_t p = global_props.priorityCount; p > 0; --p) {
                 if (global_props.priorities[p - 1] <= global_priority_info->globalPriority) {
-                    priority_next = get_global_priority_info(global_props.priorities[p - 1]);
+                    priority_next = VKGetGlobalPriorityInfo(global_props.priorities[p - 1]);
                     break;
                 }
             }
         }
+
+        info.transfer_masks[desc.type] = transfer_props_span[selection[desc.type]].optimalImageTransferToQueueFamilies;
 
         // If the queue count is zero, it means this family has already been allocated for a previous queue type.
         if (family_props.queueCount == 0) {
@@ -338,7 +334,7 @@ VKQueueResidencyInfo get_queue_residency_info(const wis::impl::VKMainAdapter& ad
     return info;
 }
 
-inline WisResult init_resource_allocator(VkDevice          device,
+inline WisResult VKInitResourceAllocator(VkDevice          device,
                                          VkPhysicalDevice  adapter,
                                          VKInstanceHeader& instance_header,
                                          VKDeviceHeader&   device_header)
@@ -601,7 +597,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
     collector.ForceBindPropertyStruct(&vulkan12_properties);
 
     // Initialize queues
-    auto queue_info = get_queue_residency_info(
+    auto queue_info = VKGetQueueResidencyInfo(
             atable,
             adapter,
             requirements,
@@ -666,7 +662,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
         if (queue_family.pNext) {
             // Global priority info is present in the pNext chain, store it in the device header
             const auto* global_priority_info = reinterpret_cast<const VkDeviceQueueGlobalPriorityCreateInfo*>(queue_family.pNext);
-            family_info.queue_priority       = static_cast<uint8_t>(wis::detail::convert_global_priority(global_priority_info->globalPriority));
+            family_info.queue_priority       = static_cast<uint8_t>(wis::detail::VKConvertGlobalPriority(global_priority_info->globalPriority));
         }
 
         semaphore_offset += family_info.queue_count;
@@ -674,7 +670,19 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
 
     // store mapping of queue type to family index in device header for quick lookup during command queue creation
     for (size_t j = 0; j < WisCommandQueueTypeCount; ++j) {
-        header->header.queue_residency[j] = queue_info.residency[j];
+        auto index                        = queue_info.residency[j];
+        header->header.queue_residency[j] = index;
+        if (index != wis::detail::VKQueueFamilyProperties::invalid_family_index) {
+            header->header.queue_family_extras[j] = {
+                .family_index           = static_cast<uint8_t>(queue_info.data[index].queueFamilyIndex),
+                .compatible_to_families = queue_info.transfer_masks[index],
+            };
+        } else {
+            header->header.queue_family_extras[j] = {
+                .family_index           = wis::detail::VKQueueFamilyProperties::invalid_family_index,
+                .compatible_to_families = 0,
+            };
+        }
     }
 
     // Initialize device table
@@ -698,7 +706,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
     }
 
     // Create resource allocator
-    res = init_resource_allocator(device_handle, adapter, impl.shared_header->header, header->header);
+    res = VKInitResourceAllocator(device_handle, adapter, impl.shared_header->header, header->header);
     if (res.status != WisStatusOk) {
         device_table.vkDestroyDevice(device_handle, nullptr); // cleanup
         return res;

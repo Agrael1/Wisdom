@@ -47,11 +47,42 @@ struct DX12BufferBarrier {
 };
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Global barrier without resource handles.
+ *
+ * */
+struct DX12GlobalBarrier {
+    wis::BarrierSync    sync_before; ///< Synchronization scope before the barrier.
+    wis::BarrierSync    sync_after; ///< Synchronization scope after the barrier.
+    wis::ResourceAccess access_before; ///< Access scope before the barrier.
+    wis::ResourceAccess access_after; ///< Access scope after the barrier.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Texture barrier with the texture handle.
+ *
+ * */
+struct DX12TextureBarrier {
+    wis::BarrierSync      sync_before; ///< Synchronization scope before the barrier.
+    wis::BarrierSync      sync_after; ///< Synchronization scope after the barrier.
+    wis::ResourceAccess   access_before; ///< Access scope before the barrier.
+    wis::ResourceAccess   access_after; ///< Access scope after the barrier.
+    wis::TextureState     state_before; ///< Texture state before the barrier.
+    wis::TextureState     state_after; ///< Texture state after the barrier.
+    wis::BarrierFlags     flags; ///< Barrier flags. Describe additional options for the barrier.
+    wis::DX12TextureView  texture; ///< Texture view.
+    wis::SubresourceRange subresource_range; ///< Subresource range for the barrier.
+    wis::CommandQueueType queue_type_before; ///< Type of the queue the barrier is executed on before the synchronization point. Used for cross-queue barriers.
+    wis::CommandQueueType queue_type_after; ///< Type of the queue the barrier is executed on after the synchronization point. Used for cross-queue barriers.
+};
+
+/**
  * @brief Provided by Wisdom 0.7.0. Barrier group for multiple barriers submission.
  *
  * */
 struct DX12BarrierGroup {
-    wis::span<const wis::DX12BufferBarrier> buffer_barriers; ///< Array of buffer barriers.
+    wis::span<const wis::DX12BufferBarrier>  buffer_barriers; ///< Array of buffer barriers.
+    wis::span<const wis::DX12TextureBarrier> texture_barriers; ///< Array of texture barriers.
+    wis::span<const wis::DX12GlobalBarrier>  global_barriers; ///< Array of global barriers.
 };
 
 struct DX12TextureDeleter {

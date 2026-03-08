@@ -160,6 +160,13 @@ public:
 };
 
 //-----------------------------------------------------------------------------
+struct VKQueueFamilyExtras {
+    static constexpr uint8_t invalid_family_index   = 0xFF;
+    uint8_t                  family_index           = invalid_family_index;
+    uint32_t                 compatible_to_families = 0; // Bitmask of compatible queue families for relaxed transitions, indexed by family index. A bit value of 1 indicates compatibility.
+};
+
+//-----------------------------------------------------------------------------
 struct VKDeviceHeader {
     impl::VKMainDevice       device_table;
     impl::VKMainCommandQueue command_queue_table;
@@ -172,6 +179,7 @@ struct VKDeviceHeader {
     VKDeviceFeatures features;
 
     // Queue family indices for each command queue type
+    std::array<VKQueueFamilyExtras, WisCommandQueueTypeCount>     queue_family_extras{}; // Used in other parts of code
     std::array<uint8_t, WisCommandQueueTypeCount>                 queue_residency{};
     std::array<VKQueueFamilyProperties, WisCommandQueueTypeCount> queue_families{};
     uint32_t                                                      family_count = 0;
@@ -218,6 +226,7 @@ struct VKDeviceControlBlock : public VKControlBlock<VKDeviceHeader> {
 struct VKCommandPoolHeader {
     VkDevice              device;
     VKDeviceControlBlock* device_header;
+    VkCommandPool         command_pool;
 };
 
 //-----------------------------------------------------------------------------
@@ -331,7 +340,7 @@ inline void release_vk_device(VkDevice device, VKDeviceControlBlock* header) noe
  * @param command_pool The Vulkan command pool to release
  * @param header The control block header associated with the command pool, which holds the reference count and a pointer to the device control block header
  */
-inline void release_vk_command_pool(VkCommandPool command_pool, VKCommandPoolControlBlock* header) noexcept
+inline void release_vk_command_pool(VKCommandPoolControlBlock* header) noexcept
 {
     if (header && header->Release() == 1) {
         // Last reference, destroy command pool
@@ -339,7 +348,7 @@ inline void release_vk_command_pool(VkCommandPool command_pool, VKCommandPoolCon
 
         // Destroy command pool
         auto& table = header->header.device_header->header.device_table;
-        table.vkDestroyCommandPool(header->header.device, command_pool, nullptr);
+        table.vkDestroyCommandPool(header->header.device, header->header.command_pool, nullptr);
 
         release_vk_device(header->header.device,
                           header->header.device_header);

@@ -96,6 +96,6 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisBufferBarrier, WisBufferBarrier
+ * @see WisBufferBarrier, WisBufferBarrier, WisGlobalBarrier, WisGlobalBarrier, WisTextureBarrier, WisTextureBarrier
  * \endcond
  */

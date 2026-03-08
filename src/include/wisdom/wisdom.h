@@ -45,6 +45,8 @@ typedef struct WisDX12DeviceExtensionHeader   WisDeviceExtensionHeader;
 typedef struct WisDX12InstanceExtensionHeader WisInstanceExtensionHeader;
 typedef struct WisDX12DeviceRequirements      WisDeviceRequirements;
 typedef struct WisDX12BufferBarrier           WisBufferBarrier;
+typedef struct WisDX12GlobalBarrier           WisGlobalBarrier;
+typedef struct WisDX12TextureBarrier          WisTextureBarrier;
 typedef struct WisDX12BarrierGroup            WisBarrierGroup;
 
 //==============================================================
@@ -157,6 +159,8 @@ typedef struct WisVKDeviceExtensionHeader   WisDeviceExtensionHeader;
 typedef struct WisVKInstanceExtensionHeader WisInstanceExtensionHeader;
 typedef struct WisVKDeviceRequirements      WisDeviceRequirements;
 typedef struct WisVKBufferBarrier           WisBufferBarrier;
+typedef struct WisVKGlobalBarrier           WisGlobalBarrier;
+typedef struct WisVKTextureBarrier          WisTextureBarrier;
 typedef struct WisVKBarrierGroup            WisBarrierGroup;
 
 //==============================================================

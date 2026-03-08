@@ -21,16 +21,16 @@
  *     WisResourceAccessShaderResource = (1u << 7),
  *     WisResourceAccessStreamOutput = (1u << 8),
  *     WisResourceAccessIndirectArgument = (1u << 9),
- *     WisResourceAccessCopyDest = (1u << 10),
- *     WisResourceAccessCopySource = (1u << 11),
+ *     WisResourceAccessCopyDst = (1u << 10),
+ *     WisResourceAccessCopySrc = (1u << 11),
  *     WisResourceAccessConditionalRendering = (1u << 12),
  *     WisResourceAccessAccelerationStructureRead = (1u << 13),
  *     WisResourceAccessAccelerationStructureWrite = (1u << 14),
  *     WisResourceAccessShadingRate = (1u << 15),
  *     WisResourceAccessVideoDecodeRead = (1u << 16),
  *     WisResourceAccessVideoDecodeWrite = (1u << 17),
- *     WisResourceAccessResolveDest = (1u << 18),
- *     WisResourceAccessResolveSource = (1u << 19),
+ *     WisResourceAccessResolveDst = (1u << 18),
+ *     WisResourceAccessResolveSrc = (1u << 19),
  *     WisResourceAccessNoAccess = (1u << 31),
  * } WisResourceAccess;
  * ```
@@ -50,16 +50,16 @@
  *     ShaderResource = (1u << 7),
  *     StreamOutput = (1u << 8),
  *     IndirectArgument = (1u << 9),
- *     CopyDest = (1u << 10),
- *     CopySource = (1u << 11),
+ *     CopyDst = (1u << 10),
+ *     CopySrc = (1u << 11),
  *     ConditionalRendering = (1u << 12),
  *     AccelerationStructureRead = (1u << 13),
  *     AccelerationStructureWrite = (1u << 14),
  *     ShadingRate = (1u << 15),
  *     VideoDecodeRead = (1u << 16),
  *     VideoDecodeWrite = (1u << 17),
- *     ResolveDest = (1u << 18),
- *     ResolveSource = (1u << 19),
+ *     ResolveDst = (1u << 18),
+ *     ResolveSrc = (1u << 19),
  *     NoAccess = (1u << 31),
  * };
  * }
@@ -84,16 +84,16 @@
  * - `WisResourceAccessShaderResource = (1 << 7)`: Shader resource access.
  * - `WisResourceAccessStreamOutput = (1 << 8)`: Stream output access. Applies only to buffers.
  * - `WisResourceAccessIndirectArgument = (1 << 9)`: Indirect argument access.
- * - `WisResourceAccessCopyDest = (1 << 10)`: Copy destination access.
- * - `WisResourceAccessCopySource = (1 << 11)`: Copy source access.
+ * - `WisResourceAccessCopyDst = (1 << 10)`: Copy destination access.
+ * - `WisResourceAccessCopySrc = (1 << 11)`: Copy source access.
  * - `WisResourceAccessConditionalRendering = (1 << 12)`: Conditional rendering access.
  * - `WisResourceAccessAccelerationStructureRead = (1 << 13)`: Acceleration structure read access.
  * - `WisResourceAccessAccelerationStructureWrite = (1 << 14)`: Acceleration structure write access.
  * - `WisResourceAccessShadingRate = (1 << 15)`: Shading rate access.
  * - `WisResourceAccessVideoDecodeRead = (1 << 16)`: Video decode read access.
  * - `WisResourceAccessVideoDecodeWrite = (1 << 17)`: Video decode write access.
- * - `WisResourceAccessResolveDest = (1 << 18)`: Resolve destination access.
- * - `WisResourceAccessResolveSource = (1 << 19)`: Resolve source access.
+ * - `WisResourceAccessResolveDst = (1 << 18)`: Resolve destination access.
+ * - `WisResourceAccessResolveSrc = (1 << 19)`: Resolve source access.
  * - `WisResourceAccessNoAccess = (1 << 31)`: No access. Used to indicate no access throughout the pipeline.
  * \endcond
  *
@@ -102,6 +102,6 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisBufferBarrier, WisBufferBarrier
+ * @see WisBufferBarrier, WisBufferBarrier, WisGlobalBarrier, WisGlobalBarrier, WisTextureBarrier, WisTextureBarrier
  * \endcond
  */

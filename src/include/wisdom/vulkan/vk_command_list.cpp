@@ -16,6 +16,31 @@ inline uint8_t* VKAllocateScratchSpace(const wis::impl::VKCommandListImpl& impl,
     }
     return impl.scratch_memory;
 }
+inline constexpr VkImageAspectFlags
+VKExtractAspectFlags(WisSubresourceRange subresource, WisBarrierFlags flags) noexcept
+{
+    VkImageAspectFlags aspect_flags = 0;
+    if (flags & WisBarrierFlagsDepthResource) {
+        aspect_flags |= VK_IMAGE_ASPECT_DEPTH_BIT;
+    }
+    if (flags & WisBarrierFlagsStencilResource) {
+        aspect_flags |= VK_IMAGE_ASPECT_STENCIL_BIT;
+    }
+    if (aspect_flags != 0) {
+        // If depth or stencil specified, ignore plane slice and return early
+        // since depth/stencil views of multi-planar formats are not allowed to have a plane slice.
+        return aspect_flags;
+    }
+
+    if ((flags & WisBarrierFlagsPlanarImage) == 0) {
+        return VK_IMAGE_ASPECT_COLOR_BIT; // If not a planar image, return color aspect for simplicity.
+    }
+
+    for (uint16_t plane = subresource.plane_slice; plane < subresource.plane_slice_count; ++plane) {
+        aspect_flags |= VK_IMAGE_ASPECT_PLANE_0_BIT << plane;
+    }
+    return aspect_flags;
+}
 } // namespace wis::detail
 
 //-----------------------------------------------------------------------------
@@ -25,10 +50,10 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyCommandList(WisVKCommandList* self)
     if (impl.command_buffer != VK_NULL_HANDLE) {
         // free command buffer
         auto& header = impl.command_pool_header->header;
-        impl.command_list_table->vkFreeCommandBuffers(header.device, impl.command_pool, 1, &impl.command_buffer);
+        impl.command_list_table->vkFreeCommandBuffers(header.device, header.command_pool, 1, &impl.command_buffer);
         impl.command_buffer = VK_NULL_HANDLE;
 
-        wis::detail::release_vk_command_pool(impl.command_pool, impl.command_pool_header);
+        wis::detail::release_vk_command_pool(impl.command_pool_header);
     }
 }
 
@@ -162,11 +187,16 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetDescriptorTable(const WisVKComma
 WIS_EXTERN_C WISDOM_API void wisVKCommandListInsertBarriers(const WisVKCommandList*  self,
                                                             const WisVKBarrierGroup* barriers)
 {
-    if (barriers->buffer_barrier_count == 0) {
+    // clang-format off
+    if (barriers->buffer_barrier_count +
+        barriers->texture_barrier_count +
+        barriers->global_barrier_count == 0) {
         return;
     }
+    // clang-format on
 
-    auto& impl = *reinterpret_cast<const wis::impl::VKCommandListImpl*>(self);
+    auto& impl          = *reinterpret_cast<const wis::impl::VKCommandListImpl*>(self);
+    auto& device_header = impl.command_pool_header->header;
 
     static constexpr uint32_t max_barrier_size = std::max(sizeof(VkBufferMemoryBarrier2), sizeof(VkImageMemoryBarrier2));
     static constexpr uint32_t static_size      = static_cast<uint32_t>(wis::TransientMaxBarrierCount * max_barrier_size);
@@ -179,9 +209,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListInsertBarriers(const WisVKCommandLi
         real_data = wis::detail::VKAllocateScratchSpace(impl, needed_size);
     }
 
-    auto* buffer_barriers = local_scratch;
-
-    wis::span<VkBufferMemoryBarrier2> buffer_barriers_span{ reinterpret_cast<VkBufferMemoryBarrier2*>(buffer_barriers), barriers->buffer_barrier_count };
+    wis::span<VkBufferMemoryBarrier2> buffer_barriers_span{ reinterpret_cast<VkBufferMemoryBarrier2*>(real_data), barriers->buffer_barrier_count };
     uint32_t                          real_buffer_barrier_count = barriers->buffer_barrier_count;
 
     for (size_t i = 0; i < barriers->buffer_barrier_count; i++) {
@@ -191,15 +219,12 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListInsertBarriers(const WisVKCommandLi
         auto q2 = VK_QUEUE_FAMILY_IGNORED;
         if (src.queue_type_before != src.queue_type_after) {
             // skip barriers that only perform queue ownership transfer
-            if (impl.maintenance9 && impl.queue_type == src.queue_type_before) {
+            if (impl.maintenance9) {
                 real_buffer_barrier_count--;
                 continue;
             }
-
-            if (!impl.maintenance9) {
-                q1 = src.queue_type_before >= WisCommandQueueTypeCount ? VK_QUEUE_FAMILY_IGNORED : impl.queue_residency[src.queue_type_before];
-                q2 = src.queue_type_after >= WisCommandQueueTypeCount ? VK_QUEUE_FAMILY_IGNORED : impl.queue_residency[src.queue_type_after];
-            }
+            q1 = impl.queue_indices[src.queue_type_before].family_index;
+            q2 = impl.queue_indices[src.queue_type_after].family_index;
         }
 
         buffer_barriers_span[i] = {
@@ -217,14 +242,97 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListInsertBarriers(const WisVKCommandLi
         };
     }
 
+    // convert texture barriers
+    wis::span<VkImageMemoryBarrier2> texture_barriers_span{
+        reinterpret_cast<VkImageMemoryBarrier2*>(buffer_barriers_span.subspan(real_buffer_barrier_count).end()),
+        barriers->texture_barrier_count
+    };
+    uint32_t real_texture_barrier_count = barriers->texture_barrier_count;
+
+    for (size_t i = 0; i < barriers->texture_barrier_count; i++) {
+        const auto& src = barriers->texture_barriers[i];
+        auto        q1  = VK_QUEUE_FAMILY_IGNORED;
+        auto        q2  = VK_QUEUE_FAMILY_IGNORED;
+
+        if (src.queue_type_before != src.queue_type_after) {
+            // skip barriers that only perform queue ownership transfer or relaxed transitions if maintenance9 is supported
+            if (impl.maintenance9 && (impl.queue_indices[src.queue_type_before].compatible_to_families & (1 << impl.queue_indices[src.queue_type_after].family_index))) {
+                // Skip only release barriers
+                // Acquire barriers will just perform relaxed transitions.
+                if (src.queue_type_before == impl.queue_type) {
+                    real_texture_barrier_count--;
+                    continue;
+                }
+            } else {
+                q1 = impl.queue_indices[src.queue_type_before].family_index;
+                q2 = impl.queue_indices[src.queue_type_after].family_index;
+            }
+        }
+
+        texture_barriers_span[i] = {
+            .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
+            .pNext               = nullptr,
+            .srcStageMask        = wis::detail::convert_vk(src.sync_before),
+            .srcAccessMask       = wis::detail::convert_vk(src.access_before),
+            .dstStageMask        = wis::detail::convert_vk(src.sync_after),
+            .dstAccessMask       = wis::detail::convert_vk(src.access_after),
+            .oldLayout           = src.flags & WisBarrierFlagsDiscardContent
+                              ? VK_IMAGE_LAYOUT_UNDEFINED
+                              : wis::detail::convert_vk(src.state_before),
+            .newLayout           = wis::detail::convert_vk(src.state_after),
+            .srcQueueFamilyIndex = q1,
+            .dstQueueFamilyIndex = q2,
+            .image               = std::bit_cast<VkImage>(src.texture)
+        };
+
+        auto aspect_flags = wis::detail::VKExtractAspectFlags(src.subresource_range, src.flags);
+        if (src.flags & WisBarrierFlagsWholeRange) {
+            texture_barriers_span[i].subresourceRange = {
+                .aspectMask     = aspect_flags,
+                .baseMipLevel   = 0,
+                .levelCount     = VK_REMAINING_MIP_LEVELS,
+                .baseArrayLayer = 0,
+                .layerCount     = VK_REMAINING_ARRAY_LAYERS,
+            };
+        } else {
+            texture_barriers_span[i].subresourceRange = {
+                .aspectMask     = aspect_flags,
+                .baseMipLevel   = src.subresource_range.base_mip_level,
+                .levelCount     = src.subresource_range.mip_level_count,
+                .baseArrayLayer = src.subresource_range.base_array_layer,
+                .layerCount     = src.subresource_range.array_layer_count,
+            };
+        }
+    }
+
+    // convert global barriers
+    wis::span<VkMemoryBarrier2> global_barriers_span{
+        reinterpret_cast<VkMemoryBarrier2*>(texture_barriers_span.subspan(real_texture_barrier_count).end()),
+        barriers->global_barrier_count
+    };
+
+    for (size_t i = 0; i < barriers->global_barrier_count; i++) {
+        const auto& src         = barriers->global_barriers[i];
+        global_barriers_span[i] = {
+            .sType         = VK_STRUCTURE_TYPE_MEMORY_BARRIER_2,
+            .pNext         = nullptr,
+            .srcStageMask  = wis::detail::convert_vk(src.sync_before),
+            .srcAccessMask = wis::detail::convert_vk(src.access_before),
+            .dstStageMask  = wis::detail::convert_vk(src.sync_after),
+            .dstAccessMask = wis::detail::convert_vk(src.access_after),
+        };
+    }
+
     // future work: support image barriers
     VkDependencyInfo dependency_info{
         .sType                    = VK_STRUCTURE_TYPE_DEPENDENCY_INFO,
         .pNext                    = nullptr,
+        .memoryBarrierCount       = static_cast<uint32_t>(barriers->global_barrier_count),
+        .pMemoryBarriers          = global_barriers_span.data(),
         .bufferMemoryBarrierCount = real_buffer_barrier_count,
         .pBufferMemoryBarriers    = buffer_barriers_span.data(),
-        .imageMemoryBarrierCount  = 0,
-        .pImageMemoryBarriers     = nullptr,
+        .imageMemoryBarrierCount  = real_texture_barrier_count,
+        .pImageMemoryBarriers     = texture_barriers_span.data(),
     };
     impl.command_list_table->vkCmdPipelineBarrier2(impl.command_buffer, &dependency_info);
 }

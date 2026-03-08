@@ -868,6 +868,27 @@ typedef enum WisMemoryType {
 } WisMemoryType;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Texture state for resource transitions.
+ *
+ * */
+typedef enum WisTextureState {
+    WisTextureStateUndefined         = -1, ///< Undefined state.
+    WisTextureStateCommon            = 0, ///< Common state.
+    WisTextureStateRead              = 1, ///< General Read state.
+    WisTextureStateRenderTarget      = 2, ///< Render Target state.
+    WisTextureStateUnorderedAccess   = 3, ///< Unordered Access state.
+    WisTextureStateDepthStencilWrite = 4, ///< Depth Stencil Write state.
+    WisTextureStateDepthStencilRead  = 5, ///< Depth Stencil Read state.
+    WisTextureStateShaderResource    = 6, ///< Shader Resource state.
+    WisTextureStateCopySrc           = 7, ///< Copy Source state.
+    WisTextureStateCopyDst           = 8, ///< Copy Destination state.
+    WisTextureStatePresent           = 9, ///< Present swapchain state.
+    WisTextureStateShadingRate       = 10, ///< Shading Rate state. Used for Variable Shading Rate.
+    WisTextureStateVideoDecodeRead   = 11, ///< Video Decode Read state.
+    WisTextureStateVideoDecodeWrite  = 12, ///< Video Decode Write state.
+} WisTextureState;
+
+/**
  * @brief Provided by Wisdom 0.7.0. Flags that describe adapter.
  *
  * */
@@ -1022,18 +1043,31 @@ typedef enum WisResourceAccess {
     WisResourceAccessShaderResource             = (1u << 7), ///< Shader resource access.
     WisResourceAccessStreamOutput               = (1u << 8), ///< Stream output access. Applies only to buffers.
     WisResourceAccessIndirectArgument           = (1u << 9), ///< Indirect argument access.
-    WisResourceAccessCopyDest                   = (1u << 10), ///< Copy destination access.
-    WisResourceAccessCopySource                 = (1u << 11), ///< Copy source access.
+    WisResourceAccessCopyDst                    = (1u << 10), ///< Copy destination access.
+    WisResourceAccessCopySrc                    = (1u << 11), ///< Copy source access.
     WisResourceAccessConditionalRendering       = (1u << 12), ///< Conditional rendering access.
     WisResourceAccessAccelerationStructureRead  = (1u << 13), ///< Acceleration structure read access.
     WisResourceAccessAccelerationStructureWrite = (1u << 14), ///< Acceleration structure write access.
     WisResourceAccessShadingRate                = (1u << 15), ///< Shading rate access.
     WisResourceAccessVideoDecodeRead            = (1u << 16), ///< Video decode read access.
     WisResourceAccessVideoDecodeWrite           = (1u << 17), ///< Video decode write access.
-    WisResourceAccessResolveDest                = (1u << 18), ///< Resolve destination access.
-    WisResourceAccessResolveSource              = (1u << 19), ///< Resolve source access.
+    WisResourceAccessResolveDst                 = (1u << 18), ///< Resolve destination access.
+    WisResourceAccessResolveSrc                 = (1u << 19), ///< Resolve source access.
     WisResourceAccessNoAccess                   = (1u << 31), ///< No access. Used to indicate no access throughout the pipeline.
 } WisResourceAccess;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Barrier flags for resource barriers.
+ *
+ * */
+typedef enum WisBarrierFlags {
+    WisBarrierFlagsNone            = 0, ///< No flags set. Barrier is regular.
+    WisBarrierFlagsDiscardContent  = (1u << 0), ///< Discard resource content. The content of the resource before the barrier is treated as if resource was not initialized.
+    WisBarrierFlagsDepthResource   = (1u << 1), ///< Resource is a depth resource. This flag @wis_must be set for all depth resources to make transitions on them.
+    WisBarrierFlagsStencilResource = (1u << 2), ///< Resource is a stencil resource. This flag @wis_must be set for all stencil resources to make transitions on them. If resource has format `WisDataFormatD24UnormS8Uint` both `WisBarrierFlags::DepthResource` and `WisBarrierFlags::StencilResource` @wis_must be set.
+    WisBarrierFlagsWholeRange      = (1u << 3), ///< Transition whole resource. If not set, the transition is applied only to the specified subresource range. If set, the subresource range is ignored and the transition is applied to all subresources of the resource.
+    WisBarrierFlagsPlanarImage     = (1u << 4), ///< Resource is a planar image. If the flag is not set, plane slices in WisSubresourceRange are ignored.
+} WisBarrierFlags;
 
 //==============================================================
 // Delegates
@@ -1217,7 +1251,8 @@ typedef struct WisSubresourceRange {
     uint16_t mip_level_count; ///< Number of mip levels in the subresource.
     uint16_t base_array_layer; ///< Array layer of the subresource. For 3D textures, this defines the depth slice.
     uint16_t array_layer_count; ///< Number of array layers in the subresource. For 3D textures, this defines the number of depth slices.
-    uint16_t plane_slice; ///< Base depth slice of the subresource. Used only for 2D textures (YUV). Max value is 3.
+    uint16_t plane_slice; ///< Base depth slice of the subresource. Used only for 2D textures (YUV).
+    uint16_t plane_slice_count; ///< Number of depth slices in the subresource. Used only for 2D textures (YUV). Max value is 3.
 } WisSubresourceRange;
 
 /**
@@ -1345,6 +1380,7 @@ typedef struct WisDeviceCommandQueuesProperties {
     WisQueryPropertyType    property_type; ///< Defines the type of the queried property. @wis_must be wis::QueryPropertyType..
     void*                   next_in_chain; ///< Pointer to the next queried data struct.
     bool                    supported_queues[5]; ///< Array of supported queue types. If a queue type is supported, the value is `1`, otherwise `0`. Order of queue types is the same as in wis::CommandQueueType enum.
+    bool                    relaxed_queue_transition; ///< Indicates if relaxed queue transition is supported. This feature allows executing command lists that contain buffers used on different queue types without explicit resource state transitions when the buffers is used on a different queue type. It is supported on Windows 10 22H2 and later with WDDM 3.0 or later. On Vulkan it requires `VK_KHR_maintenance9` extension.
     WisCommandQueuePriority max_queue_priority[5]; ///< Array of maximum supported priorities for each queue type. If a queue type is not supported, the value is `0`. Order of queue types is the same as in wis::CommandQueueType enum.
 } WisDeviceCommandQueuesProperties;
 
@@ -1377,6 +1413,9 @@ typedef struct WisDeviceMemoryProperties {
 
 /// @brief Provided by Wisdom 0.7.0. Defines the amount of barriers of all types that will not trigger allocation.
 #define WIS_TRANSIENT_MAX_BARRIER_COUNT ((uint32_t)32)
+
+/// @brief Provided by Wisdom 0.7.0. Defines the amount of planes that can be present on the single (YUV) image.
+#define WIS_MAX_PLANE_COUNT ((uint32_t)3)
 
 /// @brief Provided by Wisdom 0.7.0. Select whole size of a resource.
 #define WIS_WHOLE_SIZE ((uint64_t)0xffffffffffffffff)

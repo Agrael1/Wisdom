@@ -865,6 +865,27 @@ enum class MemoryType {
 };
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Texture state for resource transitions.
+ *
+ * */
+enum class TextureState {
+    Undefined         = -1, ///< Undefined state.
+    Common            = 0, ///< Common state.
+    Read              = 1, ///< General Read state.
+    RenderTarget      = 2, ///< Render Target state.
+    UnorderedAccess   = 3, ///< Unordered Access state.
+    DepthStencilWrite = 4, ///< Depth Stencil Write state.
+    DepthStencilRead  = 5, ///< Depth Stencil Read state.
+    ShaderResource    = 6, ///< Shader Resource state.
+    CopySrc           = 7, ///< Copy Source state.
+    CopyDst           = 8, ///< Copy Destination state.
+    Present           = 9, ///< Present swapchain state.
+    ShadingRate       = 10, ///< Shading Rate state. Used for Variable Shading Rate.
+    VideoDecodeRead   = 11, ///< Video Decode Read state.
+    VideoDecodeWrite  = 12, ///< Video Decode Write state.
+};
+
+/**
  * @brief Provided by Wisdom 0.7.0. Flags that describe adapter.
  *
  * */
@@ -1028,19 +1049,33 @@ enum class ResourceAccess : uint32_t {
     ShaderResource             = (1u << 7), ///< Shader resource access.
     StreamOutput               = (1u << 8), ///< Stream output access. Applies only to buffers.
     IndirectArgument           = (1u << 9), ///< Indirect argument access.
-    CopyDest                   = (1u << 10), ///< Copy destination access.
-    CopySource                 = (1u << 11), ///< Copy source access.
+    CopyDst                    = (1u << 10), ///< Copy destination access.
+    CopySrc                    = (1u << 11), ///< Copy source access.
     ConditionalRendering       = (1u << 12), ///< Conditional rendering access.
     AccelerationStructureRead  = (1u << 13), ///< Acceleration structure read access.
     AccelerationStructureWrite = (1u << 14), ///< Acceleration structure write access.
     ShadingRate                = (1u << 15), ///< Shading rate access.
     VideoDecodeRead            = (1u << 16), ///< Video decode read access.
     VideoDecodeWrite           = (1u << 17), ///< Video decode write access.
-    ResolveDest                = (1u << 18), ///< Resolve destination access.
-    ResolveSource              = (1u << 19), ///< Resolve source access.
+    ResolveDst                 = (1u << 18), ///< Resolve destination access.
+    ResolveSrc                 = (1u << 19), ///< Resolve source access.
     NoAccess                   = (1u << 31), ///< No access. Used to indicate no access throughout the pipeline.
 };
 WISDOM_DEFINE_ENUM_OPERATORS(ResourceAccess)
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Barrier flags for resource barriers.
+ *
+ * */
+enum class BarrierFlags : uint32_t {
+    None            = 0, ///< No flags set. Barrier is regular.
+    DiscardContent  = (1u << 0), ///< Discard resource content. The content of the resource before the barrier is treated as if resource was not initialized.
+    DepthResource   = (1u << 1), ///< Resource is a depth resource. This flag @wis_must be set for all depth resources to make transitions on them.
+    StencilResource = (1u << 2), ///< Resource is a stencil resource. This flag @wis_must be set for all stencil resources to make transitions on them. If resource has format `wis::DataFormat::D24UnormS8Uint` both `wis::BarrierFlags::DepthResource` and `wis::BarrierFlags::StencilResource` @wis_must be set.
+    WholeRange      = (1u << 3), ///< Transition whole resource. If not set, the transition is applied only to the specified subresource range. If set, the subresource range is ignored and the transition is applied to all subresources of the resource.
+    PlanarImage     = (1u << 4), ///< Resource is a planar image. If the flag is not set, plane slices in wis::SubresourceRange are ignored.
+};
+WISDOM_DEFINE_ENUM_OPERATORS(BarrierFlags)
 
 //==============================================================
 // Delegates
@@ -1220,7 +1255,8 @@ struct SubresourceRange {
     std::uint16_t mip_level_count; ///< Number of mip levels in the subresource.
     std::uint16_t base_array_layer; ///< Array layer of the subresource. For 3D textures, this defines the depth slice.
     std::uint16_t array_layer_count; ///< Number of array layers in the subresource. For 3D textures, this defines the number of depth slices.
-    std::uint16_t plane_slice; ///< Base depth slice of the subresource. Used only for 2D textures (YUV). Max value is 3.
+    std::uint16_t plane_slice; ///< Base depth slice of the subresource. Used only for 2D textures (YUV).
+    std::uint16_t plane_slice_count; ///< Number of depth slices in the subresource. Used only for 2D textures (YUV). Max value is 3.
 };
 
 /**
@@ -1348,6 +1384,7 @@ struct DeviceCommandQueuesProperties {
     wis::QueryPropertyType                   property_type; ///< Defines the type of the queried property. @wis_must be wis::QueryPropertyType..
     void*                                    next_in_chain; ///< Pointer to the next queried data struct.
     std::array<bool, 5>                      supported_queues; ///< Array of supported queue types. If a queue type is supported, the value is `1`, otherwise `0`. Order of queue types is the same as in wis::CommandQueueType enum.
+    bool                                     relaxed_queue_transition; ///< Indicates if relaxed queue transition is supported. This feature allows executing command lists that contain buffers used on different queue types without explicit resource state transitions when the buffers is used on a different queue type. It is supported on Windows 10 22H2 and later with WDDM 3.0 or later. On Vulkan it requires `VK_KHR_maintenance9` extension.
     std::array<wis::CommandQueuePriority, 5> max_queue_priority; ///< Array of maximum supported priorities for each queue type. If a queue type is not supported, the value is `0`. Order of queue types is the same as in wis::CommandQueueType enum.
 };
 
@@ -1380,6 +1417,9 @@ static constexpr std::uint32_t RootSignatureDwords = 64;
 
 /// @brief Provided by Wisdom 0.7.0. Defines the amount of barriers of all types that will not trigger allocation.
 static constexpr std::uint32_t TransientMaxBarrierCount = 32;
+
+/// @brief Provided by Wisdom 0.7.0. Defines the amount of planes that can be present on the single (YUV) image.
+static constexpr std::uint32_t MaxPlaneCount = 3;
 
 /// @brief Provided by Wisdom 0.7.0. Select whole size of a resource.
 static constexpr std::uint64_t WholeSize = 0xffffffffffffffff;
