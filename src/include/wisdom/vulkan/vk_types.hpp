@@ -23,6 +23,7 @@ struct VKDeviceControlBlock;
 struct VKDescriptorSetLayoutContainer;
 struct VKCommandPoolControlBlock;
 struct VKRootSignatureControlBlock;
+struct VKQueueFamilyExtras;
 } // namespace detail
 
 namespace impl {
@@ -62,13 +63,11 @@ struct VKCommandListImpl {
     VkCommandBuffer                              command_buffer;
     impl::VKMainCommandList*                     command_list_table; // local copy of the main command list table for faster access
     mutable detail::VKRootSignatureControlBlock* root_signature_header;
+    detail::VKCommandPoolControlBlock*           command_pool_header;
 
-    VkCommandPool                      command_pool;
-    detail::VKCommandPoolControlBlock* command_pool_header;
-
-    std::array<uint8_t, WisCommandQueueTypeCount> queue_residency;
-    uint32_t                                      maintenance9 : 1;
-    WisCommandQueueType                           queue_type   : 7;
+    detail::VKQueueFamilyExtras* queue_indices;
+    uint32_t                     maintenance9 : 1;
+    WisCommandQueueType          queue_type   : 31;
 
     mutable uint32_t scratch_memory_size; // Size of the scratch memory in bytes.
     mutable uint8_t* scratch_memory; // Used for temporary allocations that need to be freed when the command list is destroyed.

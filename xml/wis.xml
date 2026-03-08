@@ -36,7 +36,7 @@
       <view size="1"/>
     </handle>
     <handle name="CommandList" version="0.7.0" doc="Class representing a command list for recording GPU commands.">
-      <impl for="vk" size="8"/>
+      <impl for="vk" size="7"/>
       <impl for="dx" size="7"/>
       <view size="1"/>
     </handle>

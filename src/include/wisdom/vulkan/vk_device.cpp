@@ -596,6 +596,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDeviceQueryProperties(const WisVKDevice* self,
                 props->supported_queues[i]   = supported;
                 props->max_queue_priority[i] = priority;
             }
+            props->relaxed_queue_transition = header.features.maintenance9;
         } break;
         case WisQueryPropertyTypeDeviceDescriptorHeapProperties: {
             auto* props = static_cast<WisDeviceDescriptorHeapProperties*>(next);

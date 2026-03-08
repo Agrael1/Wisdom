@@ -6,6 +6,7 @@
     <value type="u32" name="RemainingMips" value="0xffffffff" version="0.7.0" doc="Select all remaining mip levels."/>
     <value type="u32" name="RootSignatureDwords" value="64" version="0.7.0" doc="Defines the amount of usable space in root signature."/>
     <value type="u32" name="TransientMaxBarrierCount" value="32" version="0.7.0" doc="Defines the amount of barriers of all types that will not trigger allocation."/>
+    <value type="u32" name="MaxPlaneCount" value="3" version="0.7.0" doc="Defines the amount of planes that can be present on the single (YUV) image."/>
     <value type="u64" name="WholeSize" value="0xffffffffffffffff" version="0.7.0" doc="Select whole size of a resource."/>
   </constants>
 </registry>

@@ -47,6 +47,8 @@ using DeviceExtensionHeader   = wis::DX12DeviceExtensionHeader;
 using InstanceExtensionHeader = wis::DX12InstanceExtensionHeader;
 using DeviceRequirements      = wis::DX12DeviceRequirements;
 using BufferBarrier           = wis::DX12BufferBarrier;
+using GlobalBarrier           = wis::DX12GlobalBarrier;
+using TextureBarrier          = wis::DX12TextureBarrier;
 using BarrierGroup            = wis::DX12BarrierGroup;
 
 //==============================================================
@@ -110,6 +112,8 @@ using DeviceExtensionHeader   = wis::VKDeviceExtensionHeader;
 using InstanceExtensionHeader = wis::VKInstanceExtensionHeader;
 using DeviceRequirements      = wis::VKDeviceRequirements;
 using BufferBarrier           = wis::VKBufferBarrier;
+using GlobalBarrier           = wis::VKGlobalBarrier;
+using TextureBarrier          = wis::VKTextureBarrier;
 using BarrierGroup            = wis::VKBarrierGroup;
 
 //==============================================================

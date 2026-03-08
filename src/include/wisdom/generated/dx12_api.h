@@ -163,12 +163,45 @@ typedef struct WisDX12BufferBarrier {
 } WisDX12BufferBarrier;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Global barrier without resource handles.
+ *
+ * */
+typedef struct WisDX12GlobalBarrier {
+    WisBarrierSync    sync_before; ///< Synchronization scope before the barrier.
+    WisBarrierSync    sync_after; ///< Synchronization scope after the barrier.
+    WisResourceAccess access_before; ///< Access scope before the barrier.
+    WisResourceAccess access_after; ///< Access scope after the barrier.
+} WisDX12GlobalBarrier;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Texture barrier with the texture handle.
+ *
+ * */
+typedef struct WisDX12TextureBarrier {
+    WisBarrierSync      sync_before; ///< Synchronization scope before the barrier.
+    WisBarrierSync      sync_after; ///< Synchronization scope after the barrier.
+    WisResourceAccess   access_before; ///< Access scope before the barrier.
+    WisResourceAccess   access_after; ///< Access scope after the barrier.
+    WisTextureState     state_before; ///< Texture state before the barrier.
+    WisTextureState     state_after; ///< Texture state after the barrier.
+    WisBarrierFlags     flags; ///< Barrier flags. Describe additional options for the barrier.
+    WisDX12TextureView  texture; ///< Texture view.
+    WisSubresourceRange subresource_range; ///< Subresource range for the barrier.
+    WisCommandQueueType queue_type_before; ///< Type of the queue the barrier is executed on before the synchronization point. Used for cross-queue barriers.
+    WisCommandQueueType queue_type_after; ///< Type of the queue the barrier is executed on after the synchronization point. Used for cross-queue barriers.
+} WisDX12TextureBarrier;
+
+/**
  * @brief Provided by Wisdom 0.7.0. Barrier group for multiple barriers submission.
  *
  * */
 typedef struct WisDX12BarrierGroup {
-    const WisDX12BufferBarrier* buffer_barriers; ///< Array of buffer barriers.
-    size_t                      buffer_barrier_count; ///< Number of buffer barriers in the `WisBarrierGroup::buffer_barriers` array.
+    const WisDX12BufferBarrier*  buffer_barriers; ///< Array of buffer barriers.
+    size_t                       buffer_barrier_count; ///< Number of buffer barriers in the `WisBarrierGroup::buffer_barriers` array.
+    const WisDX12TextureBarrier* texture_barriers; ///< Array of texture barriers.
+    size_t                       texture_barrier_count; ///< Number of texture barriers in the `WisBarrierGroup::texture_barriers` array.
+    const WisDX12GlobalBarrier*  global_barriers; ///< Array of global barriers.
+    size_t                       global_barrier_count; ///< Number of global barriers in the `WisBarrierGroup::global_barriers` array.
 } WisDX12BarrierGroup;
 
 /**

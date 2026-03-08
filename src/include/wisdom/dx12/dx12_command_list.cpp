@@ -16,6 +16,48 @@ inline uint8_t* DX12AllocateScratchSpace(const wis::impl::DX12CommandListImpl& i
     }
     return impl.scratch_memory;
 }
+inline constexpr D3D12_BARRIER_LAYOUT
+DX12GetOptimalBarrierLayout(WisCommandQueueType type, WisTextureState state) noexcept
+{
+    switch (type) {
+    case WisCommandQueueTypeGraphics:
+        switch (state) {
+        case WisTextureStateCommon:
+            return D3D12_BARRIER_LAYOUT_DIRECT_QUEUE_COMMON;
+        case WisTextureStateRead:
+            return D3D12_BARRIER_LAYOUT_DIRECT_QUEUE_GENERIC_READ;
+        case WisTextureStateUnorderedAccess:
+            return D3D12_BARRIER_LAYOUT_DIRECT_QUEUE_UNORDERED_ACCESS;
+        case WisTextureStateShaderResource:
+            return D3D12_BARRIER_LAYOUT_DIRECT_QUEUE_SHADER_RESOURCE;
+        case WisTextureStateCopySrc:
+            return D3D12_BARRIER_LAYOUT_DIRECT_QUEUE_COPY_SOURCE;
+        case WisTextureStateCopyDst:
+            return D3D12_BARRIER_LAYOUT_DIRECT_QUEUE_COPY_DEST;
+        default:
+            return wis::detail::convert_dx(state);
+        }
+    case WisCommandQueueTypeCompute:
+        switch (state) {
+        case WisTextureStateCommon:
+            return D3D12_BARRIER_LAYOUT_COMPUTE_QUEUE_COMMON;
+        case WisTextureStateRead:
+            return D3D12_BARRIER_LAYOUT_COMPUTE_QUEUE_GENERIC_READ;
+        case WisTextureStateUnorderedAccess:
+            return D3D12_BARRIER_LAYOUT_COMPUTE_QUEUE_UNORDERED_ACCESS;
+        case WisTextureStateShaderResource:
+            return D3D12_BARRIER_LAYOUT_COMPUTE_QUEUE_SHADER_RESOURCE;
+        case WisTextureStateCopySrc:
+            return D3D12_BARRIER_LAYOUT_COMPUTE_QUEUE_COPY_SOURCE;
+        case WisTextureStateCopyDst:
+            return D3D12_BARRIER_LAYOUT_COMPUTE_QUEUE_COPY_DEST;
+        default:
+            return wis::detail::convert_dx(state);
+        }
+    default:
+        return wis::detail::convert_dx(state);
+    }
+}
 } // namespace wis::detail
 
 //-----------------------------------------------------------------------------
@@ -178,9 +220,13 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetDescriptorTable(const WisDX12C
 WIS_EXTERN_C WISDOM_API void wisDX12CommandListInsertBarriers(const WisDX12CommandList*  self,
                                                               const WisDX12BarrierGroup* barriers)
 {
-    if (barriers->buffer_barrier_count == 0) {
+    // clang-format off
+    if (barriers->buffer_barrier_count +
+        barriers->texture_barrier_count +
+        barriers->global_barrier_count == 0) {
         return;
     }
+    // clang-format on
 
     auto& impl = *reinterpret_cast<const wis::impl::DX12CommandListImpl*>(self);
 
@@ -195,9 +241,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListInsertBarriers(const WisDX12Comma
         real_data = wis::detail::DX12AllocateScratchSpace(impl, needed_size);
     }
 
-    auto* buffer_barriers = local_scratch;
-
-    wis::span<D3D12_BUFFER_BARRIER> buffer_barriers_span{ reinterpret_cast<D3D12_BUFFER_BARRIER*>(buffer_barriers), barriers->buffer_barrier_count };
+    wis::span<D3D12_BUFFER_BARRIER> buffer_barriers_span{ reinterpret_cast<D3D12_BUFFER_BARRIER*>(real_data), barriers->buffer_barrier_count };
     uint32_t                        real_buffer_barrier_count = barriers->buffer_barrier_count;
     // convert buffer barriers
     for (size_t i = 0; i < barriers->buffer_barrier_count; ++i) {
@@ -205,8 +249,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListInsertBarriers(const WisDX12Comma
 
         // skip barriers that only perform queue ownership transfer without any actual synchronization or access changes,
         // as they don't require an explicit barrier in D3D12 and can be handled implicitly by the driver.
-        // But the acquisition barrier must be submitted
-        if (src.queue_type_after != src.queue_type_before && src.queue_type_before == impl.queue_type) {
+        if (src.queue_type_after != src.queue_type_before) {
             real_buffer_barrier_count--;
             continue;
         }
@@ -222,24 +265,72 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListInsertBarriers(const WisDX12Comma
         };
     }
 
-    uint32_t memory_offset = barriers->buffer_barrier_count * sizeof(D3D12_BUFFER_BARRIER);
+    // convert texture barriers
+    wis::span<D3D12_TEXTURE_BARRIER> texture_barriers_span{
+        reinterpret_cast<D3D12_TEXTURE_BARRIER*>(buffer_barriers_span.subspan(real_buffer_barrier_count).end()),
+        barriers->texture_barrier_count
+    };
+    for (size_t i = 0; i < barriers->texture_barrier_count; ++i) {
+        auto& src = barriers->texture_barriers[i];
+
+        bool qfot_barrier    = src.queue_type_after != src.queue_type_before;
+        bool acquire_barrier = qfot_barrier && src.queue_type_after == impl.queue_type;
+        bool release_barrier = qfot_barrier && src.queue_type_before == impl.queue_type;
+
+        auto layout_before = wis::detail::DX12GetOptimalBarrierLayout(
+                impl.queue_type,
+                acquire_barrier ? src.state_before : WisTextureStateCommon);
+        auto layout_after = wis::detail::DX12GetOptimalBarrierLayout(
+                impl.queue_type,
+                release_barrier ? src.state_after : WisTextureStateCommon);
+
+        texture_barriers_span[i] = D3D12_TEXTURE_BARRIER{
+            .SyncBefore   = wis::detail::convert_dx(src.sync_before),
+            .SyncAfter    = wis::detail::convert_dx(src.sync_after),
+            .AccessBefore = wis::detail::convert_dx(src.access_before),
+            .AccessAfter  = wis::detail::convert_dx(src.access_after),
+            .LayoutBefore = layout_before,
+            .LayoutAfter  = layout_after,
+            .pResource    = std::bit_cast<ID3D12Resource*>(src.texture),
+            .Subresources = {
+                             .IndexOrFirstMipLevel = src.subresource_range.base_mip_level,
+                             .NumMipLevels         = src.subresource_range.mip_level_count,
+                             .FirstArraySlice      = src.subresource_range.base_array_layer,
+                             .NumArraySlices       = src.subresource_range.array_layer_count,
+                             .FirstPlane           = src.flags & WisBarrierFlagsPlanarImage ? src.subresource_range.plane_slice : 0u,
+                             .NumPlanes            = src.flags & WisBarrierFlagsPlanarImage ? src.subresource_range.plane_slice_count : 1u,
+                             },
+            .Flags = src.flags & WisBarrierFlagsDiscardContent ? D3D12_TEXTURE_BARRIER_FLAG_DISCARD : D3D12_TEXTURE_BARRIER_FLAG_NONE,
+        };
+    }
+
+    // convert global barriers
+    wis::span<D3D12_GLOBAL_BARRIER> global_barriers_span{
+        reinterpret_cast<D3D12_GLOBAL_BARRIER*>(texture_barriers_span.subspan(barriers->texture_barrier_count).end()),
+        barriers->global_barrier_count
+    };
+    for (size_t i = 0; i < barriers->global_barrier_count; ++i) {
+        auto& src               = barriers->global_barriers[i];
+        global_barriers_span[i] = D3D12_GLOBAL_BARRIER{
+            .SyncBefore   = wis::detail::convert_dx(src.sync_before),
+            .SyncAfter    = wis::detail::convert_dx(src.sync_after),
+            .AccessBefore = wis::detail::convert_dx(src.access_before),
+            .AccessAfter  = wis::detail::convert_dx(src.access_after),
+        };
+    }
 
     D3D12_BARRIER_GROUP groups[]{
-        {
-         .Type            = D3D12_BARRIER_TYPE_BUFFER,
+        {   .Type            = D3D12_BARRIER_TYPE_BUFFER,
          .NumBarriers     = real_buffer_barrier_count,
-         .pBufferBarriers = buffer_barriers_span.data(),
-         },
-        {
-         .Type             = D3D12_BARRIER_TYPE_TEXTURE,
-         .NumBarriers      = 0,
-         .pTextureBarriers = nullptr,
-         }
+         .pBufferBarriers = buffer_barriers_span.data()  },
+        { .Type             = D3D12_BARRIER_TYPE_TEXTURE,
+         .NumBarriers      = static_cast<uint32_t>(barriers->texture_barrier_count),
+         .pTextureBarriers = texture_barriers_span.data() },
+        {   .Type            = D3D12_BARRIER_TYPE_GLOBAL,
+         .NumBarriers     = static_cast<uint32_t>(barriers->global_barrier_count),
+         .pGlobalBarriers = global_barriers_span.data()  }
     };
-    uint32_t group_count  = barriers->buffer_barrier_count != 0;
-    uint32_t group_offset = barriers->buffer_barrier_count == 0;
-
-    impl.list->Barrier(group_count, groups + group_offset);
+    impl.list->Barrier(std::size(groups), groups);
 }
 
 #endif // WIS_DX12_COMMAND_LIST_CPP

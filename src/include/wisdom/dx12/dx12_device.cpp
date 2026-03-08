@@ -336,6 +336,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DeviceQueryProperties(const WisDX12Device* s
                 props->supported_queues[i]   = (device.queue_priorities[i] & ~0x7fu) != 0;
                 props->max_queue_priority[i] = WisCommandQueuePriority(device.queue_priorities[i] & 0x7f);
             }
+            props->relaxed_queue_transition = true;
         } break;
         case WisQueryPropertyTypeDeviceDescriptorHeapProperties: {
             auto*                              props     = static_cast<WisDeviceDescriptorHeapProperties*>(next);

@@ -353,6 +353,42 @@ constexpr inline VkMemoryPropertyFlags convert_vk(WisMemoryType value) noexcept
     }
 }
 
+constexpr inline VkImageLayout convert_vk(WisTextureState value) noexcept
+{
+    switch (value) {
+    case WisTextureStateUndefined:
+        return VK_IMAGE_LAYOUT_UNDEFINED;
+    case WisTextureStateCommon:
+        return VK_IMAGE_LAYOUT_GENERAL;
+    case WisTextureStateRead:
+        return VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL;
+    case WisTextureStateRenderTarget:
+        return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    case WisTextureStateUnorderedAccess:
+        return VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL;
+    case WisTextureStateDepthStencilWrite:
+        return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    case WisTextureStateDepthStencilRead:
+        return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+    case WisTextureStateShaderResource:
+        return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+    case WisTextureStateCopySrc:
+        return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    case WisTextureStateCopyDst:
+        return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    case WisTextureStatePresent:
+        return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+    case WisTextureStateShadingRate:
+        return VK_IMAGE_LAYOUT_FRAGMENT_SHADING_RATE_ATTACHMENT_OPTIMAL_KHR;
+    case WisTextureStateVideoDecodeRead:
+        return VK_IMAGE_LAYOUT_VIDEO_DECODE_SRC_KHR;
+    case WisTextureStateVideoDecodeWrite:
+        return VK_IMAGE_LAYOUT_VIDEO_DECODE_DST_KHR;
+    default:
+        return static_cast<VkImageLayout>(0);
+    }
+}
+
 constexpr inline VkBufferUsageFlags convert_vk(WisBufferUsageFlags value) noexcept
 {
     VkBufferUsageFlags result = static_cast<VkBufferUsageFlags>(0);
@@ -524,10 +560,10 @@ constexpr inline VkAccessFlags2 convert_vk(WisResourceAccess value) noexcept
     if (value & WisResourceAccessIndirectArgument) {
         result |= VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT | VK_ACCESS_2_SHADER_READ_BIT;
     }
-    if (value & WisResourceAccessCopyDest) {
+    if (value & WisResourceAccessCopyDst) {
         result |= VK_ACCESS_2_TRANSFER_WRITE_BIT;
     }
-    if (value & WisResourceAccessCopySource) {
+    if (value & WisResourceAccessCopySrc) {
         result |= VK_ACCESS_2_TRANSFER_READ_BIT;
     }
     if (value & WisResourceAccessConditionalRendering) {
@@ -548,10 +584,10 @@ constexpr inline VkAccessFlags2 convert_vk(WisResourceAccess value) noexcept
     if (value & WisResourceAccessVideoDecodeWrite) {
         result |= VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR;
     }
-    if (value & WisResourceAccessResolveDest) {
+    if (value & WisResourceAccessResolveDst) {
         result |= VK_ACCESS_2_TRANSFER_WRITE_BIT | VK_ACCESS_2_SHADER_WRITE_BIT;
     }
-    if (value & WisResourceAccessResolveSource) {
+    if (value & WisResourceAccessResolveSrc) {
         result |= VK_ACCESS_2_TRANSFER_READ_BIT | VK_ACCESS_2_SHADER_READ_BIT;
     }
     if (value & WisResourceAccessNoAccess) {

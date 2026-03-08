@@ -822,6 +822,69 @@ Support of this memory must be queried.">
       </value>
     </type>
 
+    <type name="TextureState" category="enum" version="0.7.0" doc="Texture state for resource transitions.">
+      <impl_type for="dx" name="D3D12_BARRIER_LAYOUT"/>
+      <impl_type for="vk" name="VkImageLayout"/>
+      <value name="Undefined" value="-1" doc="Undefined state.">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_UNDEFINED"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_UNDEFINED"/>
+      </value>
+      <value name="Common" value="0" doc="Common state.">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_COMMON"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_GENERAL"/>
+      </value>
+      <value name="Read" value="1" doc="General Read state.">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_GENERIC_READ"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL"/>
+      </value>
+      <value name="RenderTarget" value="2" doc="Render Target state.">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_RENDER_TARGET"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL"/>
+      </value>
+      <value name="UnorderedAccess" value="3" doc="Unordered Access state.">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_UNORDERED_ACCESS"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL"/>
+      </value>
+      <value name="DepthStencilWrite" value="4" doc="Depth Stencil Write state.">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_WRITE"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL"/>
+      </value>
+      <value name="DepthStencilRead" value="5" doc="Depth Stencil Read state.">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_READ"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL"/>
+      </value>
+      <value name="ShaderResource" value="6" doc="Shader Resource state.">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_SHADER_RESOURCE"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL"/>
+      </value>
+      <value name="CopySrc" value="7" doc="Copy Source state.">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_COPY_SOURCE"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL"/>
+      </value>
+      <value name="CopyDst" value="8" doc="Copy Destination state.">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_COPY_DEST"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL"/>
+      </value>
+      <value name="Present" value="9" doc="Present swapchain state.">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_PRESENT"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_PRESENT_SRC_KHR"/>
+      </value>
+      <value name="ShadingRate" value="10" doc="Shading Rate state. Used for Variable Shading Rate.">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_SHADING_RATE_SOURCE"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_FRAGMENT_SHADING_RATE_ATTACHMENT_OPTIMAL_KHR"/>
+      </value>
+      <value name="VideoDecodeRead" value="11" doc="Video Decode Read state.">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_VIDEO_DECODE_READ"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_VIDEO_DECODE_SRC_KHR"/>
+      </value>
+      <value name="VideoDecodeWrite" value="12" doc="Video Decode Write state.">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_VIDEO_DECODE_WRITE"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_VIDEO_DECODE_DST_KHR"/>
+      </value>
+    </type>
+    
+    <!-- Bitmasks -->
+
     <type name="BufferUsageFlags" category="bitmask" version="0.7.0" doc="Buffer usage flags.
 Determine how the buffer can be used throughout its lifetime.">
       <impl_type for="vk" name="VkBufferUsageFlags"/>
@@ -1059,11 +1122,11 @@ Outside of AllocateXMemory the flag is ignored."/>
         <impl name="dx" value="D3D12_BARRIER_ACCESS_INDIRECT_ARGUMENT"/>
         <impl name="vk" value="VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT | VK_ACCESS_2_SHADER_READ_BIT"/>
       </value>
-      <value name="CopyDest" bit="10" doc="Copy destination access.">
+      <value name="CopyDst" bit="10" doc="Copy destination access.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_COPY_DEST"/>
         <impl name="vk" value="VK_ACCESS_2_TRANSFER_WRITE_BIT"/>
       </value>
-      <value name="CopySource" bit="11" doc="Copy source access.">
+      <value name="CopySrc" bit="11" doc="Copy source access.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_COPY_SOURCE"/>
         <impl name="vk" value="VK_ACCESS_2_TRANSFER_READ_BIT"/>
       </value>
@@ -1091,11 +1154,11 @@ Outside of AllocateXMemory the flag is ignored."/>
         <impl name="dx" value="D3D12_BARRIER_ACCESS_VIDEO_DECODE_WRITE"/>
         <impl name="vk" value="VK_ACCESS_2_VIDEO_DECODE_WRITE_BIT_KHR"/>
       </value>
-      <value name="ResolveDest" bit="18" doc="Resolve destination access.">
+      <value name="ResolveDst" bit="18" doc="Resolve destination access.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_RESOLVE_DEST"/>
         <impl name="vk" value="VK_ACCESS_2_TRANSFER_WRITE_BIT | VK_ACCESS_2_SHADER_WRITE_BIT"/>
       </value>
-      <value name="ResolveSource" bit="19" doc="Resolve source access.">
+      <value name="ResolveSrc" bit="19" doc="Resolve source access.">
         <impl name="dx" value="D3D12_BARRIER_ACCESS_RESOLVE_SOURCE"/>
         <impl name="vk" value="VK_ACCESS_2_TRANSFER_READ_BIT | VK_ACCESS_2_SHADER_READ_BIT"/>
       </value>
@@ -1105,5 +1168,13 @@ Outside of AllocateXMemory the flag is ignored."/>
       </value>
     </type>
 
+    <type name="BarrierFlags" category="bitmask" version="0.7.0" doc="Barrier flags for resource barriers.">
+      <value name="None" value="0" doc="No flags set. Barrier is regular."/>
+      <value name="DiscardContent" bit="0" doc="Discard resource content. The content of the resource before the barrier is treated as if resource was not initialized."/>
+      <value name="DepthResource" bit="1" doc="Resource is a depth resource. This flag must be set for all depth resources to make transitions on them."/>
+      <value name="StencilResource" bit="2" doc="Resource is a stencil resource. This flag must be set for all stencil resources to make transitions on them. If resource has format {DataFormat::D24UnormS8Uint} both {BarrierFlags::DepthResource} and {BarrierFlags::StencilResource} must be set."/>
+      <value name="WholeRange" bit="3" doc="Transition whole resource. If not set, the transition is applied only to the specified subresource range. If set, the subresource range is ignored and the transition is applied to all subresources of the resource."/>
+      <value name="PlanarImage" bit="4" doc="Resource is a planar image. If the flag is not set, plane slices in {SubresourceRange::} are ignored."/>
+    </type>
   </types>
 </registry>
