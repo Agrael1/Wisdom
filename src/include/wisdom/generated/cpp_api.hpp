@@ -1059,7 +1059,7 @@ enum class ResourceAccess : uint32_t {
     VideoDecodeWrite           = (1u << 17), ///< Video decode write access.
     ResolveDst                 = (1u << 18), ///< Resolve destination access.
     ResolveSrc                 = (1u << 19), ///< Resolve source access.
-    NoAccess                   = (1u << 31), ///< No access. Used to indicate no access throughout the pipeline.
+    None                       = (1u << 31), ///< No access. Used to indicate no access throughout the pipeline.
 };
 WISDOM_DEFINE_ENUM_OPERATORS(ResourceAccess)
 

@@ -590,7 +590,7 @@ constexpr inline VkAccessFlags2 convert_vk(WisResourceAccess value) noexcept
     if (value & WisResourceAccessResolveSrc) {
         result |= VK_ACCESS_2_TRANSFER_READ_BIT | VK_ACCESS_2_SHADER_READ_BIT;
     }
-    if (value & WisResourceAccessNoAccess) {
+    if (value & WisResourceAccessNone) {
         result |= VK_ACCESS_2_NONE;
     }
     return result;
