@@ -7,6 +7,11 @@
   </includes>
 
   <handles>
+    <handle name="PipelineCache" version="0.7.0" doc="Class representing a cache for pipeline state objects, which allows to reuse already created pipelines and speed up pipeline creation.">
+      <impl for="vk" size="2"/>
+      <impl for="dx" size="1"/>
+      <view size="1"/>
+    </handle>
     <handle name="Texture" version="0.7.0" doc="Class representing a GPU texture resource.">
       <impl for="vk" size="3"/>
       <impl for="dx" size="3"/>
@@ -129,6 +134,11 @@ All - waits for all fences to be signaled.
 Any - waits for any fence to be signaled.
 Default is {MutiWaitType::All}"/>
       <arg type="u64" name="timeout" default="UINT64_MAX" doc="The timeout in nanoseconds. If UINT64_MAX, waits indefinitely."/>
+    </func>
+    <func for="Device" name="CreatePipelineCache" version="0.7.0" mod="const" doc="Creates a pipeline cache for caching pipeline state objects.">
+      <ret type="PipelineCache" name="cache" result="true" doc="points to {PipelineCache::}, which is initialized on success."/>
+      <arg type="u8" name="initial_data" mod="const,span" default="nullptr" doc="points to the initial cache data. If `nullptr`, the cache is created empty."/>
+      <arg type="size" name="data_size" default="0" doc="defines the size of the initial cache data in bytes."/>
     </func>
 
     <!-- Fence Functions -->
@@ -265,9 +275,19 @@ Can still be enqueued after the signal.">
     <func for="CommandList" name="SetDescriptorTable" version="0.7.0" mod="const" doc="Sets the descriptor table offset in descriptor heap for the command list, so it can be used for resource binding.">
       <arg type="DescriptorTableDataDesc" name="data" mod="const,ref" doc="defines the root parameter index to set the descriptor table for."/>
     </func>
-    
+
     <func for="CommandList" name="InsertBarriers" version="0.7.0" mod="const" doc="Inserts one or more barriers on the current command list.">
       <arg type="BarrierGroup" name="barriers" mod="const,ref" doc="points to an array of barriers to insert."/>
+    </func>
+
+    <!-- Pipeline Cache -->
+    <func for="PipelineCache" name="Serialize" version="0.7.0" mod="const" doc="Gets the data from the pipeline cache.">
+      <ret type="Result" name="result" doc="Result of operation."/>
+      <arg type="u8" name="data" mod="span" doc="points to the data chunk, which is filled with the data of the cache data on success."/>
+      <arg type="size" name="data_size" doc="defines the size of the data chunk in bytes. It @wis_must be greater or equal to the value returned by {GetSerializedSize::}."/>
+    </func>
+    <func for="PipelineCache" name="GetSerializedSize" version="0.7.0" mod="const" doc="Gets the size of the data in the pipeline cache.">
+      <ret type="size" name="size" doc="Size of the data in bytes."/>
     </func>
 
   </functions>

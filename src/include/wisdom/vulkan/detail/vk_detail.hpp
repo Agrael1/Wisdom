@@ -171,6 +171,7 @@ struct VKDeviceHeader {
     impl::VKMainDevice       device_table;
     impl::VKMainCommandQueue command_queue_table;
     impl::VKMainCommandList  command_list_table;
+    VkDevice                 device;
     VKInstanceControlBlock*  shared_header;
     VkInstance               instance;
     VmaAllocator             allocator;
@@ -315,7 +316,7 @@ inline void release_vk_instance(VkInstance instance, VKInstanceControlBlock* hea
  * @param device The Vulkan device to release
  * @param header The control block header associated with the device, which holds the reference count and a pointer to the instance control block header
  */
-inline void release_vk_device(VkDevice device, VKDeviceControlBlock* header) noexcept
+inline void release_vk_device(VKDeviceControlBlock* header) noexcept
 {
     if (header && header->Release() == 1) {
         // Last reference, destroy device
@@ -324,7 +325,7 @@ inline void release_vk_device(VkDevice device, VKDeviceControlBlock* header) noe
         // Destroy allocator
         vmaDestroyAllocator(header->header.allocator);
 
-        header->header.device_table.vkDestroyDevice(device, nullptr);
+        header->header.device_table.vkDestroyDevice(header->header.device, nullptr);
 
         // Destroy instance
         release_vk_instance(header->header.instance,
@@ -350,8 +351,7 @@ inline void release_vk_command_pool(VKCommandPoolControlBlock* header) noexcept
         auto& table = header->header.device_header->header.device_table;
         table.vkDestroyCommandPool(header->header.device, header->header.command_pool, nullptr);
 
-        release_vk_device(header->header.device,
-                          header->header.device_header);
+        release_vk_device(header->header.device_header);
         delete header;
     }
 }

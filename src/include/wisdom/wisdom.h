@@ -19,6 +19,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 // Handles
 //==============================================================
 
+typedef struct WisDX12PipelineCache     WisPipelineCache;
 typedef struct WisDX12Texture           WisTexture;
 typedef struct WisDX12Buffer            WisBuffer;
 typedef struct WisDX12DescriptorHeap    WisDescriptorHeap;
@@ -31,6 +32,7 @@ typedef struct WisDX12CommandQueue      WisCommandQueue;
 typedef struct WisDX12Device            WisDevice;
 typedef struct WisDX12AdapterQuery      WisAdapterQuery;
 typedef struct WisDX12Instance          WisInstance;
+typedef struct WisDX12PipelineCacheView WisPipelineCacheView;
 typedef struct WisDX12TextureView       WisTextureView;
 typedef struct WisDX12BufferView        WisBufferView;
 typedef struct WisDX12RootSignatureView WisRootSignatureView;
@@ -53,6 +55,7 @@ typedef struct WisDX12BarrierGroup            WisBarrierGroup;
 // Functions
 //==============================================================
 
+#define wisDestroyPipelineCache                     wisDX12DestroyPipelineCache
 #define wisDestroyTexture                           wisDX12DestroyTexture
 #define wisDestroyBuffer                            wisDX12DestroyBuffer
 #define wisDestroyDescriptorHeap                    wisDX12DestroyDescriptorHeap
@@ -78,6 +81,7 @@ typedef struct WisDX12BarrierGroup            WisBarrierGroup;
 #define wisDeviceCreateDescriptorHeap               wisDX12DeviceCreateDescriptorHeap
 #define wisDeviceQueryProperties                    wisDX12DeviceQueryProperties
 #define wisDeviceWaitForMultipleFences              wisDX12DeviceWaitForMultipleFences
+#define wisDeviceCreatePipelineCache                wisDX12DeviceCreatePipelineCache
 #define wisFenceGetCompletedValue                   wisDX12FenceGetCompletedValue
 #define wisFenceWait                                wisDX12FenceWait
 #define wisFenceSignal                              wisDX12FenceSignal
@@ -107,6 +111,9 @@ typedef struct WisDX12BarrierGroup            WisBarrierGroup;
 #define wisCommandListSetPushDescriptor             wisDX12CommandListSetPushDescriptor
 #define wisCommandListSetDescriptorTable            wisDX12CommandListSetDescriptorTable
 #define wisCommandListInsertBarriers                wisDX12CommandListInsertBarriers
+#define wisPipelineCacheSerialize                   wisDX12PipelineCacheSerialize
+#define wisPipelineCacheGetSerializedSize           wisDX12PipelineCacheGetSerializedSize
+#define wisGetPipelineCacheView                     wisGetDX12PipelineCacheView
 #define wisGetTextureView                           wisGetDX12TextureView
 #define wisGetBufferView                            wisGetDX12BufferView
 #define wisGetRootSignatureView                     wisGetDX12RootSignatureView
@@ -115,6 +122,8 @@ typedef struct WisDX12BarrierGroup            WisBarrierGroup;
 
 #define wisGetView(handle)                                            \
     _Generic((handle),                                                \
+            const WisDX12PipelineCache*: wisGetDX12PipelineCacheView, \
+            WisDX12PipelineCache*: wisGetDX12PipelineCacheView,       \
             const WisDX12Texture*: wisGetDX12TextureView,             \
             WisDX12Texture*: wisGetDX12TextureView,                   \
             const WisDX12Buffer*: wisGetDX12BufferView,               \
@@ -133,6 +142,7 @@ typedef struct WisDX12BarrierGroup            WisBarrierGroup;
 // Handles
 //==============================================================
 
+typedef struct WisVKPipelineCache     WisPipelineCache;
 typedef struct WisVKTexture           WisTexture;
 typedef struct WisVKBuffer            WisBuffer;
 typedef struct WisVKDescriptorHeap    WisDescriptorHeap;
@@ -145,6 +155,7 @@ typedef struct WisVKCommandQueue      WisCommandQueue;
 typedef struct WisVKDevice            WisDevice;
 typedef struct WisVKAdapterQuery      WisAdapterQuery;
 typedef struct WisVKInstance          WisInstance;
+typedef struct WisVKPipelineCacheView WisPipelineCacheView;
 typedef struct WisVKTextureView       WisTextureView;
 typedef struct WisVKBufferView        WisBufferView;
 typedef struct WisVKRootSignatureView WisRootSignatureView;
@@ -167,6 +178,7 @@ typedef struct WisVKBarrierGroup            WisBarrierGroup;
 // Functions
 //==============================================================
 
+#define wisDestroyPipelineCache                     wisVKDestroyPipelineCache
 #define wisDestroyTexture                           wisVKDestroyTexture
 #define wisDestroyBuffer                            wisVKDestroyBuffer
 #define wisDestroyDescriptorHeap                    wisVKDestroyDescriptorHeap
@@ -192,6 +204,7 @@ typedef struct WisVKBarrierGroup            WisBarrierGroup;
 #define wisDeviceCreateDescriptorHeap               wisVKDeviceCreateDescriptorHeap
 #define wisDeviceQueryProperties                    wisVKDeviceQueryProperties
 #define wisDeviceWaitForMultipleFences              wisVKDeviceWaitForMultipleFences
+#define wisDeviceCreatePipelineCache                wisVKDeviceCreatePipelineCache
 #define wisFenceGetCompletedValue                   wisVKFenceGetCompletedValue
 #define wisFenceWait                                wisVKFenceWait
 #define wisFenceSignal                              wisVKFenceSignal
@@ -221,6 +234,9 @@ typedef struct WisVKBarrierGroup            WisBarrierGroup;
 #define wisCommandListSetPushDescriptor             wisVKCommandListSetPushDescriptor
 #define wisCommandListSetDescriptorTable            wisVKCommandListSetDescriptorTable
 #define wisCommandListInsertBarriers                wisVKCommandListInsertBarriers
+#define wisPipelineCacheSerialize                   wisVKPipelineCacheSerialize
+#define wisPipelineCacheGetSerializedSize           wisVKPipelineCacheGetSerializedSize
+#define wisGetPipelineCacheView                     wisGetVKPipelineCacheView
 #define wisGetTextureView                           wisGetVKTextureView
 #define wisGetBufferView                            wisGetVKBufferView
 #define wisGetRootSignatureView                     wisGetVKRootSignatureView
@@ -229,6 +245,8 @@ typedef struct WisVKBarrierGroup            WisBarrierGroup;
 
 #define wisGetView(handle)                                        \
     _Generic((handle),                                            \
+            const WisVKPipelineCache*: wisGetVKPipelineCacheView, \
+            WisVKPipelineCache*: wisGetVKPipelineCacheView,       \
             const WisVKTexture*: wisGetVKTextureView,             \
             WisVKTexture*: wisGetVKTextureView,                   \
             const WisVKBuffer*: wisGetVKBufferView,               \

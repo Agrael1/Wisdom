@@ -44,6 +44,7 @@ if (WISDOM_DX12)
             "include/wisdom/dx12/dx12_descriptor_heap.cpp"
             "include/wisdom/dx12/dx12_resource_allocator.cpp"
             "include/wisdom/dx12/dx12_command_allocator.cpp"
+            "include/wisdom/dx12/dx12_pipeline_cache.cpp"
             LINK_TARGETS
             wisdom-internal-headers
             DXGI
@@ -81,6 +82,7 @@ if (WISDOM_VULKAN)
             "include/wisdom/vulkan/vk_descriptor_heap.cpp"
             "include/wisdom/vulkan/vk_resource_allocator.cpp"
             "include/wisdom/vulkan/vk_command_allocator.cpp"
+            "include/wisdom/vulkan/vk_pipeline_cache.cpp"
             LINK_TARGETS
             wisdom-internal-headers
             vkma

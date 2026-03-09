@@ -21,11 +21,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyBuffer(WisVKBuffer* self)
 
         impl.buffer = VK_NULL_HANDLE;
 
-        // Get device from allocator
-        VmaAllocatorInfo allocator_info{};
-        vmaGetAllocatorInfo(allocator, &allocator_info);
-
-        wis::detail::release_vk_device(allocator_info.device, impl.device_header);
+        wis::detail::release_vk_device(impl.device_header);
         impl.device_header = nullptr;
     }
 }
@@ -67,11 +63,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyTexture(WisVKTexture* self)
 
         impl.image = VK_NULL_HANDLE;
 
-        // Get device from allocator
-        VmaAllocatorInfo allocator_info{};
-        vmaGetAllocatorInfo(allocator, &allocator_info);
-
-        wis::detail::release_vk_device(allocator_info.device, impl.device_header);
+        wis::detail::release_vk_device(impl.device_header);
         impl.device_header = nullptr;
     }
 }

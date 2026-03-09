@@ -11,6 +11,8 @@
 #include <wisdom/vulkan/vk_types.hpp>
 
 namespace wis {
+using VKPipelineCacheView = WisVKPipelineCacheView;
+
 using VKTextureView = WisVKTextureView;
 
 using VKBufferView = WisVKBufferView;
@@ -83,6 +85,55 @@ struct VKBarrierGroup {
     wis::span<const wis::VKBufferBarrier>  buffer_barriers; ///< Array of buffer barriers.
     wis::span<const wis::VKTextureBarrier> texture_barriers; ///< Array of texture barriers.
     wis::span<const wis::VKGlobalBarrier>  global_barriers; ///< Array of global barriers.
+};
+
+struct VKPipelineCacheDeleter {
+    void operator()(WisVKPipelineCache* handle) noexcept
+    {
+        ::wisVKDestroyPipelineCache(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a cache for pipeline state objects, which allows to reuse already created pipelines and speed up pipeline creation.
+ *
+ * */
+class VKPipelineCache : public wis::impl::Implements<wis::impl::VKPipelineCacheImpl, WisVKPipelineCache, wis::VKPipelineCacheDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+    WIS_NODISCARD VKPipelineCacheView GetView() const noexcept
+    {
+        VKPipelineCacheView v;
+        std::memcpy(&v, &_impl_storage, sizeof(v));
+        return v;
+    }
+    WIS_NODISCARD operator VKPipelineCacheView() const noexcept
+    {
+        return GetView();
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Gets the data from the pipeline cache.
+     * @param data points to the data chunk, which is filled with the data of the cache data on success.
+     * @return Result denoting the outcome of operation.
+     *
+     * */
+    inline wis::Result Serialize(wis::span<std::uint8_t> data) const noexcept
+    {
+        return convert_result(::wisVKPipelineCacheSerialize(&_impl_storage,
+                                                            reinterpret_cast<uint8_t*>(data.data()),
+                                                            data.size()));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Gets the size of the data in the pipeline cache.
+     * @return size Size of the data in bytes.
+     *
+     * */
+    WIS_NODISCARD inline std::size_t GetSerializedSize() const noexcept
+    {
+        return (::wisVKPipelineCacheGetSerializedSize(&_impl_storage));
+    }
 };
 
 struct VKTextureDeleter {
@@ -809,6 +860,23 @@ public:
                                                                  fence_values.size(),
                                                                  static_cast<WisMutiWaitType>(wait_for),
                                                                  timeout));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a pipeline cache for caching pipeline state objects.
+     * @param initial_data points to the initial cache data. If `nullptr`, the cache is created empty.
+     * @param out_result denoting the outcome of operation.
+     * @return cache points to wis::PipelineCache, which is initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::VKPipelineCache CreatePipelineCache(wis::span<const std::uint8_t> initial_data,
+                                                                  wis::Result&                  out_result) const noexcept
+    {
+        wis::VKPipelineCache cache;
+        out_result = convert_result(::wisVKDeviceCreatePipelineCache(&_impl_storage,
+                                                                     reinterpret_cast<const uint8_t*>(initial_data.data()),
+                                                                     initial_data.size(),
+                                                                     cache.GetStorage()));
+        return cache;
     }
 };
 

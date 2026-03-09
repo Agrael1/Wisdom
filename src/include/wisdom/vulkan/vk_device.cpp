@@ -109,7 +109,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyDevice(WisVKDevice* self)
     if (!impl.device) {
         return;
     }
-    wis::detail::release_vk_device(impl.device, impl.device_header);
+    wis::detail::release_vk_device(impl.device_header);
     impl.device_header = nullptr;
     impl.device        = VK_NULL_HANDLE;
 }
@@ -659,6 +659,68 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceWaitForMultipleFences(const WisVKDe
     if (!wis::detail::succeeded(result)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to wait for multiple fences">(result);
     }
+    return wis::detail::vk_success;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreatePipelineCache(const WisVKDevice*  self,
+                                                                 const uint8_t*      initial_data,
+                                                                 size_t              data_size,
+                                                                 WisVKPipelineCache* cache)
+{
+    if (data_size > 0 && data_size < sizeof(VkPipelineCacheHeaderVersionOne)) {
+        return wis::detail::make_result<wis::detail::Func(), "Data size is too small to contain a valid pipeline cache header">(VK_ERROR_INITIALIZATION_FAILED);
+    }
+
+    auto& device  = *reinterpret_cast<const wis::impl::VKDeviceImpl*>(self);
+    auto& table   = device.device_header->header.device_table;
+    auto  adapter = device.physical_device;
+    auto  atable  = device.device_header->header.shared_header->header.adapter_table;
+
+    // If initial data is provided, use its size. Otherwise, set size to 0 to indicate no initial data.
+    data_size    = initial_data ? data_size : 0;
+    initial_data = data_size ? initial_data : nullptr;
+
+    // Check data size and initial data pointer consistency
+    if (data_size && initial_data) {
+        // Compare the pipeline cache UUID with the device's pipeline cache UUID
+        VkPhysicalDeviceProperties2 properties{
+            .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2
+        };
+        atable.vkGetPhysicalDeviceProperties2(adapter, &properties);
+        VkPipelineCacheHeaderVersionOne cache_header_correct{
+            .headerSize    = sizeof(VkPipelineCacheHeaderVersionOne),
+            .headerVersion = VK_PIPELINE_CACHE_HEADER_VERSION_ONE,
+            .vendorID      = properties.properties.vendorID,
+            .deviceID      = properties.properties.deviceID,
+        };
+        std::memcpy(cache_header_correct.pipelineCacheUUID, properties.properties.pipelineCacheUUID, VK_UUID_SIZE);
+
+        if (std::memcmp(initial_data, &cache_header_correct, sizeof(VkPipelineCacheHeaderVersionOne)) != 0) {
+            return wis::detail::make_result<wis::detail::Func(), "Initial data pipeline cache header does not match the device's pipeline cache header, indicating it is incompatible">(VK_ERROR_INITIALIZATION_FAILED);
+        }
+    }
+
+    VkPipelineCacheCreateInfo cache_info{
+        .sType           = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO,
+        .pNext           = nullptr,
+        .flags           = 0,
+        .initialDataSize = data_size,
+        .pInitialData    = initial_data
+    };
+
+    VkPipelineCache cache_handle = VK_NULL_HANDLE;
+    auto            vr           = table.vkCreatePipelineCache(device.device, &cache_info, nullptr, &cache_handle);
+    if (!wis::detail::succeeded(vr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to create pipeline cache">(vr);
+    }
+
+    auto& cache_impl = *new (cache) wis::impl::VKPipelineCacheImpl{
+        .cache         = cache_handle,
+        .device_header = device.device_header
+    };
+    device.device_header->AddRef();
+
     return wis::detail::vk_success;
 }
 

@@ -208,6 +208,12 @@ void InitRenderTask(BasicRenderTask* task, BasicRenderer* renderer)
     };
     WisResult result = wisDeviceCreateRootSignature(&renderer->device, &root_signature_desc, &task->root_signature);
     printf("CreateRootSignature for RenderTask result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+
+    WisPipelineCache pipeline_cache = { 0 };
+    result                          = wisDeviceCreatePipelineCache(&renderer->device, NULL, 0, &pipeline_cache);
+    printf("CreatePipelineCache result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+
+    wisDestroyPipelineCache(&pipeline_cache);
 }
 
 //------------------------------------------------------------------------------

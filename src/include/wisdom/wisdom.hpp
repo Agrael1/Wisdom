@@ -21,6 +21,7 @@ namespace wis {
 // Handles
 //==============================================================
 
+using PipelineCache     = wis::DX12PipelineCache;
 using Texture           = wis::DX12Texture;
 using Buffer            = wis::DX12Buffer;
 using DescriptorHeap    = wis::DX12DescriptorHeap;
@@ -33,6 +34,7 @@ using CommandQueue      = wis::DX12CommandQueue;
 using Device            = wis::DX12Device;
 using AdapterQuery      = wis::DX12AdapterQuery;
 using Instance          = wis::DX12Instance;
+using PipelineCacheView = wis::DX12PipelineCacheView;
 using TextureView       = wis::DX12TextureView;
 using BufferView        = wis::DX12BufferView;
 using RootSignatureView = wis::DX12RootSignatureView;
@@ -86,6 +88,7 @@ namespace wis {
 // Handles
 //==============================================================
 
+using PipelineCache     = wis::VKPipelineCache;
 using Texture           = wis::VKTexture;
 using Buffer            = wis::VKBuffer;
 using DescriptorHeap    = wis::VKDescriptorHeap;
@@ -98,6 +101,7 @@ using CommandQueue      = wis::VKCommandQueue;
 using Device            = wis::VKDevice;
 using AdapterQuery      = wis::VKAdapterQuery;
 using Instance          = wis::VKInstance;
+using PipelineCacheView = wis::VKPipelineCacheView;
 using TextureView       = wis::VKTextureView;
 using BufferView        = wis::VKBufferView;
 using RootSignatureView = wis::VKRootSignatureView;
