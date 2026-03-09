@@ -281,6 +281,6 @@
       <member type="GlobalBarrier" name="global_barriers" mod="const,span" default="nullptr" doc="Array of global barriers."/>
       <member type="size" name="global_barrier_count" default="0" doc="Number of global barriers in the {BarrierGroup::global_barriers} array."/>
     </type>
-
+    
   </types>
 </registry>

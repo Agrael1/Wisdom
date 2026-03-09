@@ -96,6 +96,15 @@ struct DX12BufferImpl {
 };
 
 using DX12TextureImpl = DX12BufferImpl; // Textures are also resources, so we can reuse the same implementation
+
+struct DX12PipelineCacheImpl {
+    ID3D12PipelineLibrary1* library;
+};
+
+struct DX12PipelineImpl {
+    ID3D12PipelineState* pipeline_state;
+};
+
 } // namespace impl
 } // namespace wis
 
@@ -115,5 +124,6 @@ using DX12TextureImpl = DX12BufferImpl; // Textures are also resources, so we ca
 #include "dx12_descriptor_heap.cpp"
 #include "dx12_resource_allocator.cpp"
 #include "dx12_command_allocator.cpp"
+#include "dx12_pipeline_cache.cpp"
 #endif // WISDOM_BUILD_BINARIES
 #endif // WIS_DX12_TYPES_HPP

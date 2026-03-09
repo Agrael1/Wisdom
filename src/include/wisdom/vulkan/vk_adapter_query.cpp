@@ -719,6 +719,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
     device_impl.physical_device = adapter;
 
     auto& device_header         = device_impl.device_header->header;
+    device_header.device        = device_handle; // Duplicate for infrequent access
     device_header.shared_header = impl.shared_header;
     device_header.shared_header->AddRef(); // hold reference to instance header
 

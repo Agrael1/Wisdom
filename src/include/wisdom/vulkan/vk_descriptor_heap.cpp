@@ -236,7 +236,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyDescriptorHeap(WisVKDescriptorHeap* sel
             vmaDestroyBuffer(impl.device_header->header.allocator, impl.buffer, impl.allocation);
         }
 
-        wis::detail::release_vk_device(impl.device, impl.device_header);
+        wis::detail::release_vk_device(impl.device_header);
         impl.buffer = VK_NULL_HANDLE;
     }
 }

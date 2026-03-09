@@ -6,9 +6,6 @@
 #include <wisdom/generated/dx12_convert.hpp>
 #include <wisdom/dx12/detail/dx12_utils.hpp>
 
-
-
-
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyRootSignature(WisDX12RootSignature* self)
 {
@@ -64,5 +61,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyTexture(WisDX12Texture* self)
     allocator->Release();
     resource = nullptr;
 }
+
+//-----------------------------------------------------------------------------
 
 #endif // WIS_DX12_IMPL_CPP

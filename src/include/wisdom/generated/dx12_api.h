@@ -8,6 +8,20 @@
 extern "C" {
 #endif // __cplusplus
 /**
+ * @brief Provided by Wisdom 0.7.0. Class representing a cache for pipeline state objects, which allows to reuse already created pipelines and speed up pipeline creation.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12PipelineCache, 1);
+WIS_DEFINE_HANDLE_VIEW(WisDX12PipelineCache, 1);
+
+static inline WisDX12PipelineCacheView wisGetDX12PipelineCacheView(const WisDX12PipelineCache* handle)
+{
+    WisDX12PipelineCacheView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
+
+/**
  * @brief Provided by Wisdom 0.7.0. Class representing a GPU texture resource.
  *
  * */
@@ -203,6 +217,13 @@ typedef struct WisDX12BarrierGroup {
     const WisDX12GlobalBarrier*  global_barriers; ///< Array of global barriers.
     size_t                       global_barrier_count; ///< Number of global barriers in the `WisBarrierGroup::global_barriers` array.
 } WisDX12BarrierGroup;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisPipelineCache handle.
+ * @param self is a pointer to the valid WisPipelineCache instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroyPipelineCache(WisDX12PipelineCache* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisTexture handle.
@@ -449,6 +470,20 @@ WISDOM_API WisResult wisDX12DeviceWaitForMultipleFences(const WisDX12Device*    
                                                         size_t                  fence_count,
                                                         WisMutiWaitType         wait_for,
                                                         uint64_t                timeout);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a pipeline cache for caching pipeline state objects.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param initial_data points to the initial cache data. If `nullptr`, the cache is created empty.
+ * @param data_size defines the size of the initial cache data in bytes.
+ * @param cache points to WisPipelineCache, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DeviceCreatePipelineCache(const WisDX12Device*  self,
+                                                      const uint8_t*        initial_data,
+                                                      size_t                data_size,
+                                                      WisDX12PipelineCache* cache);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Get the current value of the fence.
@@ -764,6 +799,26 @@ WISDOM_API void wisDX12CommandListSetDescriptorTable(const WisDX12CommandList*  
  * */
 WISDOM_API void wisDX12CommandListInsertBarriers(const WisDX12CommandList*  self,
                                                  const WisDX12BarrierGroup* barriers);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Gets the data from the pipeline cache.
+ * @param self is a pointer to the valid WisPipelineCache instance.
+ * @param data points to the data chunk, which is filled with the data of the cache data on success.
+ * @param data_size defines the size of the data chunk in bytes. It @wis_must be greater or equal to the value returned by wisPipelineCacheGetSerializedSize.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12PipelineCacheSerialize(const WisDX12PipelineCache* self,
+                                                   uint8_t*                    data,
+                                                   size_t                      data_size);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Gets the size of the data in the pipeline cache.
+ * @param self is a pointer to the valid WisPipelineCache instance.
+ * @return size Size of the data in bytes.
+ *
+ * */
+WISDOM_API size_t wisDX12PipelineCacheGetSerializedSize(const WisDX12PipelineCache* self);
 
 #ifdef __cplusplus
 }

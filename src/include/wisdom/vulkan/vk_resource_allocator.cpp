@@ -92,12 +92,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyResourceAllocator(WisVKResourceAllocato
 {
     auto& impl = *reinterpret_cast<wis::impl::VKResourceAllocatorImpl*>(self);
     if (impl.allocator) {
-
-        // Get device from allocator
-        VmaAllocatorInfo allocator_info{};
-        vmaGetAllocatorInfo(impl.allocator, &allocator_info);
-
-        wis::detail::release_vk_device(allocator_info.device, impl.device_header);
+        wis::detail::release_vk_device(impl.device_header);
         impl.allocator = nullptr;
     }
 }

@@ -113,6 +113,17 @@ struct VKTextureImpl {
     VmaAllocation                 allocation;
     detail::VKDeviceControlBlock* device_header;
 };
+
+struct VKPipelineCacheImpl {
+    VkPipelineCache               cache;
+    detail::VKDeviceControlBlock* device_header;
+};
+
+struct VKPipelineImpl {
+    VkPipeline                    pipeline;
+    detail::VKDeviceControlBlock* device_header;
+};
+
 } // namespace impl
 } // namespace wis
 
@@ -133,5 +144,6 @@ struct VKTextureImpl {
 #include "vk_descriptor_heap.cpp"
 #include "vk_resource_allocator.cpp"
 #include "vk_command_allocator.cpp"
+#include "vk_pipeline_cache.cpp"
 #endif // WISDOM_BUILD_BINARIES
 #endif // WIS_VK_TYPES_HPP

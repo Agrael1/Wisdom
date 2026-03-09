@@ -394,4 +394,29 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceWaitForMultipleFences(const WisDX
     return wis::detail::dx_success;
 }
 
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreatePipelineCache(const WisDX12Device*  self,
+                                                                   const uint8_t*        initial_data,
+                                                                   size_t                data_size,
+                                                                   WisDX12PipelineCache* cache)
+{
+    auto& device = *reinterpret_cast<const wis::impl::DX12DeviceImpl*>(self);
+
+    wis::com_ptr<ID3D12PipelineLibrary1> pipeline_library;
+
+    auto hr = device.device->CreatePipelineLibrary(initial_data,
+                                                   data_size,
+                                                   IID_ID3D12PipelineLibrary1,
+                                                   pipeline_library.put_void_unchecked());
+
+    if (!wis::detail::succeeded(hr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to create pipeline library">(hr);
+    }
+
+    auto& cache_impl = *new (cache) wis::impl::DX12PipelineCacheImpl{
+        .library = pipeline_library.detach(),
+    };
+    return wis::detail::dx_success;
+}
+
 #endif // WIS_DX12_DEVICE_CPP

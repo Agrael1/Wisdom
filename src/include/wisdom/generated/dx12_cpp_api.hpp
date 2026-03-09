@@ -11,6 +11,8 @@
 #include <wisdom/dx12/dx12_types.hpp>
 
 namespace wis {
+using DX12PipelineCacheView = WisDX12PipelineCacheView;
+
 using DX12TextureView = WisDX12TextureView;
 
 using DX12BufferView = WisDX12BufferView;
@@ -83,6 +85,55 @@ struct DX12BarrierGroup {
     wis::span<const wis::DX12BufferBarrier>  buffer_barriers; ///< Array of buffer barriers.
     wis::span<const wis::DX12TextureBarrier> texture_barriers; ///< Array of texture barriers.
     wis::span<const wis::DX12GlobalBarrier>  global_barriers; ///< Array of global barriers.
+};
+
+struct DX12PipelineCacheDeleter {
+    void operator()(WisDX12PipelineCache* handle) noexcept
+    {
+        ::wisDX12DestroyPipelineCache(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a cache for pipeline state objects, which allows to reuse already created pipelines and speed up pipeline creation.
+ *
+ * */
+class DX12PipelineCache : public wis::impl::Implements<wis::impl::DX12PipelineCacheImpl, WisDX12PipelineCache, wis::DX12PipelineCacheDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+    WIS_NODISCARD DX12PipelineCacheView GetView() const noexcept
+    {
+        DX12PipelineCacheView v;
+        std::memcpy(&v, &_impl_storage, sizeof(v));
+        return v;
+    }
+    WIS_NODISCARD operator DX12PipelineCacheView() const noexcept
+    {
+        return GetView();
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Gets the data from the pipeline cache.
+     * @param data points to the data chunk, which is filled with the data of the cache data on success.
+     * @return Result denoting the outcome of operation.
+     *
+     * */
+    inline wis::Result Serialize(wis::span<std::uint8_t> data) const noexcept
+    {
+        return convert_result(::wisDX12PipelineCacheSerialize(&_impl_storage,
+                                                              reinterpret_cast<uint8_t*>(data.data()),
+                                                              data.size()));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Gets the size of the data in the pipeline cache.
+     * @return size Size of the data in bytes.
+     *
+     * */
+    WIS_NODISCARD inline std::size_t GetSerializedSize() const noexcept
+    {
+        return (::wisDX12PipelineCacheGetSerializedSize(&_impl_storage));
+    }
 };
 
 struct DX12TextureDeleter {
@@ -809,6 +860,23 @@ public:
                                                                    fence_values.size(),
                                                                    static_cast<WisMutiWaitType>(wait_for),
                                                                    timeout));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a pipeline cache for caching pipeline state objects.
+     * @param initial_data points to the initial cache data. If `nullptr`, the cache is created empty.
+     * @param out_result denoting the outcome of operation.
+     * @return cache points to wis::PipelineCache, which is initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::DX12PipelineCache CreatePipelineCache(wis::span<const std::uint8_t> initial_data,
+                                                                    wis::Result&                  out_result) const noexcept
+    {
+        wis::DX12PipelineCache cache;
+        out_result = convert_result(::wisDX12DeviceCreatePipelineCache(&_impl_storage,
+                                                                       reinterpret_cast<const uint8_t*>(initial_data.data()),
+                                                                       initial_data.size(),
+                                                                       cache.GetStorage()));
+        return cache;
     }
 };
 

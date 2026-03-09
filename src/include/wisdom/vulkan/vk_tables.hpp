@@ -219,6 +219,9 @@ struct VKMainDevice {
     PFN_vkDestroyShaderModule               vkDestroyShaderModule;
     PFN_vkCreateGraphicsPipelines           vkCreateGraphicsPipelines;
     PFN_vkCreateComputePipelines            vkCreateComputePipelines;
+    PFN_vkCreatePipelineCache               vkCreatePipelineCache;
+    PFN_vkDestroyPipelineCache              vkDestroyPipelineCache;
+    PFN_vkGetPipelineCacheData              vkGetPipelineCacheData;
     PFN_vkDestroyDescriptorPool             vkDestroyDescriptorPool;
     PFN_vkAllocateDescriptorSets            vkAllocateDescriptorSets;
     PFN_vkUpdateDescriptorSets              vkUpdateDescriptorSets;
@@ -283,6 +286,9 @@ public:
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkDestroyShaderModule);
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkCreateGraphicsPipelines);
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkCreateComputePipelines);
+        ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkCreatePipelineCache);
+        ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkDestroyPipelineCache);
+        ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkGetPipelineCacheData);
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkDestroyDescriptorPool);
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkAllocateDescriptorSets);
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkUpdateDescriptorSets);
