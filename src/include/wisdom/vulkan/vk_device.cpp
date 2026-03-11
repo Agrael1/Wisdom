@@ -724,4 +724,35 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreatePipelineCache(const WisVKDevi
     return wis::detail::vk_success;
 }
 
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateShader(const WisVKDevice* self,
+                                                          const uint8_t*     data,
+                                                          size_t             size,
+                                                          WisVKShader*       shader)
+{
+    auto& device = *reinterpret_cast<const wis::impl::VKDeviceImpl*>(self);
+    auto& table  = device.device_header->header.device_table;
+
+    VkShaderModuleCreateInfo shader_info{
+        .sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO,
+        .pNext    = nullptr,
+        .flags    = 0,
+        .codeSize = size,
+        .pCode    = reinterpret_cast<const uint32_t*>(data),
+    };
+    VkShaderModule shader_handle = VK_NULL_HANDLE;
+
+    auto vr = table.vkCreateShaderModule(device.device, &shader_info, nullptr, &shader_handle);
+    if (!wis::detail::succeeded(vr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to create shader module">(vr);
+    }
+
+    auto& shader_impl = *new (shader) wis::impl::VKShaderImpl{
+        .shader_module = shader_handle,
+        .device_header = device.device_header
+    };
+    device.device_header->AddRef();
+    return wis::detail::vk_success;
+}
+
 #endif // WIS_VK_DEVICE_CPP

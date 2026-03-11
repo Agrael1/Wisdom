@@ -11,6 +11,8 @@
 #include <wisdom/dx12/dx12_types.hpp>
 
 namespace wis {
+using DX12ShaderView = WisDX12ShaderView;
+
 using DX12PipelineCacheView = WisDX12PipelineCacheView;
 
 using DX12TextureView = WisDX12TextureView;
@@ -85,6 +87,34 @@ struct DX12BarrierGroup {
     wis::span<const wis::DX12BufferBarrier>  buffer_barriers; ///< Array of buffer barriers.
     wis::span<const wis::DX12TextureBarrier> texture_barriers; ///< Array of texture barriers.
     wis::span<const wis::DX12GlobalBarrier>  global_barriers; ///< Array of global barriers.
+};
+
+struct DX12ShaderDeleter {
+    void operator()(WisDX12Shader* handle) noexcept
+    {
+        ::wisDX12DestroyShader(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU shader module, which contains shader code and allows to create pipeline state objects with it.
+ *
+ * */
+class DX12Shader : public wis::impl::Implements<wis::impl::DX12ShaderImpl, WisDX12Shader, wis::DX12ShaderDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+    WIS_NODISCARD DX12ShaderView GetView() const noexcept
+    {
+        DX12ShaderView v;
+        std::memcpy(&v, &_impl_storage, sizeof(v));
+        return v;
+    }
+    WIS_NODISCARD operator DX12ShaderView() const noexcept
+    {
+        return GetView();
+    }
 };
 
 struct DX12PipelineCacheDeleter {
@@ -877,6 +907,23 @@ public:
                                                                        initial_data.size(),
                                                                        cache.GetStorage()));
         return cache;
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a shader module from given data.
+     * @param data Shader bytecode.
+     * @param out_result denoting the outcome of operation.
+     * @return shader points to wis::Shader, which is initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::DX12Shader CreateShader(wis::span<const std::uint8_t> data,
+                                                      wis::Result&                  out_result) const noexcept
+    {
+        wis::DX12Shader shader;
+        out_result = convert_result(::wisDX12DeviceCreateShader(&_impl_storage,
+                                                                reinterpret_cast<const uint8_t*>(data.data()),
+                                                                data.size(),
+                                                                shader.GetStorage()));
+        return shader;
     }
 };
 

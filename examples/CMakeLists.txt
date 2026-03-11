@@ -25,6 +25,19 @@ if(WISDOM_BUILD_SHARED)
     DEPENDS wisdom-shared)
 endif()
 
+# compile shaders from folder shaders and put them in the binary output directory
+
+add_custom_target(wis_test_compile_shaders)
+file (GLOB SHADERS ${CMAKE_CURRENT_SOURCE_DIR}/shaders/*)
+foreach(SHADER ${SHADERS})
+    get_filename_component(SHADER_NAME ${SHADER} NAME)
+    WIS_COMPILE_SHADER(
+        TARGET wis_test_compile_shaders
+        SHADER ${SHADER}
+        OUTPUT ${EXAMPLE_BIN_OUTPUT}/${SHADER_NAME}
+    )
+endforeach()
+
 add_example_suite(test)
 add_example_suite(test_c)
 

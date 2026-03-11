@@ -78,4 +78,18 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyRootSignature(WisVKRootSignature* self)
     }
 }
 
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisVKDestroyShader(WisVKShader *self)
+{
+    auto& impl = *reinterpret_cast<wis::impl::VKShaderImpl*>(self);
+    if (impl.shader_module != VK_NULL_HANDLE) {
+        auto& header = impl.device_header->header;
+        auto& table  = header.device_table;
+        table.vkDestroyShaderModule(header.device, impl.shader_module, nullptr);
+        impl.shader_module = VK_NULL_HANDLE;
+        wis::detail::release_vk_device(impl.device_header);
+        impl.device_header = nullptr;
+    }
+}
+
 #endif // WIS_VK_IMPL_CPP

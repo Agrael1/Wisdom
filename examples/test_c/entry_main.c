@@ -1,5 +1,6 @@
 #include <wisdom/wisdom.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 void LogCallback(WisSeverity severity, const char* message, uint64_t device, void* user_data)
 {
@@ -27,6 +28,36 @@ void LogCallback(WisSeverity severity, const char* message, uint64_t device, voi
     printf("[%s] %s\n", severity_str, message);
 }
 
+WisShader CreateShader(const WisDevice* device, const char* filename)
+{
+    WisShader shader = { 0 };
+    char      shader_name[256];
+    size_t    filename_len = strlen(filename);
+    strncpy(shader_name, filename, filename_len);
+
+#ifdef WIS_SHADER_INTERMEDIATE_SPIRV
+    // append .spv to the shader name
+    strncpy(shader_name + filename_len, ".spv", 5);
+#else
+    // append .cso to the shader name
+    strncpy(shader_name + filename_len, ".cso", 5);
+#endif
+    shader_name[filename_len + 5] = '\0'; // Ensure null termination
+
+    FILE* file = fopen(shader_name, "rb");
+
+    // Get file size
+    fseek(file, 0, SEEK_END);
+    size_t code_size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    // Read file contents
+    uint8_t*  shader_code = (uint8_t*)malloc(code_size);
+    WisResult result      = wisDeviceCreateShader(device, shader_code, code_size, &shader);
+    printf("CreateShader result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+    return shader;
+}
+
 typedef struct BasicRenderer {
     WisDevice device;
 
@@ -49,7 +80,6 @@ typedef struct ResourceContainer {
 
 typedef struct BasicRenderTask {
     WisRootSignature root_signature;
-
 } BasicRenderTask;
 
 //------------------------------------------------------------------------------
@@ -213,7 +243,12 @@ void InitRenderTask(BasicRenderTask* task, BasicRenderer* renderer)
     result                          = wisDeviceCreatePipelineCache(&renderer->device, NULL, 0, &pipeline_cache);
     printf("CreatePipelineCache result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
 
+    WisShader vertex_shader = CreateShader(&renderer->device, "basic.vs.hlsl");
+    WisShader pixel_shader  = CreateShader(&renderer->device, "basic.ps.hlsl");
+
     wisDestroyPipelineCache(&pipeline_cache);
+    wisDestroyShader(&vertex_shader);
+    wisDestroyShader(&pixel_shader);
 }
 
 //------------------------------------------------------------------------------
@@ -373,7 +408,7 @@ void Render(const BasicRenderer* renderer, const ResourceContainer* resources, c
         .flags         = WisBarrierFlagsWholeRange | WisBarrierFlagsDiscardContent,
     };
     WisBarrierGroup barrier_group = {
-        .texture_barriers = &texture_barrier,
+        .texture_barriers      = &texture_barrier,
         .texture_barrier_count = 1
     };
 

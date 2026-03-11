@@ -119,6 +119,11 @@ struct VKPipelineCacheImpl {
     detail::VKDeviceControlBlock* device_header;
 };
 
+struct VKShaderImpl {
+    VkShaderModule                shader_module;
+    detail::VKDeviceControlBlock* device_header;
+};
+
 struct VKPipelineImpl {
     VkPipeline                    pipeline;
     detail::VKDeviceControlBlock* device_header;

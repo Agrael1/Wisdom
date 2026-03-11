@@ -7,6 +7,11 @@
   </includes>
 
   <handles>
+    <handle name="Shader" version="0.7.0" doc="Class representing a GPU shader module, which contains shader code and allows to create pipeline state objects with it.">
+      <impl for="vk" size="3"/>
+      <impl for="dx" size="1"/>
+      <view size="1"/>
+    </handle>
     <handle name="PipelineCache" version="0.7.0" doc="Class representing a cache for pipeline state objects, which allows to reuse already created pipelines and speed up pipeline creation.">
       <impl for="vk" size="2"/>
       <impl for="dx" size="1"/>
@@ -140,8 +145,13 @@ Default is {MutiWaitType::All}"/>
       <arg type="u8" name="initial_data" mod="const,span" default="nullptr" doc="points to the initial cache data. If `nullptr`, the cache is created empty."/>
       <arg type="size" name="data_size" default="0" doc="defines the size of the initial cache data in bytes."/>
     </func>
+    <func for="Device" name="CreateShader" version="0.7.0" mod="const" doc="Creates a shader module from given data.">
+      <ret type="Shader" name="shader" result="true" doc="points to {Shader::}, which is initialized on success."/>
+      <arg type="u8" name="data" mod="const,span" doc="Shader bytecode."/>
+      <arg type="size" name="size" doc="The size of the shader data in bytes. For SPIR-V must be multiple of 4."/>
+    </func>
 
-    <!-- Fence Functions -->
+      <!-- Fence Functions -->
     <func for="Fence" name="GetCompletedValue" version="0.7.0" mod="const" doc="Get the current value of the fence.">
       <ret type="u64" name="value" doc="Value of the fence."/>
     </func>

@@ -8,6 +8,20 @@
 extern "C" {
 #endif // __cplusplus
 /**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU shader module, which contains shader code and allows to create pipeline state objects with it.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisVKShader, 3);
+WIS_DEFINE_HANDLE_VIEW(WisVKShader, 1);
+
+static inline WisVKShaderView wisGetVKShaderView(const WisVKShader* handle)
+{
+    WisVKShaderView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
+
+/**
  * @brief Provided by Wisdom 0.7.0. Class representing a cache for pipeline state objects, which allows to reuse already created pipelines and speed up pipeline creation.
  *
  * */
@@ -217,6 +231,13 @@ typedef struct WisVKBarrierGroup {
     const WisVKGlobalBarrier*  global_barriers; ///< Array of global barriers.
     size_t                     global_barrier_count; ///< Number of global barriers in the `WisBarrierGroup::global_barriers` array.
 } WisVKBarrierGroup;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisShader handle.
+ * @param self is a pointer to the valid WisShader instance.
+ *
+ * */
+WISDOM_API void wisVKDestroyShader(WisVKShader* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisPipelineCache handle.
@@ -484,6 +505,20 @@ WISDOM_API WisResult wisVKDeviceCreatePipelineCache(const WisVKDevice*  self,
                                                     const uint8_t*      initial_data,
                                                     size_t              data_size,
                                                     WisVKPipelineCache* cache);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a shader module from given data.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param data Shader bytecode.
+ * @param size The size of the shader data in bytes. For SPIR-V @wis_must be multiple of 4.
+ * @param shader points to WisShader, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKDeviceCreateShader(const WisVKDevice* self,
+                                             const uint8_t*     data,
+                                             size_t             size,
+                                             WisVKShader*       shader);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Get the current value of the fence.

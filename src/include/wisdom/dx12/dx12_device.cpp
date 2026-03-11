@@ -7,6 +7,7 @@
 #include <wisdom/generated/dx12_convert.hpp>
 #include <wisdom/generated/dx12_cpp_api.hpp>
 #include <wisdom/util/com_ptr.hpp>
+#include <wisdom/util/xxhash.h>
 #include <bit>
 #include <ranges>
 
@@ -416,6 +417,43 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreatePipelineCache(const WisDX12
     auto& cache_impl = *new (cache) wis::impl::DX12PipelineCacheImpl{
         .library = pipeline_library.detach(),
     };
+    return wis::detail::dx_success;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateShader(const WisDX12Device* self,
+                                                            const uint8_t*       data,
+                                                            size_t               size,
+                                                            WisDX12Shader*       shader)
+{
+    if (!data || size == 0) {
+        return wis::detail::make_result<wis::detail::Func(), "Shader bytecode data is null or empty">(E_INVALIDARG);
+    }
+
+    auto& device = *reinterpret_cast<const wis::impl::DX12DeviceImpl*>(self);
+
+    std::unique_ptr<wis::detail::DX12ShaderHeader> shader_header{
+        reinterpret_cast<wis::detail::DX12ShaderHeader*>(operator new(wis::aligned_size(size, 8ull) + sizeof(wis::detail::DX12ShaderHeader), std::nothrow))
+    };
+    if (!shader_header) {
+        return wis::detail::make_result<wis::detail::Func(), "Out of memory while creating shader header">(E_OUTOFMEMORY);
+    }
+
+    std::construct_at(shader_header.get());
+
+    auto bc = shader_header->GetMutableBytecode();
+    std::memcpy(bc.data(), data, size);
+    shader_header->size = size;
+
+    // xxHash the shader bytecode to allow quick comparisons for pipeline caching
+    XXH128_hash_t hash     = XXH3_128bits(data, size);
+    shader_header->hash[0] = hash.low64;
+    shader_header->hash[1] = hash.high64;
+
+    auto& shader_impl = *new (shader) wis::impl::DX12ShaderImpl{
+        .shader = shader_header.release(),
+    };
+
     return wis::detail::dx_success;
 }
 

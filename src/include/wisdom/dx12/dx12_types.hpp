@@ -21,6 +21,7 @@ constexpr inline wis::Result convert_result(WisResult result) noexcept
 //-----------------------------------------------------------------------------
 namespace detail {
 struct DX12DebugLayer;
+struct DX12ShaderHeader;
 } // namespace detail
 
 namespace impl {
@@ -99,6 +100,10 @@ using DX12TextureImpl = DX12BufferImpl; // Textures are also resources, so we ca
 
 struct DX12PipelineCacheImpl {
     ID3D12PipelineLibrary1* library;
+};
+
+struct DX12ShaderImpl {
+    detail::DX12ShaderHeader* shader;
 };
 
 struct DX12PipelineImpl {

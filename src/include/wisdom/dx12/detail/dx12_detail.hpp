@@ -111,6 +111,23 @@ private:
 };
 
 //-----------------------------------------------------------------------------
+struct DX12ShaderHeader {
+    uint64_t    hash[2]{}; // Hash of the shader bytecode, used for caching and identification purposes.
+    std::size_t size = 0; // Size of the shader bytecode in bytes.
+
+    // bytecode follows immediately after the header in memory.
+
+    wis::span<const std::byte> GetBytecode() const noexcept
+    {
+        return wis::span<const std::byte>{ reinterpret_cast<const std::byte*>(this + 1), size };
+    }
+    wis::span<std::byte> GetMutableBytecode() noexcept
+    {
+        return wis::span<std::byte>{ reinterpret_cast<std::byte*>(this + 1), size };
+    }
+};
+
+//-----------------------------------------------------------------------------
 /**
  * @brief Internal helper function to convert a WisDescriptorType to a D3D12_ROOT_PARAMETER_TYPE.
  * This function is used internally to determine the appropriate root parameter type for a given descriptor type when creating root signatures in DirectX 12.
