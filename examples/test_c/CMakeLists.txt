@@ -11,6 +11,7 @@ if(WISDOM_BUILD_STATIC)
                                              ${EXAMPLE_BIN_OUTPUT})
 
   target_compile_definitions(${PROJECT_NAME} PUBLIC ${ADD_DEFINITIONS})
+  add_dependencies(${PROJECT_NAME} wis_test_compile_shaders)
 endif()
 
 if(WISDOM_BUILD_SHARED)
@@ -23,7 +24,7 @@ if(WISDOM_BUILD_SHARED)
   target_compile_definitions(${PROJECT_NAME}-shared PUBLIC ${ADD_DEFINITIONS})
 
   # Copy dlls to output directory on Windows
-  add_dependencies(${PROJECT_NAME}-shared copy_dll)
+  add_dependencies(${PROJECT_NAME}-shared copy_dll wis_test_compile_shaders)
 endif()
 
 if(POSTFIX STREQUAL "dx12")

@@ -63,5 +63,13 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyTexture(WisDX12Texture* self)
 }
 
 //-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisDX12DestroyShader(WisDX12Shader* self)
+{
+    auto& [shader] = *reinterpret_cast<wis::impl::DX12ShaderImpl*>(self);
+    if (!shader) {
+        return;
+    }
+    delete shader;
+}
 
 #endif // WIS_DX12_IMPL_CPP

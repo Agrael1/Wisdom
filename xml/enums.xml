@@ -882,6 +882,11 @@ Support of this memory must be queried.">
         <impl name="vk" value="VK_IMAGE_LAYOUT_VIDEO_DECODE_DST_KHR"/>
       </value>
     </type>
+
+    <type name="ShaderIntermediate" category="enum" version="0.7.0" doc="Intermediate shader representation.">
+      <value name="DXIL" value="0" doc="DirectX Intermediate Language."/>
+      <value name="SPIRV" value="1" doc="Standard Portable Intermediate Representation for Vulkan."/>
+    </type>
     
     <!-- Bitmasks -->
 

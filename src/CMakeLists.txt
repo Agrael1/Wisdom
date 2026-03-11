@@ -13,6 +13,7 @@ wis_make_target_bundle(
         "include/wisdom/util/string_literal.hpp"
         "include/wisdom/util/error_messages.hpp"
         "include/wisdom/util/allocation.hpp"
+        "include/wisdom/util/xxhash.h"
         INCLUDE_DIRECTORIES
         "${CMAKE_CURRENT_SOURCE_DIR}/include"
         HEADER_ONLY

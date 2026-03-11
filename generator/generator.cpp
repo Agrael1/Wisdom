@@ -377,6 +377,8 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 
 #if defined(WISDOM_DX12) && !FORCEVK_SWITCH
 #include "generated/dx12_api.h"
+
+#define WIS_SHADER_INTERMEDIATE_DXIL 1
 )";
     constexpr static auto impl_dx = GetImplString(ImplementedFor::DX12);
     constexpr static auto impl_vk = GetImplString(ImplementedFor::Vulkan);
@@ -431,7 +433,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
         }
     }
 
-        file_w << R"(
+    file_w << R"(
 #define wisGetView(handle) \ 
     _Generic((handle), \ 
 )";
@@ -444,10 +446,11 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
     }
     file_w << "default: (void)0 \\\n)(handle)";
 
-
     file_w << R"(
 #elif defined(WISDOM_VULKAN)
 #include "generated/vk_api.h"
+
+#define WIS_SHADER_INTERMEDIATE_SPIRV 1
 )";
 
     file_w << "\n\n//==============================================================\n"
@@ -500,7 +503,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
         }
     }
 
-        file_w << R"(
+    file_w << R"(
 #define wisGetView(handle) \ 
     _Generic((handle), \ 
 )";
@@ -654,6 +657,7 @@ void Generator::WriteCPPIndependentAPI(std::filesystem::path dir)
 #include "generated/dx12_cpp_api.hpp"
 
 namespace wis {
+static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderIntermediate::DXIL;
 )";
     constexpr static auto impl_dx = GetImplString(ImplementedFor::DX12);
     constexpr static auto impl_vk = GetImplString(ImplementedFor::Vulkan);
@@ -704,6 +708,7 @@ namespace wis {
 #include "generated/vk_cpp_api.hpp"
 
 namespace wis {
+static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderIntermediate::SPIRV;
 )";
 
     file_w << "\n\n//==============================================================\n"

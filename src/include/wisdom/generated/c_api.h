@@ -889,6 +889,15 @@ typedef enum WisTextureState {
 } WisTextureState;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Intermediate shader representation.
+ *
+ * */
+typedef enum WisShaderIntermediate {
+    WisShaderIntermediateDXIL  = 0, ///< DirectX Intermediate Language.
+    WisShaderIntermediateSPIRV = 1, ///< Standard Portable Intermediate Representation for Vulkan.
+} WisShaderIntermediate;
+
+/**
  * @brief Provided by Wisdom 0.7.0. Flags that describe adapter.
  *
  * */

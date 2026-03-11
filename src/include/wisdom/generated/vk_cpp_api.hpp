@@ -11,6 +11,8 @@
 #include <wisdom/vulkan/vk_types.hpp>
 
 namespace wis {
+using VKShaderView = WisVKShaderView;
+
 using VKPipelineCacheView = WisVKPipelineCacheView;
 
 using VKTextureView = WisVKTextureView;
@@ -85,6 +87,34 @@ struct VKBarrierGroup {
     wis::span<const wis::VKBufferBarrier>  buffer_barriers; ///< Array of buffer barriers.
     wis::span<const wis::VKTextureBarrier> texture_barriers; ///< Array of texture barriers.
     wis::span<const wis::VKGlobalBarrier>  global_barriers; ///< Array of global barriers.
+};
+
+struct VKShaderDeleter {
+    void operator()(WisVKShader* handle) noexcept
+    {
+        ::wisVKDestroyShader(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU shader module, which contains shader code and allows to create pipeline state objects with it.
+ *
+ * */
+class VKShader : public wis::impl::Implements<wis::impl::VKShaderImpl, WisVKShader, wis::VKShaderDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+    WIS_NODISCARD VKShaderView GetView() const noexcept
+    {
+        VKShaderView v;
+        std::memcpy(&v, &_impl_storage, sizeof(v));
+        return v;
+    }
+    WIS_NODISCARD operator VKShaderView() const noexcept
+    {
+        return GetView();
+    }
 };
 
 struct VKPipelineCacheDeleter {
@@ -877,6 +907,23 @@ public:
                                                                      initial_data.size(),
                                                                      cache.GetStorage()));
         return cache;
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a shader module from given data.
+     * @param data Shader bytecode.
+     * @param out_result denoting the outcome of operation.
+     * @return shader points to wis::Shader, which is initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::VKShader CreateShader(wis::span<const std::uint8_t> data,
+                                                    wis::Result&                  out_result) const noexcept
+    {
+        wis::VKShader shader;
+        out_result = convert_result(::wisVKDeviceCreateShader(&_impl_storage,
+                                                              reinterpret_cast<const uint8_t*>(data.data()),
+                                                              data.size(),
+                                                              shader.GetStorage()));
+        return shader;
     }
 };
 

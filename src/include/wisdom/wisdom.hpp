@@ -16,11 +16,13 @@
 #include "generated/dx12_cpp_api.hpp"
 
 namespace wis {
+static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderIntermediate::DXIL;
 
 //==============================================================
 // Handles
 //==============================================================
 
+using Shader            = wis::DX12Shader;
 using PipelineCache     = wis::DX12PipelineCache;
 using Texture           = wis::DX12Texture;
 using Buffer            = wis::DX12Buffer;
@@ -34,6 +36,7 @@ using CommandQueue      = wis::DX12CommandQueue;
 using Device            = wis::DX12Device;
 using AdapterQuery      = wis::DX12AdapterQuery;
 using Instance          = wis::DX12Instance;
+using ShaderView        = wis::DX12ShaderView;
 using PipelineCacheView = wis::DX12PipelineCacheView;
 using TextureView       = wis::DX12TextureView;
 using BufferView        = wis::DX12BufferView;
@@ -83,11 +86,13 @@ WIS_NODISCARD inline wis::Instance CreateInstance(const wis::DebugDesc*         
 #include "generated/vk_cpp_api.hpp"
 
 namespace wis {
+static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderIntermediate::SPIRV;
 
 //==============================================================
 // Handles
 //==============================================================
 
+using Shader            = wis::VKShader;
 using PipelineCache     = wis::VKPipelineCache;
 using Texture           = wis::VKTexture;
 using Buffer            = wis::VKBuffer;
@@ -101,6 +106,7 @@ using CommandQueue      = wis::VKCommandQueue;
 using Device            = wis::VKDevice;
 using AdapterQuery      = wis::VKAdapterQuery;
 using Instance          = wis::VKInstance;
+using ShaderView        = wis::VKShaderView;
 using PipelineCacheView = wis::VKPipelineCacheView;
 using TextureView       = wis::VKTextureView;
 using BufferView        = wis::VKBufferView;

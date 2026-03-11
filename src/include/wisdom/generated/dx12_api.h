@@ -8,6 +8,20 @@
 extern "C" {
 #endif // __cplusplus
 /**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU shader module, which contains shader code and allows to create pipeline state objects with it.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12Shader, 1);
+WIS_DEFINE_HANDLE_VIEW(WisDX12Shader, 1);
+
+static inline WisDX12ShaderView wisGetDX12ShaderView(const WisDX12Shader* handle)
+{
+    WisDX12ShaderView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
+
+/**
  * @brief Provided by Wisdom 0.7.0. Class representing a cache for pipeline state objects, which allows to reuse already created pipelines and speed up pipeline creation.
  *
  * */
@@ -217,6 +231,13 @@ typedef struct WisDX12BarrierGroup {
     const WisDX12GlobalBarrier*  global_barriers; ///< Array of global barriers.
     size_t                       global_barrier_count; ///< Number of global barriers in the `WisBarrierGroup::global_barriers` array.
 } WisDX12BarrierGroup;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisShader handle.
+ * @param self is a pointer to the valid WisShader instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroyShader(WisDX12Shader* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisPipelineCache handle.
@@ -484,6 +505,20 @@ WISDOM_API WisResult wisDX12DeviceCreatePipelineCache(const WisDX12Device*  self
                                                       const uint8_t*        initial_data,
                                                       size_t                data_size,
                                                       WisDX12PipelineCache* cache);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a shader module from given data.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param data Shader bytecode.
+ * @param size The size of the shader data in bytes. For SPIR-V @wis_must be multiple of 4.
+ * @param shader points to WisShader, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DeviceCreateShader(const WisDX12Device* self,
+                                               const uint8_t*       data,
+                                               size_t               size,
+                                               WisDX12Shader*       shader);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Get the current value of the fence.

@@ -886,6 +886,15 @@ enum class TextureState {
 };
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Intermediate shader representation.
+ *
+ * */
+enum class ShaderIntermediate {
+    DXIL  = 0, ///< DirectX Intermediate Language.
+    SPIRV = 1, ///< Standard Portable Intermediate Representation for Vulkan.
+};
+
+/**
  * @brief Provided by Wisdom 0.7.0. Flags that describe adapter.
  *
  * */
