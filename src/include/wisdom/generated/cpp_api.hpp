@@ -25,6 +25,7 @@ enum class Status {
     DeviceLost        = -4, ///< Device driver was forcefully stopped.
     Occluded          = -5, ///< Swap chain presentation was not visible to the user. Rendering is too fast.
     ValidationFailed  = -6, ///< A validation layer found an error.
+    Fail              = -7, ///< Operation failed.
     Error             = -10000, ///< Operation failed.
 };
 
@@ -1085,6 +1086,16 @@ enum class BarrierFlags : uint32_t {
     PlanarImage     = (1u << 4), ///< Resource is a planar image. If the flag is not set, plane slices in wis::SubresourceRange are ignored.
 };
 WISDOM_DEFINE_ENUM_OPERATORS(BarrierFlags)
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Pipeline creation flags.
+ *
+ * */
+enum class PipelineFlags : uint32_t {
+    None            = 0, ///< No flags set. Pipeline is regular.
+    FailOnCacheMiss = (1u << 0), ///< Fail pipeline creation if the pipeline cache is missing or incompatible. If not set, the implementation @wis_may choose to create the pipeline without using the cache, which @wis_may result in longer creation time.
+};
+WISDOM_DEFINE_ENUM_OPERATORS(PipelineFlags)
 
 //==============================================================
 // Delegates

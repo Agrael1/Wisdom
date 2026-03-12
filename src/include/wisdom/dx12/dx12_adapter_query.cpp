@@ -8,9 +8,6 @@
 #include <wisdom/generated/dx12_cpp_api.hpp>
 #include <wisdom/util/com_ptr.hpp>
 
-
-
-
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyAdapterQuery(WisDX12AdapterQuery* self)
 {
@@ -113,10 +110,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(const WisDX12A
     if (impl.debug_layer && impl.debug_layer->callback) {
         wis::com_ptr<ID3D12InfoQueue1> info_queue;
         if (auto hr2 = device_ref->QueryInterface(IID_ID3D12InfoQueue1, reinterpret_cast<void**>(info_queue.put_void_unchecked())); wis::detail::succeeded(hr2)) {
-            const wis::com_ptr<wis::detail::DX12DebugLayerThunk> thunk{ new wis::detail::DX12DebugLayerThunk(info_queue.get(),
-                                                                                                             reinterpret_cast<uint64_t>(device_ref.get()),
-                                                                                                             impl.debug_layer->callback,
-                                                                                                             impl.debug_layer->user_data), wis::take_ownership };
+            const wis::com_ptr<wis::detail::DX12DebugLayerThunk> thunk{
+                new wis::detail::DX12DebugLayerThunk(info_queue.get(),
+                                                     reinterpret_cast<uint64_t>(device_ref.get()),
+                                                     impl.debug_layer->callback,
+                                                     impl.debug_layer->user_data),
+                wis::take_ownership
+            };
 
             // Debug layer creation failure is allowed to silently fail
             if (thunk) {
@@ -138,11 +138,12 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(const WisDX12A
         return wis::detail::make_result<wis::detail::Func(), "Failed to create D3D12 memory allocator">(hr);
     }
 
-    auto& device_impl           = *new (device) wis::impl::DX12DeviceImpl();
-    device_impl.device          = device_ref.detach();
-    device_impl.physical_device = impl.physical_devices[index];
-    device_impl.factory         = impl.factory;
-    device_impl.allocator       = out_allocator;
+    auto& device_impl = *new (device) wis::impl::DX12DeviceImpl{
+        .device          = device_ref.detach(),
+        .physical_device = impl.physical_devices[index],
+        .factory         = impl.factory,
+        .allocator       = out_allocator,
+    };
     device_impl.physical_device->AddRef();
     device_impl.factory->AddRef();
 

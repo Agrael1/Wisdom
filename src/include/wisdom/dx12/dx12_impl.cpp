@@ -72,4 +72,14 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyShader(WisDX12Shader* self)
     delete shader;
 }
 
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisDX12DestroyPipeline(WisDX12Pipeline* self)
+{
+    auto& [pipeline] = *reinterpret_cast<wis::impl::DX12PipelineImpl*>(self);
+    if (!pipeline) {
+        return;
+    }
+    pipeline->Release();
+}
+
 #endif // WIS_DX12_IMPL_CPP

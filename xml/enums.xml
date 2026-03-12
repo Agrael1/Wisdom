@@ -13,6 +13,7 @@
       <value name="DeviceLost" value="-4" doc="Device driver was forcefully stopped."/>
       <value name="Occluded" value="-5" doc="Swap chain presentation was not visible to the user. Rendering is too fast."/>
       <value name="ValidationFailed" value="-6" doc="A validation layer found an error."/>
+      <value name="Fail" value="-7" doc="Operation failed."/>
       <value name="Error" value="-10000" doc="Operation failed."/>
     </type>
 
@@ -1181,5 +1182,11 @@ Outside of AllocateXMemory the flag is ignored."/>
       <value name="WholeRange" bit="3" doc="Transition whole resource. If not set, the transition is applied only to the specified subresource range. If set, the subresource range is ignored and the transition is applied to all subresources of the resource."/>
       <value name="PlanarImage" bit="4" doc="Resource is a planar image. If the flag is not set, plane slices in {SubresourceRange::} are ignored."/>
     </type>
+
+    <type name="PipelineFlags" category="bitmask" version="0.7.0" doc="Pipeline creation flags.">
+      <value name="None" value="0" doc="No flags set. Pipeline is regular."/>
+      <value name="FailOnCacheMiss" bit="0" doc="Fail pipeline creation if the pipeline cache is missing or incompatible. If not set, the implementation may choose to create the pipeline without using the cache, which may result in longer creation time."/>
+    </type>
+    
   </types>
 </registry>

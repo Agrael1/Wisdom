@@ -8,6 +8,20 @@
 extern "C" {
 #endif // __cplusplus
 /**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU pipeline state object, which encapsulates the state of the GPU pipeline and allows to execute draw and dispatch calls with it.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12Pipeline, 1);
+WIS_DEFINE_HANDLE_VIEW(WisDX12Pipeline, 1);
+
+static inline WisDX12PipelineView wisGetDX12PipelineView(const WisDX12Pipeline* handle)
+{
+    WisDX12PipelineView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
+
+/**
  * @brief Provided by Wisdom 0.7.0. Class representing a GPU shader module, which contains shader code and allows to create pipeline state objects with it.
  *
  * */
@@ -25,7 +39,7 @@ static inline WisDX12ShaderView wisGetDX12ShaderView(const WisDX12Shader* handle
  * @brief Provided by Wisdom 0.7.0. Class representing a cache for pipeline state objects, which allows to reuse already created pipelines and speed up pipeline creation.
  *
  * */
-WIS_DEFINE_HANDLE(WisDX12PipelineCache, 1);
+WIS_DEFINE_HANDLE(WisDX12PipelineCache, 2);
 WIS_DEFINE_HANDLE_VIEW(WisDX12PipelineCache, 1);
 
 static inline WisDX12PipelineCacheView wisGetDX12PipelineCacheView(const WisDX12PipelineCache* handle)
@@ -231,6 +245,24 @@ typedef struct WisDX12BarrierGroup {
     const WisDX12GlobalBarrier*  global_barriers; ///< Array of global barriers.
     size_t                       global_barrier_count; ///< Number of global barriers in the `WisBarrierGroup::global_barriers` array.
 } WisDX12BarrierGroup;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Compute pipeline description for WisPipeline creation.
+ *
+ * */
+typedef struct WisDX12ComputePipelineDesc {
+    WisDX12RootSignatureView root_signature; ///< Root signature description for the pipeline.
+    WisDX12ShaderView        compute_shader; ///< Compute shader bytecode.
+    WisDX12PipelineCacheView cache; ///< Pipeline cache data. Used to speed up pipeline creation if available.
+    WisPipelineFlags         flags; ///< Pipeline flags. Describe additional options for the pipeline.
+} WisDX12ComputePipelineDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisPipeline handle.
+ * @param self is a pointer to the valid WisPipeline instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroyPipeline(WisDX12Pipeline* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisShader handle.
@@ -519,6 +551,18 @@ WISDOM_API WisResult wisDX12DeviceCreateShader(const WisDX12Device* self,
                                                const uint8_t*       data,
                                                size_t               size,
                                                WisDX12Shader*       shader);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a compute pipeline state object with given descriptor.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param desc points to WisComputePipelineDesc, which describes the compute pipeline to create.
+ * @param pipeline points to WisPipeline, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DeviceCreateComputePipeline(const WisDX12Device*              self,
+                                                        const WisDX12ComputePipelineDesc* desc,
+                                                        WisDX12Pipeline*                  pipeline);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Get the current value of the fence.

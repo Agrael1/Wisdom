@@ -28,6 +28,7 @@ typedef enum WisStatus {
     WisStatusDeviceLost        = -4, ///< Device driver was forcefully stopped.
     WisStatusOccluded          = -5, ///< Swap chain presentation was not visible to the user. Rendering is too fast.
     WisStatusValidationFailed  = -6, ///< A validation layer found an error.
+    WisStatusFail              = -7, ///< Operation failed.
     WisStatusError             = -10000, ///< Operation failed.
 } WisStatus;
 
@@ -1077,6 +1078,15 @@ typedef enum WisBarrierFlags {
     WisBarrierFlagsWholeRange      = (1u << 3), ///< Transition whole resource. If not set, the transition is applied only to the specified subresource range. If set, the subresource range is ignored and the transition is applied to all subresources of the resource.
     WisBarrierFlagsPlanarImage     = (1u << 4), ///< Resource is a planar image. If the flag is not set, plane slices in WisSubresourceRange are ignored.
 } WisBarrierFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Pipeline creation flags.
+ *
+ * */
+typedef enum WisPipelineFlags {
+    WisPipelineFlagsNone            = 0, ///< No flags set. Pipeline is regular.
+    WisPipelineFlagsFailOnCacheMiss = (1u << 0), ///< Fail pipeline creation if the pipeline cache is missing or incompatible. If not set, the implementation @wis_may choose to create the pipeline without using the cache, which @wis_may result in longer creation time.
+} WisPipelineFlags;
 
 //==============================================================
 // Delegates

@@ -49,6 +49,23 @@ WIS_CONSTEXPR23 inline WisResult make_result(HRESULT hr, std::source_location sl
 
 //-----------------------------------------------------------------------------
 /**
+ * @brief Creates a WisResult from a DirectX 12 HRESULT, including an error message that incorporates the function name and a custom message. This function uses compile-time string manipulation to generate a descriptive error message based on the source location of the call and the provided custom message.
+ * @tparam func A compile-time pair of indices representing the start and end positions of the function name in the source location's function name string. This is used to extract the function name for the error message.
+ * @tparam message A compile-time fixed string that provides additional context about the error. This message is included in the generated error string to give more information about the failure.
+ * @param status The WisStatus value that represents the status of the operation, which is typically derived from the HRESULT using the convert_dx function. This allows the caller to specify a custom status code if needed, while still including the original HRESULT and error message in the resulting WisResult.  
+ * @param hr The HRESULT value returned by a DirectX 12 function call that indicates the result of the operation.
+ * @param sl The source location information, which defaults to the current location where wis::detail::make_result is called. This is used to extract the function name for the error message.
+ * @return A WisResult object that contains the converted WisStatus, original HRESULT, and a descriptive error message that includes both the function name and the custom message.
+ */
+template<func_pair func, wis::fixed_string message>
+WIS_CONSTEXPR23 inline WisResult make_result(WisStatus status, HRESULT hr, std::source_location sl = std::source_location::current()) noexcept
+{
+    static const auto str = wis::detail::make_error_string<message, func>(sl);
+    return { status, hr, str.c_str() };
+}
+
+//-----------------------------------------------------------------------------
+/**
  * @brief Check if the given HRESULT indicates a successful operation.
  * @param hr The HRESULT value to check for success.
  * @return True if the HRESULT indicates success (non-negative), false otherwise.

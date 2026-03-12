@@ -148,14 +148,14 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandQueue(const WisVKDevic
     device.device_header->header.device_table.vkGetDeviceQueue2(device.device, &queue_info, &vk_queue);
 
     // Fill command queue impl
-    auto& queue_impl         = *new (queue) wis::impl::VKCommandQueueImpl();
-    queue_impl.queue         = vk_queue;
-    queue_impl.device        = device.device;
-    queue_impl.device_header = device.device_header;
-    queue_impl.device_header->AddRef(); // hold reference to device header
+    auto& queue_impl = *new (queue) wis::impl::VKCommandQueueImpl{
+        .queue         = vk_queue,
+        .semaphore_ptr = reinterpret_cast<uint8_t*>(device.device_header->header.GetSemaphoreForQueueType(type, queue_info.queueIndex)),
+        .device        = device.device,
+        .device_header = device.device_header,
+    };
 
-    // Setup semaphore pointer
-    queue_impl.semaphore_ptr = reinterpret_cast<uint8_t*>(device.device_header->header.GetSemaphoreForQueueType(type, queue_info.queueIndex));
+    queue_impl.device_header->AddRef(); // hold reference to device header
     return res;
 }
 
@@ -203,9 +203,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandAllocator(const WisVKD
     pool_control_block->header.device_header = device.device_header;
     pool_control_block->header.device_header->AddRef(); // hold reference to device header for command pool control block
 
-    auto& allocator_impl               = *new (allocator) wis::impl::VKCommandAllocatorImpl();
-    allocator_impl.command_pool        = command_pool;
-    allocator_impl.command_pool_header = pool_control_block.release();
+    auto& allocator_impl = *new (allocator) wis::impl::VKCommandAllocatorImpl{
+        .command_pool        = command_pool,
+        .command_pool_header = pool_control_block.release()
+    };
 
     return wis::detail::vk_success;
 }
@@ -236,10 +237,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateFence(const WisVKDevice* self
         return wis::detail::make_result<wis::detail::Func(), "Failed to create Vulkan timeline semaphore">(vr);
     }
     // Fill fence impl
-    auto& out_fence         = *new (fence) wis::impl::VKFenceImpl();
-    out_fence.fence         = semaphore;
-    out_fence.device        = device.device;
-    out_fence.device_header = device.device_header;
+    auto& out_fence = *new (fence) wis::impl::VKFenceImpl{
+        .fence         = semaphore,
+        .device        = device.device,
+        .device_header = device.device_header,
+    };
     out_fence.device_header->AddRef(); // hold reference to device header
     return res;
 }
@@ -251,9 +253,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceGetResourceAllocator(const WisVKDev
     auto& device = *reinterpret_cast<const wis::impl::VKDeviceImpl*>(self);
 
     // Fill allocator impl
-    auto& allocator_impl         = *new (allocator) wis::impl::VKResourceAllocatorImpl();
-    allocator_impl.allocator     = device.device_header->header.allocator;
-    allocator_impl.device_header = device.device_header;
+    auto& allocator_impl = *new (allocator) wis::impl::VKResourceAllocatorImpl{
+        .allocator     = device.device_header->header.allocator,
+        .device_header = device.device_header
+    };
+
     allocator_impl.device_header->AddRef(); // hold reference to device header
     return wis::detail::vk_success;
 }
@@ -314,16 +318,17 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(const WisVKDev
         }
 
         // Fill descriptor heap impl
-        auto& heap_impl           = *new (heap) wis::impl::VKDescriptorHeapImpl();
-        heap_impl.buffer          = buffer;
-        heap_impl.allocation      = VK_NULL_HANDLE; // No VMA allocation for non-shader visible heaps
-        heap_impl.mapped_ptr      = buffer; // For non-shader visible heaps, the buffer pointer itself serves as the mapped pointer
-        heap_impl.gpu_address     = 0; // No GPU address for non-shader visible heaps
-        heap_impl.reserved_size   = 0;
-        heap_impl.descriptor_size = descriptor_size;
-        heap_impl.heap_size       = desc->descriptor_count;
-        heap_impl.device          = device.device;
-        heap_impl.device_header   = device.device_header;
+        auto& heap_impl = *new (heap) wis::impl::VKDescriptorHeapImpl{
+            .buffer          = buffer,
+            .allocation      = VK_NULL_HANDLE, // No VMA allocation for non-shader visible heaps
+            .mapped_ptr      = buffer, // For non-shader visible heaps, the buffer pointer itself serves as the mapped pointer
+            .gpu_address     = 0, // No GPU address for non-shader visible heaps
+            .descriptor_size = static_cast<uint16_t>(descriptor_size),
+            .reserved_size   = 0,
+            .heap_size       = desc->descriptor_count,
+            .device          = device.device,
+            .device_header   = device.device_header,
+        };
         heap_impl.device_header->AddRef(); // hold reference to device header
         return wis::detail::vk_success;
     }
@@ -366,16 +371,17 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(const WisVKDev
         .buffer = buffer
     };
 
-    auto& heap_impl           = *new (heap) wis::impl::VKDescriptorHeapImpl();
-    heap_impl.buffer          = buffer;
-    heap_impl.allocation      = allocation;
-    heap_impl.mapped_ptr      = alloc_info_out.pMappedData;
-    heap_impl.gpu_address     = table.vkGetBufferDeviceAddress(device.device, &address_info);
-    heap_impl.reserved_size   = reserved_size / descriptor_size;
-    heap_impl.descriptor_size = descriptor_size;
-    heap_impl.heap_size       = desc->descriptor_count;
-    heap_impl.device          = device.device;
-    heap_impl.device_header   = device.device_header;
+    auto& heap_impl = *new (heap) wis::impl::VKDescriptorHeapImpl{
+        .buffer          = buffer,
+        .allocation      = allocation,
+        .mapped_ptr      = alloc_info_out.pMappedData,
+        .gpu_address     = table.vkGetBufferDeviceAddress(device.device, &address_info),
+        .descriptor_size = static_cast<uint16_t>(descriptor_size),
+        .reserved_size   = static_cast<uint16_t>(reserved_size / descriptor_size),
+        .heap_size       = desc->descriptor_count,
+        .device          = device.device,
+        .device_header   = device.device_header,
+    };
     heap_impl.device_header->AddRef(); // hold reference to device header
     return wis::detail::vk_success;
 }
@@ -448,12 +454,19 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(const WisVKDevi
                 (local_offsets_per_shader[i].even
                          ? 0
                          : table_counts_per_shader[0]); // If even, "all" maps are after this stage, if odd, "all" maps are before this stage
+
+        root_sig_control_block->shader_mapping_sizes[i] = table_counts_per_shader[i] +
+                (local_offsets_per_shader[i].even
+                         ? 0
+                         : table_counts_per_shader[0]); // If even, this stage maps + "all" maps, if odd, only this stage maps
+
         if (!all_offset) {
             // Set as an offset after mapping[0]
             all_offset = local_offsets_per_shader[i].offset + table_counts_per_shader[i];
         }
     }
     root_sig_control_block->shader_mapping_offset[0] = all_offset;
+    root_sig_control_block->shader_mapping_sizes[0]  = table_counts_per_shader[0];
     local_offsets_per_shader[0]                      = { all_offset, true };
 
     auto     mappings            = root_sig_control_block->GetMappings();
@@ -564,8 +577,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(const WisVKDevi
     }
 
     // Fill root signature impl
-    auto& layout_impl                 = *new (layout) wis::impl::VKRootSignatureImpl();
-    layout_impl.root_signature_header = root_sig_control_block.release();
+    auto& layout_impl = *new (layout) wis::impl::VKRootSignatureImpl{
+        .root_signature_header = root_sig_control_block.release()
+    };
 
     return wis::detail::vk_success;
 }
@@ -752,6 +766,64 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateShader(const WisVKDevice* sel
         .device_header = device.device_header
     };
     device.device_header->AddRef();
+    return wis::detail::vk_success;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateComputePipeline(const WisVKDevice*              self,
+                                                                   const WisVKComputePipelineDesc* desc,
+                                                                   WisVKPipeline*                  pipeline)
+{
+    auto& device        = *reinterpret_cast<const wis::impl::VKDeviceImpl*>(self);
+    auto& table         = device.device_header->header.device_table;
+    auto* root_sig_impl = std::bit_cast<const wis::detail::VKRootSignatureControlBlock*>(desc->root_signature);
+    auto  shader        = std::bit_cast<VkShaderModule>(desc->compute_shader);
+    auto  cache         = std::bit_cast<VkPipelineCache>(desc->cache);
+
+    VkPipelineCreateFlags2CreateInfo pipeline_flags_info{
+        .sType = VK_STRUCTURE_TYPE_PIPELINE_CREATE_FLAGS_2_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = VK_PIPELINE_CREATE_2_DESCRIPTOR_HEAP_BIT_EXT
+    };
+    if (desc->flags & WisPipelineFlagsFailOnCacheMiss) {
+        pipeline_flags_info.flags |= VK_PIPELINE_CREATE_2_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT;
+    }
+
+    // Root signature
+    VkShaderDescriptorSetAndBindingMappingInfoEXT mapping{
+        .sType        = VK_STRUCTURE_TYPE_SHADER_DESCRIPTOR_SET_AND_BINDING_MAPPING_INFO_EXT,
+        .pNext        = nullptr,
+        .mappingCount = root_sig_impl->shader_mapping_sizes[WisShaderVisibilityAll],
+        .pMappings    = root_sig_impl->GetMappings().data() + root_sig_impl->shader_mapping_offset[WisShaderVisibilityAll]
+    };
+
+    VkComputePipelineCreateInfo pipeline_info{
+        .sType = VK_STRUCTURE_TYPE_COMPUTE_PIPELINE_CREATE_INFO,
+        .pNext = &pipeline_flags_info,
+        .flags = 0,
+        .stage = {
+                  .sType               = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+                  .pNext               = &mapping,
+                  .flags               = 0,
+                  .stage               = VK_SHADER_STAGE_COMPUTE_BIT,
+                  .module              = shader,
+                  .pName               = "main",
+                  .pSpecializationInfo = nullptr },
+        .layout = nullptr
+    };
+
+    VkPipeline pipeline_handle = VK_NULL_HANDLE;
+
+    auto vr = table.vkCreateComputePipelines(device.device, cache, 1, &pipeline_info, nullptr, &pipeline_handle);
+    if (!wis::detail::succeeded(vr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to create compute pipeline">(vr);
+    }
+
+    auto& pipeline_impl = *new (pipeline) wis::impl::VKPipelineImpl{
+        .pipeline      = pipeline_handle,
+        .device_header = device.device_header
+    };
+    pipeline_impl.device_header->AddRef();
     return wis::detail::vk_success;
 }
 

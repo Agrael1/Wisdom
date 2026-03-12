@@ -22,6 +22,7 @@ static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderInterm
 // Handles
 //==============================================================
 
+using Pipeline          = wis::DX12Pipeline;
 using Shader            = wis::DX12Shader;
 using PipelineCache     = wis::DX12PipelineCache;
 using Texture           = wis::DX12Texture;
@@ -36,6 +37,7 @@ using CommandQueue      = wis::DX12CommandQueue;
 using Device            = wis::DX12Device;
 using AdapterQuery      = wis::DX12AdapterQuery;
 using Instance          = wis::DX12Instance;
+using PipelineView      = wis::DX12PipelineView;
 using ShaderView        = wis::DX12ShaderView;
 using PipelineCacheView = wis::DX12PipelineCacheView;
 using TextureView       = wis::DX12TextureView;
@@ -55,6 +57,7 @@ using BufferBarrier           = wis::DX12BufferBarrier;
 using GlobalBarrier           = wis::DX12GlobalBarrier;
 using TextureBarrier          = wis::DX12TextureBarrier;
 using BarrierGroup            = wis::DX12BarrierGroup;
+using ComputePipelineDesc     = wis::DX12ComputePipelineDesc;
 
 //==============================================================
 // Functions
@@ -92,6 +95,7 @@ static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderInterm
 // Handles
 //==============================================================
 
+using Pipeline          = wis::VKPipeline;
 using Shader            = wis::VKShader;
 using PipelineCache     = wis::VKPipelineCache;
 using Texture           = wis::VKTexture;
@@ -106,6 +110,7 @@ using CommandQueue      = wis::VKCommandQueue;
 using Device            = wis::VKDevice;
 using AdapterQuery      = wis::VKAdapterQuery;
 using Instance          = wis::VKInstance;
+using PipelineView      = wis::VKPipelineView;
 using ShaderView        = wis::VKShaderView;
 using PipelineCacheView = wis::VKPipelineCacheView;
 using TextureView       = wis::VKTextureView;
@@ -125,6 +130,7 @@ using BufferBarrier           = wis::VKBufferBarrier;
 using GlobalBarrier           = wis::VKGlobalBarrier;
 using TextureBarrier          = wis::VKTextureBarrier;
 using BarrierGroup            = wis::VKBarrierGroup;
+using ComputePipelineDesc     = wis::VKComputePipelineDesc;
 
 //==============================================================
 // Functions

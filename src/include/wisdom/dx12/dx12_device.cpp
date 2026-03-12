@@ -8,6 +8,8 @@
 #include <wisdom/generated/dx12_cpp_api.hpp>
 #include <wisdom/util/com_ptr.hpp>
 #include <wisdom/util/xxhash.h>
+#include <wisdom/bridge/format.hpp>
+#include <d3dx12/d3dx12_pipeline_state_stream.h>
 #include <bit>
 #include <ranges>
 
@@ -51,8 +53,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandQueue(const WisDX12D
         return wis::detail::make_result<wis::detail::Func(), "Failed to create command queue">(hr);
     }
 
-    auto& internal = *new (queue) wis::impl::DX12CommandQueueImpl();
-    internal.queue = out_queue.detach();
+    auto& internal = *new (queue) wis::impl::DX12CommandQueueImpl{
+        .queue = out_queue.detach(),
+    };
     return wis::detail::dx_success;
 }
 
@@ -72,10 +75,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandAllocator(const WisD
         return wis::detail::make_result<wis::detail::Func(), "Failed to create command allocator">(hr);
     }
 
-    auto& internal     = *new (list) wis::impl::DX12CommandAllocatorImpl();
-    internal.allocator = allocator.detach();
-    internal.type      = type;
-    internal.device    = device.device; // store device pointer for later use when creating command lists with this allocator (don't refcount)
+    auto& internal = *new (list) wis::impl::DX12CommandAllocatorImpl{
+        .allocator = allocator.detach(),
+        .device    = device.device, // store device pointer for later use when creating command lists with this allocator (don't refcount)
+        .type      = type,
+    };
     return result;
 }
 
@@ -103,9 +107,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateFence(const WisDX12Device* 
         return wis::detail::make_result<wis::detail::Func(), "Failed to create fence event handle">(HRESULT_FROM_WIN32(GetLastError()));
     }
 
-    auto& internal = *new (fence) wis::impl::DX12FenceImpl();
-    internal.fence = out_fence.detach();
-    internal.event = event_handle;
+    auto& internal = *new (fence) wis::impl::DX12FenceImpl{
+        .fence = out_fence.detach(),
+        .event = event_handle,
+    };
     return result;
 }
 
@@ -116,9 +121,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceGetResourceAllocator(const WisDX1
     auto& device = *reinterpret_cast<const wis::impl::DX12DeviceImpl*>(self);
 
     // Fill allocator impl
-    auto& allocator_impl     = *new (allocator) wis::impl::DX12ResourceAllocatorImpl();
-    allocator_impl.allocator = device.allocator;
-    allocator_impl.allocator->AddRef(); // hold reference to allocator
+    device.allocator->AddRef(); // hold reference to allocator
+    auto& allocator_impl = *new (allocator) wis::impl::DX12ResourceAllocatorImpl{
+        .allocator = device.allocator,
+    };
     return wis::detail::dx_success;
 }
 
@@ -143,13 +149,15 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateDescriptorHeap(const WisDX1
         return wis::detail::make_result<wis::detail::Func(), "Failed to create descriptor heap">(hr);
     }
 
-    auto& heap_impl           = *new (heap) wis::impl::DX12DescriptorHeapImpl();
-    heap_impl.descriptor_heap = descriptor_heap.detach();
-    heap_impl.device          = device.device;
-    heap_impl.gpu_handle      = heap_impl.descriptor_heap->GetGPUDescriptorHandleForHeapStart();
-    heap_impl.cpu_handle      = heap_impl.descriptor_heap->GetCPUDescriptorHandleForHeapStart();
-    heap_impl.descriptor_size = device.device->GetDescriptorHandleIncrementSize(heap_desc.Type);
-    heap_impl.type            = heap_desc.Type;
+    auto* raw_heap  = descriptor_heap.detach();
+    auto& heap_impl = *new (heap) wis::impl::DX12DescriptorHeapImpl{
+        .descriptor_heap = raw_heap,
+        .device          = device.device,
+        .gpu_handle      = raw_heap->GetGPUDescriptorHandleForHeapStart(),
+        .cpu_handle      = raw_heap->GetCPUDescriptorHandleForHeapStart(),
+        .descriptor_size = device.device->GetDescriptorHandleIncrementSize(heap_desc.Type),
+        .type            = heap_desc.Type,
+    };
     return wis::detail::dx_success;
 }
 
@@ -311,8 +319,19 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(const WisDX12
         return wis::detail::make_result<wis::detail::Func(), "Failed to create root signature">(hr);
     }
 
-    auto& layout_impl          = *new (layout) wis::impl::DX12RootSignatureImpl();
-    layout_impl.root_signature = root_signature.detach();
+    // Compute hash of root signature description for caching purposes
+    XXH128_hash_t                     hash = XXH3_128bits(signature->GetBufferPointer(), signature->GetBufferSize());
+    wis::detail::DX12RootSignatureKey key{
+        .hash{ hash.low64, hash.high64 }
+    };
+    root_signature->SetPrivateData(
+            wis::detail::DX12RootSignatureKey::guid,
+            sizeof(wis::detail::DX12RootSignatureKey),
+            &key);
+
+    auto& layout_impl = *new (layout) wis::impl::DX12RootSignatureImpl{
+        .root_signature = root_signature.detach()
+    };
     return res;
 }
 
@@ -403,19 +422,31 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreatePipelineCache(const WisDX12
 {
     auto& device = *reinterpret_cast<const wis::impl::DX12DeviceImpl*>(self);
 
+    uint8_t* data_copy = nullptr;
+    if (initial_data && data_size > 0) {
+        data_copy = static_cast<uint8_t*>(malloc(data_size));
+        if (!data_copy) {
+            return wis::detail::make_result<wis::detail::Func(), "Out of memory while copying pipeline cache data">(E_OUTOFMEMORY);
+        }
+        std::memcpy(data_copy, initial_data, data_size);
+    }
+
+
     wis::com_ptr<ID3D12PipelineLibrary1> pipeline_library;
 
-    auto hr = device.device->CreatePipelineLibrary(initial_data,
+    auto hr = device.device->CreatePipelineLibrary(data_copy,
                                                    data_size,
                                                    IID_ID3D12PipelineLibrary1,
                                                    pipeline_library.put_void_unchecked());
 
     if (!wis::detail::succeeded(hr)) {
+        free(data_copy);
         return wis::detail::make_result<wis::detail::Func(), "Failed to create pipeline library">(hr);
     }
 
     auto& cache_impl = *new (cache) wis::impl::DX12PipelineCacheImpl{
         .library = pipeline_library.detach(),
+        .data    = data_copy,
     };
     return wis::detail::dx_success;
 }
@@ -454,6 +485,100 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateShader(const WisDX12Device*
         .shader = shader_header.release(),
     };
 
+    return wis::detail::dx_success;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateComputePipeline(const WisDX12Device*              self,
+                                                                     const WisDX12ComputePipelineDesc* desc,
+                                                                     WisDX12Pipeline*                  pipeline)
+{
+    auto& device  = *reinterpret_cast<const wis::impl::DX12DeviceImpl*>(self);
+    auto* rootsig = std::bit_cast<ID3D12RootSignature*>(desc->root_signature);
+    auto* shader  = std::bit_cast<const wis::detail::DX12ShaderHeader*>(desc->compute_shader);
+    auto* cache   = std::bit_cast<ID3D12PipelineLibrary1*>(desc->cache);
+
+    // Validate root signature
+    if (!rootsig) {
+        return wis::detail::make_result<wis::detail::Func(), "Invalid root signature provided for compute pipeline creation">(E_INVALIDARG);
+    }
+    // Validate shader
+    if (!shader) {
+        return wis::detail::make_result<wis::detail::Func(), "Invalid shader provided for compute pipeline creation">(E_INVALIDARG);
+    }
+
+    auto bytecode = shader->GetBytecode();
+
+    struct ComputePipelineStream {
+        CD3DX12_PIPELINE_STATE_STREAM_FLAGS          flags;
+        CD3DX12_PIPELINE_STATE_STREAM_NODE_MASK      node_mask;
+        CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE root_signature;
+        CD3DX12_PIPELINE_STATE_STREAM_CS             compute_shader;
+    } stream{
+        .flags          = D3D12_PIPELINE_STATE_FLAG_NONE,
+        .node_mask      = 0,
+        .root_signature = rootsig,
+        .compute_shader = { { bytecode.data(), bytecode.size() } },
+    };
+
+    D3D12_PIPELINE_STATE_STREAM_DESC pso_desc{
+        .SizeInBytes                   = sizeof(ComputePipelineStream),
+        .pPipelineStateSubobjectStream = &stream,
+    };
+
+    wis::com_ptr<ID3D12PipelineState> pipeline_state;
+
+    // Calculate hash of pipeline state description for caching purposes
+    wchar_t name_buffer[256] = {};
+
+    if (cache) {
+        // Get root signature hash
+        UINT                              root_sig_data_size = sizeof(wis::detail::DX12RootSignatureKey);
+        wis::detail::DX12RootSignatureKey root_sig_key{};
+        rootsig->GetPrivateData(wis::detail::DX12RootSignatureKey::guid, &root_sig_data_size, &root_sig_key);
+
+        uint64_t rehash_input[4] = {
+            // Hash root signature and shader bytecode together to get a unique hash for the pipeline state
+            root_sig_key.hash[0],
+            root_sig_key.hash[1],
+            shader->hash[0],
+            shader->hash[1],
+        };
+
+        // Rehash the combined data to get a final hash for the pipeline state
+        XXH128_hash_t pso_hash = XXH3_128bits(rehash_input, sizeof(rehash_input));
+
+        // convert hash to hex string for use as pipeline cache key
+        wis::format_to(name_buffer, L"CPSO_{:016x}{:016x}", pso_hash.low64, pso_hash.high64);
+
+        // Try to load pipeline from cache first if available
+        HRESULT hr = cache->LoadPipeline(name_buffer, &pso_desc, IID_ID3D12PipelineState, pipeline_state.put_void_unchecked());
+        if (wis::detail::succeeded(hr)) {
+            auto& pipeline_impl = *new (pipeline) wis::impl::DX12PipelineImpl{
+                .pipeline_state = pipeline_state.detach(),
+            };
+            return wis::detail::dx_success;
+        }
+
+        // Cache miss
+        if (desc->flags & WisPipelineFlagsFailOnCacheMiss) {
+            return wis::detail::make_result<wis::detail::Func(), "Pipeline not found in cache and creation is set to fail on cache miss">(WisStatusError, E_FAIL);
+        }
+    }
+
+    auto hr = device.device->CreatePipelineState(&pso_desc, IID_ID3D12PipelineState, pipeline_state.put_void_unchecked());
+    if (!wis::detail::succeeded(hr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to create compute pipeline state object">(hr);
+    }
+
+    if (cache) {
+        // Store pipeline in cache for future reuse
+        cache->StorePipeline(name_buffer, pipeline_state.get());
+    }
+
+    auto& pipeline_impl = *new (pipeline) wis::impl::DX12PipelineImpl{
+        .pipeline_state = pipeline_state.detach(),
+    };
     return wis::detail::dx_success;
 }
 

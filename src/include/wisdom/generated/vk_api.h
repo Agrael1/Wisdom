@@ -8,10 +8,24 @@
 extern "C" {
 #endif // __cplusplus
 /**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU pipeline state object, which encapsulates the state of the GPU pipeline and allows to execute draw and dispatch calls with it.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisVKPipeline, 2);
+WIS_DEFINE_HANDLE_VIEW(WisVKPipeline, 1);
+
+static inline WisVKPipelineView wisGetVKPipelineView(const WisVKPipeline* handle)
+{
+    WisVKPipelineView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
+
+/**
  * @brief Provided by Wisdom 0.7.0. Class representing a GPU shader module, which contains shader code and allows to create pipeline state objects with it.
  *
  * */
-WIS_DEFINE_HANDLE(WisVKShader, 3);
+WIS_DEFINE_HANDLE(WisVKShader, 2);
 WIS_DEFINE_HANDLE_VIEW(WisVKShader, 1);
 
 static inline WisVKShaderView wisGetVKShaderView(const WisVKShader* handle)
@@ -231,6 +245,24 @@ typedef struct WisVKBarrierGroup {
     const WisVKGlobalBarrier*  global_barriers; ///< Array of global barriers.
     size_t                     global_barrier_count; ///< Number of global barriers in the `WisBarrierGroup::global_barriers` array.
 } WisVKBarrierGroup;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Compute pipeline description for WisPipeline creation.
+ *
+ * */
+typedef struct WisVKComputePipelineDesc {
+    WisVKRootSignatureView root_signature; ///< Root signature description for the pipeline.
+    WisVKShaderView        compute_shader; ///< Compute shader bytecode.
+    WisVKPipelineCacheView cache; ///< Pipeline cache data. Used to speed up pipeline creation if available.
+    WisPipelineFlags       flags; ///< Pipeline flags. Describe additional options for the pipeline.
+} WisVKComputePipelineDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisPipeline handle.
+ * @param self is a pointer to the valid WisPipeline instance.
+ *
+ * */
+WISDOM_API void wisVKDestroyPipeline(WisVKPipeline* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisShader handle.
@@ -519,6 +551,18 @@ WISDOM_API WisResult wisVKDeviceCreateShader(const WisVKDevice* self,
                                              const uint8_t*     data,
                                              size_t             size,
                                              WisVKShader*       shader);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a compute pipeline state object with given descriptor.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param desc points to WisComputePipelineDesc, which describes the compute pipeline to create.
+ * @param pipeline points to WisPipeline, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKDeviceCreateComputePipeline(const WisVKDevice*              self,
+                                                      const WisVKComputePipelineDesc* desc,
+                                                      WisVKPipeline*                  pipeline);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Get the current value of the fence.

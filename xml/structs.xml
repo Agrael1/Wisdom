@@ -281,6 +281,13 @@
       <member type="GlobalBarrier" name="global_barriers" mod="const,span" default="nullptr" doc="Array of global barriers."/>
       <member type="size" name="global_barrier_count" default="0" doc="Number of global barriers in the {BarrierGroup::global_barriers} array."/>
     </type>
+
+    <type name="ComputePipelineDesc" category="variant" version="0.7.0" doc="Compute pipeline description for {Pipeline::} creation.">
+      <member type="RootSignatureView" name="root_signature" doc="Root signature description for the pipeline."/>
+      <member type="ShaderView" name="compute_shader" doc="Compute shader bytecode."/>
+      <member type="PipelineCacheView" name="cache" default="0" doc="Pipeline cache data. Used to speed up pipeline creation if available."/>
+      <member type="PipelineFlags" name="flags" doc="Pipeline flags. Describe additional options for the pipeline."/>
+    </type>
     
   </types>
 </registry>

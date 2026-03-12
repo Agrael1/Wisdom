@@ -28,6 +28,7 @@
  *     WisStatusDeviceLost = -4,
  *     WisStatusOccluded = -5,
  *     WisStatusValidationFailed = -6,
+ *     WisStatusFail = -7,
  *     WisStatusError = -10000,
  * } WisStatus;
  * ```
@@ -45,6 +46,7 @@
  *     DeviceLost = -4,
  *     Occluded = -5,
  *     ValidationFailed = -6,
+ *     Fail = -7,
  *     Error = -10000,
  * };
  * }
@@ -66,6 +68,7 @@
  * - `WisStatusDeviceLost = -4`: Device driver was forcefully stopped.
  * - `WisStatusOccluded = -5`: Swap chain presentation was not visible to the user. Rendering is too fast.
  * - `WisStatusValidationFailed = -6`: A validation layer found an error.
+ * - `WisStatusFail = -7`: Operation failed.
  * - `WisStatusError = -10000`: Operation failed.
  * \endcond
  *

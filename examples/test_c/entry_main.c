@@ -28,6 +28,7 @@ void LogCallback(WisSeverity severity, const char* message, uint64_t device, voi
     printf("[%s] %s\n", severity_str, message);
 }
 
+//------------------------------------------------------------------------------
 WisShader CreateShader(const WisDevice* device, const char* filename)
 {
     WisShader shader = { 0 };
@@ -52,10 +53,80 @@ WisShader CreateShader(const WisDevice* device, const char* filename)
     fseek(file, 0, SEEK_SET);
 
     // Read file contents
-    uint8_t*  shader_code = (uint8_t*)malloc(code_size);
-    WisResult result      = wisDeviceCreateShader(device, shader_code, code_size, &shader);
+    uint8_t* shader_code = (uint8_t*)malloc(code_size);
+    if (!shader_code) {
+        printf("Failed to allocate memory for shader code.\n");
+        fclose(file);
+        return shader;
+    }
+
+    fread(shader_code, 1, code_size, file);
+    WisResult result = wisDeviceCreateShader(device, shader_code, code_size, &shader);
     printf("CreateShader result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+    free(shader_code);
+    fclose(file);
     return shader;
+}
+
+//------------------------------------------------------------------------------
+WisPipelineCache CreatePipelineCache(const WisDevice* device, const char* filename)
+{
+    WisPipelineCache pipeline_cache = { 0 };
+    FILE*            file           = fopen(filename, "rb");
+    if (!file) {
+        printf("Pipeline cache file not found: %s. Creating an empty pipeline cache.\n", filename);
+        WisResult result = wisDeviceCreatePipelineCache(device, NULL, 0, &pipeline_cache);
+        printf("CreatePipelineCache result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+        return pipeline_cache;
+    }
+
+    fseek(file, 0, SEEK_END);
+    size_t data_size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    uint8_t* cache_data = (uint8_t*)malloc(data_size);
+    if (!cache_data) {
+        printf("Failed to allocate memory for pipeline cache data.\n");
+        fclose(file);
+        return pipeline_cache;
+    }
+
+    fread(cache_data, 1, data_size, file);
+
+    WisResult result = wisDeviceCreatePipelineCache(device, cache_data, data_size, &pipeline_cache);
+    printf("CreatePipelineCache result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+
+    free(cache_data);
+    fclose(file);
+    return pipeline_cache;
+}
+
+void SavePipelineCache(const WisPipelineCache* cache, const char* filename)
+{
+    // Store pipeline cache in the file
+    size_t cache_size = wisPipelineCacheGetSerializedSize(cache);
+    if (!cache_size) {
+        printf("Pipeline cache serialization failed or cache is empty.\n");
+        return;
+    }
+
+    uint8_t* cache_data = (uint8_t*)malloc(cache_size);
+    if (!cache_data) {
+        return;
+    }
+
+    WisResult result = wisPipelineCacheSerialize(cache, cache_data, cache_size);
+    printf("SerializePipelineCache result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+
+    FILE* file = fopen("pipeline_cache.bin", "wb");
+    if (file) {
+        fwrite(cache_data, 1, cache_size, file);
+        fclose(file);
+        free(cache_data);
+    } else {
+        printf("Failed to open file for writing pipeline cache.\n");
+        free(cache_data);
+    }
 }
 
 typedef struct BasicRenderer {
@@ -75,11 +146,14 @@ typedef struct BasicRenderer {
 
 typedef struct ResourceContainer {
     WisBuffer  buffer;
+    WisBuffer  rwbuffer;
     WisTexture texture;
 } ResourceContainer;
 
 typedef struct BasicRenderTask {
     WisRootSignature root_signature;
+    WisRootSignature compute_signature;
+    WisPipeline      compute_pipeline;
 } BasicRenderTask;
 
 //------------------------------------------------------------------------------
@@ -181,6 +255,21 @@ void DestoyRenderer(BasicRenderer* renderer)
 //------------------------------------------------------------------------------
 void InitRenderTask(BasicRenderTask* task, BasicRenderer* renderer)
 {
+    // Compute root signature
+    WisPushDescriptor compute_push_descriptor = {
+        .visibility    = WisShaderVisibilityAll,
+        .type          = WisDescriptorTypeRWBuffer,
+        .bind_register = 0,
+        .bind_space    = 0,
+    };
+    WisRootSignatureDesc compute_root_signature_desc = {
+        .push_descriptors      = &compute_push_descriptor,
+        .push_descriptor_count = 1,
+    };
+    WisResult result = wisDeviceCreateRootSignature(&renderer->device, &compute_root_signature_desc, &task->compute_signature);
+    printf("CreateRootSignature for ComputeShader result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+
+    // Graphics root signature
     WisPushConstant push_constant = {
         .visibility    = WisShaderVisibilityAll,
         .bind_register = 0,
@@ -236,37 +325,56 @@ void InitRenderTask(BasicRenderTask* task, BasicRenderer* renderer)
         .descriptor_tables      = descriptor_tables,
         .descriptor_table_count = 2,
     };
-    WisResult result = wisDeviceCreateRootSignature(&renderer->device, &root_signature_desc, &task->root_signature);
+    result = wisDeviceCreateRootSignature(&renderer->device, &root_signature_desc, &task->root_signature);
     printf("CreateRootSignature for RenderTask result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
 
-    WisPipelineCache pipeline_cache = { 0 };
-    result                          = wisDeviceCreatePipelineCache(&renderer->device, NULL, 0, &pipeline_cache);
-    printf("CreatePipelineCache result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+    WisPipelineCache pipeline_cache = CreatePipelineCache(&renderer->device, "pipeline_cache.bin");
 
-    WisShader vertex_shader = CreateShader(&renderer->device, "basic.vs.hlsl");
-    WisShader pixel_shader  = CreateShader(&renderer->device, "basic.ps.hlsl");
+    WisShader vertex_shader  = CreateShader(&renderer->device, "basic.vs.hlsl");
+    WisShader pixel_shader   = CreateShader(&renderer->device, "basic.ps.hlsl");
+    WisShader compute_shader = CreateShader(&renderer->device, "basic.cs.hlsl");
+
+    WisComputePipelineDesc compute_pipeline_desc = {
+        .root_signature = wisGetView(&task->compute_signature),
+        .compute_shader = wisGetView(&compute_shader),
+        .cache          = wisGetView(&pipeline_cache),
+    };
+    result = wisDeviceCreateComputePipeline(&renderer->device, &compute_pipeline_desc, &task->compute_pipeline);
+
+    SavePipelineCache(&pipeline_cache, "pipeline_cache.bin");
 
     wisDestroyPipelineCache(&pipeline_cache);
     wisDestroyShader(&vertex_shader);
     wisDestroyShader(&pixel_shader);
+    wisDestroyShader(&compute_shader);
 }
 
 //------------------------------------------------------------------------------
 void DestroyRenderTask(BasicRenderTask* task)
 {
     wisDestroyRootSignature(&task->root_signature);
+    wisDestroyRootSignature(&task->compute_signature);
+    wisDestroyPipeline(&task->compute_pipeline);
 }
 
 //------------------------------------------------------------------------------
 void InitResourceContainer(ResourceContainer* container, BasicRenderer* renderer)
 {
+    WisBufferDesc rwbuffer_desc = {
+        .size_bytes  = 1024 * sizeof(float) * 4,
+        .usage_flags = WisBufferUsageFlagsStorageBuffer,
+        .memory_type = WisMemoryTypeDeviceLocal,
+    };
+    WisResult result = wisResourceAllocatorCreateBuffer(&renderer->allocator, &rwbuffer_desc, &container->rwbuffer);
+    printf("Create RWBuffer result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+
     WisBufferDesc buffer_desc = {
         .size_bytes   = 1024,
         .usage_flags  = WisBufferUsageFlagsCopyDst | WisBufferUsageFlagsConstantBuffer,
         .memory_type  = WisMemoryTypeUpload,
         .memory_flags = WisMemoryFlagsMapped,
     };
-    WisResult result = wisResourceAllocatorCreateBuffer(&renderer->allocator, &buffer_desc, &container->buffer);
+    result = wisResourceAllocatorCreateBuffer(&renderer->allocator, &buffer_desc, &container->buffer);
     printf("CreateBuffer result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
     WisTextureDesc texture_desc = {
         .width               = 256,
@@ -287,6 +395,7 @@ void InitResourceContainer(ResourceContainer* container, BasicRenderer* renderer
 //------------------------------------------------------------------------------
 void DestroyResourceContainer(ResourceContainer* container)
 {
+    wisDestroyBuffer(&container->rwbuffer);
     wisDestroyBuffer(&container->buffer);
     wisDestroyTexture(&container->texture);
 }
