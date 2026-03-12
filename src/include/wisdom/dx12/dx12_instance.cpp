@@ -26,7 +26,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CreateInstance(const WisDebugDesc*     
     }
 
     // Create and setup debug layer if requested
-    auto& impl = *new (instance) wis::impl::DX12InstanceImpl();
+    wis::detail::DX12DebugLayer* debug_layer_ptr = nullptr;
     if (debug_layer) {
         wis::com_ptr<ID3D12Debug> debug_controller;
         auto                      hr2 = D3D12GetDebugInterface(IID_ID3D12Debug, reinterpret_cast<void**>(debug_controller.put_void_unchecked()));
@@ -35,17 +35,16 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CreateInstance(const WisDebugDesc*     
             wis::com_ptr<wis::detail::DX12DebugLayer> debug_layer_impl{ new wis::detail::DX12DebugLayer, wis::take_ownership };
             debug_layer_impl->callback  = debug_desc->callback;
             debug_layer_impl->user_data = debug_desc->user_data;
-            impl.debug_layer            = debug_layer_impl.detach();
-        } else {
-            impl.debug_layer = nullptr;
+            debug_layer_ptr             = debug_layer_impl.detach();
         }
-    } else {
-        impl.debug_layer = nullptr;
     }
 
-    WisResult res = wis::detail::dx_success;
+    auto& impl = *new (instance) wis::impl::DX12InstanceImpl{
+        .factory     = ref.detach(),
+        .debug_layer = debug_layer_ptr,
+    };
 
-    impl.factory = ref.detach();
+    WisResult res = wis::detail::dx_success;
     for (auto* ext : wis::span<WisDX12InstanceExtensionHeader*>{ extensions, extension_count }) {
         if (auto* table = reinterpret_cast<wis::DX12InstanceExtensionHeader*>(ext)) {
             res = table->init_fptr(table, impl);
@@ -124,14 +123,15 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12InstanceQueryAdapters(const WisDX12Inst
         }
     }
 
-    auto& impl            = *new (query) wis::impl::DX12AdapterQueryImpl();
-    impl.physical_devices = adapters.release();
-    impl.adapter_count    = count;
-    impl.factory          = factory_ref.detach(); // transfer ownership
-    impl.debug_layer      = instance_impl.debug_layer;
-    if (impl.debug_layer) {
-        impl.debug_layer->AddRef();
+    if (instance_impl.debug_layer) {
+        instance_impl.debug_layer->AddRef();
     }
+    auto& impl = *new (query) wis::impl::DX12AdapterQueryImpl{
+        .physical_devices = adapters.release(),
+        .adapter_count    = count,
+        .factory          = factory_ref.detach(), // transfer ownership
+        .debug_layer      = instance_impl.debug_layer,
+    };
     return wis::detail::dx_success;
 }
 #endif // WIS_DX12_INSTANCE_CPP

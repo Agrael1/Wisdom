@@ -11,6 +11,8 @@
 #include <wisdom/vulkan/vk_types.hpp>
 
 namespace wis {
+using VKPipelineView = WisVKPipelineView;
+
 using VKShaderView = WisVKShaderView;
 
 using VKPipelineCacheView = WisVKPipelineCacheView;
@@ -87,6 +89,45 @@ struct VKBarrierGroup {
     wis::span<const wis::VKBufferBarrier>  buffer_barriers; ///< Array of buffer barriers.
     wis::span<const wis::VKTextureBarrier> texture_barriers; ///< Array of texture barriers.
     wis::span<const wis::VKGlobalBarrier>  global_barriers; ///< Array of global barriers.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Compute pipeline description for wis::Pipeline creation.
+ *
+ * */
+struct VKComputePipelineDesc {
+    wis::VKRootSignatureView root_signature; ///< Root signature description for the pipeline.
+    wis::VKShaderView        compute_shader; ///< Compute shader bytecode.
+    wis::VKPipelineCacheView cache; ///< Pipeline cache data. Used to speed up pipeline creation if available.
+    wis::PipelineFlags       flags; ///< Pipeline flags. Describe additional options for the pipeline.
+};
+
+struct VKPipelineDeleter {
+    void operator()(WisVKPipeline* handle) noexcept
+    {
+        ::wisVKDestroyPipeline(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU pipeline state object, which encapsulates the state of the GPU pipeline and allows to execute draw and dispatch calls with it.
+ *
+ * */
+class VKPipeline : public wis::impl::Implements<wis::impl::VKPipelineImpl, WisVKPipeline, wis::VKPipelineDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+    WIS_NODISCARD VKPipelineView GetView() const noexcept
+    {
+        VKPipelineView v;
+        std::memcpy(&v, &_impl_storage, sizeof(v));
+        return v;
+    }
+    WIS_NODISCARD operator VKPipelineView() const noexcept
+    {
+        return GetView();
+    }
 };
 
 struct VKShaderDeleter {
@@ -924,6 +965,22 @@ public:
                                                               data.size(),
                                                               shader.GetStorage()));
         return shader;
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a compute pipeline state object with given descriptor.
+     * @param desc points to wis::ComputePipelineDesc, which describes the compute pipeline to create.
+     * @param out_result denoting the outcome of operation.
+     * @return pipeline points to wis::Pipeline, which is initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::VKPipeline CreateComputePipeline(const wis::VKComputePipelineDesc& desc,
+                                                               wis::Result&                      out_result) const noexcept
+    {
+        wis::VKPipeline pipeline;
+        out_result = convert_result(::wisVKDeviceCreateComputePipeline(&_impl_storage,
+                                                                       reinterpret_cast<const WisVKComputePipelineDesc*>(&desc),
+                                                                       pipeline.GetStorage()));
+        return pipeline;
     }
 };
 

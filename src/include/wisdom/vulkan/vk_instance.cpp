@@ -351,11 +351,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKInstanceQueryAdapters(const WisVKInstance
     }
 
     // Fill query impl
-    auto& impl            = *new (query) wis::impl::VKAdapterQueryImpl();
-    impl.adapter_count    = device_count;
-    impl.physical_devices = devices_ref.release();
-    impl.instance         = instance_impl.instance;
-    impl.shared_header    = instance_impl.shared_header;
+    auto& impl = *new (query) wis::impl::VKAdapterQueryImpl{
+        .physical_devices = devices_ref.release(),
+        .adapter_count    = device_count,
+        .instance         = instance_impl.instance,
+        .shared_header    = instance_impl.shared_header,
+    };
+
     impl.shared_header->AddRef(); // hold reference to instance header
     return wis::detail::vk_success;
 }

@@ -153,11 +153,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateBuffer(const WisVK
         }
     }
 
-    auto& impl         = *new (buffer) wis::impl::VKBufferImpl;
-    impl.buffer        = buffer_handle;
-    impl.mapped_ptr    = mapped_ptr;
-    impl.allocation    = allocation_handle;
-    impl.device_header = allocator.device_header;
+    auto& impl = *new (buffer) wis::impl::VKBufferImpl{
+        .buffer        = buffer_handle,
+        .allocation    = allocation_handle,
+        .mapped_ptr    = mapped_ptr,
+        .device_header = allocator.device_header,
+    };
+
     impl.device_header->AddRef();
 
     return wis::detail::vk_success;
@@ -195,10 +197,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateTexture(const WisV
         return wis::detail::make_result<wis::detail::Func(), "Buffer creation failed">(vr);
     }
 
-    auto& impl         = *new (buffer) wis::impl::VKTextureImpl;
-    impl.image         = image_handle;
-    impl.allocation    = allocation_handle;
-    impl.device_header = allocator.device_header;
+    auto& impl = *new (buffer) wis::impl::VKTextureImpl{
+        .image         = image_handle,
+        .allocation    = allocation_handle,
+        .device_header = allocator.device_header,
+    };
     impl.device_header->AddRef();
 
     return wis::detail::vk_success;

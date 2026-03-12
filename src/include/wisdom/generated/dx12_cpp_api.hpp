@@ -11,6 +11,8 @@
 #include <wisdom/dx12/dx12_types.hpp>
 
 namespace wis {
+using DX12PipelineView = WisDX12PipelineView;
+
 using DX12ShaderView = WisDX12ShaderView;
 
 using DX12PipelineCacheView = WisDX12PipelineCacheView;
@@ -87,6 +89,45 @@ struct DX12BarrierGroup {
     wis::span<const wis::DX12BufferBarrier>  buffer_barriers; ///< Array of buffer barriers.
     wis::span<const wis::DX12TextureBarrier> texture_barriers; ///< Array of texture barriers.
     wis::span<const wis::DX12GlobalBarrier>  global_barriers; ///< Array of global barriers.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Compute pipeline description for wis::Pipeline creation.
+ *
+ * */
+struct DX12ComputePipelineDesc {
+    wis::DX12RootSignatureView root_signature; ///< Root signature description for the pipeline.
+    wis::DX12ShaderView        compute_shader; ///< Compute shader bytecode.
+    wis::DX12PipelineCacheView cache; ///< Pipeline cache data. Used to speed up pipeline creation if available.
+    wis::PipelineFlags         flags; ///< Pipeline flags. Describe additional options for the pipeline.
+};
+
+struct DX12PipelineDeleter {
+    void operator()(WisDX12Pipeline* handle) noexcept
+    {
+        ::wisDX12DestroyPipeline(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU pipeline state object, which encapsulates the state of the GPU pipeline and allows to execute draw and dispatch calls with it.
+ *
+ * */
+class DX12Pipeline : public wis::impl::Implements<wis::impl::DX12PipelineImpl, WisDX12Pipeline, wis::DX12PipelineDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+    WIS_NODISCARD DX12PipelineView GetView() const noexcept
+    {
+        DX12PipelineView v;
+        std::memcpy(&v, &_impl_storage, sizeof(v));
+        return v;
+    }
+    WIS_NODISCARD operator DX12PipelineView() const noexcept
+    {
+        return GetView();
+    }
 };
 
 struct DX12ShaderDeleter {
@@ -924,6 +965,22 @@ public:
                                                                 data.size(),
                                                                 shader.GetStorage()));
         return shader;
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a compute pipeline state object with given descriptor.
+     * @param desc points to wis::ComputePipelineDesc, which describes the compute pipeline to create.
+     * @param out_result denoting the outcome of operation.
+     * @return pipeline points to wis::Pipeline, which is initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::DX12Pipeline CreateComputePipeline(const wis::DX12ComputePipelineDesc& desc,
+                                                                 wis::Result&                        out_result) const noexcept
+    {
+        wis::DX12Pipeline pipeline;
+        out_result = convert_result(::wisDX12DeviceCreateComputePipeline(&_impl_storage,
+                                                                         reinterpret_cast<const WisDX12ComputePipelineDesc*>(&desc),
+                                                                         pipeline.GetStorage()));
+        return pipeline;
     }
 };
 

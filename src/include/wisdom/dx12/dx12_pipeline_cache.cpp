@@ -8,12 +8,13 @@
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyPipelineCache(WisDX12PipelineCache* self)
 {
-    auto& [cache] = *reinterpret_cast<wis::impl::DX12PipelineCacheImpl*>(self);
+    auto& [cache, data] = *reinterpret_cast<wis::impl::DX12PipelineCacheImpl*>(self);
     if (!cache) {
         return;
     }
 
     cache->Release();
+    free(data);
 }
 
 //-----------------------------------------------------------------------------
@@ -21,8 +22,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12PipelineCacheSerialize(const WisDX12Pip
                                                                 uint8_t*                    data,
                                                                 size_t                      data_size)
 {
-    auto& [cache] = *reinterpret_cast<const wis::impl::DX12PipelineCacheImpl*>(self);
-    auto hr       = cache->Serialize(data, data_size);
+    auto& [cache, xx] = *reinterpret_cast<const wis::impl::DX12PipelineCacheImpl*>(self);
+    auto hr           = cache->Serialize(data, data_size);
     if (!wis::detail::succeeded(hr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to serialize pipeline cache">(hr);
     }
@@ -32,7 +33,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12PipelineCacheSerialize(const WisDX12Pip
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API size_t wisDX12PipelineCacheGetSerializedSize(const WisDX12PipelineCache* self)
 {
-    auto& [cache] = *reinterpret_cast<const wis::impl::DX12PipelineCacheImpl*>(self);
+    auto& [cache, xx] = *reinterpret_cast<const wis::impl::DX12PipelineCacheImpl*>(self);
     return cache->GetSerializedSize();
 }
 

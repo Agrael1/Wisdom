@@ -92,4 +92,19 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyShader(WisVKShader *self)
     }
 }
 
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisVKDestroyPipeline(WisVKPipeline* self)
+{
+    auto& impl = *reinterpret_cast<wis::impl::VKPipelineImpl*>(self);
+    if (impl.pipeline != VK_NULL_HANDLE) {
+        auto& header = impl.device_header->header;
+        auto& table  = header.device_table;
+        table.vkDestroyPipeline(header.device, impl.pipeline, nullptr);
+        impl.pipeline = VK_NULL_HANDLE;
+
+        wis::detail::release_vk_device(impl.device_header);
+        impl.device_header = nullptr;
+    }
+}
+
 #endif // WIS_VK_IMPL_CPP

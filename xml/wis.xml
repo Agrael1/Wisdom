@@ -7,14 +7,19 @@
   </includes>
 
   <handles>
+    <handle name="Pipeline" version="0.7.0" doc="Class representing a GPU pipeline state object, which encapsulates the state of the GPU pipeline and allows to execute draw and dispatch calls with it.">
+      <impl for="vk" size="2"/>
+      <impl for="dx" size="1"/>
+      <view size="1"/>
+    </handle>
     <handle name="Shader" version="0.7.0" doc="Class representing a GPU shader module, which contains shader code and allows to create pipeline state objects with it.">
-      <impl for="vk" size="3"/>
+      <impl for="vk" size="2"/>
       <impl for="dx" size="1"/>
       <view size="1"/>
     </handle>
     <handle name="PipelineCache" version="0.7.0" doc="Class representing a cache for pipeline state objects, which allows to reuse already created pipelines and speed up pipeline creation.">
       <impl for="vk" size="2"/>
-      <impl for="dx" size="1"/>
+      <impl for="dx" size="2"/>
       <view size="1"/>
     </handle>
     <handle name="Texture" version="0.7.0" doc="Class representing a GPU texture resource.">
@@ -150,8 +155,12 @@ Default is {MutiWaitType::All}"/>
       <arg type="u8" name="data" mod="const,span" doc="Shader bytecode."/>
       <arg type="size" name="size" doc="The size of the shader data in bytes. For SPIR-V must be multiple of 4."/>
     </func>
+    <func for="Device" name="CreateComputePipeline" version="0.7.0" mod="const" doc="Creates a compute pipeline state object with given descriptor.">
+      <ret type="Pipeline" name="pipeline" result="true" doc="points to {Pipeline::}, which is initialized on success."/>
+      <arg type="ComputePipelineDesc" name="desc" mod="const,ref" doc="points to {ComputePipelineDesc::}, which describes the compute pipeline to create."/>
+    </func>
 
-      <!-- Fence Functions -->
+    <!-- Fence Functions -->
     <func for="Fence" name="GetCompletedValue" version="0.7.0" mod="const" doc="Get the current value of the fence.">
       <ret type="u64" name="value" doc="Value of the fence."/>
     </func>

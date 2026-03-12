@@ -248,7 +248,11 @@ struct alignas(void*) VKRootSignatureControlBlock {
     uint32_t root_parameter_count   = 0;
 
     // offset from the start of the control block to the shader visibility mapping for each shader stage, or UINT32_MAX if not used
-    alignas(void*) std::array<uint32_t, WisShaderVisibilityCount> shader_mapping_offset = FillInvalid();
+
+    struct alignas(void*) {
+        std::array<uint32_t, WisShaderVisibilityCount> shader_mapping_offset = FillInvalid();
+        std::array<uint32_t, WisShaderVisibilityCount> shader_mapping_sizes{};
+    };
 
     // aligned to 8 bytes, immediately followed by binding data and then mapping data
 

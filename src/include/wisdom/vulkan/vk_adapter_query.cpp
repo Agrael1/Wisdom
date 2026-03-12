@@ -713,10 +713,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
     }
 
     // Fill device impl
-    auto& device_impl           = *new (device) wis::impl::VKDeviceImpl();
-    device_impl.device_header   = header.release();
-    device_impl.device          = device_handle;
-    device_impl.physical_device = adapter;
+    auto& device_impl = *new (device) wis::impl::VKDeviceImpl{
+        .device          = device_handle,
+        .physical_device = adapter,
+        .device_header   = header.release(),
+    };
 
     auto& device_header         = device_impl.device_header->header;
     device_header.device        = device_handle; // Duplicate for infrequent access

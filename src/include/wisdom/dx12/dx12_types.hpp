@@ -100,6 +100,7 @@ using DX12TextureImpl = DX12BufferImpl; // Textures are also resources, so we ca
 
 struct DX12PipelineCacheImpl {
     ID3D12PipelineLibrary1* library;
+    uint8_t*                data; // Pointer to the pipeline data, unfortunately D3D12 is a bit awkward in this regard and doesn't provide a way to directly use the library without copying the data out of it, so we have to store it here to ensure it lives as long as the library.
 };
 
 struct DX12ShaderImpl {

@@ -27,11 +27,12 @@ inline WisResult DX12CreateResource(const D3D12MA::ALLOCATION_DESC& all_desc,
         return wis::detail::make_result<wis::detail::Func(), "Resource Allocation failed">(hr);
     }
 
-    auto& impl      = *new (buffer) wis::impl::DX12BufferImpl;
-    impl.allocation = allocation.detach();
-    impl.resource   = resource.detach();
-    impl.allocator  = allocator; // store allocator to ensure correct release order
-    impl.allocator->AddRef();
+    allocator->AddRef();
+    auto& impl = *new (buffer) wis::impl::DX12BufferImpl{
+        .resource   = resource.detach(),
+        .allocation = allocation.detach(),
+        .allocator  = allocator, // store allocator to ensure correct release order
+    };
     return wis::detail::dx_success;
 }
 
@@ -58,11 +59,12 @@ inline WisResult DX12CreateResource2(const D3D12MA::ALLOCATION_DESC& all_desc,
         return wis::detail::make_result<wis::detail::Func(), "Resource Allocation failed">(hr);
     }
 
-    auto& impl      = *new (buffer) wis::impl::DX12BufferImpl;
-    impl.allocation = allocation.detach();
-    impl.resource   = resource.detach();
-    impl.allocator  = allocator; // store allocator to ensure correct release order
-    impl.allocator->AddRef();
+    allocator->AddRef();
+    auto& impl = *new (buffer) wis::impl::DX12BufferImpl{
+        .resource   = resource.detach(),
+        .allocation = allocation.detach(),
+        .allocator  = allocator, // store allocator to ensure correct release order
+    };
     return wis::detail::dx_success;
 }
 
