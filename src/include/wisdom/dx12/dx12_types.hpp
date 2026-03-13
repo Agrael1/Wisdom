@@ -57,7 +57,7 @@ struct DX12CommandAllocatorImpl {
 };
 
 struct DX12CommandListImpl {
-    ID3D12GraphicsCommandList7*         list;
+    ID3D12GraphicsCommandList9*         list;
     ID3D12CommandAllocator*             allocator;
     mutable D3D12_GPU_DESCRIPTOR_HANDLE descriptor_handle;
     mutable D3D12_GPU_DESCRIPTOR_HANDLE sampler_handle;

@@ -11,21 +11,21 @@
  * ```c
  * // Provided by Wisdom 0.7.0. 
  * typedef struct  WisSamplerDesc {
- *     WisFilter           min_filter;
- *     WisFilter           mag_filter;
- *     WisFilter           mip_filter;
- *     WisReductionMode    reduction_mode;
- *     bool                is_anisotropic;
- *     uint32_t            max_anisotropy;
- *     WisAddressMode      address_u;
- *     WisAddressMode      address_v;
- *     WisAddressMode      address_w;
- *     float               min_lod;
- *     float               max_lod;
- *     float               mip_lod_bias;
- *     WisCompareOperation comparison_op;
- *     WisStaticBorder     static_border_color;
- *     WisSamplerFlags     flags;
+ *     WisFilter        min_filter;
+ *     WisFilter        mag_filter;
+ *     WisFilter        mip_filter;
+ *     WisReductionMode reduction_mode;
+ *     bool             is_anisotropic;
+ *     uint32_t         max_anisotropy;
+ *     WisAddressMode   address_u;
+ *     WisAddressMode   address_v;
+ *     WisAddressMode   address_w;
+ *     float            min_lod;
+ *     float            max_lod;
+ *     float            mip_lod_bias;
+ *     WisCompareOp     comparison_op;
+ *     WisStaticBorder  static_border_color;
+ *     WisSamplerFlags  flags;
  * } WisSamplerDesc;
  * 
  * ```
@@ -34,21 +34,21 @@
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
  * struct  SamplerDesc {
- *     wis::Filter           min_filter;
- *     wis::Filter           mag_filter;
- *     wis::Filter           mip_filter;
- *     wis::ReductionMode    reduction_mode;
- *     bool                  is_anisotropic;
- *     std::uint32_t         max_anisotropy;
- *     wis::AddressMode      address_u;
- *     wis::AddressMode      address_v;
- *     wis::AddressMode      address_w;
- *     float                 min_lod;
- *     float                 max_lod;
- *     float                 mip_lod_bias;
- *     wis::CompareOperation comparison_op;
- *     wis::StaticBorder     static_border_color;
- *     wis::SamplerFlags     flags;
+ *     wis::Filter        min_filter;
+ *     wis::Filter        mag_filter;
+ *     wis::Filter        mip_filter;
+ *     wis::ReductionMode reduction_mode;
+ *     bool               is_anisotropic;
+ *     std::uint32_t      max_anisotropy;
+ *     wis::AddressMode   address_u;
+ *     wis::AddressMode   address_v;
+ *     wis::AddressMode   address_w;
+ *     float              min_lod;
+ *     float              max_lod;
+ *     float              mip_lod_bias;
+ *     wis::CompareOp     comparison_op;
+ *     wis::StaticBorder  static_border_color;
+ *     wis::SamplerFlags  flags;
  * };
  * }
  * ```

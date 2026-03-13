@@ -547,9 +547,16 @@ a 4-bit A component in bits 12..15.">
     </type>
 
     <type name="PipelineType" category="enum" version="0.7.0" doc="Defines types of pipelines that can be created on the device. Each type corresponds to a specific kind of workload that the GPU can handle.">
-      <value name="Graphics" value="0" doc="Pipeline for graphics operations, including rendering tasks."/>
-      <value name="Compute" value="1" doc="Pipeline dedicated to compute operations, optimized for parallel processing tasks."/>
-      <value name="RayTracing" value="2" doc="Pipeline for ray tracing operations, optimized for ray tracing workloads."/>
+      <impl_type for="vk" name="VkPipelineBindPoint" default="VK_PIPELINE_BIND_POINT_GRAPHICS"/>
+      <value name="Graphics" value="0" doc="Pipeline for graphics operations, including rendering tasks.">
+        <impl name="vk" value="VK_PIPELINE_BIND_POINT_GRAPHICS"/>
+      </value>
+      <value name="Compute" value="1" doc="Pipeline dedicated to compute operations, optimized for parallel processing tasks.">
+        <impl name="vk" value="VK_PIPELINE_BIND_POINT_COMPUTE"/>
+      </value>
+      <value name="RayTracing" value="2" doc="Pipeline for ray tracing operations, optimized for ray tracing workloads.">
+        <impl name="vk" value="VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR"/>
+      </value>
     </type>
 
     <type name="ShaderVisibility" category="enum" version="0.7.0" doc="Shader stages that can be used in the pipeline. Main use is Root signature and descriptor management. Stages have no granularity, either all or one can be selected.">
@@ -616,7 +623,7 @@ a 4-bit A component in bits 12..15.">
       <value name="Count" value="7" doc="Descriptor is a mutable type."/>
     </type>
 
-    <type name="CompareOperation" category="enum" version="0.7.0" doc="Comparison function for depth and stencil operations.">
+    <type name="CompareOp" category="enum" version="0.7.0" doc="Comparison function for depth and stencil operations.">
       <impl_type for="dx" name="D3D12_COMPARISON_FUNC" direct="true"/>
       <impl_type for="vk" name="VkCompareOp" default="VK_COMPARE_OP_NEVER"/>
       <value name="None" value="0" doc="No comparison.">
@@ -769,10 +776,16 @@ a 4-bit A component in bits 12..15.">
       <value name="Any" value="1" doc="At least one of the fences from the batch is triggered."/>
     </type>
 
+    <type name="InputClass" category="enum" version="0.7.0" doc="Input classification for vertex buffer data.">
+      <value name="PerVertex" value="0" doc="Vertex buffer data is vertex data."/>
+      <value name="PerInstance" value="1" doc="Vertex buffer data is per instance data."/>
+    </type>
+
     <type name="QueryPropertyType" category="enum" version="0.7.0" doc="Query type for GPU queries.">
       <value name="DeviceCommandQueueProperties" value="0" doc="Properties of the device command queues. Expects a {DeviceCommandQueueProperties::} struct."/>
       <value name="DeviceDescriptorHeapProperties" value="1" doc="Properties of the device descriptor heap. Expects a {DeviceDescriptorHeapProperties::} struct."/>
       <value name="DeviceMemoryProperties" value="2" doc="Properties of the device descriptor heap. Expects a {DeviceMemoryProperties::} struct."/>
+      <value name="DeviceBindingProperties" value="3" doc="Properties of the device resource binding. Expects a {DeviceBindingProperties::} struct."/>
     </type>
 
 
@@ -888,7 +901,253 @@ Support of this memory must be queried.">
       <value name="DXIL" value="0" doc="DirectX Intermediate Language."/>
       <value name="SPIRV" value="1" doc="Standard Portable Intermediate Representation for Vulkan."/>
     </type>
-    
+
+    <type name="StencilOp" category="enum" version="0.7.0" doc="Stencil operation for depth and stencil operations.">
+      <impl_type for="dx" name="D3D12_STENCIL_OP" direct="true"/>
+      <impl_type for="vk" name="VkStencilOp"/>
+      <value name="Keep" value="1" doc="Keep the current value.">
+        <impl name="vk" value="VK_STENCIL_OP_KEEP"/>
+      </value>
+      <value name="Zero" value="2" doc="Set the value to zero.">
+        <impl name="vk" value="VK_STENCIL_OP_ZERO"/>
+      </value>
+      <value name="Replace" value="3" doc="Replace the value with the reference value.">
+        <impl name="vk" value="VK_STENCIL_OP_REPLACE"/>
+      </value>
+      <value name="IncClamp" value="4" doc="Increment the value and clamp to the maximum value.">
+        <impl name="vk" value="VK_STENCIL_OP_INCREMENT_AND_CLAMP"/>
+      </value>
+      <value name="DecClamp" value="5" doc="Decrement the value and clamp to the minimum value.">
+        <impl name="vk" value="VK_STENCIL_OP_DECREMENT_AND_CLAMP"/>
+      </value>
+      <value name="Invert" value="6" doc="Invert the value.">
+        <impl name="vk" value="VK_STENCIL_OP_INVERT"/>
+      </value>
+      <value name="IncWrap" value="7" doc="Increment the value and wrap to zero when the maximum value is exceeded.">
+        <impl name="vk" value="VK_STENCIL_OP_INCREMENT_AND_WRAP"/>
+      </value>
+      <value name="DecWrap" value="8" doc="Decrement the value and wrap to the maximum value when the minimum value is exceeded.">
+        <impl name="vk" value="VK_STENCIL_OP_DECREMENT_AND_WRAP"/>
+      </value>
+    </type>
+
+    <type name="TopologyType" category="enum" version="0.7.0" doc="Primitive topology type for {GraphicsPipelineDesc::}.">
+      <impl_type for="dx" name="D3D12_PRIMITIVE_TOPOLOGY_TYPE"/>
+      <impl_type for="vk" name="VkPrimitiveTopology"/>
+      <value name="Point" value="1" doc="Render points for each vertex.">
+        <impl name="dx" value="D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT"/>
+        <impl name="vk" value="VK_PRIMITIVE_TOPOLOGY_POINT_LIST"/>
+      </value>
+      <value name="Line" value="2" doc="Render lines between vertices.">
+        <impl name="dx" value="D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE"/>
+        <impl name="vk" value="VK_PRIMITIVE_TOPOLOGY_LINE_LIST"/>
+      </value>
+      <value name="Triangle" value="3" doc="Render triangles between vertices.">
+        <impl name="dx" value="D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE"/>
+        <impl name="vk" value="VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST"/>
+      </value>
+      <value name="Patch" value="4" doc="Vertices are interpret as patch list. Used in tesselation process.">
+        <impl name="dx" value="D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH"/>
+        <impl name="vk" value="VK_PRIMITIVE_TOPOLOGY_PATCH_LIST"/>
+      </value>
+    </type>
+
+    <type name="FillMode" category="enum" version="0.7.0" doc="Fill mode for rasterizer.">
+      <impl_type for="dx" name="D3D12_FILL_MODE" direct="true"/>
+      <impl_type for="vk" name="VkPolygonMode"/>
+      <value name="Lines" value="2" doc="Draw lines between vertices. Wireframe rendering.">
+        <impl name="vk" value="VK_POLYGON_MODE_LINE"/>
+      </value>
+      <value name="Solid" value="3" doc="Fill the area between vertices forming polygons.">
+        <impl name="vk" value="VK_POLYGON_MODE_FILL"/>
+      </value>
+    </type>
+
+    <type name="CullMode" category="enum" version="0.7.0" doc="Cull mode for rasterizer.
+Triangle culling depends on {WindingOrder::} option.">
+      <impl_type for="dx" name="D3D12_CULL_MODE" direct="true"/>
+      <impl_type for="vk" name="VkCullModeFlags"/>
+      <value name="None" value="1" doc="No culling.">
+        <impl name="vk" value="VK_CULL_MODE_NONE"/>
+      </value>
+      <value name="Front" value="2" doc="Cull front-facing triangles.">
+        <impl name="vk" value="VK_CULL_MODE_FRONT_BIT"/>
+      </value>
+      <value name="Back" value="3" doc="Cull back-facing triangles.">
+        <impl name="vk" value="VK_CULL_MODE_BACK_BIT"/>
+      </value>
+    </type>
+
+    <type name="WindingOrder" category="enum" version="0.7.0" doc="Winding order for front-facing triangles.">
+      <impl_type for="dx" name="BOOL" direct="true"/>
+      <impl_type for="vk" name="VkFrontFace"/>
+      <value name="Clockwise" value="0" doc="Front-facing triangles have clockwise winding order.">
+        <impl name="vk" value="VK_FRONT_FACE_CLOCKWISE"/>
+      </value>
+      <value name="CounterClockwise" value="1" doc="Front-facing triangles have counter-clockwise winding order.">
+        <impl name="vk" value="VK_FRONT_FACE_COUNTER_CLOCKWISE"/>
+      </value>
+    </type>
+
+    <type name="ConservativeRasterization" category="enum" version="0.7.0" doc="Conservative rasterization mode.">
+      <impl_type for="dx" name="D3D12_CONSERVATIVE_RASTERIZATION_MODE" direct="true"/>
+      <impl_type for="vk" name="VkConservativeRasterizationModeEXT" direct="true"/>
+      <value name="Off" value="0" doc="Conservative rasterization is disabled.">
+        <impl name="dx" value="D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF"/>
+        <impl name="vk" value="VK_CONSERVATIVE_RASTERIZATION_MODE_DISABLED_EXT"/>
+      </value>
+      <value name="Overestimate" value="1" doc="Conservative rasterization is enabled.">
+        <impl name="dx" value="D3D12_CONSERVATIVE_RASTERIZATION_MODE_ON"/>
+        <impl name="vk" value="VK_CONSERVATIVE_RASTERIZATION_MODE_OVERESTIMATE_EXT"/>
+      </value>
+    </type>
+
+    <type name="LineRasterization" category="enum" version="0.7.0" doc="Line rasterization mode.">
+      <impl_type for="dx" name="D3D12_LINE_RASTERIZATION_MODE" direct="true"/>
+      <impl_type for="vk" name="VkLineRasterizationModeEXT" direct="true"/>
+      <value name="Default" value="0" doc="Line rasterization is disabled. Lines are not rendered.">
+        <impl name="dx" value="D3D12_LINE_RASTERIZATION_MODE_ALIASED"/>
+        <impl name="vk" value="VK_LINE_RASTERIZATION_MODE_DEFAULT"/>
+      </value>
+      <value name="Rectangular" value="1" doc="Lines are rasterized as rectangles.">
+        <impl name="dx" value="D3D12_LINE_RASTERIZATION_MODE_QUADRILATERAL_WIDE"/>
+        <impl name="vk" value="VK_LINE_RASTERIZATION_MODE_RECTANGULAR"/>
+      </value>
+      <value name="AlphaAntialiased" value="2" doc="Lines are rasterized as rectangles with anti-aliasing.">
+        <impl name="dx" value="D3D12_LINE_RASTERIZATION_MODE_ALPHA_ANTIALIASED"/>
+        <impl name="vk" value="VK_LINE_RASTERIZATION_MODE_RECTANGULAR_SMOOTH_EXT"/>
+      </value>
+    </type>
+
+    <type name="BlendFactor" category="enum" version="0.7.0" doc="Blend factor for color blending operations.">
+      <impl_type for="dx" name="D3D12_BLEND" direct="true"/>
+      <impl_type for="vk" name="VkBlendFactor"/>
+      <value name="Zero" value="1" doc="Use zero for blending.">
+        <impl name="vk" value="VK_BLEND_FACTOR_ZERO"/>
+      </value>
+      <value name="One" value="2" doc="Use one for blending.">
+        <impl name="vk" value="VK_BLEND_FACTOR_ONE"/>
+      </value>
+      <value name="SrcColor" value="3" doc="Use the source color for blending.">
+        <impl name="vk" value="VK_BLEND_FACTOR_SRC_COLOR"/>
+      </value>
+      <value name="InvSrcColor" value="4" doc="Use the inverse source color for blending.">
+        <impl name="vk" value="VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR"/>
+      </value>
+      <value name="SrcAlpha" value="5" doc="Use the source alpha for blending.">
+        <impl name="vk" value="VK_BLEND_FACTOR_SRC_ALPHA"/>
+      </value>
+      <value name="InvSrcAlpha" value="6" doc="Use the inverse source alpha for blending.">
+        <impl name="vk" value="VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA"/>
+      </value>
+      <value name="DestAlpha" value="7" doc="Use the destination alpha for blending.">
+        <impl name="vk" value="VK_BLEND_FACTOR_DST_ALPHA"/>
+      </value>
+      <value name="InvDestAlpha" value="8" doc="Use the inverse destination alpha for blending.">
+        <impl name="vk" value="VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA"/>
+      </value>
+      <value name="DestColor" value="9" doc="Use the destination color for blending.">
+        <impl name="vk" value="VK_BLEND_FACTOR_DST_COLOR"/>
+      </value>
+      <value name="InvDestColor" value="10" doc="Use the inverse destination color for blending.">
+        <impl name="vk" value="VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR"/>
+      </value>
+      <value name="SrcAlphaSat" value="11" doc="Use the source alpha saturated for blending.">
+        <impl name="vk" value="VK_BLEND_FACTOR_SRC_ALPHA_SATURATE"/>
+      </value>
+      <value name="ConstantColor" value="14" doc="Use a constant blend factor for blending.">
+        <impl name="vk" value="VK_BLEND_FACTOR_CONSTANT_COLOR"/>
+      </value>
+      <value name="InvBlendFactor" value="15" doc="Use the inverse constant blend factor for blending.">
+        <impl name="vk" value="VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR"/>
+      </value>
+      <value name="Src1Color" value="16" doc="Use the source color for blending. Dual source blending mode.">
+        <impl name="vk" value="VK_BLEND_FACTOR_SRC1_COLOR"/>
+      </value>
+      <value name="InvSrc1Color" value="17" doc="Use the inverse source color for blending. Dual source blending mode.">
+        <impl name="vk" value="VK_BLEND_FACTOR_ONE_MINUS_SRC1_COLOR"/>
+      </value>
+      <value name="Src1Alpha" value="18" doc="Use the source alpha for blending. Dual source blending mode.">
+        <impl name="vk" value="VK_BLEND_FACTOR_SRC1_ALPHA"/>
+      </value>
+      <value name="InvSrc1Alpha" value="19" doc="Use the inverse source alpha for blending. Dual source blending mode.">
+        <impl name="vk" value="VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA"/>
+      </value>
+    </type>
+
+    <type name="BlendOp" category="enum" version="0.7.0" doc="Blend operation for color blending operations.">
+      <impl_type for="dx" name="D3D12_BLEND_OP" direct="true"/>
+      <impl_type for="vk" name="VkBlendOp"/>
+      <value name="Add" value="1" doc="Add the source and destination colors.">
+        <impl name="vk" value="VK_BLEND_OP_ADD"/>
+      </value>
+      <value name="Subtract" value="2" doc="Subtract the source color from the destination color.">
+        <impl name="vk" value="VK_BLEND_OP_SUBTRACT"/>
+      </value>
+      <value name="RevSubtract" value="3" doc="Subtract the destination color from the source color.">
+        <impl name="vk" value="VK_BLEND_OP_REVERSE_SUBTRACT"/>
+      </value>
+      <value name="Min" value="4" doc="Use the minimum of the source and destination colors.">
+        <impl name="vk" value="VK_BLEND_OP_MIN"/>
+      </value>
+      <value name="Max" value="5" doc="Use the maximum of the source and destination colors.">
+        <impl name="vk" value="VK_BLEND_OP_MAX"/>
+      </value>
+    </type>
+
+    <type name="LogicOp" category="enum" version="0.7.0" doc="Logic operation for color blending operations.">
+      <impl_type for="dx" name="D3D12_LOGIC_OP" direct="true"/>
+      <impl_type for="vk" name="VkLogicOp"/>
+      <value name="Clear" value="0" doc="Clear the destination value.">
+        <impl name="vk" value="VK_LOGIC_OP_CLEAR"/>
+      </value>
+      <value name="Set" value="1" doc="Set the destination value.">
+        <impl name="vk" value="VK_LOGIC_OP_SET"/>
+      </value>
+      <value name="Copy" value="2" doc="Copy the source value to the destination.">
+        <impl name="vk" value="VK_LOGIC_OP_COPY"/>
+      </value>
+      <value name="CopyInverted" value="3" doc="Copy the inverted source value to the destination.">
+        <impl name="vk" value="VK_LOGIC_OP_COPY_INVERTED"/>
+      </value>
+      <value name="Noop" value="4" doc="Do not modify the destination value.">
+        <impl name="vk" value="VK_LOGIC_OP_NO_OP"/>
+      </value>
+      <value name="Invert" value="5" doc="Invert the destination value.">
+        <impl name="vk" value="VK_LOGIC_OP_INVERT"/>
+      </value>
+      <value name="And" value="6" doc="Perform a bitwise AND operation on the source and destination values.">
+        <impl name="vk" value="VK_LOGIC_OP_AND"/>
+      </value>
+      <value name="Nand" value="7" doc="Perform a bitwise NAND operation on the source and destination values.">
+        <impl name="vk" value="VK_LOGIC_OP_NAND"/>
+      </value>
+      <value name="Or" value="8" doc="Perform a bitwise OR operation on the source and destination values.">
+        <impl name="vk" value="VK_LOGIC_OP_OR"/>
+      </value>
+      <value name="Nor" value="9" doc="Perform a bitwise NOR operation on the source and destination values.">
+        <impl name="vk" value="VK_LOGIC_OP_NOR"/>
+      </value>
+      <value name="Xor" value="10" doc="Perform a bitwise XOR operation on the source and destination values.">
+        <impl name="vk" value="VK_LOGIC_OP_XOR"/>
+      </value>
+      <value name="Equiv" value="11" doc="Perform a bitwise equivalent operation on the source and destination values.">
+        <impl name="vk" value="VK_LOGIC_OP_EQUIVALENT"/>
+      </value>
+      <value name="AndReverse" value="12" doc="Perform a bitwise AND operation on the source and inverted destination values.">
+        <impl name="vk" value="VK_LOGIC_OP_AND_REVERSE"/>
+      </value>
+      <value name="AndInverted" value="13" doc="Perform a bitwise AND operation on the inverted source and destination values.">
+        <impl name="vk" value="VK_LOGIC_OP_AND_INVERTED"/>
+      </value>
+      <value name="OrReverse" value="14" doc="Perform a bitwise OR operation on the source and inverted destination values.">
+        <impl name="vk" value="VK_LOGIC_OP_OR_REVERSE"/>
+      </value>
+      <value name="OrInverted" value="15" doc="Perform a bitwise OR operation on the inverted source and destination values.">
+        <impl name="vk" value="VK_LOGIC_OP_OR_INVERTED"/>
+      </value>
+    </type>
+
     <!-- Bitmasks -->
 
     <type name="BufferUsageFlags" category="bitmask" version="0.7.0" doc="Buffer usage flags.
@@ -1186,7 +1445,19 @@ Outside of AllocateXMemory the flag is ignored."/>
     <type name="PipelineFlags" category="bitmask" version="0.7.0" doc="Pipeline creation flags.">
       <value name="None" value="0" doc="No flags set. Pipeline is regular."/>
       <value name="FailOnCacheMiss" bit="0" doc="Fail pipeline creation if the pipeline cache is missing or incompatible. If not set, the implementation may choose to create the pipeline without using the cache, which may result in longer creation time."/>
+      <value name="EnablePrimitiveRestart" bit="1" doc="Enable primitive restart for graphics pipelines. If not set, primitive restart is disabled and the implementation may choose to ignore restart indices in draw calls."/>
+      <value name="DynamicDepthBias" bit="2" doc="Enable dynamic depth bias for graphics pipelines. If not set, depth bias is static and must be specified at pipeline creation time."/>
     </type>
-    
+
+    <type name="ColorComponents" category="bitmask" version="0.7.0" doc="Color component flags.
+Used for color blending operations.">
+      <value name="None" value="0" doc="No flags set. Color blending is not used."/>
+      <value name="R" bit="0" doc="Use red component for blending."/>
+      <value name="G" bit="1" doc="Use green component for blending."/>
+      <value name="B" bit="2" doc="Use blue component for blending."/>
+      <value name="A" bit="3" doc="Use alpha component for blending."/>
+      <value name="All" value="15" doc="Use all color components for blending."/>
+    </type>
+
   </types>
 </registry>

@@ -285,7 +285,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DescriptorHeapWriteSampler(const WisDX1
 
     auto min_filter     = !sampler->is_anisotropic ? wis::detail::convert_dx(sampler->min_filter) : D3D12_FILTER_TYPE_LINEAR;
     auto mag_filter     = !sampler->is_anisotropic ? wis::detail::convert_dx(sampler->mag_filter) : D3D12_FILTER_TYPE_LINEAR;
-    auto reduction_mode = sampler->comparison_op != WisCompareOperationNone
+    auto reduction_mode = sampler->comparison_op != WisCompareOpNone
             ? D3D12_FILTER_REDUCTION_TYPE::D3D12_FILTER_REDUCTION_TYPE_COMPARISON
             : wis::detail::convert_dx(sampler->reduction_mode);
 

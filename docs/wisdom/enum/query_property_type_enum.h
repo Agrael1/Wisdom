@@ -13,6 +13,7 @@
  *     WisQueryPropertyTypeDeviceCommandQueueProperties = 0,
  *     WisQueryPropertyTypeDeviceDescriptorHeapProperties = 1,
  *     WisQueryPropertyTypeDeviceMemoryProperties = 2,
+ *     WisQueryPropertyTypeDeviceBindingProperties = 3,
  * } WisQueryPropertyType;
  * ```
  * C++ version:
@@ -23,6 +24,7 @@
  *     DeviceCommandQueueProperties = 0,
  *     DeviceDescriptorHeapProperties = 1,
  *     DeviceMemoryProperties = 2,
+ *     DeviceBindingProperties = 3,
  * };
  * }
  * ```
@@ -37,6 +39,7 @@
  * - `WisQueryPropertyTypeDeviceCommandQueueProperties = 0`: Properties of the device command queues. Expects a  struct.
  * - `WisQueryPropertyTypeDeviceDescriptorHeapProperties = 1`: Properties of the device descriptor heap. Expects a WisDeviceDescriptorHeapProperties struct.
  * - `WisQueryPropertyTypeDeviceMemoryProperties = 2`: Properties of the device descriptor heap. Expects a WisDeviceMemoryProperties struct.
+ * - `WisQueryPropertyTypeDeviceBindingProperties = 3`: Properties of the device resource binding. Expects a WisDeviceBindingProperties struct.
  * \endcond
  *
  *
@@ -44,6 +47,6 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisQueryStructHeader, WisDeviceDescriptorHeapProperties, WisDeviceCommandQueuesProperties, WisDeviceMemoryProperties
+ * @see WisQueryStructHeader, WisDeviceBindingProperties, WisDeviceDescriptorHeapProperties, WisDeviceCommandQueuesProperties, WisDeviceMemoryProperties
  * \endcond
  */

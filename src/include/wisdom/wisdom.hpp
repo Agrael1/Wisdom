@@ -58,6 +58,7 @@ using GlobalBarrier           = wis::DX12GlobalBarrier;
 using TextureBarrier          = wis::DX12TextureBarrier;
 using BarrierGroup            = wis::DX12BarrierGroup;
 using ComputePipelineDesc     = wis::DX12ComputePipelineDesc;
+using GraphicsPipelineDesc    = wis::DX12GraphicsPipelineDesc;
 
 //==============================================================
 // Functions
@@ -131,6 +132,7 @@ using GlobalBarrier           = wis::VKGlobalBarrier;
 using TextureBarrier          = wis::VKTextureBarrier;
 using BarrierGroup            = wis::VKBarrierGroup;
 using ComputePipelineDesc     = wis::VKComputePipelineDesc;
+using GraphicsPipelineDesc    = wis::VKGraphicsPipelineDesc;
 
 //==============================================================
 // Functions

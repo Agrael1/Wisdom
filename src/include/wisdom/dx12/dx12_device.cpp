@@ -377,6 +377,11 @@ WIS_EXTERN_C WISDOM_API void wisDX12DeviceQueryProperties(const WisDX12Device* s
                 props->host_image_copy_supported = options16.GPUUploadHeapSupported;
             }
         } break;
+        case WisQueryPropertyTypeDeviceBindingProperties: {
+            auto* props                        = static_cast<WisDeviceBindingProperties*>(next);
+            props->max_vertex_input_bindings   = D3D12_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT;
+            props->max_vertex_input_attributes = D3D12_IA_VERTEX_INPUT_STRUCTURE_ELEMENT_COUNT;
+        } break;
         default:
             break;
         }
@@ -430,7 +435,6 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreatePipelineCache(const WisDX12
         }
         std::memcpy(data_copy, initial_data, data_size);
     }
-
 
     wis::com_ptr<ID3D12PipelineLibrary1> pipeline_library;
 
@@ -579,6 +583,352 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateComputePipeline(const WisDX
     auto& pipeline_impl = *new (pipeline) wis::impl::DX12PipelineImpl{
         .pipeline_state = pipeline_state.detach(),
     };
+    return wis::detail::dx_success;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(const WisDX12Device*               self,
+                                                                      const WisDX12GraphicsPipelineDesc* desc,
+                                                                      WisDX12Pipeline*                   pipeline)
+{
+    auto& device  = *reinterpret_cast<const wis::impl::DX12DeviceImpl*>(self);
+    auto* cache   = std::bit_cast<ID3D12PipelineLibrary1*>(desc->cache);
+    auto* rootsig = std::bit_cast<ID3D12RootSignature*>(desc->root_signature);
+    if (!rootsig) {
+        return wis::detail::make_result<wis::detail::Func(), "Invalid root signature provided for graphics pipeline creation">(E_INVALIDARG);
+    }
+
+    struct GraphicsPipelineStream {
+        CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE  root_signature;
+        CD3DX12_PIPELINE_STATE_STREAM_VS              vertex_shader;
+        CD3DX12_PIPELINE_STATE_STREAM_PS              pixel_shader;
+        CD3DX12_PIPELINE_STATE_STREAM_GS              geometry_shader;
+        CD3DX12_PIPELINE_STATE_STREAM_HS              hull_shader;
+        CD3DX12_PIPELINE_STATE_STREAM_DS              domain_shader;
+        CD3DX12_PIPELINE_STATE_STREAM_VIEW_INSTANCING view_instancing;
+
+        // Hashable fields for pipeline caching
+        CD3DX12_PIPELINE_STATE_STREAM_FLAGS                 flags;
+        CD3DX12_PIPELINE_STATE_STREAM_NODE_MASK             node_mask;
+        CD3DX12_PIPELINE_STATE_STREAM_INPUT_LAYOUT          input_layout;
+        CD3DX12_PIPELINE_STATE_STREAM_PRIMITIVE_TOPOLOGY    topology;
+        CD3DX12_PIPELINE_STATE_STREAM_RASTERIZER2           rasterizer;
+        CD3DX12_PIPELINE_STATE_STREAM_RENDER_TARGET_FORMATS rtv_formats;
+        CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL_FORMAT  depth_stencil_format;
+        CD3DX12_PIPELINE_STATE_STREAM_SAMPLE_DESC           sample_desc;
+        CD3DX12_PIPELINE_STATE_STREAM_SAMPLE_MASK           sample_mask;
+        CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL2        depth_stencil;
+        CD3DX12_PIPELINE_STATE_STREAM_BLEND_DESC            blend_state;
+    } stream{
+        .root_signature = rootsig,
+        .flags          = desc->flags & WisPipelineFlagsEnablePrimitiveRestart
+                         ? D3D12_PIPELINE_STATE_FLAG_DYNAMIC_INDEX_BUFFER_STRIP_CUT
+                         : D3D12_PIPELINE_STATE_FLAG_NONE,
+    };
+
+    static constexpr size_t              shader_stage_count                 = 5;
+    const wis::detail::DX12ShaderHeader* shader_headers[shader_stage_count] = {
+        std::bit_cast<const wis::detail::DX12ShaderHeader*>(desc->vertex_shader),
+        std::bit_cast<const wis::detail::DX12ShaderHeader*>(desc->pixel_shader),
+        std::bit_cast<const wis::detail::DX12ShaderHeader*>(desc->geometry_shader),
+        std::bit_cast<const wis::detail::DX12ShaderHeader*>(desc->hull_shader),
+        std::bit_cast<const wis::detail::DX12ShaderHeader*>(desc->domain_shader),
+    };
+
+    //--Shader stages
+    if (auto vs = shader_headers[0]) {
+        auto bytecode        = vs->GetBytecode();
+        stream.vertex_shader = {
+            { bytecode.data(), bytecode.size() }
+        };
+    } else {
+        return wis::detail::make_result<wis::detail::Func(), "Vertex shader is required for graphics pipeline creation">(E_INVALIDARG);
+    }
+    if (auto ps = shader_headers[1]) {
+        auto bytecode       = ps->GetBytecode();
+        stream.pixel_shader = {
+            { bytecode.data(), bytecode.size() }
+        };
+    }
+    if (auto gs = shader_headers[2]) {
+        auto bytecode          = gs->GetBytecode();
+        stream.geometry_shader = {
+            { bytecode.data(), bytecode.size() }
+        };
+    }
+    if (auto hs = shader_headers[3]) {
+        auto bytecode      = hs->GetBytecode();
+        stream.hull_shader = {
+            { bytecode.data(), bytecode.size() }
+        };
+    }
+    if (auto ds = shader_headers[4]) {
+        auto bytecode        = ds->GetBytecode();
+        stream.domain_shader = {
+            { bytecode.data(), bytecode.size() }
+        };
+    }
+
+    //--Render targets
+    if (desc->render_attachments.attachments_count > wis::MaxRenderTargets) {
+        return wis::detail::make_result<wis::detail::Func(), "Exceeded maximum number of render target attachments (8)">(E_INVALIDARG);
+    }
+
+    D3D12_RT_FORMAT_ARRAY& rtv_formats = stream.rtv_formats;
+    for (uint32_t i = 0; i < desc->render_attachments.attachments_count; i++) {
+        rtv_formats.RTFormats[i] = wis::detail::convert_dx(desc->render_attachments.attachment_formats[i]);
+    }
+    rtv_formats.NumRenderTargets = desc->render_attachments.attachments_count;
+    if (desc->render_attachments.depth_attachment != WisDataFormatUnknown) {
+        stream.depth_stencil_format = wis::detail::convert_dx(desc->render_attachments.depth_attachment);
+    }
+
+    //--Multiview
+    D3D12_VIEW_INSTANCE_LOCATION view_locs[wis::MaxRenderTargets]{};
+    if (desc->render_attachments.view_mask) {
+        uint32_t view_mask = desc->render_attachments.view_mask;
+        for (uint32_t i = 0u; i < wis::MaxRenderTargets; i++) {
+            if (!(view_mask & (1u << i))) {
+                continue;
+            }
+
+            view_locs[i] = D3D12_VIEW_INSTANCE_LOCATION{
+                .ViewportArrayIndex     = 0,
+                .RenderTargetArrayIndex = i,
+            };
+        }
+        stream.view_instancing = CD3DX12_VIEW_INSTANCING_DESC{
+            uint32_t(std::popcount(view_mask)),
+            view_locs,
+            D3D12_VIEW_INSTANCING_FLAG_ENABLE_VIEW_INSTANCE_MASKING
+        };
+    }
+
+    //--Input layout
+    wis::span<const WisInputBindingDesc>        slots{ desc->input_layout.bindings, desc->input_layout.binding_count };
+    wis::span<const WisInputAttributeDesc>      attrs{ desc->input_layout.attributes, desc->input_layout.attribute_count };
+    D3D12_INPUT_ELEMENT_DESC                    reasonable_max_input_elements[wis::MinSupportedInputAttributes * 2]{};
+    std::unique_ptr<D3D12_INPUT_ELEMENT_DESC[]> input_elements;
+    wis::span<D3D12_INPUT_ELEMENT_DESC>         input_elements_span;
+    if (!slots.empty() && !attrs.empty()) {
+        if (attrs.size() > wis::MinSupportedInputAttributes * 2) {
+            input_elements      = wis::make_unique<D3D12_INPUT_ELEMENT_DESC[]>(attrs.size());
+            input_elements_span = { input_elements.get(), attrs.size() };
+        } else {
+            input_elements_span = { reasonable_max_input_elements, attrs.size() };
+        }
+    }
+
+    for (uint32_t i = 0; i < attrs.size(); i++) {
+        auto& attr = attrs[i];
+        auto& slot = slots[attr.binding_index];
+
+        input_elements_span[i] = { .SemanticName         = attr.semantic_name,
+                                   .SemanticIndex        = attr.semantic_index,
+                                   .Format               = wis::detail::convert_dx(attr.format),
+                                   .InputSlot            = slot.slot,
+                                   .AlignedByteOffset    = attr.offset_bytes,
+                                   .InputSlotClass       = D3D12_INPUT_CLASSIFICATION(slot.input_class),
+                                   .InstanceDataStepRate = slot.input_class == WisInputClassPerInstance ? slot.stride_bytes : 0 };
+    }
+    stream.input_layout = { input_elements.get(), uint32_t(attrs.size()) };
+
+    //--Topology
+    stream.topology = wis::detail::convert_dx(desc->topology_type);
+
+    //--Rasterizer
+    if (desc->rasterizer_desc) {
+        auto& raster      = *desc->rasterizer_desc;
+        bool  bias        = raster.depth_bias_enable;
+        if (bias) {
+            stream.flags |= D3D12_PIPELINE_STATE_FLAG_DYNAMIC_DEPTH_BIAS;
+        }
+
+        stream.rasterizer = CD3DX12_RASTERIZER_DESC2{
+            D3D12_RASTERIZER_DESC2{
+                                   .FillMode              = wis::detail::convert_dx(raster.fill_mode),
+                                   .CullMode              = wis::detail::convert_dx(raster.cull_mode),
+                                   .FrontCounterClockwise = wis::detail::convert_dx(raster.front_face),
+                                   .DepthBias             = bias ? raster.depth_bias : 0.0f,
+                                   .DepthBiasClamp        = bias ? raster.depth_bias_clamp : 0.0f,
+                                   .SlopeScaledDepthBias  = bias ? raster.depth_bias_slope_factor : 0.0f,
+                                   .DepthClipEnable       = raster.depth_clip_enable,
+                                   .LineRasterizationMode = wis::detail::convert_dx(raster.line_rasterization),
+                                   .ConservativeRaster    = wis::detail::convert_dx(raster.conservative_rasterization) }
+        };
+    }
+
+    //--Multisample
+    if (desc->sample_desc) {
+        stream.sample_desc = DXGI_SAMPLE_DESC{
+            .Count   = wis::detail::convert_dx(desc->sample_desc->rate),
+            .Quality = DXGI_STANDARD_MULTISAMPLE_QUALITY_PATTERN,
+        };
+        stream.sample_mask = desc->sample_desc->sample_mask;
+
+        if (!desc->blend_state_desc && desc->sample_desc->alpha_to_coverage_enable) {
+            CD3DX12_BLEND_DESC& bd   = stream.blend_state;
+            bd.AlphaToCoverageEnable = true;
+        }
+    }
+
+    //--Depth stencil
+    if (desc->depth_stencil_desc) {
+        auto& ds             = *desc->depth_stencil_desc;
+        stream.depth_stencil = CD3DX12_DEPTH_STENCIL_DESC2{
+            { .DepthEnable    = ds.depth_enable,
+             .DepthWriteMask = D3D12_DEPTH_WRITE_MASK(ds.depth_write_enable),
+             .DepthFunc      = wis::detail::convert_dx(ds.depth_comp),
+             .StencilEnable  = ds.stencil_enable,
+             .FrontFace =
+                      D3D12_DEPTH_STENCILOP_DESC1{
+                              .StencilFailOp      = wis::detail::convert_dx(ds.stencil_front.fail_op),
+                              .StencilDepthFailOp = wis::detail::convert_dx(ds.stencil_front.depth_fail_op),
+                              .StencilPassOp      = wis::detail::convert_dx(ds.stencil_front.pass_op),
+                              .StencilFunc        = wis::detail::convert_dx(ds.stencil_front.stencil_comp),
+                              .StencilReadMask    = ds.stencil_front.read_mask,
+                              .StencilWriteMask   = ds.stencil_front.write_mask,
+                      },
+             .BackFace =
+                      D3D12_DEPTH_STENCILOP_DESC1{
+                              .StencilFailOp      = wis::detail::convert_dx(ds.stencil_back.fail_op),
+                              .StencilDepthFailOp = wis::detail::convert_dx(ds.stencil_back.depth_fail_op),
+                              .StencilPassOp      = wis::detail::convert_dx(ds.stencil_back.pass_op),
+                              .StencilFunc        = wis::detail::convert_dx(ds.stencil_back.stencil_comp),
+                              .StencilReadMask    = ds.stencil_back.read_mask,
+                              .StencilWriteMask   = ds.stencil_back.write_mask,
+                      },
+             .DepthBoundsTestEnable = ds.depth_bound_test }
+        };
+    }
+
+    //--Blend
+    if (desc->blend_state_desc) {
+        auto&             blend      = *desc->blend_state_desc;
+        D3D12_BLEND_DESC& bdesc      = stream.blend_state;
+        bdesc.AlphaToCoverageEnable  = desc->sample_desc ? desc->sample_desc->alpha_to_coverage_enable : false;
+        bdesc.IndependentBlendEnable = blend.attachment_count > 0 && !blend.logic_op_enable;
+
+        if (bdesc.IndependentBlendEnable) {
+            for (size_t i = 0; i < blend.attachment_count; i++) {
+                auto& a               = blend.attachments[i];
+                bdesc.RenderTarget[i] = D3D12_RENDER_TARGET_BLEND_DESC{
+                    .BlendEnable           = a.blend_enable,
+                    .LogicOpEnable         = false,
+                    .SrcBlend              = wis::detail::convert_dx(a.src_color_blend),
+                    .DestBlend             = wis::detail::convert_dx(a.dst_color_blend),
+                    .BlendOp               = wis::detail::convert_dx(a.color_blend_op),
+                    .SrcBlendAlpha         = wis::detail::convert_dx(a.src_alpha_blend),
+                    .DestBlendAlpha        = wis::detail::convert_dx(a.dst_alpha_blend),
+                    .BlendOpAlpha          = wis::detail::convert_dx(a.alpha_blend_op),
+                    .LogicOp               = D3D12_LOGIC_OP_NOOP,
+                    .RenderTargetWriteMask = UINT8(a.color_write_mask),
+                };
+            }
+        } else {
+            auto& a               = blend.attachments[0];
+            bdesc.RenderTarget[0] = D3D12_RENDER_TARGET_BLEND_DESC{
+                .BlendEnable           = a.blend_enable,
+                .LogicOpEnable         = false,
+                .SrcBlend              = wis::detail::convert_dx(a.src_color_blend),
+                .DestBlend             = wis::detail::convert_dx(a.dst_color_blend),
+                .BlendOp               = wis::detail::convert_dx(a.color_blend_op),
+                .SrcBlendAlpha         = wis::detail::convert_dx(a.src_alpha_blend),
+                .DestBlendAlpha        = wis::detail::convert_dx(a.dst_alpha_blend),
+                .BlendOpAlpha          = wis::detail::convert_dx(a.alpha_blend_op),
+                .LogicOp               = D3D12_LOGIC_OP_NOOP,
+                .RenderTargetWriteMask = UINT8(a.color_write_mask),
+            };
+        }
+        if (blend.logic_op_enable) {
+            bdesc.RenderTarget[0].LogicOpEnable = true;
+            bdesc.RenderTarget[0].LogicOp       = wis::detail::convert_dx(blend.logic_op);
+        }
+    }
+
+    D3D12_PIPELINE_STATE_STREAM_DESC psstream_desc{
+        .SizeInBytes                   = sizeof(GraphicsPipelineStream),
+        .pPipelineStateSubobjectStream = &stream,
+    };
+    wis::com_ptr<ID3D12PipelineState> pipeline_state;
+
+    wchar_t name_buffer[128] = {};
+    if (cache) {
+        uint32_t name_offset = 0; // max 7
+        struct RehashInput {
+            uint64_t root_sig_hash[2];
+            uint64_t shader_hashes[2 * shader_stage_count];
+
+            uint32_t multiview_mask;
+            uint64_t pso_hash[2];
+        } rehash_input{};
+
+        // Get root signature hash
+        UINT                              root_sig_data_size = sizeof(wis::detail::DX12RootSignatureKey);
+        wis::detail::DX12RootSignatureKey root_sig_key{};
+        rootsig->GetPrivateData(wis::detail::DX12RootSignatureKey::guid, &root_sig_data_size, &root_sig_key);
+        rehash_input.root_sig_hash[0] = root_sig_key.hash[0];
+        rehash_input.root_sig_hash[1] = root_sig_key.hash[1];
+
+        // Get shader hashes
+        static constexpr auto shader_stage_names = L"VPGHD"; // Vertex, Pixel, Geometry, Hull, Domain
+        for (size_t i = 0; i < 5; ++i) {
+            if (shader_headers[i]) {
+                rehash_input.shader_hashes[2 * i]     = shader_headers[i]->hash[0];
+                rehash_input.shader_hashes[2 * i + 1] = shader_headers[i]->hash[1];
+                name_buffer[name_offset++]            = shader_stage_names[i];
+            }
+        }
+
+        // multiview state
+        rehash_input.multiview_mask = desc->render_attachments.view_mask;
+
+        // Hash pso stream
+        wis::span<const uint8_t> pso_stream_bytes{
+            // start after bytecodes
+            reinterpret_cast<const uint8_t*>(&stream.flags),
+            // end at the end of the struct
+            reinterpret_cast<const uint8_t*>(&stream + 1)
+        };
+        XXH128_hash_t stream_hash = XXH3_128bits(pso_stream_bytes.data(), pso_stream_bytes.size());
+        rehash_input.pso_hash[0]  = stream_hash.low64;
+        rehash_input.pso_hash[1]  = stream_hash.high64;
+
+        // Rehash the combined data to get a final hash for the pipeline state
+        XXH128_hash_t pso_hash   = XXH3_128bits(&rehash_input, sizeof(rehash_input));
+
+        // convert hash to hex string for use as pipeline cache key
+        wis::format_to(name_buffer + name_offset, L"PSO_{:016x}{:016x}", pso_hash.low64, pso_hash.high64);
+
+        // Try to load pipeline from cache first if available
+        HRESULT hr = cache->LoadPipeline(name_buffer, &psstream_desc, IID_ID3D12PipelineState, pipeline_state.put_void_unchecked());
+        if (wis::detail::succeeded(hr)) {
+            auto& pipeline_impl = *new (pipeline) wis::impl::DX12PipelineImpl{
+                .pipeline_state = pipeline_state.detach(),
+            };
+            return wis::detail::dx_success;
+        }
+
+        // Cache miss
+        if (desc->flags & WisPipelineFlagsFailOnCacheMiss) {
+            return wis::detail::make_result<wis::detail::Func(), "Pipeline not found in cache and creation is set to fail on cache miss">(WisStatusError, E_FAIL);
+        }
+    }
+
+    HRESULT hr = device.device->CreatePipelineState(&psstream_desc, IID_ID3D12PipelineState, pipeline_state.put_void_unchecked());
+    if (!wis::detail::succeeded(hr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to create graphics pipeline state object">(hr);
+    }
+
+    if (cache) {
+        // Store pipeline in cache for future reuse
+        cache->StorePipeline(name_buffer, pipeline_state.get());
+    }
+
+    auto& pipeline_impl = *new (pipeline) wis::impl::DX12PipelineImpl{
+        .pipeline_state = pipeline_state.detach(),
+    };
+
     return wis::detail::dx_success;
 }
 

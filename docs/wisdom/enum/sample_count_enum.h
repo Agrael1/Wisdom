@@ -52,6 +52,6 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisTextureDesc
+ * @see WisTextureDesc, WisSampleDesc
  * \endcond
  */

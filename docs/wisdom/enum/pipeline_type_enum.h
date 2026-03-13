@@ -33,6 +33,8 @@
  * \cond WIS_GEN_DESC
  * Defines types of pipelines that can be created on the device. Each type corresponds to a specific kind of workload that the GPU can handle.
  * 
+ * \note Translates to  `VkPipelineBindPoint` for Vulkan implementation.
+ * 
  * Values:
  * - `WisPipelineTypeGraphics = 0`: Pipeline for graphics operations, including rendering tasks.
  * - `WisPipelineTypeCompute = 1`: Pipeline dedicated to compute operations, optimized for parallel processing tasks.
@@ -44,6 +46,6 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisPushConstantDataDesc, WisPushDescriptorDataDesc, WisDescriptorTableDataDesc, wisCommandListSetRootSignature
+ * @see WisPushConstantDataDesc, WisPushDescriptorDataDesc, WisDescriptorTableDataDesc, wisCommandListSetRootSignature, wisCommandListSetPipeline
  * \endcond
  */

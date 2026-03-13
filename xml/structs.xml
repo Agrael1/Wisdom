@@ -61,7 +61,7 @@
       <member type="f32" name="min_lod" doc="Min LOD value."/>
       <member type="f32" name="max_lod" doc="Max LOD value."/>
       <member type="f32" name="mip_lod_bias" doc="Mip LOD bias value."/>
-      <member type="CompareOperation" name="comparison_op" doc="Comparison operation for comparison samplers."/>
+      <member type="CompareOp" name="comparison_op" doc="Comparison operation for comparison samplers."/>
       <member type="StaticBorder" name="static_border_color" doc="Static border color. Used if any address mode is set to {AddressMode::Border}."/>
       <member type="SamplerFlags" name="flags" doc="Sampler flags. Used to set additional sampler options."/>
     </type>
@@ -194,6 +194,91 @@
       <member type="SubresourceRange" name="range" doc="Subresource description for the texture view."/>
     </type>
 
+    <type name="StencilDesc" category="struct" version="0.7.0" doc="Stencil description for {DepthStencilDesc::}.">
+      <member type="StencilOp" name="fail_op" default="Keep" doc="Stencil operation if the stencil test fails. Default is {StencilOp::Keep}."/>
+      <member type="StencilOp" name="depth_fail_op" default="Keep" doc="Stencil operation if the stencil test passes and the depth test fails. Default is {StencilOp::Keep}."/>
+      <member type="StencilOp" name="pass_op" default="Keep" doc="Stencil operation if the stencil test passes. Default is {StencilOp::Keep}."/>
+      <member type="CompareOp" name="stencil_comp" default="Always" doc="Stencil comparison function. Default is {Compare::Always}."/>
+      <member type="u8" name="read_mask" default="0xff" doc="Stencil read mask. Default is 0xff."/>
+      <member type="u8" name="write_mask" default="0xff" doc="Stencil write mask. Default is 0xff."/>
+    </type>
+
+    <type name="DepthStencilDesc" category="struct" version="0.7.0" doc="Depth stencil description for {GraphicsPipelineDesc::}.">
+      <member type="bool" name="depth_enable" default="false" doc="Depth test enable. Default is false."/>
+      <member type="bool" name="depth_write_enable" default="false" doc="Depth write enable. Default is false."/>
+      <member type="CompareOp" name="depth_comp" default="Less" doc="Depth comparison function. Default is {Compare::Less}."/>
+      <member type="bool" name="stencil_enable" default="false" doc="Stencil test enable. Default is false."/>
+      <member type="StencilDesc" name="stencil_front" default="{}" doc="Stencil description for front faces."/>
+      <member type="StencilDesc" name="stencil_back" default="{}" doc="Stencil description for back faces."/>
+      <member type="bool" name="depth_bound_test" default="false" doc="Depth bound test enable. Default is false."/>
+    </type>
+
+    <type name="InputBindingDesc" category="struct" version="0.7.0" doc="Input slot description for {InputLayout::}.">
+      <member type="u32" name="slot" doc="Input slot number. Must be unique."/>
+      <member type="u32" name="stride_bytes" doc="Stride in bytes. Size of one vertex in the slot."/>
+      <member type="InputClass" name="input_class" doc="Input class. Defines how the data is read (Per vertex or Per instance)."/>
+    </type>
+
+    <type name="InputAttributeDesc" category="struct" version="0.7.0" doc="Input attribute description for {InputLayout::}.">
+      <member type="u32" name="binding_index" doc="Index into an array of bindings that the attribute is tied to."/>
+      <member type="char" name="semantic_name" mod="const,ptr" doc="Semantic name of the attribute in HLSL. Must be unique and null terminated."/>
+      <member type="u32" name="semantic_index" doc="Semantic index of the attribute in HLSL. Must be unique."/>
+      <member type="u32" name="location" doc="Location of the attribute in HLSL. Must be unique."/>
+      <member type="DataFormat" name="format" doc="Data format of the attribute."/>
+      <member type="u32" name="offset_bytes" doc="Offset in bytes from the beginning of the vertex."/>
+    </type>
+
+    <type name="InputLayout" category="struct" version="0.7.0" doc="Input layout description for {GraphicsPipelineDesc::}.">
+      <member type="InputBindingDesc" name="bindings" mod="const,span" doc="Input slots array. Made to pick up data from several arrays of vertex data."/>
+      <member type="size" name="binding_count" doc="Input slots count. Max number is 16."/>
+      <member type="InputAttributeDesc" name="attributes" mod="const,span" doc="Input attributes array. Describes how the vertex data is read by the HLSL shader."/>
+      <member type="size" name="attribute_count" doc="Input attributes count."/>
+    </type>
+
+    <type name="RasterizerDesc" category="struct" version="0.7.0" doc="Rasterizer description for {GraphicsPipelineDesc::}.">
+      <member type="FillMode" name="fill_mode" default="Solid" doc="Fill mode. Solid or Wireframe. Default is {FillMode::Solid}."/>
+      <member type="CullMode" name="cull_mode" default="Back" doc="Cull mode. None, Front, Back. Default is {CullMode::Back}."/>
+      <member type="WindingOrder" name="front_face" default="Clockwise" doc="Front face winding order. Clockwise or CounterClockwise. Default is {WindingOrder::Clockwise}."/>
+      <member type="bool" name="depth_bias_enable" default="false" doc="Depth bias enable. Default is false."/>
+      <member type="f32" name="depth_bias" default="0.0f" doc="Depth bias. Default is 0.0f."/>
+      <member type="f32" name="depth_bias_clamp" default="0.0f" doc="Depth bias clamp. Default is 0.0f."/>
+      <member type="f32" name="depth_bias_slope_factor" default="0.0f" doc="Depth bias slope factor e.g. for shadows. Default is 0.0f."/>
+      <member type="bool" name="depth_clip_enable" default="true" doc="Depth clip enable. Default is true."/>
+      <member type="LineRasterization" name="line_rasterization" default="Default" doc="Line rasterization mode. Default is {LineRasterization::Default}."/>
+      <member type="ConservativeRasterization" name="conservative_rasterization" default="Off" doc="Conservative rasterization mode. Default is {ConservativeRasterization::Off}."/>
+    </type>
+
+    <type name="SampleDesc" category="struct" version="0.7.0" doc="Sample description of Multisampling for {GraphicsPipelineDesc::}.">
+      <member type="SampleCount" name="rate" default="S1" doc="Sample rate. Default is {SampleCount::S1}."/>
+      <member type="u32" name="sample_mask" default="0xffffffff" doc="Sample mask. Default is 0xffffffff."/>
+      <member type="bool" name="alpha_to_coverage_enable" default="false" doc="Alpha to coverage enable. Default is false."/>
+    </type>
+
+    <type name="RenderAttachmentsDesc" category="struct" version="0.7.0" doc="Render attachments description for {GraphicsPipelineDesc::}.">
+      <member type="DataFormat" name="attachment_formats" array="8" doc="Attachment formats array. Describes the format of the render target."/>
+      <member type="u32" name="attachments_count" doc="Attachment formats count. Max is 8."/>
+      <member type="DataFormat" name="depth_attachment" doc="Depth attachment format. Describes the format of the depth buffer."/>
+      <member type="u32" name="view_mask" default="0" doc="View mask for multiview rendering. Each bit represents a view that can be rendered to with the pipeline. Default is 0, meaning no multiview support."/>
+    </type>
+
+    <type name="BlendAttachmentDesc" category="struct" version="0.7.0" doc="Blend attachment description for {BlendStateDesc::}.">
+      <member type="bool" name="blend_enable" default="false" doc="Blend enable. Default is false."/>
+      <member type="BlendFactor" name="src_color_blend" default="One" doc="Source color blend factor. Default is {BlendFactor::One}."/>
+      <member type="BlendFactor" name="dst_color_blend" default="Zero" doc="Destination color blend factor. Default is {BlendFactor::Zero}."/>
+      <member type="BlendOp" name="color_blend_op" default="Add" doc="Color blend operation. Default is {BlendOp::Add}."/>
+      <member type="BlendFactor" name="src_alpha_blend" default="One" doc="Source alpha blend factor. Default is {BlendFactor::One}."/>
+      <member type="BlendFactor" name="dst_alpha_blend" default="Zero" doc="Destination alpha blend factor. Default is {BlendFactor::Zero}."/>
+      <member type="BlendOp" name="alpha_blend_op" default="Add" doc="Alpha blend operation. Default is {BlendOp::Add}."/>
+      <member type="ColorComponents" name="color_write_mask" default="All" doc="Color write mask. Default is {ColorComponents::All}."/>
+    </type>
+
+    <type name="BlendStateDesc" category="struct" version="0.7.0" doc="Blend state description for {GraphicsPipelineDesc::}.">
+      <member type="bool" name="logic_op_enable" default="false" doc="Logic operation enable. Default is false."/>
+      <member type="LogicOp" name="logic_op" default="Noop" doc="Logic operation. Default is {LogicOp::Noop}."/>
+      <member type="BlendAttachmentDesc" name="attachments" array="8" doc="Blend attachment descriptions. Max Array size is 8."/>
+      <member type="u32" name="attachment_count" doc="Blend attachment count. If set as 0 - broadcast to all attachments. Max is 8."/>
+    </type>
+
     <!-- Variants -->
     <type name="DeviceRequirements" category="variant" version="0.7.0" doc="Device requirements. Used to specify required features and properties for device creation.">
       <member type="CommandQueueDesc" name="queue_descs" mod="const,span" default="nullptr" doc="points to an array of {CommandQueueDesc::} for which queues will be created during device creation."/>
@@ -208,6 +293,14 @@
     <type name="QueryStructHeader" category="struct" version="0.7.0" doc="Query struct header. Used as a header for all query structs.">
       <member type="QueryPropertyType" name="property_type" doc="Defines the type of the queried property. Used to determine what struct is passed."/>
       <member type="void" name="next_in_chain" mod="ptr" doc="Pointer to the next queried data struct."/>
+    </type>
+
+    <type name="DeviceBindingProperties" category="struct" version="0.7.0" doc="Device binding properties. Used to query resource binding support and limits.">
+      <member type="QueryPropertyType" name="property_type" doc="Defines the type of the queried property. Used to determine what struct is passed. @wis_must be {QueryPropertyType::DeviceBindingProperties}."/>
+      <member type="void" name="next_in_chain" mod="ptr" doc="Pointer to the next queried data struct."/>
+      <!-- Resource Binding -->
+      <member type="u32" name="max_vertex_input_attributes" doc="Maximum number of vertex input attributes supported by the device. Used for vertex buffer bindings."/>
+      <member type="u32" name="max_vertex_input_bindings" doc="Maximum number of vertex input bindings supported by the device. Used for vertex buffer bindings."/>
     </type>
 
     <type name="DeviceDescriptorHeapProperties" category="struct" version="0.7.0" doc="Device descriptor heap properties. Used to query descriptor heap support and limits.">
@@ -288,6 +381,27 @@
       <member type="PipelineCacheView" name="cache" default="0" doc="Pipeline cache data. Used to speed up pipeline creation if available."/>
       <member type="PipelineFlags" name="flags" doc="Pipeline flags. Describe additional options for the pipeline."/>
     </type>
-    
+
+    <type name="GraphicsPipelineDesc" category="variant" version="0.7.0" doc="Graphics pipeline description for {Pipeline::} creation.">
+      <member type="RootSignatureView" name="root_signature" doc="Root signature description for the pipeline."/>
+
+      <member type="ShaderView" name="vertex_shader" doc="Vertex shader bytecode."/>
+      <member type="ShaderView" name="hull_shader" default="0" doc="Hull shader bytecode. If not set, the pipeline will be created without a hull shader."/>
+      <member type="ShaderView" name="domain_shader" default="0" doc="Domain shader bytecode. If not set, the pipeline will be created without a domain shader."/>
+      <member type="ShaderView" name="geometry_shader" default="0" doc="Geometry shader bytecode. If not set, the pipeline will be created without a geometry shader."/>
+      <member type="ShaderView" name="pixel_shader" default="0" doc="Pixel shader bytecode. If not set, the pipeline will be created without a pixel shader."/>
+
+      <!--other types-->
+      <member type="RenderAttachmentsDesc" name="render_attachments" doc="Render attachments description for the pipeline. Used to create the compatible render pass for the pipeline."/>
+      <member type="InputLayout" name="input_layout" default="{}" doc="Input layout description for the pipeline. If not set, the pipeline will be created without an input layout."/>
+      <member type="TopologyType" name="topology_type" default="Triangle" doc="Topology type. Default is {TopologyType::Triangle}."/>
+      <member type="RasterizerDesc" name="rasterizer_desc" mod="const,ptr" default="nullptr" doc="Rasterizer description for the pipeline. If not set, the pipeline will be created with default rasterizer state."/>
+      <member type="SampleDesc" name="sample_desc" mod="const,ptr" default="nullptr" doc="Sample description for the pipeline. If not set, the pipeline will be created with default sample state (no multisampling)."/>
+      <member type="DepthStencilDesc" name="depth_stencil_desc" mod="const,ptr" default="nullptr" doc="Depth stencil description for the pipeline. If not set, the pipeline will be created with depth testing and stencil testing disabled."/>
+      <member type="BlendStateDesc" name="blend_state_desc" mod="const,ptr" default="nullptr" doc="Blend state description for the pipeline. If not set, the pipeline will be created with blending disabled."/>
+      <member type="PipelineCacheView" name="cache" default="0" doc="Pipeline cache data. Used to speed up pipeline creation if available."/>
+      <member type="PipelineFlags" name="flags" doc="Pipeline flags. Describe additional options for the pipeline."/>
+    </type>
+
   </types>
 </registry>

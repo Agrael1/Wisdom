@@ -185,6 +185,20 @@ constexpr inline VkQueueGlobalPriorityEXT convert_vk(WisCommandQueuePriority val
     }
 }
 
+constexpr inline VkPipelineBindPoint convert_vk(WisPipelineType value) noexcept
+{
+    switch (value) {
+    case WisPipelineTypeGraphics:
+        return VK_PIPELINE_BIND_POINT_GRAPHICS;
+    case WisPipelineTypeCompute:
+        return VK_PIPELINE_BIND_POINT_COMPUTE;
+    case WisPipelineTypeRayTracing:
+        return VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR;
+    default:
+        return VK_PIPELINE_BIND_POINT_GRAPHICS;
+    }
+}
+
 constexpr inline VkShaderStageFlags convert_vk(WisShaderVisibility value) noexcept
 {
     switch (value) {
@@ -231,26 +245,26 @@ constexpr inline VkDescriptorType convert_vk(WisDescriptorType value) noexcept
     }
 }
 
-constexpr inline VkCompareOp convert_vk(WisCompareOperation value) noexcept
+constexpr inline VkCompareOp convert_vk(WisCompareOp value) noexcept
 {
     switch (value) {
-    case WisCompareOperationNone:
+    case WisCompareOpNone:
         return VK_COMPARE_OP_NEVER;
-    case WisCompareOperationNever:
+    case WisCompareOpNever:
         return VK_COMPARE_OP_NEVER;
-    case WisCompareOperationLess:
+    case WisCompareOpLess:
         return VK_COMPARE_OP_LESS;
-    case WisCompareOperationEqual:
+    case WisCompareOpEqual:
         return VK_COMPARE_OP_EQUAL;
-    case WisCompareOperationLessEqual:
+    case WisCompareOpLessEqual:
         return VK_COMPARE_OP_LESS_OR_EQUAL;
-    case WisCompareOperationGreater:
+    case WisCompareOpGreater:
         return VK_COMPARE_OP_GREATER;
-    case WisCompareOperationNotEqual:
+    case WisCompareOpNotEqual:
         return VK_COMPARE_OP_NOT_EQUAL;
-    case WisCompareOperationGreaterEqual:
+    case WisCompareOpGreaterEqual:
         return VK_COMPARE_OP_GREATER_OR_EQUAL;
-    case WisCompareOperationAlways:
+    case WisCompareOpAlways:
         return VK_COMPARE_OP_ALWAYS;
     default:
         return VK_COMPARE_OP_NEVER;
@@ -386,6 +400,194 @@ constexpr inline VkImageLayout convert_vk(WisTextureState value) noexcept
         return VK_IMAGE_LAYOUT_VIDEO_DECODE_DST_KHR;
     default:
         return static_cast<VkImageLayout>(0);
+    }
+}
+
+constexpr inline VkStencilOp convert_vk(WisStencilOp value) noexcept
+{
+    switch (value) {
+    case WisStencilOpKeep:
+        return VK_STENCIL_OP_KEEP;
+    case WisStencilOpZero:
+        return VK_STENCIL_OP_ZERO;
+    case WisStencilOpReplace:
+        return VK_STENCIL_OP_REPLACE;
+    case WisStencilOpIncClamp:
+        return VK_STENCIL_OP_INCREMENT_AND_CLAMP;
+    case WisStencilOpDecClamp:
+        return VK_STENCIL_OP_DECREMENT_AND_CLAMP;
+    case WisStencilOpInvert:
+        return VK_STENCIL_OP_INVERT;
+    case WisStencilOpIncWrap:
+        return VK_STENCIL_OP_INCREMENT_AND_WRAP;
+    case WisStencilOpDecWrap:
+        return VK_STENCIL_OP_DECREMENT_AND_WRAP;
+    default:
+        return static_cast<VkStencilOp>(0);
+    }
+}
+
+constexpr inline VkPrimitiveTopology convert_vk(WisTopologyType value) noexcept
+{
+    switch (value) {
+    case WisTopologyTypePoint:
+        return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+    case WisTopologyTypeLine:
+        return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+    case WisTopologyTypeTriangle:
+        return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    case WisTopologyTypePatch:
+        return VK_PRIMITIVE_TOPOLOGY_PATCH_LIST;
+    default:
+        return static_cast<VkPrimitiveTopology>(0);
+    }
+}
+
+constexpr inline VkPolygonMode convert_vk(WisFillMode value) noexcept
+{
+    switch (value) {
+    case WisFillModeLines:
+        return VK_POLYGON_MODE_LINE;
+    case WisFillModeSolid:
+        return VK_POLYGON_MODE_FILL;
+    default:
+        return static_cast<VkPolygonMode>(0);
+    }
+}
+
+constexpr inline VkCullModeFlags convert_vk(WisCullMode value) noexcept
+{
+    switch (value) {
+    case WisCullModeNone:
+        return VK_CULL_MODE_NONE;
+    case WisCullModeFront:
+        return VK_CULL_MODE_FRONT_BIT;
+    case WisCullModeBack:
+        return VK_CULL_MODE_BACK_BIT;
+    default:
+        return static_cast<VkCullModeFlags>(0);
+    }
+}
+
+constexpr inline VkFrontFace convert_vk(WisWindingOrder value) noexcept
+{
+    switch (value) {
+    case WisWindingOrderClockwise:
+        return VK_FRONT_FACE_CLOCKWISE;
+    case WisWindingOrderCounterClockwise:
+        return VK_FRONT_FACE_COUNTER_CLOCKWISE;
+    default:
+        return static_cast<VkFrontFace>(0);
+    }
+}
+
+constexpr inline VkConservativeRasterizationModeEXT convert_vk(WisConservativeRasterization value) noexcept
+{
+    return static_cast<VkConservativeRasterizationModeEXT>(value);
+}
+
+constexpr inline VkLineRasterizationModeEXT convert_vk(WisLineRasterization value) noexcept
+{
+    return static_cast<VkLineRasterizationModeEXT>(value);
+}
+
+constexpr inline VkBlendFactor convert_vk(WisBlendFactor value) noexcept
+{
+    switch (value) {
+    case WisBlendFactorZero:
+        return VK_BLEND_FACTOR_ZERO;
+    case WisBlendFactorOne:
+        return VK_BLEND_FACTOR_ONE;
+    case WisBlendFactorSrcColor:
+        return VK_BLEND_FACTOR_SRC_COLOR;
+    case WisBlendFactorInvSrcColor:
+        return VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR;
+    case WisBlendFactorSrcAlpha:
+        return VK_BLEND_FACTOR_SRC_ALPHA;
+    case WisBlendFactorInvSrcAlpha:
+        return VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+    case WisBlendFactorDestAlpha:
+        return VK_BLEND_FACTOR_DST_ALPHA;
+    case WisBlendFactorInvDestAlpha:
+        return VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA;
+    case WisBlendFactorDestColor:
+        return VK_BLEND_FACTOR_DST_COLOR;
+    case WisBlendFactorInvDestColor:
+        return VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR;
+    case WisBlendFactorSrcAlphaSat:
+        return VK_BLEND_FACTOR_SRC_ALPHA_SATURATE;
+    case WisBlendFactorConstantColor:
+        return VK_BLEND_FACTOR_CONSTANT_COLOR;
+    case WisBlendFactorInvBlendFactor:
+        return VK_BLEND_FACTOR_ONE_MINUS_CONSTANT_COLOR;
+    case WisBlendFactorSrc1Color:
+        return VK_BLEND_FACTOR_SRC1_COLOR;
+    case WisBlendFactorInvSrc1Color:
+        return VK_BLEND_FACTOR_ONE_MINUS_SRC1_COLOR;
+    case WisBlendFactorSrc1Alpha:
+        return VK_BLEND_FACTOR_SRC1_ALPHA;
+    case WisBlendFactorInvSrc1Alpha:
+        return VK_BLEND_FACTOR_ONE_MINUS_SRC1_ALPHA;
+    default:
+        return static_cast<VkBlendFactor>(0);
+    }
+}
+
+constexpr inline VkBlendOp convert_vk(WisBlendOp value) noexcept
+{
+    switch (value) {
+    case WisBlendOpAdd:
+        return VK_BLEND_OP_ADD;
+    case WisBlendOpSubtract:
+        return VK_BLEND_OP_SUBTRACT;
+    case WisBlendOpRevSubtract:
+        return VK_BLEND_OP_REVERSE_SUBTRACT;
+    case WisBlendOpMin:
+        return VK_BLEND_OP_MIN;
+    case WisBlendOpMax:
+        return VK_BLEND_OP_MAX;
+    default:
+        return static_cast<VkBlendOp>(0);
+    }
+}
+
+constexpr inline VkLogicOp convert_vk(WisLogicOp value) noexcept
+{
+    switch (value) {
+    case WisLogicOpClear:
+        return VK_LOGIC_OP_CLEAR;
+    case WisLogicOpSet:
+        return VK_LOGIC_OP_SET;
+    case WisLogicOpCopy:
+        return VK_LOGIC_OP_COPY;
+    case WisLogicOpCopyInverted:
+        return VK_LOGIC_OP_COPY_INVERTED;
+    case WisLogicOpNoop:
+        return VK_LOGIC_OP_NO_OP;
+    case WisLogicOpInvert:
+        return VK_LOGIC_OP_INVERT;
+    case WisLogicOpAnd:
+        return VK_LOGIC_OP_AND;
+    case WisLogicOpNand:
+        return VK_LOGIC_OP_NAND;
+    case WisLogicOpOr:
+        return VK_LOGIC_OP_OR;
+    case WisLogicOpNor:
+        return VK_LOGIC_OP_NOR;
+    case WisLogicOpXor:
+        return VK_LOGIC_OP_XOR;
+    case WisLogicOpEquiv:
+        return VK_LOGIC_OP_EQUIVALENT;
+    case WisLogicOpAndReverse:
+        return VK_LOGIC_OP_AND_REVERSE;
+    case WisLogicOpAndInverted:
+        return VK_LOGIC_OP_AND_INVERTED;
+    case WisLogicOpOrReverse:
+        return VK_LOGIC_OP_OR_REVERSE;
+    case WisLogicOpOrInverted:
+        return VK_LOGIC_OP_OR_INVERTED;
+    default:
+        return static_cast<VkLogicOp>(0);
     }
 }
 

@@ -95,6 +95,26 @@ public:
             });
         }
 
+        // Line rasterization
+        if (collector.IsExtensionPresent(VK_EXT_LINE_RASTERIZATION_EXTENSION_NAME)) {
+            features.line_rasterization = true;
+            collector.EnableExtension({
+                    .name                = VK_EXT_LINE_RASTERIZATION_EXTENSION_NAME,
+                    .feature_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_LINE_RASTERIZATION_FEATURES_EXT,
+                    .feature_struct_size = sizeof(VkPhysicalDeviceLineRasterizationFeaturesEXT),
+            });
+        }
+
+        // Conservative rasterization
+        if (collector.IsExtensionPresent(VK_EXT_CONSERVATIVE_RASTERIZATION_EXTENSION_NAME)) {
+            features.conservative_rasterization = true;
+            collector.EnableExtension({
+                    .name                = VK_EXT_CONSERVATIVE_RASTERIZATION_EXTENSION_NAME,
+                    .property_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CONSERVATIVE_RASTERIZATION_PROPERTIES_EXT,
+                    .property_struct_size = sizeof(VkPhysicalDeviceConservativeRasterizationPropertiesEXT),
+            });
+        }
+
         return wis::detail::vk_success;
     }
     ::WisResult Init([[maybe_unused]] const impl::VKDeviceImpl& device_impl,
@@ -119,6 +139,12 @@ public:
             features.max_descriptor_heap_size                 = descriptor_heap_properties.maxResourceHeapSize;
             features.max_sampler_heap_size                    = descriptor_heap_properties.maxSamplerHeapSize;
         }
+
+        // Get Device properties
+        auto& device_properties = *collector.GetEnabledPropertyStruct<VkPhysicalDeviceProperties2>(
+                VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2);
+        features.max_vertex_attributes = static_cast<uint8_t>(device_properties.properties.limits.maxVertexInputAttributes);
+        features.max_vertex_bindings   = static_cast<uint8_t>(device_properties.properties.limits.maxVertexInputBindings);
 
         // Nothing to initialize for now
         return wis::detail::vk_success;

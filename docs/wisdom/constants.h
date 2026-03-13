@@ -15,6 +15,9 @@
  * #define WIS_ROOT_SIGNATURE_DWORDS ((uint32_t)64)
  * #define WIS_TRANSIENT_MAX_BARRIER_COUNT ((uint32_t)32)
  * #define WIS_MAX_PLANE_COUNT ((uint32_t)3)
+ * #define WIS_MIN_SUPPORTED_INPUT_ATTRIBUTES ((uint32_t)16)
+ * #define WIS_MIN_SUPPORTED_INPUT_BINDINGS ((uint32_t)16)
+ * #define WIS_MAX_RENDER_TARGETS ((uint32_t)8)
  * #define WIS_WHOLE_SIZE ((uint64_t)0xffffffffffffffff)
  * ```
  * 
@@ -27,6 +30,9 @@
  * static constexpr std::uint32_t RootSignatureDwords = 64;
  * static constexpr std::uint32_t TransientMaxBarrierCount = 32;
  * static constexpr std::uint32_t MaxPlaneCount = 3;
+ * static constexpr std::uint32_t MinSupportedInputAttributes = 16;
+ * static constexpr std::uint32_t MinSupportedInputBindings = 16;
+ * static constexpr std::uint32_t MaxRenderTargets = 8;
  * static constexpr std::uint64_t WholeSize = 0xffffffffffffffff;
  * }
  * ```

@@ -2,6 +2,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define FRAMES_IN_FLIGHT 2
+#define TEST_FRAME_COUNT 120
+#define PARTICLE_COUNT   256
+
+typedef struct FrameContext {
+    WisCommandAllocator command_allocator;
+    WisCommandList      command_list;
+    uint64_t            fence_value;
+} FrameContext;
+
 void LogCallback(WisSeverity severity, const char* message, uint64_t device, void* user_data)
 {
     const char* severity_str = "";
@@ -96,6 +106,12 @@ WisPipelineCache CreatePipelineCache(const WisDevice* device, const char* filena
     WisResult result = wisDeviceCreatePipelineCache(device, cache_data, data_size, &pipeline_cache);
     printf("CreatePipelineCache result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
 
+    if (result.status != WisStatusOk) {
+        printf("Failed to create pipeline cache from file. Creating an empty pipeline cache instead.\n");
+        result = wisDeviceCreatePipelineCache(device, NULL, 0, &pipeline_cache);
+        printf("CreatePipelineCache (empty) result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+    }
+
     free(cache_data);
     fclose(file);
     return pipeline_cache;
@@ -133,10 +149,11 @@ typedef struct BasicRenderer {
     WisDevice device;
 
     // Command submission
-    WisCommandQueue     gfx_queue;
-    WisCommandAllocator gfx_command_allocator;
-    WisCommandList      gfx_command_list;
-    WisFence            fence;
+    WisCommandQueue gfx_queue;
+    WisFence        fence;
+    FrameContext    frames[FRAMES_IN_FLIGHT];
+    uint32_t        frame_index;
+    uint64_t        next_fence_value;
 
     // Resources
     WisResourceAllocator allocator;
@@ -145,15 +162,15 @@ typedef struct BasicRenderer {
 } BasicRenderer;
 
 typedef struct ResourceContainer {
-    WisBuffer  buffer;
-    WisBuffer  rwbuffer;
-    WisTexture texture;
+    WisBuffer particle_buffer;
+    WisBuffer frame_constants;
 } ResourceContainer;
 
 typedef struct BasicRenderTask {
     WisRootSignature root_signature;
     WisRootSignature compute_signature;
     WisPipeline      compute_pipeline;
+    WisPipeline      graphics_pipeline;
 } BasicRenderTask;
 
 //------------------------------------------------------------------------------
@@ -211,17 +228,26 @@ WisDevice CreateDevice()
 //------------------------------------------------------------------------------
 void InitRenderer(BasicRenderer* renderer)
 {
-    renderer->device = CreateDevice();
+    renderer->device           = CreateDevice();
+    renderer->frame_index      = 0;
+    renderer->next_fence_value = 1;
+
     WisResult result = wisDeviceCreateCommandQueue(&renderer->device, WisCommandQueueTypeGraphics, &renderer->gfx_queue);
     printf("CreateCommandQueue result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
     result = wisDeviceGetResourceAllocator(&renderer->device, &renderer->allocator);
     printf("GetResourceAllocator result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
     result = wisDeviceCreateFence(&renderer->device, 0, &renderer->fence);
     printf("CreateFence result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
-    result = wisDeviceCreateCommandAllocator(&renderer->device, WisCommandQueueTypeGraphics, &renderer->gfx_command_allocator);
-    printf("CreateCommandAllocator result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
-    result = wisCommandAllocatorCreateCommandList(&renderer->gfx_command_allocator, &renderer->gfx_command_list);
-    printf("CreateCommandList result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+
+    for (uint32_t i = 0; i < FRAMES_IN_FLIGHT; ++i) {
+        result = wisDeviceCreateCommandAllocator(&renderer->device, WisCommandQueueTypeGraphics, &renderer->frames[i].command_allocator);
+        printf("CreateCommandAllocator[%u] result: %d, platform_code: %d, error: %s\n", i, result.status, result.platform_code, result.error ? result.error : "None");
+
+        result = wisCommandAllocatorCreateCommandList(&renderer->frames[i].command_allocator, &renderer->frames[i].command_list);
+        printf("CreateCommandList[%u] result: %d, platform_code: %d, error: %s\n", i, result.status, result.platform_code, result.error ? result.error : "None");
+
+        renderer->frames[i].fence_value = 0;
+    }
 
     WisDescriptorHeapDesc descriptor_heap_desc = {
         .type             = WisDescriptorHeapTypeDescriptor,
@@ -242,20 +268,38 @@ void InitRenderer(BasicRenderer* renderer)
 //------------------------------------------------------------------------------
 void DestoyRenderer(BasicRenderer* renderer)
 {
+    if (renderer->next_fence_value > 0) {
+        WisResult result = wisCommandQueueSignalFence(&renderer->gfx_queue, wisGetView(&renderer->fence), renderer->next_fence_value);
+        printf("Flush SignalFence result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+
+        result = wisFenceWait(&renderer->fence, renderer->next_fence_value, UINT64_MAX);
+        printf("Flush FenceWait result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+    }
+
     wisDestroyDescriptorHeap(&renderer->descriptor_heap);
     wisDestroyDescriptorHeap(&renderer->sampler_heap);
-    wisDestroyCommandList(&renderer->gfx_command_list);
-    wisDestroyCommandAllocator(&renderer->gfx_command_allocator);
+
+    for (uint32_t i = 0; i < FRAMES_IN_FLIGHT; ++i) {
+        wisDestroyCommandList(&renderer->frames[i].command_list);
+        wisDestroyCommandAllocator(&renderer->frames[i].command_allocator);
+    }
+
     wisDestroyFence(&renderer->fence);
     wisDestroyCommandQueue(&renderer->gfx_queue);
-    wisDestroyDevice(&renderer->device);
     wisDestroyResourceAllocator(&renderer->allocator);
+    wisDestroyDevice(&renderer->device);
 }
 
 //------------------------------------------------------------------------------
 void InitRenderTask(BasicRenderTask* task, BasicRenderer* renderer)
 {
     // Compute root signature
+    WisPushConstant compute_push_constant = {
+        .visibility    = WisShaderVisibilityAll,
+        .bind_register = 0,
+        .bind_space    = 0,
+        .size_bytes    = 16,
+    };
     WisPushDescriptor compute_push_descriptor = {
         .visibility    = WisShaderVisibilityAll,
         .type          = WisDescriptorTypeRWBuffer,
@@ -263,6 +307,8 @@ void InitRenderTask(BasicRenderTask* task, BasicRenderer* renderer)
         .bind_space    = 0,
     };
     WisRootSignatureDesc compute_root_signature_desc = {
+        .push_constants        = &compute_push_constant,
+        .push_constant_count   = 1,
         .push_descriptors      = &compute_push_descriptor,
         .push_descriptor_count = 1,
     };
@@ -278,52 +324,15 @@ void InitRenderTask(BasicRenderTask* task, BasicRenderer* renderer)
     };
     WisPushDescriptor push_descriptor = {
         .visibility    = WisShaderVisibilityAll,
-        .type          = WisDescriptorTypeConstantBuffer,
-        .bind_register = 1,
+        .type          = WisDescriptorTypeBuffer,
+        .bind_register = 0,
         .bind_space    = 0,
     };
-    WisDescriptorTableEntry descriptor_table_entries[] = {
-        {
-         .type              = WisDescriptorTypeConstantBuffer,
-         .bind_register     = 2,
-         .bind_space        = 0,
-         .count             = 1,
-         .descriptor_offset = 0,
-         },
-        {
-         .type              = WisDescriptorTypeTexture,
-         .bind_register     = 3,
-         .bind_space        = 0,
-         .count             = 1,
-         .descriptor_offset = WIS_DESCRIPTOR_OFFSET_APPEND,
-         }
-    };
-    WisDescriptorTableEntry descriptor_table_entry2 = {
-        .type              = WisDescriptorTypeSampler,
-        .bind_register     = 0,
-        .bind_space        = 0,
-        .count             = 1,
-        .descriptor_offset = 0,
-    };
-    WisDescriptorTable descriptor_tables[] = {
-        {
-         .visibility  = WisShaderVisibilityAll,
-         .entries     = descriptor_table_entries,
-         .entry_count = 2,
-         },
-        {
-         .visibility  = WisShaderVisibilityPixel,
-         .entries     = &descriptor_table_entry2,
-         .entry_count = 1,
-         }
-    };
     WisRootSignatureDesc root_signature_desc = {
-        .push_constants         = &push_constant,
-        .push_constant_count    = 1,
-        .push_descriptors       = &push_descriptor,
-        .push_descriptor_count  = 1,
-        .descriptor_tables      = descriptor_tables,
-        .descriptor_table_count = 2,
+        .push_constants        = &push_constant,
+        .push_constant_count   = 1,
+        .push_descriptors      = &push_descriptor,
+        .push_descriptor_count = 1,
     };
     result = wisDeviceCreateRootSignature(&renderer->device, &root_signature_desc, &task->root_signature);
     printf("CreateRootSignature for RenderTask result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
@@ -338,8 +347,52 @@ void InitRenderTask(BasicRenderTask* task, BasicRenderer* renderer)
         .root_signature = wisGetView(&task->compute_signature),
         .compute_shader = wisGetView(&compute_shader),
         .cache          = wisGetView(&pipeline_cache),
+        .flags          = WisPipelineFlagsNone,
     };
     result = wisDeviceCreateComputePipeline(&renderer->device, &compute_pipeline_desc, &task->compute_pipeline);
+    printf("CreateComputePipeline result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+
+    WisRenderAttachmentsDesc attachments = { 0 };
+    attachments.attachment_formats[0]    = WisDataFormatRGBA8Unorm;
+    attachments.attachments_count        = 1;
+    attachments.depth_attachment         = WisDataFormatD24UnormS8Uint;
+
+    WisRasterizerDesc rasterizer = {
+        .fill_mode         = WisFillModeSolid,
+        .cull_mode         = WisCullModeBack,
+        .front_face        = WisWindingOrderClockwise,
+        .depth_clip_enable = true,
+    };
+    WisDepthStencilDesc depth_stencil = {
+        .depth_enable       = true,
+        .depth_write_enable = true,
+        .depth_comp         = WisCompareOpLessEqual,
+        .stencil_enable     = false,
+    };
+    WisBlendAttachmentDesc blend_attachment = {
+        .blend_enable     = true,
+        .src_color_blend  = WisBlendFactorSrcAlpha,
+        .dst_color_blend  = WisBlendFactorInvSrcAlpha,
+        .color_blend_op   = WisBlendOpAdd,
+        .src_alpha_blend  = WisBlendFactorOne,
+        .dst_alpha_blend  = WisBlendFactorZero,
+        .alpha_blend_op   = WisBlendOpAdd,
+        .color_write_mask = WisColorComponentsAll,
+    };
+
+    WisGraphicsPipelineDesc graphics_pipeline_desc = {
+        .root_signature     = wisGetView(&task->root_signature),
+        .vertex_shader      = wisGetView(&vertex_shader),
+        .pixel_shader       = wisGetView(&pixel_shader),
+        .render_attachments = attachments,
+        .topology_type      = WisTopologyTypeTriangle,
+        .rasterizer_desc    = &rasterizer,
+        .depth_stencil_desc = &depth_stencil,
+        .cache              = wisGetView(&pipeline_cache),
+        .flags              = WisPipelineFlagsNone,
+    };
+    result = wisDeviceCreateGraphicsPipeline(&renderer->device, &graphics_pipeline_desc, &task->graphics_pipeline);
+    printf("CreateGraphicsPipeline result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
 
     SavePipelineCache(&pipeline_cache, "pipeline_cache.bin");
 
@@ -355,49 +408,35 @@ void DestroyRenderTask(BasicRenderTask* task)
     wisDestroyRootSignature(&task->root_signature);
     wisDestroyRootSignature(&task->compute_signature);
     wisDestroyPipeline(&task->compute_pipeline);
+    wisDestroyPipeline(&task->graphics_pipeline);
 }
 
 //------------------------------------------------------------------------------
 void InitResourceContainer(ResourceContainer* container, BasicRenderer* renderer)
 {
-    WisBufferDesc rwbuffer_desc = {
-        .size_bytes  = 1024 * sizeof(float) * 4,
+    WisBufferDesc particle_buffer_desc = {
+        .size_bytes  = PARTICLE_COUNT * sizeof(float) * 8,
         .usage_flags = WisBufferUsageFlagsStorageBuffer,
         .memory_type = WisMemoryTypeDeviceLocal,
     };
-    WisResult result = wisResourceAllocatorCreateBuffer(&renderer->allocator, &rwbuffer_desc, &container->rwbuffer);
-    printf("Create RWBuffer result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+    WisResult result = wisResourceAllocatorCreateBuffer(&renderer->allocator, &particle_buffer_desc, &container->particle_buffer);
+    printf("Create ParticleBuffer result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
 
-    WisBufferDesc buffer_desc = {
-        .size_bytes   = 1024,
+    WisBufferDesc constants_desc = {
+        .size_bytes   = 256,
         .usage_flags  = WisBufferUsageFlagsCopyDst | WisBufferUsageFlagsConstantBuffer,
         .memory_type  = WisMemoryTypeUpload,
         .memory_flags = WisMemoryFlagsMapped,
     };
-    result = wisResourceAllocatorCreateBuffer(&renderer->allocator, &buffer_desc, &container->buffer);
-    printf("CreateBuffer result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
-    WisTextureDesc texture_desc = {
-        .width               = 256,
-        .height              = 256,
-        .depth_or_array_size = 1,
-        .mip_levels          = 1,
-        .format              = WisDataFormatRGBA8Unorm,
-        .sample_count        = WisSampleCountS1,
-        .layout              = WisTextureLayoutTexture2D,
-        .usage_flags         = WisTextureUsageFlagsCopyDst | WisTextureUsageFlagsShaderResource,
-        .memory_type         = WisMemoryTypeDeviceLocal,
-        .memory_flags        = WisMemoryFlagsNone,
-    };
-    result = wisResourceAllocatorCreateTexture(&renderer->allocator, &texture_desc, &container->texture);
-    printf("CreateTexture result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+    result = wisResourceAllocatorCreateBuffer(&renderer->allocator, &constants_desc, &container->frame_constants);
+    printf("CreateFrameConstants result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
 }
 
 //------------------------------------------------------------------------------
 void DestroyResourceContainer(ResourceContainer* container)
 {
-    wisDestroyBuffer(&container->rwbuffer);
-    wisDestroyBuffer(&container->buffer);
-    wisDestroyTexture(&container->texture);
+    wisDestroyBuffer(&container->particle_buffer);
+    wisDestroyBuffer(&container->frame_constants);
 }
 
 //------------------------------------------------------------------------------
@@ -439,104 +478,110 @@ void GetDeviceProperties(const WisDevice* device)
 //------------------------------------------------------------------------------
 void BindResources(const BasicRenderer* renderer, const ResourceContainer* resources)
 {
-    WisSamplerDesc sampler_desc = {
-        .min_filter          = WisFilterLinear,
-        .mag_filter          = WisFilterLinear,
-        .mip_filter          = WisFilterLinear,
-        .reduction_mode      = WisReductionModeStandard,
-        .is_anisotropic      = false,
-        .max_anisotropy      = 1,
-        .address_u           = WisAddressModeRepeat,
-        .address_v           = WisAddressModeRepeat,
-        .address_w           = WisAddressModeRepeat,
-        .min_lod             = 0.0f,
-        .max_lod             = 1000.0f,
-        .mip_lod_bias        = 0.0f,
-        .comparison_op       = WisCompareOperationNever,
-        .static_border_color = WisStaticBorderOpaqueBlack,
-        .flags               = WisSamplerFlagsNone,
-    };
-    WisConstantBufferBinding cb_binding = {
-        .buffer_address = wisBufferGetGPUAddress(&resources->buffer),
-        .size_bytes     = 1024,
-    };
-    WisTextureBinding texture_binding = {
-        .format = WisDataFormatRGBA8Unorm,
-        .layout = WisTextureLayoutTexture2D,
-        .flags  = WisTextureBindingFlagsNone,
-        .range  = {
-                   .base_mip_level    = 0,
-                   .mip_level_count   = 1,
-                   .base_array_layer  = 0,
-                   .array_layer_count = 1,
-                   .plane_slice       = 0,
-                   }
-    };
-    WisResult result = wisDescriptorHeapWriteConstantBuffer(&renderer->descriptor_heap, &cb_binding, 0);
-    result           = wisDescriptorHeapWriteSampler(&renderer->sampler_heap, &sampler_desc, 0);
-    printf("WriteConstantBuffer result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
-    result = wisDescriptorHeapWriteTexture(&renderer->descriptor_heap, wisGetView(&resources->texture), &texture_binding, 1);
-    printf("WriteTexture result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+    (void)renderer;
+    (void)resources;
+    // Placeholder for future descriptor table writes (textures/materials/samplers).
+    // Current particle skeleton uses push descriptors and push constants only.
 }
 
 //------------------------------------------------------------------------------
-void Render(const BasicRenderer* renderer, const ResourceContainer* resources, const BasicRenderTask* task)
+void Render(BasicRenderer* renderer, const ResourceContainer* resources, const BasicRenderTask* task)
 {
-    WisCommandListView command_list_view = wisGetView(&renderer->gfx_command_list);
+    FrameContext* frame = &renderer->frames[renderer->frame_index];
 
-    // Dummy command list
+    if (frame->fence_value > 0) {
+        uint64_t completed = wisFenceGetCompletedValue(&renderer->fence);
+        if (completed < frame->fence_value) {
+            WisResult result = wisFenceWait(&renderer->fence, frame->fence_value, UINT64_MAX);
+            printf("Frame[%u] FenceWait result: %d, platform_code: %d, error: %s\n", renderer->frame_index, result.status, result.platform_code, result.error ? result.error : "None");
+        }
+    }
 
-    uint32_t                push_data[4]            = { 1, 2, 3, 4 };
+    WisResult result = wisCommandAllocatorReset(&frame->command_allocator);
+    printf("Frame[%u] CommandAllocatorReset result: %d, platform_code: %d, error: %s\n", renderer->frame_index, result.status, result.platform_code, result.error ? result.error : "None");
+
+    WisCommandListView command_list_view = wisGetView(&frame->command_list);
+
+    // Record frame skeleton: compute updates particles, graphics draws them.
+    uint32_t frame_number = (uint32_t)(renderer->next_fence_value - 1);
+
+    uint32_t                compute_params[4]      = { PARTICLE_COUNT, frame_number, 16, 0 };
+    WisPushConstantDataDesc compute_constants_desc = {
+        .pipeline    = WisPipelineTypeCompute,
+        .root_index  = 0,
+        .data        = compute_params,
+        .data_size   = 16,
+        .push_offset = 0,
+    };
+    WisPushDescriptorDataDesc compute_push_descriptor_desc = {
+        .pipeline        = WisPipelineTypeCompute,
+        .root_index      = 1,
+        .descriptor_type = WisDescriptorTypeRWBuffer,
+        .buffer_address  = wisBufferGetGPUAddress(&resources->particle_buffer),
+    };
+
+    uint32_t                push_data[4]            = { frame_number, PARTICLE_COUNT, 3, 0 };
     WisPushConstantDataDesc push_constant_data_desc = {
-        .pipeline   = WisPipelineTypeGraphics,
-        .root_index = 0,
-        .data       = push_data,
-        .data_size  = 16,
+        .pipeline    = WisPipelineTypeGraphics,
+        .root_index  = 0,
+        .data        = push_data,
+        .data_size   = 16,
+        .push_offset = 0,
     };
     WisPushDescriptorDataDesc push_descriptor_data_desc = {
         .pipeline        = WisPipelineTypeGraphics,
         .root_index      = 1,
-        .descriptor_type = WisDescriptorTypeConstantBuffer,
-        .buffer_address  = wisBufferGetGPUAddress(&resources->buffer),
-    };
-    WisDescriptorTableDataDesc descriptor_table_data_desc = {
-        .pipeline    = WisPipelineTypeGraphics,
-        .root_index  = 2,
-        .heap_type   = WisDescriptorHeapTypeDescriptor,
-        .heap_offset = 0,
+        .descriptor_type = WisDescriptorTypeBuffer,
+        .buffer_address  = wisBufferGetGPUAddress(&resources->particle_buffer),
     };
 
-    WisTextureBarrier texture_barrier = {
-        .sync_before   = WisBarrierSyncNone,
-        .sync_after    = WisBarrierSyncPixelShading,
-        .access_before = WisResourceAccessNone,
-        .access_after  = WisResourceAccessShaderResource,
-        .state_before  = WisTextureStateUndefined,
-        .state_after   = WisTextureStateShaderResource,
-        .texture       = wisGetView(&resources->texture),
-        .flags         = WisBarrierFlagsWholeRange | WisBarrierFlagsDiscardContent,
+    WisBufferBarrier particle_barrier = {
+        .sync_before       = WisBarrierSyncCompute,
+        .sync_after        = WisBarrierSyncAllShading,
+        .access_before     = WisResourceAccessNone,
+        .access_after      = WisResourceAccessShaderResource,
+        .buffer            = wisGetView(&resources->particle_buffer),
+        .offset            = 0,
+        .size              = WIS_WHOLE_SIZE,
+        .queue_type_before = WisCommandQueueTypeGraphics,
+        .queue_type_after  = WisCommandQueueTypeGraphics,
     };
     WisBarrierGroup barrier_group = {
-        .texture_barriers      = &texture_barrier,
-        .texture_barrier_count = 1
+        .buffer_barriers      = &particle_barrier,
+        .buffer_barrier_count = 1
     };
 
-    wisCommandListBegin(&renderer->gfx_command_list);
-    wisCommandListInsertBarriers(&renderer->gfx_command_list, &barrier_group);
+    wisCommandListBegin(&frame->command_list);
 
-    wisCommandListSetRootSignature(&renderer->gfx_command_list, wisGetView(&task->root_signature), WisPipelineTypeGraphics);
-    wisCommandListSetPushConstants(&renderer->gfx_command_list, &push_constant_data_desc);
-    wisCommandListSetPushDescriptor(&renderer->gfx_command_list, &push_descriptor_data_desc);
-    wisCommandListSetDescriptorHeaps(&renderer->gfx_command_list, &renderer->descriptor_heap, &renderer->sampler_heap);
-    wisCommandListSetDescriptorTable(&renderer->gfx_command_list, &descriptor_table_data_desc);
-    wisCommandListEnd(&renderer->gfx_command_list);
+    wisCommandListSetRootSignature(&frame->command_list, wisGetView(&task->compute_signature), WisPipelineTypeCompute);
+    wisCommandListSetPipeline(&frame->command_list, wisGetView(&task->compute_pipeline), WisPipelineTypeCompute);
+    wisCommandListSetPushConstants(&frame->command_list, &compute_constants_desc);
+    wisCommandListSetPushDescriptor(&frame->command_list, &compute_push_descriptor_desc);
+    // TODO: Dispatch compute workgroups when command is available in C API.
 
-    WisResult result = wisCommandQueueSubmit(&renderer->gfx_queue, &command_list_view, 1);
+    wisCommandListInsertBarriers(&frame->command_list, &barrier_group);
 
-    // Enqueue fence signal on command queue
-    result = wisCommandQueueSignalFence(&renderer->gfx_queue, wisGetView(&renderer->fence), 1);
+    wisCommandListSetRootSignature(&frame->command_list, wisGetView(&task->root_signature), WisPipelineTypeGraphics);
+    wisCommandListSetPipeline(&frame->command_list, wisGetView(&task->graphics_pipeline), WisPipelineTypeGraphics);
+    wisCommandListSetPushConstants(&frame->command_list, &push_constant_data_desc);
+    wisCommandListSetPushDescriptor(&frame->command_list, &push_descriptor_data_desc);
 
-    result = wisFenceWait(&renderer->fence, 1, UINT64_MAX);
+    // TODO: Set viewport, scissor, and primitive topology commands once exposed.
+    // TODO: Begin render pass with swapchain color target + depth attachment.
+    // TODO: Issue draw call for PARTICLE_COUNT * 3 vertices (triangle per particle).
+    // TODO: End render pass and present the swapchain image.
+
+    wisCommandListEnd(&frame->command_list);
+
+    result = wisCommandQueueSubmit(&renderer->gfx_queue, &command_list_view, 1);
+    printf("Frame[%u] QueueSubmit result: %d, platform_code: %d, error: %s\n", renderer->frame_index, result.status, result.platform_code, result.error ? result.error : "None");
+
+    frame->fence_value = renderer->next_fence_value;
+    result             = wisCommandQueueSignalFence(&renderer->gfx_queue, wisGetView(&renderer->fence), renderer->next_fence_value);
+    printf("Frame[%u] SignalFence result: %d, platform_code: %d, error: %s\n", renderer->frame_index, result.status, result.platform_code, result.error ? result.error : "None");
+    renderer->next_fence_value++;
+
+    renderer->frame_index = (renderer->frame_index + 1) % FRAMES_IN_FLIGHT;
 }
 
 // Entry point for testing
@@ -558,12 +603,14 @@ int main()
     BindResources(&renderer, &resources);
 
     // Execute render task
-    Render(&renderer, &resources, &render_task);
+    for (uint32_t i = 0; i < TEST_FRAME_COUNT; ++i) {
+        Render(&renderer, &resources, &render_task);
+    }
 
     // Cleanup
-    DestoyRenderer(&renderer);
     DestroyRenderTask(&render_task);
     DestroyResourceContainer(&resources);
+    DestoyRenderer(&renderer);
 
     return 0;
 }
