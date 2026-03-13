@@ -126,12 +126,15 @@ struct VKDeviceFeatures {
     uint32_t global_priority                   : 1 = false;
     uint32_t host_image_copy                   : 1 = false;
     uint32_t maintenance9                      : 1 = false; // nop QFOT barriers and empty device
+    uint32_t line_rasterization                : 1 = false;
+    uint32_t conservative_rasterization        : 1 = false;
 
     // Properties
     uint16_t resource_desc_size                       = 0;
     uint16_t sampler_desc_size                        = 0;
     uint16_t max_root_space                           = 0;
-    uint16_t reserved                                 = 0;
+    uint8_t  max_vertex_attributes                    = 0; // rarely greater than 32, so 8 bits is sufficient
+    uint8_t  max_vertex_bindings                      = 0;
     uint32_t descriptor_heap_reserved_size            = 0;
     uint32_t sampler_heap_reserved_size               = 0;
     uint32_t sampler_heap_reserved_size_with_embedded = 0;

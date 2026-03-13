@@ -342,7 +342,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDescriptorHeapWriteSampler(const WisVKDes
     VkSamplerReductionModeCreateInfo reduction_mode_info{
         .sType         = VK_STRUCTURE_TYPE_SAMPLER_REDUCTION_MODE_CREATE_INFO,
         .pNext         = nullptr, // Custom border?
-        .reductionMode = sampler->comparison_op != WisCompareOperationNever 
+        .reductionMode = sampler->comparison_op != WisCompareOpNever 
         ? VK_SAMPLER_REDUCTION_MODE_WEIGHTED_AVERAGE 
         : wis::detail::convert_vk(sampler->reduction_mode)
     };
@@ -359,7 +359,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDescriptorHeapWriteSampler(const WisVKDes
         .mipLodBias              = sampler->mip_lod_bias,
         .anisotropyEnable        = sampler->is_anisotropic,
         .maxAnisotropy           = normalized_anisotropy,
-        .compareEnable           = sampler->comparison_op != WisCompareOperationNever,
+        .compareEnable           = sampler->comparison_op != WisCompareOpNever,
         .compareOp               = wis::detail::convert_vk(sampler->comparison_op),
         .minLod                  = sampler->min_lod,
         .maxLod                  = sampler->max_lod,

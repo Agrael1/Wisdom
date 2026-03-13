@@ -731,17 +731,17 @@ typedef enum WisDescriptorType {
  * @brief Provided by Wisdom 0.7.0. Comparison function for depth and stencil operations.
  *
  * */
-typedef enum WisCompareOperation {
-    WisCompareOperationNone         = 0, ///< No comparison.
-    WisCompareOperationNever        = 1, ///< Always fail the comparison.
-    WisCompareOperationLess         = 2, ///< Pass the comparison if the source value is less than the destination value.
-    WisCompareOperationEqual        = 3, ///< Pass the comparison if the source value is equal to the destination value.
-    WisCompareOperationLessEqual    = 4, ///< Pass the comparison if the source value is less than or equal to the destination value.
-    WisCompareOperationGreater      = 5, ///< Pass the comparison if the source value is greater than the destination value.
-    WisCompareOperationNotEqual     = 6, ///< Pass the comparison if the source value is not equal to the destination value.
-    WisCompareOperationGreaterEqual = 7, ///< Pass the comparison if the source value is greater than or equal to the destination value.
-    WisCompareOperationAlways       = 8, ///< Always pass the comparison.
-} WisCompareOperation;
+typedef enum WisCompareOp {
+    WisCompareOpNone         = 0, ///< No comparison.
+    WisCompareOpNever        = 1, ///< Always fail the comparison.
+    WisCompareOpLess         = 2, ///< Pass the comparison if the source value is less than the destination value.
+    WisCompareOpEqual        = 3, ///< Pass the comparison if the source value is equal to the destination value.
+    WisCompareOpLessEqual    = 4, ///< Pass the comparison if the source value is less than or equal to the destination value.
+    WisCompareOpGreater      = 5, ///< Pass the comparison if the source value is greater than the destination value.
+    WisCompareOpNotEqual     = 6, ///< Pass the comparison if the source value is not equal to the destination value.
+    WisCompareOpGreaterEqual = 7, ///< Pass the comparison if the source value is greater than or equal to the destination value.
+    WisCompareOpAlways       = 8, ///< Always pass the comparison.
+} WisCompareOp;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Address mode for texture sampling.
@@ -826,6 +826,15 @@ typedef enum WisMutiWaitType {
 } WisMutiWaitType;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Input classification for vertex buffer data.
+ *
+ * */
+typedef enum WisInputClass {
+    WisInputClassPerVertex   = 0, ///< Vertex buffer data is vertex data.
+    WisInputClassPerInstance = 1, ///< Vertex buffer data is per instance data.
+} WisInputClass;
+
+/**
  * @brief Provided by Wisdom 0.7.0. Query type for GPU queries.
  *
  * */
@@ -833,6 +842,7 @@ typedef enum WisQueryPropertyType {
     WisQueryPropertyTypeDeviceCommandQueueProperties   = 0, ///< Properties of the device command queues. Expects a  struct.
     WisQueryPropertyTypeDeviceDescriptorHeapProperties = 1, ///< Properties of the device descriptor heap. Expects a WisDeviceDescriptorHeapProperties struct.
     WisQueryPropertyTypeDeviceMemoryProperties         = 2, ///< Properties of the device descriptor heap. Expects a WisDeviceMemoryProperties struct.
+    WisQueryPropertyTypeDeviceBindingProperties        = 3, ///< Properties of the device resource binding. Expects a WisDeviceBindingProperties struct.
 } WisQueryPropertyType;
 
 /**
@@ -897,6 +907,139 @@ typedef enum WisShaderIntermediate {
     WisShaderIntermediateDXIL  = 0, ///< DirectX Intermediate Language.
     WisShaderIntermediateSPIRV = 1, ///< Standard Portable Intermediate Representation for Vulkan.
 } WisShaderIntermediate;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Stencil operation for depth and stencil operations.
+ *
+ * */
+typedef enum WisStencilOp {
+    WisStencilOpKeep     = 1, ///< Keep the current value.
+    WisStencilOpZero     = 2, ///< Set the value to zero.
+    WisStencilOpReplace  = 3, ///< Replace the value with the reference value.
+    WisStencilOpIncClamp = 4, ///< Increment the value and clamp to the maximum value.
+    WisStencilOpDecClamp = 5, ///< Decrement the value and clamp to the minimum value.
+    WisStencilOpInvert   = 6, ///< Invert the value.
+    WisStencilOpIncWrap  = 7, ///< Increment the value and wrap to zero when the maximum value is exceeded.
+    WisStencilOpDecWrap  = 8, ///< Decrement the value and wrap to the maximum value when the minimum value is exceeded.
+} WisStencilOp;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Primitive topology type for WisGraphicsPipelineDesc.
+ *
+ * */
+typedef enum WisTopologyType {
+    WisTopologyTypePoint    = 1, ///< Render points for each vertex.
+    WisTopologyTypeLine     = 2, ///< Render lines between vertices.
+    WisTopologyTypeTriangle = 3, ///< Render triangles between vertices.
+    WisTopologyTypePatch    = 4, ///< Vertices are interpret as patch list. Used in tesselation process.
+} WisTopologyType;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Fill mode for rasterizer.
+ *
+ * */
+typedef enum WisFillMode {
+    WisFillModeLines = 2, ///< Draw lines between vertices. Wireframe rendering.
+    WisFillModeSolid = 3, ///< Fill the area between vertices forming polygons.
+} WisFillMode;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Cull mode for rasterizer.
+ * Triangle culling depends on wis::WindingOrder option.
+ *
+ * */
+typedef enum WisCullMode {
+    WisCullModeNone  = 1, ///< No culling.
+    WisCullModeFront = 2, ///< Cull front-facing triangles.
+    WisCullModeBack  = 3, ///< Cull back-facing triangles.
+} WisCullMode;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Winding order for front-facing triangles.
+ *
+ * */
+typedef enum WisWindingOrder {
+    WisWindingOrderClockwise        = 0, ///< Front-facing triangles have clockwise winding order.
+    WisWindingOrderCounterClockwise = 1, ///< Front-facing triangles have counter-clockwise winding order.
+} WisWindingOrder;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Conservative rasterization mode.
+ *
+ * */
+typedef enum WisConservativeRasterization {
+    WisConservativeRasterizationOff          = 0, ///< Conservative rasterization is disabled.
+    WisConservativeRasterizationOverestimate = 1, ///< Conservative rasterization is enabled.
+} WisConservativeRasterization;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Line rasterization mode.
+ *
+ * */
+typedef enum WisLineRasterization {
+    WisLineRasterizationDefault          = 0, ///< Line rasterization is disabled. Lines are not rendered.
+    WisLineRasterizationRectangular      = 1, ///< Lines are rasterized as rectangles.
+    WisLineRasterizationAlphaAntialiased = 2, ///< Lines are rasterized as rectangles with anti-aliasing.
+} WisLineRasterization;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Blend factor for color blending operations.
+ *
+ * */
+typedef enum WisBlendFactor {
+    WisBlendFactorZero           = 1, ///< Use zero for blending.
+    WisBlendFactorOne            = 2, ///< Use one for blending.
+    WisBlendFactorSrcColor       = 3, ///< Use the source color for blending.
+    WisBlendFactorInvSrcColor    = 4, ///< Use the inverse source color for blending.
+    WisBlendFactorSrcAlpha       = 5, ///< Use the source alpha for blending.
+    WisBlendFactorInvSrcAlpha    = 6, ///< Use the inverse source alpha for blending.
+    WisBlendFactorDestAlpha      = 7, ///< Use the destination alpha for blending.
+    WisBlendFactorInvDestAlpha   = 8, ///< Use the inverse destination alpha for blending.
+    WisBlendFactorDestColor      = 9, ///< Use the destination color for blending.
+    WisBlendFactorInvDestColor   = 10, ///< Use the inverse destination color for blending.
+    WisBlendFactorSrcAlphaSat    = 11, ///< Use the source alpha saturated for blending.
+    WisBlendFactorConstantColor  = 14, ///< Use a constant blend factor for blending.
+    WisBlendFactorInvBlendFactor = 15, ///< Use the inverse constant blend factor for blending.
+    WisBlendFactorSrc1Color      = 16, ///< Use the source color for blending. Dual source blending mode.
+    WisBlendFactorInvSrc1Color   = 17, ///< Use the inverse source color for blending. Dual source blending mode.
+    WisBlendFactorSrc1Alpha      = 18, ///< Use the source alpha for blending. Dual source blending mode.
+    WisBlendFactorInvSrc1Alpha   = 19, ///< Use the inverse source alpha for blending. Dual source blending mode.
+} WisBlendFactor;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Blend operation for color blending operations.
+ *
+ * */
+typedef enum WisBlendOp {
+    WisBlendOpAdd         = 1, ///< Add the source and destination colors.
+    WisBlendOpSubtract    = 2, ///< Subtract the source color from the destination color.
+    WisBlendOpRevSubtract = 3, ///< Subtract the destination color from the source color.
+    WisBlendOpMin         = 4, ///< Use the minimum of the source and destination colors.
+    WisBlendOpMax         = 5, ///< Use the maximum of the source and destination colors.
+} WisBlendOp;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Logic operation for color blending operations.
+ *
+ * */
+typedef enum WisLogicOp {
+    WisLogicOpClear        = 0, ///< Clear the destination value.
+    WisLogicOpSet          = 1, ///< Set the destination value.
+    WisLogicOpCopy         = 2, ///< Copy the source value to the destination.
+    WisLogicOpCopyInverted = 3, ///< Copy the inverted source value to the destination.
+    WisLogicOpNoop         = 4, ///< Do not modify the destination value.
+    WisLogicOpInvert       = 5, ///< Invert the destination value.
+    WisLogicOpAnd          = 6, ///< Perform a bitwise AND operation on the source and destination values.
+    WisLogicOpNand         = 7, ///< Perform a bitwise NAND operation on the source and destination values.
+    WisLogicOpOr           = 8, ///< Perform a bitwise OR operation on the source and destination values.
+    WisLogicOpNor          = 9, ///< Perform a bitwise NOR operation on the source and destination values.
+    WisLogicOpXor          = 10, ///< Perform a bitwise XOR operation on the source and destination values.
+    WisLogicOpEquiv        = 11, ///< Perform a bitwise equivalent operation on the source and destination values.
+    WisLogicOpAndReverse   = 12, ///< Perform a bitwise AND operation on the source and inverted destination values.
+    WisLogicOpAndInverted  = 13, ///< Perform a bitwise AND operation on the inverted source and destination values.
+    WisLogicOpOrReverse    = 14, ///< Perform a bitwise OR operation on the source and inverted destination values.
+    WisLogicOpOrInverted   = 15, ///< Perform a bitwise OR operation on the inverted source and destination values.
+} WisLogicOp;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Flags that describe adapter.
@@ -1084,9 +1227,25 @@ typedef enum WisBarrierFlags {
  *
  * */
 typedef enum WisPipelineFlags {
-    WisPipelineFlagsNone            = 0, ///< No flags set. Pipeline is regular.
-    WisPipelineFlagsFailOnCacheMiss = (1u << 0), ///< Fail pipeline creation if the pipeline cache is missing or incompatible. If not set, the implementation @wis_may choose to create the pipeline without using the cache, which @wis_may result in longer creation time.
+    WisPipelineFlagsNone                   = 0, ///< No flags set. Pipeline is regular.
+    WisPipelineFlagsFailOnCacheMiss        = (1u << 0), ///< Fail pipeline creation if the pipeline cache is missing or incompatible. If not set, the implementation @wis_may choose to create the pipeline without using the cache, which @wis_may result in longer creation time.
+    WisPipelineFlagsEnablePrimitiveRestart = (1u << 1), ///< Enable primitive restart for graphics pipelines. If not set, primitive restart is disabled and the implementation @wis_may choose to ignore restart indices in draw calls.
+    WisPipelineFlagsDynamicDepthBias       = (1u << 2), ///< Enable dynamic depth bias for graphics pipelines. If not set, depth bias is static and @wis_must be specified at pipeline creation time.
 } WisPipelineFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Color component flags.
+ * Used for color blending operations.
+ *
+ * */
+typedef enum WisColorComponents {
+    WisColorComponentsNone = 0, ///< No flags set. Color blending is not used.
+    WisColorComponentsR    = (1u << 0), ///< Use red component for blending.
+    WisColorComponentsG    = (1u << 1), ///< Use green component for blending.
+    WisColorComponentsB    = (1u << 2), ///< Use blue component for blending.
+    WisColorComponentsA    = (1u << 3), ///< Use alpha component for blending.
+    WisColorComponentsAll  = 15, ///< Use all color components for blending.
+} WisColorComponents;
 
 //==============================================================
 // Delegates
@@ -1155,21 +1314,21 @@ typedef struct WisCommandQueueDesc {
  *
  * */
 typedef struct WisSamplerDesc {
-    WisFilter           min_filter; ///< Minification filter.
-    WisFilter           mag_filter; ///< Magnification filter.
-    WisFilter           mip_filter; ///< Mip level filter.
-    WisReductionMode    reduction_mode; ///< Reduction mode for min/mag/mip filters.
-    bool                is_anisotropic; ///< Anisotropic filtering enable.
-    uint32_t            max_anisotropy; ///< Max anisotropy level. Min is 1, Max is 16.
-    WisAddressMode      address_u; ///< Address mode for U coordinate.
-    WisAddressMode      address_v; ///< Address mode for V coordinate.
-    WisAddressMode      address_w; ///< Address mode for W coordinate.
-    float               min_lod; ///< Min LOD value.
-    float               max_lod; ///< Max LOD value.
-    float               mip_lod_bias; ///< Mip LOD bias value.
-    WisCompareOperation comparison_op; ///< Comparison operation for comparison samplers.
-    WisStaticBorder     static_border_color; ///< Static border color. Used if any address mode is set to wis::AddressMode.
-    WisSamplerFlags     flags; ///< Sampler flags. Used to set additional sampler options.
+    WisFilter        min_filter; ///< Minification filter.
+    WisFilter        mag_filter; ///< Magnification filter.
+    WisFilter        mip_filter; ///< Mip level filter.
+    WisReductionMode reduction_mode; ///< Reduction mode for min/mag/mip filters.
+    bool             is_anisotropic; ///< Anisotropic filtering enable.
+    uint32_t         max_anisotropy; ///< Max anisotropy level. Min is 1, Max is 16.
+    WisAddressMode   address_u; ///< Address mode for U coordinate.
+    WisAddressMode   address_v; ///< Address mode for V coordinate.
+    WisAddressMode   address_w; ///< Address mode for W coordinate.
+    float            min_lod; ///< Min LOD value.
+    float            max_lod; ///< Max LOD value.
+    float            mip_lod_bias; ///< Mip LOD bias value.
+    WisCompareOp     comparison_op; ///< Comparison operation for comparison samplers.
+    WisStaticBorder  static_border_color; ///< Static border color. Used if any address mode is set to wis::AddressMode.
+    WisSamplerFlags  flags; ///< Sampler flags. Used to set additional sampler options.
 } WisSamplerDesc;
 
 /**
@@ -1369,6 +1528,131 @@ typedef struct WisTextureBinding {
 } WisTextureBinding;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Stencil description for WisDepthStencilDesc.
+ *
+ * */
+typedef struct WisStencilDesc {
+    WisStencilOp fail_op; ///< Stencil operation if the stencil test fails. Default is `WisStencilOpKeep`.
+    WisStencilOp depth_fail_op; ///< Stencil operation if the stencil test passes and the depth test fails. Default is `WisStencilOpKeep`.
+    WisStencilOp pass_op; ///< Stencil operation if the stencil test passes. Default is `WisStencilOpKeep`.
+    WisCompareOp stencil_comp; ///< Stencil comparison function. Default is .
+    uint8_t      read_mask; ///< Stencil read mask. Default is 0xff.
+    uint8_t      write_mask; ///< Stencil write mask. Default is 0xff.
+} WisStencilDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Depth stencil description for WisGraphicsPipelineDesc.
+ *
+ * */
+typedef struct WisDepthStencilDesc {
+    bool           depth_enable; ///< Depth test enable. Default is false.
+    bool           depth_write_enable; ///< Depth write enable. Default is false.
+    WisCompareOp   depth_comp; ///< Depth comparison function. Default is .
+    bool           stencil_enable; ///< Stencil test enable. Default is false.
+    WisStencilDesc stencil_front; ///< Stencil description for front faces.
+    WisStencilDesc stencil_back; ///< Stencil description for back faces.
+    bool           depth_bound_test; ///< Depth bound test enable. Default is false.
+} WisDepthStencilDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Input slot description for WisInputLayout.
+ *
+ * */
+typedef struct WisInputBindingDesc {
+    uint32_t      slot; ///< Input slot number. Must be unique.
+    uint32_t      stride_bytes; ///< Stride in bytes. Size of one vertex in the slot.
+    WisInputClass input_class; ///< Input class. Defines how the data is read (Per vertex or Per instance).
+} WisInputBindingDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Input attribute description for WisInputLayout.
+ *
+ * */
+typedef struct WisInputAttributeDesc {
+    uint32_t      binding_index; ///< Index into an array of bindings that the attribute is tied to.
+    const char*   semantic_name; ///< Semantic name of the attribute in HLSL. Must be unique and null terminated.
+    uint32_t      semantic_index; ///< Semantic index of the attribute in HLSL. Must be unique.
+    uint32_t      location; ///< Location of the attribute in HLSL. Must be unique.
+    WisDataFormat format; ///< Data format of the attribute.
+    uint32_t      offset_bytes; ///< Offset in bytes from the beginning of the vertex.
+} WisInputAttributeDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Input layout description for WisGraphicsPipelineDesc.
+ *
+ * */
+typedef struct WisInputLayout {
+    const WisInputBindingDesc*   bindings; ///< Input slots array. Made to pick up data from several arrays of vertex data.
+    size_t                       binding_count; ///< Input slots count. Max number is 16.
+    const WisInputAttributeDesc* attributes; ///< Input attributes array. Describes how the vertex data is read by the HLSL shader.
+    size_t                       attribute_count; ///< Input attributes count.
+} WisInputLayout;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Rasterizer description for WisGraphicsPipelineDesc.
+ *
+ * */
+typedef struct WisRasterizerDesc {
+    WisFillMode                  fill_mode; ///< Fill mode. Solid or Wireframe. Default is `WisFillModeSolid`.
+    WisCullMode                  cull_mode; ///< Cull mode. None, Front, Back. Default is `WisCullModeBack`.
+    WisWindingOrder              front_face; ///< Front face winding order. Clockwise or CounterClockwise. Default is `WisWindingOrderClockwise`.
+    bool                         depth_bias_enable; ///< Depth bias enable. Default is false.
+    float                        depth_bias; ///< Depth bias. Default is 0.0f.
+    float                        depth_bias_clamp; ///< Depth bias clamp. Default is 0.0f.
+    float                        depth_bias_slope_factor; ///< Depth bias slope factor e.g. for shadows. Default is 0.0f.
+    bool                         depth_clip_enable; ///< Depth clip enable. Default is true.
+    WisLineRasterization         line_rasterization; ///< Line rasterization mode. Default is `WisLineRasterizationDefault`.
+    WisConservativeRasterization conservative_rasterization; ///< Conservative rasterization mode. Default is `WisConservativeRasterizationOff`.
+} WisRasterizerDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sample description of Multisampling for WisGraphicsPipelineDesc.
+ *
+ * */
+typedef struct WisSampleDesc {
+    WisSampleCount rate; ///< Sample rate. Default is `WisSampleCountS1`.
+    uint32_t       sample_mask; ///< Sample mask. Default is 0xffffffff.
+    bool           alpha_to_coverage_enable; ///< Alpha to coverage enable. Default is false.
+} WisSampleDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Render attachments description for WisGraphicsPipelineDesc.
+ *
+ * */
+typedef struct WisRenderAttachmentsDesc {
+    WisDataFormat attachment_formats[8]; ///< Attachment formats array. Describes the format of the render target.
+    uint32_t      attachments_count; ///< Attachment formats count. Max is 8.
+    WisDataFormat depth_attachment; ///< Depth attachment format. Describes the format of the depth buffer.
+    uint32_t      view_mask; ///< View mask for multiview rendering. Each bit represents a view that can be rendered to with the pipeline. Default is 0, meaning no multiview support.
+} WisRenderAttachmentsDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Blend attachment description for WisBlendStateDesc.
+ *
+ * */
+typedef struct WisBlendAttachmentDesc {
+    bool               blend_enable; ///< Blend enable. Default is false.
+    WisBlendFactor     src_color_blend; ///< Source color blend factor. Default is `WisBlendFactorOne`.
+    WisBlendFactor     dst_color_blend; ///< Destination color blend factor. Default is `WisBlendFactorZero`.
+    WisBlendOp         color_blend_op; ///< Color blend operation. Default is `WisBlendOpAdd`.
+    WisBlendFactor     src_alpha_blend; ///< Source alpha blend factor. Default is `WisBlendFactorOne`.
+    WisBlendFactor     dst_alpha_blend; ///< Destination alpha blend factor. Default is `WisBlendFactorZero`.
+    WisBlendOp         alpha_blend_op; ///< Alpha blend operation. Default is `WisBlendOpAdd`.
+    WisColorComponents color_write_mask; ///< Color write mask. Default is `WisColorComponents::All`.
+} WisBlendAttachmentDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Blend state description for WisGraphicsPipelineDesc.
+ *
+ * */
+typedef struct WisBlendStateDesc {
+    bool                   logic_op_enable; ///< Logic operation enable. Default is false.
+    WisLogicOp             logic_op; ///< Logic operation. Default is `WisLogicOpNoop`.
+    WisBlendAttachmentDesc attachments[8]; ///< Blend attachment descriptions. Max Array size is 8.
+    uint32_t               attachment_count; ///< Blend attachment count. If set as 0 - broadcast to all attachments. Max is 8.
+} WisBlendStateDesc;
+
+/**
  * @brief Provided by Wisdom 0.7.0. Query struct header. Used as a header for all query structs.
  *
  * */
@@ -1376,6 +1660,17 @@ typedef struct WisQueryStructHeader {
     WisQueryPropertyType property_type; ///< Defines the type of the queried property. Used to determine what struct is passed.
     void*                next_in_chain; ///< Pointer to the next queried data struct.
 } WisQueryStructHeader;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Device binding properties. Used to query resource binding support and limits.
+ *
+ * */
+typedef struct WisDeviceBindingProperties {
+    WisQueryPropertyType property_type; ///< Defines the type of the queried property. Used to determine what struct is passed. @wis_must be `WisQueryPropertyTypeDeviceBindingProperties`.
+    void*                next_in_chain; ///< Pointer to the next queried data struct.
+    uint32_t             max_vertex_input_attributes; ///< Maximum number of vertex input attributes supported by the device. Used for vertex buffer bindings.
+    uint32_t             max_vertex_input_bindings; ///< Maximum number of vertex input bindings supported by the device. Used for vertex buffer bindings.
+} WisDeviceBindingProperties;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Device descriptor heap properties. Used to query descriptor heap support and limits.
@@ -1435,6 +1730,15 @@ typedef struct WisDeviceMemoryProperties {
 
 /// @brief Provided by Wisdom 0.7.0. Defines the amount of planes that can be present on the single (YUV) image.
 #define WIS_MAX_PLANE_COUNT ((uint32_t)3)
+
+/// @brief Provided by Wisdom 0.7.0. Defines the minimum amount of vertex attributes that @wis_must be supported by the implementation.
+#define WIS_MIN_SUPPORTED_INPUT_ATTRIBUTES ((uint32_t)16)
+
+/// @brief Provided by Wisdom 0.7.0. Defines the minimum amount of vertex bindings that @wis_must be supported by the implementation.
+#define WIS_MIN_SUPPORTED_INPUT_BINDINGS ((uint32_t)16)
+
+/// @brief Provided by Wisdom 0.7.0. Defines the maximum amount of render targets that can be bound at once.
+#define WIS_MAX_RENDER_TARGETS ((uint32_t)8)
 
 /// @brief Provided by Wisdom 0.7.0. Select whole size of a resource.
 #define WIS_WHOLE_SIZE ((uint64_t)0xffffffffffffffff)

@@ -57,6 +57,7 @@ typedef struct WisDX12GlobalBarrier           WisGlobalBarrier;
 typedef struct WisDX12TextureBarrier          WisTextureBarrier;
 typedef struct WisDX12BarrierGroup            WisBarrierGroup;
 typedef struct WisDX12ComputePipelineDesc     WisComputePipelineDesc;
+typedef struct WisDX12GraphicsPipelineDesc    WisGraphicsPipelineDesc;
 
 //==============================================================
 // Functions
@@ -93,6 +94,7 @@ typedef struct WisDX12ComputePipelineDesc     WisComputePipelineDesc;
 #define wisDeviceCreatePipelineCache                wisDX12DeviceCreatePipelineCache
 #define wisDeviceCreateShader                       wisDX12DeviceCreateShader
 #define wisDeviceCreateComputePipeline              wisDX12DeviceCreateComputePipeline
+#define wisDeviceCreateGraphicsPipeline             wisDX12DeviceCreateGraphicsPipeline
 #define wisFenceGetCompletedValue                   wisDX12FenceGetCompletedValue
 #define wisFenceWait                                wisDX12FenceWait
 #define wisFenceSignal                              wisDX12FenceSignal
@@ -122,6 +124,7 @@ typedef struct WisDX12ComputePipelineDesc     WisComputePipelineDesc;
 #define wisCommandListSetPushDescriptor             wisDX12CommandListSetPushDescriptor
 #define wisCommandListSetDescriptorTable            wisDX12CommandListSetDescriptorTable
 #define wisCommandListInsertBarriers                wisDX12CommandListInsertBarriers
+#define wisCommandListSetPipeline                   wisDX12CommandListSetPipeline
 #define wisPipelineCacheSerialize                   wisDX12PipelineCacheSerialize
 #define wisPipelineCacheGetSerializedSize           wisDX12PipelineCacheGetSerializedSize
 #define wisGetPipelineView                          wisGetDX12PipelineView
@@ -197,6 +200,7 @@ typedef struct WisVKGlobalBarrier           WisGlobalBarrier;
 typedef struct WisVKTextureBarrier          WisTextureBarrier;
 typedef struct WisVKBarrierGroup            WisBarrierGroup;
 typedef struct WisVKComputePipelineDesc     WisComputePipelineDesc;
+typedef struct WisVKGraphicsPipelineDesc    WisGraphicsPipelineDesc;
 
 //==============================================================
 // Functions
@@ -233,6 +237,7 @@ typedef struct WisVKComputePipelineDesc     WisComputePipelineDesc;
 #define wisDeviceCreatePipelineCache                wisVKDeviceCreatePipelineCache
 #define wisDeviceCreateShader                       wisVKDeviceCreateShader
 #define wisDeviceCreateComputePipeline              wisVKDeviceCreateComputePipeline
+#define wisDeviceCreateGraphicsPipeline             wisVKDeviceCreateGraphicsPipeline
 #define wisFenceGetCompletedValue                   wisVKFenceGetCompletedValue
 #define wisFenceWait                                wisVKFenceWait
 #define wisFenceSignal                              wisVKFenceSignal
@@ -262,6 +267,7 @@ typedef struct WisVKComputePipelineDesc     WisComputePipelineDesc;
 #define wisCommandListSetPushDescriptor             wisVKCommandListSetPushDescriptor
 #define wisCommandListSetDescriptorTable            wisVKCommandListSetDescriptorTable
 #define wisCommandListInsertBarriers                wisVKCommandListInsertBarriers
+#define wisCommandListSetPipeline                   wisVKCommandListSetPipeline
 #define wisPipelineCacheSerialize                   wisVKPipelineCacheSerialize
 #define wisPipelineCacheGetSerializedSize           wisVKPipelineCacheGetSerializedSize
 #define wisGetPipelineView                          wisGetVKPipelineView

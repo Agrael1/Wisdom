@@ -268,6 +268,8 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetPushDescriptor(const WisDX12Co
             impl.list->SetGraphicsRootShaderResourceView(data->root_index, data->buffer_address);
             break;
         case WisDescriptorTypeAccelerationStructure:
+            impl.list->SetGraphicsRootShaderResourceView(data->root_index, data->buffer_address);
+            break;
         case WisDescriptorTypeRWBuffer:
             impl.list->SetGraphicsRootUnorderedAccessView(data->root_index, data->buffer_address);
             break;
@@ -285,8 +287,10 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetPushDescriptor(const WisDX12Co
             impl.list->SetComputeRootShaderResourceView(data->root_index, data->buffer_address);
             break;
         case WisDescriptorTypeAccelerationStructure:
-        case WisDescriptorTypeRWBuffer:
             impl.list->SetComputeRootShaderResourceView(data->root_index, data->buffer_address);
+            break;
+        case WisDescriptorTypeRWBuffer:
+            impl.list->SetComputeRootUnorderedAccessView(data->root_index, data->buffer_address);
             break;
         default:
             break;
@@ -422,6 +426,16 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListInsertBarriers(const WisDX12Comma
          .pGlobalBarriers = global_barriers_span.data()  }
     };
     impl.list->Barrier(std::size(groups), groups);
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetPipeline(const WisDX12CommandList* self,
+                                                           WisDX12PipelineView       pipeline,
+                                                           WisPipelineType           type)
+{
+    auto& impl = *reinterpret_cast<const wis::impl::DX12CommandListImpl*>(self);
+    auto* pipe = std::bit_cast<ID3D12PipelineState*>(pipeline);
+    impl.list->SetPipelineState(pipe);
 }
 
 #endif // WIS_DX12_COMMAND_LIST_CPP

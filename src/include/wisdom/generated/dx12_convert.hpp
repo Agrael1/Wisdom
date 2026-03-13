@@ -87,7 +87,7 @@ constexpr inline D3D12_DESCRIPTOR_RANGE_TYPE convert_dx(WisDescriptorType value)
     }
 }
 
-constexpr inline D3D12_COMPARISON_FUNC convert_dx(WisCompareOperation value) noexcept
+constexpr inline D3D12_COMPARISON_FUNC convert_dx(WisCompareOp value) noexcept
 {
     return static_cast<D3D12_COMPARISON_FUNC>(value);
 }
@@ -230,6 +230,67 @@ constexpr inline D3D12_BARRIER_LAYOUT convert_dx(WisTextureState value) noexcept
     default:
         return static_cast<D3D12_BARRIER_LAYOUT>(0);
     }
+}
+
+constexpr inline D3D12_STENCIL_OP convert_dx(WisStencilOp value) noexcept
+{
+    return static_cast<D3D12_STENCIL_OP>(value);
+}
+
+constexpr inline D3D12_PRIMITIVE_TOPOLOGY_TYPE convert_dx(WisTopologyType value) noexcept
+{
+    switch (value) {
+    case WisTopologyTypePoint:
+        return D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+    case WisTopologyTypeLine:
+        return D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+    case WisTopologyTypeTriangle:
+        return D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    case WisTopologyTypePatch:
+        return D3D12_PRIMITIVE_TOPOLOGY_TYPE_PATCH;
+    default:
+        return static_cast<D3D12_PRIMITIVE_TOPOLOGY_TYPE>(0);
+    }
+}
+
+constexpr inline D3D12_FILL_MODE convert_dx(WisFillMode value) noexcept
+{
+    return static_cast<D3D12_FILL_MODE>(value);
+}
+
+constexpr inline D3D12_CULL_MODE convert_dx(WisCullMode value) noexcept
+{
+    return static_cast<D3D12_CULL_MODE>(value);
+}
+
+constexpr inline BOOL convert_dx(WisWindingOrder value) noexcept
+{
+    return static_cast<BOOL>(value);
+}
+
+constexpr inline D3D12_CONSERVATIVE_RASTERIZATION_MODE convert_dx(WisConservativeRasterization value) noexcept
+{
+    return static_cast<D3D12_CONSERVATIVE_RASTERIZATION_MODE>(value);
+}
+
+constexpr inline D3D12_LINE_RASTERIZATION_MODE convert_dx(WisLineRasterization value) noexcept
+{
+    return static_cast<D3D12_LINE_RASTERIZATION_MODE>(value);
+}
+
+constexpr inline D3D12_BLEND convert_dx(WisBlendFactor value) noexcept
+{
+    return static_cast<D3D12_BLEND>(value);
+}
+
+constexpr inline D3D12_BLEND_OP convert_dx(WisBlendOp value) noexcept
+{
+    return static_cast<D3D12_BLEND_OP>(value);
+}
+
+constexpr inline D3D12_LOGIC_OP convert_dx(WisLogicOp value) noexcept
+{
+    return static_cast<D3D12_LOGIC_OP>(value);
 }
 
 constexpr inline D3D12_SAMPLER_FLAGS convert_dx(WisSamplerFlags value) noexcept

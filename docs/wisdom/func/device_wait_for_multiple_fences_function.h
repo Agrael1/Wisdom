@@ -42,10 +42,11 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
- * wis::Result Device::WaitForMultipleFences(const wis::FenceView*          fences,
- *                                           wis::span<const std::uint64_t> fence_values,
- *                                           wis::MutiWaitType              wait_for,
- *                                           std::uint64_t                  timeout) const noexcept;
+ * wis::Result Device::WaitForMultipleFences(const wis::FenceView* fences,
+ *                                           const std::uint64_t*  fence_values,
+ *                                           std::size_t           fence_count,
+ *                                           wis::MutiWaitType     wait_for,
+ *                                           std::uint64_t         timeout) const noexcept;
  * }
  * ```
  * <details>
@@ -53,16 +54,18 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
- * wis::Result VKDevice::WaitForMultipleFences(const wis::VKFenceView*        fences,
- *                                             wis::span<const std::uint64_t> fence_values,
- *                                             wis::MutiWaitType              wait_for,
- *                                             std::uint64_t                  timeout) const noexcept;
+ * wis::Result VKDevice::WaitForMultipleFences(const wis::VKFenceView* fences,
+ *                                             const std::uint64_t*    fence_values,
+ *                                             std::size_t             fence_count,
+ *                                             wis::MutiWaitType       wait_for,
+ *                                             std::uint64_t           timeout) const noexcept;
  * 
  * // Provided by Wisdom 0.7.0. 
- * wis::Result DX12Device::WaitForMultipleFences(const wis::DX12FenceView*      fences,
- *                                               wis::span<const std::uint64_t> fence_values,
- *                                               wis::MutiWaitType              wait_for,
- *                                               std::uint64_t                  timeout) const noexcept;
+ * wis::Result DX12Device::WaitForMultipleFences(const wis::DX12FenceView* fences,
+ *                                               const std::uint64_t*      fence_values,
+ *                                               std::size_t               fence_count,
+ *                                               wis::MutiWaitType         wait_for,
+ *                                               std::uint64_t             timeout) const noexcept;
  * }
  * ```
  * </details>

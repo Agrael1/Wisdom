@@ -258,6 +258,28 @@ typedef struct WisVKComputePipelineDesc {
 } WisVKComputePipelineDesc;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Graphics pipeline description for WisPipeline creation.
+ *
+ * */
+typedef struct WisVKGraphicsPipelineDesc {
+    WisVKRootSignatureView     root_signature; ///< Root signature description for the pipeline.
+    WisVKShaderView            vertex_shader; ///< Vertex shader bytecode.
+    WisVKShaderView            hull_shader; ///< Hull shader bytecode. If not set, the pipeline will be created without a hull shader.
+    WisVKShaderView            domain_shader; ///< Domain shader bytecode. If not set, the pipeline will be created without a domain shader.
+    WisVKShaderView            geometry_shader; ///< Geometry shader bytecode. If not set, the pipeline will be created without a geometry shader.
+    WisVKShaderView            pixel_shader; ///< Pixel shader bytecode. If not set, the pipeline will be created without a pixel shader.
+    WisRenderAttachmentsDesc   render_attachments; ///< Render attachments description for the pipeline. Used to create the compatible render pass for the pipeline.
+    WisInputLayout             input_layout; ///< Input layout description for the pipeline. If not set, the pipeline will be created without an input layout.
+    WisTopologyType            topology_type; ///< Topology type. Default is `WisTopologyTypeTriangle`.
+    const WisRasterizerDesc*   rasterizer_desc; ///< Rasterizer description for the pipeline. If not set, the pipeline will be created with default rasterizer state.
+    const WisSampleDesc*       sample_desc; ///< Sample description for the pipeline. If not set, the pipeline will be created with default sample state (no multisampling).
+    const WisDepthStencilDesc* depth_stencil_desc; ///< Depth stencil description for the pipeline. If not set, the pipeline will be created with depth testing and stencil testing disabled.
+    const WisBlendStateDesc*   blend_state_desc; ///< Blend state description for the pipeline. If not set, the pipeline will be created with blending disabled.
+    WisVKPipelineCacheView     cache; ///< Pipeline cache data. Used to speed up pipeline creation if available.
+    WisPipelineFlags           flags; ///< Pipeline flags. Describe additional options for the pipeline.
+} WisVKGraphicsPipelineDesc;
+
+/**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisPipeline handle.
  * @param self is a pointer to the valid WisPipeline instance.
  *
@@ -563,6 +585,18 @@ WISDOM_API WisResult wisVKDeviceCreateShader(const WisVKDevice* self,
 WISDOM_API WisResult wisVKDeviceCreateComputePipeline(const WisVKDevice*              self,
                                                       const WisVKComputePipelineDesc* desc,
                                                       WisVKPipeline*                  pipeline);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a graphics pipeline state object with given descriptor.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param desc points to WisGraphicsPipelineDesc, which describes the graphics pipeline to create.
+ * @param pipeline points to WisPipeline, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(const WisVKDevice*               self,
+                                                       const WisVKGraphicsPipelineDesc* desc,
+                                                       WisVKPipeline*                   pipeline);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Get the current value of the fence.
@@ -878,6 +912,17 @@ WISDOM_API void wisVKCommandListSetDescriptorTable(const WisVKCommandList*      
  * */
 WISDOM_API void wisVKCommandListInsertBarriers(const WisVKCommandList*  self,
                                                const WisVKBarrierGroup* barriers);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the pipeline state object for the command list, so it can be used for draw and dispatch calls.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param pipeline points to WisPipeline to set.
+ * @param type defines the pipeline type to set the pipeline for.
+ *
+ * */
+WISDOM_API void wisVKCommandListSetPipeline(const WisVKCommandList* self,
+                                            WisVKPipelineView       pipeline,
+                                            WisPipelineType         type);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Gets the data from the pipeline cache.

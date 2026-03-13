@@ -34,12 +34,12 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CommandAllocatorCreateCommandList(const
 {
     auto& [allocator, device, type] = *reinterpret_cast<const wis::impl::DX12CommandAllocatorImpl*>(self);
 
-    wis::com_ptr<ID3D12GraphicsCommandList7> command_list;
+    wis::com_ptr<ID3D12GraphicsCommandList9> command_list;
 
     auto hr = device->CreateCommandList1(0,
                                          wis::detail::convert_dx(type),
                                          D3D12_COMMAND_LIST_FLAG_NONE,
-                                         IID_ID3D12GraphicsCommandList7,
+                                         IID_ID3D12GraphicsCommandList9,
                                          command_list.put_void_unchecked());
 
     if (!wis::detail::succeeded(hr)) {

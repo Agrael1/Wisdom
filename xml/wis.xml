@@ -137,7 +137,7 @@ If wait_all is {MutiWaitType::All}, waits for all fences to be signaled.
 Otherwise waits for any fence to be signaled.">
       <ret type="Result" name="result" doc="Result of operation."/>
       <arg type="FenceView" name="fences" mod="const,ptr" doc="Array of fence views to wait on."/>
-      <arg type="u64" name="fence_values" mod="const,span" doc="Fence values to wait fences to reach. Array must have fence_count values."/>
+      <arg type="u64" name="fence_values" mod="const,ptr" doc="Fence values to wait fences to reach. Array must have fence_count values."/>
       <arg type="size" name="fence_count" doc="How many fences to wait on."/>
       <arg type="MutiWaitType" name="wait_for" default="All" doc="Specifies the kind of wait.
 All - waits for all fences to be signaled.
@@ -158,6 +158,10 @@ Default is {MutiWaitType::All}"/>
     <func for="Device" name="CreateComputePipeline" version="0.7.0" mod="const" doc="Creates a compute pipeline state object with given descriptor.">
       <ret type="Pipeline" name="pipeline" result="true" doc="points to {Pipeline::}, which is initialized on success."/>
       <arg type="ComputePipelineDesc" name="desc" mod="const,ref" doc="points to {ComputePipelineDesc::}, which describes the compute pipeline to create."/>
+    </func>
+    <func for="Device" name="CreateGraphicsPipeline" version="0.7.0" mod="const" doc="Creates a graphics pipeline state object with given descriptor.">
+      <ret type="Pipeline" name="pipeline" result="true" doc="points to {Pipeline::}, which is initialized on success."/>
+      <arg type="GraphicsPipelineDesc" name="desc" mod="const,ref" doc="points to {GraphicsPipelineDesc::}, which describes the graphics pipeline to create."/>
     </func>
 
     <!-- Fence Functions -->
@@ -294,9 +298,12 @@ Can still be enqueued after the signal.">
     <func for="CommandList" name="SetDescriptorTable" version="0.7.0" mod="const" doc="Sets the descriptor table offset in descriptor heap for the command list, so it can be used for resource binding.">
       <arg type="DescriptorTableDataDesc" name="data" mod="const,ref" doc="defines the root parameter index to set the descriptor table for."/>
     </func>
-
     <func for="CommandList" name="InsertBarriers" version="0.7.0" mod="const" doc="Inserts one or more barriers on the current command list.">
       <arg type="BarrierGroup" name="barriers" mod="const,ref" doc="points to an array of barriers to insert."/>
+    </func>
+    <func for="CommandList" name="SetPipeline" version="0.7.0" mod="const" doc="Sets the pipeline state object for the command list, so it can be used for draw and dispatch calls.">
+      <arg type="PipelineView" name="pipeline" doc="points to {Pipeline::} to set."/>
+      <arg type="PipelineType" name="type" default="Graphics" doc="defines the pipeline type to set the pipeline for."/>
     </func>
 
     <!-- Pipeline Cache -->

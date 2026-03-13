@@ -428,4 +428,14 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListInsertBarriers(const WisVKCommandLi
     impl.command_list_table->vkCmdPipelineBarrier2(impl.command_buffer, &dependency_info);
 }
 
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisVKCommandListSetPipeline(const WisVKCommandList* self,
+                                                         WisVKPipelineView       pipeline,
+                                                         WisPipelineType         type)
+{
+    auto& impl = *reinterpret_cast<const wis::impl::VKCommandListImpl*>(self);
+    auto  vk_pipeline = std::bit_cast<VkPipeline>(pipeline);
+    impl.command_list_table->vkCmdBindPipeline(impl.command_buffer, wis::detail::convert_vk(type), vk_pipeline);
+}
+
 #endif // WIS_VK_COMMAND_LIST_CPP

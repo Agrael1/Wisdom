@@ -102,6 +102,28 @@ struct VKComputePipelineDesc {
     wis::PipelineFlags       flags; ///< Pipeline flags. Describe additional options for the pipeline.
 };
 
+/**
+ * @brief Provided by Wisdom 0.7.0. Graphics pipeline description for wis::Pipeline creation.
+ *
+ * */
+struct VKGraphicsPipelineDesc {
+    wis::VKRootSignatureView     root_signature; ///< Root signature description for the pipeline.
+    wis::VKShaderView            vertex_shader; ///< Vertex shader bytecode.
+    wis::VKShaderView            hull_shader; ///< Hull shader bytecode. If not set, the pipeline will be created without a hull shader.
+    wis::VKShaderView            domain_shader; ///< Domain shader bytecode. If not set, the pipeline will be created without a domain shader.
+    wis::VKShaderView            geometry_shader; ///< Geometry shader bytecode. If not set, the pipeline will be created without a geometry shader.
+    wis::VKShaderView            pixel_shader; ///< Pixel shader bytecode. If not set, the pipeline will be created without a pixel shader.
+    wis::RenderAttachmentsDesc   render_attachments; ///< Render attachments description for the pipeline. Used to create the compatible render pass for the pipeline.
+    wis::InputLayout             input_layout; ///< Input layout description for the pipeline. If not set, the pipeline will be created without an input layout.
+    wis::TopologyType            topology_type; ///< Topology type. Default is `wis::TopologyType::Triangle`.
+    const wis::RasterizerDesc*   rasterizer_desc; ///< Rasterizer description for the pipeline. If not set, the pipeline will be created with default rasterizer state.
+    const wis::SampleDesc*       sample_desc; ///< Sample description for the pipeline. If not set, the pipeline will be created with default sample state (no multisampling).
+    const wis::DepthStencilDesc* depth_stencil_desc; ///< Depth stencil description for the pipeline. If not set, the pipeline will be created with depth testing and stencil testing disabled.
+    const wis::BlendStateDesc*   blend_state_desc; ///< Blend state description for the pipeline. If not set, the pipeline will be created with blending disabled.
+    wis::VKPipelineCacheView     cache; ///< Pipeline cache data. Used to speed up pipeline creation if available.
+    wis::PipelineFlags           flags; ///< Pipeline flags. Describe additional options for the pipeline.
+};
+
 struct VKPipelineDeleter {
     void operator()(WisVKPipeline* handle) noexcept
     {
@@ -688,6 +710,19 @@ public:
         ::wisVKCommandListInsertBarriers(&_impl_storage,
                                          reinterpret_cast<const WisVKBarrierGroup*>(&barriers));
     }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Sets the pipeline state object for the command list, so it can be used for draw and dispatch calls.
+     * @param pipeline points to wis::Pipeline to set.
+     * @param type defines the pipeline type to set the pipeline for.
+     *
+     * */
+    inline void SetPipeline(wis::VKPipelineView pipeline,
+                            wis::PipelineType   type) const noexcept
+    {
+        ::wisVKCommandListSetPipeline(&_impl_storage,
+                                      pipeline,
+                                      static_cast<WisPipelineType>(type));
+    }
 };
 
 struct VKCommandAllocatorDeleter {
@@ -912,6 +947,7 @@ public:
      * Otherwise waits for any fence to be signaled.
      * @param fences Array of fence views to wait on.
      * @param fence_values Fence values to wait fences to reach. Array @wis_must have fence_count values.
+     * @param fence_count How many fences to wait on.
      * @param wait_for Specifies the kind of wait.
      * All - waits for all fences to be signaled.
      * Any - waits for any fence to be signaled.
@@ -920,15 +956,16 @@ public:
      * @return Result denoting the outcome of operation.
      *
      * */
-    inline wis::Result WaitForMultipleFences(const wis::VKFenceView*        fences,
-                                             wis::span<const std::uint64_t> fence_values,
-                                             wis::MutiWaitType              wait_for,
-                                             std::uint64_t                  timeout) const noexcept
+    inline wis::Result WaitForMultipleFences(const wis::VKFenceView* fences,
+                                             const std::uint64_t*    fence_values,
+                                             std::size_t             fence_count,
+                                             wis::MutiWaitType       wait_for,
+                                             std::uint64_t           timeout) const noexcept
     {
         return convert_result(::wisVKDeviceWaitForMultipleFences(&_impl_storage,
                                                                  fences,
-                                                                 reinterpret_cast<const uint64_t*>(fence_values.data()),
-                                                                 fence_values.size(),
+                                                                 fence_values,
+                                                                 fence_count,
                                                                  static_cast<WisMutiWaitType>(wait_for),
                                                                  timeout));
     }
@@ -980,6 +1017,22 @@ public:
         out_result = convert_result(::wisVKDeviceCreateComputePipeline(&_impl_storage,
                                                                        reinterpret_cast<const WisVKComputePipelineDesc*>(&desc),
                                                                        pipeline.GetStorage()));
+        return pipeline;
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a graphics pipeline state object with given descriptor.
+     * @param desc points to wis::GraphicsPipelineDesc, which describes the graphics pipeline to create.
+     * @param out_result denoting the outcome of operation.
+     * @return pipeline points to wis::Pipeline, which is initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::VKPipeline CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc& desc,
+                                                                wis::Result&                       out_result) const noexcept
+    {
+        wis::VKPipeline pipeline;
+        out_result = convert_result(::wisVKDeviceCreateGraphicsPipeline(&_impl_storage,
+                                                                        reinterpret_cast<const WisVKGraphicsPipelineDesc*>(&desc),
+                                                                        pipeline.GetStorage()));
         return pipeline;
     }
 };
