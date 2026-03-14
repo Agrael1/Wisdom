@@ -4,6 +4,7 @@
 #include <wisdom/vulkan/vk_extensions.hpp>
 #include <wisdom/vulkan/detail/vk_detail.hpp>
 #include <wisdom/vulkan/detail/vk_utils.hpp>
+#include <wisdom/vulkan/vk_types.hpp>
 #include <wisdom/util/allocation.hpp>
 #include <algorithm>
 
@@ -77,9 +78,11 @@ public:
         if (collector.IsExtensionPresent(VK_EXT_HOST_IMAGE_COPY_EXTENSION_NAME)) {
             features.host_image_copy = true;
             collector.EnableExtension({
-                    .name                = VK_EXT_HOST_IMAGE_COPY_EXTENSION_NAME,
-                    .feature_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES_EXT,
-                    .feature_struct_size = sizeof(VkPhysicalDeviceHostImageCopyFeaturesEXT),
+                    .name                 = VK_EXT_HOST_IMAGE_COPY_EXTENSION_NAME,
+                    .feature_struct       = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_FEATURES_EXT,
+                    .feature_struct_size  = sizeof(VkPhysicalDeviceHostImageCopyFeaturesEXT),
+                    .property_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_PROPERTIES_EXT,
+                    .property_struct_size = sizeof(VkPhysicalDeviceHostImageCopyPropertiesEXT),
             });
         }
 
@@ -109,7 +112,7 @@ public:
         if (collector.IsExtensionPresent(VK_EXT_CONSERVATIVE_RASTERIZATION_EXTENSION_NAME)) {
             features.conservative_rasterization = true;
             collector.EnableExtension({
-                    .name                = VK_EXT_CONSERVATIVE_RASTERIZATION_EXTENSION_NAME,
+                    .name                 = VK_EXT_CONSERVATIVE_RASTERIZATION_EXTENSION_NAME,
                     .property_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CONSERVATIVE_RASTERIZATION_PROPERTIES_EXT,
                     .property_struct_size = sizeof(VkPhysicalDeviceConservativeRasterizationPropertiesEXT),
             });
@@ -117,8 +120,8 @@ public:
 
         return wis::detail::vk_success;
     }
-    ::WisResult Init([[maybe_unused]] const impl::VKDeviceImpl& device_impl,
-                     const VKDeviceExtensionCollector&          collector) noexcept
+    ::WisResult Init(const impl::VKDeviceImpl&         device_impl,
+                     const VKDeviceExtensionCollector& collector) noexcept
     {
         if (features.descriptor_heap) {
             // Descriptor heap properties
@@ -145,6 +148,42 @@ public:
                 VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2);
         features.max_vertex_attributes = static_cast<uint8_t>(device_properties.properties.limits.maxVertexInputAttributes);
         features.max_vertex_bindings   = static_cast<uint8_t>(device_properties.properties.limits.maxVertexInputBindings);
+        features.multiple_viewports    = device_properties.properties.limits.maxViewports > 1 ? 1 : 0;
+
+        if (features.host_image_copy) {
+            // Host image copy support
+            auto& host_image_copy_properties = *collector.GetEnabledPropertyStruct<VkPhysicalDeviceHostImageCopyPropertiesEXT>(
+                    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_PROPERTIES_EXT);
+
+            static constexpr std::size_t     reasonable_layout_count = 32;
+            VkImageLayout                    dst_layouts[reasonable_layout_count]{};
+            std::unique_ptr<VkImageLayout[]> dynamic_dst_layouts;
+            wis::span<VkImageLayout>         dst_layout_span;
+
+            if (host_image_copy_properties.copyDstLayoutCount > reasonable_layout_count) {
+                dynamic_dst_layouts = std::make_unique<VkImageLayout[]>(host_image_copy_properties.copyDstLayoutCount);
+                dst_layout_span     = wis::span<VkImageLayout>{ dynamic_dst_layouts.get(), host_image_copy_properties.copyDstLayoutCount };
+            } else {
+                dst_layout_span = wis::span<VkImageLayout>{ dst_layouts, host_image_copy_properties.copyDstLayoutCount };
+            }
+
+            // We are not interested in src layouts.
+            host_image_copy_properties.pCopyDstLayouts = dst_layout_span.data();
+            device_properties.pNext                    = &host_image_copy_properties;
+
+            auto& atable  = device_impl.device_header->header.shared_header->header.adapter_table;
+            auto  adapter = device_impl.physical_device;
+
+            atable.vkGetPhysicalDeviceProperties2(adapter, &device_properties);
+
+            for (uint32_t i = 0; i < host_image_copy_properties.copyDstLayoutCount; ++i) {
+                WisTextureState dst_layout = VKConvertToTextureState(dst_layout_span[i]);
+                if (dst_layout == WisTextureStateUndefined) {
+                    continue; // Unsupported layout, skip
+                }
+                features.supported_image_layout_transitions |= (1 << static_cast<uint32_t>(dst_layout_span[i]));
+            }
+        }
 
         // Nothing to initialize for now
         return wis::detail::vk_success;

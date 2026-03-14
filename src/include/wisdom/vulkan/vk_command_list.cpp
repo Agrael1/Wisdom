@@ -433,9 +433,86 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetPipeline(const WisVKCommandList*
                                                          WisVKPipelineView       pipeline,
                                                          WisPipelineType         type)
 {
-    auto& impl = *reinterpret_cast<const wis::impl::VKCommandListImpl*>(self);
+    auto& impl        = *reinterpret_cast<const wis::impl::VKCommandListImpl*>(self);
     auto  vk_pipeline = std::bit_cast<VkPipeline>(pipeline);
     impl.command_list_table->vkCmdBindPipeline(impl.command_buffer, wis::detail::convert_vk(type), vk_pipeline);
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisVKCommandListSetViewports(WisVKCommandList*  self,
+                                                          const WisViewport* viewports,
+                                                          size_t             count)
+{
+    auto&      impl      = *reinterpret_cast<wis::impl::VKCommandListImpl*>(self);
+    auto       max_count = std::min(count, static_cast<size_t>(wis::MaxViewports));
+    VkViewport vk_viewports[wis::MaxViewports];
+
+    for (size_t i = 0; i < max_count; i++) {
+        const auto& vp  = viewports[i];
+        vk_viewports[i] = {
+            .x        = vp.top_leftx,
+            .y        = vp.top_lefty,
+            .width    = vp.width,
+            .height   = -vp.height, // Invert height to convert from top-left origin to bottom-left origin
+            .minDepth = vp.min_depth,
+            .maxDepth = vp.max_depth
+        };
+    }
+    impl.command_list_table->vkCmdSetViewport(impl.command_buffer, 0, static_cast<uint32_t>(max_count), vk_viewports);
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisVKCommandListSetScissors(WisVKCommandList* self,
+                                                         const WisScissor* scissors,
+                                                         size_t            count)
+{
+    auto&    impl      = *reinterpret_cast<wis::impl::VKCommandListImpl*>(self);
+    auto     max_count = std::min(count, static_cast<size_t>(wis::MaxViewports));
+    VkRect2D vk_rects[wis::MaxViewports];
+    for (size_t i = 0; i < max_count; i++) {
+        auto& vp    = scissors[i];
+        vk_rects[i] = {
+            .offset = {                      vp.left,                       vp.top },
+            .extent = { uint32_t(vp.right - vp.left), uint32_t(vp.bottom - vp.top) },
+        };
+    }
+    impl.command_list_table->vkCmdSetScissor(impl.command_buffer, 0, max_count, vk_rects);
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisVKCommandListSetPrimitiveTopology(WisVKCommandList*    self,
+                                                                  WisPrimitiveTopology topology)
+{
+    auto& impl = *reinterpret_cast<wis::impl::VKCommandListImpl*>(self);
+    impl.command_list_table->vkCmdSetPrimitiveTopology(impl.command_buffer, wis::detail::convert_vk(topology));
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisVKCommandListSetDepthBias(WisVKCommandList* self,
+                                                          float             depth_bias,
+                                                          float             depth_bias_clamp,
+                                                          float             slope_scaled_depth_bias)
+{
+    auto& impl = *reinterpret_cast<wis::impl::VKCommandListImpl*>(self);
+    impl.command_list_table->vkCmdSetDepthBias(impl.command_buffer, depth_bias, depth_bias_clamp, slope_scaled_depth_bias);
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisVKCommandListSetPrimitiveRestartValue(WisVKCommandList*        self,
+                                                                      WisPrimitiveRestartValue restart_value)
+{
+    auto& impl = *reinterpret_cast<wis::impl::VKCommandListImpl*>(self);
+    impl.command_list_table->vkCmdSetPrimitiveRestartEnable(impl.command_buffer, restart_value != 0);
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisVKCommandListDispatch(const WisVKCommandList* self,
+                                                      uint32_t                group_count_x,
+                                                      uint32_t                group_count_y,
+                                                      uint32_t                group_count_z)
+{
+    auto& impl = *reinterpret_cast<const wis::impl::VKCommandListImpl*>(self);
+    impl.command_list_table->vkCmdDispatch(impl.command_buffer, group_count_x, group_count_y, group_count_z);
 }
 
 #endif // WIS_VK_COMMAND_LIST_CPP

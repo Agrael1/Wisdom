@@ -1039,6 +1039,34 @@ enum class LogicOp {
 };
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Primitive topology for rendering.
+ * More info could be found [here](https://learn.microsoft.com/en-us/windows/win32/direct3d11/d3d10-graphics-programming-guide-primitive-topologies).
+ *
+ * */
+enum class PrimitiveTopology {
+    PointList        = 1, ///< Render points for each vertex.
+    LineList         = 2, ///< Render lines between vertices.
+    LineStrip        = 3, ///< Render lines between vertices in a strip.
+    TriangleList     = 4, ///< Render triangles between vertices.
+    TriangleStrip    = 5, ///< Render triangles between vertices in a strip.
+    TriangleFan      = 6, ///< Interpret vertex data to form a fan of triangles.
+    LineListAdj      = 10, ///< Render lines between vertices with adjacency.
+    LineStripAdj     = 11, ///< Render lines between vertices in a strip with adjacency.
+    TriangleListAdj  = 12, ///< Render triangles between vertices with adjacency.
+    TriangleStripAdj = 13, ///< Render triangles between vertices in a strip with adjacency.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Primitive restart value for indexed drawing with primitive restart enabled.
+ *
+ * */
+enum class PrimitiveRestartValue {
+    None      = 0, ///< Primitive restart is disabled. No primitive restart value is used.
+    UInt16Max = 65535, ///< Use the maximum value of uint16_t as the primitive restart value.
+    UInt32Max = -1, ///< Use the maximum value of uint32_t as the primitive restart value.
+};
+
+/**
  * @brief Provided by Wisdom 0.7.0. Flags that describe adapter.
  *
  * */
@@ -1646,6 +1674,31 @@ struct BlendAttachmentDesc {
 };
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Viewport description for wis::CommandList.
+ * Viewport is considered from Top Left corner.
+ *
+ * */
+struct Viewport {
+    float top_leftx; ///< Top left corner x coordinate.
+    float top_lefty; ///< Top left corner y coordinate.
+    float width; ///< Viewport width.
+    float height; ///< Viewport height.
+    float min_depth; ///< Minimum depth of the viewport.
+    float max_depth; ///< Maximum depth of the viewport.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Scissor description for wis::CommandList.
+ *
+ * */
+struct Scissor {
+    std::int32_t left; ///< Left corner x coordinate.
+    std::int32_t top; ///< Top corner y coordinate.
+    std::int32_t right; ///< Right corner x coordinate.
+    std::int32_t bottom; ///< Bottom corner y coordinate.
+};
+
+/**
  * @brief Provided by Wisdom 0.7.0. Blend state description for wis::GraphicsPipelineDesc.
  *
  * */
@@ -1674,6 +1727,7 @@ struct DeviceBindingProperties {
     void*                  next_in_chain; ///< Pointer to the next queried data struct.
     std::uint32_t          max_vertex_input_attributes; ///< Maximum number of vertex input attributes supported by the device. Used for vertex buffer bindings.
     std::uint32_t          max_vertex_input_bindings; ///< Maximum number of vertex input bindings supported by the device. Used for vertex buffer bindings.
+    bool                   multiple_viewports_supported; ///< Indicates if multiple viewports are supported. If true, the device supports up to 16 viewports and scissor rectangles. If false, only one viewport and scissor rectangle is supported.
 };
 
 /**
@@ -1711,6 +1765,7 @@ struct DeviceMemoryProperties {
     void*                  next_in_chain; ///< Pointer to the next queried data struct.
     bool                   gpu_upload_supported; ///< Indicates if GPU upload memory type is supported. This memory type allows mapping the memory and writing to it from CPU, while being accessible from GPU. It is usually implemented as write-combined memory on integrated GPUs and as a part of shared system memory on discrete GPUs.
     bool                   host_image_copy_supported; ///< Indicates if host image copy is supported. This feature allows copying data directly from CPU memory to optimal tiled image layout on GPU, without the need for an intermediate staging buffer. It is supported on Windows 10 22H2 and later with WDDM 3.0 or later. On Vulkan it requires `VK_EXT_host_image_copy` extension.
+    std::uint32_t          supported_initial_transitions; ///< Bitfield of supported initial resource state transitions for buffers and textures. If a transition is supported, the corresponding bit is set to `1`, otherwise `0`. Bit positions are the same as in wis::TextureState enum. `wis::TextureState::Undefined` is always supported.
 };
 
 //==============================================================
@@ -1743,6 +1798,9 @@ static constexpr std::uint32_t MinSupportedInputBindings = 16;
 
 /// @brief Provided by Wisdom 0.7.0. Defines the maximum amount of render targets that can be bound at once.
 static constexpr std::uint32_t MaxRenderTargets = 8;
+
+/// @brief Provided by Wisdom 0.7.0. Defines the maximum amount of viewports that can be bound at once. The same count applies to scissors.
+static constexpr std::uint32_t MaxViewports = 16;
 
 /// @brief Provided by Wisdom 0.7.0. Select whole size of a resource.
 static constexpr std::uint64_t WholeSize = 0xffffffffffffffff;

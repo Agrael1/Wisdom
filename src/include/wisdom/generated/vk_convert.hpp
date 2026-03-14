@@ -591,6 +591,34 @@ constexpr inline VkLogicOp convert_vk(WisLogicOp value) noexcept
     }
 }
 
+constexpr inline VkPrimitiveTopology convert_vk(WisPrimitiveTopology value) noexcept
+{
+    switch (value) {
+    case WisPrimitiveTopologyPointList:
+        return VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
+    case WisPrimitiveTopologyLineList:
+        return VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+    case WisPrimitiveTopologyLineStrip:
+        return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
+    case WisPrimitiveTopologyTriangleList:
+        return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    case WisPrimitiveTopologyTriangleStrip:
+        return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+    case WisPrimitiveTopologyTriangleFan:
+        return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN;
+    case WisPrimitiveTopologyLineListAdj:
+        return VK_PRIMITIVE_TOPOLOGY_LINE_LIST_WITH_ADJACENCY;
+    case WisPrimitiveTopologyLineStripAdj:
+        return VK_PRIMITIVE_TOPOLOGY_LINE_STRIP_WITH_ADJACENCY;
+    case WisPrimitiveTopologyTriangleListAdj:
+        return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST_WITH_ADJACENCY;
+    case WisPrimitiveTopologyTriangleStripAdj:
+        return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP_WITH_ADJACENCY;
+    default:
+        return static_cast<VkPrimitiveTopology>(0);
+    }
+}
+
 constexpr inline VkBufferUsageFlags convert_vk(WisBufferUsageFlags value) noexcept
 {
     VkBufferUsageFlags result = static_cast<VkBufferUsageFlags>(0);

@@ -137,7 +137,7 @@ int main()
         .memory_type         = wis::MemoryType::DeviceLocal,
         .memory_flags        = wis::MemoryFlags::None,
     };
-    wis::Texture texture = resource_allocator.CreateTexture(texture_desc, result);
+    wis::Texture texture = resource_allocator.CreateTexture(texture_desc,wis::TextureState::Undefined, result);
 
     return 0;
 }

@@ -204,6 +204,7 @@ Can still be enqueued after the signal.">
     <func for="ResourceAllocator" name="CreateTexture" version="0.7.0" mod="const" doc="Creates a texture with given descriptor.">
       <ret type="Texture" name="texture" result="true" doc="points to {Texture::}, which is initialized on success."/>
       <arg type="TextureDesc" name="desc" mod="const,ref" doc="points to {TextureDesc::}, which describes the texture to create."/>
+      <arg type="TextureState" name="initial_state" default="Undefined" doc="defines the initial state of the texture. State transition @wis_must be supported, query {DeviceMemoryProperties::} to get if the transition is supported. If not, @wis_must be {TextureState::Undefined}."/>
     </func>
 
     <!-- Buffer Functions -->
@@ -304,6 +305,32 @@ Can still be enqueued after the signal.">
     <func for="CommandList" name="SetPipeline" version="0.7.0" mod="const" doc="Sets the pipeline state object for the command list, so it can be used for draw and dispatch calls.">
       <arg type="PipelineView" name="pipeline" doc="points to {Pipeline::} to set."/>
       <arg type="PipelineType" name="type" default="Graphics" doc="defines the pipeline type to set the pipeline for."/>
+    </func>
+    <func for="CommandList" name="SetViewports" version="0.7.0" doc="Sets multiple viewports.">
+      <arg type="Viewport" name="viewports" mod="const,span" doc="The viewports to set."/>
+      <arg type="size" name="count" doc="The number of viewports to set."/>
+    </func>
+    <func for="CommandList" name="SetScissors" version="0.7.0" doc="Sets multiple scissor rects.
+Each n-th rect corresponds to n-th Viewport set in RSSetViewports if SV_ViewportArrayIndex is used in geometry shader.
+Otherwise the first is chosen.">
+      <arg type="Scissor" name="scissors" mod="const,span" doc="The scissors to set."/>
+      <arg type="size" name="count" doc="The number of scissors to set."/>
+    </func>
+    <func for="CommandList" name="SetPrimitiveTopology" version="0.7.0" doc="Sets the primitive topology. Detemines how vertices shall be processed.">
+      <arg type="PrimitiveTopology" name="topology" doc="The primitive topology to set."/>
+    </func>
+    <func for="CommandList" name="SetDepthBias" version="0.7.0" doc="Sets the depth bias. Determines how depth values are modified during rasterization.">
+      <arg type="f32" name="depth_bias" doc="The depth bias to set."/>
+      <arg type="f32" name="depth_bias_clamp" default="0.0" doc="The depth bias clamp to set."/>
+      <arg type="f32" name="slope_scaled_depth_bias" default="0.0" doc="The slope scaled depth bias to set."/>
+    </func>
+    <func for="CommandList" name="SetPrimitiveRestartValue" version="0.7.0" doc="Sets the primitive restart value. Determines the index value which is treated as a primitive restart when using indexed draw calls.">
+      <arg type="PrimitiveRestartValue" name="restart_value" doc="The primitive restart value to set."/>
+    </func>
+    <func for="CommandList" name="Dispatch" version="0.7.0" mod="const" doc="Dispatches compute shader.">
+      <arg type="u32" name="group_count_x" doc="The number of groups to dispatch in X dimension."/>
+      <arg type="u32" name="group_count_y" default="1" doc="The number of groups to dispatch in Y dimension. Default is 1."/>
+      <arg type="u32" name="group_count_z" default="1" doc="The number of groups to dispatch in Z dimension. Default is 1."/>
     </func>
 
     <!-- Pipeline Cache -->

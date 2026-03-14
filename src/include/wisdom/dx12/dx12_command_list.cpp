@@ -438,4 +438,81 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetPipeline(const WisDX12CommandL
     impl.list->SetPipelineState(pipe);
 }
 
+WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetViewports(WisDX12CommandList* self,
+                                                            const WisViewport*  viewports,
+                                                            size_t              count)
+{
+    auto&          impl      = *reinterpret_cast<wis::impl::DX12CommandListImpl*>(self);
+    auto           max_count = std::min(count, static_cast<size_t>(D3D12_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE));
+    D3D12_VIEWPORT dx_viewports[D3D12_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE];
+
+    for (size_t i = 0; i < max_count; ++i) {
+        dx_viewports[i] = {
+            .TopLeftX = viewports[i].top_leftx,
+            .TopLeftY = viewports[i].top_lefty,
+            .Width    = viewports[i].width,
+            .Height   = viewports[i].height,
+            .MinDepth = viewports[i].min_depth,
+            .MaxDepth = viewports[i].max_depth,
+        };
+    }
+    impl.list->RSSetViewports(static_cast<UINT>(count), dx_viewports);
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetScissors(WisDX12CommandList* self,
+                                                           const WisScissor*   scissors,
+                                                           size_t              count)
+{
+    auto&      impl = *reinterpret_cast<wis::impl::DX12CommandListImpl*>(self);
+    D3D12_RECT dx_scissors[D3D12_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE];
+    auto       max_count = std::min(count, static_cast<size_t>(D3D12_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE));
+    for (size_t i = 0; i < max_count; ++i) {
+        dx_scissors[i] = {
+            .left   = scissors[i].left,
+            .top    = scissors[i].top,
+            .right  = scissors[i].right,
+            .bottom = scissors[i].bottom,
+        };
+    }
+
+    impl.list->RSSetScissorRects(static_cast<UINT>(count), dx_scissors);
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetPrimitiveTopology(WisDX12CommandList*  self,
+                                                                    WisPrimitiveTopology topology)
+{
+    auto& impl = *reinterpret_cast<wis::impl::DX12CommandListImpl*>(self);
+    impl.list->IASetPrimitiveTopology(wis::detail::convert_dx(topology));
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetDepthBias(WisDX12CommandList* self,
+                                                            float               depth_bias,
+                                                            float               depth_bias_clamp,
+                                                            float               slope_scaled_depth_bias)
+{
+    auto& impl = *reinterpret_cast<wis::impl::DX12CommandListImpl*>(self);
+    impl.list->RSSetDepthBias(depth_bias, depth_bias_clamp, slope_scaled_depth_bias);
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetPrimitiveRestartValue(WisDX12CommandList* self,
+                                                                        WisPrimitiveRestartValue value)
+{
+    auto& impl = *reinterpret_cast<wis::impl::DX12CommandListImpl*>(self);
+    impl.list->IASetIndexBufferStripCutValue(wis::detail::convert_dx(value));
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisDX12CommandListDispatch(const WisDX12CommandList* self,
+                                                        uint32_t                  group_count_x,
+                                                        uint32_t                  group_count_y,
+                                                        uint32_t                  group_count_z)
+{
+    auto& impl = *reinterpret_cast<const wis::impl::DX12CommandListImpl*>(self);
+    impl.list->Dispatch(group_count_x, group_count_y, group_count_z);
+}
+
 #endif // WIS_DX12_COMMAND_LIST_CPP

@@ -15,6 +15,7 @@
  *     void*                next_in_chain;
  *     uint32_t             max_vertex_input_attributes;
  *     uint32_t             max_vertex_input_bindings;
+ *     bool                 multiple_viewports_supported;
  * } WisDeviceBindingProperties;
  * 
  * ```
@@ -27,6 +28,7 @@
  *     void*                  next_in_chain;
  *     std::uint32_t          max_vertex_input_attributes;
  *     std::uint32_t          max_vertex_input_bindings;
+ *     bool                   multiple_viewports_supported;
  * };
  * }
  * ```
@@ -39,6 +41,7 @@
  * - `next_in_chain` Pointer to the next queried data struct.
  * - `max_vertex_input_attributes` Maximum number of vertex input attributes supported by the device. Used for vertex buffer bindings.
  * - `max_vertex_input_bindings` Maximum number of vertex input bindings supported by the device. Used for vertex buffer bindings.
+ * - `multiple_viewports_supported` Indicates if multiple viewports are supported. If true, the device supports up to 16 viewports and scissor rectangles. If false, only one viewport and scissor rectangle is supported.
  * \endcond
  *
  * @section WisDeviceBindingProperties_descr Description

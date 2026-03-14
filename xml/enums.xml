@@ -836,6 +836,7 @@ Support of this memory must be queried.">
       </value>
     </type>
 
+    <!-- Don't forget to change the VKConvertToTextureState (detal/vk_detail.hpp) if added new state -->
     <type name="TextureState" category="enum" version="0.7.0" doc="Texture state for resource transitions.">
       <impl_type for="dx" name="D3D12_BARRIER_LAYOUT"/>
       <impl_type for="vk" name="VkImageLayout"/>
@@ -1145,6 +1146,65 @@ Triangle culling depends on {WindingOrder::} option.">
       </value>
       <value name="OrInverted" value="15" doc="Perform a bitwise OR operation on the inverted source and destination values.">
         <impl name="vk" value="VK_LOGIC_OP_OR_INVERTED"/>
+      </value>
+    </type>
+
+    <type name="PrimitiveTopology" category="enum" version="0.7.0" doc="Primitive topology for rendering.
+More info could be found [here](https://learn.microsoft.com/en-us/windows/win32/direct3d11/d3d10-graphics-programming-guide-primitive-topologies).">
+      <impl_type for="dx" name="D3D_PRIMITIVE_TOPOLOGY"/>
+      <impl_type for="vk" name="VkPrimitiveTopology"/>
+      <value name="PointList" value="1" doc="Render points for each vertex.">
+        <impl name="dx" value="D3D_PRIMITIVE_TOPOLOGY_POINTLIST"/>
+        <impl name="vk" value="VK_PRIMITIVE_TOPOLOGY_POINT_LIST"/>
+      </value>
+      <value name="LineList" value="2" doc="Render lines between vertices.">
+        <impl name="dx" value="D3D_PRIMITIVE_TOPOLOGY_LINELIST"/>
+        <impl name="vk" value="VK_PRIMITIVE_TOPOLOGY_LINE_LIST"/>
+      </value>
+      <value name="LineStrip" value="3" doc="Render lines between vertices in a strip.">
+        <impl name="dx" value="D3D_PRIMITIVE_TOPOLOGY_LINESTRIP"/>
+        <impl name="vk" value="VK_PRIMITIVE_TOPOLOGY_LINE_STRIP"/>
+      </value>
+      <value name="TriangleList" value="4" doc="Render triangles between vertices.">
+        <impl name="dx" value="D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST"/>
+        <impl name="vk" value="VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST"/>
+      </value>
+      <value name="TriangleStrip" value="5" doc="Render triangles between vertices in a strip.">
+        <impl name="dx" value="D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP"/>
+        <impl name="vk" value="VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP"/>
+      </value>
+      <value name="TriangleFan" value="6" doc="Interpret vertex data to form a fan of triangles.">
+        <impl name="dx" value="D3D_PRIMITIVE_TOPOLOGY_TRIANGLEFAN"/>
+        <impl name="vk" value="VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN"/>
+      </value>
+      <value name="LineListAdj" value="10" doc="Render lines between vertices with adjacency.">
+        <impl name="dx" value="D3D_PRIMITIVE_TOPOLOGY_LINELIST_ADJ"/>
+        <impl name="vk" value="VK_PRIMITIVE_TOPOLOGY_LINE_LIST_WITH_ADJACENCY"/>
+      </value>
+      <value name="LineStripAdj" value="11" doc="Render lines between vertices in a strip with adjacency.">
+        <impl name="dx" value="D3D_PRIMITIVE_TOPOLOGY_LINESTRIP_ADJ"/>
+        <impl name="vk" value="VK_PRIMITIVE_TOPOLOGY_LINE_STRIP_WITH_ADJACENCY"/>
+      </value>
+      <value name="TriangleListAdj" value="12" doc="Render triangles between vertices with adjacency.">
+        <impl name="dx" value="D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ"/>
+        <impl name="vk" value="VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST_WITH_ADJACENCY"/>
+      </value>
+      <value name="TriangleStripAdj" value="13" doc="Render triangles between vertices in a strip with adjacency.">
+        <impl name="dx" value="D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP_ADJ"/>
+        <impl name="vk" value="VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP_WITH_ADJACENCY"/>
+      </value>
+    </type>
+
+    <type name="PrimitiveRestartValue" category="enum" version="0.7.0" doc="Primitive restart value for indexed drawing with primitive restart enabled.">
+      <impl_type for="dx" name="D3D12_INDEX_BUFFER_STRIP_CUT_VALUE"/>
+      <value name="None" value="0" doc="Primitive restart is disabled. No primitive restart value is used.">
+        <impl name="dx" value="D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED"/>
+      </value>
+      <value name="UInt16Max" value="65535" doc="Use the maximum value of uint16_t as the primitive restart value.">
+        <impl name="dx" value="D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_0xFFFF"/>
+      </value>
+      <value name="UInt32Max" value="-1" doc="Use the maximum value of uint32_t as the primitive restart value.">
+        <impl name="dx" value="D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_0xFFFFFFFF"/>
       </value>
     </type>
 

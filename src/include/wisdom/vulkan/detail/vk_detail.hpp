@@ -120,6 +120,7 @@ struct VKInstanceControlBlock : public VKControlBlock<VKInstanceHeader> {
 //-----------------------------------------------------------------------------
 struct VKDeviceFeatures {
     uint32_t has_custom_border_color           : 1 = false;
+    uint32_t multiple_viewports                : 1 = false;
     uint32_t dynamic_render_unused_attachments : 1 = false;
     uint32_t index_buffer_range                : 1 = false;
     uint32_t descriptor_heap                   : 1 = false;
@@ -130,11 +131,12 @@ struct VKDeviceFeatures {
     uint32_t conservative_rasterization        : 1 = false;
 
     // Properties
+    uint8_t  max_vertex_attributes                    = 0; // rarely greater than 32, so 8 bits is sufficient
+    uint8_t  max_vertex_bindings                      = 0;
     uint16_t resource_desc_size                       = 0;
     uint16_t sampler_desc_size                        = 0;
     uint16_t max_root_space                           = 0;
-    uint8_t  max_vertex_attributes                    = 0; // rarely greater than 32, so 8 bits is sufficient
-    uint8_t  max_vertex_bindings                      = 0;
+    uint16_t supported_image_layout_transitions       = 0; // bitmask of supported image layout transitions, indexed by WisImageLayout. A bit value of 1 indicates support for the transition.
     uint32_t descriptor_heap_reserved_size            = 0;
     uint32_t sampler_heap_reserved_size               = 0;
     uint32_t sampler_heap_reserved_size_with_embedded = 0;
@@ -290,6 +292,61 @@ struct alignas(void*) VKRootSignatureControlBlock {
         };
     }
 };
+
+//-----------------------------------------------------------------------------
+inline constexpr WisTextureState VKConvertToTextureState(VkImageLayout layout) noexcept
+{
+    switch (layout) {
+    default:
+    case VK_IMAGE_LAYOUT_UNDEFINED:
+        return WisTextureStateUndefined;
+    case VK_IMAGE_LAYOUT_GENERAL:
+        return WisTextureStateCommon;
+    case VK_IMAGE_LAYOUT_READ_ONLY_OPTIMAL:
+        return WisTextureStateRead;
+    case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
+        return WisTextureStateRenderTarget;
+    case VK_IMAGE_LAYOUT_ATTACHMENT_OPTIMAL:
+        return WisTextureStateUnorderedAccess;
+    case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
+        return WisTextureStateDepthStencilWrite;
+    case VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL:
+        return WisTextureStateDepthStencilRead;
+    case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
+        return WisTextureStateShaderResource;
+    case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
+        return WisTextureStateCopySrc;
+    case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
+        return WisTextureStateCopyDst;
+    case VK_IMAGE_LAYOUT_PRESENT_SRC_KHR:
+        return WisTextureStatePresent;
+    case VK_IMAGE_LAYOUT_FRAGMENT_SHADING_RATE_ATTACHMENT_OPTIMAL_KHR:
+        return WisTextureStateShadingRate;
+    case VK_IMAGE_LAYOUT_VIDEO_DECODE_SRC_KHR:
+        return WisTextureStateVideoDecodeRead;
+    case VK_IMAGE_LAYOUT_VIDEO_DECODE_DST_KHR:
+        return WisTextureStateVideoDecodeWrite;
+    }
+}
+
+//-----------------------------------------------------------------------------
+inline constexpr VkImageAspectFlags VKAspectFlags(VkFormat format) noexcept
+{
+    switch (format) {
+    case VK_FORMAT_D32_SFLOAT_S8_UINT:
+    case VK_FORMAT_D24_UNORM_S8_UINT:
+    case VK_FORMAT_D16_UNORM_S8_UINT:
+        return VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+    case VK_FORMAT_D16_UNORM:
+    case VK_FORMAT_D32_SFLOAT:
+    case VK_FORMAT_X8_D24_UNORM_PACK32:
+        return VK_IMAGE_ASPECT_DEPTH_BIT;
+    case VK_FORMAT_S8_UINT:
+        return VK_IMAGE_ASPECT_STENCIL_BIT;
+    default:
+        return VK_IMAGE_ASPECT_COLOR_BIT;
+    }
+}
 
 //-----------------------------------------------------------------------------
 /**

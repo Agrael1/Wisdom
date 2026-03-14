@@ -373,14 +373,16 @@ WIS_EXTERN_C WISDOM_API void wisDX12DeviceQueryProperties(const WisDX12Device* s
             auto*                              props     = static_cast<WisDeviceMemoryProperties*>(next);
             D3D12_FEATURE_DATA_D3D12_OPTIONS16 options16 = {};
             if (wis::detail::succeeded(device.device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS16, &options16, sizeof(options16)))) {
-                props->gpu_upload_supported      = options16.GPUUploadHeapSupported;
-                props->host_image_copy_supported = options16.GPUUploadHeapSupported;
+                props->gpu_upload_supported          = options16.GPUUploadHeapSupported;
+                props->host_image_copy_supported     = options16.GPUUploadHeapSupported;
+                props->supported_initial_transitions = 0b0001'1111'1111'1111; // All thansitions are supported
             }
         } break;
         case WisQueryPropertyTypeDeviceBindingProperties: {
-            auto* props                        = static_cast<WisDeviceBindingProperties*>(next);
-            props->max_vertex_input_bindings   = D3D12_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT;
-            props->max_vertex_input_attributes = D3D12_IA_VERTEX_INPUT_STRUCTURE_ELEMENT_COUNT;
+            auto* props                         = static_cast<WisDeviceBindingProperties*>(next);
+            props->max_vertex_input_bindings    = D3D12_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT;
+            props->max_vertex_input_attributes  = D3D12_IA_VERTEX_INPUT_STRUCTURE_ELEMENT_COUNT;
+            props->multiple_viewports_supported = true; // D3D12 supports up to 16 viewports and scissor rectangles
         } break;
         default:
             break;
@@ -738,8 +740,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(const WisD
 
     //--Rasterizer
     if (desc->rasterizer_desc) {
-        auto& raster      = *desc->rasterizer_desc;
-        bool  bias        = raster.depth_bias_enable;
+        auto& raster = *desc->rasterizer_desc;
+        bool  bias   = raster.depth_bias_enable;
         if (bias) {
             stream.flags |= D3D12_PIPELINE_STATE_FLAG_DYNAMIC_DEPTH_BIAS;
         }
@@ -895,7 +897,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(const WisD
         rehash_input.pso_hash[1]  = stream_hash.high64;
 
         // Rehash the combined data to get a final hash for the pipeline state
-        XXH128_hash_t pso_hash   = XXH3_128bits(&rehash_input, sizeof(rehash_input));
+        XXH128_hash_t pso_hash = XXH3_128bits(&rehash_input, sizeof(rehash_input));
 
         // convert hash to hex string for use as pipeline cache key
         wis::format_to(name_buffer + name_offset, L"PSO_{:016x}{:016x}", pso_hash.low64, pso_hash.high64);

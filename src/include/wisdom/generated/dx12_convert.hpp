@@ -293,6 +293,48 @@ constexpr inline D3D12_LOGIC_OP convert_dx(WisLogicOp value) noexcept
     return static_cast<D3D12_LOGIC_OP>(value);
 }
 
+constexpr inline D3D_PRIMITIVE_TOPOLOGY convert_dx(WisPrimitiveTopology value) noexcept
+{
+    switch (value) {
+    case WisPrimitiveTopologyPointList:
+        return D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
+    case WisPrimitiveTopologyLineList:
+        return D3D_PRIMITIVE_TOPOLOGY_LINELIST;
+    case WisPrimitiveTopologyLineStrip:
+        return D3D_PRIMITIVE_TOPOLOGY_LINESTRIP;
+    case WisPrimitiveTopologyTriangleList:
+        return D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+    case WisPrimitiveTopologyTriangleStrip:
+        return D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
+    case WisPrimitiveTopologyTriangleFan:
+        return D3D_PRIMITIVE_TOPOLOGY_TRIANGLEFAN;
+    case WisPrimitiveTopologyLineListAdj:
+        return D3D_PRIMITIVE_TOPOLOGY_LINELIST_ADJ;
+    case WisPrimitiveTopologyLineStripAdj:
+        return D3D_PRIMITIVE_TOPOLOGY_LINESTRIP_ADJ;
+    case WisPrimitiveTopologyTriangleListAdj:
+        return D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ;
+    case WisPrimitiveTopologyTriangleStripAdj:
+        return D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP_ADJ;
+    default:
+        return static_cast<D3D_PRIMITIVE_TOPOLOGY>(0);
+    }
+}
+
+constexpr inline D3D12_INDEX_BUFFER_STRIP_CUT_VALUE convert_dx(WisPrimitiveRestartValue value) noexcept
+{
+    switch (value) {
+    case WisPrimitiveRestartValueNone:
+        return D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED;
+    case WisPrimitiveRestartValueUInt16Max:
+        return D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_0xFFFF;
+    case WisPrimitiveRestartValueUInt32Max:
+        return D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_0xFFFFFFFF;
+    default:
+        return static_cast<D3D12_INDEX_BUFFER_STRIP_CUT_VALUE>(0);
+    }
+}
+
 constexpr inline D3D12_SAMPLER_FLAGS convert_dx(WisSamplerFlags value) noexcept
 {
     D3D12_SAMPLER_FLAGS result = static_cast<D3D12_SAMPLER_FLAGS>(0);

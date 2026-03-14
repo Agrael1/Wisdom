@@ -125,6 +125,12 @@ typedef struct WisDX12GraphicsPipelineDesc    WisGraphicsPipelineDesc;
 #define wisCommandListSetDescriptorTable            wisDX12CommandListSetDescriptorTable
 #define wisCommandListInsertBarriers                wisDX12CommandListInsertBarriers
 #define wisCommandListSetPipeline                   wisDX12CommandListSetPipeline
+#define wisCommandListSetViewports                  wisDX12CommandListSetViewports
+#define wisCommandListSetScissors                   wisDX12CommandListSetScissors
+#define wisCommandListSetPrimitiveTopology          wisDX12CommandListSetPrimitiveTopology
+#define wisCommandListSetDepthBias                  wisDX12CommandListSetDepthBias
+#define wisCommandListSetPrimitiveRestartValue      wisDX12CommandListSetPrimitiveRestartValue
+#define wisCommandListDispatch                      wisDX12CommandListDispatch
 #define wisPipelineCacheSerialize                   wisDX12PipelineCacheSerialize
 #define wisPipelineCacheGetSerializedSize           wisDX12PipelineCacheGetSerializedSize
 #define wisGetPipelineView                          wisGetDX12PipelineView
@@ -268,6 +274,12 @@ typedef struct WisVKGraphicsPipelineDesc    WisGraphicsPipelineDesc;
 #define wisCommandListSetDescriptorTable            wisVKCommandListSetDescriptorTable
 #define wisCommandListInsertBarriers                wisVKCommandListInsertBarriers
 #define wisCommandListSetPipeline                   wisVKCommandListSetPipeline
+#define wisCommandListSetViewports                  wisVKCommandListSetViewports
+#define wisCommandListSetScissors                   wisVKCommandListSetScissors
+#define wisCommandListSetPrimitiveTopology          wisVKCommandListSetPrimitiveTopology
+#define wisCommandListSetDepthBias                  wisVKCommandListSetDepthBias
+#define wisCommandListSetPrimitiveRestartValue      wisVKCommandListSetPrimitiveRestartValue
+#define wisCommandListDispatch                      wisVKCommandListDispatch
 #define wisPipelineCacheSerialize                   wisVKPipelineCacheSerialize
 #define wisPipelineCacheGetSerializedSize           wisVKPipelineCacheGetSerializedSize
 #define wisGetPipelineView                          wisGetVKPipelineView
