@@ -94,30 +94,32 @@ public:
 
 //-----------------------------------------------------------------------------
 struct VKMainCommandList {
-    PFN_vkCmdCopyImage2           vkCmdCopyImage2;
-    PFN_vkCmdCopyBufferToImage2   vkCmdCopyBufferToImage2;
-    PFN_vkCmdCopyImageToBuffer2   vkCmdCopyImageToBuffer2;
-    PFN_vkBeginCommandBuffer      vkBeginCommandBuffer;
-    PFN_vkCmdSetScissor           vkCmdSetScissor;
-    PFN_vkCmdSetViewport          vkCmdSetViewport;
-    PFN_vkCmdBindPipeline         vkCmdBindPipeline;
-    PFN_vkCmdBindDescriptorSets   vkCmdBindDescriptorSets;
-    PFN_vkCmdDispatch             vkCmdDispatch;
-    PFN_vkCmdDraw                 vkCmdDraw;
-    PFN_vkCmdDrawIndexed          vkCmdDrawIndexed;
-    PFN_vkResetCommandBuffer      vkResetCommandBuffer;
-    PFN_vkCmdCopyBuffer           vkCmdCopyBuffer;
-    PFN_vkCmdBindIndexBuffer      vkCmdBindIndexBuffer;
-    PFN_vkCmdPushConstants        vkCmdPushConstants;
-    PFN_vkCmdPipelineBarrier2     vkCmdPipelineBarrier2;
-    PFN_vkCmdBeginRendering       vkCmdBeginRendering;
-    PFN_vkCmdEndRendering         vkCmdEndRendering;
-    PFN_vkCmdSetPrimitiveTopology vkCmdSetPrimitiveTopology;
-    PFN_vkCmdBindVertexBuffers2   vkCmdBindVertexBuffers2;
-    PFN_vkCmdPushDescriptorSet    vkCmdPushDescriptorSet;
-    PFN_vkCmdBindIndexBuffer2     vkCmdBindIndexBuffer2;
-    PFN_vkEndCommandBuffer        vkEndCommandBuffer;
-    PFN_vkFreeCommandBuffers      vkFreeCommandBuffers;
+    PFN_vkCmdCopyImage2                vkCmdCopyImage2;
+    PFN_vkCmdCopyBufferToImage2        vkCmdCopyBufferToImage2;
+    PFN_vkCmdCopyImageToBuffer2        vkCmdCopyImageToBuffer2;
+    PFN_vkBeginCommandBuffer           vkBeginCommandBuffer;
+    PFN_vkCmdSetScissor                vkCmdSetScissor;
+    PFN_vkCmdSetViewport               vkCmdSetViewport;
+    PFN_vkCmdBindPipeline              vkCmdBindPipeline;
+    PFN_vkCmdBindDescriptorSets        vkCmdBindDescriptorSets;
+    PFN_vkCmdDispatch                  vkCmdDispatch;
+    PFN_vkCmdDraw                      vkCmdDraw;
+    PFN_vkCmdDrawIndexed               vkCmdDrawIndexed;
+    PFN_vkResetCommandBuffer           vkResetCommandBuffer;
+    PFN_vkCmdCopyBuffer                vkCmdCopyBuffer;
+    PFN_vkCmdBindIndexBuffer           vkCmdBindIndexBuffer;
+    PFN_vkCmdPushConstants             vkCmdPushConstants;
+    PFN_vkCmdPipelineBarrier2          vkCmdPipelineBarrier2;
+    PFN_vkCmdBeginRendering            vkCmdBeginRendering;
+    PFN_vkCmdEndRendering              vkCmdEndRendering;
+    PFN_vkCmdSetPrimitiveTopology      vkCmdSetPrimitiveTopology;
+    PFN_vkCmdBindVertexBuffers2        vkCmdBindVertexBuffers2;
+    PFN_vkCmdPushDescriptorSet         vkCmdPushDescriptorSet;
+    PFN_vkCmdBindIndexBuffer2          vkCmdBindIndexBuffer2;
+    PFN_vkCmdSetDepthBias              vkCmdSetDepthBias;
+    PFN_vkCmdSetPrimitiveRestartEnable vkCmdSetPrimitiveRestartEnable;
+    PFN_vkEndCommandBuffer             vkEndCommandBuffer;
+    PFN_vkFreeCommandBuffers           vkFreeCommandBuffers;
 
     // Descriptor heap functions
     PFN_vkCmdBindResourceHeapEXT vkCmdBindResourceHeapEXT;
@@ -149,6 +151,8 @@ public:
         ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, vkCmdBindVertexBuffers2, "vkCmdBindVertexBuffers2EXT");
         ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, vkCmdPushDescriptorSet, "vkCmdPushDescriptorSetKHR");
         ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, vkCmdBindIndexBuffer2, "vkCmdBindIndexBuffer2KHR");
+        ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkCmdSetDepthBias);
+        ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, vkCmdSetPrimitiveRestartEnable, "vkCmdSetPrimitiveRestartEnableEXT");
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkEndCommandBuffer);
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkFreeCommandBuffers);
 
@@ -239,6 +243,9 @@ struct VKMainDevice {
     PFN_vkWriteResourceDescriptorsEXT       vkWriteResourceDescriptorsEXT;
     PFN_vkWriteSamplerDescriptorsEXT        vkWriteSamplerDescriptorsEXT;
 
+    // Host copy
+    PFN_vkTransitionImageLayoutEXT vkTransitionImageLayoutEXT;
+
 #ifdef _WIN32
     PFN_vkGetMemoryWin32HandleKHR vkGetMemoryWin32HandleKHR;
 #endif //_WIN32
@@ -306,6 +313,8 @@ public:
 
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkWriteResourceDescriptorsEXT);
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkWriteSamplerDescriptorsEXT);
+
+        ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkTransitionImageLayoutEXT);
 
 #ifdef _WIN32
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkGetMemoryWin32HandleKHR);

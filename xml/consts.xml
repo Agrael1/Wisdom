@@ -10,6 +10,7 @@
     <value type="u32" name="MinSupportedInputAttributes" value="16" version="0.7.0" doc="Defines the minimum amount of vertex attributes that must be supported by the implementation."/>
     <value type="u32" name="MinSupportedInputBindings" value="16" version="0.7.0" doc="Defines the minimum amount of vertex bindings that must be supported by the implementation."/>
     <value type="u32" name="MaxRenderTargets" value="8" version="0.7.0" doc="Defines the maximum amount of render targets that can be bound at once."/>
+    <value type="u32" name="MaxViewports" value="16" version="0.7.0" doc="Defines the maximum amount of viewports that can be bound at once. The same count applies to scissors."/>
     <value type="u64" name="WholeSize" value="0xffffffffffffffff" version="0.7.0" doc="Select whole size of a resource."/>
   </constants>
 </registry>

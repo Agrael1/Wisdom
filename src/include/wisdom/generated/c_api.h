@@ -1042,6 +1042,34 @@ typedef enum WisLogicOp {
 } WisLogicOp;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Primitive topology for rendering.
+ * More info could be found [here](https://learn.microsoft.com/en-us/windows/win32/direct3d11/d3d10-graphics-programming-guide-primitive-topologies).
+ *
+ * */
+typedef enum WisPrimitiveTopology {
+    WisPrimitiveTopologyPointList        = 1, ///< Render points for each vertex.
+    WisPrimitiveTopologyLineList         = 2, ///< Render lines between vertices.
+    WisPrimitiveTopologyLineStrip        = 3, ///< Render lines between vertices in a strip.
+    WisPrimitiveTopologyTriangleList     = 4, ///< Render triangles between vertices.
+    WisPrimitiveTopologyTriangleStrip    = 5, ///< Render triangles between vertices in a strip.
+    WisPrimitiveTopologyTriangleFan      = 6, ///< Interpret vertex data to form a fan of triangles.
+    WisPrimitiveTopologyLineListAdj      = 10, ///< Render lines between vertices with adjacency.
+    WisPrimitiveTopologyLineStripAdj     = 11, ///< Render lines between vertices in a strip with adjacency.
+    WisPrimitiveTopologyTriangleListAdj  = 12, ///< Render triangles between vertices with adjacency.
+    WisPrimitiveTopologyTriangleStripAdj = 13, ///< Render triangles between vertices in a strip with adjacency.
+} WisPrimitiveTopology;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Primitive restart value for indexed drawing with primitive restart enabled.
+ *
+ * */
+typedef enum WisPrimitiveRestartValue {
+    WisPrimitiveRestartValueNone      = 0, ///< Primitive restart is disabled. No primitive restart value is used.
+    WisPrimitiveRestartValueUInt16Max = 65535, ///< Use the maximum value of uint16_t as the primitive restart value.
+    WisPrimitiveRestartValueUInt32Max = -1, ///< Use the maximum value of uint32_t as the primitive restart value.
+} WisPrimitiveRestartValue;
+
+/**
  * @brief Provided by Wisdom 0.7.0. Flags that describe adapter.
  *
  * */
@@ -1642,6 +1670,31 @@ typedef struct WisBlendAttachmentDesc {
 } WisBlendAttachmentDesc;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Viewport description for WisCommandList.
+ * Viewport is considered from Top Left corner.
+ *
+ * */
+typedef struct WisViewport {
+    float top_leftx; ///< Top left corner x coordinate.
+    float top_lefty; ///< Top left corner y coordinate.
+    float width; ///< Viewport width.
+    float height; ///< Viewport height.
+    float min_depth; ///< Minimum depth of the viewport.
+    float max_depth; ///< Maximum depth of the viewport.
+} WisViewport;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Scissor description for WisCommandList.
+ *
+ * */
+typedef struct WisScissor {
+    int32_t left; ///< Left corner x coordinate.
+    int32_t top; ///< Top corner y coordinate.
+    int32_t right; ///< Right corner x coordinate.
+    int32_t bottom; ///< Bottom corner y coordinate.
+} WisScissor;
+
+/**
  * @brief Provided by Wisdom 0.7.0. Blend state description for WisGraphicsPipelineDesc.
  *
  * */
@@ -1670,6 +1723,7 @@ typedef struct WisDeviceBindingProperties {
     void*                next_in_chain; ///< Pointer to the next queried data struct.
     uint32_t             max_vertex_input_attributes; ///< Maximum number of vertex input attributes supported by the device. Used for vertex buffer bindings.
     uint32_t             max_vertex_input_bindings; ///< Maximum number of vertex input bindings supported by the device. Used for vertex buffer bindings.
+    bool                 multiple_viewports_supported; ///< Indicates if multiple viewports are supported. If true, the device supports up to 16 viewports and scissor rectangles. If false, only one viewport and scissor rectangle is supported.
 } WisDeviceBindingProperties;
 
 /**
@@ -1707,6 +1761,7 @@ typedef struct WisDeviceMemoryProperties {
     void*                next_in_chain; ///< Pointer to the next queried data struct.
     bool                 gpu_upload_supported; ///< Indicates if GPU upload memory type is supported. This memory type allows mapping the memory and writing to it from CPU, while being accessible from GPU. It is usually implemented as write-combined memory on integrated GPUs and as a part of shared system memory on discrete GPUs.
     bool                 host_image_copy_supported; ///< Indicates if host image copy is supported. This feature allows copying data directly from CPU memory to optimal tiled image layout on GPU, without the need for an intermediate staging buffer. It is supported on Windows 10 22H2 and later with WDDM 3.0 or later. On Vulkan it requires `VK_EXT_host_image_copy` extension.
+    uint32_t             supported_initial_transitions; ///< Bitfield of supported initial resource state transitions for buffers and textures. If a transition is supported, the corresponding bit is set to `1`, otherwise `0`. Bit positions are the same as in wis::TextureState enum. `WisTextureStateUndefined` is always supported.
 } WisDeviceMemoryProperties;
 
 //==============================================================
@@ -1739,6 +1794,9 @@ typedef struct WisDeviceMemoryProperties {
 
 /// @brief Provided by Wisdom 0.7.0. Defines the maximum amount of render targets that can be bound at once.
 #define WIS_MAX_RENDER_TARGETS ((uint32_t)8)
+
+/// @brief Provided by Wisdom 0.7.0. Defines the maximum amount of viewports that can be bound at once. The same count applies to scissors.
+#define WIS_MAX_VIEWPORTS ((uint32_t)16)
 
 /// @brief Provided by Wisdom 0.7.0. Select whole size of a resource.
 #define WIS_WHOLE_SIZE ((uint64_t)0xffffffffffffffff)

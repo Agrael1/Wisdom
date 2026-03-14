@@ -100,7 +100,7 @@ GetMappingOffsetPerShaderType(wis::span<uint32_t, WisShaderVisibilityCount> map_
     }
     if (non_empty_stage_count == 0) {
         // If there are no stages, place "all" maps at the beginning
-        offsets[0] = { 0, true };
+        offsets[0]  = { 0, true };
         total_count = all_count;
     }
 
@@ -635,8 +635,9 @@ WIS_EXTERN_C WISDOM_API void wisVKDeviceQueryProperties(const WisVKDevice* self,
             props->sampler_increment_size              = header.features.sampler_desc_size;
         } break;
         case WisQueryPropertyTypeDeviceMemoryProperties: {
-            auto* props                      = static_cast<WisDeviceMemoryProperties*>(next);
-            props->host_image_copy_supported = header.features.host_image_copy;
+            auto* props                          = static_cast<WisDeviceMemoryProperties*>(next);
+            props->host_image_copy_supported     = header.features.host_image_copy;
+            props->supported_initial_transitions = header.features.supported_image_layout_transitions;
 
             const VkPhysicalDeviceMemoryProperties* mem_props;
             vmaGetMemoryProperties(header.allocator, &mem_props);
@@ -652,9 +653,10 @@ WIS_EXTERN_C WISDOM_API void wisVKDeviceQueryProperties(const WisVKDevice* self,
             }
         } break;
         case WisQueryPropertyTypeDeviceBindingProperties: {
-            auto* props                        = static_cast<WisDeviceBindingProperties*>(next);
-            props->max_vertex_input_bindings   = header.features.max_vertex_bindings;
-            props->max_vertex_input_attributes = header.features.max_vertex_attributes;
+            auto* props                         = static_cast<WisDeviceBindingProperties*>(next);
+            props->max_vertex_input_bindings    = header.features.max_vertex_bindings;
+            props->max_vertex_input_attributes  = header.features.max_vertex_attributes;
+            props->multiple_viewports_supported = header.features.multiple_viewports;
         } break;
         default:
             break;

@@ -272,6 +272,23 @@
       <member type="ColorComponents" name="color_write_mask" default="All" doc="Color write mask. Default is {ColorComponents::All}."/>
     </type>
 
+    <type name="Viewport" category="struct" version="0.7.0" doc="Viewport description for {CommandList::}.
+Viewport is considered from Top Left corner.">
+      <member type="f32" name="top_leftx" doc="Top left corner x coordinate."/>
+      <member type="f32" name="top_lefty" doc="Top left corner y coordinate."/>
+      <member type="f32" name="width" doc="Viewport width."/>
+      <member type="f32" name="height" doc="Viewport height."/>
+      <member type="f32" name="min_depth" doc="Minimum depth of the viewport."/>
+      <member type="f32" name="max_depth" doc="Maximum depth of the viewport."/>
+    </type>
+
+    <type name="Scissor" category="struct" version="0.7.0" doc="Scissor description for {CommandList::}.">
+      <member type="i32" name="left" doc="Left corner x coordinate."/>
+      <member type="i32" name="top" doc="Top corner y coordinate."/>
+      <member type="i32" name="right" doc="Right corner x coordinate."/>
+      <member type="i32" name="bottom" doc="Bottom corner y coordinate."/>
+    </type>
+
     <type name="BlendStateDesc" category="struct" version="0.7.0" doc="Blend state description for {GraphicsPipelineDesc::}.">
       <member type="bool" name="logic_op_enable" default="false" doc="Logic operation enable. Default is false."/>
       <member type="LogicOp" name="logic_op" default="Noop" doc="Logic operation. Default is {LogicOp::Noop}."/>
@@ -301,6 +318,7 @@
       <!-- Resource Binding -->
       <member type="u32" name="max_vertex_input_attributes" doc="Maximum number of vertex input attributes supported by the device. Used for vertex buffer bindings."/>
       <member type="u32" name="max_vertex_input_bindings" doc="Maximum number of vertex input bindings supported by the device. Used for vertex buffer bindings."/>
+      <member type="bool" name="multiple_viewports_supported" doc="Indicates if multiple viewports are supported. If true, the device supports up to 16 viewports and scissor rectangles. If false, only one viewport and scissor rectangle is supported."/>
     </type>
 
     <type name="DeviceDescriptorHeapProperties" category="struct" version="0.7.0" doc="Device descriptor heap properties. Used to query descriptor heap support and limits.">
@@ -331,6 +349,7 @@
       <!-- Memory -->
       <member type="bool" name="gpu_upload_supported" doc="Indicates if GPU upload memory type is supported. This memory type allows mapping the memory and writing to it from CPU, while being accessible from GPU. It is usually implemented as write-combined memory on integrated GPUs and as a part of shared system memory on discrete GPUs."/>
       <member type="bool" name="host_image_copy_supported" doc="Indicates if host image copy is supported. This feature allows copying data directly from CPU memory to optimal tiled image layout on GPU, without the need for an intermediate staging buffer. It is supported on Windows 10 22H2 and later with WDDM 3.0 or later. On Vulkan it requires `VK_EXT_host_image_copy` extension."/>
+      <member type="u32" name="supported_initial_transitions" doc="Bitfield of supported initial resource state transitions for buffers and textures. If a transition is supported, the corresponding bit is set to `1`, otherwise `0`. Bit positions are the same as in {TextureState::} enum. {TextureState::Undefined} is always supported."/>
     </type>
 
     <type name="BufferBarrier" category="variant" version="0.7.0" doc="Buffer barrier with the buffer handle.">
@@ -390,8 +409,7 @@
       <member type="ShaderView" name="domain_shader" default="0" doc="Domain shader bytecode. If not set, the pipeline will be created without a domain shader."/>
       <member type="ShaderView" name="geometry_shader" default="0" doc="Geometry shader bytecode. If not set, the pipeline will be created without a geometry shader."/>
       <member type="ShaderView" name="pixel_shader" default="0" doc="Pixel shader bytecode. If not set, the pipeline will be created without a pixel shader."/>
-
-      <!--other types-->
+      
       <member type="RenderAttachmentsDesc" name="render_attachments" doc="Render attachments description for the pipeline. Used to create the compatible render pass for the pipeline."/>
       <member type="InputLayout" name="input_layout" default="{}" doc="Input layout description for the pipeline. If not set, the pipeline will be created without an input layout."/>
       <member type="TopologyType" name="topology_type" default="Triangle" doc="Topology type. Default is {TopologyType::Triangle}."/>

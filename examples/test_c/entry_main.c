@@ -117,6 +117,7 @@ WisPipelineCache CreatePipelineCache(const WisDevice* device, const char* filena
     return pipeline_cache;
 }
 
+//------------------------------------------------------------------------------
 void SavePipelineCache(const WisPipelineCache* cache, const char* filename)
 {
     // Store pipeline cache in the file
@@ -288,6 +289,15 @@ void DestoyRenderer(BasicRenderer* renderer)
     wisDestroyCommandQueue(&renderer->gfx_queue);
     wisDestroyResourceAllocator(&renderer->allocator);
     wisDestroyDevice(&renderer->device);
+}
+
+//------------------------------------------------------------------------------
+void WaitForFinish(BasicRenderer* renderer)
+{
+    WisResult result = wisCommandQueueSignalFence(&renderer->gfx_queue, wisGetView(&renderer->fence), renderer->next_fence_value);
+    printf("WaitForFinish SignalFence result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+    result = wisFenceWait(&renderer->fence, renderer->next_fence_value, UINT64_MAX);
+    printf("WaitForFinish FenceWait result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
 }
 
 //------------------------------------------------------------------------------
@@ -551,13 +561,16 @@ void Render(BasicRenderer* renderer, const ResourceContainer* resources, const B
         .buffer_barrier_count = 1
     };
 
+    WisViewport viewport = { .width = 800.0f, .height = 600.0f, .min_depth = 0.0f, .max_depth = 1.0f };
+    WisScissor  scissor  = { .left = 0, .top = 0, .right = 800, .bottom = 600 };
+
     wisCommandListBegin(&frame->command_list);
 
     wisCommandListSetRootSignature(&frame->command_list, wisGetView(&task->compute_signature), WisPipelineTypeCompute);
     wisCommandListSetPipeline(&frame->command_list, wisGetView(&task->compute_pipeline), WisPipelineTypeCompute);
     wisCommandListSetPushConstants(&frame->command_list, &compute_constants_desc);
     wisCommandListSetPushDescriptor(&frame->command_list, &compute_push_descriptor_desc);
-    // TODO: Dispatch compute workgroups when command is available in C API.
+    wisCommandListDispatch(&frame->command_list, PARTICLE_COUNT, 1, 1);
 
     wisCommandListInsertBarriers(&frame->command_list, &barrier_group);
 
@@ -566,7 +579,9 @@ void Render(BasicRenderer* renderer, const ResourceContainer* resources, const B
     wisCommandListSetPushConstants(&frame->command_list, &push_constant_data_desc);
     wisCommandListSetPushDescriptor(&frame->command_list, &push_descriptor_data_desc);
 
-    // TODO: Set viewport, scissor, and primitive topology commands once exposed.
+    wisCommandListSetViewports(&frame->command_list, &viewport, 1);
+    wisCommandListSetScissors(&frame->command_list, &scissor, 1);
+    wisCommandListSetPrimitiveTopology(&frame->command_list, WisPrimitiveTopologyTriangleList);
     // TODO: Begin render pass with swapchain color target + depth attachment.
     // TODO: Issue draw call for PARTICLE_COUNT * 3 vertices (triangle per particle).
     // TODO: End render pass and present the swapchain image.
@@ -606,6 +621,8 @@ int main()
     for (uint32_t i = 0; i < TEST_FRAME_COUNT; ++i) {
         Render(&renderer, &resources, &render_task);
     }
+    // Wait for GPU to finish before exiting
+    WaitForFinish(&renderer);
 
     // Cleanup
     DestroyRenderTask(&render_task);

@@ -681,12 +681,14 @@ WISDOM_API WisResult wisVKResourceAllocatorCreateBuffer(const WisVKResourceAlloc
  * @brief Provided by Wisdom 0.7.0. Creates a texture with given descriptor.
  * @param self is a pointer to the valid WisResourceAllocator instance.
  * @param desc points to WisTextureDesc, which describes the texture to create.
+ * @param initial_state defines the initial state of the texture. State transition @wis_must be supported, query WisDeviceMemoryProperties to get if the transition is supported. If not, @wis_must be `WisTextureStateUndefined`.
  * @param texture points to WisTexture, which is initialized on success.
  * @return Result denoting the outcome of operation.
  *
  * */
 WISDOM_API WisResult wisVKResourceAllocatorCreateTexture(const WisVKResourceAllocator* self,
                                                          const WisTextureDesc*         desc,
+                                                         WisTextureState               initial_state,
                                                          WisVKTexture*                 texture);
 
 /**
@@ -923,6 +925,74 @@ WISDOM_API void wisVKCommandListInsertBarriers(const WisVKCommandList*  self,
 WISDOM_API void wisVKCommandListSetPipeline(const WisVKCommandList* self,
                                             WisVKPipelineView       pipeline,
                                             WisPipelineType         type);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets multiple viewports.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param viewports The viewports to set.
+ * @param count The number of viewports to set.
+ *
+ * */
+WISDOM_API void wisVKCommandListSetViewports(WisVKCommandList*  self,
+                                             const WisViewport* viewports,
+                                             size_t             count);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets multiple scissor rects.
+ * Each n-th rect corresponds to n-th Viewport set in RSSetViewports if SV_ViewportArrayIndex is used in geometry shader.
+ * Otherwise the first is chosen.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param scissors The scissors to set.
+ * @param count The number of scissors to set.
+ *
+ * */
+WISDOM_API void wisVKCommandListSetScissors(WisVKCommandList* self,
+                                            const WisScissor* scissors,
+                                            size_t            count);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the primitive topology. Detemines how vertices shall be processed.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param topology The primitive topology to set.
+ *
+ * */
+WISDOM_API void wisVKCommandListSetPrimitiveTopology(WisVKCommandList*    self,
+                                                     WisPrimitiveTopology topology);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the depth bias. Determines how depth values are modified during rasterization.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param depth_bias The depth bias to set.
+ * @param depth_bias_clamp The depth bias clamp to set.
+ * @param slope_scaled_depth_bias The slope scaled depth bias to set.
+ *
+ * */
+WISDOM_API void wisVKCommandListSetDepthBias(WisVKCommandList* self,
+                                             float             depth_bias,
+                                             float             depth_bias_clamp,
+                                             float             slope_scaled_depth_bias);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the primitive restart value. Determines the index value which is treated as a primitive restart when using indexed draw calls.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param restart_value The primitive restart value to set.
+ *
+ * */
+WISDOM_API void wisVKCommandListSetPrimitiveRestartValue(WisVKCommandList*        self,
+                                                         WisPrimitiveRestartValue restart_value);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Dispatches compute shader.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param group_count_x The number of groups to dispatch in X dimension.
+ * @param group_count_y The number of groups to dispatch in Y dimension. Default is 1.
+ * @param group_count_z The number of groups to dispatch in Z dimension. Default is 1.
+ *
+ * */
+WISDOM_API void wisVKCommandListDispatch(const WisVKCommandList* self,
+                                         uint32_t                group_count_x,
+                                         uint32_t                group_count_y,
+                                         uint32_t                group_count_z);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Gets the data from the pipeline cache.

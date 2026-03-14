@@ -523,16 +523,19 @@ public:
     /**
      * @brief Provided by Wisdom 0.7.0. Creates a texture with given descriptor.
      * @param desc points to wis::TextureDesc, which describes the texture to create.
+     * @param initial_state defines the initial state of the texture. State transition @wis_must be supported, query wis::DeviceMemoryProperties to get if the transition is supported. If not, @wis_must be `wis::TextureState::Undefined`.
      * @param out_result denoting the outcome of operation.
      * @return texture points to wis::Texture, which is initialized on success.
      *
      * */
     WIS_NODISCARD inline wis::DX12Texture CreateTexture(const wis::TextureDesc& desc,
+                                                        wis::TextureState       initial_state,
                                                         wis::Result&            out_result) const noexcept
     {
         wis::DX12Texture texture;
         out_result = convert_result(::wisDX12ResourceAllocatorCreateTexture(&_impl_storage,
                                                                             reinterpret_cast<const WisTextureDesc*>(&desc),
+                                                                            static_cast<WisTextureState>(initial_state),
                                                                             texture.GetStorage()));
         return texture;
     }
@@ -722,6 +725,82 @@ public:
         ::wisDX12CommandListSetPipeline(&_impl_storage,
                                         pipeline,
                                         static_cast<WisPipelineType>(type));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Sets multiple viewports.
+     * @param viewports The viewports to set.
+     *
+     * */
+    inline void SetViewports(wis::span<const wis::Viewport> viewports) noexcept
+    {
+        ::wisDX12CommandListSetViewports(&_impl_storage,
+                                         reinterpret_cast<const WisViewport*>(viewports.data()),
+                                         viewports.size());
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Sets multiple scissor rects.
+     * Each n-th rect corresponds to n-th Viewport set in RSSetViewports if SV_ViewportArrayIndex is used in geometry shader.
+     * Otherwise the first is chosen.
+     * @param scissors The scissors to set.
+     *
+     * */
+    inline void SetScissors(wis::span<const wis::Scissor> scissors) noexcept
+    {
+        ::wisDX12CommandListSetScissors(&_impl_storage,
+                                        reinterpret_cast<const WisScissor*>(scissors.data()),
+                                        scissors.size());
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Sets the primitive topology. Detemines how vertices shall be processed.
+     * @param topology The primitive topology to set.
+     *
+     * */
+    inline void SetPrimitiveTopology(wis::PrimitiveTopology topology) noexcept
+    {
+        ::wisDX12CommandListSetPrimitiveTopology(&_impl_storage,
+                                                 static_cast<WisPrimitiveTopology>(topology));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Sets the depth bias. Determines how depth values are modified during rasterization.
+     * @param depth_bias The depth bias to set.
+     * @param depth_bias_clamp The depth bias clamp to set.
+     * @param slope_scaled_depth_bias The slope scaled depth bias to set.
+     *
+     * */
+    inline void SetDepthBias(float depth_bias,
+                             float depth_bias_clamp,
+                             float slope_scaled_depth_bias) noexcept
+    {
+        ::wisDX12CommandListSetDepthBias(&_impl_storage,
+                                         depth_bias,
+                                         depth_bias_clamp,
+                                         slope_scaled_depth_bias);
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Sets the primitive restart value. Determines the index value which is treated as a primitive restart when using indexed draw calls.
+     * @param restart_value The primitive restart value to set.
+     *
+     * */
+    inline void SetPrimitiveRestartValue(wis::PrimitiveRestartValue restart_value) noexcept
+    {
+        ::wisDX12CommandListSetPrimitiveRestartValue(&_impl_storage,
+                                                     static_cast<WisPrimitiveRestartValue>(restart_value));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Dispatches compute shader.
+     * @param group_count_x The number of groups to dispatch in X dimension.
+     * @param group_count_y The number of groups to dispatch in Y dimension. Default is 1.
+     * @param group_count_z The number of groups to dispatch in Z dimension. Default is 1.
+     *
+     * */
+    inline void Dispatch(std::uint32_t group_count_x,
+                         std::uint32_t group_count_y,
+                         std::uint32_t group_count_z) const noexcept
+    {
+        ::wisDX12CommandListDispatch(&_impl_storage,
+                                     group_count_x,
+                                     group_count_y,
+                                     group_count_z);
     }
 };
 

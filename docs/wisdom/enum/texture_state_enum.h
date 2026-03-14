@@ -79,6 +79,6 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisTextureBarrier, WisTextureBarrier
+ * @see WisTextureBarrier, WisTextureBarrier, wisResourceAllocatorCreateTexture
  * \endcond
  */

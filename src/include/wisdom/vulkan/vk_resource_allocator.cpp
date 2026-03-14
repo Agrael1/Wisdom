@@ -168,6 +168,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateBuffer(const WisVK
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateTexture(const WisVKResourceAllocator* self,
                                                                       const WisTextureDesc*         desc,
+                                                                      WisTextureState               initial_state,
                                                                       WisVKTexture*                 buffer)
 {
     auto& allocator = *reinterpret_cast<const wis::impl::VKResourceAllocatorImpl*>(self);
@@ -195,6 +196,40 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateTexture(const WisV
             nullptr);
     if (!wis::detail::succeeded(vr)) {
         return wis::detail::make_result<wis::detail::Func(), "Buffer creation failed">(vr);
+    }
+
+    // Perform transition to initial state if it's not undefined, since the image will be created in undefined layout
+    if (initial_state != WisTextureStateUndefined) {
+        auto& header   = allocator.device_header->header;
+        auto& features = header.features;
+        if (!(features.supported_image_layout_transitions & (1u << static_cast<uint32_t>(initial_state)))) {
+            vmaDestroyImage(allocator.allocator, image_handle, allocation_handle);
+            return wis::detail::make_result<wis::detail::Func(), "The Vulkan device does not support the requested initial texture state">(VK_ERROR_FEATURE_NOT_PRESENT);
+        }
+
+        // perform transition
+        auto& table = header.device_table;
+
+        VkHostImageLayoutTransitionInfoEXT transition_info{
+            .sType            = VK_STRUCTURE_TYPE_HOST_IMAGE_LAYOUT_TRANSITION_INFO_EXT,
+            .pNext            = nullptr,
+            .image            = image_handle,
+            .oldLayout        = VK_IMAGE_LAYOUT_UNDEFINED,
+            .newLayout        = wis::detail::convert_vk(initial_state),
+            .subresourceRange = {
+                                 .aspectMask     = wis::detail::VKAspectFlags(image_info.format),
+                                 .baseMipLevel   = 0,
+                                 .levelCount     = image_info.mipLevels,
+                                 .baseArrayLayer = 0,
+                                 .layerCount     = image_info.arrayLayers,
+                                 },
+        };
+
+        vr = table.vkTransitionImageLayoutEXT(header.device, 1, &transition_info);
+        if (!wis::detail::succeeded(vr)) {
+            vmaDestroyImage(allocator.allocator, image_handle, allocation_handle);
+            return wis::detail::make_result<wis::detail::Func(), "Failed to transition image to initial layout">(vr);
+        }
     }
 
     auto& impl = *new (buffer) wis::impl::VKTextureImpl{
