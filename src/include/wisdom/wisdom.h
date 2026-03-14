@@ -105,6 +105,7 @@ typedef struct WisDX12GraphicsPipelineDesc    WisGraphicsPipelineDesc;
 #define wisResourceAllocatorCreateTexture           wisDX12ResourceAllocatorCreateTexture
 #define wisBufferMap                                wisDX12BufferMap
 #define wisBufferGetGPUAddress                      wisDX12BufferGetGPUAddress
+#define wisTextureWriteSubresource                  wisDX12TextureWriteSubresource
 #define wisDescriptorHeapGetCPUHandle               wisDX12DescriptorHeapGetCPUHandle
 #define wisDescriptorHeapWriteConstantBuffer        wisDX12DescriptorHeapWriteConstantBuffer
 #define wisDescriptorHeapWriteStructuredBuffer      wisDX12DescriptorHeapWriteStructuredBuffer
@@ -254,6 +255,7 @@ typedef struct WisVKGraphicsPipelineDesc    WisGraphicsPipelineDesc;
 #define wisResourceAllocatorCreateTexture           wisVKResourceAllocatorCreateTexture
 #define wisBufferMap                                wisVKBufferMap
 #define wisBufferGetGPUAddress                      wisVKBufferGetGPUAddress
+#define wisTextureWriteSubresource                  wisVKTextureWriteSubresource
 #define wisDescriptorHeapGetCPUHandle               wisVKDescriptorHeapGetCPUHandle
 #define wisDescriptorHeapWriteConstantBuffer        wisVKDescriptorHeapWriteConstantBuffer
 #define wisDescriptorHeapWriteStructuredBuffer      wisVKDescriptorHeapWriteStructuredBuffer

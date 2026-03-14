@@ -1706,6 +1706,38 @@ typedef struct WisBlendStateDesc {
 } WisBlendStateDesc;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Box description for texture copy regions.
+ *
+ * */
+typedef struct WisBox {
+    uint32_t x; ///< Left corner x coordinate.
+    uint32_t y; ///< Top corner y coordinate.
+    uint32_t z; ///< Front corner z coordinate. Used only for 3D textures.
+    uint32_t width; ///< Width of the box.
+    uint32_t height; ///< Height of the box.
+    uint32_t depth; ///< Depth of the box. Used only for 3D textures.
+} WisBox;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Target subresource description for texture copy regions.
+ *
+ * */
+typedef struct WisTargetSubresource {
+    uint16_t mip_level; ///< Mipmap level of the target subresource.
+    uint16_t array_layer; ///< Array layer of the target subresource. For 3D textures @wis_must be 0.
+    uint16_t plane_slice; ///< Depth slice of the target subresource. Used only for 2D textures (YUV).
+} WisTargetSubresource;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Texture copy region description for texture copy operations.
+ *
+ * */
+typedef struct WisTextureRegion {
+    WisBox               box; ///< Box defining the region to copy.
+    WisTargetSubresource target_subresource; ///< Target subresource description for the region.
+} WisTextureRegion;
+
+/**
  * @brief Provided by Wisdom 0.7.0. Query struct header. Used as a header for all query structs.
  *
  * */

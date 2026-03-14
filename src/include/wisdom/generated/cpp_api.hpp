@@ -1710,6 +1710,38 @@ struct BlendStateDesc {
 };
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Box description for texture copy regions.
+ *
+ * */
+struct Box {
+    std::uint32_t x; ///< Left corner x coordinate.
+    std::uint32_t y; ///< Top corner y coordinate.
+    std::uint32_t z; ///< Front corner z coordinate. Used only for 3D textures.
+    std::uint32_t width; ///< Width of the box.
+    std::uint32_t height; ///< Height of the box.
+    std::uint32_t depth; ///< Depth of the box. Used only for 3D textures.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Target subresource description for texture copy regions.
+ *
+ * */
+struct TargetSubresource {
+    std::uint16_t mip_level; ///< Mipmap level of the target subresource.
+    std::uint16_t array_layer; ///< Array layer of the target subresource. For 3D textures @wis_must be 0.
+    std::uint16_t plane_slice; ///< Depth slice of the target subresource. Used only for 2D textures (YUV).
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Texture copy region description for texture copy operations.
+ *
+ * */
+struct TextureRegion {
+    wis::Box               box; ///< Box defining the region to copy.
+    wis::TargetSubresource target_subresource; ///< Target subresource description for the region.
+};
+
+/**
  * @brief Provided by Wisdom 0.7.0. Query struct header. Used as a header for all query structs.
  *
  * */

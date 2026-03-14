@@ -708,6 +708,18 @@ WISDOM_API void* wisDX12BufferMap(const WisDX12Buffer* self);
 WISDOM_API uint64_t wisDX12BufferGetGPUAddress(const WisDX12Buffer* self);
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Writes data direct to the texture subresource. Texture @wis_must be in `WisTextureStateCommon` and @wis_must_not be a depth texture.
+ * @param self is a pointer to the valid WisTexture instance.
+ * @param source_data points to the data to write to the texture.
+ * @param target_region points to WisTextureRegion, which describes the region of the texture to write to.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12TextureWriteSubresource(const WisDX12Texture*   self,
+                                                    const void*             source_data,
+                                                    const WisTextureRegion* target_region);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Returns the CPU descriptor handle for the descriptor heap.
  * @param self is a pointer to the valid WisDescriptorHeap instance.
  * @return void CPU descriptor handle for the descriptor heap.

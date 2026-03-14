@@ -296,6 +296,26 @@ Viewport is considered from Top Left corner.">
       <member type="u32" name="attachment_count" doc="Blend attachment count. If set as 0 - broadcast to all attachments. Max is 8."/>
     </type>
 
+    <type name="Box" category="struct" version="0.7.0" doc="Box description for texture copy regions.">
+      <member type="u32" name="x" doc="Left corner x coordinate."/>
+      <member type="u32" name="y" doc="Top corner y coordinate."/>
+      <member type="u32" name="z" doc="Front corner z coordinate. Used only for 3D textures."/>
+      <member type="u32" name="width" doc="Width of the box."/>
+      <member type="u32" name="height" doc="Height of the box."/>
+      <member type="u32" name="depth" doc="Depth of the box. Used only for 3D textures."/>
+    </type>
+
+    <type name="TargetSubresource" category="struct" version="0.7.0" doc="Target subresource description for texture copy regions.">
+      <member type="u16" name="mip_level" default="0" doc="Mipmap level of the target subresource."/>
+      <member type="u16" name="array_layer" default="0" doc="Array layer of the target subresource. For 3D textures must be 0."/>
+      <member type="u16" name="plane_slice" default="0" doc="Depth slice of the target subresource. Used only for 2D textures (YUV)."/>
+    </type>
+
+    <type name="TextureRegion" category="struct" version="0.7.0" doc="Texture copy region description for texture copy operations.">
+      <member type="Box" name="box" doc="Box defining the region to copy."/>
+      <member type="TargetSubresource" name="target_subresource" doc="Target subresource description for the region."/>
+    </type>
+
     <!-- Variants -->
     <type name="DeviceRequirements" category="variant" version="0.7.0" doc="Device requirements. Used to specify required features and properties for device creation.">
       <member type="CommandQueueDesc" name="queue_descs" mod="const,span" default="nullptr" doc="points to an array of {CommandQueueDesc::} for which queues will be created during device creation."/>
@@ -409,7 +429,7 @@ Viewport is considered from Top Left corner.">
       <member type="ShaderView" name="domain_shader" default="0" doc="Domain shader bytecode. If not set, the pipeline will be created without a domain shader."/>
       <member type="ShaderView" name="geometry_shader" default="0" doc="Geometry shader bytecode. If not set, the pipeline will be created without a geometry shader."/>
       <member type="ShaderView" name="pixel_shader" default="0" doc="Pixel shader bytecode. If not set, the pipeline will be created without a pixel shader."/>
-      
+
       <member type="RenderAttachmentsDesc" name="render_attachments" doc="Render attachments description for the pipeline. Used to create the compatible render pass for the pipeline."/>
       <member type="InputLayout" name="input_layout" default="{}" doc="Input layout description for the pipeline. If not set, the pipeline will be created without an input layout."/>
       <member type="TopologyType" name="topology_type" default="Triangle" doc="Topology type. Default is {TopologyType::Triangle}."/>
