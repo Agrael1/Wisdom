@@ -214,6 +214,13 @@ Can still be enqueued after the signal.">
     <func for="Buffer" name="GetGPUAddress" version="0.7.0" mod="const" doc="Unmaps the buffer memory from CPU accessible address space.">
       <ret type="u64" name="address" doc="Address of the buffer on GPU."/>
     </func>
+    
+    <!-- Texture Functions -->
+    <func for="Texture" name="WriteSubresource" version="0.7.0" mod="const" doc="Writes data direct to the texture subresource. Texture @wis_must be in {TextureState::Common} and @wis_must_not be a depth texture.">
+      <ret type="Result" name="result" doc="Result of operation."/>
+      <arg type="void" name="source_data" mod="const,ptr" doc="points to the data to write to the texture."/>
+      <arg type="TextureRegion" name="target_region" mod="const,ref" doc="points to {TextureRegion::}, which describes the region of the texture to write to."/>
+    </func>
 
     <!-- Descriptor Heap -->
     <func for="DescriptorHeap" name="GetCPUHandle" version="0.7.0" mod="const" doc="Returns the CPU descriptor handle for the descriptor heap.">

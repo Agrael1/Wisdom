@@ -245,6 +245,7 @@ struct VKMainDevice {
 
     // Host copy
     PFN_vkTransitionImageLayoutEXT vkTransitionImageLayoutEXT;
+    PFN_vkCopyMemoryToImageEXT     vkCopyMemoryToImageEXT;
 
 #ifdef _WIN32
     PFN_vkGetMemoryWin32HandleKHR vkGetMemoryWin32HandleKHR;
@@ -315,6 +316,7 @@ public:
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkWriteSamplerDescriptorsEXT);
 
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkTransitionImageLayoutEXT);
+        ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkCopyMemoryToImageEXT);
 
 #ifdef _WIN32
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkGetMemoryWin32HandleKHR);

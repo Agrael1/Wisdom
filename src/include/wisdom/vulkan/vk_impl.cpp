@@ -69,6 +69,57 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyTexture(WisVKTexture* self)
 }
 
 //-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisVKTextureWriteSubresource(const WisVKTexture*     self,
+                                                               const void*             source_data,
+                                                               const WisTextureRegion* target_region)
+{
+    auto& impl   = *reinterpret_cast<const wis::impl::VKTextureImpl*>(self);
+    auto& header = impl.device_header->header;
+    auto  device = header.device;
+    auto& table  = header.device_table;
+
+    static auto plane_to_aspect_mask = [](uint16_t plane) -> VkImageAspectFlags {
+        switch (plane) {
+        default:
+        case 0:
+            return VK_IMAGE_ASPECT_COLOR_BIT;
+        case 1:
+            return VK_IMAGE_ASPECT_PLANE_1_BIT;
+        case 2:
+            return VK_IMAGE_ASPECT_PLANE_2_BIT;
+        }
+    };
+
+    VkMemoryToImageCopy region{
+        .sType             = VK_STRUCTURE_TYPE_MEMORY_TO_IMAGE_COPY,
+        .pNext             = nullptr,
+        .pHostPointer      = source_data,
+        .memoryRowLength   = 0,
+        .memoryImageHeight = 0,
+        .imageSubresource  = {
+                              .aspectMask     = plane_to_aspect_mask(target_region->target_subresource.plane_slice),
+                              .mipLevel       = target_region->target_subresource.mip_level,
+                              .baseArrayLayer = target_region->target_subresource.array_layer,
+                              .layerCount     = 1 },
+        .imageOffset = { static_cast<int32_t>(target_region->box.x), static_cast<int32_t>(target_region->box.y), static_cast<int32_t>(target_region->box.z) },
+        .imageExtent{ target_region->box.width, target_region->box.height, target_region->box.depth },
+    };
+
+    VkCopyMemoryToImageInfoEXT copy_info{
+        .sType          = VK_STRUCTURE_TYPE_COPY_MEMORY_TO_IMAGE_INFO_EXT,
+        .pNext          = nullptr,
+        .flags          = 0,
+        .dstImage       = impl.image,
+        .dstImageLayout = VK_IMAGE_LAYOUT_GENERAL,
+    };
+    auto vr = table.vkCopyMemoryToImageEXT(device, &copy_info);
+    if (!wis::detail::succeeded(vr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to write texture subresource">(vr);
+    }
+    return wis::detail::vk_success;
+}
+
+//-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyRootSignature(WisVKRootSignature* self)
 {
     auto& impl = *reinterpret_cast<wis::impl::VKRootSignatureImpl*>(self);
@@ -79,7 +130,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyRootSignature(WisVKRootSignature* self)
 }
 
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API void wisVKDestroyShader(WisVKShader *self)
+WIS_EXTERN_C WISDOM_API void wisVKDestroyShader(WisVKShader* self)
 {
     auto& impl = *reinterpret_cast<wis::impl::VKShaderImpl*>(self);
     if (impl.shader_module != VK_NULL_HANDLE) {

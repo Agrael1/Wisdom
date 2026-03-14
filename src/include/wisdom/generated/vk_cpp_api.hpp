@@ -255,6 +255,20 @@ public:
     {
         return GetView();
     }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Writes data direct to the texture subresource. Texture @wis_must be in `wis::TextureState::Common` and @wis_must_not be a depth texture.
+     * @param source_data points to the data to write to the texture.
+     * @param target_region points to wis::TextureRegion, which describes the region of the texture to write to.
+     * @return Result denoting the outcome of operation.
+     *
+     * */
+    inline wis::Result WriteSubresource(const void*               source_data,
+                                        const wis::TextureRegion& target_region) const noexcept
+    {
+        return convert_result(::wisVKTextureWriteSubresource(&_impl_storage,
+                                                             source_data,
+                                                             reinterpret_cast<const WisTextureRegion*>(&target_region)));
+    }
 };
 
 struct VKBufferDeleter {

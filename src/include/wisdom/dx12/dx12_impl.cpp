@@ -5,6 +5,7 @@
 #include <wisdom/generated/dx12_api.h>
 #include <wisdom/generated/dx12_convert.hpp>
 #include <wisdom/dx12/detail/dx12_utils.hpp>
+#include <d3dx12/d3dx12_resource_helpers.h>
 
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyRootSignature(WisDX12RootSignature* self)
@@ -60,6 +61,49 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyTexture(WisDX12Texture* self)
     allocation->Release();
     allocator->Release();
     resource = nullptr;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisDX12TextureWriteSubresource(const WisDX12Texture*   self,
+                                                                 const void*             source_data,
+                                                                 const WisTextureRegion* target_region)
+{
+    auto& [resource, allocation, allocator] = *reinterpret_cast<const wis::impl::DX12BufferImpl*>(self);
+
+    auto desc  = resource->GetDesc();
+    bool is_3d = desc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE3D;
+
+    UINT row_pitch   = 0;
+    UINT slice_pitch = 0;
+    auto hr          = D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::CalculateMinimumRowMajorRowPitch(desc.Format, target_region->box.width, row_pitch);
+    if (!wis::detail::succeeded(hr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to calculate row pitch">(hr);
+    }
+
+    hr = D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::CalculateMinimumRowMajorSlicePitch(desc.Format, row_pitch, target_region->box.height, slice_pitch);
+    if (!wis::detail::succeeded(hr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to calculate slice pitch">(hr);
+    }
+
+    D3D12_BOX dst_box{
+        .left   = target_region->box.x,
+        .top    = target_region->box.y,
+        .front  = is_3d ? target_region->box.z : 0,
+        .right  = target_region->box.x + target_region->box.width,
+        .bottom = target_region->box.y + target_region->box.height,
+        .back   = is_3d ? target_region->box.z + target_region->box.depth : 1,
+    };
+    auto subresource = D3D12CalcSubresource(
+            target_region->target_subresource.mip_level,
+            target_region->target_subresource.array_layer,
+            target_region->target_subresource.plane_slice,
+            desc.MipLevels,
+            is_3d ? 1 : desc.DepthOrArraySize);
+    hr = resource->WriteToSubresource(subresource, &dst_box, source_data, row_pitch, slice_pitch);
+    if (!wis::detail::succeeded(hr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to write to subresource">(hr);
+    }
+    return wis::detail::dx_success;
 }
 
 //-----------------------------------------------------------------------------
