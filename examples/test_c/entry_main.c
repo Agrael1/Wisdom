@@ -172,6 +172,7 @@ typedef struct BasicRenderTask {
     WisRootSignature compute_signature;
     WisPipeline      compute_pipeline;
     WisPipeline      graphics_pipeline;
+    WisViewHeap      rtv_heap;
 } BasicRenderTask;
 
 //------------------------------------------------------------------------------
@@ -410,6 +411,9 @@ void InitRenderTask(BasicRenderTask* task, BasicRenderer* renderer)
     wisDestroyShader(&vertex_shader);
     wisDestroyShader(&pixel_shader);
     wisDestroyShader(&compute_shader);
+
+    result = wisDeviceCreateViewHeap(&renderer->device, WisViewHeapTypeRenderTarget, 10, &task->rtv_heap);
+    printf("CreateViewHeap result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
 }
 
 //------------------------------------------------------------------------------

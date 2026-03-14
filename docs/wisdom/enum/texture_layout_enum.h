@@ -62,6 +62,6 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisTextureDesc, WisTextureBinding
+ * @see WisTextureDesc, WisTextureBinding, WisRenderTargetDesc
  * \endcond
  */

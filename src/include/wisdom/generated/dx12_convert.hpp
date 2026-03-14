@@ -335,6 +335,18 @@ constexpr inline D3D12_INDEX_BUFFER_STRIP_CUT_VALUE convert_dx(WisPrimitiveResta
     }
 }
 
+constexpr inline D3D12_DESCRIPTOR_HEAP_TYPE convert_dx(WisViewHeapType value) noexcept
+{
+    switch (value) {
+    case WisViewHeapTypeRenderTarget:
+        return D3D12_DESCRIPTOR_HEAP_TYPE_RTV;
+    case WisViewHeapTypeDepthStencil:
+        return D3D12_DESCRIPTOR_HEAP_TYPE_DSV;
+    default:
+        return static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(0);
+    }
+}
+
 constexpr inline D3D12_SAMPLER_FLAGS convert_dx(WisSamplerFlags value) noexcept
 {
     D3D12_SAMPLER_FLAGS result = static_cast<D3D12_SAMPLER_FLAGS>(0);

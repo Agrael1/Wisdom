@@ -112,6 +112,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyResourceAllocator(WisDX12ResourceAllo
     }
 
     allocator->Release();
+    allocator = nullptr;
 }
 
 //-----------------------------------------------------------------------------

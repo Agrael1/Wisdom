@@ -162,6 +162,38 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateDescriptorHeap(const WisDX1
 }
 
 //-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateViewHeap(const WisDX12Device* self,
+                                                              WisViewHeapType      type,
+                                                              uint32_t             capacity,
+                                                              WisDX12ViewHeap*     heap)
+{
+    auto& device = *reinterpret_cast<const wis::impl::DX12DeviceImpl*>(self);
+
+    // Create descriptor heap container
+    D3D12_DESCRIPTOR_HEAP_DESC heap_desc{
+        .Type           = wis::detail::convert_dx(type),
+        .NumDescriptors = capacity,
+        .Flags          = D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
+        .NodeMask       = 0,
+    };
+
+    wis::com_ptr<ID3D12DescriptorHeap> descriptor_heap;
+    HRESULT                            hr = device.device->CreateDescriptorHeap(&heap_desc, IID_ID3D12DescriptorHeap, descriptor_heap.put_void_unchecked());
+    if (!wis::detail::succeeded(hr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to create descriptor heap">(hr);
+    }
+
+    auto* raw_heap  = descriptor_heap.detach();
+    auto& heap_impl = *new (heap) wis::impl::DX12ViewHeapImpl{
+        .view_heap = raw_heap,
+        .device          = device.device,
+        .cpu_handle      = raw_heap->GetCPUDescriptorHandleForHeapStart(),
+        .descriptor_size = device.device->GetDescriptorHandleIncrementSize(heap_desc.Type),
+    };
+    return wis::detail::dx_success;
+}
+
+//-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(const WisDX12Device*        self,
                                                                    const WisRootSignatureDesc* desc,
                                                                    WisDX12RootSignature*       layout)

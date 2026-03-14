@@ -21,6 +21,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 // Handles
 //==============================================================
 
+typedef struct WisDX12ViewHeap          WisViewHeap;
 typedef struct WisDX12Pipeline          WisPipeline;
 typedef struct WisDX12Shader            WisShader;
 typedef struct WisDX12PipelineCache     WisPipelineCache;
@@ -63,6 +64,7 @@ typedef struct WisDX12GraphicsPipelineDesc    WisGraphicsPipelineDesc;
 // Functions
 //==============================================================
 
+#define wisDestroyViewHeap                          wisDX12DestroyViewHeap
 #define wisDestroyPipeline                          wisDX12DestroyPipeline
 #define wisDestroyShader                            wisDX12DestroyShader
 #define wisDestroyPipelineCache                     wisDX12DestroyPipelineCache
@@ -89,6 +91,7 @@ typedef struct WisDX12GraphicsPipelineDesc    WisGraphicsPipelineDesc;
 #define wisDeviceGetResourceAllocator               wisDX12DeviceGetResourceAllocator
 #define wisDeviceCreateRootSignature                wisDX12DeviceCreateRootSignature
 #define wisDeviceCreateDescriptorHeap               wisDX12DeviceCreateDescriptorHeap
+#define wisDeviceCreateViewHeap                     wisDX12DeviceCreateViewHeap
 #define wisDeviceQueryProperties                    wisDX12DeviceQueryProperties
 #define wisDeviceWaitForMultipleFences              wisDX12DeviceWaitForMultipleFences
 #define wisDeviceCreatePipelineCache                wisDX12DeviceCreatePipelineCache
@@ -115,6 +118,11 @@ typedef struct WisDX12GraphicsPipelineDesc    WisGraphicsPipelineDesc;
 #define wisDescriptorHeapWriteRWTexture             wisDX12DescriptorHeapWriteRWTexture
 #define wisDescriptorHeapWriteAccelerationStructure wisDX12DescriptorHeapWriteAccelerationStructure
 #define wisDescriptorHeapCopyDescriptors            wisDX12DescriptorHeapCopyDescriptors
+#define wisViewHeapWriteRenderTarget                wisDX12ViewHeapWriteRenderTarget
+#define wisViewHeapWriteDepthStencil                wisDX12ViewHeapWriteDepthStencil
+#define wisViewHeapGetViewAddress                   wisDX12ViewHeapGetViewAddress
+#define wisViewHeapCopyViews                        wisDX12ViewHeapCopyViews
+#define wisViewHeapGetCPUAddress                    wisDX12ViewHeapGetCPUAddress
 #define wisCommandAllocatorReset                    wisDX12CommandAllocatorReset
 #define wisCommandAllocatorCreateCommandList        wisDX12CommandAllocatorCreateCommandList
 #define wisCommandListBegin                         wisDX12CommandListBegin
@@ -171,6 +179,7 @@ typedef struct WisDX12GraphicsPipelineDesc    WisGraphicsPipelineDesc;
 // Handles
 //==============================================================
 
+typedef struct WisVKViewHeap          WisViewHeap;
 typedef struct WisVKPipeline          WisPipeline;
 typedef struct WisVKShader            WisShader;
 typedef struct WisVKPipelineCache     WisPipelineCache;
@@ -213,6 +222,7 @@ typedef struct WisVKGraphicsPipelineDesc    WisGraphicsPipelineDesc;
 // Functions
 //==============================================================
 
+#define wisDestroyViewHeap                          wisVKDestroyViewHeap
 #define wisDestroyPipeline                          wisVKDestroyPipeline
 #define wisDestroyShader                            wisVKDestroyShader
 #define wisDestroyPipelineCache                     wisVKDestroyPipelineCache
@@ -239,6 +249,7 @@ typedef struct WisVKGraphicsPipelineDesc    WisGraphicsPipelineDesc;
 #define wisDeviceGetResourceAllocator               wisVKDeviceGetResourceAllocator
 #define wisDeviceCreateRootSignature                wisVKDeviceCreateRootSignature
 #define wisDeviceCreateDescriptorHeap               wisVKDeviceCreateDescriptorHeap
+#define wisDeviceCreateViewHeap                     wisVKDeviceCreateViewHeap
 #define wisDeviceQueryProperties                    wisVKDeviceQueryProperties
 #define wisDeviceWaitForMultipleFences              wisVKDeviceWaitForMultipleFences
 #define wisDeviceCreatePipelineCache                wisVKDeviceCreatePipelineCache
@@ -265,6 +276,11 @@ typedef struct WisVKGraphicsPipelineDesc    WisGraphicsPipelineDesc;
 #define wisDescriptorHeapWriteRWTexture             wisVKDescriptorHeapWriteRWTexture
 #define wisDescriptorHeapWriteAccelerationStructure wisVKDescriptorHeapWriteAccelerationStructure
 #define wisDescriptorHeapCopyDescriptors            wisVKDescriptorHeapCopyDescriptors
+#define wisViewHeapWriteRenderTarget                wisVKViewHeapWriteRenderTarget
+#define wisViewHeapWriteDepthStencil                wisVKViewHeapWriteDepthStencil
+#define wisViewHeapGetViewAddress                   wisVKViewHeapGetViewAddress
+#define wisViewHeapCopyViews                        wisVKViewHeapCopyViews
+#define wisViewHeapGetCPUAddress                    wisVKViewHeapGetCPUAddress
 #define wisCommandAllocatorReset                    wisVKCommandAllocatorReset
 #define wisCommandAllocatorCreateCommandList        wisVKCommandAllocatorCreateCommandList
 #define wisCommandListBegin                         wisVKCommandListBegin

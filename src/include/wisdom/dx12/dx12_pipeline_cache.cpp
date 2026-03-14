@@ -15,6 +15,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyPipelineCache(WisDX12PipelineCache* s
 
     cache->Release();
     free(data);
+    cache = nullptr;
 }
 
 //-----------------------------------------------------------------------------

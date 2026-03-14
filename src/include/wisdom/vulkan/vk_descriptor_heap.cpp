@@ -242,6 +242,24 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyDescriptorHeap(WisVKDescriptorHeap* sel
 }
 
 //-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisVKDestroyViewHeap(WisVKViewHeap* self)
+{
+    auto& impl = *reinterpret_cast<wis::impl::VKViewHeapImpl*>(self);
+    if (impl.view_heap) {
+        for (uint32_t i = 0; i < impl.capacity; ++i) {
+            if (impl.view_heap[i] != VK_NULL_HANDLE) {
+                impl.device_header->header.device_table.vkDestroyImageView(impl.device_header->header.device, impl.view_heap[i], nullptr);
+            }
+        }
+
+        delete[] impl.view_heap;
+        impl.view_heap = nullptr;
+
+        wis::detail::release_vk_device(impl.device_header);
+    }
+}
+
+//-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void* wisVKDescriptorHeapGetCPUHandle(const WisVKDescriptorHeap* self)
 {
     auto& heap = *reinterpret_cast<const wis::impl::VKDescriptorHeapImpl*>(self);
@@ -342,9 +360,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDescriptorHeapWriteSampler(const WisVKDes
     VkSamplerReductionModeCreateInfo reduction_mode_info{
         .sType         = VK_STRUCTURE_TYPE_SAMPLER_REDUCTION_MODE_CREATE_INFO,
         .pNext         = nullptr, // Custom border?
-        .reductionMode = sampler->comparison_op != WisCompareOpNever 
-        ? VK_SAMPLER_REDUCTION_MODE_WEIGHTED_AVERAGE 
-        : wis::detail::convert_vk(sampler->reduction_mode)
+        .reductionMode = sampler->comparison_op != WisCompareOpNever
+                ? VK_SAMPLER_REDUCTION_MODE_WEIGHTED_AVERAGE
+                : wis::detail::convert_vk(sampler->reduction_mode)
     };
     VkSamplerCreateInfo sampler_info{
         .sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
@@ -475,16 +493,166 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDescriptorHeapWriteAccelerationStructure(
 }
 
 //-----------------------------------------------------------------------------
-WISDOM_API void wisVKDescriptorHeapCopyDescriptors(const WisVKDescriptorHeap* self,
-                                                   uint32_t                   dst_index,
-                                                   const void*                src_ptr,
-                                                   uint32_t                   src_index,
-                                                   uint32_t                   count)
+WIS_EXTERN_C WISDOM_API void wisVKDescriptorHeapCopyDescriptors(const WisVKDescriptorHeap* self,
+                                                                uint32_t                   dst_index,
+                                                                const void*                src_ptr,
+                                                                uint32_t                   src_index,
+                                                                uint32_t                   count)
 {
     auto& heap = *reinterpret_cast<const wis::impl::VKDescriptorHeapImpl*>(self);
     std::memcpy(static_cast<uint8_t*>(heap.mapped_ptr) + static_cast<size_t>(dst_index) * heap.descriptor_size,
                 static_cast<const uint8_t*>(src_ptr) + static_cast<size_t>(src_index) * heap.descriptor_size,
                 static_cast<size_t>(count) * heap.descriptor_size);
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API uint64_t wisVKViewHeapWriteRenderTarget(const WisVKViewHeap*       self,
+                                                                WisVKTextureView           texture,
+                                                                const WisRenderTargetDesc* render_target,
+                                                                uint32_t                   index)
+{
+    auto& heap   = *reinterpret_cast<const wis::impl::VKViewHeapImpl*>(self);
+    auto& header = heap.device_header->header;
+
+    // simply create image view
+    auto                  vk_format = wis::detail::convert_vk(render_target->format);
+    VkImageViewCreateInfo info{
+        .sType  = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+        .pNext  = nullptr,
+        .image  = std::bit_cast<VkImage>(texture),
+        .format = vk_format,
+    };
+    info.subresourceRange.aspectMask = wis::detail::VKAspectFlags(vk_format);
+
+    switch (render_target->layout) {
+    case WisTextureLayoutTexture1D:
+        info.viewType = VK_IMAGE_VIEW_TYPE_1D;
+        {
+            info.subresourceRange.baseMipLevel   = render_target->mip_level,
+            info.subresourceRange.levelCount     = 1,
+            info.subresourceRange.baseArrayLayer = 0,
+            info.subresourceRange.layerCount     = 1;
+        };
+        break;
+    case WisTextureLayoutTexture2D:
+        info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        {
+            info.subresourceRange.baseMipLevel   = render_target->mip_level,
+            info.subresourceRange.levelCount     = 1,
+            info.subresourceRange.baseArrayLayer = 0,
+            info.subresourceRange.layerCount     = 1;
+        };
+        break;
+    case WisTextureLayoutTexture3D:
+        info.viewType = VK_IMAGE_VIEW_TYPE_3D;
+        {
+            info.subresourceRange.baseMipLevel   = render_target->mip_level,
+            info.subresourceRange.levelCount     = 1,
+            info.subresourceRange.baseArrayLayer = render_target->base_array_layer,
+            info.subresourceRange.layerCount     = render_target->array_layer_count;
+        };
+        break;
+    case WisTextureLayoutTexture1DArray:
+        info.viewType = VK_IMAGE_VIEW_TYPE_1D_ARRAY;
+        {
+            info.subresourceRange.baseMipLevel   = render_target->mip_level,
+            info.subresourceRange.levelCount     = 1,
+            info.subresourceRange.baseArrayLayer = render_target->base_array_layer,
+            info.subresourceRange.layerCount     = render_target->array_layer_count;
+        };
+        break;
+    case WisTextureLayoutTexture2DArray:
+        info.viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+        {
+            info.subresourceRange.baseMipLevel   = render_target->mip_level,
+            info.subresourceRange.levelCount     = 1,
+            info.subresourceRange.baseArrayLayer = render_target->base_array_layer,
+            info.subresourceRange.layerCount     = render_target->array_layer_count;
+        };
+        break;
+    case WisTextureLayoutTexture2DMS:
+        info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        {
+            info.subresourceRange.baseMipLevel   = 0,
+            info.subresourceRange.levelCount     = 1,
+            info.subresourceRange.baseArrayLayer = 0,
+            info.subresourceRange.layerCount     = 1;
+        };
+        break;
+    case WisTextureLayoutTexture2DMSArray:
+        info.viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+        {
+            info.subresourceRange.baseMipLevel   = 0,
+            info.subresourceRange.levelCount     = 1,
+            info.subresourceRange.baseArrayLayer = render_target->base_array_layer,
+            info.subresourceRange.layerCount     = render_target->array_layer_count;
+        };
+        break;
+    default:
+        break;
+    }
+
+    // Get at index position in the view heap
+    VkImageView& out_render_target = heap.view_heap[index];
+    if (out_render_target != VK_NULL_HANDLE) {
+        header.device_table.vkDestroyImageView(header.device, out_render_target, nullptr);
+    }
+
+    auto vr = header.device_table.vkCreateImageView(header.device, &info, nullptr, &out_render_target);
+    if (!wis::detail::succeeded(vr)) {
+        return 0; // Failed to create image view, return 0 as an invalid handle
+    }
+    return std::bit_cast<uint64_t>(&out_render_target);
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API uint64_t wisVKViewHeapWriteDepthStencil(const WisVKViewHeap*       self,
+                                                                WisVKTextureView           texture,
+                                                                const WisRenderTargetDesc* render_target,
+                                                                uint32_t                   index)
+{
+    // For Vulkan, depth stencil view is essentially the same as render target view with different aspect mask, so we can reuse the same function
+    return wisVKViewHeapWriteRenderTarget(self, texture, render_target, index);
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API uint64_t wisVKViewHeapGetViewAddress(const WisVKViewHeap* self,
+                                                             uint32_t             index)
+{
+    auto& heap = *reinterpret_cast<const wis::impl::VKViewHeapImpl*>(self);
+    if (index >= heap.capacity) {
+        return 0; // Invalid index, return 0 as an invalid handle
+    }
+    return std::bit_cast<uint64_t>(&heap.view_heap[index]);
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisVKViewHeapCopyViews(const WisVKViewHeap* self,
+                                                    uint32_t             dst_index,
+                                                    uint64_t             src_ptr,
+                                                    uint32_t             src_index,
+                                                    uint32_t             count)
+{
+    auto& heap = *reinterpret_cast<const wis::impl::VKViewHeapImpl*>(self);
+    if (dst_index + count > heap.capacity) {
+        return; // Invalid range, do nothing
+    }
+    auto* src_views = reinterpret_cast<const VkImageView*>(std::bit_cast<const void*>(src_ptr)) + src_index;
+    auto* dst_views = heap.view_heap + dst_index;
+    for (uint32_t i = 0; i < count; ++i) {
+        // Destroy existing view at destination if it's not null
+        if (dst_views[i] != VK_NULL_HANDLE) {
+            heap.device_header->header.device_table.vkDestroyImageView(heap.device_header->header.device, dst_views[i], nullptr);
+        }
+        dst_views[i] = src_views[i];
+    }
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API uint64_t wisVKViewHeapGetCPUAddress(const WisVKViewHeap* self)
+{
+    auto& heap = *reinterpret_cast<const wis::impl::VKViewHeapImpl*>(self);
+    return std::bit_cast<uint64_t>(heap.view_heap);
 }
 
 #endif // WIS_VK_DESCRIPTOR_HEAP_CPP

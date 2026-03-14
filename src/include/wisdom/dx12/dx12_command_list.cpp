@@ -167,6 +167,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyCommandList(WisDX12CommandList* self)
     impl.list->Release();
     impl.allocator->Release();
     delete[] impl.scratch_memory;
+    impl.list = nullptr;
 }
 
 //-----------------------------------------------------------------------------

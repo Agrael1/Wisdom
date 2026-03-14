@@ -16,6 +16,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyRootSignature(WisDX12RootSignature* s
     }
 
     root_signature->Release();
+    root_signature = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -114,6 +115,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyShader(WisDX12Shader* self)
         return;
     }
     delete shader;
+    shader = nullptr;
 }
 
 //-----------------------------------------------------------------------------
@@ -124,6 +126,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyPipeline(WisDX12Pipeline* self)
         return;
     }
     pipeline->Release();
+    pipeline = nullptr;
 }
 
 #endif // WIS_DX12_IMPL_CPP

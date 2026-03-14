@@ -1207,6 +1207,16 @@ More info could be found [here](https://learn.microsoft.com/en-us/windows/win32/
         <impl name="dx" value="D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_0xFFFFFFFF"/>
       </value>
     </type>
+    
+    <type name="ViewHeapType" category="enum" version="0.7.0" doc="Type of the view descriptor heap.">
+      <impl_type for="dx" name="D3D12_DESCRIPTOR_HEAP_TYPE"/>
+      <value name="RenderTarget" value="0" doc="Descriptor heap for render target views.">
+        <impl name="dx" value="D3D12_DESCRIPTOR_HEAP_TYPE_RTV"/>
+      </value>
+      <value name="DepthStencil" value="1" doc="Descriptor heap for depth stencil views.">
+        <impl name="dx" value="D3D12_DESCRIPTOR_HEAP_TYPE_DSV"/>
+      </value>
+    </type>
 
     <!-- Bitmasks -->
 

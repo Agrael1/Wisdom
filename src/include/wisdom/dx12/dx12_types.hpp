@@ -90,6 +90,14 @@ struct DX12DescriptorHeapImpl {
     D3D12_DESCRIPTOR_HEAP_TYPE  type;
 };
 
+struct DX12ViewHeapImpl {
+    ID3D12DescriptorHeap*       view_heap;
+    ID3D12Device10*             device;
+    D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle;
+    uint32_t                    descriptor_size; // store descriptor size for heap type to avoid calling GetDescriptorHandleIncrementSize every time we need it
+    D3D12_DESCRIPTOR_HEAP_TYPE  type;
+};
+
 struct DX12BufferImpl {
     ID3D12Resource*      resource;
     D3D12MA::Allocation* allocation; // Pointer to the allocation object that manages the memory for this resource
