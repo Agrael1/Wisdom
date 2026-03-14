@@ -1067,6 +1067,15 @@ enum class PrimitiveRestartValue {
 };
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Type of the view descriptor heap.
+ *
+ * */
+enum class ViewHeapType {
+    RenderTarget = 0, ///< Descriptor heap for render target views.
+    DepthStencil = 1, ///< Descriptor heap for depth stencil views.
+};
+
+/**
  * @brief Provided by Wisdom 0.7.0. Flags that describe adapter.
  *
  * */
@@ -1739,6 +1748,19 @@ struct TargetSubresource {
 struct TextureRegion {
     wis::Box               box; ///< Box defining the region to copy.
     wis::TargetSubresource target_subresource; ///< Target subresource description for the region.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Render target description for wis::CommandList.
+ *
+ * */
+struct RenderTargetDesc {
+    wis::DataFormat    format; ///< Render target format.
+    wis::TextureLayout layout; ///< Render target layout. Default is `wis::TextureLayout::Texture2D`.
+    std::uint16_t      mip_level; ///< Mipmap level of the target subresource.
+    std::uint16_t      base_array_layer; ///< Array layer of the target subresource. For 3D textures, this defines the base depth slice.
+    std::uint16_t      array_layer_count; ///< Number of array layers in the target subresource. For 3D textures, this defines the number of depth slices.
+    std::uint16_t      plane_slice; ///< Depth slice of the target subresource. Used only for 2D textures (YUV).
 };
 
 /**

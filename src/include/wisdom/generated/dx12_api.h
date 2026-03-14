@@ -8,6 +8,12 @@
 extern "C" {
 #endif // __cplusplus
 /**
+ * @brief Provided by Wisdom 0.7.0. Class representing a storage for resource views used in contiguous array.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12ViewHeap, 4);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Class representing a GPU pipeline state object, which encapsulates the state of the GPU pipeline and allows to execute draw and dispatch calls with it.
  *
  * */
@@ -280,6 +286,13 @@ typedef struct WisDX12GraphicsPipelineDesc {
 } WisDX12GraphicsPipelineDesc;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisViewHeap handle.
+ * @param self is a pointer to the valid WisViewHeap instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroyViewHeap(WisDX12ViewHeap* self);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisPipeline handle.
  * @param self is a pointer to the valid WisPipeline instance.
  *
@@ -503,7 +516,7 @@ WISDOM_API WisResult wisDX12DeviceCreateRootSignature(const WisDX12Device*      
                                                       WisDX12RootSignature*       layout);
 
 /**
- * @brief Provided by Wisdom 0.7.0. Creates a descriptor storage with given descriptor.
+ * @brief Provided by Wisdom 0.7.0. Creates a descriptor storage with given description.
  * @param self is a pointer to the valid WisDevice instance.
  * @param desc points to WisDescriptorHeapDesc, which describes the descriptor heap to create.
  * @param heap points to WisDescriptorHeap, which is initialized on success.
@@ -513,6 +526,20 @@ WISDOM_API WisResult wisDX12DeviceCreateRootSignature(const WisDX12Device*      
 WISDOM_API WisResult wisDX12DeviceCreateDescriptorHeap(const WisDX12Device*         self,
                                                        const WisDescriptorHeapDesc* desc,
                                                        WisDX12DescriptorHeap*       heap);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a view storage with given descriptor.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param type defines the type of the view heap to create.
+ * @param capacity defines the capacity in descriptors of the view heap to create.
+ * @param heap points to WisDescriptorHeap, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DeviceCreateViewHeap(const WisDX12Device* self,
+                                                 WisViewHeapType      type,
+                                                 uint32_t             capacity,
+                                                 WisDX12ViewHeap*     heap);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Queries the properties of the device.
@@ -834,6 +861,68 @@ WISDOM_API void wisDX12DescriptorHeapCopyDescriptors(const WisDX12DescriptorHeap
                                                      const void*                  src_ptr,
                                                      uint32_t                     src_index,
                                                      uint32_t                     count);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Writes a render target view to the view heap and returns the CPU descriptor handle for it.
+ * @param self is a pointer to the valid WisViewHeap instance.
+ * @param texture points to WisTexture to write the descriptor for.
+ * @param render_target points to WisRenderTargetDesc, which describes the render target view to write.
+ * @param index defines the index in the view heap to write the descriptor to.
+ * @return u64 CPU descriptor handle for the view heap.
+ *
+ * */
+WISDOM_API uint64_t wisDX12ViewHeapWriteRenderTarget(const WisDX12ViewHeap*     self,
+                                                     WisDX12TextureView         texture,
+                                                     const WisRenderTargetDesc* render_target,
+                                                     uint32_t                   index);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Writes a depth stencil view to the view heap and returns the CPU descriptor handle for it.
+ * @param self is a pointer to the valid WisViewHeap instance.
+ * @param texture points to WisTexture to write the descriptor for.
+ * @param render_target points to WisRenderTargetDesc, which describes the render target view to write.
+ * @param index defines the index in the view heap to write the descriptor to.
+ * @return u64 CPU descriptor handle for the view heap.
+ *
+ * */
+WISDOM_API uint64_t wisDX12ViewHeapWriteDepthStencil(const WisDX12ViewHeap*     self,
+                                                     WisDX12TextureView         texture,
+                                                     const WisRenderTargetDesc* render_target,
+                                                     uint32_t                   index);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Returns the CPU descriptor handle for the view heap.
+ * @param self is a pointer to the valid WisViewHeap instance.
+ * @param index defines the index in the view heap to get the descriptor from.
+ * @return u64 Address of a view in heap.
+ *
+ * */
+WISDOM_API uint64_t wisDX12ViewHeapGetViewAddress(const WisDX12ViewHeap* self,
+                                                  uint32_t               index);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Copies views from one heap to another.
+ * @param self is a pointer to the valid WisViewHeap instance.
+ * @param dst_index defines the index in the destination view heap to copy views to.
+ * @param src_ptr points to WisViewHeap to copy views from.
+ * @param src_index defines the index in the source view heap to copy views from.
+ * @param count defines the number of views to copy.
+ * @return void
+ *
+ * */
+WISDOM_API void wisDX12ViewHeapCopyViews(const WisDX12ViewHeap* self,
+                                         uint32_t               dst_index,
+                                         uint64_t               src_ptr,
+                                         uint32_t               src_index,
+                                         uint32_t               count);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Returns the CPU descriptor handle for the view heap.
+ * @param self is a pointer to the valid WisViewHeap instance.
+ * @return u64 CPU descriptor handle for the view heap.
+ *
+ * */
+WISDOM_API uint64_t wisDX12ViewHeapGetCPUAddress(const WisDX12ViewHeap* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Resets the command allocator, so it can be reused for allocating new command lists.

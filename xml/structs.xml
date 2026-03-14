@@ -316,6 +316,15 @@ Viewport is considered from Top Left corner.">
       <member type="TargetSubresource" name="target_subresource" doc="Target subresource description for the region."/>
     </type>
 
+    <type name="RenderTargetDesc" category="struct" version="0.7.0" doc="Render target description for {CommandList::BeginRenderPass}.">
+      <member type="DataFormat" name="format" doc="Render target format."/>
+      <member type="TextureLayout" name="layout" default="Texture2D" doc="Render target layout. Default is {TextureLayout::Texture2D}."/>
+      <member type="u16" name="mip_level" default="0" doc="Mipmap level of the target subresource."/>
+      <member type="u16" name="base_array_layer" default="0" doc="Array layer of the target subresource. For 3D textures, this defines the base depth slice."/>
+      <member type="u16" name="array_layer_count" default="1" doc="Number of array layers in the target subresource. For 3D textures, this defines the number of depth slices."/>
+      <member type="u16" name="plane_slice" default="0" doc="Depth slice of the target subresource. Used only for 2D textures (YUV)."/>
+    </type>
+
     <!-- Variants -->
     <type name="DeviceRequirements" category="variant" version="0.7.0" doc="Device requirements. Used to specify required features and properties for device creation.">
       <member type="CommandQueueDesc" name="queue_descs" mod="const,span" default="nullptr" doc="points to an array of {CommandQueueDesc::} for which queues will be created during device creation."/>

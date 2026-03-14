@@ -17,6 +17,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyCommandQueue(WisDX12CommandQueue* sel
         return;
     }
     queue->Release();
+    queue = nullptr;
 }
 
 //-----------------------------------------------------------------------------

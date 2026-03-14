@@ -101,6 +101,12 @@ struct VKDescriptorHeapImpl {
     detail::VKDeviceControlBlock* device_header;
 };
 
+struct VKViewHeapImpl {
+    VkImageView*                  view_heap;
+    uint32_t                      capacity;
+    detail::VKDeviceControlBlock* device_header;
+};
+
 struct VKBufferImpl {
     VkBuffer                      buffer;
     VmaAllocation                 allocation;

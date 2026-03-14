@@ -15,6 +15,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyCommandAllocator(WisDX12CommandAlloca
     }
 
     al->Release();
+    al = nullptr;
 }
 
 //-----------------------------------------------------------------------------

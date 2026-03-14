@@ -22,6 +22,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyAdapterQuery(WisDX12AdapterQuery* sel
         }
     }
     delete[] physical_devices;
+    physical_devices = nullptr;
 
     if (debug_layer) {
         debug_layer->Release();

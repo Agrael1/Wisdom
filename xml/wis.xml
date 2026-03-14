@@ -7,6 +7,10 @@
   </includes>
 
   <handles>
+    <handle name="ViewHeap" version="0.7.0" doc="Class representing a storage for resource views used in contiguous array.">
+      <impl for="vk" size="3"/>
+      <impl for="dx" size="4"/>
+    </handle>
     <handle name="Pipeline" version="0.7.0" doc="Class representing a GPU pipeline state object, which encapsulates the state of the GPU pipeline and allows to execute draw and dispatch calls with it.">
       <impl for="vk" size="2"/>
       <impl for="dx" size="1"/>
@@ -125,9 +129,14 @@
       <ret type="RootSignature" name="layout" result="true" doc="points to {RootSignature::}, which is initialized on success."/>
       <arg type="RootSignatureDesc" name="desc" mod="const,ref" doc="points to {RootSignatureDesc::}, which describes the pipeline layout to create."/>
     </func>
-    <func for="Device" name="CreateDescriptorHeap" version="0.7.0" mod="const" doc="Creates a descriptor storage with given descriptor.">
+    <func for="Device" name="CreateDescriptorHeap" version="0.7.0" mod="const" doc="Creates a descriptor storage with given description.">
       <ret type="DescriptorHeap" name="heap" result="true" doc="points to {DescriptorHeap::}, which is initialized on success."/>
       <arg type="DescriptorHeapDesc" name="desc" mod="const,ref" doc="points to {DescriptorHeapDesc::}, which describes the descriptor heap to create."/>
+    </func>
+    <func for="Device" name="CreateViewHeap" version="0.7.0" mod="const" doc="Creates a view storage with given descriptor.">
+      <ret type="ViewHeap" name="heap" result="true" doc="points to {DescriptorHeap::}, which is initialized on success."/>
+      <arg type="ViewHeapType" name="type" doc="defines the type of the view heap to create."/>
+      <arg type="u32" name="capacity" doc="defines the capacity in descriptors of the view heap to create."/>
     </func>
     <func for="Device" name="QueryProperties" version="0.7.0" mod="const" doc="Queries the properties of the device.">
       <arg type="void" name="properties" mod="ptr" doc="points to one of the query structs, which is filled with device properties."/>
@@ -272,7 +281,33 @@ Can still be enqueued after the signal.">
       <arg type="u32" name="src_index" doc="defines the index in the source descriptor heap to copy descriptors from."/>
       <arg type="u32" name="count" doc="defines the number of descriptors to copy."/>
     </func>
-
+    <!-- View Heap -->
+    <func for="ViewHeap" name="WriteRenderTarget" version="0.7.0" mod="const" doc="Writes a render target view to the view heap and returns the CPU descriptor handle for it.">
+      <ret type="u64" name="result" doc="CPU descriptor handle for the view heap."/>
+      <arg type="TextureView" name="texture" doc="points to {Texture::} to write the descriptor for."/>
+      <arg type="RenderTargetDesc" name="render_target" mod="const,ref" doc="points to {RenderTargetDesc::}, which describes the render target view to write."/>
+      <arg type="u32" name="index" doc="defines the index in the view heap to write the descriptor to."/>
+    </func>
+    <func for="ViewHeap" name="WriteDepthStencil" version="0.7.0" mod="const" doc="Writes a depth stencil view to the view heap and returns the CPU descriptor handle for it.">
+      <ret type="u64" name="result" doc="CPU descriptor handle for the view heap."/>
+      <arg type="TextureView" name="texture" doc="points to {Texture::} to write the descriptor for."/>
+      <arg type="RenderTargetDesc" name="render_target" mod="const,ref" doc="points to {RenderTargetDesc::}, which describes the render target view to write."/>
+      <arg type="u32" name="index" doc="defines the index in the view heap to write the descriptor to."/>
+    </func>
+    <func for="ViewHeap" name="GetViewAddress" version="0.7.0" mod="const" doc="Returns the CPU descriptor handle for the view heap.">
+      <ret type="u64" name="view" doc="Address of a view in heap."/>
+      <arg type="u32" name="index" doc="defines the index in the view heap to get the descriptor from."/>
+    </func>
+    <func for="ViewHeap" name="CopyViews" version="0.7.0" mod="const" doc="Copies views from one heap to another.">
+      <ret type="void"/>
+      <arg type="u32" name="dst_index" doc="defines the index in the destination view heap to copy views to."/>
+      <arg type="u64" name="src_ptr" doc="points to {ViewHeap::} to copy views from."/>
+      <arg type="u32" name="src_index" doc="defines the index in the source view heap to copy views from."/>
+      <arg type="u32" name="count" doc="defines the number of views to copy."/>
+    </func>
+    <func for="ViewHeap" name="GetCPUAddress" version="0.7.0" mod="const" doc="Returns the CPU descriptor handle for the view heap.">
+      <ret type="u64" name="handle" doc="CPU descriptor handle for the view heap."/>
+    </func>
 
     <!-- Command Allocator -->
     <func for="CommandAllocator" name="Reset" version="0.7.0" mod="const" doc="Resets the command allocator, so it can be reused for allocating new command lists.">

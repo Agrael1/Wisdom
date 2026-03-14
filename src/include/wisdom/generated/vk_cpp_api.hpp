@@ -124,6 +124,98 @@ struct VKGraphicsPipelineDesc {
     wis::PipelineFlags           flags; ///< Pipeline flags. Describe additional options for the pipeline.
 };
 
+struct VKViewHeapDeleter {
+    void operator()(WisVKViewHeap* handle) noexcept
+    {
+        ::wisVKDestroyViewHeap(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a storage for resource views used in contiguous array.
+ *
+ * */
+class VKViewHeap : public wis::impl::Implements<wis::impl::VKViewHeapImpl, WisVKViewHeap, wis::VKViewHeapDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+    /**
+     * @brief Provided by Wisdom 0.7.0. Writes a render target view to the view heap and returns the CPU descriptor handle for it.
+     * @param texture points to wis::Texture to write the descriptor for.
+     * @param render_target points to wis::RenderTargetDesc, which describes the render target view to write.
+     * @param index defines the index in the view heap to write the descriptor to.
+     * @return u64 CPU descriptor handle for the view heap.
+     *
+     * */
+    WIS_NODISCARD inline std::uint64_t WriteRenderTarget(wis::VKTextureView           texture,
+                                                         const wis::RenderTargetDesc& render_target,
+                                                         std::uint32_t                index) const noexcept
+    {
+        return (::wisVKViewHeapWriteRenderTarget(&_impl_storage,
+                                                 texture,
+                                                 reinterpret_cast<const WisRenderTargetDesc*>(&render_target),
+                                                 index));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Writes a depth stencil view to the view heap and returns the CPU descriptor handle for it.
+     * @param texture points to wis::Texture to write the descriptor for.
+     * @param render_target points to wis::RenderTargetDesc, which describes the render target view to write.
+     * @param index defines the index in the view heap to write the descriptor to.
+     * @return u64 CPU descriptor handle for the view heap.
+     *
+     * */
+    WIS_NODISCARD inline std::uint64_t WriteDepthStencil(wis::VKTextureView           texture,
+                                                         const wis::RenderTargetDesc& render_target,
+                                                         std::uint32_t                index) const noexcept
+    {
+        return (::wisVKViewHeapWriteDepthStencil(&_impl_storage,
+                                                 texture,
+                                                 reinterpret_cast<const WisRenderTargetDesc*>(&render_target),
+                                                 index));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Returns the CPU descriptor handle for the view heap.
+     * @param index defines the index in the view heap to get the descriptor from.
+     * @return u64 Address of a view in heap.
+     *
+     * */
+    WIS_NODISCARD inline std::uint64_t GetViewAddress(std::uint32_t index) const noexcept
+    {
+        return (::wisVKViewHeapGetViewAddress(&_impl_storage,
+                                              index));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Copies views from one heap to another.
+     * @param dst_index defines the index in the destination view heap to copy views to.
+     * @param src_ptr points to wis::ViewHeap to copy views from.
+     * @param src_index defines the index in the source view heap to copy views from.
+     * @param count defines the number of views to copy.
+     * @return void
+     *
+     * */
+    WIS_NODISCARD inline void CopyViews(std::uint32_t dst_index,
+                                        std::uint64_t src_ptr,
+                                        std::uint32_t src_index,
+                                        std::uint32_t count) const noexcept
+    {
+        return (::wisVKViewHeapCopyViews(&_impl_storage,
+                                         dst_index,
+                                         src_ptr,
+                                         src_index,
+                                         count));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Returns the CPU descriptor handle for the view heap.
+     * @return u64 CPU descriptor handle for the view heap.
+     *
+     * */
+    WIS_NODISCARD inline std::uint64_t GetCPUAddress() const noexcept
+    {
+        return (::wisVKViewHeapGetCPUAddress(&_impl_storage));
+    }
+};
+
 struct VKPipelineDeleter {
     void operator()(WisVKPipeline* handle) noexcept
     {
@@ -1009,7 +1101,7 @@ public:
         return layout;
     }
     /**
-     * @brief Provided by Wisdom 0.7.0. Creates a descriptor storage with given descriptor.
+     * @brief Provided by Wisdom 0.7.0. Creates a descriptor storage with given description.
      * @param desc points to wis::DescriptorHeapDesc, which describes the descriptor heap to create.
      * @param out_result denoting the outcome of operation.
      * @return heap points to wis::DescriptorHeap, which is initialized on success.
@@ -1022,6 +1114,25 @@ public:
         out_result = convert_result(::wisVKDeviceCreateDescriptorHeap(&_impl_storage,
                                                                       reinterpret_cast<const WisDescriptorHeapDesc*>(&desc),
                                                                       heap.GetStorage()));
+        return heap;
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a view storage with given descriptor.
+     * @param type defines the type of the view heap to create.
+     * @param capacity defines the capacity in descriptors of the view heap to create.
+     * @param out_result denoting the outcome of operation.
+     * @return heap points to wis::DescriptorHeap, which is initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::VKViewHeap CreateViewHeap(wis::ViewHeapType type,
+                                                        std::uint32_t     capacity,
+                                                        wis::Result&      out_result) const noexcept
+    {
+        wis::VKViewHeap heap;
+        out_result = convert_result(::wisVKDeviceCreateViewHeap(&_impl_storage,
+                                                                static_cast<WisViewHeapType>(type),
+                                                                capacity,
+                                                                heap.GetStorage()));
         return heap;
     }
     /**

@@ -393,6 +393,26 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(const WisVKDev
 }
 
 //-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateViewHeap(const WisVKDevice* self,
+                                                            WisViewHeapType    type,
+                                                            uint32_t           capacity,
+                                                            WisVKViewHeap*     heap)
+{
+    auto&        device    = *reinterpret_cast<const wis::impl::VKDeviceImpl*>(self);
+    VkImageView* view_heap = new (std::nothrow) VkImageView[capacity]{};
+    if (!view_heap) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to allocate memory for view heap">(VK_ERROR_OUT_OF_HOST_MEMORY);
+    }
+
+    *new (heap) wis::impl::VKViewHeapImpl{
+        .view_heap     = view_heap,
+        .device_header = device.device_header,
+    };
+    device.device_header->AddRef(); // hold reference to device header
+    return wis::detail::vk_success;
+}
+
+//-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(const WisVKDevice*          self,
                                                                  const WisRootSignatureDesc* desc,
                                                                  WisVKRootSignature*         layout)

@@ -15,6 +15,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyFence(WisDX12Fence* self)
 
     fence->Release();
     CloseHandle(event);
+    fence = nullptr;
 }
 
 //-----------------------------------------------------------------------------
