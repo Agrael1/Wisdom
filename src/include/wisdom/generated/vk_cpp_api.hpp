@@ -191,19 +191,18 @@ public:
      * @param src_ptr points to wis::ViewHeap to copy views from.
      * @param src_index defines the index in the source view heap to copy views from.
      * @param count defines the number of views to copy.
-     * @return void
      *
      * */
-    WIS_NODISCARD inline void CopyViews(std::uint32_t dst_index,
-                                        std::uint64_t src_ptr,
-                                        std::uint32_t src_index,
-                                        std::uint32_t count) const noexcept
+    inline void CopyViews(std::uint32_t dst_index,
+                          std::uint64_t src_ptr,
+                          std::uint32_t src_index,
+                          std::uint32_t count) const noexcept
     {
-        return (::wisVKViewHeapCopyViews(&_impl_storage,
-                                         dst_index,
-                                         src_ptr,
-                                         src_index,
-                                         count));
+        ::wisVKViewHeapCopyViews(&_impl_storage,
+                                 dst_index,
+                                 src_ptr,
+                                 src_index,
+                                 count);
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Returns the CPU descriptor handle for the view heap.
@@ -550,19 +549,18 @@ public:
      * @param src_ptr points to wis::DescriptorHeap to copy descriptors from. Source heap @wis_must be CPU Only heap.
      * @param src_index defines the index in the source descriptor heap to copy descriptors from.
      * @param count defines the number of descriptors to copy.
-     * @return void
      *
      * */
-    WIS_NODISCARD inline void CopyDescriptors(std::uint32_t dst_index,
-                                              const void*   src_ptr,
-                                              std::uint32_t src_index,
-                                              std::uint32_t count) const noexcept
+    inline void CopyDescriptors(std::uint32_t dst_index,
+                                const void*   src_ptr,
+                                std::uint32_t src_index,
+                                std::uint32_t count) const noexcept
     {
-        return (::wisVKDescriptorHeapCopyDescriptors(&_impl_storage,
-                                                     dst_index,
-                                                     src_ptr,
-                                                     src_index,
-                                                     count));
+        ::wisVKDescriptorHeapCopyDescriptors(&_impl_storage,
+                                             dst_index,
+                                             src_ptr,
+                                             src_index,
+                                             count);
     }
 };
 

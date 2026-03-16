@@ -1,5 +1,5 @@
 function(wis_make_target_bundle)
-    cmake_parse_arguments(BUNDLE "HEADER_ONLY" "TARGET" "LINK_TARGETS;SOURCES;HEADERS;INCLUDE_DIRECTORIES;COMPILE_DEFINITIONS" ${ARGN})
+    cmake_parse_arguments(BUNDLE "HEADER_ONLY" "TARGET;DEFINITION_PREFIX" "LINK_TARGETS;SOURCES;HEADERS;INCLUDE_DIRECTORIES;COMPILE_DEFINITIONS;" ${ARGN})
 
     if (NOT BUNDLE_TARGET)
         message(FATAL_ERROR "TARGET is required for wis_make_target_bundle")
@@ -16,6 +16,14 @@ function(wis_make_target_bundle)
     if (BUNDLE_LINK_TARGETS)
         target_link_libraries(wisdom-${BUNDLE_TARGET}-headers INTERFACE ${BUNDLE_LINK_TARGETS})
     endif ()
+
+    # Definition prefix
+    if (BUNDLE_DEFINITION_PREFIX)
+        set(DEF_PREF ${BUNDLE_DEFINITION_PREFIX})
+    else()
+        set(DEF_PREF WISDOM)
+    endif()
+    string(TOLOWER "${DEF_PREF}" EXPORT_PREF)
 
     # Include directories
     if (BUNDLE_INCLUDE_DIRECTORIES)
@@ -55,7 +63,7 @@ function(wis_make_target_bundle)
             )
 
             target_link_libraries(wisdom-${BUNDLE_TARGET}-objects PUBLIC wisdom-${BUNDLE_TARGET}-headers)
-            target_compile_definitions(wisdom-${BUNDLE_TARGET}-objects PUBLIC WISDOM_BUILD_BINARIES=1)
+            target_compile_definitions(wisdom-${BUNDLE_TARGET}-objects PUBLIC ${DEF_PREF}_BUILD_BINARIES=1 ${DEF_PREF}_STATIC=1)
             set_target_properties(wisdom-${BUNDLE_TARGET}-objects PROPERTIES
                     CXX_STANDARD 20
                     #UNITY_BUILD ON
@@ -67,15 +75,14 @@ function(wis_make_target_bundle)
             add_library(wis::wisdom-${BUNDLE_TARGET}-objects-shared ALIAS wisdom-${BUNDLE_TARGET}-objects-shared)
             target_sources(wisdom-${BUNDLE_TARGET}-objects-shared
                     PRIVATE ${BUNDLE_SOURCES}
-                    "include/wisdom/generated/wisdom_exports.h"
             )
 
             target_link_libraries(wisdom-${BUNDLE_TARGET}-objects-shared PUBLIC wisdom-${BUNDLE_TARGET}-headers)
             target_compile_definitions(wisdom-${BUNDLE_TARGET}-objects-shared PUBLIC
-                    WISDOM_BUILD_BINARIES=1
-                    WISDOM_SHARED_LIBRARY=1
+                    ${DEF_PREF}_BUILD_BINARIES=1
+                    ${DEF_PREF}_SHARED_LIBRARY=1
                     PRIVATE
-                    wisdom_shared_EXPORTS=1
+                    ${EXPORT_PREF}_shared_EXPORTS=1
             )
             set_target_properties(wisdom-${BUNDLE_TARGET}-objects-shared PROPERTIES
                     CXX_STANDARD 20

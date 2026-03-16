@@ -853,7 +853,6 @@ WISDOM_API WisResult wisVKDescriptorHeapWriteAccelerationStructure(const WisVKDe
  * @param src_ptr points to WisDescriptorHeap to copy descriptors from. Source heap @wis_must be CPU Only heap.
  * @param src_index defines the index in the source descriptor heap to copy descriptors from.
  * @param count defines the number of descriptors to copy.
- * @return void
  *
  * */
 WISDOM_API void wisVKDescriptorHeapCopyDescriptors(const WisVKDescriptorHeap* self,
@@ -907,7 +906,6 @@ WISDOM_API uint64_t wisVKViewHeapGetViewAddress(const WisVKViewHeap* self,
  * @param src_ptr points to WisViewHeap to copy views from.
  * @param src_index defines the index in the source view heap to copy views from.
  * @param count defines the number of views to copy.
- * @return void
  *
  * */
 WISDOM_API void wisVKViewHeapCopyViews(const WisVKViewHeap* self,

@@ -3,8 +3,6 @@ add_library(wis::windows-headers ALIAS wisdom-windows-headers)
 add_library(wis::wisdom-windows-headers ALIAS wisdom-windows-headers)
 target_link_libraries(wisdom-windows-headers INTERFACE wis::wisdom-headers
                                                        d3d11)
-target_compile_definitions(wisdom-windows-headers
-                           INTERFACE WIS_WINDOWS_PLATFORM=1)
 target_include_directories(
   wisdom-windows-headers
   INTERFACE $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
@@ -16,7 +14,6 @@ if(WISDOM_BUILD_BINARIES)
   add_library(wis::windows ALIAS wisdom-windows)
   add_library(wis::wisdom-windows ALIAS wisdom-windows)
   target_link_libraries(wisdom-windows PUBLIC wis::wisdom d3d11)
-  target_compile_definitions(wisdom-windows PUBLIC WIS_WINDOWS_PLATFORM=1)
   target_include_directories(
     wisdom-windows
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>

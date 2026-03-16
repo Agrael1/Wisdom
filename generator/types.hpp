@@ -76,6 +76,11 @@ enum class Lang {
     C,
     CPP,
 };
+enum class Extends {
+    None,
+    Instance,
+    Device
+};
 
 struct InlineTypeInfo {
     std::string_view type;
@@ -182,6 +187,7 @@ struct WisHandle {
     std::string_view        doc;
     std::string_view        version;
     std::string_view        platform; // optional
+    Extends                 extends = Extends::None; // handle for extension
     std::array<uint32_t, 2> sizes{};
     std::array<uint32_t, 2> view_sizes{};
 
@@ -328,4 +334,5 @@ struct WisPlatform {
 
     std::vector<std::string_view> structs_in_order;
     std::vector<std::string_view> functions_in_order;
+    std::vector<std::string_view> handles_in_order;
 };

@@ -2,8 +2,16 @@
 #ifndef WISDOM_CPP_PLATFORM_API_HPP
 #define WISDOM_CPP_PLATFORM_API_HPP
 #ifdef __cplusplus
-#include <wisdom/global/definitions.h>
+#include <wisdom_platform/generated/c_platform_api.h>
 #include <wisdom/bridge/span.hpp>
+
+#ifdef WISDOM_DX12
+#include <wisdom_platform/dx12/dx12_platform_types.hpp>
+#endif // WISDOM_DX12
+
+#ifdef WISDOM_VULKAN
+#include <wisdom_platform/vulkan/vk_platform_types.hpp>
+#endif // WISDOM_VULKAN
 
 namespace wis {
 /**

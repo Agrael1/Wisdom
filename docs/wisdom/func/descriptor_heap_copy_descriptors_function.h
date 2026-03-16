@@ -39,10 +39,10 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
- * WIS_NODISCARD void DescriptorHeap::CopyDescriptors(std::uint32_t dst_index,
- *                                                    const void*   src_ptr,
- *                                                    std::uint32_t src_index,
- *                                                    std::uint32_t count) const noexcept;
+ * void DescriptorHeap::CopyDescriptors(std::uint32_t dst_index,
+ *                                      const void*   src_ptr,
+ *                                      std::uint32_t src_index,
+ *                                      std::uint32_t count) const noexcept;
  * }
  * ```
  * <details>
@@ -50,16 +50,16 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
- * WIS_NODISCARD void VKDescriptorHeap::CopyDescriptors(std::uint32_t dst_index,
- *                                                      const void*   src_ptr,
- *                                                      std::uint32_t src_index,
- *                                                      std::uint32_t count) const noexcept;
+ * void VKDescriptorHeap::CopyDescriptors(std::uint32_t dst_index,
+ *                                        const void*   src_ptr,
+ *                                        std::uint32_t src_index,
+ *                                        std::uint32_t count) const noexcept;
  * 
  * // Provided by Wisdom 0.7.0. 
- * WIS_NODISCARD void DX12DescriptorHeap::CopyDescriptors(std::uint32_t dst_index,
- *                                                        const void*   src_ptr,
- *                                                        std::uint32_t src_index,
- *                                                        std::uint32_t count) const noexcept;
+ * void DX12DescriptorHeap::CopyDescriptors(std::uint32_t dst_index,
+ *                                          const void*   src_ptr,
+ *                                          std::uint32_t src_index,
+ *                                          std::uint32_t count) const noexcept;
  * }
  * ```
  * </details>
@@ -73,8 +73,6 @@
  * - `src_ptr` points to WisDescriptorHeap to copy descriptors from. Source heap @wis_must be CPU Only heap.
  * - `src_index` defines the index in the source descriptor heap to copy descriptors from.
  * - `count` defines the number of descriptors to copy.
- * 
- * - **return** No description.
  * \endcond
  *
  * @section wisDescriptorHeapCopyDescriptors_descr Description

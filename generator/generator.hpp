@@ -130,7 +130,8 @@ public:
     std::string GetRefs(std::string_view for_type);
 
     static ImplementedFor             ImplCode(std::string_view impl) noexcept;
-    static ImplOs                     ImplOs(std::string_view os) noexcept;
+    static ImplOs                     GetImplOs(std::string_view os) noexcept;
+    static Extends                    GetExtends(std::string_view extends_str) noexcept;
     static void                       ReplaceAll(std::string& str, const std::string& from, const std::string& to);
     static InlineTypeInfo             FindInlineType(std::string_view str);
     static std::string                MakeVersionString(std::string_view version, bool newline = false);
@@ -147,6 +148,18 @@ public:
         case ImplementedFor::Vulkan:
             return "VK";
         default:
+            return "";
+        }
+    }
+    static constexpr std::string_view GetExtendsString(Extends impl) noexcept
+    {
+        switch (impl) {
+        case Extends::Instance:
+            return "Instance";
+        case Extends::Device:
+            return "Device";
+        default:
+        case Extends::None:
             return "";
         }
     }

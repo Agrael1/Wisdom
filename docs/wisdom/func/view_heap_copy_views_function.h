@@ -39,10 +39,10 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
- * WIS_NODISCARD void ViewHeap::CopyViews(std::uint32_t dst_index,
- *                                        std::uint64_t src_ptr,
- *                                        std::uint32_t src_index,
- *                                        std::uint32_t count) const noexcept;
+ * void ViewHeap::CopyViews(std::uint32_t dst_index,
+ *                          std::uint64_t src_ptr,
+ *                          std::uint32_t src_index,
+ *                          std::uint32_t count) const noexcept;
  * }
  * ```
  * <details>
@@ -50,16 +50,16 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
- * WIS_NODISCARD void VKViewHeap::CopyViews(std::uint32_t dst_index,
- *                                          std::uint64_t src_ptr,
- *                                          std::uint32_t src_index,
- *                                          std::uint32_t count) const noexcept;
+ * void VKViewHeap::CopyViews(std::uint32_t dst_index,
+ *                            std::uint64_t src_ptr,
+ *                            std::uint32_t src_index,
+ *                            std::uint32_t count) const noexcept;
  * 
  * // Provided by Wisdom 0.7.0. 
- * WIS_NODISCARD void DX12ViewHeap::CopyViews(std::uint32_t dst_index,
- *                                            std::uint64_t src_ptr,
- *                                            std::uint32_t src_index,
- *                                            std::uint32_t count) const noexcept;
+ * void DX12ViewHeap::CopyViews(std::uint32_t dst_index,
+ *                              std::uint64_t src_ptr,
+ *                              std::uint32_t src_index,
+ *                              std::uint32_t count) const noexcept;
  * }
  * ```
  * </details>
@@ -73,8 +73,6 @@
  * - `src_ptr` points to WisViewHeap to copy views from.
  * - `src_index` defines the index in the source view heap to copy views from.
  * - `count` defines the number of views to copy.
- * 
- * - **return** No description.
  * \endcond
  *
  * @section wisViewHeapCopyViews_descr Description

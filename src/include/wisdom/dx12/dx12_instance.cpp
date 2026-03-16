@@ -47,7 +47,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CreateInstance(const WisDebugDesc*     
 
     WisResult res = wis::detail::dx_success;
     for (auto* ext : wis::span<WisDX12InstanceExtensionHeader*>{ extensions, extension_count }) {
-        if (auto* table = reinterpret_cast<wis::DX12InstanceExtensionHeader*>(ext)) {
+        if (auto* table = wis::from_handle<wis::DX12InstanceExtensionHeader>(ext); table && table->init_fptr) {
             res = table->init_fptr(table, impl);
             if (res.status != WisStatusOk) {
                 res.status = WisStatusPartial; // mark as partial success if any extension fails

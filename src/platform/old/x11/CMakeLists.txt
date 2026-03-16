@@ -7,7 +7,6 @@ add_library(wisdom-x11-headers INTERFACE)
 add_library(wis::x11-headers ALIAS wisdom-x11-headers)
 add_library(wis::wisdom-x11-headers ALIAS wisdom-x11-headers)
 target_link_libraries(wisdom-x11-headers INTERFACE wis::wisdom-headers)
-target_compile_definitions(wisdom-x11-headers INTERFACE WIS_X11_PLATFORM=1)
 target_include_directories(wisdom-x11-headers INTERFACE ${X11_INCLUDE_DIR})
 target_include_directories(
   wisdom-x11-headers
@@ -19,7 +18,6 @@ if(WISDOM_BUILD_BINARIES)
   add_library(wis::x11 ALIAS wisdom-x11)
   add_library(wis::wisdom-x11 ALIAS wisdom-x11)
   target_link_libraries(wisdom-x11 PUBLIC wis::wisdom)
-  target_compile_definitions(wisdom-x11 PUBLIC WIS_X11_PLATFORM=1)
   target_include_directories(
     wisdom-x11
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>

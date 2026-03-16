@@ -853,7 +853,6 @@ WISDOM_API WisResult wisDX12DescriptorHeapWriteAccelerationStructure(const WisDX
  * @param src_ptr points to WisDescriptorHeap to copy descriptors from. Source heap @wis_must be CPU Only heap.
  * @param src_index defines the index in the source descriptor heap to copy descriptors from.
  * @param count defines the number of descriptors to copy.
- * @return void
  *
  * */
 WISDOM_API void wisDX12DescriptorHeapCopyDescriptors(const WisDX12DescriptorHeap* self,
@@ -907,7 +906,6 @@ WISDOM_API uint64_t wisDX12ViewHeapGetViewAddress(const WisDX12ViewHeap* self,
  * @param src_ptr points to WisViewHeap to copy views from.
  * @param src_index defines the index in the source view heap to copy views from.
  * @param count defines the number of views to copy.
- * @return void
  *
  * */
 WISDOM_API void wisDX12ViewHeapCopyViews(const WisDX12ViewHeap* self,

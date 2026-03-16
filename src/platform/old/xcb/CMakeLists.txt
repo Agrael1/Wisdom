@@ -7,7 +7,6 @@ add_library(wisdom-xcb-headers INTERFACE)
 add_library(wis::xcb-headers ALIAS wisdom-xcb-headers)
 add_library(wis::wisdom-xcb-headers ALIAS wisdom-xcb-headers)
 target_link_libraries(wisdom-xcb-headers INTERFACE wis::wisdom-headers)
-target_compile_definitions(wisdom-xcb-headers INTERFACE WIS_XCB_PLATFORM=1)
 target_include_directories(wisdom-xcb-headers INTERFACE ${XCB_INCLUDE_DIRS})
 target_include_directories(
   wisdom-xcb-headers
@@ -19,7 +18,6 @@ if(WISDOM_BUILD_BINARIES)
   add_library(wis::xcb ALIAS wisdom-xcb)
   add_library(wis::wisdom-xcb ALIAS wisdom-xcb)
   target_link_libraries(wisdom-xcb PUBLIC wis::wisdom)
-  target_compile_definitions(wisdom-xcb PUBLIC WIS_XCB_PLATFORM=1)
   target_include_directories(
     wisdom-xcb
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>

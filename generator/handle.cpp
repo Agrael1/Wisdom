@@ -38,6 +38,15 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
             ref.doc = doc->Value();
         }
 
+        if (auto* platform = type->FindAttribute("platform")) {
+            ref.platform = platform->Value();
+            platform_map[ref.platform].handles_in_order.emplace_back(name);
+        }
+
+        if (auto* extends = type->FindAttribute("extends")) {
+            ref.extends = GetExtends(extends->Value());
+        }
+
         // Add destroy function
         std::string destr_name = "Destroy" + std::string(name);
         std::string destr_doc  = "Destroys a {" + std::string(name) + "::} handle.";
@@ -56,6 +65,11 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
         ref.functions.emplace_back(destroy.name);
         functions_in_order.emplace_back(destroy.name);
         dependency_tree[name].dependencies.emplace_back(destroy.name);
+
+        if (!ref.platform.empty()) {
+            auto& platform = platform_map[ref.platform];
+            platform.functions_in_order.emplace_back(destroy.name);
+        }
 
         // Parse implementations
         for (auto* impl = type->FirstChildElement("impl"); impl;
@@ -108,8 +122,16 @@ std::string Generator::MakeCHandle(const WisHandle& s, std::string_view impl, Do
 {
     ImplementedFor impl_code = ImplCode(impl);
     auto           impl_string = GetImplString(impl_code);
+
+    auto extends_macro = s.extends == Extends::None 
+        ? std::string("WIS_DEFINE_HANDLE") 
+        : (s.extends == Extends::Instance 
+            ? wis::format("WIS_DEFINE_{}_INSTANCE_EXT_HANDLE", impl_string) 
+            : wis::format("WIS_DEFINE_{}_DEVICE_EXT_HANDLE", impl_string));
+
     auto           full_name   = GetCFullTypename(s.name, impl_string);
-    std::string    st_decl   = wis::format("WIS_DEFINE_HANDLE({},{});\n", full_name, s.GetSize(impl_code));
+
+    std::string st_decl = wis::format("{}({},{});\n", extends_macro, full_name, s.GetSize(impl_code));
     if (!s.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation(s, kind);
         st_decl          = wis::format("{}\n{}", xdoc, st_decl);
