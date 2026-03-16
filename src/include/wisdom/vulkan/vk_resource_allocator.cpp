@@ -90,7 +90,7 @@ inline VkImageCreateInfo VKFillImageDesc(const WisTextureDesc& desc) noexcept
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyResourceAllocator(WisVKResourceAllocator* self)
 {
-    auto& impl = *reinterpret_cast<wis::impl::VKResourceAllocatorImpl*>(self);
+    auto& impl = wis::from_handle_ref<wis::impl::VKResourceAllocatorImpl>(self);
     if (impl.allocator) {
         wis::detail::release_vk_device(impl.device_header);
         impl.allocator = nullptr;
@@ -102,7 +102,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateBuffer(const WisVK
                                                                      const WisBufferDesc*          desc,
                                                                      WisVKBuffer*                  buffer)
 {
-    auto& allocator = *reinterpret_cast<const wis::impl::VKResourceAllocatorImpl*>(self);
+    auto& allocator = wis::from_handle_ref<const wis::impl::VKResourceAllocatorImpl>(self);
 
     VkBufferCreateInfo buffer_info{
         .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
@@ -171,7 +171,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateTexture(const WisV
                                                                       WisTextureState               initial_state,
                                                                       WisVKTexture*                 buffer)
 {
-    auto& allocator = *reinterpret_cast<const wis::impl::VKResourceAllocatorImpl*>(self);
+    auto& allocator = wis::from_handle_ref<const wis::impl::VKResourceAllocatorImpl>(self);
     // Check memory type, you can't create a texture with upload or readback memory types
     if (desc->memory_type == WisMemoryTypeUpload || desc->memory_type == WisMemoryTypeReadback) {
         return wis::detail::make_result<wis::detail::Func(), "Invalid memory type for texture creation">(VK_ERROR_UNKNOWN);

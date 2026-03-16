@@ -35,6 +35,19 @@ enum ImplementedFor {
     DX12,
     Vulkan,
 };
+enum class ImplOs {
+    None,
+    Windows = 1 << 0,
+    Linux   = 1 << 1,
+    MacOS   = 1 << 2,
+    Android = 1 << 3,
+    IOS     = 1 << 4,
+};
+constexpr ImplOs operator|(ImplOs a, ImplOs b)
+{
+    return static_cast<ImplOs>(static_cast<int>(a) | static_cast<int>(b));
+}
+
 enum Modifier {
     None             = 0,
     Pointer          = 1 << 0,
@@ -47,6 +60,7 @@ enum Modifier {
     COnly            = 1 << 8,
     Universal        = 1 << 9, // for functions only
 };
+
 enum ReturnTypeKind {
     Void,
     Direct,
@@ -144,6 +158,7 @@ struct WisStruct {
     std::string_view             name;
     std::string_view             doc;
     std::string_view             version;
+    std::string_view             platform; // optional
     Modifier                     modifier = Modifier::None;
     std::vector<WisStructMember> members;
 
@@ -166,6 +181,7 @@ struct WisHandle {
     std::string_view        name;
     std::string_view        doc;
     std::string_view        version;
+    std::string_view        platform; // optional
     std::array<uint32_t, 2> sizes{};
     std::array<uint32_t, 2> view_sizes{};
 
@@ -192,11 +208,9 @@ public:
         }
         return 0;
     }
-
 };
 
 struct WisFunctionParameter {
-    // std::optional<ReplacedParameter> replaced;
     std::string_view type;
     std::string_view doc;
     std::string_view name;
@@ -247,6 +261,7 @@ struct WisFunction {
     std::string_view doc;
     std::string_view this_type;
     std::string_view version;
+    std::string_view platform; // optional
     Modifier         modifier = Modifier::None;
 
     WisReturnType                     return_type;
@@ -303,3 +318,14 @@ struct Validation {
 
 using ValidationList = std::vector<Validation>;
 using MethodList     = std::vector<std::string_view>;
+
+struct WisPlatform {
+    std::string_view name;
+    std::string_view doc;
+    std::string_view version;
+    ImplementedFor   impl;
+    ImplOs           os;
+
+    std::vector<std::string_view> structs_in_order;
+    std::vector<std::string_view> functions_in_order;
+};

@@ -5,6 +5,7 @@
 #include <wisdom/generated/dx12_convert.hpp>
 #include <wisdom/dx12/dx12_types.hpp>
 #include <wisdom/dx12/detail/dx12_utils.hpp>
+#include <wisdom/util/allocation.hpp>
 
 namespace wis::detail {
 //-----------------------------------------------------------------------------
@@ -106,7 +107,7 @@ inline D3D12_RESOURCE_DESC1 DX12FillTextureDesc(const WisTextureDesc& desc) noex
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyResourceAllocator(WisDX12ResourceAllocator* self)
 {
-    auto& [allocator] = *reinterpret_cast<wis::impl::DX12ResourceAllocatorImpl*>(self);
+    auto& [allocator] = wis::from_handle_ref<wis::impl::DX12ResourceAllocatorImpl>(self);
     if (!allocator) {
         return;
     }
@@ -120,7 +121,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12ResourceAllocatorCreateBuffer(const Wis
                                                                        const WisBufferDesc*            desc,
                                                                        WisDX12Buffer*                  buffer)
 {
-    auto& [allocator]         = *reinterpret_cast<const wis::impl::DX12ResourceAllocatorImpl*>(self);
+    auto& [allocator]         = wis::from_handle_ref<const wis::impl::DX12ResourceAllocatorImpl>(self);
     uint64_t             size = wis::aligned_size(desc->size_bytes, static_cast<uint64_t>(D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT));
     D3D12_RESOURCE_DESC1 buffer_desc{
         .Dimension                = D3D12_RESOURCE_DIMENSION_BUFFER,
@@ -149,7 +150,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12ResourceAllocatorCreateTexture(const Wi
                                                                         WisTextureState                 initial_state,
                                                                         WisDX12Texture*                 buffer)
 {
-    auto& [allocator]                 = *reinterpret_cast<const wis::impl::DX12ResourceAllocatorImpl*>(self);
+    auto& [allocator]                 = wis::from_handle_ref<const wis::impl::DX12ResourceAllocatorImpl>(self);
     D3D12_RESOURCE_DESC1     tex_desc = wis::detail::DX12FillTextureDesc(*desc);
     D3D12MA::ALLOCATION_DESC all_desc{
         .Flags    = wis::detail::convert_dx(desc->memory_flags),

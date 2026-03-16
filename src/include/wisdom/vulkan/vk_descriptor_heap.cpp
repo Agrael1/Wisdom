@@ -3,6 +3,7 @@
 #include <wisdom/generated/vk_cpp_api.hpp>
 #include <wisdom/generated/vk_api.h>
 #include <wisdom/generated/vk_convert.hpp>
+#include <wisdom/util/allocation.hpp>
 #include <wisdom/vulkan/detail/vk_detail.hpp>
 #include <wisdom/vulkan/detail/vk_utils.hpp>
 #include <bit>
@@ -227,7 +228,7 @@ VKGetUAVDesc(const WisTextureBinding& binding) noexcept
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyDescriptorHeap(WisVKDescriptorHeap* self)
 {
-    auto& impl = *reinterpret_cast<wis::impl::VKDescriptorHeapImpl*>(self);
+    auto& impl = wis::from_handle_ref<wis::impl::VKDescriptorHeapImpl>(self);
     if (impl.buffer) {
         // Destroy buffer
         if (impl.gpu_address == 0) {
@@ -244,7 +245,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyDescriptorHeap(WisVKDescriptorHeap* sel
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyViewHeap(WisVKViewHeap* self)
 {
-    auto& impl = *reinterpret_cast<wis::impl::VKViewHeapImpl*>(self);
+    auto& impl = wis::from_handle_ref<wis::impl::VKViewHeapImpl>(self);
     if (impl.view_heap) {
         for (uint32_t i = 0; i < impl.capacity; ++i) {
             if (impl.view_heap[i] != VK_NULL_HANDLE) {
@@ -262,7 +263,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyViewHeap(WisVKViewHeap* self)
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void* wisVKDescriptorHeapGetCPUHandle(const WisVKDescriptorHeap* self)
 {
-    auto& heap = *reinterpret_cast<const wis::impl::VKDescriptorHeapImpl*>(self);
+    auto& heap = wis::from_handle_ref<const wis::impl::VKDescriptorHeapImpl>(self);
     return heap.mapped_ptr;
 }
 
@@ -271,7 +272,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDescriptorHeapWriteConstantBuffer(const W
                                                                          const WisConstantBufferBinding* data,
                                                                          uint32_t                        index)
 {
-    auto& heap  = *reinterpret_cast<const wis::impl::VKDescriptorHeapImpl*>(self);
+    auto& heap  = wis::from_handle_ref<const wis::impl::VKDescriptorHeapImpl>(self);
     auto& table = heap.device_header->header.device_table;
 
     VkHostAddressRangeEXT host_range{
@@ -301,7 +302,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDescriptorHeapWriteStructuredBuffer(const
                                                                            const WisBufferBinding*    data,
                                                                            uint32_t                   index)
 {
-    auto& heap      = *reinterpret_cast<const wis::impl::VKDescriptorHeapImpl*>(self);
+    auto& heap      = wis::from_handle_ref<const wis::impl::VKDescriptorHeapImpl>(self);
     auto  vk_buffer = std::bit_cast<VkBuffer>(buffer);
     auto& table     = heap.device_header->header.device_table;
 
@@ -348,7 +349,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDescriptorHeapWriteSampler(const WisVKDes
                                                                   const WisSamplerDesc*      sampler,
                                                                   uint32_t                   index)
 {
-    auto& heap  = *reinterpret_cast<const wis::impl::VKDescriptorHeapImpl*>(self);
+    auto& heap  = wis::from_handle_ref<const wis::impl::VKDescriptorHeapImpl>(self);
     auto& table = heap.device_header->header.device_table;
 
     float normalized_anisotropy = std::max(float(sampler->max_anisotropy - 1) / 16.f, 0.0f);
@@ -397,7 +398,7 @@ WISDOM_API WisResult wisVKDescriptorHeapWriteTexture(const WisVKDescriptorHeap* 
                                                      const WisTextureBinding*   data,
                                                      uint32_t                   index)
 {
-    auto& heap  = *reinterpret_cast<const wis::impl::VKDescriptorHeapImpl*>(self);
+    auto& heap  = wis::from_handle_ref<const wis::impl::VKDescriptorHeapImpl>(self);
     auto& table = heap.device_header->header.device_table;
 
     VkHostAddressRangeEXT host_range{
@@ -433,7 +434,7 @@ WISDOM_API WisResult wisVKDescriptorHeapWriteRWTexture(const WisVKDescriptorHeap
                                                        const WisTextureBinding*   data,
                                                        uint32_t                   index)
 {
-    auto& heap  = *reinterpret_cast<const wis::impl::VKDescriptorHeapImpl*>(self);
+    auto& heap  = wis::from_handle_ref<const wis::impl::VKDescriptorHeapImpl>(self);
     auto& table = heap.device_header->header.device_table;
 
     VkHostAddressRangeEXT host_range{
@@ -468,7 +469,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDescriptorHeapWriteAccelerationStructure(
                                                                                 uint64_t                   address,
                                                                                 uint32_t                   index)
 {
-    auto& heap  = *reinterpret_cast<const wis::impl::VKDescriptorHeapImpl*>(self);
+    auto& heap  = wis::from_handle_ref<const wis::impl::VKDescriptorHeapImpl>(self);
     auto& table = heap.device_header->header.device_table;
 
     VkHostAddressRangeEXT host_range{
@@ -499,7 +500,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDescriptorHeapCopyDescriptors(const WisVKDescr
                                                                 uint32_t                   src_index,
                                                                 uint32_t                   count)
 {
-    auto& heap = *reinterpret_cast<const wis::impl::VKDescriptorHeapImpl*>(self);
+    auto& heap = wis::from_handle_ref<const wis::impl::VKDescriptorHeapImpl>(self);
     std::memcpy(static_cast<uint8_t*>(heap.mapped_ptr) + static_cast<size_t>(dst_index) * heap.descriptor_size,
                 static_cast<const uint8_t*>(src_ptr) + static_cast<size_t>(src_index) * heap.descriptor_size,
                 static_cast<size_t>(count) * heap.descriptor_size);
@@ -511,7 +512,7 @@ WIS_EXTERN_C WISDOM_API uint64_t wisVKViewHeapWriteRenderTarget(const WisVKViewH
                                                                 const WisRenderTargetDesc* render_target,
                                                                 uint32_t                   index)
 {
-    auto& heap   = *reinterpret_cast<const wis::impl::VKViewHeapImpl*>(self);
+    auto& heap   = wis::from_handle_ref<const wis::impl::VKViewHeapImpl>(self);
     auto& header = heap.device_header->header;
 
     // simply create image view
@@ -619,7 +620,7 @@ WIS_EXTERN_C WISDOM_API uint64_t wisVKViewHeapWriteDepthStencil(const WisVKViewH
 WIS_EXTERN_C WISDOM_API uint64_t wisVKViewHeapGetViewAddress(const WisVKViewHeap* self,
                                                              uint32_t             index)
 {
-    auto& heap = *reinterpret_cast<const wis::impl::VKViewHeapImpl*>(self);
+    auto& heap = wis::from_handle_ref<const wis::impl::VKViewHeapImpl>(self);
     if (index >= heap.capacity) {
         return 0; // Invalid index, return 0 as an invalid handle
     }
@@ -633,7 +634,7 @@ WIS_EXTERN_C WISDOM_API void wisVKViewHeapCopyViews(const WisVKViewHeap* self,
                                                     uint32_t             src_index,
                                                     uint32_t             count)
 {
-    auto& heap = *reinterpret_cast<const wis::impl::VKViewHeapImpl*>(self);
+    auto& heap = wis::from_handle_ref<const wis::impl::VKViewHeapImpl>(self);
     if (dst_index + count > heap.capacity) {
         return; // Invalid range, do nothing
     }
@@ -651,7 +652,7 @@ WIS_EXTERN_C WISDOM_API void wisVKViewHeapCopyViews(const WisVKViewHeap* self,
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API uint64_t wisVKViewHeapGetCPUAddress(const WisVKViewHeap* self)
 {
-    auto& heap = *reinterpret_cast<const wis::impl::VKViewHeapImpl*>(self);
+    auto& heap = wis::from_handle_ref<const wis::impl::VKViewHeapImpl>(self);
     return std::bit_cast<uint64_t>(heap.view_heap);
 }
 

@@ -14,10 +14,6 @@
 #endif
 #endif // WISDOM_EXPORT
 
-#ifndef WISDOM_VULKAN_ALPHA_DESCRIPTOR_HEAP_SUPPORT
-#define WISDOM_VULKAN_ALPHA_DESCRIPTOR_HEAP_SUPPORT 0 // Descriptor heap support in Vulkan is still in alpha stage, and the API is subject to change. Enable this at your own risk, and be prepared for breaking changes in future versions of Wisdom and the Vulkan extension itself.
-#endif // WISDOM_VULKAN_ALPHA_DESCRIPTOR_HEAP_SUPPORT
-
 // C++ feature detection
 #ifdef __cplusplus
 #if __cplusplus >= 201703L || (defined(_MSVC_LANG) && _MSVC_LANG >= 201703L)
@@ -146,5 +142,35 @@
 #ifndef WISDOM_API
 #define WISDOM_API
 #endif // WISDOM_API
+
+// platform detection
+#if !defined(WISDOM_UWP) && !defined(WISDOM_WINDOWS) && !defined(WISDOM_LINUX)
+
+// clang-format off
+#ifndef WISDOM_VULKAN
+    #if defined __has_include && (__has_include(<vulkan/vulkan.h>) || __has_include(<vulkan.h>))
+    #define WISDOM_VULKAN 1
+    #endif // __has_include && (__has_include(<vulkan/vulkan.h>) || __has_include(<vulkan.h>))
+#endif // !WISDOM_VULKAN
+// clang-format on
+
+// Try to detect the platform
+#if defined(_WIN32)
+
+#ifndef WISDOM_DX12
+#define WISDOM_DX12 1
+#endif // !WISDOM_DX12
+
+#ifdef _WINRT_DLL // UWP
+#define WISDOM_UWP 1
+#else // _WINRT_DLL
+#define WISDOM_WINDOWS 1
+#endif // _WINRT_DLL
+#elif defined(__linux__)
+#define WISDOM_LINUX 1
+#else
+#error "Platform not supported"
+#endif // _WIN32
+#endif // !WISDOM_UWP && !WISDOM_WINDOWS && !WISDOM_LINUX
 
 #endif // !WIS_GLOBAL_DEFINITIONS_H

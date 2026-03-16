@@ -200,3 +200,6 @@ install(
         NAMESPACE wis::
         FILE wisdom-targets.cmake # Not sure if this is still needed
 )
+
+# Platform extensions
+#add_subdirectory(platform)

@@ -13,9 +13,11 @@
 
 class Generator
 {
-    static constexpr std::string_view                       main_output_dir = CPP_OUTPUT_DIR;
-    static constexpr std::string_view                       doc_output_dir  = DOC_OUTPUT_DIR;
-    static constexpr std::string_view                       empty_doc       = " * ";
+    static constexpr std::string_view main_output_dir     = CPP_OUTPUT_DIR;
+    static constexpr std::string_view platform_output_dir = PLATFORM_OUTPUT_DIR;
+    static constexpr std::string_view doc_output_dir      = DOC_OUTPUT_DIR;
+    static constexpr std::string_view empty_doc           = " * ";
+
     static constexpr inline std::array<std::string_view, 5> impls{
         "",
         "DX12",
@@ -26,12 +28,14 @@ public:
     Generator() = default;
 
 public:
-    void                                   ParseFile(std::filesystem::path file);
-    void                                   WriteMainAPI();
-    void                                   WriteMainAPIDoc();
-    std::span<const std::filesystem::path> GetFiles() const
+    void ParseFile(std::filesystem::path file);
+    void ParsePlatformFile(std::filesystem::path file);
+    void WriteMainAPI();
+    void WritePlatformAPI();
+    void WriteMainAPIDoc();
+    auto GetFiles() const
     {
-        return files;
+        return std::span<const std::filesystem::path>{ files };
     }
 
 public:
@@ -47,6 +51,7 @@ public:
     void ParseBitmask(tinyxml2::XMLElement* type);
     void ParseDelegate(tinyxml2::XMLElement* type);
     void ParseConstants(tinyxml2::XMLElement* constants);
+    void ParsePlatforms(tinyxml2::XMLElement* platforms);
 
     // Make
     std::string MakeCEnum(const WisEnum& s, DocKind kind = DocKind::Full);
@@ -58,7 +63,7 @@ public:
     std::string MakeCFunctionDecl(const WisFunction& func, std::string_view impl = "", std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full);
     std::string MakeCDelegate(const WisFunction& func, DocKind kind = DocKind::Full);
     std::string MakeCConstant(const WisConstant& c, DocKind kind = DocKind::Full);
-    std::string MakeCPPConstant(const WisConstant& c, DocKind kind = DocKind::Full);
+    std::string MakeCPlatform(const WisPlatform& p, DocKind kind = DocKind::Full);
     std::string MakeConstantDescription(const WisConstant& c);
 
     std::string MakeEnumDescription(const WisEnum& s);
@@ -84,7 +89,8 @@ public:
     std::string MakeCPPFunctionProto(const WisFunction& func, std::string_view impl = "", std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full, ProtoType type = ProtoType::Prefixed);
     std::string MakeCPPFunctionImpl(const WisFunction& func, std::string_view impl = "", std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full, ProtoType type = ProtoType::Prefixed);
     std::string MakeCPPDelegate(const WisFunction& func, DocKind kind = DocKind::Full);
-
+    std::string MakeCPPConstant(const WisConstant& c, DocKind kind = DocKind::Full);
+    std::string MakeCPPPlatform(const WisPlatform& p, DocKind kind = DocKind::Full);
 
     // Write
     void WriteCAPI(std::filesystem::path path);
@@ -93,6 +99,8 @@ public:
     void WriteCIndependentAPI(std::filesystem::path path);
     void WriteCPPDependentAPI(std::filesystem::path path);
     void WriteCPPIndependentAPI(std::filesystem::path path);
+    void WriteCPlatformAPI(std::filesystem::path path);
+    void WriteCPPPlatformAPI(std::filesystem::path path);
     void WriteConversions(std::filesystem::path path);
     void WriteEnumDocumentation(std::filesystem::path enum_output_path);
     void WriteBitmaskDocumentation(std::filesystem::path bitmask_output_path);
@@ -122,6 +130,7 @@ public:
     std::string GetRefs(std::string_view for_type);
 
     static ImplementedFor             ImplCode(std::string_view impl) noexcept;
+    static ImplOs                     ImplOs(std::string_view os) noexcept;
     static void                       ReplaceAll(std::string& str, const std::string& from, const std::string& to);
     static InlineTypeInfo             FindInlineType(std::string_view str);
     static std::string                MakeVersionString(std::string_view version, bool newline = false);
@@ -302,8 +311,9 @@ private:
     std::unordered_map<std::string_view, WisHandle>   handle_map;
     std::unordered_map<std::string_view, WisFunction> function_map;
     std::unordered_map<std::string_view, WisFunction> delegate_map;
-    std::unordered_map<std::string_view, WisConstant>  constant_map;
-    std::unordered_set<std::string_view> view_set;
+    std::unordered_map<std::string_view, WisConstant> constant_map;
+    std::unordered_map<std::string_view, WisPlatform> platform_map;
+    std::unordered_set<std::string_view>              view_set;
 
     std::unordered_map<std::string_view, Dependencies>   dependency_tree;
     std::unordered_map<std::string_view, ValidationList> validation_map;
@@ -319,6 +329,7 @@ private:
     std::vector<std::string_view>      constants_in_order;
     std::vector<std::string_view>      free_functions_in_order;
     std::vector<std::string_view>      views_in_order;
+    std::vector<std::string_view>      platforms_in_order;
     std::vector<std::filesystem::path> files;
     std::vector<std::string>           destructors;
 

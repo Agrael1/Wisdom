@@ -3,6 +3,7 @@
 #include "../src/include/wisdom/bridge/format.hpp"
 
 inline constexpr std::string_view input_file = INPUT_FILE;
+inline constexpr std::string_view platform_file = PLATFORM_FILE;
 
 constexpr inline std::string_view clang_format_exe = CLANG_FORMAT_EXECUTABLE;
 void                              FormatFiles(std::span<const std::filesystem::path> files)
@@ -34,6 +35,11 @@ int main()
     g.ParseFile(input_file);
     g.WriteMainAPI();
     g.WriteMainAPIDoc();
+
+
+    g.ParsePlatformFile(platform_file);
+    g.WritePlatformAPI();
+
     FormatFiles(g.GetFiles());
     return 0;
 }

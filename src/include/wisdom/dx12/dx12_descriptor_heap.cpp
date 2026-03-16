@@ -5,6 +5,7 @@
 #include <wisdom/generated/dx12_convert.hpp>
 #include <wisdom/dx12/dx12_types.hpp>
 #include <wisdom/dx12/detail/dx12_utils.hpp>
+#include <wisdom/util/allocation.hpp>
 #include <bit>
 #include <algorithm>
 
@@ -201,7 +202,7 @@ DX12FillTextureUAVDesc(const WisTextureBinding& binding)
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyDescriptorHeap(WisDX12DescriptorHeap* self)
 {
-    auto& heap = *reinterpret_cast<wis::impl::DX12DescriptorHeapImpl*>(self);
+    auto& heap = wis::from_handle_ref<wis::impl::DX12DescriptorHeapImpl>(self);
     if (!heap.descriptor_heap) {
         return;
     }
@@ -212,7 +213,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyDescriptorHeap(WisDX12DescriptorHeap*
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyViewHeap(WisDX12ViewHeap* self)
 {
-    auto& heap = *reinterpret_cast<wis::impl::DX12ViewHeapImpl*>(self);
+    auto& heap = wis::from_handle_ref<wis::impl::DX12ViewHeapImpl>(self);
     if (!heap.view_heap) {
         return;
     }
@@ -223,7 +224,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyViewHeap(WisDX12ViewHeap* self)
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void* wisDX12DescriptorHeapGetCPUHandle(const WisDX12DescriptorHeap* self)
 {
-    auto& heap = *reinterpret_cast<const wis::impl::DX12DescriptorHeapImpl*>(self);
+    auto& heap = wis::from_handle_ref<const wis::impl::DX12DescriptorHeapImpl>(self);
     return reinterpret_cast<void*>(heap.descriptor_heap->GetCPUDescriptorHandleForHeapStart().ptr);
 }
 
@@ -232,7 +233,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DescriptorHeapWriteConstantBuffer(const
                                                                            const WisConstantBufferBinding* data,
                                                                            uint32_t                        index)
 {
-    auto&                           heap = *reinterpret_cast<const wis::impl::DX12DescriptorHeapImpl*>(self);
+    auto&                           heap = wis::from_handle_ref<const wis::impl::DX12DescriptorHeapImpl>(self);
     D3D12_CONSTANT_BUFFER_VIEW_DESC cbv_desc{
         .BufferLocation = { data->buffer_address },
         .SizeInBytes    = static_cast<UINT>(data->size_bytes),
@@ -247,7 +248,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DescriptorHeapWriteStructuredBuffer(con
                                                                              const WisBufferBinding*      data,
                                                                              uint32_t                     index)
 {
-    auto& heap     = *reinterpret_cast<const wis::impl::DX12DescriptorHeapImpl*>(self);
+    auto& heap     = wis::from_handle_ref<const wis::impl::DX12DescriptorHeapImpl>(self);
     auto* resource = std::bit_cast<ID3D12Resource*>(buffer);
 
     D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc{
@@ -271,7 +272,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DescriptorHeapWriteRWStructuredBuffer(c
                                                                                const WisBufferBinding*      data,
                                                                                uint32_t                     index)
 {
-    auto& heap     = *reinterpret_cast<const wis::impl::DX12DescriptorHeapImpl*>(self);
+    auto& heap     = wis::from_handle_ref<const wis::impl::DX12DescriptorHeapImpl>(self);
     auto* resource = std::bit_cast<ID3D12Resource*>(buffer);
 
     D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc{
@@ -293,7 +294,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DescriptorHeapWriteSampler(const WisDX1
                                                                     const WisSamplerDesc*        sampler,
                                                                     uint32_t                     index)
 {
-    auto& heap = *reinterpret_cast<const wis::impl::DX12DescriptorHeapImpl*>(self);
+    auto& heap = wis::from_handle_ref<const wis::impl::DX12DescriptorHeapImpl>(self);
 
     auto min_filter     = !sampler->is_anisotropic ? wis::detail::convert_dx(sampler->min_filter) : D3D12_FILTER_TYPE_LINEAR;
     auto mag_filter     = !sampler->is_anisotropic ? wis::detail::convert_dx(sampler->mag_filter) : D3D12_FILTER_TYPE_LINEAR;
@@ -333,7 +334,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DescriptorHeapWriteTexture(const WisDX1
                                                                     const WisTextureBinding*     data,
                                                                     uint32_t                     index)
 {
-    auto&                           heap     = *reinterpret_cast<const wis::impl::DX12DescriptorHeapImpl*>(self);
+    auto&                           heap     = wis::from_handle_ref<const wis::impl::DX12DescriptorHeapImpl>(self);
     auto*                           resource = std::bit_cast<ID3D12Resource*>(texture);
     D3D12_SHADER_RESOURCE_VIEW_DESC desc     = wis::detail::DX12FillTextureSRVDesc(*data);
     heap.device->CreateShaderResourceView(resource, &desc, { heap.cpu_handle.ptr + static_cast<uint64_t>(index) * heap.descriptor_size });
@@ -346,7 +347,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DescriptorHeapWriteRWTexture(const WisD
                                                                       const WisTextureBinding*     data,
                                                                       uint32_t                     index)
 {
-    auto&                            heap     = *reinterpret_cast<const wis::impl::DX12DescriptorHeapImpl*>(self);
+    auto&                            heap     = wis::from_handle_ref<const wis::impl::DX12DescriptorHeapImpl>(self);
     auto*                            resource = std::bit_cast<ID3D12Resource*>(texture);
     D3D12_UNORDERED_ACCESS_VIEW_DESC desc     = wis::detail::DX12FillTextureUAVDesc(*data);
     heap.device->CreateUnorderedAccessView(resource, nullptr, &desc, { heap.cpu_handle.ptr + static_cast<uint64_t>(index) * heap.descriptor_size });
@@ -358,7 +359,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DescriptorHeapWriteAccelerationStructur
                                                                                   uint64_t                     address,
                                                                                   uint32_t                     index)
 {
-    auto&                           heap = *reinterpret_cast<const wis::impl::DX12DescriptorHeapImpl*>(self);
+    auto&                           heap = wis::from_handle_ref<const wis::impl::DX12DescriptorHeapImpl>(self);
     D3D12_SHADER_RESOURCE_VIEW_DESC desc{
         .Format                          = DXGI_FORMAT_UNKNOWN,
         .ViewDimension                   = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE,
@@ -376,7 +377,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DescriptorHeapCopyDescriptors(const WisDX12D
                                                                   uint32_t                     src_index,
                                                                   uint32_t                     count)
 {
-    auto& heap = *reinterpret_cast<const wis::impl::DX12DescriptorHeapImpl*>(self);
+    auto& heap = wis::from_handle_ref<const wis::impl::DX12DescriptorHeapImpl>(self);
     heap.device->CopyDescriptorsSimple(
             count,
             { heap.cpu_handle.ptr + static_cast<uint64_t>(dst_index) * heap.descriptor_size },
@@ -390,7 +391,7 @@ WIS_EXTERN_C WISDOM_API uint64_t wisDX12ViewHeapWriteRenderTarget(const WisDX12V
                                                                   const WisRenderTargetDesc* render_target,
                                                                   uint32_t                   index)
 {
-    auto&                         heap = *reinterpret_cast<const wis::impl::DX12ViewHeapImpl*>(self);
+    auto&                         heap = wis::from_handle_ref<const wis::impl::DX12ViewHeapImpl>(self);
     D3D12_RENDER_TARGET_VIEW_DESC rtv_desc{
         .Format = wis::detail::convert_dx(render_target->format),
     };
@@ -460,7 +461,7 @@ WIS_EXTERN_C WISDOM_API uint64_t wisDX12ViewHeapWriteDepthStencil(const WisDX12V
                                                                   const WisRenderTargetDesc* render_target,
                                                                   uint32_t                   index)
 {
-    auto&                         heap = *reinterpret_cast<const wis::impl::DX12ViewHeapImpl*>(self);
+    auto&                         heap = wis::from_handle_ref<const wis::impl::DX12ViewHeapImpl>(self);
     D3D12_DEPTH_STENCIL_VIEW_DESC dsv_desc{
         .Format = wis::detail::convert_dx(render_target->format),
     };
@@ -518,7 +519,7 @@ WIS_EXTERN_C WISDOM_API uint64_t wisDX12ViewHeapWriteDepthStencil(const WisDX12V
 WIS_EXTERN_C WISDOM_API uint64_t wisDX12ViewHeapGetViewAddress(const WisDX12ViewHeap* self,
                                                                uint32_t               index)
 {
-    auto& heap = *reinterpret_cast<const wis::impl::DX12ViewHeapImpl*>(self);
+    auto& heap = wis::from_handle_ref<const wis::impl::DX12ViewHeapImpl>(self);
     return heap.cpu_handle.ptr + static_cast<uint64_t>(index) * heap.descriptor_size;
 }
 
@@ -529,7 +530,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12ViewHeapCopyViews(const WisDX12ViewHeap* sel
                                                       uint32_t               src_index,
                                                       uint32_t               count)
 {
-    auto& heap = *reinterpret_cast<const wis::impl::DX12ViewHeapImpl*>(self);
+    auto& heap = wis::from_handle_ref<const wis::impl::DX12ViewHeapImpl>(self);
     heap.device->CopyDescriptorsSimple(
             count,
             { heap.cpu_handle.ptr + static_cast<uint64_t>(dst_index) * heap.descriptor_size },
@@ -540,7 +541,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12ViewHeapCopyViews(const WisDX12ViewHeap* sel
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API uint64_t wisDX12ViewHeapGetCPUAddress(const WisDX12ViewHeap* self)
 {
-    auto& heap = *reinterpret_cast<const wis::impl::DX12ViewHeapImpl*>(self);
+    auto& heap = wis::from_handle_ref<const wis::impl::DX12ViewHeapImpl>(self);
     return heap.cpu_handle.ptr;
 }
 

@@ -5,12 +5,13 @@
 #include <wisdom/generated/dx12_api.h>
 #include <wisdom/generated/dx12_convert.hpp>
 #include <wisdom/dx12/detail/dx12_utils.hpp>
+#include <wisdom/util/allocation.hpp>
 #include <d3dx12/d3dx12_resource_helpers.h>
 
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyRootSignature(WisDX12RootSignature* self)
 {
-    auto& [root_signature] = *reinterpret_cast<wis::impl::DX12RootSignatureImpl*>(self);
+    auto& [root_signature] = wis::from_handle_ref<wis::impl::DX12RootSignatureImpl>(self);
     if (!root_signature) {
         return;
     }
@@ -22,7 +23,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyRootSignature(WisDX12RootSignature* s
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyBuffer(WisDX12Buffer* self)
 {
-    auto& [resource, allocation, allocator] = *reinterpret_cast<wis::impl::DX12BufferImpl*>(self);
+    auto& [resource, allocation, allocator] = wis::from_handle_ref<wis::impl::DX12BufferImpl>(self);
     if (!resource) {
         return;
     }
@@ -36,7 +37,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyBuffer(WisDX12Buffer* self)
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void* wisDX12BufferMap(const WisDX12Buffer* self)
 {
-    auto& [resource, allocation, allocator] = *reinterpret_cast<const wis::impl::DX12BufferImpl*>(self);
+    auto& [resource, allocation, allocator] = wis::from_handle_ref<const wis::impl::DX12BufferImpl>(self);
     void* mapped_ptr                        = nullptr;
     auto  hr                                = resource->Map(0, nullptr, &mapped_ptr);
     (void)hr; // Ignore mapping failure, return nullptr in that case
@@ -46,14 +47,14 @@ WIS_EXTERN_C WISDOM_API void* wisDX12BufferMap(const WisDX12Buffer* self)
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API uint64_t wisDX12BufferGetGPUAddress(const WisDX12Buffer* self)
 {
-    auto& [resource, allocation, allocator] = *reinterpret_cast<const wis::impl::DX12BufferImpl*>(self);
+    auto& [resource, allocation, allocator] = wis::from_handle_ref<const wis::impl::DX12BufferImpl>(self);
     return resource->GetGPUVirtualAddress();
 }
 
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyTexture(WisDX12Texture* self)
 {
-    auto& [resource, allocation, allocator] = *reinterpret_cast<wis::impl::DX12BufferImpl*>(self);
+    auto& [resource, allocation, allocator] = wis::from_handle_ref<wis::impl::DX12BufferImpl>(self);
     if (!resource) {
         return;
     }
@@ -69,7 +70,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12TextureWriteSubresource(const WisDX12Te
                                                                  const void*             source_data,
                                                                  const WisTextureRegion* target_region)
 {
-    auto& [resource, allocation, allocator] = *reinterpret_cast<const wis::impl::DX12BufferImpl*>(self);
+    auto& [resource, allocation, allocator] = wis::from_handle_ref<const wis::impl::DX12BufferImpl>(self);
 
     auto desc  = resource->GetDesc();
     bool is_3d = desc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE3D;
@@ -110,7 +111,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12TextureWriteSubresource(const WisDX12Te
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyShader(WisDX12Shader* self)
 {
-    auto& [shader] = *reinterpret_cast<wis::impl::DX12ShaderImpl*>(self);
+    auto& [shader] = wis::from_handle_ref<wis::impl::DX12ShaderImpl>(self);
     if (!shader) {
         return;
     }
@@ -121,7 +122,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyShader(WisDX12Shader* self)
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyPipeline(WisDX12Pipeline* self)
 {
-    auto& [pipeline] = *reinterpret_cast<wis::impl::DX12PipelineImpl*>(self);
+    auto& [pipeline] = wis::from_handle_ref<wis::impl::DX12PipelineImpl>(self);
     if (!pipeline) {
         return;
     }

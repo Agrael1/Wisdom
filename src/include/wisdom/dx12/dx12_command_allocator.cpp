@@ -5,11 +5,12 @@
 #include <wisdom/generated/dx12_api.h>
 #include <wisdom/generated/dx12_convert.hpp>
 #include <wisdom/dx12/detail/dx12_utils.hpp>
+#include <wisdom/util/allocation.hpp>
 
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyCommandAllocator(WisDX12CommandAllocator* self)
 {
-    auto& [al, x1, x2] = *reinterpret_cast<wis::impl::DX12CommandAllocatorImpl*>(self);
+    auto& [al, x1, x2] = wis::from_handle_ref<wis::impl::DX12CommandAllocatorImpl>(self);
     if (!al) {
         return;
     }
@@ -21,7 +22,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyCommandAllocator(WisDX12CommandAlloca
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisDX12CommandAllocatorReset(const WisDX12CommandAllocator* self)
 {
-    auto& [allocator, device, type] = *reinterpret_cast<const wis::impl::DX12CommandAllocatorImpl*>(self);
+    auto& [allocator, device, type] = wis::from_handle_ref<const wis::impl::DX12CommandAllocatorImpl>(self);
     auto hr                         = allocator->Reset();
     if (!wis::detail::succeeded(hr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to reset command allocator">(hr);
@@ -33,7 +34,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CommandAllocatorReset(const WisDX12Comm
 WIS_EXTERN_C WISDOM_API WisResult wisDX12CommandAllocatorCreateCommandList(const WisDX12CommandAllocator* self,
                                                                            WisDX12CommandList*            list)
 {
-    auto& [allocator, device, type] = *reinterpret_cast<const wis::impl::DX12CommandAllocatorImpl*>(self);
+    auto& [allocator, device, type] = wis::from_handle_ref<const wis::impl::DX12CommandAllocatorImpl>(self);
 
     wis::com_ptr<ID3D12GraphicsCommandList9> command_list;
 

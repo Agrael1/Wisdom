@@ -111,7 +111,7 @@ GetMappingOffsetPerShaderType(wis::span<uint32_t, WisShaderVisibilityCount> map_
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyDevice(WisVKDevice* self)
 {
-    auto& impl = *reinterpret_cast<wis::impl::VKDeviceImpl*>(self);
+    auto& impl = *wis::from_handle<wis::impl::VKDeviceImpl>(self);
     if (!impl.device) {
         return;
     }
@@ -126,7 +126,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandQueue(const WisVKDevic
                                                                 WisVKCommandQueue*  queue)
 {
     WisResult res      = wis::detail::vk_success;
-    auto&     device   = *reinterpret_cast<const wis::impl::VKDeviceImpl*>(self);
+    auto&     device   = *wis::from_handle<const wis::impl::VKDeviceImpl>(self);
     VkQueue   vk_queue = VK_NULL_HANDLE;
 
     // Sanity check: lower and upper bound
@@ -170,7 +170,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandAllocator(const WisVKD
                                                                     WisCommandQueueType    type,
                                                                     WisVKCommandAllocator* allocator)
 {
-    auto& device = *reinterpret_cast<const wis::impl::VKDeviceImpl*>(self);
+    auto& device = *wis::from_handle<const wis::impl::VKDeviceImpl>(self);
     auto& table  = device.device_header->header.device_table;
 
     // Sanity check: lower and upper bound
@@ -222,7 +222,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateFence(const WisVKDevice* self
                                                          WisVKFence*        fence)
 {
     WisResult res    = wis::detail::vk_success;
-    auto&     device = *reinterpret_cast<const wis::impl::VKDeviceImpl*>(self);
+    auto&     device = *wis::from_handle<const wis::impl::VKDeviceImpl>(self);
 
     VkSemaphoreTypeCreateInfo timeline_desc{
         .sType         = VK_STRUCTURE_TYPE_SEMAPHORE_TYPE_CREATE_INFO,
@@ -256,7 +256,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateFence(const WisVKDevice* self
 WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceGetResourceAllocator(const WisVKDevice*      self,
                                                                   WisVKResourceAllocator* allocator)
 {
-    auto& device = *reinterpret_cast<const wis::impl::VKDeviceImpl*>(self);
+    auto& device = *wis::from_handle<const wis::impl::VKDeviceImpl>(self);
 
     // Fill allocator impl
     auto& allocator_impl = *new (allocator) wis::impl::VKResourceAllocatorImpl{
@@ -273,7 +273,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(const WisVKDev
                                                                   const WisDescriptorHeapDesc* desc,
                                                                   WisVKDescriptorHeap*         heap)
 {
-    auto& device   = *reinterpret_cast<const wis::impl::VKDeviceImpl*>(self);
+    auto& device   = *wis::from_handle<const wis::impl::VKDeviceImpl>(self);
     auto& header   = device.device_header->header;
     auto& features = header.features;
     auto& table    = header.device_table;
@@ -398,7 +398,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateViewHeap(const WisVKDevice* s
                                                             uint32_t           capacity,
                                                             WisVKViewHeap*     heap)
 {
-    auto&        device    = *reinterpret_cast<const wis::impl::VKDeviceImpl*>(self);
+    auto&        device    = *wis::from_handle<const wis::impl::VKDeviceImpl>(self);
     VkImageView* view_heap = new (std::nothrow) VkImageView[capacity]{};
     if (!view_heap) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to allocate memory for view heap">(VK_ERROR_OUT_OF_HOST_MEMORY);
@@ -417,7 +417,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(const WisVKDevi
                                                                  const WisRootSignatureDesc* desc,
                                                                  WisVKRootSignature*         layout)
 {
-    auto& device   = *reinterpret_cast<const wis::impl::VKDeviceImpl*>(self);
+    auto& device   = *wis::from_handle<const wis::impl::VKDeviceImpl>(self);
     auto& header   = device.device_header->header;
     auto& features = header.features;
 
@@ -617,7 +617,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDeviceQueryProperties(const WisVKDevice* self,
         return;
     }
 
-    auto& device = *reinterpret_cast<const wis::impl::VKDeviceImpl*>(self);
+    auto& device = *wis::from_handle<const wis::impl::VKDeviceImpl>(self);
     auto& header = device.device_header->header;
     void* next   = properties;
 
@@ -693,7 +693,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceWaitForMultipleFences(const WisVKDe
                                                                    WisMutiWaitType       wait_for,
                                                                    uint64_t              timeout)
 {
-    auto&               device = *reinterpret_cast<const wis::impl::VKDeviceImpl*>(self);
+    auto&               device = *wis::from_handle<const wis::impl::VKDeviceImpl>(self);
     VkSemaphoreWaitInfo waitInfo{
         .sType          = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO,
         .pNext          = nullptr,
@@ -719,7 +719,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreatePipelineCache(const WisVKDevi
         return wis::detail::make_result<wis::detail::Func(), "Data size is too small to contain a valid pipeline cache header">(VK_ERROR_INITIALIZATION_FAILED);
     }
 
-    auto& device  = *reinterpret_cast<const wis::impl::VKDeviceImpl*>(self);
+    auto& device  = *wis::from_handle<const wis::impl::VKDeviceImpl>(self);
     auto& table   = device.device_header->header.device_table;
     auto  adapter = device.physical_device;
     auto  atable  = device.device_header->header.shared_header->header.adapter_table;
@@ -777,7 +777,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateShader(const WisVKDevice* sel
                                                           size_t             size,
                                                           WisVKShader*       shader)
 {
-    auto& device = *reinterpret_cast<const wis::impl::VKDeviceImpl*>(self);
+    auto& device = *wis::from_handle<const wis::impl::VKDeviceImpl>(self);
     auto& table  = device.device_header->header.device_table;
 
     VkShaderModuleCreateInfo shader_info{
@@ -807,7 +807,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateComputePipeline(const WisVKDe
                                                                    const WisVKComputePipelineDesc* desc,
                                                                    WisVKPipeline*                  pipeline)
 {
-    auto& device        = *reinterpret_cast<const wis::impl::VKDeviceImpl*>(self);
+    auto& device        = *wis::from_handle<const wis::impl::VKDeviceImpl>(self);
     auto& table         = device.device_header->header.device_table;
     auto* root_sig_impl = std::bit_cast<const wis::detail::VKRootSignatureControlBlock*>(desc->root_signature);
     auto  shader        = std::bit_cast<VkShaderModule>(desc->compute_shader);
@@ -865,7 +865,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(const WisVKD
                                                                     const WisVKGraphicsPipelineDesc* desc,
                                                                     WisVKPipeline*                   pipeline)
 {
-    auto& device   = *reinterpret_cast<const wis::impl::VKDeviceImpl*>(self);
+    auto& device   = *wis::from_handle<const wis::impl::VKDeviceImpl>(self);
     auto& table    = device.device_header->header.device_table;
     auto* rsig     = std::bit_cast<const wis::detail::VKRootSignatureControlBlock*>(desc->root_signature);
     auto& features = device.device_header->header.features;

@@ -3,6 +3,7 @@
 #include <wisdom/generated/vk_cpp_api.hpp>
 #include <wisdom/generated/vk_api.h>
 #include <wisdom/generated/vk_convert.hpp>
+#include <wisdom/util/allocation.hpp>
 #include <wisdom/vulkan/detail/vk_detail.hpp>
 #include <wisdom/vulkan/detail/vk_utils.hpp>
 #include <bit>
@@ -10,7 +11,7 @@
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyCommandQueue(WisVKCommandQueue* self)
 {
-    auto& impl = *reinterpret_cast<wis::impl::VKCommandQueueImpl*>(self);
+    auto& impl = wis::from_handle_ref<wis::impl::VKCommandQueueImpl>(self);
     if (impl.queue) {
         wis::detail::release_vk_device(impl.device_header);
         impl.device_header = nullptr;
@@ -24,7 +25,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCommandQueueSubmit(const WisVKCommandQueu
                                                           const WisVKCommandListView* lists,
                                                           size_t                      count)
 {
-    auto& impl = *reinterpret_cast<const wis::impl::VKCommandQueueImpl*>(self);
+    auto& impl = wis::from_handle_ref<const wis::impl::VKCommandQueueImpl>(self);
 
     // I am not sorry, reinterpret_cast is the only way to convert from WisVKCommandListView
     // (which is a pointer to an opaque handle) to VkCommandBuffer* without violating strict aliasing rules.
@@ -47,7 +48,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCommandQueueSignalFence(const WisVKComman
                                                                WisVKFenceView           fence,
                                                                uint64_t                 value)
 {
-    auto&                 impl  = *reinterpret_cast<const wis::impl::VKCommandQueueImpl*>(self);
+    auto&                 impl  = wis::from_handle_ref<const wis::impl::VKCommandQueueImpl>(self);
     VkQueue               queue = impl.queue;
     VkSemaphore           sem   = std::bit_cast<VkSemaphore>(fence);
     VkSemaphoreSubmitInfo sem_submit{
@@ -74,7 +75,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCommandQueueWaitFence(const WisVKCommandQ
                                                              WisVKFenceView           fence,
                                                              uint64_t                 value)
 {
-    auto&                 impl  = *reinterpret_cast<const wis::impl::VKCommandQueueImpl*>(self);
+    auto&                 impl  = wis::from_handle_ref<const wis::impl::VKCommandQueueImpl>(self);
     VkQueue               queue = impl.queue;
     VkSemaphore           sem   = std::bit_cast<VkSemaphore>(fence);
     VkSemaphoreSubmitInfo sem_submit{

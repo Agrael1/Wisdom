@@ -6,6 +6,7 @@
 #include <wisdom/generated/dx12_api.h>
 #include <wisdom/generated/dx12_convert.hpp>
 #include <wisdom/generated/dx12_cpp_api.hpp>
+#include <wisdom/util/allocation.hpp>
 #include <wisdom/util/com_ptr.hpp>
 
 //-----------------------------------------------------------------------------
@@ -60,7 +61,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CreateInstance(const WisDebugDesc*     
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyInstance(WisDX12Instance* self)
 {
-    auto& [factory, debug_layer] = *reinterpret_cast<wis::impl::DX12InstanceImpl*>(self);
+    auto& [factory, debug_layer] = wis::from_handle_ref<wis::impl::DX12InstanceImpl>(self);
     if (!factory) {
         return;
     }
@@ -78,7 +79,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12InstanceQueryAdapters(const WisDX12Inst
                                                                WisAdapterPreference   preference,
                                                                WisDX12AdapterQuery*   query)
 {
-    const auto&                 instance_impl = *reinterpret_cast<const wis::impl::DX12InstanceImpl*>(self);
+    const auto&                 instance_impl = wis::from_handle_ref<const wis::impl::DX12InstanceImpl>(self);
     wis::com_ptr<IDXGIFactory6> factory_ref{ instance_impl.factory }; // hold a reference
 
     constexpr static uint32_t reasonable_count = 8;

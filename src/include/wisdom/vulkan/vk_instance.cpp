@@ -212,7 +212,7 @@ wisVKCreateInstance(const WisDebugDesc*            debug_desc,
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyInstance(WisVKInstance* self)
 {
-    auto& impl = *reinterpret_cast<wis::impl::VKInstanceImpl*>(self);
+    auto& impl = wis::from_handle_ref<wis::impl::VKInstanceImpl>(self);
     if (!impl.instance) {
         return;
     }
@@ -228,7 +228,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKInstanceQueryAdapters(const WisVKInstance
                                                              WisVKAdapterQuery*   query)
 {
     // Query can come as partially constructed from C side
-    auto& instance_impl = *reinterpret_cast<const wis::impl::VKInstanceImpl*>(self);
+    auto& instance_impl = wis::from_handle_ref<const wis::impl::VKInstanceImpl>(self);
 
     const auto& header = *instance_impl.shared_header;
     const auto& table  = header.header.instance_table;
