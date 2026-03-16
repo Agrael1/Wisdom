@@ -9,7 +9,7 @@
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyCommandAllocator(WisVKCommandAllocator* self)
 {
-    auto& impl = *reinterpret_cast<wis::impl::VKCommandAllocatorImpl*>(self);
+    auto& impl = wis::from_handle_ref<wis::impl::VKCommandAllocatorImpl>(self);
     if (impl.command_pool != VK_NULL_HANDLE) {
         wis::detail::release_vk_command_pool(impl.command_pool_header);
         impl.command_pool = VK_NULL_HANDLE;
@@ -19,7 +19,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyCommandAllocator(WisVKCommandAllocator*
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisVKCommandAllocatorReset(const WisVKCommandAllocator* self)
 {
-    auto& impl          = *reinterpret_cast<const wis::impl::VKCommandAllocatorImpl*>(self);
+    auto& impl          = wis::from_handle_ref<const wis::impl::VKCommandAllocatorImpl>(self);
     auto& header        = impl.command_pool_header->header;
     auto& device_header = header.device_header->header;
     auto  result        = device_header.device_table.vkResetCommandPool(header.device, impl.command_pool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
@@ -35,7 +35,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCommandAllocatorReset(const WisVKCommandA
 WIS_EXTERN_C WISDOM_API WisResult wisVKCommandAllocatorCreateCommandList(const WisVKCommandAllocator* self,
                                                                          WisVKCommandList*            list)
 {
-    auto& impl          = *reinterpret_cast<const wis::impl::VKCommandAllocatorImpl*>(self);
+    auto& impl          = wis::from_handle_ref<const wis::impl::VKCommandAllocatorImpl>(self);
     auto& header        = impl.command_pool_header->header;
     auto& device_header = header.device_header->header;
 

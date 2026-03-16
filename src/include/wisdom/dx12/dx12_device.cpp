@@ -6,6 +6,7 @@
 #include <wisdom/generated/dx12_api.h>
 #include <wisdom/generated/dx12_convert.hpp>
 #include <wisdom/generated/dx12_cpp_api.hpp>
+#include <wisdom/util/allocation.hpp>
 #include <wisdom/util/com_ptr.hpp>
 #include <wisdom/util/xxhash.h>
 #include <wisdom/bridge/format.hpp>
@@ -16,7 +17,7 @@
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyDevice(WisDX12Device* self)
 {
-    auto& impl = *reinterpret_cast<wis::impl::DX12DeviceImpl*>(self);
+    auto& impl = wis::from_handle_ref<wis::impl::DX12DeviceImpl>(self);
     if (!impl.device) {
         return;
     }
@@ -32,7 +33,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandQueue(const WisDX12D
                                                                   WisCommandQueueType  type,
                                                                   WisDX12CommandQueue* queue)
 {
-    auto& device = *reinterpret_cast<const wis::impl::DX12DeviceImpl*>(self);
+    auto& device = wis::from_handle_ref<const wis::impl::DX12DeviceImpl>(self);
 
     bool supported = (device.queue_priorities[type] & ~0x7fu) != 0;
     if (!supported) {
@@ -65,7 +66,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandAllocator(const WisD
                                                                       WisDX12CommandAllocator* list)
 {
     WisResult                            result = wis::detail::dx_success;
-    auto&                                device = *reinterpret_cast<const wis::impl::DX12DeviceImpl*>(self);
+    auto&                                device = wis::from_handle_ref<const wis::impl::DX12DeviceImpl>(self);
     wis::com_ptr<ID3D12CommandAllocator> allocator;
 
     auto hr = device.device->CreateCommandAllocator(wis::detail::convert_dx(type),
@@ -89,7 +90,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateFence(const WisDX12Device* 
                                                            WisDX12Fence*        fence)
 {
     WisResult result = wis::detail::dx_success;
-    auto&     device = *reinterpret_cast<const wis::impl::DX12DeviceImpl*>(self);
+    auto&     device = wis::from_handle_ref<const wis::impl::DX12DeviceImpl>(self);
 
     wis::com_ptr<ID3D12Fence> out_fence;
 
@@ -118,7 +119,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateFence(const WisDX12Device* 
 WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceGetResourceAllocator(const WisDX12Device*      self,
                                                                     WisDX12ResourceAllocator* allocator)
 {
-    auto& device = *reinterpret_cast<const wis::impl::DX12DeviceImpl*>(self);
+    auto& device = wis::from_handle_ref<const wis::impl::DX12DeviceImpl>(self);
 
     // Fill allocator impl
     device.allocator->AddRef(); // hold reference to allocator
@@ -133,7 +134,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateDescriptorHeap(const WisDX1
                                                                     const WisDescriptorHeapDesc* desc,
                                                                     WisDX12DescriptorHeap*       heap)
 {
-    auto& device = *reinterpret_cast<const wis::impl::DX12DeviceImpl*>(self);
+    auto& device = wis::from_handle_ref<const wis::impl::DX12DeviceImpl>(self);
 
     // Create descriptor heap container
     D3D12_DESCRIPTOR_HEAP_DESC heap_desc{
@@ -167,7 +168,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateViewHeap(const WisDX12Devic
                                                               uint32_t             capacity,
                                                               WisDX12ViewHeap*     heap)
 {
-    auto& device = *reinterpret_cast<const wis::impl::DX12DeviceImpl*>(self);
+    auto& device = wis::from_handle_ref<const wis::impl::DX12DeviceImpl>(self);
 
     // Create descriptor heap container
     D3D12_DESCRIPTOR_HEAP_DESC heap_desc{
@@ -198,7 +199,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(const WisDX12
                                                                    const WisRootSignatureDesc* desc,
                                                                    WisDX12RootSignature*       layout)
 {
-    auto&     device = *reinterpret_cast<const wis::impl::DX12DeviceImpl*>(self);
+    auto&     device = wis::from_handle_ref<const wis::impl::DX12DeviceImpl>(self);
     WisResult res    = wis::detail::dx_success;
 
     // https://learn.microsoft.com/en-us/windows/win32/direct3d12/root-signature-limits
@@ -374,7 +375,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DeviceQueryProperties(const WisDX12Device* s
         return;
     }
 
-    auto& device = *reinterpret_cast<const wis::impl::DX12DeviceImpl*>(self);
+    auto& device = wis::from_handle_ref<const wis::impl::DX12DeviceImpl>(self);
     void* next   = properties;
 
     do {
@@ -431,7 +432,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceWaitForMultipleFences(const WisDX
                                                                      WisMutiWaitType         wait_for,
                                                                      uint64_t                timeout)
 {
-    auto& device = *reinterpret_cast<const wis::impl::DX12DeviceImpl*>(self);
+    auto& device = wis::from_handle_ref<const wis::impl::DX12DeviceImpl>(self);
 
     HANDLE event_handle = CreateEventW(nullptr, false, false, nullptr);
     if (!event_handle) {
@@ -459,7 +460,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreatePipelineCache(const WisDX12
                                                                    size_t                data_size,
                                                                    WisDX12PipelineCache* cache)
 {
-    auto& device = *reinterpret_cast<const wis::impl::DX12DeviceImpl*>(self);
+    auto& device = wis::from_handle_ref<const wis::impl::DX12DeviceImpl>(self);
 
     uint8_t* data_copy = nullptr;
     if (initial_data && data_size > 0) {
@@ -499,7 +500,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateShader(const WisDX12Device*
         return wis::detail::make_result<wis::detail::Func(), "Shader bytecode data is null or empty">(E_INVALIDARG);
     }
 
-    auto& device = *reinterpret_cast<const wis::impl::DX12DeviceImpl*>(self);
+    auto& device = wis::from_handle_ref<const wis::impl::DX12DeviceImpl>(self);
 
     std::unique_ptr<wis::detail::DX12ShaderHeader> shader_header{
         reinterpret_cast<wis::detail::DX12ShaderHeader*>(operator new(wis::aligned_size(size, 8ull) + sizeof(wis::detail::DX12ShaderHeader), std::nothrow))
@@ -531,7 +532,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateComputePipeline(const WisDX
                                                                      const WisDX12ComputePipelineDesc* desc,
                                                                      WisDX12Pipeline*                  pipeline)
 {
-    auto& device  = *reinterpret_cast<const wis::impl::DX12DeviceImpl*>(self);
+    auto& device  = wis::from_handle_ref<const wis::impl::DX12DeviceImpl>(self);
     auto* rootsig = std::bit_cast<ID3D12RootSignature*>(desc->root_signature);
     auto* shader  = std::bit_cast<const wis::detail::DX12ShaderHeader*>(desc->compute_shader);
     auto* cache   = std::bit_cast<ID3D12PipelineLibrary1*>(desc->cache);
@@ -625,7 +626,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(const WisD
                                                                       const WisDX12GraphicsPipelineDesc* desc,
                                                                       WisDX12Pipeline*                   pipeline)
 {
-    auto& device  = *reinterpret_cast<const wis::impl::DX12DeviceImpl*>(self);
+    auto& device  = wis::from_handle_ref<const wis::impl::DX12DeviceImpl>(self);
     auto* cache   = std::bit_cast<ID3D12PipelineLibrary1*>(desc->cache);
     auto* rootsig = std::bit_cast<ID3D12RootSignature*>(desc->root_signature);
     if (!rootsig) {

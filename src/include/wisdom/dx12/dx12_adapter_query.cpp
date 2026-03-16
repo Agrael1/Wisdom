@@ -6,12 +6,13 @@
 #include <wisdom/generated/dx12_api.h>
 #include <wisdom/generated/dx12_convert.hpp>
 #include <wisdom/generated/dx12_cpp_api.hpp>
+#include <wisdom/util/allocation.hpp>
 #include <wisdom/util/com_ptr.hpp>
 
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyAdapterQuery(WisDX12AdapterQuery* self)
 {
-    auto& [physical_devices, adapter_count, factory, debug_layer] = *reinterpret_cast<wis::impl::DX12AdapterQueryImpl*>(self);
+    auto& [physical_devices, adapter_count, factory, debug_layer] = wis::from_handle_ref<wis::impl::DX12AdapterQueryImpl>(self);
     if (!physical_devices) {
         return;
     }
@@ -34,7 +35,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyAdapterQuery(WisDX12AdapterQuery* sel
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API size_t wisDX12AdapterQueryGetAdapterCount(const WisDX12AdapterQuery* self)
 {
-    return reinterpret_cast<const wis::impl::DX12AdapterQueryImpl*>(self)->adapter_count;
+    return wis::from_handle<const wis::impl::DX12AdapterQueryImpl>(self)->adapter_count;
 }
 
 //-----------------------------------------------------------------------------
@@ -43,7 +44,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryGetAdapterDesc(const WisDX1
                                                                     WisAdapterDesc*            desc)
 {
     WisResult res  = wis::detail::dx_success;
-    auto&     impl = *reinterpret_cast<const wis::impl::DX12AdapterQueryImpl*>(self);
+    auto&     impl = wis::from_handle_ref<const wis::impl::DX12AdapterQueryImpl>(self);
     if (index >= impl.adapter_count) {
         return wis::detail::make_result<wis::detail::Func(), "Adapter index out of bounds">(E_INVALIDARG);
     }
@@ -85,7 +86,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(const WisDX12A
                                                                   WisDX12Device*                   device)
 {
     WisResult res  = wis::detail::dx_success;
-    auto&     impl = *reinterpret_cast<const wis::impl::DX12AdapterQueryImpl*>(self);
+    auto&     impl = wis::from_handle_ref<const wis::impl::DX12AdapterQueryImpl>(self);
     if (index >= impl.adapter_count) {
         return wis::detail::make_result<wis::detail::Func(), "Adapter index out of bounds">(E_INVALIDARG);
     }

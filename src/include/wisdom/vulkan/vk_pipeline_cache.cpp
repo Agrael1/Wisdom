@@ -10,7 +10,7 @@
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyPipelineCache(WisVKPipelineCache* self)
 {
-    auto& impl = *reinterpret_cast<wis::impl::VKPipelineCacheImpl*>(self);
+    auto& impl = wis::from_handle_ref<wis::impl::VKPipelineCacheImpl>(self);
     if (impl.cache != VK_NULL_HANDLE) {
         auto& header = impl.device_header->header;
         auto& table  = header.device_table;
@@ -28,7 +28,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKPipelineCacheSerialize(const WisVKPipelin
                                                               uint8_t*                  data,
                                                               size_t                    data_size)
 {
-    auto& impl = *reinterpret_cast<const wis::impl::VKPipelineCacheImpl*>(self);
+    auto& impl = wis::from_handle_ref<const wis::impl::VKPipelineCacheImpl>(self);
     auto&       table     = impl.device_header->header.device_table;
     auto vr = table.vkGetPipelineCacheData(impl.device_header->header.device, impl.cache, &data_size, data);
     if (!wis::detail::succeeded(vr)) {
@@ -40,7 +40,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKPipelineCacheSerialize(const WisVKPipelin
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API size_t wisVKPipelineCacheGetSerializedSize(const WisVKPipelineCache* self)
 {
-    auto& impl = *reinterpret_cast<const wis::impl::VKPipelineCacheImpl*>(self);
+    auto& impl = wis::from_handle_ref<const wis::impl::VKPipelineCacheImpl>(self);
     auto& table = impl.device_header->header.device_table;
     std::size_t data_size = 0;
     table.vkGetPipelineCacheData(impl.device_header->header.device, impl.cache, &data_size, nullptr);

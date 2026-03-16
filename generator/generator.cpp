@@ -10,7 +10,31 @@ void Generator::ParseFile(std::filesystem::path file)
     auto  absolute = std::filesystem::absolute(file);
     auto& doc      = documents[absolute];
     doc.LoadFile(absolute.string().c_str());
-    return ParseFile(doc);
+
+    auto* root = doc.FirstChildElement("registry");
+    if (!root) {
+        throw std::runtime_error("Invalid XML file: missing <registry> root element");
+    }
+
+    ParseFile(doc);
+}
+
+void Generator::ParsePlatformFile(std::filesystem::path file)
+{
+    auto  absolute = std::filesystem::absolute(file);
+    auto& doc      = documents[absolute];
+    doc.LoadFile(absolute.string().c_str());
+
+    auto* root = doc.FirstChildElement("registry");
+    if (!root) {
+        throw std::runtime_error("Invalid XML file: missing <registry> root element");
+    }
+
+    if (auto* handles = root->FirstChildElement("platforms")) {
+        ParsePlatforms(handles);
+    }
+
+    ParseFile(doc);
 }
 
 void Generator::WriteMainAPI()
@@ -26,6 +50,14 @@ void Generator::WriteMainAPI()
     WriteCPPIndependentAPI(cpp_output_path);
 
     WriteConversions(cpp_output_path_api);
+}
+
+void Generator::WritePlatformAPI()
+{
+    std::filesystem::path cpp_output_path     = platform_output_dir;
+    std::filesystem::path cpp_output_path_api = cpp_output_path / "generated";
+    WriteCPlatformAPI(cpp_output_path_api / "c_platform_api.h");
+    WriteCPPPlatformAPI(cpp_output_path_api / "cpp_platform_api.hpp");
 }
 
 void Generator::WriteMainAPIDoc()
@@ -50,10 +82,6 @@ void Generator::WriteMainAPIDoc()
 void Generator::ParseFile(tinyxml2::XMLDocument& doc)
 {
     auto* root = doc.FirstChildElement("registry");
-    if (!root) {
-        throw std::runtime_error("Invalid XML file: missing <registry> root element");
-    }
-
     if (auto* include = root->FirstChildElement("includes")) {
         ParseIncludes(include);
     }
@@ -759,6 +787,76 @@ static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderInterm
 )";
 }
 
+void Generator::WriteCPlatformAPI(std::filesystem::path path)
+{
+    files.push_back(path);
+    std::ofstream file{ path, std::ios::out | std::ios::trunc };
+    if (!file.is_open()) {
+        throw std::runtime_error("Failed to open output file: " + path.string());
+    }
+    // Write header
+    file << R"(// This file is generated. Do not edit directly.
+#ifndef WISDOM_C_PLATFORM_API_H
+#define WISDOM_C_PLATFORM_API_H
+#include <wisdom/global/definitions.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include <stddef.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
+)";
+
+    // Write platforms
+    for (auto& platform_name : platforms_in_order) {
+        auto& platform_def = platform_map[platform_name];
+        file << MakeCPlatform(platform_def);
+        file << "\n";
+    }
+
+    // Write footer
+    file << R"(
+#ifdef __cplusplus
+}
+#endif // __cplusplus
+#endif // WISDOM_C_PLATFORM_API_H
+)";
+}
+
+void Generator::WriteCPPPlatformAPI(std::filesystem::path path)
+{
+    files.push_back(path);
+    std::ofstream file{ path, std::ios::out | std::ios::trunc };
+    if (!file.is_open()) {
+        throw std::runtime_error("Failed to open output file: " + path.string());
+    }
+    // Write header
+    file << R"(// This file is generated. Do not edit directly.
+#ifndef WISDOM_CPP_PLATFORM_API_HPP
+#define WISDOM_CPP_PLATFORM_API_HPP
+#ifdef __cplusplus
+#include <wisdom/global/definitions.h>
+#include <wisdom/bridge/span.hpp>
+
+namespace wis {
+)";
+
+    // Write platforms
+    for (auto& platform_name : platforms_in_order) {
+        auto& platform_def = platform_map[platform_name];
+        file << MakeCPPPlatform(platform_def);
+        file << "\n";
+    }
+
+    // Write footer
+    file << R"(
+}
+#endif // __cplusplus
+#endif // WISDOM_CPP_PLATFORM_API_HPP
+)";
+}
+
 void Generator::WriteConversions(std::filesystem::path dir)
 {
     std::filesystem::path path_dx = dir / "dx12_convert.hpp";
@@ -1162,6 +1260,22 @@ ImplementedFor Generator::ImplCode(std::string_view impl) noexcept
         return ImplementedFor::Vulkan;
     }
     return ImplementedFor::Both;
+}
+
+ImplOs Generator::ImplOs(std::string_view os) noexcept
+{
+    // tokenize by comma
+    for (auto&& tk : std::views::split(os, std::string_view{ "," })) {
+        // trim
+        std::string_view tk_view{ tk.begin(), tk.end() };
+        if (tk_view == "windows") {
+            return ImplOs::Windows;
+        }
+        if (tk_view == "linux") {
+            return ImplOs::Linux;
+        }
+    }
+    return ImplOs::None;
 }
 
 void Generator::ReplaceAll(std::string& str, const std::string& from, const std::string& to)

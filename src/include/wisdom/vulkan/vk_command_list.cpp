@@ -142,7 +142,7 @@ VKAllocateBarriers(const wis::impl::VKCommandListImpl& impl,
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyCommandList(WisVKCommandList* self)
 {
-    auto& impl = *reinterpret_cast<wis::impl::VKCommandListImpl*>(self);
+    auto& impl = wis::from_handle_ref<wis::impl::VKCommandListImpl>(self);
     if (impl.command_buffer != VK_NULL_HANDLE) {
         // free command buffer
         auto& header = impl.command_pool_header->header;
@@ -156,7 +156,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyCommandList(WisVKCommandList* self)
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisVKCommandListBegin(const WisVKCommandList* self)
 {
-    auto& impl = *reinterpret_cast<const wis::impl::VKCommandListImpl*>(self);
+    auto& impl = wis::from_handle_ref<const wis::impl::VKCommandListImpl>(self);
 
     VkCommandBufferBeginInfo begin_info{
         .sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
@@ -174,7 +174,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCommandListBegin(const WisVKCommandList* 
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisVKCommandListEnd(const WisVKCommandList* self)
 {
-    auto& impl = *reinterpret_cast<const wis::impl::VKCommandListImpl*>(self);
+    auto& impl = wis::from_handle_ref<const wis::impl::VKCommandListImpl>(self);
     auto  vr   = impl.command_list_table->vkEndCommandBuffer(impl.command_buffer);
     if (!wis::detail::succeeded(vr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to end Vulkan command buffer recording">(vr);
@@ -187,10 +187,10 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetDescriptorHeaps(const WisVKComma
                                                                 const WisVKDescriptorHeap* resource_heap,
                                                                 const WisVKDescriptorHeap* sampler_heap)
 {
-    auto& impl = *reinterpret_cast<const wis::impl::VKCommandListImpl*>(self);
+    auto& impl = wis::from_handle_ref<const wis::impl::VKCommandListImpl>(self);
 
     if (resource_heap) {
-        auto&             res_heap                          = *reinterpret_cast<const wis::impl::VKDescriptorHeapImpl*>(resource_heap);
+    auto&             res_heap                          = wis::from_handle_ref<const wis::impl::VKDescriptorHeapImpl>(resource_heap);
         VkDeviceSize      reserved_resource_descriptor_size = static_cast<std::size_t>(res_heap.reserved_size) * res_heap.descriptor_size;
         VkDeviceSize      total_resource_heap_size          = static_cast<std::size_t>(res_heap.heap_size) * res_heap.descriptor_size + reserved_resource_descriptor_size;
         VkBindHeapInfoEXT bind_resource_info{
@@ -204,7 +204,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetDescriptorHeaps(const WisVKComma
     }
 
     if (sampler_heap) {
-        auto&             samp_heap                        = *reinterpret_cast<const wis::impl::VKDescriptorHeapImpl*>(sampler_heap);
+    auto&             samp_heap                        = wis::from_handle_ref<const wis::impl::VKDescriptorHeapImpl>(sampler_heap);
         VkDeviceSize      reserved_sampler_descriptor_size = static_cast<std::size_t>(samp_heap.reserved_size) * samp_heap.descriptor_size;
         VkDeviceSize      total_sampler_heap_size          = static_cast<std::size_t>(samp_heap.heap_size) * samp_heap.descriptor_size + reserved_sampler_descriptor_size;
         VkBindHeapInfoEXT bind_sampler_info{
@@ -223,7 +223,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetRootSignature(const WisVKCommand
                                                               WisVKRootSignatureView  signature,
                                                               WisPipelineType         pipeline)
 {
-    auto& impl                 = *reinterpret_cast<const wis::impl::VKCommandListImpl*>(self);
+    auto& impl                 = wis::from_handle_ref<const wis::impl::VKCommandListImpl>(self);
     auto* sig                  = std::bit_cast<wis::detail::VKRootSignatureControlBlock*>(signature);
     impl.root_signature_header = sig;
 }
@@ -232,7 +232,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetRootSignature(const WisVKCommand
 WIS_EXTERN_C WISDOM_API void wisVKCommandListSetPushConstants(const WisVKCommandList*        self,
                                                               const WisPushConstantDataDesc* data)
 {
-    auto& impl = *reinterpret_cast<const wis::impl::VKCommandListImpl*>(self);
+    auto& impl = wis::from_handle_ref<const wis::impl::VKCommandListImpl>(self);
     auto* sig  = impl.root_signature_header;
 
     uint32_t          push_constant_offset = sig->GetRootBindingOffsets()[data->root_index] + data->push_offset / 4;
@@ -249,7 +249,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetPushConstants(const WisVKCommand
 WIS_EXTERN_C WISDOM_API void wisVKCommandListSetPushDescriptor(const WisVKCommandList*          self,
                                                                const WisPushDescriptorDataDesc* data)
 {
-    auto& impl = *reinterpret_cast<const wis::impl::VKCommandListImpl*>(self);
+    auto& impl = wis::from_handle_ref<const wis::impl::VKCommandListImpl>(self);
     auto* sig  = impl.root_signature_header;
 
     uint32_t          push_desc_offset = sig->GetRootBindingOffsets()[data->root_index];
@@ -266,7 +266,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetPushDescriptor(const WisVKComman
 WIS_EXTERN_C WISDOM_API void wisVKCommandListSetDescriptorTable(const WisVKCommandList*           self,
                                                                 const WisDescriptorTableDataDesc* data)
 {
-    auto& impl = *reinterpret_cast<const wis::impl::VKCommandListImpl*>(self);
+    auto& impl = wis::from_handle_ref<const wis::impl::VKCommandListImpl>(self);
     auto* sig  = impl.root_signature_header;
 
     uint32_t          push_desc_offset = sig->GetRootBindingOffsets()[data->root_index];
@@ -291,7 +291,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListInsertBarriers(const WisVKCommandLi
     }
     // clang-format on
 
-    auto&   impl          = *reinterpret_cast<const wis::impl::VKCommandListImpl*>(self);
+    auto&   impl          = wis::from_handle_ref<const wis::impl::VKCommandListImpl>(self);
     auto&   device_header = impl.command_pool_header->header;
     uint8_t local_scratch[wis::detail::vk_static_size]{};
 
@@ -433,7 +433,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetPipeline(const WisVKCommandList*
                                                          WisVKPipelineView       pipeline,
                                                          WisPipelineType         type)
 {
-    auto& impl        = *reinterpret_cast<const wis::impl::VKCommandListImpl*>(self);
+    auto& impl        = wis::from_handle_ref<const wis::impl::VKCommandListImpl>(self);
     auto  vk_pipeline = std::bit_cast<VkPipeline>(pipeline);
     impl.command_list_table->vkCmdBindPipeline(impl.command_buffer, wis::detail::convert_vk(type), vk_pipeline);
 }
@@ -443,7 +443,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetViewports(WisVKCommandList*  sel
                                                           const WisViewport* viewports,
                                                           size_t             count)
 {
-    auto&      impl      = *reinterpret_cast<wis::impl::VKCommandListImpl*>(self);
+    auto&      impl      = wis::from_handle_ref<wis::impl::VKCommandListImpl>(self);
     auto       max_count = std::min(count, static_cast<size_t>(wis::MaxViewports));
     VkViewport vk_viewports[wis::MaxViewports];
 
@@ -466,7 +466,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetScissors(WisVKCommandList* self,
                                                          const WisScissor* scissors,
                                                          size_t            count)
 {
-    auto&    impl      = *reinterpret_cast<wis::impl::VKCommandListImpl*>(self);
+    auto&    impl      = wis::from_handle_ref<wis::impl::VKCommandListImpl>(self);
     auto     max_count = std::min(count, static_cast<size_t>(wis::MaxViewports));
     VkRect2D vk_rects[wis::MaxViewports];
     for (size_t i = 0; i < max_count; i++) {
@@ -483,7 +483,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetScissors(WisVKCommandList* self,
 WIS_EXTERN_C WISDOM_API void wisVKCommandListSetPrimitiveTopology(WisVKCommandList*    self,
                                                                   WisPrimitiveTopology topology)
 {
-    auto& impl = *reinterpret_cast<wis::impl::VKCommandListImpl*>(self);
+    auto& impl = wis::from_handle_ref<wis::impl::VKCommandListImpl>(self);
     impl.command_list_table->vkCmdSetPrimitiveTopology(impl.command_buffer, wis::detail::convert_vk(topology));
 }
 
@@ -493,7 +493,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetDepthBias(WisVKCommandList* self
                                                           float             depth_bias_clamp,
                                                           float             slope_scaled_depth_bias)
 {
-    auto& impl = *reinterpret_cast<wis::impl::VKCommandListImpl*>(self);
+    auto& impl = wis::from_handle_ref<wis::impl::VKCommandListImpl>(self);
     impl.command_list_table->vkCmdSetDepthBias(impl.command_buffer, depth_bias, depth_bias_clamp, slope_scaled_depth_bias);
 }
 
@@ -501,7 +501,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetDepthBias(WisVKCommandList* self
 WIS_EXTERN_C WISDOM_API void wisVKCommandListSetPrimitiveRestartValue(WisVKCommandList*        self,
                                                                       WisPrimitiveRestartValue restart_value)
 {
-    auto& impl = *reinterpret_cast<wis::impl::VKCommandListImpl*>(self);
+    auto& impl = wis::from_handle_ref<wis::impl::VKCommandListImpl>(self);
     impl.command_list_table->vkCmdSetPrimitiveRestartEnable(impl.command_buffer, restart_value != 0);
 }
 
@@ -511,7 +511,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListDispatch(const WisVKCommandList* se
                                                       uint32_t                group_count_y,
                                                       uint32_t                group_count_z)
 {
-    auto& impl = *reinterpret_cast<const wis::impl::VKCommandListImpl*>(self);
+    auto& impl = wis::from_handle_ref<const wis::impl::VKCommandListImpl>(self);
     impl.command_list_table->vkCmdDispatch(impl.command_buffer, group_count_x, group_count_y, group_count_z);
 }
 

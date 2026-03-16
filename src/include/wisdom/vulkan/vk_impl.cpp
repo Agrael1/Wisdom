@@ -9,7 +9,7 @@
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyBuffer(WisVKBuffer* self)
 {
-    auto& impl = *reinterpret_cast<wis::impl::VKBufferImpl*>(self);
+    auto& impl = wis::from_handle_ref<wis::impl::VKBufferImpl>(self);
     if (impl.buffer != VK_NULL_HANDLE) {
         // get allocator
         VmaAllocator allocator = impl.device_header->header.allocator;
@@ -29,14 +29,14 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyBuffer(WisVKBuffer* self)
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void* wisVKBufferMap(const WisVKBuffer* self)
 {
-    auto& impl = *reinterpret_cast<const wis::impl::VKBufferImpl*>(self);
+    auto& impl = wis::from_handle_ref<const wis::impl::VKBufferImpl>(self);
     return impl.mapped_ptr;
 }
 
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API uint64_t wisVKBufferGetGPUAddress(const WisVKBuffer* self)
 {
-    auto& impl   = *reinterpret_cast<const wis::impl::VKBufferImpl*>(self);
+    auto& impl   = wis::from_handle_ref<const wis::impl::VKBufferImpl>(self);
     auto& header = impl.device_header->header;
     auto& table  = header.device_table;
 
@@ -55,7 +55,7 @@ WIS_EXTERN_C WISDOM_API uint64_t wisVKBufferGetGPUAddress(const WisVKBuffer* sel
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyTexture(WisVKTexture* self)
 {
-    auto& impl = *reinterpret_cast<wis::impl::VKTextureImpl*>(self);
+    auto& impl = wis::from_handle_ref<wis::impl::VKTextureImpl>(self);
     if (impl.image != VK_NULL_HANDLE) {
         // get allocator
         VmaAllocator allocator = impl.device_header->header.allocator;
@@ -73,7 +73,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKTextureWriteSubresource(const WisVKTextur
                                                                const void*             source_data,
                                                                const WisTextureRegion* target_region)
 {
-    auto& impl   = *reinterpret_cast<const wis::impl::VKTextureImpl*>(self);
+    auto& impl   = wis::from_handle_ref<const wis::impl::VKTextureImpl>(self);
     auto& header = impl.device_header->header;
     auto  device = header.device;
     auto& table  = header.device_table;
@@ -122,7 +122,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKTextureWriteSubresource(const WisVKTextur
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyRootSignature(WisVKRootSignature* self)
 {
-    auto& impl = *reinterpret_cast<wis::impl::VKRootSignatureImpl*>(self);
+    auto& impl = wis::from_handle_ref<wis::impl::VKRootSignatureImpl>(self);
     if (impl.root_signature_header != nullptr) {
         delete impl.root_signature_header;
         impl.root_signature_header = nullptr;
@@ -132,7 +132,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyRootSignature(WisVKRootSignature* self)
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyShader(WisVKShader* self)
 {
-    auto& impl = *reinterpret_cast<wis::impl::VKShaderImpl*>(self);
+    auto& impl = wis::from_handle_ref<wis::impl::VKShaderImpl>(self);
     if (impl.shader_module != VK_NULL_HANDLE) {
         auto& header = impl.device_header->header;
         auto& table  = header.device_table;
@@ -146,7 +146,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyShader(WisVKShader* self)
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyPipeline(WisVKPipeline* self)
 {
-    auto& impl = *reinterpret_cast<wis::impl::VKPipelineImpl*>(self);
+    auto& impl = wis::from_handle_ref<wis::impl::VKPipelineImpl>(self);
     if (impl.pipeline != VK_NULL_HANDLE) {
         auto& header = impl.device_header->header;
         auto& table  = header.device_table;

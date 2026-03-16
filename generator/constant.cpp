@@ -51,10 +51,10 @@ std::string Generator::MakeCConstant(const WisConstant& c, DocKind kind)
 {
     std::string type_str = GetCFullTypename(c.type, "");
     std::string mod_str;
-    if (c.modifier & Modifier::Pointer) {
+    if ((c.modifier & Modifier::Pointer) != Modifier::None) {
         mod_str += "*";
     }
-    if (c.modifier & Modifier::Const) {
+    if ((c.modifier & Modifier::Const) != Modifier::None) {
         type_str = "const " + type_str;
     }
 
@@ -75,10 +75,10 @@ std::string Generator::MakeCPPConstant(const WisConstant& c, DocKind kind)
 {
     std::string type_str = GetCPPFullTypename(c.type, "");
     std::string mod_str;
-    if (c.modifier & Modifier::Pointer) {
+    if ((c.modifier & Modifier::Pointer) != Modifier::None) {
         mod_str += "*";
     }
-    if (c.modifier & Modifier::Const) {
+    if ((c.modifier & Modifier::Const) != Modifier::None) {
         type_str = "const " + type_str;
     }
 

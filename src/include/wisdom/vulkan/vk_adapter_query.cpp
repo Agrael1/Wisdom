@@ -421,7 +421,7 @@ inline WisResult VKInitResourceAllocator(VkDevice          device,
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyAdapterQuery(WisVKAdapterQuery* self)
 {
-    auto& impl = *reinterpret_cast<wis::impl::VKAdapterQueryImpl*>(self);
+    auto& impl = *wis::from_handle<wis::impl::VKAdapterQueryImpl>(self);
     if (impl.physical_devices) {
         delete[] impl.physical_devices;
         wis::detail::release_vk_instance(impl.instance, impl.shared_header);
@@ -431,7 +431,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyAdapterQuery(WisVKAdapterQuery* self)
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API size_t wisVKAdapterQueryGetAdapterCount(const WisVKAdapterQuery* self)
 {
-    return reinterpret_cast<const wis::impl::VKAdapterQueryImpl*>(self)->adapter_count;
+    return wis::from_handle<const wis::impl::VKAdapterQueryImpl>(self)->adapter_count;
 }
 
 //-----------------------------------------------------------------------------
@@ -439,7 +439,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryGetAdapterDesc(const WisVKAda
                                                                   size_t                   index,
                                                                   WisAdapterDesc*          desc)
 {
-    const auto& impl = *reinterpret_cast<const wis::impl::VKAdapterQueryImpl*>(self);
+    const auto& impl = *wis::from_handle<const wis::impl::VKAdapterQueryImpl>(self);
     if (index >= impl.adapter_count) {
         return wis::detail::make_result<wis::detail::Func(), "Adapter index out of bounds">(VK_ERROR_INITIALIZATION_FAILED);
     }
@@ -512,7 +512,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
                                                                 const WisVKDeviceRequirements* requirements,
                                                                 WisVKDevice*                   device)
 {
-    auto& impl = *reinterpret_cast<const wis::impl::VKAdapterQueryImpl*>(self);
+    auto& impl = *wis::from_handle<const wis::impl::VKAdapterQueryImpl>(self);
     if (index >= impl.adapter_count) {
         return wis::detail::make_result<wis::detail::Func(), "Adapter index out of bounds">(VK_ERROR_INITIALIZATION_FAILED);
     }

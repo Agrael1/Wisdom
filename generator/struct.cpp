@@ -44,6 +44,11 @@ void Generator::ParseStruct(tinyxml2::XMLElement* type)
         ref.doc = size->Value();
     }
 
+    if (auto* platform = type->FindAttribute("platform")) {
+        ref.platform = platform->Value();
+        platform_map[ref.platform].structs_in_order.emplace_back(ref.name);
+    }
+
     if (auto* size = type->FindAttribute("version")) {
         ref.version = size->Value();
     } else {

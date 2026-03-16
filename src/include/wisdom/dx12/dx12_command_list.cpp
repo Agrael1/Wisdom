@@ -5,6 +5,7 @@
 #include <wisdom/generated/dx12_api.h>
 #include <wisdom/generated/dx12_convert.hpp>
 #include <wisdom/dx12/detail/dx12_utils.hpp>
+#include <wisdom/util/allocation.hpp>
 #include <bit>
 
 namespace wis::detail {
@@ -159,7 +160,7 @@ DX12AllocateBarriers(const wis::impl::DX12CommandListImpl& impl,
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyCommandList(WisDX12CommandList* self)
 {
-    auto& impl = *reinterpret_cast<wis::impl::DX12CommandListImpl*>(self);
+    auto& impl = wis::from_handle_ref<wis::impl::DX12CommandListImpl>(self);
     if (!impl.list) {
         return;
     }
@@ -173,7 +174,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyCommandList(WisDX12CommandList* self)
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisDX12CommandListBegin(const WisDX12CommandList* self)
 {
-    auto& impl = *reinterpret_cast<const wis::impl::DX12CommandListImpl*>(self);
+    auto& impl = wis::from_handle_ref<const wis::impl::DX12CommandListImpl>(self);
     auto  hr   = impl.list->Reset(impl.allocator, nullptr);
     if (!wis::detail::succeeded(hr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to reset command list for recording">(hr);
@@ -185,7 +186,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CommandListBegin(const WisDX12CommandLi
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisDX12CommandListEnd(const WisDX12CommandList* self)
 {
-    auto& impl = *reinterpret_cast<const wis::impl::DX12CommandListImpl*>(self);
+    auto& impl = wis::from_handle_ref<const wis::impl::DX12CommandListImpl>(self);
     auto  hr   = impl.list->Close();
     if (!wis::detail::succeeded(hr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to reset command list for recording">(hr);
@@ -199,17 +200,17 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetDescriptorHeaps(const WisDX12C
                                                                   const WisDX12DescriptorHeap* resource_heap,
                                                                   const WisDX12DescriptorHeap* sampler_heap)
 {
-    auto& impl = *reinterpret_cast<const wis::impl::DX12CommandListImpl*>(self);
+    auto& impl = wis::from_handle_ref<const wis::impl::DX12CommandListImpl>(self);
 
     uint32_t              heap_offset = (resource_heap == 0);
     uint32_t              heap_count  = (resource_heap != 0) + (sampler_heap != 0);
     ID3D12DescriptorHeap* heaps[]     = {
-        resource_heap ? reinterpret_cast<const wis::impl::DX12DescriptorHeapImpl*>(resource_heap)->descriptor_heap : nullptr,
-        sampler_heap ? reinterpret_cast<const wis::impl::DX12DescriptorHeapImpl*>(sampler_heap)->descriptor_heap : nullptr,
+        resource_heap ? wis::from_handle<const wis::impl::DX12DescriptorHeapImpl>(resource_heap)->descriptor_heap : nullptr,
+        sampler_heap ? wis::from_handle<const wis::impl::DX12DescriptorHeapImpl>(sampler_heap)->descriptor_heap : nullptr,
     };
 
-    impl.descriptor_handle = resource_heap ? reinterpret_cast<const wis::impl::DX12DescriptorHeapImpl*>(resource_heap)->gpu_handle : D3D12_GPU_DESCRIPTOR_HANDLE{ 0 };
-    impl.sampler_handle    = sampler_heap ? reinterpret_cast<const wis::impl::DX12DescriptorHeapImpl*>(sampler_heap)->gpu_handle : D3D12_GPU_DESCRIPTOR_HANDLE{ 0 };
+    impl.descriptor_handle = resource_heap ? wis::from_handle<const wis::impl::DX12DescriptorHeapImpl>(resource_heap)->gpu_handle : D3D12_GPU_DESCRIPTOR_HANDLE{ 0 };
+    impl.sampler_handle    = sampler_heap ? wis::from_handle<const wis::impl::DX12DescriptorHeapImpl>(sampler_heap)->gpu_handle : D3D12_GPU_DESCRIPTOR_HANDLE{ 0 };
 
     if (heap_count > 0) {
         impl.list->SetDescriptorHeaps(heap_count, heaps + heap_offset);
@@ -221,7 +222,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetRootSignature(const WisDX12Com
                                                                 WisDX12RootSignatureView  signature,
                                                                 WisPipelineType           pipeline)
 {
-    auto& impl = *reinterpret_cast<const wis::impl::DX12CommandListImpl*>(self);
+    auto& impl = wis::from_handle_ref<const wis::impl::DX12CommandListImpl>(self);
     auto* sig  = std::bit_cast<ID3D12RootSignature*>(signature);
 
     switch (pipeline) {
@@ -240,7 +241,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetRootSignature(const WisDX12Com
 WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetPushConstants(const WisDX12CommandList*      self,
                                                                 const WisPushConstantDataDesc* data)
 {
-    auto& impl = *reinterpret_cast<const wis::impl::DX12CommandListImpl*>(self);
+    auto& impl = wis::from_handle_ref<const wis::impl::DX12CommandListImpl>(self);
     switch (data->pipeline) {
     default:
     case WisPipelineTypeGraphics:
@@ -256,7 +257,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetPushConstants(const WisDX12Com
 WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetPushDescriptor(const WisDX12CommandList*        self,
                                                                  const WisPushDescriptorDataDesc* data)
 {
-    auto& impl = *reinterpret_cast<const wis::impl::DX12CommandListImpl*>(self);
+    auto& impl = wis::from_handle_ref<const wis::impl::DX12CommandListImpl>(self);
 
     switch (data->pipeline) {
     default:
@@ -303,7 +304,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetPushDescriptor(const WisDX12Co
 WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetDescriptorTable(const WisDX12CommandList*         self,
                                                                   const WisDescriptorTableDataDesc* data)
 {
-    auto& impl   = *reinterpret_cast<const wis::impl::DX12CommandListImpl*>(self);
+    auto& impl   = wis::from_handle_ref<const wis::impl::DX12CommandListImpl>(self);
     auto  handle = (data->heap_type == WisDescriptorHeapTypeSampler) ? impl.sampler_handle : impl.descriptor_handle;
     auto  stride = (data->heap_type == WisDescriptorHeapTypeSampler) ? impl.sampler_size : impl.descriptor_size;
     switch (data->pipeline) {
@@ -329,7 +330,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListInsertBarriers(const WisDX12Comma
     }
     // clang-format on
 
-    auto& impl = *reinterpret_cast<const wis::impl::DX12CommandListImpl*>(self);
+    auto& impl = wis::from_handle_ref<const wis::impl::DX12CommandListImpl>(self);
 
     constexpr static uint32_t max_barrier_size = std::max(sizeof(D3D12_BUFFER_BARRIER), sizeof(D3D12_TEXTURE_BARRIER));
     constexpr static uint32_t static_size      = static_cast<uint32_t>(wis::TransientMaxBarrierCount * max_barrier_size);
@@ -434,7 +435,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetPipeline(const WisDX12CommandL
                                                            WisDX12PipelineView       pipeline,
                                                            WisPipelineType           type)
 {
-    auto& impl = *reinterpret_cast<const wis::impl::DX12CommandListImpl*>(self);
+    auto& impl = wis::from_handle_ref<const wis::impl::DX12CommandListImpl>(self);
     auto* pipe = std::bit_cast<ID3D12PipelineState*>(pipeline);
     impl.list->SetPipelineState(pipe);
 }
@@ -443,7 +444,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetViewports(WisDX12CommandList* 
                                                             const WisViewport*  viewports,
                                                             size_t              count)
 {
-    auto&          impl      = *reinterpret_cast<wis::impl::DX12CommandListImpl*>(self);
+    auto&          impl      = wis::from_handle_ref<wis::impl::DX12CommandListImpl>(self);
     auto           max_count = std::min(count, static_cast<size_t>(D3D12_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE));
     D3D12_VIEWPORT dx_viewports[D3D12_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE];
 
@@ -465,7 +466,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetScissors(WisDX12CommandList* s
                                                            const WisScissor*   scissors,
                                                            size_t              count)
 {
-    auto&      impl = *reinterpret_cast<wis::impl::DX12CommandListImpl*>(self);
+    auto&      impl = wis::from_handle_ref<wis::impl::DX12CommandListImpl>(self);
     D3D12_RECT dx_scissors[D3D12_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE];
     auto       max_count = std::min(count, static_cast<size_t>(D3D12_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE));
     for (size_t i = 0; i < max_count; ++i) {
@@ -484,7 +485,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetScissors(WisDX12CommandList* s
 WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetPrimitiveTopology(WisDX12CommandList*  self,
                                                                     WisPrimitiveTopology topology)
 {
-    auto& impl = *reinterpret_cast<wis::impl::DX12CommandListImpl*>(self);
+    auto& impl = wis::from_handle_ref<wis::impl::DX12CommandListImpl>(self);
     impl.list->IASetPrimitiveTopology(wis::detail::convert_dx(topology));
 }
 
@@ -494,7 +495,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetDepthBias(WisDX12CommandList* 
                                                             float               depth_bias_clamp,
                                                             float               slope_scaled_depth_bias)
 {
-    auto& impl = *reinterpret_cast<wis::impl::DX12CommandListImpl*>(self);
+    auto& impl = wis::from_handle_ref<wis::impl::DX12CommandListImpl>(self);
     impl.list->RSSetDepthBias(depth_bias, depth_bias_clamp, slope_scaled_depth_bias);
 }
 
@@ -502,7 +503,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetDepthBias(WisDX12CommandList* 
 WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetPrimitiveRestartValue(WisDX12CommandList* self,
                                                                         WisPrimitiveRestartValue value)
 {
-    auto& impl = *reinterpret_cast<wis::impl::DX12CommandListImpl*>(self);
+    auto& impl = wis::from_handle_ref<wis::impl::DX12CommandListImpl>(self);
     impl.list->IASetIndexBufferStripCutValue(wis::detail::convert_dx(value));
 }
 
@@ -512,7 +513,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListDispatch(const WisDX12CommandList
                                                         uint32_t                  group_count_y,
                                                         uint32_t                  group_count_z)
 {
-    auto& impl = *reinterpret_cast<const wis::impl::DX12CommandListImpl*>(self);
+    auto& impl = wis::from_handle_ref<const wis::impl::DX12CommandListImpl>(self);
     impl.list->Dispatch(group_count_x, group_count_y, group_count_z);
 }
 

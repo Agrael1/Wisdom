@@ -3,8 +3,43 @@
 #include <wisdom/global/definitions.h>
 #include <memory>
 #include <cstdlib>
+#include <type_traits>
+#include <cstdint>
+#include <new>
 
 namespace wis {
+
+namespace detail {
+template<typename T>
+WIS_NODISCARD inline T* launder_ptr(T* ptr) noexcept
+{
+#if defined(__cpp_lib_launder) && __cpp_lib_launder >= 201606L
+    return std::launder(ptr);
+#elif defined(__has_builtin)
+#if __has_builtin(__builtin_launder)
+    return __builtin_launder(ptr);
+#else
+    return ptr;
+#endif
+#elif defined(__GNUC__) && (__GNUC__ >= 7)
+    return __builtin_launder(ptr);
+#else
+    return ptr;
+#endif
+}
+} // namespace detail
+
+template<typename T, typename U>
+WIS_NODISCARD inline T* from_handle(U* handle) noexcept
+{
+    return detail::launder_ptr(reinterpret_cast<T*>(handle));
+}
+
+template<typename T, typename U>
+WIS_NODISCARD inline T& from_handle_ref(U* handle) noexcept
+{
+    return *from_handle<T>(handle);
+}
 
 // C++11 compatible noexcept make_unique
 template<typename T, typename... Args>
