@@ -2,9 +2,18 @@
 #ifndef WISDOM_C_PLATFORM_API_H
 #define WISDOM_C_PLATFORM_API_H
 #include <wisdom/global/definitions.h>
+#include <wisdom_platform/generated/wisdom_exports.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+
+#ifdef WISDOM_DX12
+#include <wisdom/generated/dx12_api.h>
+#endif // WISDOM_DX12
+
+#ifdef WISDOM_VULKAN
+#include <wisdom/generated/vk_api.h>
+#endif // WISDOM_VULKAN
 
 #ifdef __cplusplus
 extern "C" {
@@ -24,6 +33,23 @@ typedef struct WisXlibWindowDesc {
     uint64_t window; ///< The X11 Window ID. Fits standard 32/64-bit window handles.
 } WisXlibWindowDesc;
 
+#if defined(WISDOM_VULKAN)
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Extension for Xlib surface creation functions.
+ *
+ * */
+WIS_DEFINE_VK_INSTANCE_EXT_HANDLE(WisVKXlibExtension, 3);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisXlibExtension handle.
+ * @param self is a pointer to the valid WisXlibExtension instance.
+ *
+ * */
+WISDOM_PLATFORM_API void wisVKDestroyXlibExtension(WisVKXlibExtension* self);
+
+#endif // defined(WISDOM_VULKAN)
+
 #endif // WIS_USE_PLATFORM_XLIB
 
 /**
@@ -40,6 +66,10 @@ typedef struct WisXCBWindowDesc {
     void*    connection; ///< Pointer to the XCB connection. Cast to xcb_connection_t* internally.
     uint32_t window; ///< The X11 Window ID. Fits standard 32/64-bit window handles.
 } WisXCBWindowDesc;
+
+#if defined(WISDOM_VULKAN)
+
+#endif // defined(WISDOM_VULKAN)
 
 #endif // WIS_USE_PLATFORM_XCB
 
@@ -58,6 +88,10 @@ typedef struct WisWaylandWindowDesc {
     void* surface; ///< Pointer to the Wayland surface. Cast to wl_surface* internally.
 } WisWaylandWindowDesc;
 
+#if defined(WISDOM_VULKAN)
+
+#endif // defined(WISDOM_VULKAN)
+
 #endif // WIS_USE_PLATFORM_WAYLAND
 
 /**
@@ -75,6 +109,40 @@ typedef struct WisWin32WindowDesc {
     void* hwnd; ///< HWND of the window. Cast to HWND internally.
 } WisWin32WindowDesc;
 
+#if defined(WISDOM_DX12)
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Extension for Win32 surface creation functions.
+ *
+ * */
+WIS_DEFINE_DX12_INSTANCE_EXT_HANDLE(WisDX12Win32Extension, 3);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisWin32Extension handle.
+ * @param self is a pointer to the valid WisWin32Extension instance.
+ *
+ * */
+WISDOM_PLATFORM_API void wisDX12DestroyWin32Extension(WisDX12Win32Extension* self);
+
+#endif // defined(WISDOM_DX12)
+
+#if defined(WISDOM_VULKAN)
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Extension for Win32 surface creation functions.
+ *
+ * */
+WIS_DEFINE_VK_INSTANCE_EXT_HANDLE(WisVKWin32Extension, 3);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisWin32Extension handle.
+ * @param self is a pointer to the valid WisWin32Extension instance.
+ *
+ * */
+WISDOM_PLATFORM_API void wisVKDestroyWin32Extension(WisVKWin32Extension* self);
+
+#endif // defined(WISDOM_VULKAN)
+
 #endif // WIS_USE_PLATFORM_WIN32
 
 /**
@@ -90,6 +158,10 @@ typedef struct WisWin32WindowDesc {
 typedef struct WisUWPWindowDesc {
     void* core_window; ///< Pointer to the UWP CoreWindow. Cast to ICoreWindow* internally.
 } WisUWPWindowDesc;
+
+#if defined(WISDOM_DX12)
+
+#endif // defined(WISDOM_DX12)
 
 #endif // WIS_USE_PLATFORM_UWP
 

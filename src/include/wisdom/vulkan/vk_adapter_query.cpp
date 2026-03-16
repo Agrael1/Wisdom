@@ -529,7 +529,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
     // Let extensions collect their info
     if (requirements) {
         for (size_t i = 0; i < requirements->extension_count; ++i) {
-            if (auto* ext_header = reinterpret_cast<wis::VKDeviceExtensionHeader*>(requirements->extensions[i])) {
+            if (auto* ext_header = wis::from_handle<wis::VKDeviceExtensionHeader>(requirements->extensions[i]); ext_header && ext_header->init_fptr) {
                 auto res2 = ext_header->init_fptr(ext_header, nullptr, &collector);
                 // Non-fatal, allow to silently fail
                 (void)res2;
@@ -734,7 +734,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
     // Initialize device extensions
     if (requirements) {
         for (auto* ext : wis::span<WisVKDeviceExtensionHeader*>{ requirements->extensions, requirements->extension_count }) {
-            if (auto* ext_header = reinterpret_cast<wis::VKDeviceExtensionHeader*>(ext)) {
+            if (auto* ext_header = wis::from_handle<wis::VKDeviceExtensionHeader>(ext); ext_header && ext_header->init_fptr) {
                 if (auto yres = ext_header->init_fptr(ext_header, &device_impl, &collector); yres.status != WisStatusOk) {
                     res.status        = WisStatusPartial; // mark as partial success if any extension fails
                     res.error         = yres.error;

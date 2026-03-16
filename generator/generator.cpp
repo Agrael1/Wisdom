@@ -799,9 +799,18 @@ void Generator::WriteCPlatformAPI(std::filesystem::path path)
 #ifndef WISDOM_C_PLATFORM_API_H
 #define WISDOM_C_PLATFORM_API_H
 #include <wisdom/global/definitions.h>
+#include <wisdom_platform/generated/wisdom_exports.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+
+#ifdef WISDOM_DX12
+#include <wisdom/generated/dx12_api.h>
+#endif // WISDOM_DX12
+
+#ifdef WISDOM_VULKAN
+#include <wisdom/generated/vk_api.h>
+#endif // WISDOM_VULKAN
 
 #ifdef __cplusplus
 extern "C" {
@@ -836,8 +845,16 @@ void Generator::WriteCPPPlatformAPI(std::filesystem::path path)
 #ifndef WISDOM_CPP_PLATFORM_API_HPP
 #define WISDOM_CPP_PLATFORM_API_HPP
 #ifdef __cplusplus
-#include <wisdom/global/definitions.h>
+#include <wisdom_platform/generated/c_platform_api.h>
 #include <wisdom/bridge/span.hpp>
+
+#ifdef WISDOM_DX12
+#include <wisdom_platform/dx12/dx12_platform_types.hpp>
+#endif // WISDOM_DX12
+
+#ifdef WISDOM_VULKAN
+#include <wisdom_platform/vulkan/vk_platform_types.hpp>
+#endif // WISDOM_VULKAN
 
 namespace wis {
 )";
@@ -1262,7 +1279,7 @@ ImplementedFor Generator::ImplCode(std::string_view impl) noexcept
     return ImplementedFor::Both;
 }
 
-ImplOs Generator::ImplOs(std::string_view os) noexcept
+ImplOs Generator::GetImplOs(std::string_view os) noexcept
 {
     // tokenize by comma
     for (auto&& tk : std::views::split(os, std::string_view{ "," })) {
@@ -1276,6 +1293,20 @@ ImplOs Generator::ImplOs(std::string_view os) noexcept
         }
     }
     return ImplOs::None;
+}
+
+Extends Generator::GetExtends(std::string_view extends_str) noexcept
+{
+    if (extends_str.empty()) {
+        return Extends::None;
+    }
+    if (extends_str == "Instance") {
+        return Extends::Instance;
+    }
+    if (extends_str == "Device") {
+        return Extends::Device;
+    }
+    return Extends::None;
 }
 
 void Generator::ReplaceAll(std::string& str, const std::string& from, const std::string& to)

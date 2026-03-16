@@ -7,8 +7,6 @@ add_library(wisdom-wayland-headers INTERFACE)
 add_library(wis::wayland-headers ALIAS wisdom-wayland-headers)
 add_library(wis::wisdom-wayland-headers ALIAS wisdom-wayland-headers)
 target_link_libraries(wisdom-wayland-headers INTERFACE wis::wisdom-headers)
-target_compile_definitions(wisdom-wayland-headers
-                           INTERFACE WIS_WAYLAND_PLATFORM=1)
 target_include_directories(wisdom-wayland-headers
                            INTERFACE ${WAYLAND_INCLUDE_DIRS})
 target_include_directories(
@@ -22,7 +20,6 @@ if(WISDOM_BUILD_BINARIES)
   add_library(wis::wayland ALIAS wisdom-wayland)
   add_library(wis::wisdom-wayland ALIAS wisdom-wayland)
   target_link_libraries(wisdom-wayland PUBLIC wis::wisdom)
-  target_compile_definitions(wisdom-wayland PUBLIC WIS_WAYLAND_PLATFORM=1)
   target_include_directories(
     wisdom-wayland
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>

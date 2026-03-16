@@ -35,7 +35,7 @@ target_compile_definitions(
           "PLATFORM_FILE=\"${CMAKE_CURRENT_SOURCE_DIR}/../xml/platform.xml\""
           "OUTPUT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../bindings\""
           "CPP_OUTPUT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../src/include/wisdom\""
-          "PLATFORM_OUTPUT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../src/platform/wisdom\""
+          "PLATFORM_OUTPUT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../src/platform/wisdom_platform\""
           "DOC_OUTPUT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../docs\"")
 target_include_directories(
   ${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../wisdom/include")

@@ -1,6 +1,7 @@
 #include <wisdom/wisdom.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <wisdom_platform/generated/c_platform_api.h>
 
 #define FRAMES_IN_FLIGHT 2
 #define TEST_FRAME_COUNT 120
@@ -423,6 +424,7 @@ void DestroyRenderTask(BasicRenderTask* task)
     wisDestroyRootSignature(&task->compute_signature);
     wisDestroyPipeline(&task->compute_pipeline);
     wisDestroyPipeline(&task->graphics_pipeline);
+    wisDestroyViewHeap(&task->rtv_heap);
 }
 
 //------------------------------------------------------------------------------

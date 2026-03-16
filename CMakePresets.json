@@ -51,7 +51,8 @@
       "displayName": "Linux GCC Release",
       "description": "GCC Release build with examples and tests",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "WISDOM_BUILD_TESTS" : false
       }
     },
     {
@@ -165,7 +166,8 @@
       "displayName": "Windows MSVC Release",
       "description": "MSVC Release build",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "WISDOM_BUILD_TESTS": false
       }
     },
     {
@@ -238,7 +240,8 @@
       "displayName": "Windows Clang Release",
       "description": "Clang Release build",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "WISDOM_BUILD_TESTS": false
       }
     },
     {

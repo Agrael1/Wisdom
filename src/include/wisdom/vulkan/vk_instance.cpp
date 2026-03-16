@@ -95,7 +95,11 @@ wisVKCreateInstance(const WisDebugDesc*            debug_desc,
 
     // Let extensions collect their info
     for (size_t i = 0; i < extension_count; ++i) {
-        auto* ext_header = reinterpret_cast<wis::VKInstanceExtensionHeader*>(extensions[i]);
+        auto* ext_header = wis::from_handle<wis::VKInstanceExtensionHeader>(extensions[i]);
+        if (!ext_header || !ext_header->init_fptr) {
+            continue; // skip invalid extension headers
+        }
+
         auto  res2       = ext_header->init_fptr(ext_header, nullptr, &collector);
         // Non-fatal, allow to silently fail
         (void)res2;
@@ -198,7 +202,7 @@ wisVKCreateInstance(const WisDebugDesc*            debug_desc,
 
     // Initialize instance extensions
     for (auto* ext : wis::span<WisVKInstanceExtensionHeader*>{ extensions, extension_count }) {
-        if (auto* table = reinterpret_cast<wis::VKInstanceExtensionHeader*>(ext)) {
+        if (auto* table = wis::from_handle<wis::VKInstanceExtensionHeader>(ext);table && table->init_fptr) {
             if (auto xres = table->init_fptr(table, &impl, &collector); xres.status != WisStatusOk) {
                 res.status        = WisStatusPartial; // mark as partial success if any extension fails
                 res.error         = xres.error;

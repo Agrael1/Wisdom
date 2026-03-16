@@ -275,7 +275,6 @@ Can still be enqueued after the signal.">
       <arg type="u32" name="index" doc="defines the index in the descriptor heap to write the descriptor to."/>
     </func>
     <func for="DescriptorHeap" name="CopyDescriptors" version="0.7.0" mod="const" doc="Copies descriptors from one heap to another.">
-      <ret type="void"/>
       <arg type="u32" name="dst_index" doc="defines the index in the destination descriptor heap to copy descriptors to."/>
       <arg type="void" name="src_ptr" mod="const,ptr" doc="points to {DescriptorHeap::} to copy descriptors from. Source heap @wis_must be CPU Only heap."/>
       <arg type="u32" name="src_index" doc="defines the index in the source descriptor heap to copy descriptors from."/>
@@ -299,7 +298,6 @@ Can still be enqueued after the signal.">
       <arg type="u32" name="index" doc="defines the index in the view heap to get the descriptor from."/>
     </func>
     <func for="ViewHeap" name="CopyViews" version="0.7.0" mod="const" doc="Copies views from one heap to another.">
-      <ret type="void"/>
       <arg type="u32" name="dst_index" doc="defines the index in the destination view heap to copy views to."/>
       <arg type="u64" name="src_ptr" doc="points to {ViewHeap::} to copy views from."/>
       <arg type="u32" name="src_index" doc="defines the index in the source view heap to copy views from."/>

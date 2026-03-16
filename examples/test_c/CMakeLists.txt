@@ -5,7 +5,7 @@ set(SOURCES entry_main.c)
 
 if(WISDOM_BUILD_STATIC)
   add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
-  target_link_libraries(${PROJECT_NAME} PUBLIC wis::wisdom)
+  target_link_libraries(${PROJECT_NAME} PUBLIC wis::wisdom wis::wisdom-platform)
   set_target_properties(
     ${PROJECT_NAME} PROPERTIES C_STANDARD 11 RUNTIME_OUTPUT_DIRECTORY
                                              ${EXAMPLE_BIN_OUTPUT})
@@ -16,7 +16,7 @@ endif()
 
 if(WISDOM_BUILD_SHARED)
   add_executable(${PROJECT_NAME}-shared ${HEADERS} ${SOURCES})
-  target_link_libraries(${PROJECT_NAME}-shared PUBLIC wis::wisdom-shared)
+  target_link_libraries(${PROJECT_NAME}-shared PUBLIC wis::wisdom-shared wis::wisdom-platform-shared)
   set_target_properties(
     ${PROJECT_NAME}-shared PROPERTIES C_STANDARD 11 RUNTIME_OUTPUT_DIRECTORY
                                                     ${EXAMPLE_BIN_OUTPUT})

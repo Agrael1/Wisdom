@@ -122,16 +122,28 @@
         uint64_t opaque[size];             \
     } name##View
 
-#define WIS_DEFINE_DEVICE_EXT_HANDLE(name, size)     \
-    typedef struct name {                            \
-        const WisDeviceExtensionHeader ext_header;   \
-        uint64_t                       opaque[size]; \
+#define WIS_DEFINE_DX12_DEVICE_EXT_HANDLE(name, size) \
+    typedef struct name {                        \
+        WisDX12DeviceExtensionHeader header;         \
+        uint64_t                 opaque[size];   \
     } name
 
-#define WIS_DEFINE_INSTANCE_EXT_HANDLE(name, size)     \
-    typedef struct name {                              \
-        const WisInstanceExtensionHeader ext_header;   \
-        uint64_t                         opaque[size]; \
+#define WIS_DEFINE_VK_DEVICE_EXT_HANDLE(name, size) \
+    typedef struct name {                        \
+        WisVKDeviceExtensionHeader header;         \
+        uint64_t                 opaque[size];   \
+    } name
+
+#define WIS_DEFINE_DX12_INSTANCE_EXT_HANDLE(name, size) \
+    typedef struct name {                          \
+        WisDX12InstanceExtensionHeader header;         \
+        uint64_t                   opaque[size];   \
+    } name
+
+#define WIS_DEFINE_VK_INSTANCE_EXT_HANDLE(name, size) \
+    typedef struct name {                          \
+        WisVKInstanceExtensionHeader header;         \
+        uint64_t                   opaque[size];   \
     } name
 
 // TODO: CMake definition for WISDOM_API when building shared library

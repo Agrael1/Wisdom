@@ -175,7 +175,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(const WisDX12A
     }
 
     for (auto* ext : wis::span<WisDX12DeviceExtensionHeader*>{ requirements->extensions, requirements->extension_count }) {
-        if (auto* table = reinterpret_cast<wis::DX12DeviceExtensionHeader*>(ext)) {
+        if (auto* table = wis::from_handle<wis::DX12DeviceExtensionHeader>(ext); table && table->init_fptr) {
             if (const auto xres = table->init_fptr(table, device_impl); xres.status != WisStatusOk) {
                 res.status        = WisStatusPartial; // mark as partial success if any extension fails
                 res.error         = xres.error;
