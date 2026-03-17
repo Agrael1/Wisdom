@@ -63,7 +63,7 @@ install(
         ${CMAKE_INSTALL_BINDIR}
         LIBRARY
         DESTINATION
-        ${CMAKE_INSTALL_LIBDIR})
+        ${CMAKE_INSTALL_BINDIR})
 
 install(DIRECTORY ${DXA_HEADERS}/ DESTINATION include/d3dx12)
 

@@ -10,7 +10,6 @@ include(GNUInstallDirs)
 include(GenerateExportHeader)
 include(cmake/functions.cmake)
 wisdom_detect_platform()
-include(cmake/platform.cmake)
 
 
 # Determine which options to use by default
