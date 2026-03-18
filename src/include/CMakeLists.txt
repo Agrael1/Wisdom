@@ -26,6 +26,13 @@ wis_make_target_bundle(
 target_sources(wisdom-internal-headers PRIVATE
         "../natvis/span.natvis")
 
+if (WISDOM_WINDOWS)
+    target_compile_definitions(wisdom-internal-headers INTERFACE $<BUILD_INTERFACE:WISDOM_WINDOWS=1>)
+endif ()
+if (WISDOM_LINUX)
+    target_compile_definitions(wisdom-internal-headers INTERFACE $<BUILD_INTERFACE:WISDOM_LINUX=1>)
+endif ()
+
 if (WISDOM_DX12)
     wis_make_target_bundle(
             TARGET
@@ -79,7 +86,7 @@ if (WISDOM_VULKAN)
             SOURCES
             "wisdom/vulkan/vk_device.cpp"
             "wisdom/vulkan/vk_fence.cpp"
-            "wisdom/vulkan/vk_types.cpp"
+            "wisdom/vulkan/vk_extensions.cpp"
             "wisdom/vulkan/vk_impl.cpp"
             "wisdom/vulkan/vk_instance.cpp"
             "wisdom/vulkan/vk_adapter_query.cpp"
@@ -106,20 +113,13 @@ if (WISDOM_VULKAN)
     list(APPEND WISDOM_INCLUDE_BACKENDS vk)
 endif ()
 
-set(WISDOM_INCLUDE_HEADER_DEFINITIONS)
-if (WISDOM_WINDOWS)
-    list(APPEND WISDOM_INCLUDE_HEADER_DEFINITIONS $<BUILD_INTERFACE:WISDOM_WINDOWS=1>)
-endif ()
-if (WISDOM_LINUX)
-    list(APPEND WISDOM_INCLUDE_HEADER_DEFINITIONS $<BUILD_INTERFACE:WISDOM_LINUX=1>)
-endif ()
 
 wis_make_unified_targets(
         TARGET wisdom
         EXPORT_SET wisdom-targets
         BACKENDS ${WISDOM_INCLUDE_BACKENDS}
         HEADER_LINK_TARGETS wisdom-internal-headers
-        HEADER_COMPILE_DEFINITIONS ${WISDOM_INCLUDE_HEADER_DEFINITIONS}
+        HEADER_COMPILE_DEFINITIONS WISDOM_PLATFORM_STATIC=1
         STATIC_COMPILE_DEFINITIONS WISDOM_BUILD_BINARIES=1
         SHARED_COMPILE_DEFINITIONS WISDOM_BUILD_BINARIES=1 WISDOM_SHARED_LIBRARY=1
         EXPORT_BASE_NAME WISDOM

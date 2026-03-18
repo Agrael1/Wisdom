@@ -1,7 +1,7 @@
 #ifndef WIS_VK_TYPES_CPP
 #define WIS_VK_TYPES_CPP
 
-#include <wisdom/vulkan/vk_types.hpp>
+#include <wisdom/vulkan/vk_extensions.hpp>
 #include <wisdom/vulkan/detail/vk_utils.hpp>
 #include <wisdom/vulkan/detail/vk_detail.hpp>
 #include <wisdom/util/allocation.hpp>
@@ -153,14 +153,6 @@ wis::VKInstanceExtensionCollector::GetExtensionsAndLayers(WisResult& out_res) co
     return result;
 }
 
-bool wis::VKInstanceExtensionCollector::IsExtensionPresent(const char* name) const noexcept
-{
-    return available_extensions_set.find(name) != available_extensions_set.end();
-}
-bool wis::VKInstanceExtensionCollector::IsLayerPresent(const char* name) const noexcept
-{
-    return available_layers_set.find(name) != available_layers_set.end();
-}
 const VkLayerProperties*
 wis::VKInstanceExtensionCollector::GetLayerProperties(const char* name) const noexcept
 {

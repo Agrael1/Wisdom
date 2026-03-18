@@ -66,6 +66,29 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
         functions_in_order.emplace_back(destroy.name);
         dependency_tree[name].dependencies.emplace_back(destroy.name);
 
+        // if the handle is an extension, add create function as well
+        if (ref.extends != Extends::None) {
+            std::string      create_name  = "Init" + std::string(name);
+            std::string      create_doc   = "Initializes a {" + std::string(name) + "::} handle.";
+            auto&            xcreate      = creators.emplace_back(create_name + create_doc);
+            std::string_view xcreate_name = std::string_view(xcreate.c_str(), create_name.size());
+            std::string_view xcreate_doc  = std::string_view(xcreate_name.data() + create_name.size(), create_doc.size());
+            auto&            create       = function_map[xcreate_name];
+            create.name                   = xcreate_name;
+            create.this_type              = name;
+            create.modifier               = Modifier::Construct;
+            create.version                = version;
+            create.doc                    = xcreate_doc;
+            ref.functions.emplace_back(create.name);
+            functions_in_order.emplace_back(create.name);
+            dependency_tree[name].dependencies.emplace_back(create.name);
+
+            if (!ref.platform.empty()) {
+                auto& platform = platform_map[ref.platform];
+                platform.functions_in_order.emplace_back(create.name);
+            }
+        }
+
         if (!ref.platform.empty()) {
             auto& platform = platform_map[ref.platform];
             platform.functions_in_order.emplace_back(destroy.name);
@@ -120,16 +143,16 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
 //-----------------------------------------------------------------------------
 std::string Generator::MakeCHandle(const WisHandle& s, std::string_view impl, DocKind kind)
 {
-    ImplementedFor impl_code = ImplCode(impl);
+    ImplementedFor impl_code   = ImplCode(impl);
     auto           impl_string = GetImplString(impl_code);
 
-    auto extends_macro = s.extends == Extends::None 
-        ? std::string("WIS_DEFINE_HANDLE") 
-        : (s.extends == Extends::Instance 
-            ? wis::format("WIS_DEFINE_{}_INSTANCE_EXT_HANDLE", impl_string) 
-            : wis::format("WIS_DEFINE_{}_DEVICE_EXT_HANDLE", impl_string));
+    auto extends_macro = s.extends == Extends::None
+            ? std::string("WIS_DEFINE_HANDLE")
+            : (s.extends == Extends::Instance
+                       ? wis::format("WIS_DEFINE_{}_INSTANCE_EXT_HANDLE", impl_string)
+                       : wis::format("WIS_DEFINE_{}_DEVICE_EXT_HANDLE", impl_string));
 
-    auto           full_name   = GetCFullTypename(s.name, impl_string);
+    auto full_name = GetCFullTypename(s.name, impl_string);
 
     std::string st_decl = wis::format("{}({},{});\n", extends_macro, full_name, s.GetSize(impl_code));
     if (!s.doc.empty()) {
@@ -179,13 +202,20 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, std::string_view impl, 
         st_decl          = wis::format("{}\n{}", xdoc, st_decl);
     }
 
+    std::string ctor_decl;
     // Use constructor from base
-    st_decl += "    using ImplType::ImplType;\n";
-    st_decl += "public:\n";
+    if (s.extends != Extends::None) {
+        ctor_decl += wis::format("{}{}() noexcept\n:ImplType(std::in_place)\n{{\n    ",
+                                 impl_string,
+                                 s.name);
+    } else {
+        ctor_decl += "    using ImplType::ImplType;\n";
+    }
+    std::string st_decl2 = "public:\n";
 
     if (s.GetViewSize(impl_code) > 0) {
         // Strict aliasing rules prevent us from doing a simple cast, so we have to memcpy the data to a new view struct
-        st_decl += wis::format(
+        st_decl2 += wis::format(
                 "    WIS_NODISCARD {}{}View GetView() const noexcept {{\n"
                 "        {}{}View v;\n"
                 "        std::memcpy(&v, &_impl_storage, sizeof(v));\n"
@@ -197,7 +227,7 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, std::string_view impl, 
                 s.name);
 
         // add conversion operator to view
-        st_decl += wis::format(
+        st_decl2 += wis::format(
                 "    WIS_NODISCARD operator {}{}View() const noexcept {{\n"
                 "        return GetView();\n"
                 "    }}\n",
@@ -213,13 +243,30 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, std::string_view impl, 
                                    GetCFullTypename(func_ref.name, impl_string));
             continue;
         }
+        if (func_ref.modifier & Modifier::Construct) {
+            ctor_decl += wis::format("        ::{}(GetStorage());\n    }}\n",
+                                     GetCFullTypename(func_ref.name, impl_string));
+            continue;
+        }
 
-        st_decl += MakeCPPFunctionImpl(func_ref, impl, "inline ", kind, ProtoType::ClassMember);
+        st_decl2 += MakeCPPFunctionImpl(func_ref, impl, "inline ", kind, ProtoType::ClassMember);
     }
+
+    if (s.extends != Extends::None) {
+        auto header = s.extends == Extends::Instance
+                ? GetCPPFullTypename("InstanceExtensionHeader", impl_string)
+                : GetCPPFullTypename("DeviceExtensionHeader", impl_string);
+        ctor_decl += wis::format("        // Operator & overload\n"
+                                 "{}* operator&() noexcept {{\n"
+                                 "    return &GetMutableInternal().header;\n"
+                                 "}}\n",
+                                 header);
+    }
+
     deleter += "    }\n};\n";
 
-    st_decl += "};\n";
-    return deleter + st_decl;
+    st_decl2 += "};\n";
+    return deleter + st_decl + ctor_decl + st_decl2;
 }
 
 std::string Generator::MakeCPPView(const WisHandle& s, std::string_view impl, DocKind kind)

@@ -305,9 +305,9 @@ public:
      * */
     inline wis::Result Serialize(wis::span<std::uint8_t> data) const noexcept
     {
-        return convert_result(::wisVKPipelineCacheSerialize(&_impl_storage,
-                                                            reinterpret_cast<uint8_t*>(data.data()),
-                                                            data.size()));
+        return convert_result_vk(::wisVKPipelineCacheSerialize(&_impl_storage,
+                                                               reinterpret_cast<uint8_t*>(data.data()),
+                                                               data.size()));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Gets the size of the data in the pipeline cache.
@@ -356,9 +356,9 @@ public:
     inline wis::Result WriteSubresource(const void*               source_data,
                                         const wis::TextureRegion& target_region) const noexcept
     {
-        return convert_result(::wisVKTextureWriteSubresource(&_impl_storage,
-                                                             source_data,
-                                                             reinterpret_cast<const WisTextureRegion*>(&target_region)));
+        return convert_result_vk(::wisVKTextureWriteSubresource(&_impl_storage,
+                                                                source_data,
+                                                                reinterpret_cast<const WisTextureRegion*>(&target_region)));
     }
 };
 
@@ -443,9 +443,9 @@ public:
     inline wis::Result WriteConstantBuffer(const wis::ConstantBufferBinding& data,
                                            std::uint32_t                     index) const noexcept
     {
-        return convert_result(::wisVKDescriptorHeapWriteConstantBuffer(&_impl_storage,
-                                                                       reinterpret_cast<const WisConstantBufferBinding*>(&data),
-                                                                       index));
+        return convert_result_vk(::wisVKDescriptorHeapWriteConstantBuffer(&_impl_storage,
+                                                                          reinterpret_cast<const WisConstantBufferBinding*>(&data),
+                                                                          index));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Writes `wis::DescriptorType::Buffer` descriptor to the descriptor heap.
@@ -459,10 +459,10 @@ public:
                                              const wis::BufferBinding& data,
                                              std::uint32_t             index) const noexcept
     {
-        return convert_result(::wisVKDescriptorHeapWriteStructuredBuffer(&_impl_storage,
-                                                                         buffer,
-                                                                         reinterpret_cast<const WisBufferBinding*>(&data),
-                                                                         index));
+        return convert_result_vk(::wisVKDescriptorHeapWriteStructuredBuffer(&_impl_storage,
+                                                                            buffer,
+                                                                            reinterpret_cast<const WisBufferBinding*>(&data),
+                                                                            index));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Writes `wis::DescriptorType::RWBuffer` descriptor to the descriptor heap.
@@ -476,10 +476,10 @@ public:
                                                const wis::BufferBinding& data,
                                                std::uint32_t             index) const noexcept
     {
-        return convert_result(::wisVKDescriptorHeapWriteRWStructuredBuffer(&_impl_storage,
-                                                                           buffer,
-                                                                           reinterpret_cast<const WisBufferBinding*>(&data),
-                                                                           index));
+        return convert_result_vk(::wisVKDescriptorHeapWriteRWStructuredBuffer(&_impl_storage,
+                                                                              buffer,
+                                                                              reinterpret_cast<const WisBufferBinding*>(&data),
+                                                                              index));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Writes `wis::DescriptorType::Sampler` descriptor to the descriptor heap.
@@ -491,9 +491,9 @@ public:
     inline wis::Result WriteSampler(const wis::SamplerDesc& sampler,
                                     std::uint32_t           index) const noexcept
     {
-        return convert_result(::wisVKDescriptorHeapWriteSampler(&_impl_storage,
-                                                                reinterpret_cast<const WisSamplerDesc*>(&sampler),
-                                                                index));
+        return convert_result_vk(::wisVKDescriptorHeapWriteSampler(&_impl_storage,
+                                                                   reinterpret_cast<const WisSamplerDesc*>(&sampler),
+                                                                   index));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Writes a descriptor to the descriptor heap.
@@ -507,10 +507,10 @@ public:
                                     const wis::TextureBinding& data,
                                     std::uint32_t              index) const noexcept
     {
-        return convert_result(::wisVKDescriptorHeapWriteTexture(&_impl_storage,
-                                                                texture,
-                                                                reinterpret_cast<const WisTextureBinding*>(&data),
-                                                                index));
+        return convert_result_vk(::wisVKDescriptorHeapWriteTexture(&_impl_storage,
+                                                                   texture,
+                                                                   reinterpret_cast<const WisTextureBinding*>(&data),
+                                                                   index));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Writes a texture view to the descriptor heap.
@@ -524,10 +524,10 @@ public:
                                       const wis::TextureBinding& data,
                                       std::uint32_t              index) const noexcept
     {
-        return convert_result(::wisVKDescriptorHeapWriteRWTexture(&_impl_storage,
-                                                                  texture,
-                                                                  reinterpret_cast<const WisTextureBinding*>(&data),
-                                                                  index));
+        return convert_result_vk(::wisVKDescriptorHeapWriteRWTexture(&_impl_storage,
+                                                                     texture,
+                                                                     reinterpret_cast<const WisTextureBinding*>(&data),
+                                                                     index));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Writes a raytracing acceleration to the descriptor heap.
@@ -539,9 +539,9 @@ public:
     inline wis::Result WriteAccelerationStructure(std::uint64_t address,
                                                   std::uint32_t index) const noexcept
     {
-        return convert_result(::wisVKDescriptorHeapWriteAccelerationStructure(&_impl_storage,
-                                                                              address,
-                                                                              index));
+        return convert_result_vk(::wisVKDescriptorHeapWriteAccelerationStructure(&_impl_storage,
+                                                                                 address,
+                                                                                 index));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Copies descriptors from one heap to another.
@@ -619,9 +619,9 @@ public:
                                                     wis::Result&           out_result) const noexcept
     {
         wis::VKBuffer buffer;
-        out_result = convert_result(::wisVKResourceAllocatorCreateBuffer(&_impl_storage,
-                                                                         reinterpret_cast<const WisBufferDesc*>(&desc),
-                                                                         buffer.GetStorage()));
+        out_result = convert_result_vk(::wisVKResourceAllocatorCreateBuffer(&_impl_storage,
+                                                                            reinterpret_cast<const WisBufferDesc*>(&desc),
+                                                                            buffer.GetStorage()));
         return buffer;
     }
     /**
@@ -637,10 +637,10 @@ public:
                                                       wis::Result&            out_result) const noexcept
     {
         wis::VKTexture texture;
-        out_result = convert_result(::wisVKResourceAllocatorCreateTexture(&_impl_storage,
-                                                                          reinterpret_cast<const WisTextureDesc*>(&desc),
-                                                                          static_cast<WisTextureState>(initial_state),
-                                                                          texture.GetStorage()));
+        out_result = convert_result_vk(::wisVKResourceAllocatorCreateTexture(&_impl_storage,
+                                                                             reinterpret_cast<const WisTextureDesc*>(&desc),
+                                                                             static_cast<WisTextureState>(initial_state),
+                                                                             texture.GetStorage()));
         return texture;
     }
 };
@@ -690,9 +690,9 @@ public:
     inline wis::Result Wait(std::uint64_t value,
                             std::uint64_t wait_ns) const noexcept
     {
-        return convert_result(::wisVKFenceWait(&_impl_storage,
-                                               value,
-                                               wait_ns));
+        return convert_result_vk(::wisVKFenceWait(&_impl_storage,
+                                                  value,
+                                                  wait_ns));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Signal the fence from CPU.
@@ -702,8 +702,8 @@ public:
      * */
     inline wis::Result Signal(std::uint64_t value) const noexcept
     {
-        return convert_result(::wisVKFenceSignal(&_impl_storage,
-                                                 value));
+        return convert_result_vk(::wisVKFenceSignal(&_impl_storage,
+                                                    value));
     }
 };
 
@@ -740,7 +740,7 @@ public:
      * */
     inline wis::Result Begin() const noexcept
     {
-        return convert_result(::wisVKCommandListBegin(&_impl_storage));
+        return convert_result_vk(::wisVKCommandListBegin(&_impl_storage));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Closes the command list, so it can be executed on the command queue.
@@ -749,7 +749,7 @@ public:
      * */
     inline wis::Result End() const noexcept
     {
-        return convert_result(::wisVKCommandListEnd(&_impl_storage));
+        return convert_result_vk(::wisVKCommandListEnd(&_impl_storage));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Binds descriptor heaps to the command list, so they can be used for resource binding.
@@ -931,7 +931,7 @@ public:
      * */
     inline wis::Result Reset() const noexcept
     {
-        return convert_result(::wisVKCommandAllocatorReset(&_impl_storage));
+        return convert_result_vk(::wisVKCommandAllocatorReset(&_impl_storage));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Creates a command list of given type.
@@ -942,7 +942,7 @@ public:
     WIS_NODISCARD inline wis::VKCommandList CreateCommandList(wis::Result& out_result) const noexcept
     {
         wis::VKCommandList list;
-        out_result = convert_result(::wisVKCommandAllocatorCreateCommandList(&_impl_storage, list.GetStorage()));
+        out_result = convert_result_vk(::wisVKCommandAllocatorCreateCommandList(&_impl_storage, list.GetStorage()));
         return list;
     }
 };
@@ -971,9 +971,9 @@ public:
      * */
     inline wis::Result Submit(wis::span<const wis::VKCommandListView> lists) const noexcept
     {
-        return convert_result(::wisVKCommandQueueSubmit(&_impl_storage,
-                                                        reinterpret_cast<const WisVKCommandListView*>(lists.data()),
-                                                        lists.size()));
+        return convert_result_vk(::wisVKCommandQueueSubmit(&_impl_storage,
+                                                           reinterpret_cast<const WisVKCommandListView*>(lists.data()),
+                                                           lists.size()));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Enqueue the signal to the queue, that gets executed after all the work has been done.
@@ -985,9 +985,9 @@ public:
     inline wis::Result SignalFence(wis::VKFenceView fence,
                                    std::uint64_t    value) const noexcept
     {
-        return convert_result(::wisVKCommandQueueSignalFence(&_impl_storage,
-                                                             fence,
-                                                             value));
+        return convert_result_vk(::wisVKCommandQueueSignalFence(&_impl_storage,
+                                                                fence,
+                                                                value));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Enqueues wait operation to the command queue. Queue then waits for the fence to be signalled from CPU or from another queue.
@@ -1000,9 +1000,9 @@ public:
     inline wis::Result WaitFence(wis::VKFenceView fence,
                                  std::uint64_t    value) const noexcept
     {
-        return convert_result(::wisVKCommandQueueWaitFence(&_impl_storage,
-                                                           fence,
-                                                           value));
+        return convert_result_vk(::wisVKCommandQueueWaitFence(&_impl_storage,
+                                                              fence,
+                                                              value));
     }
 };
 
@@ -1033,9 +1033,9 @@ public:
                                                                 wis::Result&          out_result) const noexcept
     {
         wis::VKCommandQueue queue;
-        out_result = convert_result(::wisVKDeviceCreateCommandQueue(&_impl_storage,
-                                                                    static_cast<WisCommandQueueType>(type),
-                                                                    queue.GetStorage()));
+        out_result = convert_result_vk(::wisVKDeviceCreateCommandQueue(&_impl_storage,
+                                                                       static_cast<WisCommandQueueType>(type),
+                                                                       queue.GetStorage()));
         return queue;
     }
     /**
@@ -1049,9 +1049,9 @@ public:
                                                                         wis::Result&          out_result) const noexcept
     {
         wis::VKCommandAllocator allocator;
-        out_result = convert_result(::wisVKDeviceCreateCommandAllocator(&_impl_storage,
-                                                                        static_cast<WisCommandQueueType>(type),
-                                                                        allocator.GetStorage()));
+        out_result = convert_result_vk(::wisVKDeviceCreateCommandAllocator(&_impl_storage,
+                                                                           static_cast<WisCommandQueueType>(type),
+                                                                           allocator.GetStorage()));
         return allocator;
     }
     /**
@@ -1065,9 +1065,9 @@ public:
                                                   wis::Result&  out_result) const noexcept
     {
         wis::VKFence fence;
-        out_result = convert_result(::wisVKDeviceCreateFence(&_impl_storage,
-                                                             initial_value,
-                                                             fence.GetStorage()));
+        out_result = convert_result_vk(::wisVKDeviceCreateFence(&_impl_storage,
+                                                                initial_value,
+                                                                fence.GetStorage()));
         return fence;
     }
     /**
@@ -1079,7 +1079,7 @@ public:
     WIS_NODISCARD inline wis::VKResourceAllocator GetResourceAllocator(wis::Result& out_result) const noexcept
     {
         wis::VKResourceAllocator allocator;
-        out_result = convert_result(::wisVKDeviceGetResourceAllocator(&_impl_storage, allocator.GetStorage()));
+        out_result = convert_result_vk(::wisVKDeviceGetResourceAllocator(&_impl_storage, allocator.GetStorage()));
         return allocator;
     }
     /**
@@ -1093,9 +1093,9 @@ public:
                                                                   wis::Result&                  out_result) const noexcept
     {
         wis::VKRootSignature layout;
-        out_result = convert_result(::wisVKDeviceCreateRootSignature(&_impl_storage,
-                                                                     reinterpret_cast<const WisRootSignatureDesc*>(&desc),
-                                                                     layout.GetStorage()));
+        out_result = convert_result_vk(::wisVKDeviceCreateRootSignature(&_impl_storage,
+                                                                        reinterpret_cast<const WisRootSignatureDesc*>(&desc),
+                                                                        layout.GetStorage()));
         return layout;
     }
     /**
@@ -1109,9 +1109,9 @@ public:
                                                                     wis::Result&                   out_result) const noexcept
     {
         wis::VKDescriptorHeap heap;
-        out_result = convert_result(::wisVKDeviceCreateDescriptorHeap(&_impl_storage,
-                                                                      reinterpret_cast<const WisDescriptorHeapDesc*>(&desc),
-                                                                      heap.GetStorage()));
+        out_result = convert_result_vk(::wisVKDeviceCreateDescriptorHeap(&_impl_storage,
+                                                                         reinterpret_cast<const WisDescriptorHeapDesc*>(&desc),
+                                                                         heap.GetStorage()));
         return heap;
     }
     /**
@@ -1127,10 +1127,10 @@ public:
                                                         wis::Result&      out_result) const noexcept
     {
         wis::VKViewHeap heap;
-        out_result = convert_result(::wisVKDeviceCreateViewHeap(&_impl_storage,
-                                                                static_cast<WisViewHeapType>(type),
-                                                                capacity,
-                                                                heap.GetStorage()));
+        out_result = convert_result_vk(::wisVKDeviceCreateViewHeap(&_impl_storage,
+                                                                   static_cast<WisViewHeapType>(type),
+                                                                   capacity,
+                                                                   heap.GetStorage()));
         return heap;
     }
     /**
@@ -1164,12 +1164,12 @@ public:
                                              wis::MutiWaitType       wait_for,
                                              std::uint64_t           timeout) const noexcept
     {
-        return convert_result(::wisVKDeviceWaitForMultipleFences(&_impl_storage,
-                                                                 fences,
-                                                                 fence_values,
-                                                                 fence_count,
-                                                                 static_cast<WisMutiWaitType>(wait_for),
-                                                                 timeout));
+        return convert_result_vk(::wisVKDeviceWaitForMultipleFences(&_impl_storage,
+                                                                    fences,
+                                                                    fence_values,
+                                                                    fence_count,
+                                                                    static_cast<WisMutiWaitType>(wait_for),
+                                                                    timeout));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Creates a pipeline cache for caching pipeline state objects.
@@ -1182,10 +1182,10 @@ public:
                                                                   wis::Result&                  out_result) const noexcept
     {
         wis::VKPipelineCache cache;
-        out_result = convert_result(::wisVKDeviceCreatePipelineCache(&_impl_storage,
-                                                                     reinterpret_cast<const uint8_t*>(initial_data.data()),
-                                                                     initial_data.size(),
-                                                                     cache.GetStorage()));
+        out_result = convert_result_vk(::wisVKDeviceCreatePipelineCache(&_impl_storage,
+                                                                        reinterpret_cast<const uint8_t*>(initial_data.data()),
+                                                                        initial_data.size(),
+                                                                        cache.GetStorage()));
         return cache;
     }
     /**
@@ -1199,10 +1199,10 @@ public:
                                                     wis::Result&                  out_result) const noexcept
     {
         wis::VKShader shader;
-        out_result = convert_result(::wisVKDeviceCreateShader(&_impl_storage,
-                                                              reinterpret_cast<const uint8_t*>(data.data()),
-                                                              data.size(),
-                                                              shader.GetStorage()));
+        out_result = convert_result_vk(::wisVKDeviceCreateShader(&_impl_storage,
+                                                                 reinterpret_cast<const uint8_t*>(data.data()),
+                                                                 data.size(),
+                                                                 shader.GetStorage()));
         return shader;
     }
     /**
@@ -1216,9 +1216,9 @@ public:
                                                                wis::Result&                      out_result) const noexcept
     {
         wis::VKPipeline pipeline;
-        out_result = convert_result(::wisVKDeviceCreateComputePipeline(&_impl_storage,
-                                                                       reinterpret_cast<const WisVKComputePipelineDesc*>(&desc),
-                                                                       pipeline.GetStorage()));
+        out_result = convert_result_vk(::wisVKDeviceCreateComputePipeline(&_impl_storage,
+                                                                          reinterpret_cast<const WisVKComputePipelineDesc*>(&desc),
+                                                                          pipeline.GetStorage()));
         return pipeline;
     }
     /**
@@ -1232,9 +1232,9 @@ public:
                                                                 wis::Result&                       out_result) const noexcept
     {
         wis::VKPipeline pipeline;
-        out_result = convert_result(::wisVKDeviceCreateGraphicsPipeline(&_impl_storage,
-                                                                        reinterpret_cast<const WisVKGraphicsPipelineDesc*>(&desc),
-                                                                        pipeline.GetStorage()));
+        out_result = convert_result_vk(::wisVKDeviceCreateGraphicsPipeline(&_impl_storage,
+                                                                           reinterpret_cast<const WisVKGraphicsPipelineDesc*>(&desc),
+                                                                           pipeline.GetStorage()));
         return pipeline;
     }
 };
@@ -1275,9 +1275,9 @@ public:
                                                          wis::Result& out_result) const noexcept
     {
         wis::AdapterDesc desc;
-        out_result = convert_result(::wisVKAdapterQueryGetAdapterDesc(&_impl_storage,
-                                                                      index,
-                                                                      reinterpret_cast<WisAdapterDesc*>(&desc)));
+        out_result = convert_result_vk(::wisVKAdapterQueryGetAdapterDesc(&_impl_storage,
+                                                                         index,
+                                                                         reinterpret_cast<WisAdapterDesc*>(&desc)));
         return desc;
     }
     /**
@@ -1293,10 +1293,10 @@ public:
                                                     wis::Result&                     out_result) const noexcept
     {
         wis::VKDevice device;
-        out_result = convert_result(::wisVKAdapterQueryCreateDevice(&_impl_storage,
-                                                                    index,
-                                                                    reinterpret_cast<const WisVKDeviceRequirements*>(&requirements),
-                                                                    device.GetStorage()));
+        out_result = convert_result_vk(::wisVKAdapterQueryCreateDevice(&_impl_storage,
+                                                                       index,
+                                                                       reinterpret_cast<const WisVKDeviceRequirements*>(&requirements),
+                                                                       device.GetStorage()));
         return device;
     }
 };
@@ -1328,9 +1328,9 @@ public:
                                                            wis::Result&           out_result) const noexcept
     {
         wis::VKAdapterQuery query;
-        out_result = convert_result(::wisVKInstanceQueryAdapters(&_impl_storage,
-                                                                 static_cast<WisAdapterPreference>(preference),
-                                                                 query.GetStorage()));
+        out_result = convert_result_vk(::wisVKInstanceQueryAdapters(&_impl_storage,
+                                                                    static_cast<WisAdapterPreference>(preference),
+                                                                    query.GetStorage()));
         return query;
     }
 };
@@ -1348,10 +1348,10 @@ WIS_NODISCARD inline wis::VKInstance VKCreateInstance(const wis::DebugDesc*     
                                                       wis::Result&                               out_result) noexcept
 {
     wis::VKInstance instance;
-    out_result = convert_result(::wisVKCreateInstance(reinterpret_cast<const WisDebugDesc*>(debug_desc),
-                                                      reinterpret_cast<WisVKInstanceExtensionHeader**>(extensions.data()),
-                                                      extensions.size(),
-                                                      instance.GetStorage()));
+    out_result = convert_result_vk(::wisVKCreateInstance(reinterpret_cast<const WisDebugDesc*>(debug_desc),
+                                                         reinterpret_cast<WisVKInstanceExtensionHeader**>(extensions.data()),
+                                                         extensions.size(),
+                                                         instance.GetStorage()));
     return instance;
 }
 

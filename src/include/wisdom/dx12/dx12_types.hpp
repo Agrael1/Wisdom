@@ -7,13 +7,12 @@
 #include <dxgi1_6.h>
 #include <d3d12.h>
 #include <D3D12MemAlloc.h>
-#include <wisdom/dx12/dx12_extensions.hpp>
 #include <wisdom/generated/cpp_api.hpp>
 #include <wisdom/util/com_ptr.hpp>
 
 namespace wis {
 //-----------------------------------------------------------------------------
-constexpr inline wis::Result convert_result(WisResult result) noexcept
+constexpr inline wis::Result convert_result_dx(WisResult result) noexcept
 {
     return { static_cast<wis::Status>(result.status), result.platform_code, result.error };
 }
@@ -25,6 +24,7 @@ struct DX12ShaderHeader;
 } // namespace detail
 
 namespace impl {
+
 struct DX12InstanceImpl {
     IDXGIFactory6*               factory;
     wis::detail::DX12DebugLayer* debug_layer;
@@ -120,6 +120,17 @@ struct DX12PipelineImpl {
 };
 
 } // namespace impl
+
+// Manual variants of generated structures with virtual functions
+struct DX12InstanceExtensionHeader {
+    WisResult (*init_fptr)(DX12InstanceExtensionHeader* self, const impl::DX12InstanceImpl& instance) noexcept;
+};
+
+// Manual variants of generated structures with virtual functions
+struct DX12DeviceExtensionHeader {
+    WisResult (*init_fptr)(DX12DeviceExtensionHeader* self, const impl::DX12DeviceImpl& device) noexcept;
+};
+
 } // namespace wis
 
 // Include implementation if header only build

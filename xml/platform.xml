@@ -39,9 +39,19 @@
     <handle name="XlibExtension" extends="Instance" platform="Xlib" version="0.7.0" doc="Extension for Xlib surface creation functions.">
       <impl for="vk" size="3"/>
     </handle>
-    <handle name="Win32Extension" extends="Instance" platform="Win32" version="0.7.0" doc="Extension for Win32 surface creation functions.">
+    <handle name="XCBExtension" extends="Instance" platform="XCB" version="0.7.0" doc="Extension for Xlib surface creation functions.">
       <impl for="vk" size="3"/>
-      <impl for="dx" size="3"/>
+    </handle>
+    <handle name="WaylandExtension" extends="Instance" platform="Wayland" version="0.7.0" doc="Extension for Xlib surface creation functions.">
+      <impl for="vk" size="3"/>
+    </handle>
+    <handle name="Win32Extension" extends="Instance" platform="Win32" version="0.7.0" doc="Extension for Win32 surface creation functions.">
+      <impl for="vk" size="2"/>
+      <impl for="dx" size="1"/>
+    </handle>
+    <handle name="UWPExtension" extends="Instance" platform="UWP" version="0.7.0" doc="Extension for UWP surface creation functions.">
+      <impl for="vk" size="3"/>
+      <impl for="dx" size="1"/>
     </handle>
   </handles>
 

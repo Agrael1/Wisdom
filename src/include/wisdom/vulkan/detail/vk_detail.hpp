@@ -109,6 +109,7 @@ struct VKInstanceHeader {
     VkDebugUtilsMessengerEXT debug_messenger;
     unique_library           library;
     uint32_t                 api_version;
+    VkInstance               instance;
 
     std::unique_ptr<VKDebugCallbackThunk> debug_callback_thunk;
 };
@@ -355,21 +356,22 @@ inline constexpr VkImageAspectFlags VKAspectFlags(VkFormat format) noexcept
  * @param header The control block header associated with the instance, which holds the reference count and
  * the debug messenger handle
  */
-inline void release_vk_instance(VkInstance instance, VKInstanceControlBlock* header) noexcept
+inline void release_vk_instance(VKInstanceControlBlock* header) noexcept
 {
     if (header && header->Release() == 1) {
+        auto& head = header->header;
         // Destroy debug messenger if exists
-        if (header->header.debug_messenger != VK_NULL_HANDLE &&
-            header->header.instance_table.vkDestroyDebugUtilsMessengerEXT) {
-            header->header.instance_table.vkDestroyDebugUtilsMessengerEXT(
-                    instance,
+        if (head.debug_messenger != VK_NULL_HANDLE &&
+            head.instance_table.vkDestroyDebugUtilsMessengerEXT) {
+            head.instance_table.vkDestroyDebugUtilsMessengerEXT(
+                    head.instance,
                     header->header.debug_messenger,
                     nullptr);
         }
 
         // Last reference, destroy instance
         std::atomic_thread_fence(std::memory_order_acquire);
-        header->header.instance_table.vkDestroyInstance(instance, nullptr);
+        header->header.instance_table.vkDestroyInstance(head.instance, nullptr);
         delete header;
     }
 }
@@ -392,8 +394,7 @@ inline void release_vk_device(VKDeviceControlBlock* header) noexcept
         header->header.device_table.vkDestroyDevice(header->header.device, nullptr);
 
         // Destroy instance
-        release_vk_instance(header->header.instance,
-                            header->header.shared_header);
+        release_vk_instance(header->header.shared_header);
 
         delete header;
     }

@@ -5,6 +5,7 @@
 #include <wisdom/generated/vk_cpp_api.hpp>
 #include <wisdom/vulkan/detail/vk_utils.hpp>
 #include <wisdom/vulkan/detail/vk_detail.hpp>
+#include <wisdom/vulkan/vk_extensions.hpp>
 #include <algorithm>
 
 namespace wis::detail {
@@ -100,7 +101,7 @@ wisVKCreateInstance(const WisDebugDesc*            debug_desc,
             continue; // skip invalid extension headers
         }
 
-        auto  res2       = ext_header->init_fptr(ext_header, nullptr, &collector);
+        auto res2 = ext_header->init_fptr(ext_header, nullptr, &collector);
         // Non-fatal, allow to silently fail
         (void)res2;
     }
@@ -191,18 +192,20 @@ wisVKCreateInstance(const WisDebugDesc*            debug_desc,
         (void)vr2;
     }
 
-    // Fill instance impl
-    auto& impl         = *new (instance) wis::impl::VKInstanceImpl();
-    impl.instance      = instance_handle;
-    impl.shared_header = header.release();
-
     // Store debug thunk
-    impl.shared_header->header.debug_callback_thunk = std::move(debug_layer_thunk);
-    impl.shared_header->header.api_version          = version;
+    header->header.instance             = instance_handle;
+    header->header.debug_callback_thunk = std::move(debug_layer_thunk);
+    header->header.api_version          = version;
+
+    // Fill instance impl
+    auto& impl = *new (instance) wis::impl::VKInstanceImpl{
+        .instance      = instance_handle,
+        .shared_header = header.release(),
+    };
 
     // Initialize instance extensions
     for (auto* ext : wis::span<WisVKInstanceExtensionHeader*>{ extensions, extension_count }) {
-        if (auto* table = wis::from_handle<wis::VKInstanceExtensionHeader>(ext);table && table->init_fptr) {
+        if (auto* table = wis::from_handle<wis::VKInstanceExtensionHeader>(ext); table && table->init_fptr) {
             if (auto xres = table->init_fptr(table, &impl, &collector); xres.status != WisStatusOk) {
                 res.status        = WisStatusPartial; // mark as partial success if any extension fails
                 res.error         = xres.error;
@@ -221,7 +224,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyInstance(WisVKInstance* self)
         return;
     }
 
-    wis::detail::release_vk_instance(impl.instance, impl.shared_header);
+    wis::detail::release_vk_instance(impl.shared_header);
     impl.shared_header = nullptr;
     impl.instance      = VK_NULL_HANDLE;
 }

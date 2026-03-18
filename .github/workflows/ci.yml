@@ -117,7 +117,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y ninja-build
+          sudo apt-get install -y ninja-build libx11-dev libxext-dev
 
       - name: Fetch Vulkan Headers
         run: git clone --depth 1 https://github.com/KhronosGroup/Vulkan-Headers.git ${{ github.workspace }}/vulkan-headers

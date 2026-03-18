@@ -58,6 +58,10 @@ void Generator::WritePlatformAPI()
     std::filesystem::path cpp_output_path_api = cpp_output_path / "generated";
     WriteCPlatformAPI(cpp_output_path_api / "c_platform_api.h");
     WriteCPPPlatformAPI(cpp_output_path_api / "cpp_platform_api.hpp");
+
+    auto independent_path = cpp_output_path / "../wisdom";
+    WriteCIndependentPlatformAPI(independent_path);
+    WriteCPPIndependentPlatformAPI(independent_path);
 }
 
 void Generator::WriteMainAPIDoc()
@@ -846,6 +850,7 @@ void Generator::WriteCPPPlatformAPI(std::filesystem::path path)
 #define WISDOM_CPP_PLATFORM_API_HPP
 #ifdef __cplusplus
 #include <wisdom_platform/generated/c_platform_api.h>
+#include <wisdom/global/internal.hpp>
 #include <wisdom/bridge/span.hpp>
 
 #ifdef WISDOM_DX12
@@ -871,6 +876,136 @@ namespace wis {
 }
 #endif // __cplusplus
 #endif // WISDOM_CPP_PLATFORM_API_HPP
+)";
+}
+
+void Generator::WriteCIndependentPlatformAPI(std::filesystem::path path)
+{
+    std::filesystem::path path_w = path / "wisdom_platform.h";
+    files.push_back(path_w);
+
+    std::ofstream file_w{ path_w, std::ios::out | std::ios::trunc };
+    if (!file_w.is_open()) {
+        throw std::runtime_error("Failed to open output file: " + path_w.string());
+    }
+
+    // Write header
+    file_w << R"(// This file is generated. Do not edit directly.
+#ifndef WISDOM_PLATFORM_H
+#define WISDOM_PLATFORM_H
+
+#ifdef WISDOM_UWP
+static_assert(WISDOM_UWP && _WIN32, "Platform error");
+#endif // WISDOM_UWP
+
+#ifndef FORCEVK_SWITCH
+#if defined(WISDOM_VULKAN) && defined(WISDOM_FORCE_VULKAN)
+#define FORCEVK_SWITCH 1
+#else
+#define FORCEVK_SWITCH 0
+#endif // WISDOM_VULKAN_FOUND
+#endif // FORCEVK_SWITCH
+
+#include "../wisdom_platform/generated/c_platform_api.h"
+
+#if defined(WISDOM_DX12) && !FORCEVK_SWITCH
+
+)";
+    constexpr static auto impl_dx = GetImplString(ImplementedFor::DX12);
+    constexpr static auto impl_vk = GetImplString(ImplementedFor::Vulkan);
+
+    for (auto& platform_name : platforms_in_order) {
+        auto& platform_def = platform_map[platform_name];
+        file_w << MakeCIndependentPlatform(platform_def, impl_dx);
+        file_w << "\n";
+    }
+
+    file_w << R"(
+#elif defined(WISDOM_VULKAN)
+
+)";
+
+    for (auto& platform_name : platforms_in_order) {
+        auto& platform_def = platform_map[platform_name];
+        file_w << MakeCIndependentPlatform(platform_def, impl_vk);
+        file_w << "\n";
+    }
+
+    file_w << R"(
+#else
+#error "No API selected for Wisdom. Define WISDOM_DX12 or WISDOM_VULKAN."
+#endif // API selection
+
+#endif // WISDOM_PLATFORM_H
+)";
+}
+
+void Generator::WriteCPPIndependentPlatformAPI(std::filesystem::path path)
+{
+    std::filesystem::path path_w = path / "wisdom_platform.hpp";
+    files.push_back(path_w);
+
+    std::ofstream file_w{ path_w, std::ios::out | std::ios::trunc };
+    if (!file_w.is_open()) {
+        throw std::runtime_error("Failed to open output file: " + path_w.string());
+    }
+
+    // Write header
+    file_w << R"(// This file is generated. Do not edit directly.
+#ifndef WISDOM_PLATFORM_HPP
+#define WISDOM_PLATFORM_HPP
+
+#ifndef __cplusplus
+#error "This is a C++ only header"
+#endif // __cplusplus
+
+#ifndef FORCEVK_SWITCH
+#if defined(WISDOM_VULKAN) && defined(WISDOM_FORCE_VULKAN) 
+#define FORCEVK_SWITCH 1
+#else
+#define FORCEVK_SWITCH 0
+#endif // WISDOM_VULKAN_FOUND
+#endif // FORCEVK_SWITCH
+
+#include "../wisdom_platform/generated/cpp_platform_api.hpp"
+
+#if defined(WISDOM_DX12) && !FORCEVK_SWITCH
+namespace wis {
+)";
+    constexpr static auto impl_dx = GetImplString(ImplementedFor::DX12);
+    constexpr static auto impl_vk = GetImplString(ImplementedFor::Vulkan);
+
+    file_w << "\n\n//==============================================================\n"
+              "// Handles\n"
+              "//==============================================================\n\n";
+
+    // Write handles
+    for (auto& platform : platforms_in_order) {
+        file_w << MakeCPPIndependentPlatform(platform_map[platform], impl_dx);
+    }
+
+    file_w << R"(
+} // namespace wis
+
+#elif defined(WISDOM_VULKAN)
+namespace wis {
+)";
+
+    file_w << "\n\n//==============================================================\n"
+              "// Handles\n"
+              "//==============================================================\n\n";
+
+    // Write handles
+    for (auto& platform : platforms_in_order) {
+        file_w << MakeCPPIndependentPlatform(platform_map[platform], impl_vk);
+    }
+
+    file_w << R"(
+} // namespace wis
+#else
+#error "No API selected for Wisdom. Define WISDOM_DX12 or WISDOM_VULKAN."
+#endif // API selection
+#endif // WISDOM_PLATFORM_HPP
 )";
 }
 
@@ -1079,7 +1214,7 @@ std::string Generator::GetCFullTypename(std::string_view type, std::string_view 
         return wis::format("Wis{}{}", impl, type);
     case TypeKind::Function: {
         auto& func = function_map.at(type);
-        if (!func.this_type.empty() && !func.name.starts_with("Destroy")) {
+        if (!func.this_type.empty() && !(func.modifier & (Destroy | Construct))) {
             return wis::format("wis{}{}{}", impl, func.this_type, type);
         }
         return wis::format("wis{}{}", impl, type);
@@ -1270,10 +1405,10 @@ std::string Generator::GetSpecificationCode(std::string_view c_code, std::string
 
 ImplementedFor Generator::ImplCode(std::string_view impl) noexcept
 {
-    if (impl == "dx") {
+    if (impl == "dx" || impl == "DX12") {
         return ImplementedFor::DX12;
     }
-    if (impl == "vk") {
+    if (impl == "vk" || impl == "VK") {
         return ImplementedFor::Vulkan;
     }
     return ImplementedFor::Both;

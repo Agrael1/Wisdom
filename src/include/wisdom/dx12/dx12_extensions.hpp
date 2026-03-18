@@ -5,6 +5,7 @@
 #endif // __cplusplus
 
 #include <wisdom/generated/c_api.h>
+#include <wisdom/dx12/dx12_types.hpp>
 #include <cassert>
 
 namespace wis {
@@ -12,16 +13,6 @@ namespace impl {
 struct DX12InstanceImpl;
 struct DX12DeviceImpl;
 } // namespace impl
-
-// Manual variants of generated structures with virtual functions
-struct DX12InstanceExtensionHeader {
-    WisResult (*init_fptr)(DX12InstanceExtensionHeader* self, const impl::DX12InstanceImpl& instance) noexcept = nullptr;
-};
-
-// Manual variants of generated structures with virtual functions
-struct DX12DeviceExtensionHeader {
-    WisResult (*init_fptr)(DX12DeviceExtensionHeader* self, const impl::DX12DeviceImpl& device) noexcept = nullptr;
-};
 
 template<typename T>
 struct DX12InstanceExtensionImpl : public DX12InstanceExtensionHeader {

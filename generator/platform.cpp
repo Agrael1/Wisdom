@@ -62,8 +62,8 @@ void Generator::ParsePlatforms(tinyxml2::XMLElement* types)
 //-----------------------------------------------------------------------------
 std::string Generator::MakeCPlatform(const WisPlatform& p, DocKind kind)
 {
-    auto upper_name = to_upper(p.name);
-    std::string st_decl = wis::format("#ifdef WIS_USE_PLATFORM_{}\n\n", upper_name);
+    auto        upper_name = to_upper(p.name);
+    std::string st_decl;
     if (!p.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation(p, kind);
         st_decl          = wis::format("{}\n{}", xdoc, st_decl);
@@ -79,7 +79,6 @@ std::string Generator::MakeCPlatform(const WisPlatform& p, DocKind kind)
 
     if (p.impl == ImplementedFor::Both || p.impl == ImplementedFor::DX12) {
         st_decl += wis::format("#if defined(WISDOM_DX12)\n\n");
-
 
         for (const auto& handle_name : p.handles_in_order) {
             auto& handle_ref = handle_map[handle_name];
@@ -112,15 +111,13 @@ std::string Generator::MakeCPlatform(const WisPlatform& p, DocKind kind)
         st_decl += wis::format("#endif // defined(WISDOM_VULKAN)\n\n");
     }
 
-    st_decl += wis::format("#endif // WIS_USE_PLATFORM_{}\n\n", upper_name);
-
     return st_decl;
 }
 
 std::string Generator::MakeCPPPlatform(const WisPlatform& p, DocKind kind)
 {
     auto        upper_name = to_upper(p.name);
-    std::string st_decl    = wis::format("#ifdef WIS_USE_PLATFORM_{}\n\n", upper_name);
+    std::string st_decl;
     if (!p.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation(p, kind);
         st_decl          = wis::format("{}\n{}", xdoc, st_decl);
@@ -132,7 +129,71 @@ std::string Generator::MakeCPPPlatform(const WisPlatform& p, DocKind kind)
         st_decl += "\n";
     }
 
-    st_decl += wis::format("#endif // WIS_USE_PLATFORM_{}\n\n", upper_name);
+    // dependent API elements (handles, functions)
+
+    if (p.impl == ImplementedFor::Both || p.impl == ImplementedFor::DX12) {
+        st_decl += wis::format("#if defined(WISDOM_DX12)\n\n");
+        for (const auto& handle_name : p.handles_in_order) {
+            auto& handle_ref = handle_map[handle_name];
+            st_decl += MakeCPPHandle(handle_ref, "dx", kind);
+            st_decl += "\n";
+        }
+
+        st_decl += wis::format("#endif // defined(WISDOM_DX12)\n\n");
+    }
+
+    if (p.impl == ImplementedFor::Both || p.impl == ImplementedFor::Vulkan) {
+        st_decl += wis::format("#if defined(WISDOM_VULKAN)\n\n");
+        for (const auto& handle_name : p.handles_in_order) {
+            auto& handle_ref = handle_map[handle_name];
+            st_decl += MakeCPPHandle(handle_ref, "vk", kind);
+            st_decl += "\n";
+        }
+
+        st_decl += wis::format("#endif // defined(WISDOM_VULKAN)\n\n");
+    }
+
+    return st_decl;
+}
+
+std::string Generator::MakeCIndependentPlatform(const WisPlatform& p, std::string_view impl, DocKind kind)
+{
+    if (p.impl != ImplementedFor::Both && p.impl != ImplCode(impl)) {
+        return "";
+    }
+
+    auto        upper_name = to_upper(p.name);
+    std::string st_decl;
+
+    // handles
+    for (auto& handle_name : p.handles_in_order) {
+        auto& handle_def = handle_map[handle_name];
+        st_decl += wis::format("typedef struct {} {};\n", GetCFullTypename(handle_def.name, impl), GetCFullTypename(handle_def.name));
+    }
+
+    // functions
+    for (auto& func_name : p.functions_in_order) {
+        auto& func_def = function_map[func_name];
+        st_decl += wis::format("#define {} {}\n",
+                               wis::format("wis{}{}", func_def.modifier & (Destroy | Construct) ? "" : func_def.this_type, func_def.name),
+                               wis::format("wis{}{}{}", impl, func_def.modifier & (Destroy | Construct) ? "" : func_def.this_type, func_def.name));
+    }
+
+    return st_decl;
+}
+
+std::string Generator::MakeCPPIndependentPlatform(const WisPlatform& p, std::string_view impl, DocKind kind)
+{
+    if (p.impl != ImplementedFor::Both && p.impl != ImplCode(impl)) {
+        return "";
+    }
+    auto        upper_name = to_upper(p.name);
+    std::string st_decl;
+
+    for (auto& handle_name : p.handles_in_order) {
+        auto& handle_def = handle_map[handle_name];
+        st_decl += wis::format("using {} = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, impl));
+    }
 
     return st_decl;
 }

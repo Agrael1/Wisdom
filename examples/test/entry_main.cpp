@@ -1,4 +1,7 @@
+#define WIS_USE_PLATFORM_XLIB 1
+
 #include <wisdom/wisdom.hpp>
+#include <wisdom/wisdom_platform.hpp>
 #include <iostream>
 
 void log_callback(wis::Severity severity, const char* message, uint64_t device, void* user_data) noexcept

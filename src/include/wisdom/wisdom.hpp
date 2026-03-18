@@ -78,10 +78,10 @@ WIS_NODISCARD inline wis::Instance CreateInstance(const wis::DebugDesc*         
                                                   wis::Result&                             out_result) noexcept
 {
     wis::DX12Instance instance;
-    out_result = convert_result(::wisDX12CreateInstance(reinterpret_cast<const WisDebugDesc*>(debug_desc),
-                                                        reinterpret_cast<WisDX12InstanceExtensionHeader**>(extensions.data()),
-                                                        extensions.size(),
-                                                        instance.GetStorage()));
+    out_result = convert_result_dx(::wisDX12CreateInstance(reinterpret_cast<const WisDebugDesc*>(debug_desc),
+                                                           reinterpret_cast<WisDX12InstanceExtensionHeader**>(extensions.data()),
+                                                           extensions.size(),
+                                                           instance.GetStorage()));
     return instance;
 }
 
@@ -153,10 +153,10 @@ WIS_NODISCARD inline wis::Instance CreateInstance(const wis::DebugDesc*         
                                                   wis::Result&                             out_result) noexcept
 {
     wis::VKInstance instance;
-    out_result = convert_result(::wisVKCreateInstance(reinterpret_cast<const WisDebugDesc*>(debug_desc),
-                                                      reinterpret_cast<WisVKInstanceExtensionHeader**>(extensions.data()),
-                                                      extensions.size(),
-                                                      instance.GetStorage()));
+    out_result = convert_result_vk(::wisVKCreateInstance(reinterpret_cast<const WisDebugDesc*>(debug_desc),
+                                                         reinterpret_cast<WisVKInstanceExtensionHeader**>(extensions.data()),
+                                                         extensions.size(),
+                                                         instance.GetStorage()));
     return instance;
 }
 

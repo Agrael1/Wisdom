@@ -20,9 +20,9 @@ if(WISDOM_BUILD_SHARED)
   add_custom_target(
     copy_dll
     COMMAND ${CMAKE_COMMAND} -E echo "Copying DLLs to example binaries..."
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:wisdom-shared>
-            ${EXAMPLE_BIN_OUTPUT}
-    DEPENDS wisdom-shared)
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:wisdom-shared> ${EXAMPLE_BIN_OUTPUT}
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:wisdom-platform-shared> ${EXAMPLE_BIN_OUTPUT}
+    DEPENDS wisdom-shared wisdom-platform-shared )
 endif()
 
 # compile shaders from folder shaders and put them in the binary output directory
@@ -37,6 +37,14 @@ foreach(SHADER ${SHADERS})
         OUTPUT ${EXAMPLE_BIN_OUTPUT}/${SHADER_NAME}
     )
 endforeach()
+
+add_custom_target(
+    copy_sdl
+    COMMAND ${CMAKE_COMMAND} -E echo "Copying DLLs to example binaries..."
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:SDL3-shared> ${EXAMPLE_BIN_OUTPUT}
+    DEPENDS SDL3-shared )
+
+include(cmake/deps.cmake)
 
 add_example_suite(test)
 add_example_suite(test_c)

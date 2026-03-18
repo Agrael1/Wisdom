@@ -175,7 +175,7 @@ std::string Generator::MakeCFunctionProto(const WisFunction& func, std::string_v
 
     std::string full_return_type;
     std::string post_return;
-    std::string function_full_name = wis::format("wis{}{}{}", re_impl, func.name.starts_with("Destroy") ? "" : func.this_type, func.name);
+    std::string function_full_name = wis::format("wis{}{}{}", re_impl, func.modifier & (Destroy | Construct) ? "" : func.this_type, func.name);
     size_t      post_return_length = 0;
 
     if (func.return_type.IsVoid()) {
@@ -491,7 +491,8 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, std::string_
         // Prepare out parameter
         body += wis::format("    {} {};\n", GetMemberTypeString<Lang::CPP>(func.return_type, re_impl), ret_value_name);
 
-        body += wis::format("    out_result = convert_result(::{}({}",
+        body += wis::format("    out_result = convert_result_{}(::{}({}",
+                            impl,
                             GetCFullTypename(func.name, re_impl),
                             func.this_type.empty()
                                     ? ""
@@ -515,7 +516,8 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, std::string_
         body += wis::format("    return {};\n", ret_value_name);
     } break;
     case ReturnTypeKind::ResultOnly: {
-        body += wis::format("    return convert_result(::{}({}",
+        body += wis::format("    return convert_result_{}(::{}({}",
+                            impl,
                             GetCFullTypename(func.name, re_impl),
                             func.this_type.empty() ? "" : "&_impl_storage");
         constexpr static std::string_view arg_prefix = ",\n    ";

@@ -4,15 +4,18 @@
 #error "This header requires C++"
 #endif // __cplusplus
 
-#include <wisdom/vulkan/vk_extensions.hpp>
+#include <wisdom/generated/c_api.h>
 #include <wisdom/generated/cpp_api.hpp>
+#include <wisdom/vulkan/vk_tables.hpp>
 #include <vk_mem_alloc.h>
 #include <cstring>
 #include <array>
 
 namespace wis {
+struct VKInstanceExtensionCollector;
+struct VKDeviceExtensionCollector;
 //-----------------------------------------------------------------------------
-constexpr wis::Result convert_result(WisResult result) noexcept
+constexpr wis::Result convert_result_vk(WisResult result) noexcept
 {
     return { static_cast<wis::Status>(result.status), result.platform_code, result.error };
 }
@@ -136,6 +139,20 @@ struct VKPipelineImpl {
 };
 
 } // namespace impl
+
+//-----------------------------------------------------------------------------
+struct VKInstanceExtensionHeader {
+    WisResult (*init_fptr)(
+            VKInstanceExtensionHeader*    self,
+            impl::VKInstanceImpl*         instance_impl,
+            VKInstanceExtensionCollector* collector) noexcept;
+};
+struct VKDeviceExtensionHeader {
+    WisResult (*init_fptr)(
+            VKDeviceExtensionHeader*    self,
+            impl::VKDeviceImpl*         device_impl,
+            VKDeviceExtensionCollector* collector) noexcept;
+};
 } // namespace wis
 
 // Include implementation if header only build
@@ -145,7 +162,7 @@ struct VKPipelineImpl {
 #endif // !WIS_HAS_CPP20
 
 #include "vk_impl.cpp"
-#include "vk_types.cpp"
+#include "vk_extensions.cpp"
 #include "vk_device.cpp"
 #include "vk_instance.cpp"
 #include "vk_adapter_query.cpp"
