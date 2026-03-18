@@ -13,7 +13,7 @@
       <value name="DeviceLost" value="-4" doc="Device driver was forcefully stopped."/>
       <value name="Occluded" value="-5" doc="Swap chain presentation was not visible to the user. Rendering is too fast."/>
       <value name="ValidationFailed" value="-6" doc="A validation layer found an error."/>
-      <value name="Fail" value="-7" doc="Operation failed."/>
+      <value name="Fail" value="-7" doc="Operation expectedly failed."/>
       <value name="Error" value="-10000" doc="Operation failed."/>
     </type>
 

@@ -424,7 +424,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyAdapterQuery(WisVKAdapterQuery* self)
     auto& impl = *wis::from_handle<wis::impl::VKAdapterQueryImpl>(self);
     if (impl.physical_devices) {
         delete[] impl.physical_devices;
-        wis::detail::release_vk_instance(impl.instance, impl.shared_header);
+        wis::detail::release_vk_instance(impl.shared_header);
     }
 }
 

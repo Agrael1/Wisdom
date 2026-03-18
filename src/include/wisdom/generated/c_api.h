@@ -28,7 +28,7 @@ typedef enum WisStatus {
     WisStatusDeviceLost        = -4, ///< Device driver was forcefully stopped.
     WisStatusOccluded          = -5, ///< Swap chain presentation was not visible to the user. Rendering is too fast.
     WisStatusValidationFailed  = -6, ///< A validation layer found an error.
-    WisStatusFail              = -7, ///< Operation failed.
+    WisStatusFail              = -7, ///< Operation expectedly failed.
     WisStatusError             = -10000, ///< Operation failed.
 } WisStatus;
 

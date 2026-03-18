@@ -6,13 +6,13 @@
 
 #include <wisdom/global/definitions.h>
 #include <wisdom/vulkan/vk_tables.hpp>
+#include <wisdom/vulkan/vk_types.hpp>
 #include <wisdom/generated/c_api.h>
 #include <unordered_map>
 #include <unordered_set>
 #include <cstring>
 #include <cassert>
 #include <cstdint>
-
 
 namespace wis {
 namespace impl {
@@ -137,8 +137,15 @@ public:
         }
     }
 
-    WIS_INLINE bool                         IsExtensionPresent(const char* name) const noexcept;
-    WIS_INLINE bool                         IsLayerPresent(const char* name) const noexcept;
+    bool IsExtensionPresent(const char* name) const noexcept
+    {
+        return available_extensions_set.find(name) != available_extensions_set.end();
+    }
+
+    bool IsLayerPresent(const char* name) const noexcept
+    {
+        return available_layers_set.find(name) != available_layers_set.end();
+    }
     WIS_INLINE const VkLayerProperties*     GetLayerProperties(const char* name) const noexcept;
     WIS_INLINE const VkExtensionProperties* GetExtensionProperties(const char* name) const noexcept;
 
@@ -225,20 +232,6 @@ private:
     detail::VkExtensionPropertiesSet                       available_extensions_set;
     mutable std::unordered_map<VkStructureType, uintptr_t> feature_map;
     mutable std::unordered_map<VkStructureType, uintptr_t> property_map;
-};
-
-//-----------------------------------------------------------------------------
-struct VKInstanceExtensionHeader {
-    WisResult (*init_fptr)(
-            VKInstanceExtensionHeader*    self,
-            impl::VKInstanceImpl*         instance_impl,
-            VKInstanceExtensionCollector* collector) noexcept = nullptr;
-};
-struct VKDeviceExtensionHeader {
-    WisResult (*init_fptr)(
-            VKDeviceExtensionHeader*    self,
-            impl::VKDeviceImpl*         device_impl,
-            VKDeviceExtensionCollector* collector) noexcept = nullptr;
 };
 
 template<typename T>

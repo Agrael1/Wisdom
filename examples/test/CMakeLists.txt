@@ -5,7 +5,7 @@ set(SOURCES entry_main.cpp)
 
 if(WISDOM_BUILD_STATIC)
   add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
-  target_link_libraries(${PROJECT_NAME} PUBLIC wis::wisdom)
+  target_link_libraries(${PROJECT_NAME} PUBLIC wis::wisdom wis::wisdom-platform)
   set_target_properties(
     ${PROJECT_NAME} PROPERTIES CXX_STANDARD 20 RUNTIME_OUTPUT_DIRECTORY
                                                ${EXAMPLE_BIN_OUTPUT})
@@ -15,7 +15,7 @@ endif()
 
 if(WISDOM_BUILD_SHARED)
   add_executable(${PROJECT_NAME}-shared ${HEADERS} ${SOURCES})
-  target_link_libraries(${PROJECT_NAME}-shared PUBLIC wis::wisdom-shared)
+  target_link_libraries(${PROJECT_NAME}-shared PUBLIC wis::wisdom-shared wis::wisdom-platform-shared)
   set_target_properties(
     ${PROJECT_NAME}-shared PROPERTIES CXX_STANDARD 20 RUNTIME_OUTPUT_DIRECTORY
                                                       ${EXAMPLE_BIN_OUTPUT})
@@ -27,7 +27,7 @@ if(WISDOM_BUILD_SHARED)
 endif()
 
 add_executable(${PROJECT_NAME}-headers ${HEADERS} ${SOURCES})
-target_link_libraries(${PROJECT_NAME}-headers PUBLIC wis::wisdom-headers)
+target_link_libraries(${PROJECT_NAME}-headers PUBLIC wis::wisdom-headers wis::wisdom-platform-headers)
 set_target_properties(
   ${PROJECT_NAME}-headers PROPERTIES CXX_STANDARD 23 RUNTIME_OUTPUT_DIRECTORY
                                                      ${EXAMPLE_BIN_OUTPUT})

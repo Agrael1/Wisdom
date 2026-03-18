@@ -1,7 +1,7 @@
 #include <wisdom/wisdom.h>
+#include <wisdom/wisdom_platform.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <wisdom_platform/generated/c_platform_api.h>
 
 #define FRAMES_IN_FLIGHT 2
 #define TEST_FRAME_COUNT 120
@@ -570,7 +570,7 @@ void Render(BasicRenderer* renderer, const ResourceContainer* resources, const B
     WisViewport viewport = { .width = 800.0f, .height = 600.0f, .min_depth = 0.0f, .max_depth = 1.0f };
     WisScissor  scissor  = { .left = 0, .top = 0, .right = 800, .bottom = 600 };
 
-    wisCommandListBegin(&frame->command_list);
+    result = wisCommandListBegin(&frame->command_list);
 
     wisCommandListSetRootSignature(&frame->command_list, wisGetView(&task->compute_signature), WisPipelineTypeCompute);
     wisCommandListSetPipeline(&frame->command_list, wisGetView(&task->compute_pipeline), WisPipelineTypeCompute);
@@ -592,7 +592,7 @@ void Render(BasicRenderer* renderer, const ResourceContainer* resources, const B
     // TODO: Issue draw call for PARTICLE_COUNT * 3 vertices (triangle per particle).
     // TODO: End render pass and present the swapchain image.
 
-    wisCommandListEnd(&frame->command_list);
+    result = wisCommandListEnd(&frame->command_list);
 
     result = wisCommandQueueSubmit(&renderer->gfx_queue, &command_list_view, 1);
     printf("Frame[%u] QueueSubmit result: %d, platform_code: %d, error: %s\n", renderer->frame_index, result.status, result.platform_code, result.error ? result.error : "None");

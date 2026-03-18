@@ -25,7 +25,7 @@ enum class Status {
     DeviceLost        = -4, ///< Device driver was forcefully stopped.
     Occluded          = -5, ///< Swap chain presentation was not visible to the user. Rendering is too fast.
     ValidationFailed  = -6, ///< A validation layer found an error.
-    Fail              = -7, ///< Operation failed.
+    Fail              = -7, ///< Operation expectedly failed.
     Error             = -10000, ///< Operation failed.
 };
 

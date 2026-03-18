@@ -305,9 +305,9 @@ public:
      * */
     inline wis::Result Serialize(wis::span<std::uint8_t> data) const noexcept
     {
-        return convert_result(::wisDX12PipelineCacheSerialize(&_impl_storage,
-                                                              reinterpret_cast<uint8_t*>(data.data()),
-                                                              data.size()));
+        return convert_result_dx(::wisDX12PipelineCacheSerialize(&_impl_storage,
+                                                                 reinterpret_cast<uint8_t*>(data.data()),
+                                                                 data.size()));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Gets the size of the data in the pipeline cache.
@@ -356,9 +356,9 @@ public:
     inline wis::Result WriteSubresource(const void*               source_data,
                                         const wis::TextureRegion& target_region) const noexcept
     {
-        return convert_result(::wisDX12TextureWriteSubresource(&_impl_storage,
-                                                               source_data,
-                                                               reinterpret_cast<const WisTextureRegion*>(&target_region)));
+        return convert_result_dx(::wisDX12TextureWriteSubresource(&_impl_storage,
+                                                                  source_data,
+                                                                  reinterpret_cast<const WisTextureRegion*>(&target_region)));
     }
 };
 
@@ -443,9 +443,9 @@ public:
     inline wis::Result WriteConstantBuffer(const wis::ConstantBufferBinding& data,
                                            std::uint32_t                     index) const noexcept
     {
-        return convert_result(::wisDX12DescriptorHeapWriteConstantBuffer(&_impl_storage,
-                                                                         reinterpret_cast<const WisConstantBufferBinding*>(&data),
-                                                                         index));
+        return convert_result_dx(::wisDX12DescriptorHeapWriteConstantBuffer(&_impl_storage,
+                                                                            reinterpret_cast<const WisConstantBufferBinding*>(&data),
+                                                                            index));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Writes `wis::DescriptorType::Buffer` descriptor to the descriptor heap.
@@ -459,10 +459,10 @@ public:
                                              const wis::BufferBinding& data,
                                              std::uint32_t             index) const noexcept
     {
-        return convert_result(::wisDX12DescriptorHeapWriteStructuredBuffer(&_impl_storage,
-                                                                           buffer,
-                                                                           reinterpret_cast<const WisBufferBinding*>(&data),
-                                                                           index));
+        return convert_result_dx(::wisDX12DescriptorHeapWriteStructuredBuffer(&_impl_storage,
+                                                                              buffer,
+                                                                              reinterpret_cast<const WisBufferBinding*>(&data),
+                                                                              index));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Writes `wis::DescriptorType::RWBuffer` descriptor to the descriptor heap.
@@ -476,10 +476,10 @@ public:
                                                const wis::BufferBinding& data,
                                                std::uint32_t             index) const noexcept
     {
-        return convert_result(::wisDX12DescriptorHeapWriteRWStructuredBuffer(&_impl_storage,
-                                                                             buffer,
-                                                                             reinterpret_cast<const WisBufferBinding*>(&data),
-                                                                             index));
+        return convert_result_dx(::wisDX12DescriptorHeapWriteRWStructuredBuffer(&_impl_storage,
+                                                                                buffer,
+                                                                                reinterpret_cast<const WisBufferBinding*>(&data),
+                                                                                index));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Writes `wis::DescriptorType::Sampler` descriptor to the descriptor heap.
@@ -491,9 +491,9 @@ public:
     inline wis::Result WriteSampler(const wis::SamplerDesc& sampler,
                                     std::uint32_t           index) const noexcept
     {
-        return convert_result(::wisDX12DescriptorHeapWriteSampler(&_impl_storage,
-                                                                  reinterpret_cast<const WisSamplerDesc*>(&sampler),
-                                                                  index));
+        return convert_result_dx(::wisDX12DescriptorHeapWriteSampler(&_impl_storage,
+                                                                     reinterpret_cast<const WisSamplerDesc*>(&sampler),
+                                                                     index));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Writes a descriptor to the descriptor heap.
@@ -507,10 +507,10 @@ public:
                                     const wis::TextureBinding& data,
                                     std::uint32_t              index) const noexcept
     {
-        return convert_result(::wisDX12DescriptorHeapWriteTexture(&_impl_storage,
-                                                                  texture,
-                                                                  reinterpret_cast<const WisTextureBinding*>(&data),
-                                                                  index));
+        return convert_result_dx(::wisDX12DescriptorHeapWriteTexture(&_impl_storage,
+                                                                     texture,
+                                                                     reinterpret_cast<const WisTextureBinding*>(&data),
+                                                                     index));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Writes a texture view to the descriptor heap.
@@ -524,10 +524,10 @@ public:
                                       const wis::TextureBinding& data,
                                       std::uint32_t              index) const noexcept
     {
-        return convert_result(::wisDX12DescriptorHeapWriteRWTexture(&_impl_storage,
-                                                                    texture,
-                                                                    reinterpret_cast<const WisTextureBinding*>(&data),
-                                                                    index));
+        return convert_result_dx(::wisDX12DescriptorHeapWriteRWTexture(&_impl_storage,
+                                                                       texture,
+                                                                       reinterpret_cast<const WisTextureBinding*>(&data),
+                                                                       index));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Writes a raytracing acceleration to the descriptor heap.
@@ -539,9 +539,9 @@ public:
     inline wis::Result WriteAccelerationStructure(std::uint64_t address,
                                                   std::uint32_t index) const noexcept
     {
-        return convert_result(::wisDX12DescriptorHeapWriteAccelerationStructure(&_impl_storage,
-                                                                                address,
-                                                                                index));
+        return convert_result_dx(::wisDX12DescriptorHeapWriteAccelerationStructure(&_impl_storage,
+                                                                                   address,
+                                                                                   index));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Copies descriptors from one heap to another.
@@ -619,9 +619,9 @@ public:
                                                       wis::Result&           out_result) const noexcept
     {
         wis::DX12Buffer buffer;
-        out_result = convert_result(::wisDX12ResourceAllocatorCreateBuffer(&_impl_storage,
-                                                                           reinterpret_cast<const WisBufferDesc*>(&desc),
-                                                                           buffer.GetStorage()));
+        out_result = convert_result_dx(::wisDX12ResourceAllocatorCreateBuffer(&_impl_storage,
+                                                                              reinterpret_cast<const WisBufferDesc*>(&desc),
+                                                                              buffer.GetStorage()));
         return buffer;
     }
     /**
@@ -637,10 +637,10 @@ public:
                                                         wis::Result&            out_result) const noexcept
     {
         wis::DX12Texture texture;
-        out_result = convert_result(::wisDX12ResourceAllocatorCreateTexture(&_impl_storage,
-                                                                            reinterpret_cast<const WisTextureDesc*>(&desc),
-                                                                            static_cast<WisTextureState>(initial_state),
-                                                                            texture.GetStorage()));
+        out_result = convert_result_dx(::wisDX12ResourceAllocatorCreateTexture(&_impl_storage,
+                                                                               reinterpret_cast<const WisTextureDesc*>(&desc),
+                                                                               static_cast<WisTextureState>(initial_state),
+                                                                               texture.GetStorage()));
         return texture;
     }
 };
@@ -690,9 +690,9 @@ public:
     inline wis::Result Wait(std::uint64_t value,
                             std::uint64_t wait_ns) const noexcept
     {
-        return convert_result(::wisDX12FenceWait(&_impl_storage,
-                                                 value,
-                                                 wait_ns));
+        return convert_result_dx(::wisDX12FenceWait(&_impl_storage,
+                                                    value,
+                                                    wait_ns));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Signal the fence from CPU.
@@ -702,8 +702,8 @@ public:
      * */
     inline wis::Result Signal(std::uint64_t value) const noexcept
     {
-        return convert_result(::wisDX12FenceSignal(&_impl_storage,
-                                                   value));
+        return convert_result_dx(::wisDX12FenceSignal(&_impl_storage,
+                                                      value));
     }
 };
 
@@ -740,7 +740,7 @@ public:
      * */
     inline wis::Result Begin() const noexcept
     {
-        return convert_result(::wisDX12CommandListBegin(&_impl_storage));
+        return convert_result_dx(::wisDX12CommandListBegin(&_impl_storage));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Closes the command list, so it can be executed on the command queue.
@@ -749,7 +749,7 @@ public:
      * */
     inline wis::Result End() const noexcept
     {
-        return convert_result(::wisDX12CommandListEnd(&_impl_storage));
+        return convert_result_dx(::wisDX12CommandListEnd(&_impl_storage));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Binds descriptor heaps to the command list, so they can be used for resource binding.
@@ -931,7 +931,7 @@ public:
      * */
     inline wis::Result Reset() const noexcept
     {
-        return convert_result(::wisDX12CommandAllocatorReset(&_impl_storage));
+        return convert_result_dx(::wisDX12CommandAllocatorReset(&_impl_storage));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Creates a command list of given type.
@@ -942,7 +942,7 @@ public:
     WIS_NODISCARD inline wis::DX12CommandList CreateCommandList(wis::Result& out_result) const noexcept
     {
         wis::DX12CommandList list;
-        out_result = convert_result(::wisDX12CommandAllocatorCreateCommandList(&_impl_storage, list.GetStorage()));
+        out_result = convert_result_dx(::wisDX12CommandAllocatorCreateCommandList(&_impl_storage, list.GetStorage()));
         return list;
     }
 };
@@ -971,9 +971,9 @@ public:
      * */
     inline wis::Result Submit(wis::span<const wis::DX12CommandListView> lists) const noexcept
     {
-        return convert_result(::wisDX12CommandQueueSubmit(&_impl_storage,
-                                                          reinterpret_cast<const WisDX12CommandListView*>(lists.data()),
-                                                          lists.size()));
+        return convert_result_dx(::wisDX12CommandQueueSubmit(&_impl_storage,
+                                                             reinterpret_cast<const WisDX12CommandListView*>(lists.data()),
+                                                             lists.size()));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Enqueue the signal to the queue, that gets executed after all the work has been done.
@@ -985,9 +985,9 @@ public:
     inline wis::Result SignalFence(wis::DX12FenceView fence,
                                    std::uint64_t      value) const noexcept
     {
-        return convert_result(::wisDX12CommandQueueSignalFence(&_impl_storage,
-                                                               fence,
-                                                               value));
+        return convert_result_dx(::wisDX12CommandQueueSignalFence(&_impl_storage,
+                                                                  fence,
+                                                                  value));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Enqueues wait operation to the command queue. Queue then waits for the fence to be signalled from CPU or from another queue.
@@ -1000,9 +1000,9 @@ public:
     inline wis::Result WaitFence(wis::DX12FenceView fence,
                                  std::uint64_t      value) const noexcept
     {
-        return convert_result(::wisDX12CommandQueueWaitFence(&_impl_storage,
-                                                             fence,
-                                                             value));
+        return convert_result_dx(::wisDX12CommandQueueWaitFence(&_impl_storage,
+                                                                fence,
+                                                                value));
     }
 };
 
@@ -1033,9 +1033,9 @@ public:
                                                                   wis::Result&          out_result) const noexcept
     {
         wis::DX12CommandQueue queue;
-        out_result = convert_result(::wisDX12DeviceCreateCommandQueue(&_impl_storage,
-                                                                      static_cast<WisCommandQueueType>(type),
-                                                                      queue.GetStorage()));
+        out_result = convert_result_dx(::wisDX12DeviceCreateCommandQueue(&_impl_storage,
+                                                                         static_cast<WisCommandQueueType>(type),
+                                                                         queue.GetStorage()));
         return queue;
     }
     /**
@@ -1049,9 +1049,9 @@ public:
                                                                           wis::Result&          out_result) const noexcept
     {
         wis::DX12CommandAllocator allocator;
-        out_result = convert_result(::wisDX12DeviceCreateCommandAllocator(&_impl_storage,
-                                                                          static_cast<WisCommandQueueType>(type),
-                                                                          allocator.GetStorage()));
+        out_result = convert_result_dx(::wisDX12DeviceCreateCommandAllocator(&_impl_storage,
+                                                                             static_cast<WisCommandQueueType>(type),
+                                                                             allocator.GetStorage()));
         return allocator;
     }
     /**
@@ -1065,9 +1065,9 @@ public:
                                                     wis::Result&  out_result) const noexcept
     {
         wis::DX12Fence fence;
-        out_result = convert_result(::wisDX12DeviceCreateFence(&_impl_storage,
-                                                               initial_value,
-                                                               fence.GetStorage()));
+        out_result = convert_result_dx(::wisDX12DeviceCreateFence(&_impl_storage,
+                                                                  initial_value,
+                                                                  fence.GetStorage()));
         return fence;
     }
     /**
@@ -1079,7 +1079,7 @@ public:
     WIS_NODISCARD inline wis::DX12ResourceAllocator GetResourceAllocator(wis::Result& out_result) const noexcept
     {
         wis::DX12ResourceAllocator allocator;
-        out_result = convert_result(::wisDX12DeviceGetResourceAllocator(&_impl_storage, allocator.GetStorage()));
+        out_result = convert_result_dx(::wisDX12DeviceGetResourceAllocator(&_impl_storage, allocator.GetStorage()));
         return allocator;
     }
     /**
@@ -1093,9 +1093,9 @@ public:
                                                                     wis::Result&                  out_result) const noexcept
     {
         wis::DX12RootSignature layout;
-        out_result = convert_result(::wisDX12DeviceCreateRootSignature(&_impl_storage,
-                                                                       reinterpret_cast<const WisRootSignatureDesc*>(&desc),
-                                                                       layout.GetStorage()));
+        out_result = convert_result_dx(::wisDX12DeviceCreateRootSignature(&_impl_storage,
+                                                                          reinterpret_cast<const WisRootSignatureDesc*>(&desc),
+                                                                          layout.GetStorage()));
         return layout;
     }
     /**
@@ -1109,9 +1109,9 @@ public:
                                                                       wis::Result&                   out_result) const noexcept
     {
         wis::DX12DescriptorHeap heap;
-        out_result = convert_result(::wisDX12DeviceCreateDescriptorHeap(&_impl_storage,
-                                                                        reinterpret_cast<const WisDescriptorHeapDesc*>(&desc),
-                                                                        heap.GetStorage()));
+        out_result = convert_result_dx(::wisDX12DeviceCreateDescriptorHeap(&_impl_storage,
+                                                                           reinterpret_cast<const WisDescriptorHeapDesc*>(&desc),
+                                                                           heap.GetStorage()));
         return heap;
     }
     /**
@@ -1127,10 +1127,10 @@ public:
                                                           wis::Result&      out_result) const noexcept
     {
         wis::DX12ViewHeap heap;
-        out_result = convert_result(::wisDX12DeviceCreateViewHeap(&_impl_storage,
-                                                                  static_cast<WisViewHeapType>(type),
-                                                                  capacity,
-                                                                  heap.GetStorage()));
+        out_result = convert_result_dx(::wisDX12DeviceCreateViewHeap(&_impl_storage,
+                                                                     static_cast<WisViewHeapType>(type),
+                                                                     capacity,
+                                                                     heap.GetStorage()));
         return heap;
     }
     /**
@@ -1164,12 +1164,12 @@ public:
                                              wis::MutiWaitType         wait_for,
                                              std::uint64_t             timeout) const noexcept
     {
-        return convert_result(::wisDX12DeviceWaitForMultipleFences(&_impl_storage,
-                                                                   fences,
-                                                                   fence_values,
-                                                                   fence_count,
-                                                                   static_cast<WisMutiWaitType>(wait_for),
-                                                                   timeout));
+        return convert_result_dx(::wisDX12DeviceWaitForMultipleFences(&_impl_storage,
+                                                                      fences,
+                                                                      fence_values,
+                                                                      fence_count,
+                                                                      static_cast<WisMutiWaitType>(wait_for),
+                                                                      timeout));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Creates a pipeline cache for caching pipeline state objects.
@@ -1182,10 +1182,10 @@ public:
                                                                     wis::Result&                  out_result) const noexcept
     {
         wis::DX12PipelineCache cache;
-        out_result = convert_result(::wisDX12DeviceCreatePipelineCache(&_impl_storage,
-                                                                       reinterpret_cast<const uint8_t*>(initial_data.data()),
-                                                                       initial_data.size(),
-                                                                       cache.GetStorage()));
+        out_result = convert_result_dx(::wisDX12DeviceCreatePipelineCache(&_impl_storage,
+                                                                          reinterpret_cast<const uint8_t*>(initial_data.data()),
+                                                                          initial_data.size(),
+                                                                          cache.GetStorage()));
         return cache;
     }
     /**
@@ -1199,10 +1199,10 @@ public:
                                                       wis::Result&                  out_result) const noexcept
     {
         wis::DX12Shader shader;
-        out_result = convert_result(::wisDX12DeviceCreateShader(&_impl_storage,
-                                                                reinterpret_cast<const uint8_t*>(data.data()),
-                                                                data.size(),
-                                                                shader.GetStorage()));
+        out_result = convert_result_dx(::wisDX12DeviceCreateShader(&_impl_storage,
+                                                                   reinterpret_cast<const uint8_t*>(data.data()),
+                                                                   data.size(),
+                                                                   shader.GetStorage()));
         return shader;
     }
     /**
@@ -1216,9 +1216,9 @@ public:
                                                                  wis::Result&                        out_result) const noexcept
     {
         wis::DX12Pipeline pipeline;
-        out_result = convert_result(::wisDX12DeviceCreateComputePipeline(&_impl_storage,
-                                                                         reinterpret_cast<const WisDX12ComputePipelineDesc*>(&desc),
-                                                                         pipeline.GetStorage()));
+        out_result = convert_result_dx(::wisDX12DeviceCreateComputePipeline(&_impl_storage,
+                                                                            reinterpret_cast<const WisDX12ComputePipelineDesc*>(&desc),
+                                                                            pipeline.GetStorage()));
         return pipeline;
     }
     /**
@@ -1232,9 +1232,9 @@ public:
                                                                   wis::Result&                         out_result) const noexcept
     {
         wis::DX12Pipeline pipeline;
-        out_result = convert_result(::wisDX12DeviceCreateGraphicsPipeline(&_impl_storage,
-                                                                          reinterpret_cast<const WisDX12GraphicsPipelineDesc*>(&desc),
-                                                                          pipeline.GetStorage()));
+        out_result = convert_result_dx(::wisDX12DeviceCreateGraphicsPipeline(&_impl_storage,
+                                                                             reinterpret_cast<const WisDX12GraphicsPipelineDesc*>(&desc),
+                                                                             pipeline.GetStorage()));
         return pipeline;
     }
 };
@@ -1275,9 +1275,9 @@ public:
                                                          wis::Result& out_result) const noexcept
     {
         wis::AdapterDesc desc;
-        out_result = convert_result(::wisDX12AdapterQueryGetAdapterDesc(&_impl_storage,
-                                                                        index,
-                                                                        reinterpret_cast<WisAdapterDesc*>(&desc)));
+        out_result = convert_result_dx(::wisDX12AdapterQueryGetAdapterDesc(&_impl_storage,
+                                                                           index,
+                                                                           reinterpret_cast<WisAdapterDesc*>(&desc)));
         return desc;
     }
     /**
@@ -1293,10 +1293,10 @@ public:
                                                       wis::Result&                       out_result) const noexcept
     {
         wis::DX12Device device;
-        out_result = convert_result(::wisDX12AdapterQueryCreateDevice(&_impl_storage,
-                                                                      index,
-                                                                      reinterpret_cast<const WisDX12DeviceRequirements*>(&requirements),
-                                                                      device.GetStorage()));
+        out_result = convert_result_dx(::wisDX12AdapterQueryCreateDevice(&_impl_storage,
+                                                                         index,
+                                                                         reinterpret_cast<const WisDX12DeviceRequirements*>(&requirements),
+                                                                         device.GetStorage()));
         return device;
     }
 };
@@ -1328,9 +1328,9 @@ public:
                                                              wis::Result&           out_result) const noexcept
     {
         wis::DX12AdapterQuery query;
-        out_result = convert_result(::wisDX12InstanceQueryAdapters(&_impl_storage,
-                                                                   static_cast<WisAdapterPreference>(preference),
-                                                                   query.GetStorage()));
+        out_result = convert_result_dx(::wisDX12InstanceQueryAdapters(&_impl_storage,
+                                                                      static_cast<WisAdapterPreference>(preference),
+                                                                      query.GetStorage()));
         return query;
     }
 };
@@ -1348,10 +1348,10 @@ WIS_NODISCARD inline wis::DX12Instance DX12CreateInstance(const wis::DebugDesc* 
                                                           wis::Result&                                 out_result) noexcept
 {
     wis::DX12Instance instance;
-    out_result = convert_result(::wisDX12CreateInstance(reinterpret_cast<const WisDebugDesc*>(debug_desc),
-                                                        reinterpret_cast<WisDX12InstanceExtensionHeader**>(extensions.data()),
-                                                        extensions.size(),
-                                                        instance.GetStorage()));
+    out_result = convert_result_dx(::wisDX12CreateInstance(reinterpret_cast<const WisDebugDesc*>(debug_desc),
+                                                           reinterpret_cast<WisDX12InstanceExtensionHeader**>(extensions.data()),
+                                                           extensions.size(),
+                                                           instance.GetStorage()));
     return instance;
 }
 

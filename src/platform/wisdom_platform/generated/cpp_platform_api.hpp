@@ -3,6 +3,7 @@
 #define WISDOM_CPP_PLATFORM_API_HPP
 #ifdef __cplusplus
 #include <wisdom_platform/generated/c_platform_api.h>
+#include <wisdom/global/internal.hpp>
 #include <wisdom/bridge/span.hpp>
 
 #ifdef WISDOM_DX12
@@ -18,8 +19,6 @@ namespace wis {
  * @brief Provided by Wisdom 0.7.0. X11 platform using Xlib.
  *
  * */
-#ifdef WIS_USE_PLATFORM_XLIB
-
 /**
  * @brief Provided by Wisdom 0.7.0. X11 surface creation info. Uses opaque types to avoid Xlib.h inclusion in public headers.
  *
@@ -29,14 +28,41 @@ struct XlibWindowDesc {
     std::uint64_t window; ///< The X11 Window ID. Fits standard 32/64-bit window handles.
 };
 
-#endif // WIS_USE_PLATFORM_XLIB
+#if defined(WISDOM_VULKAN)
+
+struct VKXlibExtensionDeleter {
+    void operator()(WisVKXlibExtension* handle) noexcept
+    {
+        ::wisVKDestroyXlibExtension(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Extension for Xlib surface creation functions.
+ *
+ * */
+class VKXlibExtension : public wis::impl::Implements<wis::impl::VKXlibExtensionImpl, WisVKXlibExtension, wis::VKXlibExtensionDeleter>
+{
+public:
+    VKXlibExtension() noexcept
+        : ImplType(std::in_place)
+    {
+        ::wisVKInitXlibExtension(GetStorage());
+    }
+    // Operator & overload
+    wis::VKInstanceExtensionHeader* operator&() noexcept
+    {
+        return &GetMutableInternal().header;
+    }
+
+public:
+};
+
+#endif // defined(WISDOM_VULKAN)
 
 /**
  * @brief Provided by Wisdom 0.7.0. X11 platform using XCB.
  *
  * */
-#ifdef WIS_USE_PLATFORM_XCB
-
 /**
  * @brief Provided by Wisdom 0.7.0. X11 surface creation info for XCB. Uses opaque types to avoid XCB headers in public headers.
  *
@@ -46,14 +72,41 @@ struct XCBWindowDesc {
     std::uint32_t window; ///< The X11 Window ID. Fits standard 32/64-bit window handles.
 };
 
-#endif // WIS_USE_PLATFORM_XCB
+#if defined(WISDOM_VULKAN)
+
+struct VKXCBExtensionDeleter {
+    void operator()(WisVKXCBExtension* handle) noexcept
+    {
+        ::wisVKDestroyXCBExtension(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Extension for Xlib surface creation functions.
+ *
+ * */
+class VKXCBExtension : public wis::impl::Implements<wis::impl::VKXCBExtensionImpl, WisVKXCBExtension, wis::VKXCBExtensionDeleter>
+{
+public:
+    VKXCBExtension() noexcept
+        : ImplType(std::in_place)
+    {
+        ::wisVKInitXCBExtension(GetStorage());
+    }
+    // Operator & overload
+    wis::VKInstanceExtensionHeader* operator&() noexcept
+    {
+        return &GetMutableInternal().header;
+    }
+
+public:
+};
+
+#endif // defined(WISDOM_VULKAN)
 
 /**
  * @brief Provided by Wisdom 0.7.0. Wayland platform.
  *
  * */
-#ifdef WIS_USE_PLATFORM_WAYLAND
-
 /**
  * @brief Provided by Wisdom 0.7.0. Wayland surface creation info. Uses opaque types to avoid Wayland headers in public headers.
  *
@@ -63,14 +116,41 @@ struct WaylandWindowDesc {
     void* surface; ///< Pointer to the Wayland surface. Cast to wl_surface* internally.
 };
 
-#endif // WIS_USE_PLATFORM_WAYLAND
+#if defined(WISDOM_VULKAN)
+
+struct VKWaylandExtensionDeleter {
+    void operator()(WisVKWaylandExtension* handle) noexcept
+    {
+        ::wisVKDestroyWaylandExtension(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Extension for Xlib surface creation functions.
+ *
+ * */
+class VKWaylandExtension : public wis::impl::Implements<wis::impl::VKWaylandExtensionImpl, WisVKWaylandExtension, wis::VKWaylandExtensionDeleter>
+{
+public:
+    VKWaylandExtension() noexcept
+        : ImplType(std::in_place)
+    {
+        ::wisVKInitWaylandExtension(GetStorage());
+    }
+    // Operator & overload
+    wis::VKInstanceExtensionHeader* operator&() noexcept
+    {
+        return &GetMutableInternal().header;
+    }
+
+public:
+};
+
+#endif // defined(WISDOM_VULKAN)
 
 /**
  * @brief Provided by Wisdom 0.7.0. Standard Windows platform.
  *
  * */
-#ifdef WIS_USE_PLATFORM_WIN32
-
 /**
  * @brief Provided by Wisdom 0.7.0. Win32 surface creation info.
  *
@@ -80,14 +160,72 @@ struct Win32WindowDesc {
     void* hwnd; ///< HWND of the window. Cast to HWND internally.
 };
 
-#endif // WIS_USE_PLATFORM_WIN32
+#if defined(WISDOM_DX12)
+
+struct DX12Win32ExtensionDeleter {
+    void operator()(WisDX12Win32Extension* handle) noexcept
+    {
+        ::wisDX12DestroyWin32Extension(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Extension for Win32 surface creation functions.
+ *
+ * */
+class DX12Win32Extension : public wis::impl::Implements<wis::impl::DX12Win32ExtensionImpl, WisDX12Win32Extension, wis::DX12Win32ExtensionDeleter>
+{
+public:
+    DX12Win32Extension() noexcept
+        : ImplType(std::in_place)
+    {
+        ::wisDX12InitWin32Extension(GetStorage());
+    }
+    // Operator & overload
+    wis::DX12InstanceExtensionHeader* operator&() noexcept
+    {
+        return &GetMutableInternal().header;
+    }
+
+public:
+};
+
+#endif // defined(WISDOM_DX12)
+
+#if defined(WISDOM_VULKAN)
+
+struct VKWin32ExtensionDeleter {
+    void operator()(WisVKWin32Extension* handle) noexcept
+    {
+        ::wisVKDestroyWin32Extension(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Extension for Win32 surface creation functions.
+ *
+ * */
+class VKWin32Extension : public wis::impl::Implements<wis::impl::VKWin32ExtensionImpl, WisVKWin32Extension, wis::VKWin32ExtensionDeleter>
+{
+public:
+    VKWin32Extension() noexcept
+        : ImplType(std::in_place)
+    {
+        ::wisVKInitWin32Extension(GetStorage());
+    }
+    // Operator & overload
+    wis::VKInstanceExtensionHeader* operator&() noexcept
+    {
+        return &GetMutableInternal().header;
+    }
+
+public:
+};
+
+#endif // defined(WISDOM_VULKAN)
 
 /**
  * @brief Provided by Wisdom 0.7.0. Universal Windows Platform.
  *
  * */
-#ifdef WIS_USE_PLATFORM_UWP
-
 /**
  * @brief Provided by Wisdom 0.7.0. UWP surface creation info. Uses opaque types to avoid Windows Runtime headers in public headers.
  *
@@ -96,7 +234,36 @@ struct UWPWindowDesc {
     void* core_window; ///< Pointer to the UWP CoreWindow. Cast to ICoreWindow* internally.
 };
 
-#endif // WIS_USE_PLATFORM_UWP
+#if defined(WISDOM_DX12)
+
+struct DX12UWPExtensionDeleter {
+    void operator()(WisDX12UWPExtension* handle) noexcept
+    {
+        ::wisDX12DestroyUWPExtension(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Extension for UWP surface creation functions.
+ *
+ * */
+class DX12UWPExtension : public wis::impl::Implements<wis::impl::DX12UWPExtensionImpl, WisDX12UWPExtension, wis::DX12UWPExtensionDeleter>
+{
+public:
+    DX12UWPExtension() noexcept
+        : ImplType(std::in_place)
+    {
+        ::wisDX12InitUWPExtension(GetStorage());
+    }
+    // Operator & overload
+    wis::DX12InstanceExtensionHeader* operator&() noexcept
+    {
+        return &GetMutableInternal().header;
+    }
+
+public:
+};
+
+#endif // defined(WISDOM_DX12)
 
 } // namespace wis
 #endif // __cplusplus

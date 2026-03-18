@@ -36,31 +36,37 @@ function(wisdom_detect_platform)
     # Detect Vulkan
     if (WISDOM_VULKAN_HEADER_PATH)
         set(WISDOM_VULKAN TRUE CACHE BOOL "Vulkan support detected" FORCE)
+        set(WISDOM_VULKAN_VERSION ${Vulkan_VERSION} CACHE INTERNAL "Vulkan version detected" FORCE)
 
         # Create an imported target for Vulkan
         add_library(Vulkan::Headers INTERFACE IMPORTED)
         set_target_properties(Vulkan::Headers PROPERTIES
                 INTERFACE_INCLUDE_DIRECTORIES "${WISDOM_VULKAN_HEADER_PATH}"
         )
-    else ()
-        # Help find_package by using VULKAN_SDK environment variable if set
-        if (DEFINED ENV{VULKAN_SDK} AND NOT Vulkan_FOUND)
-            set(VULKAN_SDK_PATH "$ENV{VULKAN_SDK}")
-            message(STATUS "VULKAN_SDK environment variable found: ${VULKAN_SDK_PATH}")
+    elseif (DEFINED ENV{VULKAN_SDK} AND NOT Vulkan_FOUND)
+        set(VULKAN_SDK_PATH "$ENV{VULKAN_SDK}")
+        message(STATUS "VULKAN_SDK environment variable found: ${VULKAN_SDK_PATH}")
+        
+        if (EXISTS "${VULKAN_SDK_PATH}/include/vulkan/vulkan.h")
+            set(WISDOM_VULKAN TRUE CACHE BOOL "Vulkan support detected" FORCE)
+            message(STATUS "Vulkan headers found in VULKAN_SDK path")
+        else ()
+            set(WISDOM_VULKAN FALSE CACHE BOOL "Vulkan support detected" FORCE)
+            message(WARNING "Vulkan headers not found in VULKAN_SDK path: ${VULKAN_SDK_PATH}/include/vulkan/vulkan.h")
+            message(WARNING "Please verify that VULKAN_SDK is set correctly and contains the Vulkan SDK")
+            return()
+        endif()
 
-            # Add hints for find_package
-            list(APPEND CMAKE_PREFIX_PATH "${VULKAN_SDK_PATH}")
-
-            # On Linux, the SDK structure might be different
-            if (UNIX AND NOT APPLE)
-                list(APPEND CMAKE_PREFIX_PATH "${VULKAN_SDK_PATH}/x86_64")
-            endif ()
-        endif ()
-
+        add_library(Vulkan::Headers INTERFACE IMPORTED)
+        set_target_properties(Vulkan::Headers PROPERTIES
+                INTERFACE_INCLUDE_DIRECTORIES "${VULKAN_SDK_PATH}/include"
+        )
+    else()
         # Try to find Vulkan
         find_package(Vulkan QUIET)
         if (Vulkan_FOUND)
             set(WISDOM_VULKAN TRUE CACHE BOOL "Vulkan support detected" FORCE)
+            set(WISDOM_VULKAN_VERSION ${Vulkan_VERSION} CACHE INTERNAL "Vulkan version detected" FORCE)
             message(STATUS "Vulkan found: ${Vulkan_INCLUDE_DIRS}")
         else ()
             set(WISDOM_VULKAN FALSE CACHE BOOL "Vulkan support detected" FORCE)

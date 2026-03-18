@@ -4,6 +4,7 @@
 #error "This header requires C++"
 #endif // __cplusplus
 
+#define WISDOM_BUILD_BINARIES 1
 #include <wisdom/dx12/dx12_types.hpp>
 
 namespace wis {
@@ -13,11 +14,15 @@ namespace detail {
 } // namespace detail
 
 namespace impl {
-
 struct DX12Win32ExtensionImpl {
-    ID3D12Device* device = nullptr;
+    DX12InstanceExtensionHeader header;
+    IDXGIFactory6*              factory;
 };
 
+struct DX12UWPExtensionImpl {
+    DX12InstanceExtensionHeader header;
+    IDXGIFactory6*              factory;
+};
 } // namespace impl
 } // namespace wis
 
@@ -28,6 +33,7 @@ struct DX12Win32ExtensionImpl {
 #endif // !WIS_HAS_CPP20
 
 #include "dx12_platform_win32.cpp"
+#include "dx12_platform_uwp.cpp"
 
 #endif // WISDOM_BUILD_BINARIES
 #endif // WIS_DX12_PLATFORM_TYPES_HPP

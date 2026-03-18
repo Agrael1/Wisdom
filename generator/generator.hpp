@@ -91,6 +91,8 @@ public:
     std::string MakeCPPDelegate(const WisFunction& func, DocKind kind = DocKind::Full);
     std::string MakeCPPConstant(const WisConstant& c, DocKind kind = DocKind::Full);
     std::string MakeCPPPlatform(const WisPlatform& p, DocKind kind = DocKind::Full);
+    std::string MakeCIndependentPlatform(const WisPlatform& p, std::string_view impl = "", DocKind kind = DocKind::Full);
+    std::string MakeCPPIndependentPlatform(const WisPlatform& p, std::string_view impl = "", DocKind kind = DocKind::Full);
 
     // Write
     void WriteCAPI(std::filesystem::path path);
@@ -101,6 +103,8 @@ public:
     void WriteCPPIndependentAPI(std::filesystem::path path);
     void WriteCPlatformAPI(std::filesystem::path path);
     void WriteCPPPlatformAPI(std::filesystem::path path);
+    void WriteCIndependentPlatformAPI(std::filesystem::path path);
+    void WriteCPPIndependentPlatformAPI(std::filesystem::path path);
     void WriteConversions(std::filesystem::path path);
     void WriteEnumDocumentation(std::filesystem::path enum_output_path);
     void WriteBitmaskDocumentation(std::filesystem::path bitmask_output_path);
@@ -345,6 +349,7 @@ private:
     std::vector<std::string_view>      platforms_in_order;
     std::vector<std::filesystem::path> files;
     std::vector<std::string>           destructors;
+    std::vector<std::string>           creators;
 
     // Standard type translations
     const std::unordered_map<std::string_view, std::string_view> standard_types{

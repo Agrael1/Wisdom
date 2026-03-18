@@ -1,7 +1,7 @@
 #ifndef WIS_INTERNAL_HPP
 #define WIS_INTERNAL_HPP
 #ifdef __cplusplus
-#include <type_traits>
+#include <wisdom/util/allocation.hpp>
 #include <cstdio>
 #include <cstring>
 
@@ -25,6 +25,15 @@ public:
     {
     }
 
+    /// @brief Default constructor, zeros the storage
+    template<typename... Args>
+    Implements(std::in_place_t in_place, Args&&... args) noexcept
+    {
+        (void)in_place;
+        // explicitly start life of Impl in our storage
+        new (std::addressof(_impl_storage)) Impl(std::forward<Args>(args)...);
+    }
+
     // Disable copy
     Implements(const Implements&)            = delete;
     Implements& operator=(const Implements&) = delete;
@@ -36,7 +45,7 @@ public:
         auto* impl = new (std::addressof(_impl_storage)) Impl();
 
         // simple copy of implementation
-        *impl = std::move(*reinterpret_cast<Impl*>(std::addressof(other._impl_storage)));
+        std::memcpy(impl, std::addressof(other._impl_storage), sizeof(Impl));
 
         // zero out other storage
         other._impl_storage = {};
@@ -54,7 +63,7 @@ public:
             auto* impl = new (std::addressof(_impl_storage)) Impl();
 
             // simple copy of implementation
-            *impl = std::move(*reinterpret_cast<Impl*>(std::addressof(other._impl_storage)));
+            std::memcpy(impl, std::addressof(other._impl_storage), sizeof(Impl));
 
             // zero out other storage
             other._impl_storage = {};
@@ -73,14 +82,14 @@ public:
     /// @return Const reference to the internal implementation
     [[nodiscard]] const Impl& GetInternal() const noexcept
     {
-        return *reinterpret_cast<const Impl*>(std::addressof(_impl_storage));
+        return wis::from_handle_ref<const Impl>(std::addressof(_impl_storage));
     }
 
     /// @brief Get the mutable internal implementation
     /// @return Reference to the internal implementation
     [[nodiscard]] Impl& GetMutableInternal() noexcept
     {
-        return *reinterpret_cast<Impl*>(std::addressof(_impl_storage));
+        return wis::from_handle_ref<Impl>(std::addressof(_impl_storage));
     }
 
     /// @brief Get the storage pointer
