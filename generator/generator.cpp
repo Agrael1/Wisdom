@@ -16,7 +16,73 @@ void Generator::ParseFile(std::filesystem::path file)
         throw std::runtime_error("Invalid XML file: missing <registry> root element");
     }
 
-    ParseFile(doc);
+    bool has_modules = false;
+    for (auto* module_node = root->FirstChildElement("module"); module_node;
+         module_node      = module_node->NextSiblingElement("module")) {
+        has_modules = true;
+
+        auto* module_attr   = module_node->FindAttribute("name");
+        auto* version_attr  = module_node->FindAttribute("version");
+        auto* base_dir_attr = module_node->FindAttribute("base_dir");
+        auto* doc_dir_attr  = module_node->FindAttribute("doc_dir");
+        if (!module_attr || !version_attr || !base_dir_attr || !doc_dir_attr) {
+            throw std::runtime_error("Module metadata is missing. Required attributes: name, version, base_dir, doc_dir.");
+        }
+
+        auto module_name = std::string_view(module_attr->Value());
+        auto [it, inserted] = module_map.try_emplace(module_name);
+        if (inserted) {
+            modules_in_order.emplace_back(module_name);
+        }
+
+        auto& module   = it->second;
+        module.name    = module_name;
+        module.version = version_attr->Value();
+        module.gen_path = base_dir_attr->Value();
+        module.doc_path = doc_dir_attr->Value();
+        if (auto* backend = module_node->FindAttribute("backend")) {
+            module.backend = ParseBackend(backend->Value());
+        }
+        if (auto* os = module_node->FindAttribute("os")) {
+            module.os = GetImplOs(os->Value());
+        }
+
+        active_module_name = module_name;
+        ParseRegistrySections(module_node);
+    }
+
+    if (has_modules) {
+        return;
+    }
+
+    auto* module_attr   = root->FindAttribute("module");
+    auto* version_attr  = root->FindAttribute("version");
+    auto* base_dir_attr = root->FindAttribute("base_dir");
+    auto* doc_dir_attr  = root->FindAttribute("doc_dir");
+    if (!module_attr || !version_attr || !base_dir_attr || !doc_dir_attr) {
+        throw std::runtime_error("Top-level registry metadata is missing. Required attributes: module, version, base_dir, doc_dir.");
+    }
+
+    auto module_name = std::string_view(module_attr->Value());
+    auto [it, inserted] = module_map.try_emplace(module_name);
+    if (inserted) {
+        modules_in_order.emplace_back(module_name);
+    }
+
+    auto& module   = it->second;
+    module.name    = module_name;
+    module.version = version_attr->Value();
+    module.gen_path = base_dir_attr->Value();
+    module.doc_path = doc_dir_attr->Value();
+    if (auto* backend = root->FindAttribute("backend")) {
+        module.backend = ParseBackend(backend->Value());
+    }
+    if (auto* os = root->FindAttribute("os")) {
+        module.os = GetImplOs(os->Value());
+    }
+
+    active_module_name = module_name;
+    ParseRegistrySections(root);
 }
 
 void Generator::ParsePlatformFile(std::filesystem::path file)
@@ -30,11 +96,80 @@ void Generator::ParsePlatformFile(std::filesystem::path file)
         throw std::runtime_error("Invalid XML file: missing <registry> root element");
     }
 
-    if (auto* handles = root->FirstChildElement("platforms")) {
-        ParsePlatforms(handles);
+    bool has_modules      = false;
+    bool selected_platform = false;
+    for (auto* module_node = root->FirstChildElement("module"); module_node;
+         module_node      = module_node->NextSiblingElement("module")) {
+        has_modules = true;
+
+        auto* module_attr   = module_node->FindAttribute("name");
+        auto* version_attr  = module_node->FindAttribute("version");
+        auto* base_dir_attr = module_node->FindAttribute("base_dir");
+        auto* doc_dir_attr  = module_node->FindAttribute("doc_dir");
+        if (!module_attr || !version_attr || !base_dir_attr || !doc_dir_attr) {
+            throw std::runtime_error("Module metadata is missing. Required attributes: name, version, base_dir, doc_dir.");
+        }
+
+        auto module_name = std::string_view(module_attr->Value());
+        auto [it, inserted] = module_map.try_emplace(module_name);
+        if (inserted) {
+            modules_in_order.emplace_back(module_name);
+        }
+
+        auto& module   = it->second;
+        module.name    = module_name;
+        module.version = version_attr->Value();
+        module.gen_path = base_dir_attr->Value();
+        module.doc_path = doc_dir_attr->Value();
+        if (auto* backend = module_node->FindAttribute("backend")) {
+            module.backend = ParseBackend(backend->Value());
+        }
+        if (auto* os = module_node->FindAttribute("os")) {
+            module.os = GetImplOs(os->Value());
+        }
+
+        active_module_name = module_name;
+        if (!selected_platform) {
+            platform_module_name = module_name;
+            selected_platform    = true;
+        }
+
+        ParseRegistrySections(module_node);
     }
 
-    ParseFile(doc);
+    if (has_modules) {
+        return;
+    }
+
+    auto* module_attr   = root->FindAttribute("module");
+    auto* version_attr  = root->FindAttribute("version");
+    auto* base_dir_attr = root->FindAttribute("base_dir");
+    auto* doc_dir_attr  = root->FindAttribute("doc_dir");
+    if (!module_attr || !version_attr || !base_dir_attr || !doc_dir_attr) {
+        throw std::runtime_error("Top-level registry metadata is missing. Required attributes: module, version, base_dir, doc_dir.");
+    }
+
+    auto module_name = std::string_view(module_attr->Value());
+    auto [it, inserted] = module_map.try_emplace(module_name);
+    if (inserted) {
+        modules_in_order.emplace_back(module_name);
+    }
+
+    auto& module   = it->second;
+    module.name    = module_name;
+    module.version = version_attr->Value();
+    module.gen_path = base_dir_attr->Value();
+    module.doc_path = doc_dir_attr->Value();
+    if (auto* backend = root->FindAttribute("backend")) {
+        module.backend = ParseBackend(backend->Value());
+    }
+    if (auto* os = root->FindAttribute("os")) {
+        module.os = GetImplOs(os->Value());
+    }
+
+    active_module_name   = module_name;
+    platform_module_name = module_name;
+    ParseRegistrySections(root);
 }
 
 void Generator::WriteMainAPI()
@@ -64,13 +199,28 @@ void Generator::WritePlatformAPI()
     WriteCPPIndependentPlatformAPI(independent_path);
 }
 
-void Generator::WriteMainAPIDoc()
+void Generator::WriteModuleAPIDoc(std::string_view module_name)
 {
-    std::filesystem::path doc_output_path    = doc_output_dir;
-    std::filesystem::path enum_output_path   = doc_output_path / "wisdom/enum";
-    std::filesystem::path struct_output_path = doc_output_path / "wisdom/struct";
-    std::filesystem::path handle_output_path = doc_output_path / "wisdom/handle";
-    std::filesystem::path func_output_path   = doc_output_path / "wisdom/func";
+    if (module_name.empty()) {
+        module_name = active_module_name;
+    }
+    if (module_name.empty()) {
+        throw std::runtime_error("Module name for documentation output is empty.");
+    }
+
+    auto it = module_map.find(module_name);
+    if (it == module_map.end()) {
+        throw std::runtime_error("Module metadata is not available for documentation output.");
+    }
+
+    auto previous_module  = active_module_name;
+    active_module_name    = module_name;
+
+    std::filesystem::path module_doc_output_path = std::filesystem::path(doc_output_dir) / it->second.doc_path;
+    std::filesystem::path enum_output_path       = module_doc_output_path / "enum";
+    std::filesystem::path struct_output_path     = module_doc_output_path / "struct";
+    std::filesystem::path handle_output_path     = module_doc_output_path / "handle";
+    std::filesystem::path func_output_path       = module_doc_output_path / "func";
 
     WriteEnumDocumentation(enum_output_path);
     WriteBitmaskDocumentation(enum_output_path);
@@ -79,13 +229,35 @@ void Generator::WriteMainAPIDoc()
     WriteHandleDocumentation(handle_output_path);
     WriteFunctionDocumentation(func_output_path);
     WriteDelegateDocumentation(func_output_path);
-    WriteConstantDocumentation(doc_output_path / "wisdom");
+    WriteConstantDocumentation(module_doc_output_path);
+
+    active_module_name = previous_module;
 }
 
 //-----------------------------------------------------------------------------
 void Generator::ParseFile(tinyxml2::XMLDocument& doc)
 {
     auto* root = doc.FirstChildElement("registry");
+    if (!root) {
+        throw std::runtime_error("Invalid XML file: missing <registry> root element");
+    }
+
+    bool has_modules = false;
+    for (auto* module_node = root->FirstChildElement("module"); module_node;
+         module_node      = module_node->NextSiblingElement("module")) {
+        has_modules = true;
+        ParseRegistrySections(module_node);
+    }
+
+    if (has_modules) {
+        return;
+    }
+
+    ParseRegistrySections(root);
+}
+
+void Generator::ParseRegistrySections(tinyxml2::XMLElement* root)
+{
     if (auto* include = root->FirstChildElement("includes")) {
         ParseIncludes(include);
     }
@@ -122,7 +294,14 @@ void Generator::ParseIncludes(tinyxml2::XMLElement* includes)
         if (std::filesystem::exists(absolute) && !documents.contains(absolute)) {
             auto& doc = documents[absolute];
             doc.LoadFile(absolute.string().c_str());
-            ParseFile(doc);
+            auto* include_root = doc.FirstChildElement("registry");
+            if (!include_root) {
+                throw std::runtime_error("Invalid included XML file: missing <registry> root element");
+            }
+            if (include_root->FirstChildElement("module")) {
+                throw std::runtime_error("Included XML files cannot contain <module> nodes.");
+            }
+            ParseRegistrySections(include_root);
         }
     }
 }
@@ -343,27 +522,27 @@ extern "C" {
     // Write handles
     for (auto& handle_name : handles_in_order) {
         auto& handle_def = handle_map[handle_name];
-        file_dx << MakeCHandle(handle_def, "dx");
+        file_dx << MakeCHandle(handle_def, Backend::DX12);
         file_dx << "\n";
-        file_vk << MakeCHandle(handle_def, "vk");
+        file_vk << MakeCHandle(handle_def, Backend::Vulkan);
         file_vk << "\n";
     }
 
     // Write variants
     for (auto& variant_name : variants_in_order) {
         auto& variant_def = variant_map[variant_name];
-        file_dx << MakeCVariant(variant_def, "dx");
+        file_dx << MakeCVariant(variant_def, Backend::DX12);
         file_dx << "\n";
-        file_vk << MakeCVariant(variant_def, "vk");
+        file_vk << MakeCVariant(variant_def, Backend::Vulkan);
         file_vk << "\n";
     }
 
     // Write functions
     for (auto& func_name : functions_in_order) {
         auto& func_def = function_map[func_name];
-        file_dx << MakeCFunctionDecl(func_def, "dx", "WISDOM_API ");
+        file_dx << MakeCFunctionDecl(func_def, Backend::DX12, "WISDOM_API ");
         file_dx << "\n";
-        file_vk << MakeCFunctionDecl(func_def, "vk", "WISDOM_API ");
+        file_vk << MakeCFunctionDecl(func_def, Backend::Vulkan, "WISDOM_API ");
         file_vk << "\n";
     }
 
@@ -412,8 +591,8 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 
 #define WIS_SHADER_INTERMEDIATE_DXIL 1
 )";
-    constexpr static auto impl_dx = GetImplString(ImplementedFor::DX12);
-    constexpr static auto impl_vk = GetImplString(ImplementedFor::Vulkan);
+    constexpr static auto impl_dx = GetBackendSuffix(Backend::DX12);
+    constexpr static auto impl_vk = GetBackendSuffix(Backend::Vulkan);
 
     file_w << "\n\n//==============================================================\n"
               "// Handles\n"
@@ -422,14 +601,14 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
     // Write handles
     for (auto& handle_name : handles_in_order) {
         auto& handle_def = handle_map[handle_name];
-        file_w << wis::format("typedef struct {} {};\n", GetCFullTypename(handle_def.name, impl_dx), GetCFullTypename(handle_def.name));
+        file_w << wis::format("typedef struct {} {};\n", GetCFullTypename(handle_def.name, Backend::DX12), GetCFullTypename(handle_def.name));
     }
 
     // Write Views for handles
     for (auto& handle_name : views_in_order) {
         auto& handle_def = handle_map[handle_name];
-        if (handle_def.GetViewSize(ImplementedFor::DX12) > 0) {
-            file_w << wis::format("typedef struct {}View {}View;\n", GetCFullTypename(handle_def.name, impl_dx), GetCFullTypename(handle_def.name));
+        if (handle_def.GetViewSize(Backend::DX12) > 0) {
+            file_w << wis::format("typedef struct {}View {}View;\n", GetCFullTypename(handle_def.name, Backend::DX12), GetCFullTypename(handle_def.name));
         }
     }
 
@@ -440,7 +619,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
     // Write variants
     for (auto& variant_name : variants_in_order) {
         auto& variant_def = variant_map[variant_name];
-        file_w << wis::format("typedef struct {} {};\n", GetCFullTypename(variant_def.name, impl_dx), GetCFullTypename(variant_def.name));
+        file_w << wis::format("typedef struct {} {};\n", GetCFullTypename(variant_def.name, Backend::DX12), GetCFullTypename(variant_def.name));
     }
 
     file_w << "\n\n//==============================================================\n"
@@ -458,7 +637,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
     // Write functions that convert handles to views
     for (auto& handle_name : views_in_order) {
         auto& handle_def = handle_map[handle_name];
-        if (handle_def.GetViewSize(ImplementedFor::DX12) > 0) {
+        if (handle_def.GetViewSize(Backend::DX12) > 0) {
             file_w << wis::format("#define {} {}\n",
                                   wis::format("wisGet{}View", handle_def.name),
                                   wis::format("wisGet{}{}View", impl_dx, handle_def.name));
@@ -471,9 +650,9 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 )";
     for (auto& handle_name : views_in_order) {
         auto& handle_def = handle_map[handle_name];
-        if (handle_def.GetViewSize(ImplementedFor::DX12) > 0) {
-            file_w << wis::format("const {}*: wisGet{}{}View, \\\n", GetCFullTypename(handle_def.name, impl_dx), impl_dx, handle_def.name);
-            file_w << wis::format("{}*: wisGet{}{}View, \\\n", GetCFullTypename(handle_def.name, impl_dx), impl_dx, handle_def.name);
+        if (handle_def.GetViewSize(Backend::DX12) > 0) {
+            file_w << wis::format("const {}*: wisGet{}{}View, \\\n", GetCFullTypename(handle_def.name, Backend::DX12), impl_dx, handle_def.name);
+            file_w << wis::format("{}*: wisGet{}{}View, \\\n", GetCFullTypename(handle_def.name, Backend::DX12), impl_dx, handle_def.name);
         }
     }
     file_w << "default: (void)0 \\\n)(handle)";
@@ -492,14 +671,14 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
     // Write handles
     for (auto& handle_name : handles_in_order) {
         auto& handle_def = handle_map[handle_name];
-        file_w << wis::format("typedef struct {} {};\n", GetCFullTypename(handle_def.name, impl_vk), GetCFullTypename(handle_def.name));
+        file_w << wis::format("typedef struct {} {};\n", GetCFullTypename(handle_def.name, Backend::Vulkan), GetCFullTypename(handle_def.name));
     }
 
     // Write Views for handles
     for (auto& handle_name : views_in_order) {
         auto& handle_def = handle_map[handle_name];
-        if (handle_def.GetViewSize(ImplementedFor::Vulkan) > 0) {
-            file_w << wis::format("typedef struct {}View {}View;\n", GetCFullTypename(handle_def.name, impl_vk), GetCFullTypename(handle_def.name));
+        if (handle_def.GetViewSize(Backend::Vulkan) > 0) {
+            file_w << wis::format("typedef struct {}View {}View;\n", GetCFullTypename(handle_def.name, Backend::Vulkan), GetCFullTypename(handle_def.name));
         }
     }
 
@@ -510,7 +689,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
     // Write variants
     for (auto& variant_name : variants_in_order) {
         auto& variant_def = variant_map[variant_name];
-        file_w << wis::format("typedef struct {} {};\n", GetCFullTypename(variant_def.name, impl_vk), GetCFullTypename(variant_def.name));
+        file_w << wis::format("typedef struct {} {};\n", GetCFullTypename(variant_def.name, Backend::Vulkan), GetCFullTypename(variant_def.name));
     }
 
     file_w << "\n\n//==============================================================\n"
@@ -528,7 +707,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
     // Write functions that convert handles to views
     for (auto& handle_name : views_in_order) {
         auto& handle_def = handle_map[handle_name];
-        if (handle_def.GetViewSize(ImplementedFor::Vulkan) > 0) {
+        if (handle_def.GetViewSize(Backend::Vulkan) > 0) {
             file_w << wis::format("#define {} {}\n",
                                   wis::format("wisGet{}View", handle_def.name),
                                   wis::format("wisGet{}{}View", impl_vk, handle_def.name));
@@ -541,9 +720,9 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 )";
     for (auto& handle_name : views_in_order) {
         auto& handle_def = handle_map[handle_name];
-        if (handle_def.GetViewSize(ImplementedFor::Vulkan) > 0) {
-            file_w << wis::format("const {}*: wisGet{}{}View, \\\n", GetCFullTypename(handle_def.name, impl_vk), impl_vk, handle_def.name);
-            file_w << wis::format("{}*: wisGet{}{}View, \\\n", GetCFullTypename(handle_def.name, impl_vk), impl_vk, handle_def.name);
+        if (handle_def.GetViewSize(Backend::Vulkan) > 0) {
+            file_w << wis::format("const {}*: wisGet{}{}View, \\\n", GetCFullTypename(handle_def.name, Backend::Vulkan), impl_vk, handle_def.name);
+            file_w << wis::format("{}*: wisGet{}{}View, \\\n", GetCFullTypename(handle_def.name, Backend::Vulkan), impl_vk, handle_def.name);
         }
     }
     file_w << R"(default: (void)0 \ 
@@ -612,12 +791,12 @@ namespace wis {
     // Write Views for handles
     for (auto& handle_name : views_in_order) {
         auto& handle_def = handle_map[handle_name];
-        if (handle_def.GetViewSize(ImplementedFor::DX12) > 0) {
-            file_dx << MakeCPPView(handle_def, "dx");
+        if (handle_def.GetViewSize(Backend::DX12) > 0) {
+            file_dx << MakeCPPView(handle_def, Backend::DX12);
             file_dx << "\n";
         }
-        if (handle_def.GetViewSize(ImplementedFor::Vulkan) > 0) {
-            file_vk << MakeCPPView(handle_def, "vk");
+        if (handle_def.GetViewSize(Backend::Vulkan) > 0) {
+            file_vk << MakeCPPView(handle_def, Backend::Vulkan);
             file_vk << "\n";
         }
     }
@@ -625,27 +804,27 @@ namespace wis {
     // Write variants
     for (auto& variant_name : variants_in_order) {
         auto& variant_def = variant_map[variant_name];
-        file_dx << MakeCPPVariant(variant_def, "dx");
+        file_dx << MakeCPPVariant(variant_def, Backend::DX12);
         file_dx << "\n";
-        file_vk << MakeCPPVariant(variant_def, "vk");
+        file_vk << MakeCPPVariant(variant_def, Backend::Vulkan);
         file_vk << "\n";
     }
 
     // Write handles
     for (auto& handle_name : handles_in_order) {
         auto& handle_def = handle_map[handle_name];
-        file_dx << MakeCPPHandle(handle_def, "dx");
+        file_dx << MakeCPPHandle(handle_def, Backend::DX12);
         file_dx << "\n";
-        file_vk << MakeCPPHandle(handle_def, "vk");
+        file_vk << MakeCPPHandle(handle_def, Backend::Vulkan);
         file_vk << "\n";
     }
 
     // Write functions
     for (auto& func_name : free_functions_in_order) {
         auto& func_def = function_map[func_name];
-        file_dx << MakeCPPFunctionImpl(func_def, "dx", "inline ");
+        file_dx << MakeCPPFunctionImpl(func_def, Backend::DX12, "inline ");
         file_dx << "\n";
-        file_vk << MakeCPPFunctionImpl(func_def, "vk", "inline ");
+        file_vk << MakeCPPFunctionImpl(func_def, Backend::Vulkan, "inline ");
         file_vk << "\n";
     }
 
@@ -691,9 +870,6 @@ void Generator::WriteCPPIndependentAPI(std::filesystem::path dir)
 namespace wis {
 static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderIntermediate::DXIL;
 )";
-    constexpr static auto impl_dx = GetImplString(ImplementedFor::DX12);
-    constexpr static auto impl_vk = GetImplString(ImplementedFor::Vulkan);
-
     file_w << "\n\n//==============================================================\n"
               "// Handles\n"
               "//==============================================================\n\n";
@@ -701,14 +877,14 @@ static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderInterm
     // Write handles
     for (auto& handle_name : handles_in_order) {
         auto& handle_def = handle_map[handle_name];
-        file_w << wis::format("using {} = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, impl_dx));
+        file_w << wis::format("using {} = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, Backend::DX12));
     }
 
     // Write Views for handles
     for (auto& handle_name : views_in_order) {
         auto& handle_def = handle_map[handle_name];
-        if (handle_def.GetViewSize(ImplementedFor::DX12) > 0) {
-            file_w << wis::format("using {}View = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, impl_dx) + "View");
+        if (handle_def.GetViewSize(Backend::DX12) > 0) {
+        file_w << wis::format("using {}View = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, Backend::DX12) + "View");
         }
     }
 
@@ -719,7 +895,7 @@ static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderInterm
     // Write variants
     for (auto& variant_name : variants_in_order) {
         auto& variant_def = variant_map[variant_name];
-        file_w << wis::format("using {} = {};\n", variant_def.name, GetCPPFullTypename(variant_def.name, impl_dx));
+        file_w << wis::format("using {} = {};\n", variant_def.name, GetCPPFullTypename(variant_def.name, Backend::DX12));
     }
 
     file_w << "\n\n//==============================================================\n"
@@ -729,7 +905,7 @@ static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderInterm
     // Write functions
     for (auto& func_name : free_functions_in_order) {
         auto& func_def = function_map[func_name];
-        file_w << MakeCPPFunctionImpl(func_def, "dx", "inline ", DocKind::Full, ProtoType::Universal);
+        file_w << MakeCPPFunctionImpl(func_def, Backend::DX12, "inline ", DocKind::Full, ProtoType::Universal);
         file_w << '\n';
     }
 
@@ -750,14 +926,14 @@ static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderInterm
     // Write handles
     for (auto& handle_name : handles_in_order) {
         auto& handle_def = handle_map[handle_name];
-        file_w << wis::format("using {} = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, impl_vk));
+        file_w << wis::format("using {} = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, Backend::Vulkan));
     }
 
     // Write Views for handles
     for (auto& handle_name : views_in_order) {
         auto& handle_def = handle_map[handle_name];
-        if (handle_def.GetViewSize(ImplementedFor::Vulkan) > 0) {
-            file_w << wis::format("using {}View = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, impl_vk) + "View");
+        if (handle_def.GetViewSize(Backend::Vulkan) > 0) {
+        file_w << wis::format("using {}View = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, Backend::Vulkan) + "View");
         }
     }
 
@@ -768,7 +944,7 @@ static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderInterm
     // Write variants
     for (auto& variant_name : variants_in_order) {
         auto& variant_def = variant_map[variant_name];
-        file_w << wis::format("using {} = {};\n", variant_def.name, GetCPPFullTypename(variant_def.name, impl_vk));
+        file_w << wis::format("using {} = {};\n", variant_def.name, GetCPPFullTypename(variant_def.name, Backend::Vulkan));
     }
 
     file_w << "\n\n//==============================================================\n"
@@ -778,7 +954,7 @@ static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderInterm
     // Write functions
     for (auto& func_name : free_functions_in_order) {
         auto& func_def = function_map[func_name];
-        file_w << MakeCPPFunctionImpl(func_def, "vk", "inline ", DocKind::Full, ProtoType::Universal);
+        file_w << MakeCPPFunctionImpl(func_def, Backend::Vulkan, "inline ", DocKind::Full, ProtoType::Universal);
         file_w << '\n';
     }
 
@@ -821,12 +997,13 @@ extern "C" {
 #endif // __cplusplus
 )";
 
-    // Write platforms
-    for (auto& platform_name : platforms_in_order) {
-        auto& platform_def = platform_map[platform_name];
-        file << MakeCPlatform(platform_def);
-        file << "\n";
+    if (!module_map.contains(platform_module_name)) {
+        throw std::runtime_error("Platform module metadata is not available. ParsePlatformFile must be called first.");
     }
+
+    auto& platform_module = module_map[platform_module_name];
+    file << MakeCPlatform(platform_module);
+    file << "\n";
 
     // Write footer
     file << R"(
@@ -864,12 +1041,13 @@ void Generator::WriteCPPPlatformAPI(std::filesystem::path path)
 namespace wis {
 )";
 
-    // Write platforms
-    for (auto& platform_name : platforms_in_order) {
-        auto& platform_def = platform_map[platform_name];
-        file << MakeCPPPlatform(platform_def);
-        file << "\n";
+    if (!module_map.contains(platform_module_name)) {
+        throw std::runtime_error("Platform module metadata is not available. ParsePlatformFile must be called first.");
     }
+
+    auto& platform_module = module_map[platform_module_name];
+    file << MakeCPPPlatform(platform_module);
+    file << "\n";
 
     // Write footer
     file << R"(
@@ -911,25 +1089,21 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 #if defined(WISDOM_DX12) && !FORCEVK_SWITCH
 
 )";
-    constexpr static auto impl_dx = GetImplString(ImplementedFor::DX12);
-    constexpr static auto impl_vk = GetImplString(ImplementedFor::Vulkan);
-
-    for (auto& platform_name : platforms_in_order) {
-        auto& platform_def = platform_map[platform_name];
-        file_w << MakeCIndependentPlatform(platform_def, impl_dx);
-        file_w << "\n";
+    if (!module_map.contains(platform_module_name)) {
+        throw std::runtime_error("Platform module metadata is not available. ParsePlatformFile must be called first.");
     }
+
+    auto& platform_module = module_map[platform_module_name];
+    file_w << MakeCIndependentPlatform(platform_module, Backend::DX12);
+    file_w << "\n";
 
     file_w << R"(
 #elif defined(WISDOM_VULKAN)
 
 )";
 
-    for (auto& platform_name : platforms_in_order) {
-        auto& platform_def = platform_map[platform_name];
-        file_w << MakeCIndependentPlatform(platform_def, impl_vk);
-        file_w << "\n";
-    }
+    file_w << MakeCIndependentPlatform(platform_module, Backend::Vulkan);
+    file_w << "\n";
 
     file_w << R"(
 #else
@@ -972,17 +1146,18 @@ void Generator::WriteCPPIndependentPlatformAPI(std::filesystem::path path)
 #if defined(WISDOM_DX12) && !FORCEVK_SWITCH
 namespace wis {
 )";
-    constexpr static auto impl_dx = GetImplString(ImplementedFor::DX12);
-    constexpr static auto impl_vk = GetImplString(ImplementedFor::Vulkan);
-
     file_w << "\n\n//==============================================================\n"
               "// Handles\n"
               "//==============================================================\n\n";
 
-    // Write handles
-    for (auto& platform : platforms_in_order) {
-        file_w << MakeCPPIndependentPlatform(platform_map[platform], impl_dx);
+    if (!module_map.contains(platform_module_name)) {
+        throw std::runtime_error("Platform module metadata is not available. ParsePlatformFile must be called first.");
     }
+
+    auto& platform_module = module_map[platform_module_name];
+
+    // Write handles
+    file_w << MakeCPPIndependentPlatform(platform_module, Backend::DX12);
 
     file_w << R"(
 } // namespace wis
@@ -996,9 +1171,7 @@ namespace wis {
               "//==============================================================\n\n";
 
     // Write handles
-    for (auto& platform : platforms_in_order) {
-        file_w << MakeCPPIndependentPlatform(platform_map[platform], impl_vk);
-    }
+    file_w << MakeCPPIndependentPlatform(platform_module, Backend::Vulkan);
 
     file_w << R"(
 } // namespace wis
@@ -1056,17 +1229,17 @@ namespace wis{ namespace detail {
     // Write enums
     for (auto& enum_name : enums_in_order) {
         auto& enum_def = enum_map[enum_name];
-        file_dx << MakeEnumConverter(enum_def, "dx");
+        file_dx << MakeEnumConverter(enum_def, Backend::DX12);
         file_dx << "\n";
-        file_vk << MakeEnumConverter(enum_def, "vk");
+        file_vk << MakeEnumConverter(enum_def, Backend::Vulkan);
         file_vk << "\n";
     }
     // Write bitmasks
     for (auto& bitmask_name : bitmasks_in_order) {
         auto& bitmask_def = bitmask_map[bitmask_name];
-        file_dx << MakeBitmaskConverter(bitmask_def, "dx");
+        file_dx << MakeBitmaskConverter(bitmask_def, Backend::DX12);
         file_dx << "\n";
-        file_vk << MakeBitmaskConverter(bitmask_def, "vk");
+        file_vk << MakeBitmaskConverter(bitmask_def, Backend::Vulkan);
         file_vk << "\n";
     }
 
@@ -1212,8 +1385,9 @@ void Generator::TryMakeRef(std::string_view type, std::string_view ref)
     }
     dependency_tree[type].dependencies.push_back(ref);
 }
-std::string Generator::GetCFullTypename(std::string_view type, std::string_view impl)
+std::string Generator::GetCFullTypename(std::string_view type, Backend backend)
 {
+    auto suffix = GetBackendSuffix(backend);
     switch (GetType(type)) {
     case TypeKind::Base:
         return std::string(standard_types.at(type));
@@ -1223,7 +1397,7 @@ std::string Generator::GetCFullTypename(std::string_view type, std::string_view 
     case TypeKind::Struct:
         return wis::format("Wis{}", type);
     case TypeKind::Variant:
-        return wis::format("Wis{}{}", impl, type);
+        return wis::format("Wis{}{}", suffix, type);
     case TypeKind::Union:
         break;
     case TypeKind::Enum:
@@ -1232,7 +1406,7 @@ std::string Generator::GetCFullTypename(std::string_view type, std::string_view 
         return wis::format("Wis{}", type);
     case TypeKind::Handle:
     case TypeKind::View:
-        return wis::format("Wis{}{}", impl, type);
+        return wis::format("Wis{}{}", suffix, type);
     case TypeKind::Function: {
         auto it = function_map.find(std::string(type));
         if (it == function_map.end()) {
@@ -1248,17 +1422,18 @@ std::string Generator::GetCFullTypename(std::string_view type, std::string_view 
 
         auto& func = it->second;
         if (!func.this_type.empty() && !(func.modifier & (Destroy | Construct))) {
-            return wis::format("wis{}{}{}", impl, func.this_type, func.name);
+            return wis::format("wis{}{}{}", suffix, func.this_type, func.name);
         }
-        return wis::format("wis{}{}", impl, func.name);
+        return wis::format("wis{}{}", suffix, func.name);
     }
     case TypeKind::Alias:
         break;
     }
     return "";
 }
-std::string Generator::GetCPPFullTypename(std::string_view type, std::string_view impl)
+std::string Generator::GetCPPFullTypename(std::string_view type, Backend backend)
 {
+    auto suffix = GetBackendSuffix(backend);
     switch (GetType(type)) {
     case TypeKind::Base:
         return std::string(standard_types_cpp.at(type));
@@ -1274,7 +1449,7 @@ std::string Generator::GetCPPFullTypename(std::string_view type, std::string_vie
     case TypeKind::Handle:
     case TypeKind::View:
     case TypeKind::Function:
-        return wis::format("wis::{}{}", impl, type);
+        return wis::format("wis::{}{}", suffix, type);
     case TypeKind::Union:
         break;
     case TypeKind::Alias:
@@ -1282,7 +1457,7 @@ std::string Generator::GetCPPFullTypename(std::string_view type, std::string_vie
     }
     return "";
 }
-std::string Generator::FinalizeCDocumentation(std::string doc, std::string_view this_type, std::string_view impl)
+std::string Generator::FinalizeCDocumentation(std::string doc, std::string_view this_type, Backend backend)
 {
     if (doc.empty()) {
         return doc;
@@ -1306,27 +1481,27 @@ std::string Generator::FinalizeCDocumentation(std::string doc, std::string_view 
         if (auto x = enum_map.find(this_type_view); x != enum_map.end()) {
             auto evalue = x->second.HasValue(value);
             replacement = evalue ? wis::format("`Wis{}{}`", x->second.name, evalue->name)
-                                 : GetCPPFullTypename(x->second.name, impl);
+                                 : GetCPPFullTypename(x->second.name, backend);
 
         } else if (auto y = bitmask_map.find(this_type_view); y != bitmask_map.end()) {
             auto evalue = y->second.HasValue(value);
-            replacement = evalue ? wis::format("`{}::{}`", GetCFullTypename(y->second.name, impl), evalue->name)
-                                 : GetCFullTypename(y->second.name, impl);
+            replacement = evalue ? wis::format("`{}::{}`", GetCFullTypename(y->second.name, backend), evalue->name)
+                                 : GetCFullTypename(y->second.name, backend);
         } else if (auto z = struct_map.find(this_type_view); z != struct_map.end()) {
             auto member = z->second.HasValue(value);
-            replacement = member ? wis::format("`{}::{}`", GetCFullTypename(z->second.name, impl), member->name)
-                                 : GetCFullTypename(z->second.name, impl);
+            replacement = member ? wis::format("`{}::{}`", GetCFullTypename(z->second.name, backend), member->name)
+                                 : GetCFullTypename(z->second.name, backend);
         } else if (auto z = variant_map.find(this_type_view); z != variant_map.end()) {
             auto member = z->second.HasValue(value);
-            replacement = member ? wis::format("`{}::{}`", GetCFullTypename(z->second.name, impl), member->name)
-                                 : GetCFullTypename(z->second.name, impl);
+            replacement = member ? wis::format("`{}::{}`", GetCFullTypename(z->second.name, backend), member->name)
+                                 : GetCFullTypename(z->second.name, backend);
         } /*else if (auto d = delegate_map.find(this_type_view); d != delegate_map.end()) {
             auto member = d->second.HasValue(value);
             replacement = member ? wis::format("{}::{}", GetCFullTypename(d->second.name, impl), member->name)
                                  : GetCFullTypename(d->second.name, impl);
         }*/
         else if (auto h = handle_map.find(this_type_view); h != handle_map.end()) {
-            replacement = GetCFullTypename(h->second.name, impl);
+            replacement = GetCFullTypename(h->second.name, backend);
         } else {
             auto f = function_map.find(std::string(this_type_view));
             if (f == function_map.end()) {
@@ -1341,7 +1516,7 @@ std::string Generator::FinalizeCDocumentation(std::string doc, std::string_view 
             }
             auto member = f->second.HasValue(value);
             replacement = member ? wis::format("`{}`", member->name)
-                                 : GetCFullTypename(f->second.name, impl);
+                                 : GetCFullTypename(f->second.name, backend);
         }
         doc.replace(first, last - first + 1, replacement);
     }
@@ -1356,7 +1531,7 @@ std::string Generator::FinalizeCDocumentation(std::string doc, std::string_view 
     ReplaceAll(doc, " may ", " @wis_may ");
     return doc;
 }
-std::string Generator::FinalizeCPPDocumentation(std::string doc, std::string_view this_type, std::string_view impl)
+std::string Generator::FinalizeCPPDocumentation(std::string doc, std::string_view this_type, Backend backend)
 {
     if (doc.empty()) {
         return doc;
@@ -1379,28 +1554,28 @@ std::string Generator::FinalizeCPPDocumentation(std::string doc, std::string_vie
 
         if (auto x = enum_map.find(this_type_view); x != enum_map.end()) {
             auto evalue = x->second.HasValue(value);
-            replacement = evalue ? wis::format("`{}::{}`", GetCPPFullTypename(x->second.name, impl), evalue->name)
-                                 : GetCPPFullTypename(x->second.name, impl);
+            replacement = evalue ? wis::format("`{}::{}`", GetCPPFullTypename(x->second.name, backend), evalue->name)
+                                 : GetCPPFullTypename(x->second.name, backend);
 
         } else if (auto y = bitmask_map.find(this_type_view); y != bitmask_map.end()) {
             auto evalue = y->second.HasValue(value);
-            replacement = evalue ? wis::format("`{}::{}`", GetCPPFullTypename(y->second.name, impl), evalue->name)
-                                 : GetCFullTypename(y->second.name, impl);
+            replacement = evalue ? wis::format("`{}::{}`", GetCPPFullTypename(y->second.name, backend), evalue->name)
+                                 : GetCFullTypename(y->second.name, backend);
         } else if (auto z = struct_map.find(this_type_view); z != struct_map.end()) {
             auto member = z->second.HasValue(value);
-            replacement = member ? wis::format("`{}::{}`", GetCPPFullTypename(z->second.name, impl), member->name)
-                                 : GetCPPFullTypename(z->second.name, impl);
+            replacement = member ? wis::format("`{}::{}`", GetCPPFullTypename(z->second.name, backend), member->name)
+                                 : GetCPPFullTypename(z->second.name, backend);
         } else if (auto z = variant_map.find(this_type_view); z != variant_map.end()) {
             auto member = z->second.HasValue(value);
-            replacement = member ? wis::format("`{}::{}`", GetCPPFullTypename(z->second.name, impl), member->name)
-                                 : GetCPPFullTypename(z->second.name, impl);
+            replacement = member ? wis::format("`{}::{}`", GetCPPFullTypename(z->second.name, backend), member->name)
+                                 : GetCPPFullTypename(z->second.name, backend);
         } /*else if (auto d = delegate_map.find(this_type_view); d != delegate_map.end()) {
             auto member = d->second.HasValue(value);
             replacement = member ? wis::format("{}::{}", GetCFullTypename(d->second.name, impl), member->name)
                                  : GetCFullTypename(d->second.name, impl);
         }*/
         else if (auto h = handle_map.find(this_type_view); h != handle_map.end()) {
-            replacement = GetCPPFullTypename(h->second.name, impl);
+            replacement = GetCPPFullTypename(h->second.name, backend);
         } else {
             auto f = function_map.find(std::string(this_type_view));
             if (f == function_map.end()) {
@@ -1415,7 +1590,7 @@ std::string Generator::FinalizeCPPDocumentation(std::string doc, std::string_vie
             }
             auto member = f->second.HasValue(value);
             replacement = member ? wis::format("`{}`", member->name)
-                                 : GetCPPFullTypename(f->second.name, impl);
+                                 : GetCPPFullTypename(f->second.name, backend);
         }
         doc.replace(first, last - first + 1, replacement);
     }
@@ -1458,15 +1633,15 @@ std::string Generator::GetSpecificationCode(std::string_view c_code, std::string
     return output;
 }
 
-ImplementedFor Generator::ImplCode(std::string_view impl) noexcept
+Backend Generator::ParseBackend(std::string_view backend) noexcept
 {
-    if (impl == "dx" || impl == "DX12") {
-        return ImplementedFor::DX12;
+    if (backend == "dx" || backend == "DX12") {
+        return Backend::DX12;
     }
-    if (impl == "vk" || impl == "VK") {
-        return ImplementedFor::Vulkan;
+    if (backend == "vk" || backend == "VK") {
+        return Backend::Vulkan;
     }
-    return ImplementedFor::Both;
+    return Backend::Any;
 }
 
 ImplOs Generator::GetImplOs(std::string_view os) noexcept
@@ -1623,7 +1798,7 @@ std::string Generator::GetRefs(std::string_view for_type)
             continue;
         }
 
-        refs += GetCFullTypename(ref, "");
+        refs += GetCFullTypename(ref, Backend::Any);
         if (++ref_count > max_ref_count) {
             break;
         }
@@ -1635,4 +1810,98 @@ std::string Generator::GetRefs(std::string_view for_type)
         refs = wis::format(" * @see {}\n", refs);
     }
     return refs;
+}
+
+bool Generator::IsTypeAvailableForBackend(std::string_view type, Backend backend, std::unordered_set<std::string_view>& visiting) const
+{
+    switch (GetType(type)) {
+    case TypeKind::None:
+    case TypeKind::Base:
+    case TypeKind::Enum:
+    case TypeKind::Bitmask:
+    case TypeKind::FuncPointer:
+    case TypeKind::Alias:
+    case TypeKind::Function:
+        return true;
+    case TypeKind::Handle:
+    case TypeKind::View: {
+        auto it = handle_map.find(type);
+        return it != handle_map.end() && it->second.GetSize(backend) > 0;
+    }
+    case TypeKind::Struct: {
+        if (visiting.contains(type)) {
+            return true;
+        }
+        visiting.insert(type);
+        auto it = struct_map.find(type);
+        if (it == struct_map.end()) {
+            visiting.erase(type);
+            return true;
+        }
+        for (auto& member : it->second.members) {
+            if (!IsTypeAvailableForBackend(member.type, backend, visiting)) {
+                visiting.erase(type);
+                return false;
+            }
+        }
+        visiting.erase(type);
+        return true;
+    }
+    case TypeKind::Variant: {
+        if (visiting.contains(type)) {
+            return true;
+        }
+        visiting.insert(type);
+        auto it = variant_map.find(type);
+        if (it == variant_map.end()) {
+            visiting.erase(type);
+            return true;
+        }
+        for (auto& member : it->second.members) {
+            if (!IsTypeAvailableForBackend(member.type, backend, visiting)) {
+                visiting.erase(type);
+                return false;
+            }
+        }
+        visiting.erase(type);
+        return true;
+    }
+    default:
+        return true;
+    }
+}
+
+bool Generator::IsTypeAvailableForBackend(std::string_view type, Backend backend) const
+{
+    std::unordered_set<std::string_view> visiting;
+    return IsTypeAvailableForBackend(type, backend, visiting);
+}
+
+bool Generator::IsFunctionAvailableForBackend(const WisFunction& func, Backend backend) const
+{
+    std::unordered_set<std::string_view> visiting;
+
+    if (!func.this_type.empty() && !IsTypeAvailableForBackend(func.this_type, backend, visiting)) {
+        return false;
+    }
+    if (!func.return_type.type.empty() && !IsTypeAvailableForBackend(func.return_type.type, backend, visiting)) {
+        return false;
+    }
+    for (auto& param : func.parameters) {
+        if (!IsTypeAvailableForBackend(param.type, backend, visiting)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool Generator::IsVariantAvailableForBackend(const WisStruct& variant, Backend backend) const
+{
+    std::unordered_set<std::string_view> visiting;
+    for (auto& member : variant.members) {
+        if (!IsTypeAvailableForBackend(member.type, backend, visiting)) {
+            return false;
+        }
+    }
+    return true;
 }

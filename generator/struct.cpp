@@ -38,15 +38,11 @@ void Generator::ParseStruct(tinyxml2::XMLElement* type)
     auto  name = type->FindAttribute("name")->Value();
     auto& ref  = struct_map[name];
     structs_in_order.emplace_back(name);
+    module_map[active_module_name].structs_in_order.emplace_back(name);
     ref.name = name;
 
     if (auto* size = type->FindAttribute("doc")) {
         ref.doc = size->Value();
-    }
-
-    if (auto* platform = type->FindAttribute("platform")) {
-        ref.platform = platform->Value();
-        platform_map[ref.platform].structs_in_order.emplace_back(ref.name);
     }
 
     if (auto* size = type->FindAttribute("version")) {
@@ -91,7 +87,7 @@ void Generator::ParseStruct(tinyxml2::XMLElement* type)
 //-----------------------------------------------------------------------------
 std::string Generator::MakeCStruct(const WisStruct& s, DocKind kind)
 {
-    auto        full_name = GetCFullTypename(s.name, "");
+    auto        full_name = GetCFullTypename(s.name, Backend::Any);
     std::string st_decl   = wis::format("typedef struct {} {} {{\n", s.modifier & Modifier::Nodiscard ? "WIS_NODISCARD" : "", full_name);
     if (!s.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation(s, kind);
@@ -135,7 +131,7 @@ std::string Generator::MakeCPPStruct(const WisStruct& s, DocKind kind)
             continue;
         }
 
-        st_decl += MakeValueDocumentation<Lang::CPP>(s, m, MakeCPPMemberDeclaration(m, max_type_length, ""), kind);
+        st_decl += MakeValueDocumentation<Lang::CPP>(s, m, MakeCPPMemberDeclaration(m, max_type_length, Backend::Any), kind);
         prev_span = m.modifier & Modifier::Span;
     }
     st_decl += "};\n";
@@ -143,9 +139,9 @@ std::string Generator::MakeCPPStruct(const WisStruct& s, DocKind kind)
 }
 
 //-----------------------------------------------------------------------------
-std::string Generator::MakeCMemberDeclaration(const WisStructMember& member, size_t align_width, std::string_view impl)
+std::string Generator::MakeCMemberDeclaration(const WisStructMember& member, size_t align_width, Backend backend)
 {
-    std::string type_string = GetMemberTypeString(member, impl);
+    std::string type_string = GetMemberTypeString(member, backend);
     std::string array_modifier;
 
     if (!member.array_size.empty()) {
@@ -160,9 +156,9 @@ std::string Generator::MakeCMemberDeclaration(const WisStructMember& member, siz
 }
 
 //-----------------------------------------------------------------------------
-std::string Generator::MakeCPPMemberDeclaration(const WisStructMember& member, size_t align_width, std::string_view impl)
+std::string Generator::MakeCPPMemberDeclaration(const WisStructMember& member, size_t align_width, Backend backend)
 {
-    std::string type_string = GetMemberTypeString<Lang::CPP>(member, impl);
+    std::string type_string = GetMemberTypeString<Lang::CPP>(member, backend);
 
     if (!member.array_size.empty()) {
         type_string = wis::format("std::array<{}, {}>", type_string, member.array_size);
@@ -189,7 +185,9 @@ std::string Generator::MakeStructDescription(const WisStruct& s)
 void Generator::WriteStructDocumentation(std::filesystem::path struct_output_path)
 {
     std::filesystem::create_directories(struct_output_path);
-    for (const auto& struct_name : structs_in_order) {
+    auto module_it = module_map.find(active_module_name);
+    auto& struct_names = module_it != module_map.end() ? module_it->second.structs_in_order : structs_in_order;
+    for (const auto& struct_name : struct_names) {
         // Make a folder for enums starting with this letter
         std::filesystem::path struct_file_path = struct_output_path / wis::format("{}_struct.h", MakeSnakeCase(struct_name));
         auto&                 struct_ref       = struct_map[struct_name];
@@ -210,7 +208,7 @@ void Generator::WriteStructDocumentation(std::filesystem::path struct_output_pat
 
         WriteDocumentation(struct_file_path,
                            template_struct,
-                           GetCFullTypename(struct_name, ""),
+                           GetCFullTypename(struct_name, Backend::Any),
                            struct_template_content,
                            vuids,
                            struct_description,

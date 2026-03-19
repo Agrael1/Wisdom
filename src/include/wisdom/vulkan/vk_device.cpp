@@ -404,7 +404,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateViewHeap(const WisVKDevice* s
         return wis::detail::make_result<wis::detail::Func(), "Failed to allocate memory for view heap">(VK_ERROR_OUT_OF_HOST_MEMORY);
     }
 
-    *new (heap) wis::impl::VKViewHeapImpl{
+    new (heap) wis::impl::VKViewHeapImpl{
         .view_heap     = view_heap,
         .device_header = device.device_header,
     };

@@ -38,6 +38,7 @@ void Generator::ParseVariant(tinyxml2::XMLElement* type)
     auto  name = type->FindAttribute("name")->Value();
     auto& ref  = variant_map[name];
     variants_in_order.emplace_back(name);
+    module_map[active_module_name].variants_in_order.emplace_back(name);
     ref.name = name;
 
     if (auto* size = type->FindAttribute("doc")) {
@@ -84,11 +85,10 @@ void Generator::ParseVariant(tinyxml2::XMLElement* type)
 }
 
 //-----------------------------------------------------------------------------
-std::string Generator::MakeCVariant(const WisStruct& s, std::string_view impl, DocKind kind)
+std::string Generator::MakeCVariant(const WisStruct& s, Backend backend, DocKind kind)
 {
-    ImplementedFor impl_code = ImplCode(impl);
-    auto           impl_suffix = GetImplString(impl_code);
-    auto           full_name   = GetCFullTypename(s.name, impl_suffix);
+    auto    impl_suffix = GetBackendSuffix(backend);
+    auto           full_name   = GetCFullTypename(s.name, backend);
     std::string    st_decl   = wis::format("typedef struct {}{} {{\n", s.modifier & Modifier::Nodiscard ? "WIS_NODISCARD " : "", full_name);
     if (!s.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation(s, kind);
@@ -98,26 +98,25 @@ std::string Generator::MakeCVariant(const WisStruct& s, std::string_view impl, D
     // Calculate maximum type length for alignment
     size_t max_type_length = 0;
     for (auto& m : s.members) {
-        size_t type_length = GetMemberTypeString(m, impl_suffix).length();
+        size_t type_length = GetMemberTypeString(m, backend).length();
         max_type_length    = std::max(max_type_length, type_length);
     }
 
     for (auto& m : s.members) {
-        st_decl += MakeValueDocumentation(s, m, MakeCMemberDeclaration(m, max_type_length, impl_suffix), kind);
+        st_decl += MakeValueDocumentation(s, m, MakeCMemberDeclaration(m, max_type_length, backend), kind);
     }
     st_decl += wis::format("}} {};\n", full_name);
     return st_decl;
 }
 
 //-----------------------------------------------------------------------------
-std::string Generator::MakeCPPVariant(const WisStruct& s, std::string_view impl, DocKind kind)
+std::string Generator::MakeCPPVariant(const WisStruct& s, Backend backend, DocKind kind)
 {
     if (s.modifier & Modifier::COnly) {
         return "";
     }
 
-    ImplementedFor impl_code = ImplCode(impl);
-    auto           impl_suffix = GetImplString(impl_code);
+    auto    impl_suffix = GetBackendSuffix(backend);
     std::string    st_decl   = wis::format("struct {}{}{} {{\n",
                                       s.modifier & Modifier::Nodiscard ? "WIS_NODISCARD " : "",
                                       impl_suffix,
@@ -130,7 +129,7 @@ std::string Generator::MakeCPPVariant(const WisStruct& s, std::string_view impl,
     // Calculate maximum type length for alignment
     size_t max_type_length = 0;
     for (auto& m : s.members) {
-        size_t type_length = GetMemberTypeString<Lang::CPP>(m, impl_suffix).length();
+        size_t type_length = GetMemberTypeString<Lang::CPP>(m, backend).length();
         max_type_length    = std::max(max_type_length, type_length);
     }
 
@@ -141,7 +140,7 @@ std::string Generator::MakeCPPVariant(const WisStruct& s, std::string_view impl,
             continue;
         }
 
-        st_decl += MakeValueDocumentation<Lang::CPP>(s, m, MakeCPPMemberDeclaration(m, max_type_length, impl_suffix), kind);
+        st_decl += MakeValueDocumentation<Lang::CPP>(s, m, MakeCPPMemberDeclaration(m, max_type_length, backend), kind);
         prev_span = m.modifier & Modifier::Span;
     }
     st_decl += "};\n";
@@ -161,18 +160,20 @@ std::string Generator::MakeVariantDescription(const WisStruct& s)
 void Generator::WriteVariantDocumentation(std::filesystem::path struct_output_path)
 {
     std::filesystem::create_directories(struct_output_path);
-    for (const auto& variant_name : variants_in_order) {
+    auto module_it = module_map.find(active_module_name);
+    auto& variant_names = module_it != module_map.end() ? module_it->second.variants_in_order : variants_in_order;
+    for (const auto& variant_name : variant_names) {
         // Make a folder for enums starting with this letter
         std::filesystem::path variant_file_path = struct_output_path / wis::format("{}_struct.h", MakeSnakeCase(variant_name));
         auto&                 variant_ref       = variant_map[variant_name];
 
-        std::string cimpl_code   = MakeCVariant(variant_ref, "vk", DocKind::VersionOnly) + '\n' + MakeCVariant(variant_ref, "dx", DocKind::VersionOnly);
-        std::string regular_code = MakeCVariant(variant_ref, "", DocKind::VersionOnly);
+        std::string cimpl_code   = MakeCVariant(variant_ref, Backend::Vulkan, DocKind::VersionOnly) + '\n' + MakeCVariant(variant_ref, Backend::DX12, DocKind::VersionOnly);
+        std::string regular_code = MakeCVariant(variant_ref, Backend::Any, DocKind::VersionOnly);
 
-        std::string vk_cpp           = variant_ref.modifier & Modifier::COnly ? "" : MakeCPPVariant(variant_ref, "vk", DocKind::VersionOnly);
-        std::string dx_cpp           = variant_ref.modifier & Modifier::COnly ? "" : MakeCPPVariant(variant_ref, "dx", DocKind::VersionOnly);
+        std::string vk_cpp           = variant_ref.modifier & Modifier::COnly ? "" : MakeCPPVariant(variant_ref, Backend::Vulkan, DocKind::VersionOnly);
+        std::string dx_cpp           = variant_ref.modifier & Modifier::COnly ? "" : MakeCPPVariant(variant_ref, Backend::DX12, DocKind::VersionOnly);
         std::string cimpl_code_cpp   = variant_ref.modifier & Modifier::COnly ? "" : vk_cpp + '\n' + dx_cpp;
-        std::string regular_code_cpp = variant_ref.modifier & Modifier::COnly ? "" : MakeCPPVariant(variant_ref, "", DocKind::VersionOnly);
+        std::string regular_code_cpp = variant_ref.modifier & Modifier::COnly ? "" : MakeCPPVariant(variant_ref, Backend::Any, DocKind::VersionOnly);
 
         std::string variant_template_content = GetSpecificationCode(regular_code, cimpl_code, regular_code_cpp, cimpl_code_cpp);
 
@@ -186,7 +187,7 @@ void Generator::WriteVariantDocumentation(std::filesystem::path struct_output_pa
 
         WriteDocumentation(variant_file_path,
                            template_struct,
-                           GetCFullTypename(variant_name, ""),
+                           GetCFullTypename(variant_name, Backend::Any),
                            variant_template_content,
                            vuids,
                            variant_description,
