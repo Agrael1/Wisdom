@@ -30,8 +30,8 @@ enum class TypeKind {
     Alias,
     View,
 };
-enum ImplementedFor {
-    Both,
+enum class Backend {
+    Any,
     DX12,
     Vulkan,
 };
@@ -195,22 +195,22 @@ struct WisHandle {
     std::vector<std::string> functions;
 
 public:
-    uint32_t GetSize(ImplementedFor impl) const noexcept
+    uint32_t GetSize(Backend backend) const noexcept
     {
-        if (impl == ImplementedFor::DX12) {
+        if (backend == Backend::DX12) {
             return sizes[0];
         }
-        if (impl == ImplementedFor::Vulkan) {
+        if (backend == Backend::Vulkan) {
             return sizes[1];
         }
         return 0;
     }
-    uint32_t GetViewSize(ImplementedFor impl) const noexcept
+    uint32_t GetViewSize(Backend backend) const noexcept
     {
-        if (impl == ImplementedFor::DX12) {
+        if (backend == Backend::DX12) {
             return view_sizes[0];
         }
-        if (impl == ImplementedFor::Vulkan) {
+        if (backend == Backend::Vulkan) {
             return view_sizes[1];
         }
         return 0;
@@ -264,8 +264,8 @@ struct WisReturnType {
     }
 };
 struct WisFunction {
-    std::string_view name;
-    std::string_view doc;
+    std::string      name;
+    std::string      doc;
     std::string_view this_type;
     std::string_view version;
     std::string_view platform; // optional
@@ -326,14 +326,22 @@ struct Validation {
 using ValidationList = std::vector<Validation>;
 using MethodList     = std::vector<std::string_view>;
 
-struct WisPlatform {
+struct WisModule {
     std::string_view name;
-    std::string_view doc;
-    std::string_view version;
-    ImplementedFor   impl;
-    ImplOs           os;
+    std::string_view doc_path;
+    std::string_view gen_path;
+    std::string_view version; // inctroduction version
+    Backend          backend = Backend::Any; // optional
+    ImplOs           os      = ImplOs::None; // optional
 
+    std::vector<std::string_view> enums_in_order;
+    std::vector<std::string_view> bitmasks_in_order;
     std::vector<std::string_view> structs_in_order;
-    std::vector<std::string>      functions_in_order;
+    std::vector<std::string_view> variants_in_order;
     std::vector<std::string_view> handles_in_order;
+    std::vector<std::string>      functions_in_order;
+    std::vector<std::string_view> delegates_in_order;
+    std::vector<std::string_view> constants_in_order;
+    std::vector<std::string>      free_functions_in_order;
+    std::vector<std::string_view> views_in_order;
 };

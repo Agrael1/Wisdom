@@ -30,17 +30,13 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
         auto  version = type->FindAttribute("version")->Value();
         auto& ref     = handle_map[name];
         handles_in_order.emplace_back(name);
+        module_map[active_module_name].handles_in_order.emplace_back(name);
 
         ref.name    = name;
         ref.version = version;
 
         if (auto* doc = type->FindAttribute("doc")) {
             ref.doc = doc->Value();
-        }
-
-        if (auto* platform = type->FindAttribute("platform")) {
-            ref.platform = platform->Value();
-            platform_map[ref.platform].handles_in_order.emplace_back(name);
         }
 
         if (auto* extends = type->FindAttribute("extends")) {
@@ -51,61 +47,46 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
         std::string destr_name = "Destroy" + std::string(name);
         std::string destr_doc  = "Destroys a {" + std::string(name) + "::} handle.";
 
-        auto& xdestroy = destructors.emplace_back(destr_name + destr_doc);
-
-        std::string_view xdestroy_name = std::string_view(xdestroy.c_str(), destr_name.size());
-        std::string_view xdestroy_doc  = std::string_view(xdestroy_name.data() + destr_name.size(), destr_doc.size());
-        std::string      destroy_key   = MakeFunctionKey(xdestroy_name, name);
+        std::string destroy_key = MakeFunctionKey(destr_name, name);
 
         auto& destroy     = function_map[destroy_key];
-        destroy.name      = xdestroy_name;
+        destroy.name      = destr_name;
         destroy.this_type = name;
         destroy.modifier  = Modifier::Destroy;
         destroy.version   = version;
-        destroy.doc       = xdestroy_doc;
+        destroy.doc       = destr_doc;
         ref.functions.emplace_back(destroy_key);
         functions_in_order.emplace_back(destroy_key);
+        module_map[active_module_name].functions_in_order.emplace_back(destroy_key);
         dependency_tree[name].dependencies.emplace_back(destroy.name);
 
         // if the handle is an extension, add create function as well
         if (ref.extends != Extends::None) {
-            std::string      create_name  = "Init" + std::string(name);
-            std::string      create_doc   = "Initializes a {" + std::string(name) + "::} handle.";
-            auto&            xcreate      = creators.emplace_back(create_name + create_doc);
-            std::string_view xcreate_name = std::string_view(xcreate.c_str(), create_name.size());
-            std::string_view xcreate_doc  = std::string_view(xcreate_name.data() + create_name.size(), create_doc.size());
-            std::string      create_key   = MakeFunctionKey(xcreate_name, name);
-            auto&            create       = function_map[create_key];
-            create.name                   = xcreate_name;
-            create.this_type              = name;
-            create.modifier               = Modifier::Construct;
-            create.version                = version;
-            create.doc                    = xcreate_doc;
+            std::string create_name = "Init" + std::string(name);
+            std::string create_doc  = "Initializes a {" + std::string(name) + "::} handle.";
+            std::string create_key  = MakeFunctionKey(create_name, name);
+            auto&       create      = function_map[create_key];
+            create.name             = create_name;
+            create.this_type        = name;
+            create.modifier         = Modifier::Construct;
+            create.version          = version;
+            create.doc              = create_doc;
             ref.functions.emplace_back(create_key);
             functions_in_order.emplace_back(create_key);
+            module_map[active_module_name].functions_in_order.emplace_back(create_key);
             dependency_tree[name].dependencies.emplace_back(create.name);
-
-            if (!ref.platform.empty()) {
-                auto& platform = platform_map[ref.platform];
-                platform.functions_in_order.emplace_back(create_key);
-            }
-        }
-
-        if (!ref.platform.empty()) {
-            auto& platform = platform_map[ref.platform];
-            platform.functions_in_order.emplace_back(destroy_key);
         }
 
         // Parse implementations
         for (auto* impl = type->FirstChildElement("impl"); impl;
              impl       = impl->NextSiblingElement("impl")) {
             auto impl_for      = impl->FindAttribute("for")->Value();
-            auto impl_for_code = ImplCode(impl_for);
+            auto backend = ParseBackend(impl_for);
 
             uint32_t size = impl->UnsignedAttribute("size", 0);
-            if (impl_for_code == ImplementedFor::DX12) {
+            if (backend == Backend::DX12) {
                 ref.sizes[0] = size;
-            } else if (impl_for_code == ImplementedFor::Vulkan) {
+            } else if (backend == Backend::Vulkan) {
                 ref.sizes[1] = size;
             }
         }
@@ -125,28 +106,28 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
                 break;
             }
 
-            auto impl_for_code = ImplCode(impl_for->Value());
+            auto backend = ParseBackend(impl_for->Value());
 
             uint32_t size = impl->UnsignedAttribute("size", 0);
-            if (impl_for_code == ImplementedFor::DX12) {
+            if (backend == Backend::DX12) {
                 ref.sizes[0] = size;
-            } else if (impl_for_code == ImplementedFor::Vulkan) {
+            } else if (backend == Backend::Vulkan) {
                 ref.sizes[1] = size;
             }
         }
 
         if (has_view) {
             views_in_order.emplace_back(name);
+            module_map[active_module_name].views_in_order.emplace_back(name);
             view_set.insert(name);
         }
     }
 }
 
 //-----------------------------------------------------------------------------
-std::string Generator::MakeCHandle(const WisHandle& s, std::string_view impl, DocKind kind)
+std::string Generator::MakeCHandle(const WisHandle& s, Backend backend, DocKind kind)
 {
-    ImplementedFor impl_code   = ImplCode(impl);
-    auto           impl_string = GetImplString(impl_code);
+    auto    impl_string = GetBackendSuffix(backend);
 
     auto extends_macro = s.extends == Extends::None
             ? std::string("WIS_DEFINE_HANDLE")
@@ -154,19 +135,19 @@ std::string Generator::MakeCHandle(const WisHandle& s, std::string_view impl, Do
                        ? wis::format("WIS_DEFINE_{}_INSTANCE_EXT_HANDLE", impl_string)
                        : wis::format("WIS_DEFINE_{}_DEVICE_EXT_HANDLE", impl_string));
 
-    auto full_name = GetCFullTypename(s.name, impl_string);
+    auto full_name = GetCFullTypename(s.name, backend);
 
-    std::string st_decl = wis::format("{}({},{});\n", extends_macro, full_name, s.GetSize(impl_code));
+    std::string st_decl = wis::format("{}({},{});\n", extends_macro, full_name, s.GetSize(backend));
     if (!s.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation(s, kind);
         st_decl          = wis::format("{}\n{}", xdoc, st_decl);
     }
-    if (s.GetViewSize(impl_code) > 0) {
-        std::string view_decl = wis::format("WIS_DEFINE_HANDLE_VIEW({},{});\n", full_name, s.GetViewSize(impl_code));
+    if (s.GetViewSize(backend) > 0) {
+        std::string view_decl = wis::format("WIS_DEFINE_HANDLE_VIEW({},{});\n", full_name, s.GetViewSize(backend));
         st_decl += view_decl;
     }
 
-    if (kind == DocKind::Full && s.GetViewSize(impl_code) > 0) {
+    if (kind == DocKind::Full && s.GetViewSize(backend) > 0) {
         // Add view extraction function
         st_decl += wis::format("\nstatic inline {}View wisGet{}{}View(const {}* handle){{\n", full_name, impl_string, s.name, full_name);
         st_decl += wis::format("    {}View v;\n", full_name);
@@ -178,11 +159,10 @@ std::string Generator::MakeCHandle(const WisHandle& s, std::string_view impl, Do
 }
 
 //-----------------------------------------------------------------------------
-std::string Generator::MakeCPPHandle(const WisHandle& s, std::string_view impl, DocKind kind)
+std::string Generator::MakeCPPHandle(const WisHandle& s, Backend backend, DocKind kind)
 {
-    ImplementedFor impl_code   = ImplCode(impl);
-    auto           impl_string = GetImplString(impl_code);
-    auto           full_name   = GetCFullTypename(s.name, impl_string);
+    auto    impl_string = GetBackendSuffix(backend);
+    auto           full_name   = GetCFullTypename(s.name, backend);
 
     std::string deleter = wis::format("struct {}{}Deleter {{\n    "
                                       "void operator()({}* handle) noexcept {{\n        ",
@@ -215,7 +195,7 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, std::string_view impl, 
     }
     std::string st_decl2 = "public:\n";
 
-    if (s.GetViewSize(impl_code) > 0) {
+    if (s.GetViewSize(backend) > 0) {
         // Strict aliasing rules prevent us from doing a simple cast, so we have to memcpy the data to a new view struct
         st_decl2 += wis::format(
                 "    WIS_NODISCARD {}{}View GetView() const noexcept {{\n"
@@ -252,13 +232,13 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, std::string_view impl, 
             continue;
         }
 
-        st_decl2 += MakeCPPFunctionImpl(func_ref, impl, "inline ", kind, ProtoType::ClassMember);
+        st_decl2 += MakeCPPFunctionImpl(func_ref, backend, "inline ", kind, ProtoType::ClassMember);
     }
 
     if (s.extends != Extends::None) {
         auto header = s.extends == Extends::Instance
-                ? GetCPPFullTypename("InstanceExtensionHeader", impl_string)
-                : GetCPPFullTypename("DeviceExtensionHeader", impl_string);
+                ? GetCPPFullTypename("InstanceExtensionHeader", backend)
+                : GetCPPFullTypename("DeviceExtensionHeader", backend);
         ctor_decl += wis::format("        // Operator & overload\n"
                                  "{}* operator&() noexcept {{\n"
                                  "    return &GetMutableInternal().header;\n"
@@ -272,14 +252,13 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, std::string_view impl, 
     return deleter + st_decl + ctor_decl + st_decl2;
 }
 
-std::string Generator::MakeCPPView(const WisHandle& s, std::string_view impl, DocKind kind)
+std::string Generator::MakeCPPView(const WisHandle& s, Backend backend, DocKind kind)
 {
-    ImplementedFor impl_code   = ImplCode(impl);
-    auto           impl_string = GetImplString(impl_code);
-    auto           full_name   = GetCFullTypename(s.name, impl_string);
+    auto    impl_string = GetBackendSuffix(backend);
+    auto           full_name   = GetCFullTypename(s.name, backend);
 
     std::string view_decl;
-    if (s.GetViewSize(impl_code) > 0) {
+    if (s.GetViewSize(backend) > 0) {
         view_decl = wis::format("using {}{}View = {}View;\n", impl_string, s.name, full_name);
     }
     return view_decl;
@@ -288,14 +267,16 @@ std::string Generator::MakeCPPView(const WisHandle& s, std::string_view impl, Do
 //-----------------------------------------------------------------------------
 void Generator::WriteHandleDocumentation(std::filesystem::path handle_output_path)
 {
-    for (const auto& handle_name : handles_in_order) {
+    auto module_it = module_map.find(active_module_name);
+    auto& handle_names = module_it != module_map.end() ? module_it->second.handles_in_order : handles_in_order;
+    for (const auto& handle_name : handle_names) {
         // Make a folder for enums starting with this letter
         std::filesystem::create_directories(handle_output_path);
         std::filesystem::path handle_file_path = handle_output_path / wis::format("{}_handle.h", MakeSnakeCase(handle_name));
         auto&                 handle_ref       = handle_map[handle_name];
 
-        std::string vk_code = MakeCHandle(handle_ref, "vk", DocKind::VersionOnly);
-        std::string dx_code = MakeCHandle(handle_ref, "dx", DocKind::VersionOnly);
+        std::string vk_code = MakeCHandle(handle_ref, Backend::Vulkan, DocKind::VersionOnly);
+        std::string dx_code = MakeCHandle(handle_ref, Backend::DX12, DocKind::VersionOnly);
 
         std::string handle_template_content = wis::format(" * Vulkan Version:\n```c\n{}```\nDX12 Version:\n```c\n{}```\n", vk_code, dx_code);
         std::string handle_refs             = GetRefs(handle_name);
@@ -304,7 +285,7 @@ void Generator::WriteHandleDocumentation(std::filesystem::path handle_output_pat
 
         WriteDocumentation(handle_file_path,
                            template_handle,
-                           GetCFullTypename(handle_name, ""),
+                           GetCFullTypename(handle_name, Backend::Any),
                            handle_template_content,
                            empty_doc,
                            empty_doc,

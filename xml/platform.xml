@@ -1,86 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <registry>
-  <platforms>
-    <platform name="Xlib" backend="vk" os="linux" version="0.7.0" doc="X11 platform using Xlib."/>
-    <platform name="XCB" backend="vk" os="linux" version="0.7.0" doc="X11 platform using XCB."/>
-    <platform name="Wayland" backend="vk" os="linux" version="0.7.0" doc="Wayland platform."/>
-    <platform name="Win32" os="windows" version="0.7.0" doc="Standard Windows platform."/>
-    <platform name="UWP" backend="dx" os="windows" version="0.7.0" doc="Universal Windows Platform."/>
-  </platforms>
+  <module name="WisdomPlatform" version="0.7.0" base_dir="platform/wisdom_platform" doc_dir="platform">
+    <types>
+      <type name="XlibWindowDesc" category="struct" version="0.7.0" doc="X11 surface creation info. Uses opaque types to avoid Xlib.h inclusion in public headers.">
+        <member type="void" name="display" mod="ptr" doc="Pointer to the X11 Display. Cast to Display* internally."/>
+        <member type="u64" name="window" doc="The X11 Window ID. Fits standard 32/64-bit window handles."/>
+      </type>
 
+      <type name="Win32WindowDesc" category="struct" version="0.7.0" doc="Win32 surface creation info.">
+        <member type="void" name="hinstance" mod="ptr" doc="HINSTANCE of the window. Cast to HINSTANCE internally."/>
+        <member type="void" name="hwnd" mod="ptr" doc="HWND of the window. Cast to HWND internally."/>
+      </type>
 
-  <types>
-    <type name="XlibWindowDesc" category="struct" platform="Xlib" version="0.7.0" doc="X11 surface creation info. Uses opaque types to avoid Xlib.h inclusion in public headers.">
-      <member type="void" name="display" mod="ptr" doc="Pointer to the X11 Display. Cast to Display* internally."/>
-      <member type="u64" name="window" doc="The X11 Window ID. Fits standard 32/64-bit window handles."/>
-    </type>
+      <type name="WaylandWindowDesc" category="struct" version="0.7.0" doc="Wayland surface creation info. Uses opaque types to avoid Wayland headers in public headers.">
+        <member type="void" name="display" mod="ptr" doc="Pointer to the Wayland display. Cast to wl_display* internally."/>
+        <member type="void" name="surface" mod="ptr" doc="Pointer to the Wayland surface. Cast to wl_surface* internally."/>
+      </type>
 
-    <type name="Win32WindowDesc" category="struct" platform="Win32" version="0.7.0" doc="Win32 surface creation info.">
-      <member type="void" name="hinstance" mod="ptr" doc="HINSTANCE of the window. Cast to HINSTANCE internally."/>
-      <member type="void" name="hwnd" mod="ptr" doc="HWND of the window. Cast to HWND internally."/>
-    </type>
+      <type name="XCBWindowDesc" category="struct" version="0.7.0" doc="X11 surface creation info for XCB. Uses opaque types to avoid XCB headers in public headers.">
+        <member type="void" name="connection" mod="ptr" doc="Pointer to the XCB connection. Cast to xcb_connection_t* internally."/>
+        <member type="u32" name="window" doc="The X11 Window ID. Fits standard 32/64-bit window handles."/>
+      </type>
 
-    <type name="WaylandWindowDesc" category="struct" platform="Wayland" version="0.7.0" doc="Wayland surface creation info. Uses opaque types to avoid Wayland headers in public headers.">
-      <member type="void" name="display" mod="ptr" doc="Pointer to the Wayland display. Cast to wl_display* internally."/>
-      <member type="void" name="surface" mod="ptr" doc="Pointer to the Wayland surface. Cast to wl_surface* internally."/>
-    </type>
+      <type name="UWPWindowDesc" category="struct" version="0.7.0" doc="UWP surface creation info. Uses opaque types to avoid Windows Runtime headers in public headers.">
+        <member type="void" name="core_window" mod="ptr" doc="Pointer to the UWP CoreWindow. Cast to ICoreWindow* internally."/>
+      </type>
+    </types>
 
-    <type name="XCBWindowDesc" category="struct" platform="XCB" version="0.7.0" doc="X11 surface creation info for XCB. Uses opaque types to avoid XCB headers in public headers.">
-      <member type="void" name="connection" mod="ptr" doc="Pointer to the XCB connection. Cast to xcb_connection_t* internally."/>
-      <member type="u32" name="window" doc="The X11 Window ID. Fits standard 32/64-bit window handles."/>
-    </type>
+    <handles>
+      <handle name="XlibExtension" extends="Instance" version="0.7.0" doc="Extension for Xlib surface creation functions.">
+        <impl for="vk" size="2"/>
+      </handle>
+      <handle name="XCBExtension" extends="Instance" version="0.7.0" doc="Extension for Xlib surface creation functions.">
+        <impl for="vk" size="2"/>
+      </handle>
+      <handle name="WaylandExtension" extends="Instance" version="0.7.0" doc="Extension for Xlib surface creation functions.">
+        <impl for="vk" size="2"/>
+      </handle>
+      <handle name="Win32Extension" extends="Instance" version="0.7.0" doc="Extension for Win32 surface creation functions.">
+        <impl for="vk" size="2"/>
+        <impl for="dx" size="1"/>
+      </handle>
+      <handle name="UWPExtension" extends="Instance" version="0.7.0" doc="Extension for UWP surface creation functions.">
+        <impl for="dx" size="1"/>
+      </handle>
+    </handles>
 
-    <type name="UWPWindowDesc" category="struct" platform="UWP" version="0.7.0" doc="UWP surface creation info. Uses opaque types to avoid Windows Runtime headers in public headers.">
-      <member type="void" name="core_window" mod="ptr" doc="Pointer to the UWP CoreWindow. Cast to ICoreWindow* internally."/>
-    </type>
-  </types>
+    <functions>
+      <func name="CreateSurface" version="0.7.0" for="XlibExtension" doc="Creates a Vulkan surface using Xlib.">
+        <ret type="Surface" name="surface" result="true" doc="points to {Surface::}, initialized on success."/>
+        <arg type="XlibWindowDesc" name="info" mod="const,ref" doc="Xlib windowing data."/>
+      </func>
 
-  <handles>
-    <handle name="XlibExtension" extends="Instance" platform="Xlib" version="0.7.0" doc="Extension for Xlib surface creation functions.">
-      <impl for="vk" size="2"/>
-    </handle>
-    <handle name="XCBExtension" extends="Instance" platform="XCB" version="0.7.0" doc="Extension for Xlib surface creation functions.">
-      <impl for="vk" size="2"/>
-    </handle>
-    <handle name="WaylandExtension" extends="Instance" platform="Wayland" version="0.7.0" doc="Extension for Xlib surface creation functions.">
-      <impl for="vk" size="2"/>
-    </handle>
-    <handle name="Win32Extension" extends="Instance" platform="Win32" version="0.7.0" doc="Extension for Win32 surface creation functions.">
-      <impl for="vk" size="2"/>
-      <impl for="dx" size="1"/>
-    </handle>
-    <handle name="UWPExtension" extends="Instance" platform="UWP" version="0.7.0" doc="Extension for UWP surface creation functions.">
-      <impl for="vk" size="2"/>
-      <impl for="dx" size="1"/>
-    </handle>
-  </handles>
+      <func name="CreateSurface" version="0.7.0" for="XCBExtension" doc="Creates a surface using Win32.">
+        <ret type="Surface" name="surface" result="true" doc="points to {Surface::}, initialized on success."/>
+        <arg type="XCBWindowDesc" name="info" mod="const,ref" doc="XCB windowing data."/>
+      </func>
 
-  <functions>
-    <func name="CreateSurface" version="0.7.0" for="XlibExtension" platform="Xlib" doc="Creates a Vulkan surface using Xlib.">
-      <ret type="Surface" name="surface" result="true" doc="points to {Surface::}, initialized on success."/>
-      <arg type="XlibWindowDesc" name="info" mod="const,ref" doc="Xlib windowing data."/>
-    </func>
+      <func name="CreateSurface" version="0.7.0" for="WaylandExtension" doc="Creates a surface using Wayland.">
+        <ret type="Surface" name="surface" result="true" doc="points to {Surface::}, initialized on success."/>
+        <arg type="WaylandWindowDesc" name="info" mod="const,ref" doc="Wayland windowing data."/>
+      </func>
 
-    <func name="CreateSurface" version="0.7.0" for="XCBExtension" platform="XCB" doc="Creates a surface using Win32.">
-      <ret type="Surface" name="surface" result="true" doc="points to {Surface::}, initialized on success."/>
-      <arg type="XCBWindowDesc" name="info" mod="const,ref" doc="XCB windowing data."/>
-    </func>
+      <func name="CreateSurface" version="0.7.0" for="Win32Extension" doc="Creates a surface using Win32.">
+        <ret type="Surface" name="surface" result="true" doc="points to {Surface::}, initialized on success."/>
+        <arg type="Win32WindowDesc" name="info" mod="const,ref" doc="Win32 windowing data."/>
+      </func>
 
-    <func name="CreateSurface" version="0.7.0" for="WaylandExtension" platform="Wayland" doc="Creates a surface using Wayland.">
-      <ret type="Surface" name="surface" result="true" doc="points to {Surface::}, initialized on success."/>
-      <arg type="WaylandWindowDesc" name="info" mod="const,ref" doc="Wayland windowing data."/>
-    </func>
-
-    <func name="CreateSurface" version="0.7.0" for="Win32Extension" platform="Win32" doc="Creates a surface using Win32.">
-      <ret type="Surface" name="surface" result="true" doc="points to {Surface::}, initialized on success."/>
-      <arg type="Win32WindowDesc" name="info" mod="const,ref" doc="Win32 windowing data."/>
-    </func>
-
-    <func name="CreateSurface" version="0.7.0" for="UWPExtension" platform="UWP" doc="Creates a surface using UWP.">
-      <ret type="Surface" name="surface" result="true" doc="points to {Surface::}, initialized on success."/>
-      <arg type="UWPWindowDesc" name="info" mod="const,ref" doc="UWP windowing data."/>
-    </func>
-
-    
-  </functions>
+      <func name="CreateSurface" version="0.7.0" for="UWPExtension" doc="Creates a surface using UWP.">
+        <ret type="Surface" name="surface" result="true" doc="points to {Surface::}, initialized on success."/>
+        <arg type="UWPWindowDesc" name="info" mod="const,ref" doc="UWP windowing data."/>
+      </func>
+    </functions>
+  </module>
 </registry>

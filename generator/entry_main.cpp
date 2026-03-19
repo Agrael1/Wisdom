@@ -34,11 +34,12 @@ int main()
     Generator g;
     g.ParseFile(input_file);
     g.WriteMainAPI();
-    g.WriteMainAPIDoc();
+    g.WriteModuleAPIDoc();
 
 
     g.ParsePlatformFile(platform_file);
     g.WritePlatformAPI();
+    g.WriteModuleAPIDoc();
 
     FormatFiles(g.GetFiles());
     return 0;

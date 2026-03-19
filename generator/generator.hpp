@@ -33,7 +33,7 @@ public:
     void ParsePlatformFile(std::filesystem::path file);
     void WriteMainAPI();
     void WritePlatformAPI();
-    void WriteMainAPIDoc();
+    void WriteModuleAPIDoc(std::string_view module_name = {});
     auto GetFiles() const
     {
         return std::span<const std::filesystem::path>{ files };
@@ -52,48 +52,48 @@ public:
     void ParseBitmask(tinyxml2::XMLElement* type);
     void ParseDelegate(tinyxml2::XMLElement* type);
     void ParseConstants(tinyxml2::XMLElement* constants);
-    void ParsePlatforms(tinyxml2::XMLElement* platforms);
+    void ParseRegistrySections(tinyxml2::XMLElement* root);
 
     // Make
     std::string MakeCEnum(const WisEnum& s, DocKind kind = DocKind::Full);
     std::string MakeCBitmask(const WisBitmask& s, DocKind kind = DocKind::Full);
     std::string MakeCStruct(const WisStruct& s, DocKind kind = DocKind::Full);
-    std::string MakeCVariant(const WisStruct& s, std::string_view impl = "", DocKind kind = DocKind::Full);
-    std::string MakeCHandle(const WisHandle& s, std::string_view impl = "", DocKind kind = DocKind::Full);
-    std::string MakeCFunctionProto(const WisFunction& func, std::string_view impl = "", std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full);
-    std::string MakeCFunctionDecl(const WisFunction& func, std::string_view impl = "", std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full);
+    std::string MakeCVariant(const WisStruct& s, Backend backend = Backend::Any, DocKind kind = DocKind::Full);
+    std::string MakeCHandle(const WisHandle& s, Backend backend = Backend::Any, DocKind kind = DocKind::Full);
+    std::string MakeCFunctionProto(const WisFunction& func, Backend backend = Backend::Any, std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full);
+    std::string MakeCFunctionDecl(const WisFunction& func, Backend backend = Backend::Any, std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full);
     std::string MakeCDelegate(const WisFunction& func, DocKind kind = DocKind::Full);
     std::string MakeCConstant(const WisConstant& c, DocKind kind = DocKind::Full);
-    std::string MakeCPlatform(const WisPlatform& p, DocKind kind = DocKind::Full);
+    std::string MakeCPlatform(const WisModule& p, DocKind kind = DocKind::Full);
     std::string MakeConstantDescription(const WisConstant& c);
 
     std::string MakeEnumDescription(const WisEnum& s);
     std::string MakeBitmaskDescription(const WisBitmask& s);
-    std::string MakeEnumConverter(const WisEnum& s, std::string_view impl);
-    std::string MakeBitmaskConverter(const WisBitmask& s, std::string_view impl);
+    std::string MakeEnumConverter(const WisEnum& s, Backend backend);
+    std::string MakeBitmaskConverter(const WisBitmask& s, Backend backend);
     std::string MakeStructDescription(const WisStruct& s);
     std::string MakeVariantDescription(const WisStruct& s);
     std::string MakeFunctionDescription(const WisFunction& s);
     std::string MakeDelegateDescription(const WisFunction& s);
     std::string MakeValidationDescription(const Validation& v);
     std::string MakeValidationForType(std::string_view type_name);
-    std::string MakeCMemberDeclaration(const WisStructMember& member, size_t align_width, std::string_view impl = "");
-    std::string MakeCPPMemberDeclaration(const WisStructMember& member, size_t align_width, std::string_view impl);
+    std::string MakeCMemberDeclaration(const WisStructMember& member, size_t align_width, Backend backend = Backend::Any);
+    std::string MakeCPPMemberDeclaration(const WisStructMember& member, size_t align_width, Backend backend);
 
     // Make C++
     std::string MakeCPPEnum(const WisEnum& s, DocKind kind = DocKind::Full);
     std::string MakeCPPBitmask(const WisBitmask& s, DocKind kind = DocKind::Full);
     std::string MakeCPPStruct(const WisStruct& s, DocKind kind = DocKind::Full);
-    std::string MakeCPPVariant(const WisStruct& s, std::string_view impl = "", DocKind kind = DocKind::Full);
-    std::string MakeCPPHandle(const WisHandle& s, std::string_view impl = "", DocKind kind = DocKind::Full);
-    std::string MakeCPPView(const WisHandle& s, std::string_view impl = "", DocKind kind = DocKind::Full);
-    std::string MakeCPPFunctionProto(const WisFunction& func, std::string_view impl = "", std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full, ProtoType type = ProtoType::Prefixed);
-    std::string MakeCPPFunctionImpl(const WisFunction& func, std::string_view impl = "", std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full, ProtoType type = ProtoType::Prefixed);
+    std::string MakeCPPVariant(const WisStruct& s, Backend backend = Backend::Any, DocKind kind = DocKind::Full);
+    std::string MakeCPPHandle(const WisHandle& s, Backend backend = Backend::Any, DocKind kind = DocKind::Full);
+    std::string MakeCPPView(const WisHandle& s, Backend backend = Backend::Any, DocKind kind = DocKind::Full);
+    std::string MakeCPPFunctionProto(const WisFunction& func, Backend backend = Backend::Any, std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full, ProtoType type = ProtoType::Prefixed);
+    std::string MakeCPPFunctionImpl(const WisFunction& func, Backend backend = Backend::Any, std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full, ProtoType type = ProtoType::Prefixed);
     std::string MakeCPPDelegate(const WisFunction& func, DocKind kind = DocKind::Full);
     std::string MakeCPPConstant(const WisConstant& c, DocKind kind = DocKind::Full);
-    std::string MakeCPPPlatform(const WisPlatform& p, DocKind kind = DocKind::Full);
-    std::string MakeCIndependentPlatform(const WisPlatform& p, std::string_view impl = "", DocKind kind = DocKind::Full);
-    std::string MakeCPPIndependentPlatform(const WisPlatform& p, std::string_view impl = "", DocKind kind = DocKind::Full);
+    std::string MakeCPPPlatform(const WisModule& p, DocKind kind = DocKind::Full);
+    std::string MakeCIndependentPlatform(const WisModule& p, Backend backend = Backend::Any, DocKind kind = DocKind::Full);
+    std::string MakeCPPIndependentPlatform(const WisModule& p, Backend backend = Backend::Any, DocKind kind = DocKind::Full);
 
     // Write
     void WriteCAPI(std::filesystem::path path);
@@ -124,10 +124,10 @@ public:
                             std::string_view      refs);
 
     // Helpers
-    std::string GetCFullTypename(std::string_view type, std::string_view impl = "");
-    std::string GetCPPFullTypename(std::string_view type, std::string_view impl = "");
-    std::string FinalizeCDocumentation(std::string doc, std::string_view this_type, std::string_view impl = "");
-    std::string FinalizeCPPDocumentation(std::string doc, std::string_view this_type, std::string_view impl = "");
+    std::string GetCFullTypename(std::string_view type, Backend backend = Backend::Any);
+    std::string GetCPPFullTypename(std::string_view type, Backend backend = Backend::Any);
+    std::string FinalizeCDocumentation(std::string doc, std::string_view this_type, Backend backend = Backend::Any);
+    std::string FinalizeCPPDocumentation(std::string doc, std::string_view this_type, Backend backend = Backend::Any);
     std::string GetSpecificationCode(std::string_view c_code, std::string_view c_impl_code, std::string_view cpp_code, std::string_view cpp_impl_code);
     static std::string MakeFunctionKey(std::string_view name, std::string_view this_type);
     std::string        FindFunctionKey(std::string_view name) const;
@@ -135,8 +135,12 @@ public:
     TypeKind    GetType(std::string_view type_name) const noexcept;
     void        TryMakeRef(std::string_view type, std::string_view from);
     std::string GetRefs(std::string_view for_type);
+    bool        IsTypeAvailableForBackend(std::string_view type, Backend backend, std::unordered_set<std::string_view>& visiting) const;
+    bool        IsTypeAvailableForBackend(std::string_view type, Backend backend) const;
+    bool        IsFunctionAvailableForBackend(const WisFunction& func, Backend backend) const;
+    bool        IsVariantAvailableForBackend(const WisStruct& variant, Backend backend) const;
 
-    static ImplementedFor             ImplCode(std::string_view impl) noexcept;
+    static Backend                    ParseBackend(std::string_view backend) noexcept;
     static ImplOs                     GetImplOs(std::string_view os) noexcept;
     static Extends                    GetExtends(std::string_view extends_str) noexcept;
     static void                       ReplaceAll(std::string& str, const std::string& from, const std::string& to);
@@ -145,15 +149,28 @@ public:
     static std::string                MakeSnakeCase(std::string_view str);
     static std::string                MakeUpperSnakeCase(std::string_view str);
     static Modifier                   GetModifiers(std::string_view mod_str) noexcept;
-    static constexpr std::string_view GetImplString(ImplementedFor impl) noexcept
+    static constexpr std::string_view GetBackendSuffix(Backend backend) noexcept
     {
-        switch (impl) {
-        case ImplementedFor::Both:
+        switch (backend) {
+        case Backend::Any:
             return "";
-        case ImplementedFor::DX12:
+        case Backend::DX12:
             return "DX12";
-        case ImplementedFor::Vulkan:
+        case Backend::Vulkan:
             return "VK";
+        default:
+            return "";
+        }
+    }
+    static constexpr std::string_view GetBackendTag(Backend backend) noexcept
+    {
+        switch (backend) {
+        case Backend::Any:
+            return "";
+        case Backend::DX12:
+            return "dx";
+        case Backend::Vulkan:
+            return "vk";
         default:
             return "";
         }
@@ -292,7 +309,7 @@ public:
     }
 
     template<Lang lang = Lang::C, typename T>
-    std::string GetMemberTypeString(const T& member, std::string_view impl = "")
+    std::string GetMemberTypeString(const T& member, Backend backend = Backend::Any)
     {
         std::string attributes_pre;
         std::string attributes_inter;
@@ -310,14 +327,14 @@ public:
                 attributes_inter += "&";
             }
             if (member.modifier & Modifier::Span) {
-                return wis::format("wis::span<{}>", attributes_pre + GetCPPFullTypename(member.type, impl) + attributes_inter);
+                return wis::format("wis::span<{}>", attributes_pre + GetCPPFullTypename(member.type, backend) + attributes_inter);
             }
-            return attributes_pre + GetCPPFullTypename(member.type, impl) + attributes_inter;
+            return attributes_pre + GetCPPFullTypename(member.type, backend) + attributes_inter;
         } else {
             if (member.modifier & Modifier::Reference || member.modifier & Modifier::Span) {
                 attributes_inter += "*";
             }
-            return attributes_pre + GetCFullTypename(member.type, impl) + attributes_inter;
+            return attributes_pre + GetCFullTypename(member.type, backend) + attributes_inter;
         }
     }
 
@@ -332,7 +349,7 @@ private:
     std::unordered_map<std::string, WisFunction> function_map;
     std::unordered_map<std::string_view, WisFunction> delegate_map;
     std::unordered_map<std::string_view, WisConstant> constant_map;
-    std::unordered_map<std::string_view, WisPlatform> platform_map;
+    std::unordered_map<std::string_view, WisModule>   module_map;
     std::unordered_set<std::string_view>              view_set;
 
     std::unordered_map<std::string_view, Dependencies>   dependency_tree;
@@ -349,10 +366,12 @@ private:
     std::vector<std::string_view>      constants_in_order;
     std::vector<std::string>           free_functions_in_order;
     std::vector<std::string_view>      views_in_order;
-    std::vector<std::string_view>      platforms_in_order;
+    std::vector<std::string_view>      modules_in_order;
+
+    std::string_view active_module_name;
+    std::string_view platform_module_name;
+
     std::vector<std::filesystem::path> files;
-    std::vector<std::string>           destructors;
-    std::vector<std::string>           creators;
 
     // Standard type translations
     const std::unordered_map<std::string_view, std::string_view> standard_types{

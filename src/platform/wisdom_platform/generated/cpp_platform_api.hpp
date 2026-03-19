@@ -16,10 +16,6 @@
 
 namespace wis {
 /**
- * @brief Provided by Wisdom 0.7.0. X11 platform using Xlib.
- *
- * */
-/**
  * @brief Provided by Wisdom 0.7.0. X11 surface creation info. Uses opaque types to avoid Xlib.h inclusion in public headers.
  *
  * */
@@ -28,117 +24,15 @@ struct XlibWindowDesc {
     std::uint64_t window; ///< The X11 Window ID. Fits standard 32/64-bit window handles.
 };
 
-#if defined(WISDOM_VULKAN)
-
-struct VKXlibExtensionDeleter {
-    void operator()(WisVKXlibExtension* handle) noexcept
-    {
-        ::wisVKDestroyXlibExtension(handle);
-    }
-};
 /**
- * @brief Provided by Wisdom 0.7.0. Extension for Xlib surface creation functions.
+ * @brief Provided by Wisdom 0.7.0. Win32 surface creation info.
  *
  * */
-class VKXlibExtension : public wis::impl::Implements<wis::impl::VKXlibExtensionImpl, WisVKXlibExtension, wis::VKXlibExtensionDeleter>
-{
-public:
-    VKXlibExtension() noexcept
-        : ImplType(std::in_place)
-    {
-        ::wisVKInitXlibExtension(GetStorage());
-    }
-    // Operator & overload
-    wis::VKInstanceExtensionHeader* operator&() noexcept
-    {
-        return &GetMutableInternal().header;
-    }
-
-public:
-    /**
-     * @brief Provided by Wisdom 0.7.0. Creates a Vulkan surface using Xlib.
-     * @param info Xlib windowing data.
-     * @param out_result denoting the outcome of operation.
-     * @return surface points to wis::Surface, initialized on success.
-     *
-     * */
-    WIS_NODISCARD inline wis::VKSurface CreateSurface(const wis::XlibWindowDesc& info,
-                                                      wis::Result&               out_result) noexcept
-    {
-        wis::VKSurface surface;
-        out_result = convert_result_vk(::wisVKXlibExtensionCreateSurface(&_impl_storage,
-                                                                         reinterpret_cast<const WisXlibWindowDesc*>(&info),
-                                                                         surface.GetStorage()));
-        return surface;
-    }
+struct Win32WindowDesc {
+    void* hinstance; ///< HINSTANCE of the window. Cast to HINSTANCE internally.
+    void* hwnd; ///< HWND of the window. Cast to HWND internally.
 };
 
-#endif // defined(WISDOM_VULKAN)
-
-/**
- * @brief Provided by Wisdom 0.7.0. X11 platform using XCB.
- *
- * */
-/**
- * @brief Provided by Wisdom 0.7.0. X11 surface creation info for XCB. Uses opaque types to avoid XCB headers in public headers.
- *
- * */
-struct XCBWindowDesc {
-    void*         connection; ///< Pointer to the XCB connection. Cast to xcb_connection_t* internally.
-    std::uint32_t window; ///< The X11 Window ID. Fits standard 32/64-bit window handles.
-};
-
-#if defined(WISDOM_VULKAN)
-
-struct VKXCBExtensionDeleter {
-    void operator()(WisVKXCBExtension* handle) noexcept
-    {
-        ::wisVKDestroyXCBExtension(handle);
-    }
-};
-/**
- * @brief Provided by Wisdom 0.7.0. Extension for Xlib surface creation functions.
- *
- * */
-class VKXCBExtension : public wis::impl::Implements<wis::impl::VKXCBExtensionImpl, WisVKXCBExtension, wis::VKXCBExtensionDeleter>
-{
-public:
-    VKXCBExtension() noexcept
-        : ImplType(std::in_place)
-    {
-        ::wisVKInitXCBExtension(GetStorage());
-    }
-    // Operator & overload
-    wis::VKInstanceExtensionHeader* operator&() noexcept
-    {
-        return &GetMutableInternal().header;
-    }
-
-public:
-    /**
-     * @brief Provided by Wisdom 0.7.0. Creates a surface using Win32.
-     * @param info XCB windowing data.
-     * @param out_result denoting the outcome of operation.
-     * @return surface points to wis::Surface, initialized on success.
-     *
-     * */
-    WIS_NODISCARD inline wis::VKSurface CreateSurface(const wis::XCBWindowDesc& info,
-                                                      wis::Result&              out_result) noexcept
-    {
-        wis::VKSurface surface;
-        out_result = convert_result_vk(::wisVKXCBExtensionCreateSurface(&_impl_storage,
-                                                                        reinterpret_cast<const WisXCBWindowDesc*>(&info),
-                                                                        surface.GetStorage()));
-        return surface;
-    }
-};
-
-#endif // defined(WISDOM_VULKAN)
-
-/**
- * @brief Provided by Wisdom 0.7.0. Wayland platform.
- *
- * */
 /**
  * @brief Provided by Wisdom 0.7.0. Wayland surface creation info. Uses opaque types to avoid Wayland headers in public headers.
  *
@@ -148,64 +42,21 @@ struct WaylandWindowDesc {
     void* surface; ///< Pointer to the Wayland surface. Cast to wl_surface* internally.
 };
 
-#if defined(WISDOM_VULKAN)
-
-struct VKWaylandExtensionDeleter {
-    void operator()(WisVKWaylandExtension* handle) noexcept
-    {
-        ::wisVKDestroyWaylandExtension(handle);
-    }
-};
 /**
- * @brief Provided by Wisdom 0.7.0. Extension for Xlib surface creation functions.
+ * @brief Provided by Wisdom 0.7.0. X11 surface creation info for XCB. Uses opaque types to avoid XCB headers in public headers.
  *
  * */
-class VKWaylandExtension : public wis::impl::Implements<wis::impl::VKWaylandExtensionImpl, WisVKWaylandExtension, wis::VKWaylandExtensionDeleter>
-{
-public:
-    VKWaylandExtension() noexcept
-        : ImplType(std::in_place)
-    {
-        ::wisVKInitWaylandExtension(GetStorage());
-    }
-    // Operator & overload
-    wis::VKInstanceExtensionHeader* operator&() noexcept
-    {
-        return &GetMutableInternal().header;
-    }
-
-public:
-    /**
-     * @brief Provided by Wisdom 0.7.0. Creates a surface using Wayland.
-     * @param info Wayland windowing data.
-     * @param out_result denoting the outcome of operation.
-     * @return surface points to wis::Surface, initialized on success.
-     *
-     * */
-    WIS_NODISCARD inline wis::VKSurface CreateSurface(const wis::WaylandWindowDesc& info,
-                                                      wis::Result&                  out_result) noexcept
-    {
-        wis::VKSurface surface;
-        out_result = convert_result_vk(::wisVKWaylandExtensionCreateSurface(&_impl_storage,
-                                                                            reinterpret_cast<const WisWaylandWindowDesc*>(&info),
-                                                                            surface.GetStorage()));
-        return surface;
-    }
+struct XCBWindowDesc {
+    void*         connection; ///< Pointer to the XCB connection. Cast to xcb_connection_t* internally.
+    std::uint32_t window; ///< The X11 Window ID. Fits standard 32/64-bit window handles.
 };
 
-#endif // defined(WISDOM_VULKAN)
-
 /**
- * @brief Provided by Wisdom 0.7.0. Standard Windows platform.
+ * @brief Provided by Wisdom 0.7.0. UWP surface creation info. Uses opaque types to avoid Windows Runtime headers in public headers.
  *
  * */
-/**
- * @brief Provided by Wisdom 0.7.0. Win32 surface creation info.
- *
- * */
-struct Win32WindowDesc {
-    void* hinstance; ///< HINSTANCE of the window. Cast to HINSTANCE internally.
-    void* hwnd; ///< HWND of the window. Cast to HWND internally.
+struct UWPWindowDesc {
+    void* core_window; ///< Pointer to the UWP CoreWindow. Cast to ICoreWindow* internally.
 };
 
 #if defined(WISDOM_DX12)
@@ -253,9 +104,181 @@ public:
     }
 };
 
+struct DX12UWPExtensionDeleter {
+    void operator()(WisDX12UWPExtension* handle) noexcept
+    {
+        ::wisDX12DestroyUWPExtension(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Extension for UWP surface creation functions.
+ *
+ * */
+class DX12UWPExtension : public wis::impl::Implements<wis::impl::DX12UWPExtensionImpl, WisDX12UWPExtension, wis::DX12UWPExtensionDeleter>
+{
+public:
+    DX12UWPExtension() noexcept
+        : ImplType(std::in_place)
+    {
+        ::wisDX12InitUWPExtension(GetStorage());
+    }
+    // Operator & overload
+    wis::DX12InstanceExtensionHeader* operator&() noexcept
+    {
+        return &GetMutableInternal().header;
+    }
+
+public:
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a surface using UWP.
+     * @param info UWP windowing data.
+     * @param out_result denoting the outcome of operation.
+     * @return surface points to wis::Surface, initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::DX12Surface CreateSurface(const wis::UWPWindowDesc& info,
+                                                        wis::Result&              out_result) noexcept
+    {
+        wis::DX12Surface surface;
+        out_result = convert_result_dx(::wisDX12UWPExtensionCreateSurface(&_impl_storage,
+                                                                          reinterpret_cast<const WisUWPWindowDesc*>(&info),
+                                                                          surface.GetStorage()));
+        return surface;
+    }
+};
+
 #endif // defined(WISDOM_DX12)
 
 #if defined(WISDOM_VULKAN)
+
+struct VKXlibExtensionDeleter {
+    void operator()(WisVKXlibExtension* handle) noexcept
+    {
+        ::wisVKDestroyXlibExtension(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Extension for Xlib surface creation functions.
+ *
+ * */
+class VKXlibExtension : public wis::impl::Implements<wis::impl::VKXlibExtensionImpl, WisVKXlibExtension, wis::VKXlibExtensionDeleter>
+{
+public:
+    VKXlibExtension() noexcept
+        : ImplType(std::in_place)
+    {
+        ::wisVKInitXlibExtension(GetStorage());
+    }
+    // Operator & overload
+    wis::VKInstanceExtensionHeader* operator&() noexcept
+    {
+        return &GetMutableInternal().header;
+    }
+
+public:
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a Vulkan surface using Xlib.
+     * @param info Xlib windowing data.
+     * @param out_result denoting the outcome of operation.
+     * @return surface points to wis::Surface, initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::VKSurface CreateSurface(const wis::XlibWindowDesc& info,
+                                                      wis::Result&               out_result) noexcept
+    {
+        wis::VKSurface surface;
+        out_result = convert_result_vk(::wisVKXlibExtensionCreateSurface(&_impl_storage,
+                                                                         reinterpret_cast<const WisXlibWindowDesc*>(&info),
+                                                                         surface.GetStorage()));
+        return surface;
+    }
+};
+
+struct VKXCBExtensionDeleter {
+    void operator()(WisVKXCBExtension* handle) noexcept
+    {
+        ::wisVKDestroyXCBExtension(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Extension for Xlib surface creation functions.
+ *
+ * */
+class VKXCBExtension : public wis::impl::Implements<wis::impl::VKXCBExtensionImpl, WisVKXCBExtension, wis::VKXCBExtensionDeleter>
+{
+public:
+    VKXCBExtension() noexcept
+        : ImplType(std::in_place)
+    {
+        ::wisVKInitXCBExtension(GetStorage());
+    }
+    // Operator & overload
+    wis::VKInstanceExtensionHeader* operator&() noexcept
+    {
+        return &GetMutableInternal().header;
+    }
+
+public:
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a surface using Win32.
+     * @param info XCB windowing data.
+     * @param out_result denoting the outcome of operation.
+     * @return surface points to wis::Surface, initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::VKSurface CreateSurface(const wis::XCBWindowDesc& info,
+                                                      wis::Result&              out_result) noexcept
+    {
+        wis::VKSurface surface;
+        out_result = convert_result_vk(::wisVKXCBExtensionCreateSurface(&_impl_storage,
+                                                                        reinterpret_cast<const WisXCBWindowDesc*>(&info),
+                                                                        surface.GetStorage()));
+        return surface;
+    }
+};
+
+struct VKWaylandExtensionDeleter {
+    void operator()(WisVKWaylandExtension* handle) noexcept
+    {
+        ::wisVKDestroyWaylandExtension(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Extension for Xlib surface creation functions.
+ *
+ * */
+class VKWaylandExtension : public wis::impl::Implements<wis::impl::VKWaylandExtensionImpl, WisVKWaylandExtension, wis::VKWaylandExtensionDeleter>
+{
+public:
+    VKWaylandExtension() noexcept
+        : ImplType(std::in_place)
+    {
+        ::wisVKInitWaylandExtension(GetStorage());
+    }
+    // Operator & overload
+    wis::VKInstanceExtensionHeader* operator&() noexcept
+    {
+        return &GetMutableInternal().header;
+    }
+
+public:
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a surface using Wayland.
+     * @param info Wayland windowing data.
+     * @param out_result denoting the outcome of operation.
+     * @return surface points to wis::Surface, initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::VKSurface CreateSurface(const wis::WaylandWindowDesc& info,
+                                                      wis::Result&                  out_result) noexcept
+    {
+        wis::VKSurface surface;
+        out_result = convert_result_vk(::wisVKWaylandExtensionCreateSurface(&_impl_storage,
+                                                                            reinterpret_cast<const WisWaylandWindowDesc*>(&info),
+                                                                            surface.GetStorage()));
+        return surface;
+    }
+};
 
 struct VKWin32ExtensionDeleter {
     void operator()(WisVKWin32Extension* handle) noexcept
@@ -301,65 +324,6 @@ public:
 };
 
 #endif // defined(WISDOM_VULKAN)
-
-/**
- * @brief Provided by Wisdom 0.7.0. Universal Windows Platform.
- *
- * */
-/**
- * @brief Provided by Wisdom 0.7.0. UWP surface creation info. Uses opaque types to avoid Windows Runtime headers in public headers.
- *
- * */
-struct UWPWindowDesc {
-    void* core_window; ///< Pointer to the UWP CoreWindow. Cast to ICoreWindow* internally.
-};
-
-#if defined(WISDOM_DX12)
-
-struct DX12UWPExtensionDeleter {
-    void operator()(WisDX12UWPExtension* handle) noexcept
-    {
-        ::wisDX12DestroyUWPExtension(handle);
-    }
-};
-/**
- * @brief Provided by Wisdom 0.7.0. Extension for UWP surface creation functions.
- *
- * */
-class DX12UWPExtension : public wis::impl::Implements<wis::impl::DX12UWPExtensionImpl, WisDX12UWPExtension, wis::DX12UWPExtensionDeleter>
-{
-public:
-    DX12UWPExtension() noexcept
-        : ImplType(std::in_place)
-    {
-        ::wisDX12InitUWPExtension(GetStorage());
-    }
-    // Operator & overload
-    wis::DX12InstanceExtensionHeader* operator&() noexcept
-    {
-        return &GetMutableInternal().header;
-    }
-
-public:
-    /**
-     * @brief Provided by Wisdom 0.7.0. Creates a surface using UWP.
-     * @param info UWP windowing data.
-     * @param out_result denoting the outcome of operation.
-     * @return surface points to wis::Surface, initialized on success.
-     *
-     * */
-    WIS_NODISCARD inline wis::DX12Surface CreateSurface(const wis::UWPWindowDesc& info,
-                                                        wis::Result&              out_result) noexcept
-    {
-        wis::DX12Surface surface;
-        out_result = convert_result_dx(::wisDX12UWPExtensionCreateSurface(&_impl_storage,
-                                                                          reinterpret_cast<const WisUWPWindowDesc*>(&info),
-                                                                          surface.GetStorage()));
-        return surface;
-    }
-};
-
-#endif // defined(WISDOM_DX12)
 
 } // namespace wis
 #endif // __cplusplus

@@ -29,6 +29,7 @@ void Generator::ParseConstants(tinyxml2::XMLElement* constants)
         auto  name = val->FindAttribute("name")->Value();
         auto& ref  = constant_map[name];
         constants_in_order.emplace_back(name);
+        module_map[active_module_name].constants_in_order.emplace_back(name);
 
         ref.name  = name;
         ref.type  = val->FindAttribute("type")->Value();
@@ -49,7 +50,7 @@ void Generator::ParseConstants(tinyxml2::XMLElement* constants)
 //-----------------------------------------------------------------------------
 std::string Generator::MakeCConstant(const WisConstant& c, DocKind kind)
 {
-    std::string type_str = GetCFullTypename(c.type, "");
+    std::string type_str = GetCFullTypename(c.type, Backend::Any);
     std::string mod_str;
     if ((c.modifier & Modifier::Pointer) != Modifier::None) {
         mod_str += "*";
@@ -73,7 +74,7 @@ std::string Generator::MakeCConstant(const WisConstant& c, DocKind kind)
 //-----------------------------------------------------------------------------
 std::string Generator::MakeCPPConstant(const WisConstant& c, DocKind kind)
 {
-    std::string type_str = GetCPPFullTypename(c.type, "");
+    std::string type_str = GetCPPFullTypename(c.type, Backend::Any);
     std::string mod_str;
     if ((c.modifier & Modifier::Pointer) != Modifier::None) {
         mod_str += "*";
@@ -101,7 +102,7 @@ std::string Generator::MakeConstantDescription(const WisConstant& c)
         description += std::string(c.doc) + "\n\n";
     }
 
-    std::string type_str = GetCFullTypename(c.type, "");
+    std::string type_str = GetCFullTypename(c.type, Backend::Any);
     description += wis::format("Type: `{}`\n", type_str);
     description += wis::format("Value: `{}`\n", c.value);
     return description;
@@ -131,7 +132,9 @@ void Generator::WriteConstantDocumentation(std::filesystem::path const_output_pa
     std::string all_c_code;
     std::string all_cpp_code;
 
-    for (auto& const_name : constants_in_order) {
+    auto module_it = module_map.find(active_module_name);
+    auto& constant_names = module_it != module_map.end() ? module_it->second.constants_in_order : constants_in_order;
+    for (auto& const_name : constant_names) {
         auto& const_ref = constant_map[const_name];
         all_c_code += MakeCConstant(const_ref, DocKind::VersionOnly);
         all_cpp_code += MakeCPPConstant(const_ref, DocKind::VersionOnly);

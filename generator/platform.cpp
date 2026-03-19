@@ -31,43 +31,9 @@ static auto to_upper(std::string_view str)
 };
 
 //-----------------------------------------------------------------------------
-void Generator::ParsePlatforms(tinyxml2::XMLElement* types)
+std::string Generator::MakeCPlatform(const WisModule& p, DocKind kind)
 {
-    for (auto* type = types->FirstChildElement("platform"); type;
-         type       = type->NextSiblingElement("platform")) {
-
-        auto  name    = type->FindAttribute("name")->Value();
-        auto  version = type->FindAttribute("version")->Value();
-        auto& ref     = platform_map[name];
-        platforms_in_order.emplace_back(name);
-
-        ref.name    = name;
-        ref.version = version;
-
-        if (auto* doc = type->FindAttribute("doc")) {
-            ref.doc = doc->Value();
-        }
-
-        // Parse implementations
-        if (auto* backend = type->FindAttribute("backend")) {
-            ref.impl = ImplCode(backend->Value());
-        }
-
-        if (auto* os = type->FindAttribute("os")) {
-            ref.os = GetImplOs(os->Value());
-        }
-    }
-}
-
-//-----------------------------------------------------------------------------
-std::string Generator::MakeCPlatform(const WisPlatform& p, DocKind kind)
-{
-    auto        upper_name = to_upper(p.name);
     std::string st_decl;
-    if (!p.doc.empty()) {
-        std::string xdoc = MakeTypeDocumentation(p, kind);
-        st_decl          = wis::format("{}\n{}", xdoc, st_decl);
-    }
 
     for (const auto& struct_name : p.structs_in_order) {
         auto& struct_ref = struct_map[struct_name];
@@ -77,51 +43,48 @@ std::string Generator::MakeCPlatform(const WisPlatform& p, DocKind kind)
 
     // dependent API elements (handles, functions)
 
-    if (p.impl == ImplementedFor::Both || p.impl == ImplementedFor::DX12) {
-        st_decl += wis::format("#if defined(WISDOM_DX12)\n\n");
+    st_decl += wis::format("#if defined(WISDOM_DX12)\n\n");
 
-        for (const auto& handle_name : p.handles_in_order) {
-            auto& handle_ref = handle_map[handle_name];
-            st_decl += MakeCHandle(handle_ref, "dx", kind);
+    for (const auto& handle_name : p.handles_in_order) {
+        auto& handle_ref = handle_map[handle_name];
+        if (handle_ref.GetSize(Backend::DX12) > 0) {
+            st_decl += MakeCHandle(handle_ref, Backend::DX12, kind);
             st_decl += "\n";
         }
-        for (const auto& func_name : p.functions_in_order) {
-            auto& func_ref = function_map[func_name];
-            st_decl += MakeCFunctionDecl(func_ref, "dx", "WISDOM_PLATFORM_API ", kind);
-            st_decl += "\n";
-        }
-
-        st_decl += wis::format("#endif // defined(WISDOM_DX12)\n\n");
     }
-
-    if (p.impl == ImplementedFor::Both || p.impl == ImplementedFor::Vulkan) {
-        st_decl += wis::format("#if defined(WISDOM_VULKAN)\n\n");
-
-        for (const auto& handle_name : p.handles_in_order) {
-            auto& handle_ref = handle_map[handle_name];
-            st_decl += MakeCHandle(handle_ref, "vk", kind);
+    for (const auto& func_name : p.functions_in_order) {
+        auto& func_ref = function_map[func_name];
+        if (func_ref.this_type.empty() || handle_map[func_ref.this_type].GetSize(Backend::DX12) > 0) {
+            st_decl += MakeCFunctionDecl(func_ref, Backend::DX12, "WISDOM_PLATFORM_API ", kind);
             st_decl += "\n";
         }
-        for (const auto& func_name : p.functions_in_order) {
-            auto& func_ref = function_map[func_name];
-            st_decl += MakeCFunctionDecl(func_ref, "vk", "WISDOM_PLATFORM_API ", kind);
-            st_decl += "\n";
-        }
-
-        st_decl += wis::format("#endif // defined(WISDOM_VULKAN)\n\n");
     }
+    st_decl += wis::format("#endif // defined(WISDOM_DX12)\n\n");
+
+    st_decl += wis::format("#if defined(WISDOM_VULKAN)\n\n");
+
+    for (const auto& handle_name : p.handles_in_order) {
+        auto& handle_ref = handle_map[handle_name];
+        if (handle_ref.GetSize(Backend::Vulkan) > 0) {
+            st_decl += MakeCHandle(handle_ref, Backend::Vulkan, kind);
+            st_decl += "\n";
+        }
+    }
+    for (const auto& func_name : p.functions_in_order) {
+        auto& func_ref = function_map[func_name];
+        if (func_ref.this_type.empty() || handle_map[func_ref.this_type].GetSize(Backend::Vulkan) > 0) {
+            st_decl += MakeCFunctionDecl(func_ref, Backend::Vulkan, "WISDOM_PLATFORM_API ", kind);
+            st_decl += "\n";
+        }
+    }
+    st_decl += wis::format("#endif // defined(WISDOM_VULKAN)\n\n");
 
     return st_decl;
 }
 
-std::string Generator::MakeCPPPlatform(const WisPlatform& p, DocKind kind)
+std::string Generator::MakeCPPPlatform(const WisModule& p, DocKind kind)
 {
-    auto        upper_name = to_upper(p.name);
     std::string st_decl;
-    if (!p.doc.empty()) {
-        std::string xdoc = MakeTypeDocumentation(p, kind);
-        st_decl          = wis::format("{}\n{}", xdoc, st_decl);
-    }
 
     for (const auto& struct_name : p.structs_in_order) {
         auto& struct_ref = struct_map[struct_name];
@@ -131,68 +94,65 @@ std::string Generator::MakeCPPPlatform(const WisPlatform& p, DocKind kind)
 
     // dependent API elements (handles, functions)
 
-    if (p.impl == ImplementedFor::Both || p.impl == ImplementedFor::DX12) {
-        st_decl += wis::format("#if defined(WISDOM_DX12)\n\n");
-        for (const auto& handle_name : p.handles_in_order) {
-            auto& handle_ref = handle_map[handle_name];
-            st_decl += MakeCPPHandle(handle_ref, "dx", kind);
+    st_decl += wis::format("#if defined(WISDOM_DX12)\n\n");
+    for (const auto& handle_name : p.handles_in_order) {
+        auto& handle_ref = handle_map[handle_name];
+        if (handle_ref.GetSize(Backend::DX12) > 0) {
+            st_decl += MakeCPPHandle(handle_ref, Backend::DX12, kind);
             st_decl += "\n";
         }
-
-        st_decl += wis::format("#endif // defined(WISDOM_DX12)\n\n");
     }
+    st_decl += wis::format("#endif // defined(WISDOM_DX12)\n\n");
 
-    if (p.impl == ImplementedFor::Both || p.impl == ImplementedFor::Vulkan) {
-        st_decl += wis::format("#if defined(WISDOM_VULKAN)\n\n");
-        for (const auto& handle_name : p.handles_in_order) {
-            auto& handle_ref = handle_map[handle_name];
-            st_decl += MakeCPPHandle(handle_ref, "vk", kind);
+    st_decl += wis::format("#if defined(WISDOM_VULKAN)\n\n");
+    for (const auto& handle_name : p.handles_in_order) {
+        auto& handle_ref = handle_map[handle_name];
+        if (handle_ref.GetSize(Backend::Vulkan) > 0) {
+            st_decl += MakeCPPHandle(handle_ref, Backend::Vulkan, kind);
             st_decl += "\n";
         }
-
-        st_decl += wis::format("#endif // defined(WISDOM_VULKAN)\n\n");
     }
+    st_decl += wis::format("#endif // defined(WISDOM_VULKAN)\n\n");
 
     return st_decl;
 }
 
-std::string Generator::MakeCIndependentPlatform(const WisPlatform& p, std::string_view impl, DocKind kind)
+std::string Generator::MakeCIndependentPlatform(const WisModule& p, Backend backend, DocKind kind)
 {
-    if (p.impl != ImplementedFor::Both && p.impl != ImplCode(impl)) {
-        return "";
-    }
-
-    auto        upper_name = to_upper(p.name);
+    (void)kind;
     std::string st_decl;
 
     // handles
     for (auto& handle_name : p.handles_in_order) {
         auto& handle_def = handle_map[handle_name];
-        st_decl += wis::format("typedef struct {} {};\n", GetCFullTypename(handle_def.name, impl), GetCFullTypename(handle_def.name));
+        if (handle_def.GetSize(backend) > 0) {
+            st_decl += wis::format("typedef struct {} {};\n", GetCFullTypename(handle_def.name, backend), GetCFullTypename(handle_def.name));
+        }
     }
 
     // functions
     for (auto& func_name : p.functions_in_order) {
         auto& func_def = function_map[func_name];
-        st_decl += wis::format("#define {} {}\n",
-                               wis::format("wis{}{}", func_def.modifier & (Destroy | Construct) ? "" : func_def.this_type, func_def.name),
-                               wis::format("wis{}{}{}", impl, func_def.modifier & (Destroy | Construct) ? "" : func_def.this_type, func_def.name));
+        if (func_def.this_type.empty() || handle_map[func_def.this_type].GetSize(backend) > 0) {
+            st_decl += wis::format("#define {} {}\n",
+                                   wis::format("wis{}{}", func_def.modifier & (Destroy | Construct) ? "" : func_def.this_type, func_def.name),
+                                   wis::format("wis{}{}{}", GetBackendSuffix(backend), func_def.modifier & (Destroy | Construct) ? "" : func_def.this_type, func_def.name));
+        }
     }
 
     return st_decl;
 }
 
-std::string Generator::MakeCPPIndependentPlatform(const WisPlatform& p, std::string_view impl, DocKind kind)
+std::string Generator::MakeCPPIndependentPlatform(const WisModule& p, Backend backend, DocKind kind)
 {
-    if (p.impl != ImplementedFor::Both && p.impl != ImplCode(impl)) {
-        return "";
-    }
-    auto        upper_name = to_upper(p.name);
+    (void)kind;
     std::string st_decl;
 
     for (auto& handle_name : p.handles_in_order) {
         auto& handle_def = handle_map[handle_name];
-        st_decl += wis::format("using {} = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, impl));
+        if (handle_def.GetSize(backend) > 0) {
+            st_decl += wis::format("using {} = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, backend));
+        }
     }
 
     return st_decl;

@@ -34,6 +34,7 @@ void Generator::ParseBitmask(tinyxml2::XMLElement* type)
     auto  name = type->FindAttribute("name")->Value();
     auto& ref  = bitmask_map[name];
     bitmasks_in_order.push_back(name);
+    module_map[active_module_name].bitmasks_in_order.push_back(name);
     ref.name = name;
 
     // Unused currently, but keep for u64 flags
@@ -54,14 +55,14 @@ void Generator::ParseBitmask(tinyxml2::XMLElement* type)
     for (auto* impl_type = type->FirstChildElement("impl_type"); impl_type;
          impl_type       = impl_type->NextSiblingElement("impl_type")) {
         auto impl_for      = impl_type->FindAttribute("for")->Value();
-        auto impl_for_code = ImplCode(impl_for);
+        auto backend       = ParseBackend(impl_for);
         auto impl_name     = impl_type->FindAttribute("name")->Value();
 
         if (auto direct = impl_type->FindAttribute("direct")) {
-            ref.conversion_type[static_cast<size_t>(impl_for_code)] = WisConvert{ impl_name, {}, true };
+            ref.conversion_type[static_cast<size_t>(backend)] = WisConvert{ impl_name, {}, true };
             continue;
         }
-        ref.conversion_type[static_cast<size_t>(impl_for_code)] = WisConvert{ impl_name, {}, false };
+        ref.conversion_type[static_cast<size_t>(backend)] = WisConvert{ impl_name, {}, false };
     }
 
     for (auto* member = type->FirstChildElement("value"); member;
@@ -94,8 +95,8 @@ void Generator::ParseBitmask(tinyxml2::XMLElement* type)
             auto impl_name = impl->FindAttribute("name")->Value();
             auto value     = impl->FindAttribute("value")->Value();
 
-            auto impl_for_code        = ImplCode(impl_name);
-            m.converts[impl_for_code] = value;
+            auto backend = ParseBackend(impl_name);
+            m.converts[static_cast<size_t>(backend)] = value;
         }
     }
 }
@@ -103,7 +104,7 @@ void Generator::ParseBitmask(tinyxml2::XMLElement* type)
 //-----------------------------------------------------------------------------
 std::string Generator::MakeCBitmask(const WisBitmask& s, DocKind kind)
 {
-    auto        full_name = GetCFullTypename(s.name, "");
+    auto        full_name = GetCFullTypename(s.name, Backend::Any);
     std::string st_decl   = wis::format("typedef enum {} {{\n", full_name);
 
     if (!s.doc.empty()) {
@@ -187,25 +188,25 @@ std::string Generator::MakeBitmaskDescription(const WisBitmask& s)
 }
 
 //-----------------------------------------------------------------------------
-std::string Generator::MakeBitmaskConverter(const WisBitmask& s, std::string_view impl)
+std::string Generator::MakeBitmaskConverter(const WisBitmask& s, Backend backend)
 {
     std::string converters;
-    auto        impl_code = ImplCode(impl);
-    auto&       cvt       = s.conversion_type[static_cast<size_t>(impl_code)];
+    auto        backend_tag = GetBackendTag(backend);
+    auto&       cvt     = s.conversion_type[static_cast<size_t>(backend)];
     if (cvt.value.empty()) {
         return converters;
     }
     if (cvt.direct) {
         converters = wis::format("constexpr inline {} convert_{}({} value) noexcept {{\n    return static_cast<{}>(value);\n}}\n\n",
                                  cvt.value,
-                                 impl,
-                                 GetCFullTypename(s.name, impl),
+                                 backend_tag,
+                                 GetCFullTypename(s.name, backend),
                                  cvt.value);
     } else {
         converters = wis::format("constexpr inline {} convert_{}({} value) noexcept {{\n",
                                  cvt.value,
-                                 impl,
-                                 GetCFullTypename(s.name, impl));
+                                 backend_tag,
+                                 GetCFullTypename(s.name, backend));
 
         // Start with default value
         converters += wis::format("    {} result = static_cast<{}>(0);\n",
@@ -213,24 +214,24 @@ std::string Generator::MakeBitmaskConverter(const WisBitmask& s, std::string_vie
                                   cvt.value);
         if (auto nam = cvt.value.find("::"); nam != std::string::npos) {
             for (auto& m : s.values) {
-                auto convert_value = m.converts[static_cast<size_t>(impl_code)];
+                auto convert_value = m.converts[static_cast<size_t>(backend)];
                 if (convert_value.empty()) {
                     continue;
                 }
                 converters += wis::format("    if (value & {}{}) {{ result = static_cast<{}>(result | {}); }}\n",
-                                          GetCFullTypename(s.name, impl),
+                                          GetCFullTypename(s.name, backend),
                                           m.name,
                                           cvt.value,
                                           convert_value);
             }
         } else {
             for (auto& m : s.values) {
-                auto convert_value = m.converts[static_cast<size_t>(impl_code)];
+                auto convert_value = m.converts[static_cast<size_t>(backend)];
                 if (convert_value.empty()) {
                     continue;
                 }
                 converters += wis::format("    if (value & {}{}) {{ result |= {}; }}\n",
-                                          GetCFullTypename(s.name, impl),
+                                          GetCFullTypename(s.name, backend),
                                           m.name,
                                           convert_value);
             }
@@ -245,7 +246,9 @@ std::string Generator::MakeBitmaskConverter(const WisBitmask& s, std::string_vie
 void Generator::WriteBitmaskDocumentation(std::filesystem::path enum_output_path)
 {
     std::filesystem::create_directories(enum_output_path);
-    for (auto& enum_name : bitmasks_in_order) {
+    auto module_it = module_map.find(active_module_name);
+    auto& bitmask_names = module_it != module_map.end() ? module_it->second.bitmasks_in_order : bitmasks_in_order;
+    for (auto& enum_name : bitmask_names) {
         // Make a folder for enums starting with this letter
         std::filesystem::path enum_file_path = enum_output_path / wis::format("{}_enum.h", MakeSnakeCase(enum_name));
         auto&                 enum_ref       = bitmask_map[enum_name];
@@ -264,7 +267,7 @@ void Generator::WriteBitmaskDocumentation(std::filesystem::path enum_output_path
 
         WriteDocumentation(enum_file_path,
                            template_bitmask,
-                           GetCFullTypename(enum_name, ""),
+                           GetCFullTypename(enum_name, Backend::Any),
                            enum_template_content,
                            empty_doc,
                            enum_description,

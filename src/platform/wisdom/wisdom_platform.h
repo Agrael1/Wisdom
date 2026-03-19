@@ -19,35 +19,31 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 #if defined(WISDOM_DX12) && !FORCEVK_SWITCH
 
 typedef struct WisDX12Win32Extension WisWin32Extension;
-#define wisInitWin32Extension          wisDX12InitWin32Extension
+typedef struct WisDX12UWPExtension   WisUWPExtension;
 #define wisDestroyWin32Extension       wisDX12DestroyWin32Extension
+#define wisInitWin32Extension          wisDX12InitWin32Extension
+#define wisDestroyUWPExtension         wisDX12DestroyUWPExtension
+#define wisInitUWPExtension            wisDX12InitUWPExtension
 #define wisWin32ExtensionCreateSurface wisDX12Win32ExtensionCreateSurface
-
-typedef struct WisDX12UWPExtension WisUWPExtension;
-#define wisInitUWPExtension          wisDX12InitUWPExtension
-#define wisDestroyUWPExtension       wisDX12DestroyUWPExtension
-#define wisUWPExtensionCreateSurface wisDX12UWPExtensionCreateSurface
+#define wisUWPExtensionCreateSurface   wisDX12UWPExtensionCreateSurface
 
 #elif defined(WISDOM_VULKAN)
 
-typedef struct WisVKXlibExtension WisXlibExtension;
-#define wisInitXlibExtension             wisVKInitXlibExtension
-#define wisDestroyXlibExtension          wisVKDestroyXlibExtension
-#define wisXlibExtensionCreateSurface    wisVKXlibExtensionCreateSurface
-
-typedef struct WisVKXCBExtension WisXCBExtension;
-#define wisInitXCBExtension              wisVKInitXCBExtension
-#define wisDestroyXCBExtension           wisVKDestroyXCBExtension
-#define wisXCBExtensionCreateSurface     wisVKXCBExtensionCreateSurface
-
+typedef struct WisVKXlibExtension    WisXlibExtension;
+typedef struct WisVKXCBExtension     WisXCBExtension;
 typedef struct WisVKWaylandExtension WisWaylandExtension;
-#define wisInitWaylandExtension          wisVKInitWaylandExtension
+typedef struct WisVKWin32Extension   WisWin32Extension;
+#define wisDestroyXlibExtension          wisVKDestroyXlibExtension
+#define wisInitXlibExtension             wisVKInitXlibExtension
+#define wisDestroyXCBExtension           wisVKDestroyXCBExtension
+#define wisInitXCBExtension              wisVKInitXCBExtension
 #define wisDestroyWaylandExtension       wisVKDestroyWaylandExtension
-#define wisWaylandExtensionCreateSurface wisVKWaylandExtensionCreateSurface
-
-typedef struct WisVKWin32Extension WisWin32Extension;
-#define wisInitWin32Extension            wisVKInitWin32Extension
+#define wisInitWaylandExtension          wisVKInitWaylandExtension
 #define wisDestroyWin32Extension         wisVKDestroyWin32Extension
+#define wisInitWin32Extension            wisVKInitWin32Extension
+#define wisXlibExtensionCreateSurface    wisVKXlibExtensionCreateSurface
+#define wisXCBExtensionCreateSurface     wisVKXCBExtensionCreateSurface
+#define wisWaylandExtensionCreateSurface wisVKWaylandExtensionCreateSurface
 #define wisWin32ExtensionCreateSurface   wisVKWin32ExtensionCreateSurface
 
 #else
