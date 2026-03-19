@@ -11,6 +11,8 @@
 #include <wisdom/dx12/dx12_types.hpp>
 
 namespace wis {
+using DX12SurfaceView = WisDX12SurfaceView;
+
 using DX12PipelineView = WisDX12PipelineView;
 
 using DX12ShaderView = WisDX12ShaderView;
@@ -140,6 +142,16 @@ public:
     using ImplType::ImplType;
 
 public:
+    WIS_NODISCARD DX12SurfaceView GetView() const noexcept
+    {
+        DX12SurfaceView v;
+        std::memcpy(&v, &_impl_storage, sizeof(v));
+        return v;
+    }
+    WIS_NODISCARD operator DX12SurfaceView() const noexcept
+    {
+        return GetView();
+    }
 };
 
 struct DX12ViewHeapDeleter {
@@ -1297,6 +1309,20 @@ public:
                                                                            index,
                                                                            reinterpret_cast<WisAdapterDesc*>(&desc)));
         return desc;
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Checks if the adapter at given index supports presentation to given surface.
+     * @param index defines the index of the adapter to check the support for. It @wis_must be less than the value returned by wis::GetAdapterCount.
+     * @param surface points to wis::Surface to check the presentation support for.
+     * @return bool `true` if the adapter supports presentation to the surface, `false` otherwise.
+     *
+     * */
+    WIS_NODISCARD inline bool GetSurfaceSupport(std::size_t          index,
+                                                wis::DX12SurfaceView surface) const noexcept
+    {
+        return (::wisDX12AdapterQueryGetSurfaceSupport(&_impl_storage,
+                                                       index,
+                                                       surface));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Creates the device for the adapter at given index.

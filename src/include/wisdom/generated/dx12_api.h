@@ -12,6 +12,14 @@ extern "C" {
  *
  * */
 WIS_DEFINE_HANDLE(WisDX12Surface, 1);
+WIS_DEFINE_HANDLE_VIEW(WisDX12Surface, 1);
+
+static inline WisDX12SurfaceView wisGetDX12SurfaceView(const WisDX12Surface* handle)
+{
+    WisDX12SurfaceView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
 
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a storage for resource views used in contiguous array.
@@ -455,6 +463,18 @@ WISDOM_API size_t wisDX12AdapterQueryGetAdapterCount(const WisDX12AdapterQuery* 
 WISDOM_API WisResult wisDX12AdapterQueryGetAdapterDesc(const WisDX12AdapterQuery* self,
                                                        size_t                     index,
                                                        WisAdapterDesc*            desc);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Checks if the adapter at given index supports presentation to given surface.
+ * @param self is a pointer to the valid WisAdapterQuery instance.
+ * @param index defines the index of the adapter to check the support for. It @wis_must be less than the value returned by wisAdapterQueryGetAdapterCount.
+ * @param surface points to WisSurface to check the presentation support for.
+ * @return bool `true` if the adapter supports presentation to the surface, `false` otherwise.
+ *
+ * */
+WISDOM_API bool wisDX12AdapterQueryGetSurfaceSupport(const WisDX12AdapterQuery* self,
+                                                     size_t                     index,
+                                                     WisDX12SurfaceView         surface);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates the device for the adapter at given index.

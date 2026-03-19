@@ -11,6 +11,8 @@
 #include <wisdom/vulkan/vk_types.hpp>
 
 namespace wis {
+using VKSurfaceView = WisVKSurfaceView;
+
 using VKPipelineView = WisVKPipelineView;
 
 using VKShaderView = WisVKShaderView;
@@ -140,6 +142,16 @@ public:
     using ImplType::ImplType;
 
 public:
+    WIS_NODISCARD VKSurfaceView GetView() const noexcept
+    {
+        VKSurfaceView v;
+        std::memcpy(&v, &_impl_storage, sizeof(v));
+        return v;
+    }
+    WIS_NODISCARD operator VKSurfaceView() const noexcept
+    {
+        return GetView();
+    }
 };
 
 struct VKViewHeapDeleter {
@@ -1297,6 +1309,20 @@ public:
                                                                          index,
                                                                          reinterpret_cast<WisAdapterDesc*>(&desc)));
         return desc;
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Checks if the adapter at given index supports presentation to given surface.
+     * @param index defines the index of the adapter to check the support for. It @wis_must be less than the value returned by wis::GetAdapterCount.
+     * @param surface points to wis::Surface to check the presentation support for.
+     * @return bool `true` if the adapter supports presentation to the surface, `false` otherwise.
+     *
+     * */
+    WIS_NODISCARD inline bool GetSurfaceSupport(std::size_t        index,
+                                                wis::VKSurfaceView surface) const noexcept
+    {
+        return (::wisVKAdapterQueryGetSurfaceSupport(&_impl_storage,
+                                                     index,
+                                                     surface));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Creates the device for the adapter at given index.

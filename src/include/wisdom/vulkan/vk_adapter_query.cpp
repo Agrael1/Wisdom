@@ -6,7 +6,7 @@
 #include <wisdom/generated/vk_api.h>
 #include <wisdom/util/allocation.hpp>
 #include <algorithm>
-#include <bitset>
+#include <bit>
 
 namespace wis::detail {
 struct VKQueueResidencyInfo {
@@ -504,6 +504,36 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryGetAdapterDesc(const WisVKAda
     std::copy_n(got_desc.deviceName, sizeof(desc->description) - 1, desc->description);
     std::copy_n(id_props.deviceUUID, sizeof(desc->adapter_uuid), desc->adapter_uuid);
     return wis::detail::vk_success;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API bool wisVKAdapterQueryGetSurfaceSupport(const WisVKAdapterQuery* self,
+                                                                size_t                   index,
+                                                                WisVKSurfaceView         surface)
+{
+    auto& impl = *wis::from_handle<const wis::impl::VKAdapterQueryImpl>(self);
+    auto& atable = impl.shared_header->header.adapter_table;
+    auto  vk_surface = std::bit_cast<VkSurfaceKHR>(surface);
+
+    // Get queue families 
+    uint32_t queue_family_count = 0;
+    VkQueueFamilyProperties props[32];
+    atable.vkGetPhysicalDeviceQueueFamilyProperties(impl.physical_devices[index], &queue_family_count, nullptr);
+    atable.vkGetPhysicalDeviceQueueFamilyProperties(impl.physical_devices[index], &queue_family_count, props);
+
+    // Search for graphics queue family that supports presentation to the surface
+
+    uint32_t family_index = 0;
+    for (uint32_t i = 0; i < queue_family_count; ++i) {
+        if (props[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+            VkBool32 supported = VK_FALSE;
+            auto     vr        = atable.vkGetPhysicalDeviceSurfaceSupportKHR(impl.physical_devices[index], i, vk_surface, &supported);
+            if (wis::detail::succeeded(vr) && supported == VK_TRUE) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 //-----------------------------------------------------------------------------

@@ -80,6 +80,18 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryGetAdapterDesc(const WisDX1
     return res;
 }
 
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API bool wisDX12AdapterQueryGetSurfaceSupport(const WisDX12AdapterQuery* self,
+                                                                  size_t                     index,
+                                                                  WisDX12SurfaceView         surface)
+{
+    (void)self;
+    (void)index;
+    (void)surface;
+    return true; // D3D12 supports presentation on all adapters
+}
+
+//-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(const WisDX12AdapterQuery*       self,
                                                                   size_t                           index,
                                                                   const WisDX12DeviceRequirements* requirements,

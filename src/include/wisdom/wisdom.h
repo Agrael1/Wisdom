@@ -38,6 +38,7 @@ typedef struct WisDX12CommandQueue      WisCommandQueue;
 typedef struct WisDX12Device            WisDevice;
 typedef struct WisDX12AdapterQuery      WisAdapterQuery;
 typedef struct WisDX12Instance          WisInstance;
+typedef struct WisDX12SurfaceView       WisSurfaceView;
 typedef struct WisDX12PipelineView      WisPipelineView;
 typedef struct WisDX12ShaderView        WisShaderView;
 typedef struct WisDX12PipelineCacheView WisPipelineCacheView;
@@ -86,6 +87,7 @@ typedef struct WisDX12GraphicsPipelineDesc    WisGraphicsPipelineDesc;
 #define wisInstanceQueryAdapters                    wisDX12InstanceQueryAdapters
 #define wisAdapterQueryGetAdapterCount              wisDX12AdapterQueryGetAdapterCount
 #define wisAdapterQueryGetAdapterDesc               wisDX12AdapterQueryGetAdapterDesc
+#define wisAdapterQueryGetSurfaceSupport            wisDX12AdapterQueryGetSurfaceSupport
 #define wisAdapterQueryCreateDevice                 wisDX12AdapterQueryCreateDevice
 #define wisDeviceCreateCommandQueue                 wisDX12DeviceCreateCommandQueue
 #define wisDeviceCreateCommandAllocator             wisDX12DeviceCreateCommandAllocator
@@ -144,6 +146,7 @@ typedef struct WisDX12GraphicsPipelineDesc    WisGraphicsPipelineDesc;
 #define wisCommandListDispatch                      wisDX12CommandListDispatch
 #define wisPipelineCacheSerialize                   wisDX12PipelineCacheSerialize
 #define wisPipelineCacheGetSerializedSize           wisDX12PipelineCacheGetSerializedSize
+#define wisGetSurfaceView                           wisGetDX12SurfaceView
 #define wisGetPipelineView                          wisGetDX12PipelineView
 #define wisGetShaderView                            wisGetDX12ShaderView
 #define wisGetPipelineCacheView                     wisGetDX12PipelineCacheView
@@ -155,6 +158,8 @@ typedef struct WisDX12GraphicsPipelineDesc    WisGraphicsPipelineDesc;
 
 #define wisGetView(handle)                                            \
     _Generic((handle),                                                \
+            const WisDX12Surface*: wisGetDX12SurfaceView,             \
+            WisDX12Surface*: wisGetDX12SurfaceView,                   \
             const WisDX12Pipeline*: wisGetDX12PipelineView,           \
             WisDX12Pipeline*: wisGetDX12PipelineView,                 \
             const WisDX12Shader*: wisGetDX12ShaderView,               \
@@ -198,6 +203,7 @@ typedef struct WisVKCommandQueue      WisCommandQueue;
 typedef struct WisVKDevice            WisDevice;
 typedef struct WisVKAdapterQuery      WisAdapterQuery;
 typedef struct WisVKInstance          WisInstance;
+typedef struct WisVKSurfaceView       WisSurfaceView;
 typedef struct WisVKPipelineView      WisPipelineView;
 typedef struct WisVKShaderView        WisShaderView;
 typedef struct WisVKPipelineCacheView WisPipelineCacheView;
@@ -246,6 +252,7 @@ typedef struct WisVKGraphicsPipelineDesc    WisGraphicsPipelineDesc;
 #define wisInstanceQueryAdapters                    wisVKInstanceQueryAdapters
 #define wisAdapterQueryGetAdapterCount              wisVKAdapterQueryGetAdapterCount
 #define wisAdapterQueryGetAdapterDesc               wisVKAdapterQueryGetAdapterDesc
+#define wisAdapterQueryGetSurfaceSupport            wisVKAdapterQueryGetSurfaceSupport
 #define wisAdapterQueryCreateDevice                 wisVKAdapterQueryCreateDevice
 #define wisDeviceCreateCommandQueue                 wisVKDeviceCreateCommandQueue
 #define wisDeviceCreateCommandAllocator             wisVKDeviceCreateCommandAllocator
@@ -304,6 +311,7 @@ typedef struct WisVKGraphicsPipelineDesc    WisGraphicsPipelineDesc;
 #define wisCommandListDispatch                      wisVKCommandListDispatch
 #define wisPipelineCacheSerialize                   wisVKPipelineCacheSerialize
 #define wisPipelineCacheGetSerializedSize           wisVKPipelineCacheGetSerializedSize
+#define wisGetSurfaceView                           wisGetVKSurfaceView
 #define wisGetPipelineView                          wisGetVKPipelineView
 #define wisGetShaderView                            wisGetVKShaderView
 #define wisGetPipelineCacheView                     wisGetVKPipelineCacheView
@@ -315,6 +323,8 @@ typedef struct WisVKGraphicsPipelineDesc    WisGraphicsPipelineDesc;
 
 #define wisGetView(handle)                                        \
     _Generic((handle),                                            \
+            const WisVKSurface*: wisGetVKSurfaceView,             \
+            WisVKSurface*: wisGetVKSurfaceView,                   \
             const WisVKPipeline*: wisGetVKPipelineView,           \
             WisVKPipeline*: wisGetVKPipelineView,                 \
             const WisVKShader*: wisGetVKShaderView,               \
