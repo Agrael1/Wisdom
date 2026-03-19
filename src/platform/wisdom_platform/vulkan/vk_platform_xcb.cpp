@@ -75,9 +75,19 @@ WISDOM_PLATFORM_API WisResult wisVKXCBExtensionCreateSurface(WisVKXCBExtension* 
         return wis::detail::make_result<wis::detail::Func(), "Failed to create XCB surface">(vr);
     }
 
+    auto* header = new (std::nothrow) wis::detail::VKSurfaceControlBlock;
+    if (!header) {
+        auto& itable = impl.instance_control_block->header.instance_table;
+        itable.vkDestroySurfaceKHR(impl.instance_control_block->header.instance, vk_surface, nullptr);
+        return wis::detail::make_result<wis::detail::Func(), "Failed to allocate surface control block">(VK_ERROR_OUT_OF_HOST_MEMORY);
+    }
+
+    header->header.instance_header = impl.instance_control_block,
+    header->header.surface         = vk_surface,
+
     new (surface) wis::impl::VKSurfaceImpl{
-        .surface         = vk_surface,
-        .instance_header = impl.instance_control_block,
+        .surface        = vk_surface,
+        .surface_header = header,
     };
     impl.instance_control_block->AddRef(); // Surface holds a reference to the instance
 

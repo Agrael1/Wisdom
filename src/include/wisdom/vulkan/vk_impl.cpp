@@ -163,13 +163,10 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroySurface(WisVKSurface* self)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKSurfaceImpl>(self);
     if (impl.surface != VK_NULL_HANDLE) {
-        auto& instance_header = impl.instance_header->header;
-        auto& table           = instance_header.instance_table;
-        table.vkDestroySurfaceKHR(instance_header.instance, impl.surface, nullptr);
         impl.surface = VK_NULL_HANDLE;
 
-        wis::detail::release_vk_instance(impl.instance_header);
-        impl.instance_header = nullptr;
+        wis::detail::release_vk_surface(impl.surface_header);
+        impl.surface_header = nullptr;
     }
 }
 

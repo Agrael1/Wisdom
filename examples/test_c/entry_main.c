@@ -147,7 +147,7 @@ void SavePipelineCache(const WisPipelineCache* cache, const char* filename)
 }
 
 typedef struct BasicRenderer {
-    WisDevice  device;
+    WisDevice device;
 
     // Command submission
     WisCommandQueue gfx_queue;
@@ -176,7 +176,7 @@ typedef struct BasicRenderTask {
 } BasicRenderTask;
 
 //------------------------------------------------------------------------------
-WisDevice CreateDevice(SDL_Window* window, const WisInstance* instance)
+WisDevice CreateDevice(SDL_Window* window, const WisInstance* instance, WisSurfaceView surface)
 {
     WisAdapterQuery adapter_query = { 0 };
     WisResult       result        = wisInstanceQueryAdapters(instance, WisAdapterPreferencePerformance, &adapter_query);
@@ -202,6 +202,14 @@ WisDevice CreateDevice(SDL_Window* window, const WisInstance* instance)
         printf("GetAdapterDesc result for adapter %zu: %d, platform_code: %d, error: %s\n", i, result.status, result.platform_code, result.error ? result.error : "None");
         if (result.status == WisStatusOk) {
             printf("Adapter %zu: Name: %s, VendorID: %u, DeviceID: %u, Flags: %u\n", i, desc.description, desc.vendor_id, desc.device_id, desc.flags);
+        }
+
+        // Check if adapter supports presentation to the surface
+        if (wisAdapterQueryGetSurfaceSupport(&adapter_query, i, surface)) {
+            printf("Adapter %zu supports presentation to the surface.\n", i);
+        } else {
+            printf("Adapter %zu does NOT support presentation to the surface. Skipping.\n", i);
+            continue; // Skip this adapter and try the next one
         }
 
         result = wisAdapterQueryCreateDevice(&adapter_query, i, &device_requirements, &device);
@@ -234,9 +242,7 @@ void InitRenderer(BasicRenderer* renderer, SDL_Window* window)
 
     WisSurface surface = CreateSurface(&platform, window);
 
-    // TODO: Check which adapter supports presentation to surface
-
-    renderer->device           = CreateDevice(window, &instance);
+    renderer->device           = CreateDevice(window, &instance, wisGetView(&surface));
     renderer->frame_index      = 0;
     renderer->next_fence_value = 1;
 

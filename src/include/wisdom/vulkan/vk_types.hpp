@@ -26,6 +26,7 @@ struct VKDeviceControlBlock;
 struct VKDescriptorSetLayoutContainer;
 struct VKCommandPoolControlBlock;
 struct VKRootSignatureControlBlock;
+struct VKSurfaceControlBlock;
 struct VKQueueFamilyExtras;
 } // namespace detail
 
@@ -139,8 +140,8 @@ struct VKPipelineImpl {
 };
 
 struct VKSurfaceImpl {
-    VkSurfaceKHR                    surface;
-    detail::VKInstanceControlBlock* instance_header;
+    VkSurfaceKHR                   surface;
+    detail::VKSurfaceControlBlock* surface_header;
 };
 
 } // namespace impl

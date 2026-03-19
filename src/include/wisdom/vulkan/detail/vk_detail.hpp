@@ -240,6 +240,15 @@ struct VKCommandPoolHeader {
 struct VKCommandPoolControlBlock : public VKControlBlock<VKCommandPoolHeader> {
 };
 
+struct VKSurfaceHeader {
+    VKInstanceControlBlock* instance_header;
+    VkSurfaceKHR            surface;
+};
+
+//-----------------------------------------------------------------------------
+struct VKSurfaceControlBlock : public VKControlBlock<VKSurfaceHeader> {
+};
+
 //-----------------------------------------------------------------------------
 struct alignas(void*) VKRootSignatureControlBlock {
     constexpr static std::array<uint32_t, WisShaderVisibilityCount> FillInvalid()
@@ -417,6 +426,26 @@ inline void release_vk_command_pool(VKCommandPoolControlBlock* header) noexcept
         table.vkDestroyCommandPool(header->header.device, header->header.command_pool, nullptr);
 
         release_vk_device(header->header.device_header);
+        delete header;
+    }
+}
+//-----------------------------------------------------------------------------
+/**
+ * @brief Releases a Vulkan command pool, destroying it if this is the last reference. Also releases the associated device.
+ * @param command_pool The Vulkan command pool to release
+ * @param header The control block header associated with the command pool, which holds the reference count and a pointer to the device control block header
+ */
+inline void release_vk_surface(VKSurfaceControlBlock* header) noexcept
+{
+    if (header && header->Release() == 1) {
+        // Last reference, destroy command pool
+        std::atomic_thread_fence(std::memory_order_acquire);
+
+        // Destroy command pool
+        auto& table = header->header.instance_header->header.instance_table;
+        table.vkDestroySurfaceKHR(header->header.instance_header->header.instance, header->header.surface, nullptr);
+
+        release_vk_instance(header->header.instance_header);
         delete header;
     }
 }
