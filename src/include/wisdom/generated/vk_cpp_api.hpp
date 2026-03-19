@@ -124,6 +124,24 @@ struct VKGraphicsPipelineDesc {
     wis::PipelineFlags           flags; ///< Pipeline flags. Describe additional options for the pipeline.
 };
 
+struct VKSurfaceDeleter {
+    void operator()(WisVKSurface* handle) noexcept
+    {
+        ::wisVKDestroySurface(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU surface, which can be used as a target for rendering and presentation.
+ *
+ * */
+class VKSurface : public wis::impl::Implements<wis::impl::VKSurfaceImpl, WisVKSurface, wis::VKSurfaceDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+};
+
 struct VKViewHeapDeleter {
     void operator()(WisVKViewHeap* handle) noexcept
     {
@@ -209,9 +227,9 @@ public:
      * @return u64 CPU descriptor handle for the view heap.
      *
      * */
-    WIS_NODISCARD inline std::uint64_t GetCPUAddress() const noexcept
+    WIS_NODISCARD inline std::uint64_t GetCPUHandle() const noexcept
     {
-        return (::wisVKViewHeapGetCPUAddress(&_impl_storage));
+        return (::wisVKViewHeapGetCPUHandle(&_impl_storage));
     }
 };
 

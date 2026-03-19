@@ -539,7 +539,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12ViewHeapCopyViews(const WisDX12ViewHeap* sel
 }
 
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API uint64_t wisDX12ViewHeapGetCPUAddress(const WisDX12ViewHeap* self)
+WIS_EXTERN_C WISDOM_API uint64_t wisDX12ViewHeapGetCPUHandle(const WisDX12ViewHeap* self)
 {
     auto& heap = wis::from_handle_ref<const wis::impl::DX12ViewHeapImpl>(self);
     return heap.cpu_handle.ptr;

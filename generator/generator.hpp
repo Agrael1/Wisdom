@@ -1,5 +1,6 @@
 #pragma once
 #include <tinyxml2.h>
+#include <string>
 #include <string_view>
 #include <unordered_map>
 #include <unordered_set>
@@ -128,6 +129,8 @@ public:
     std::string FinalizeCDocumentation(std::string doc, std::string_view this_type, std::string_view impl = "");
     std::string FinalizeCPPDocumentation(std::string doc, std::string_view this_type, std::string_view impl = "");
     std::string GetSpecificationCode(std::string_view c_code, std::string_view c_impl_code, std::string_view cpp_code, std::string_view cpp_impl_code);
+    static std::string MakeFunctionKey(std::string_view name, std::string_view this_type);
+    std::string        FindFunctionKey(std::string_view name) const;
 
     TypeKind    GetType(std::string_view type_name) const noexcept;
     void        TryMakeRef(std::string_view type, std::string_view from);
@@ -326,7 +329,7 @@ private:
     std::unordered_map<std::string_view, WisStruct>   struct_map;
     std::unordered_map<std::string_view, WisStruct>   variant_map;
     std::unordered_map<std::string_view, WisHandle>   handle_map;
-    std::unordered_map<std::string_view, WisFunction> function_map;
+    std::unordered_map<std::string, WisFunction> function_map;
     std::unordered_map<std::string_view, WisFunction> delegate_map;
     std::unordered_map<std::string_view, WisConstant> constant_map;
     std::unordered_map<std::string_view, WisPlatform> platform_map;
@@ -341,10 +344,10 @@ private:
     std::vector<std::string_view>      structs_in_order;
     std::vector<std::string_view>      variants_in_order;
     std::vector<std::string_view>      handles_in_order;
-    std::vector<std::string_view>      functions_in_order;
+    std::vector<std::string>           functions_in_order;
     std::vector<std::string_view>      delegates_in_order;
     std::vector<std::string_view>      constants_in_order;
-    std::vector<std::string_view>      free_functions_in_order;
+    std::vector<std::string>           free_functions_in_order;
     std::vector<std::string_view>      views_in_order;
     std::vector<std::string_view>      platforms_in_order;
     std::vector<std::filesystem::path> files;

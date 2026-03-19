@@ -130,4 +130,10 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyPipeline(WisDX12Pipeline* self)
     pipeline = nullptr;
 }
 
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisDX12DestroySurface(WisDX12Surface* self)
+{
+    (void)self; // No resources to release for surface, as it's just a wrapper around the HWND or CoreWindow handle, which is owned by the application
+}
+
 #endif // WIS_DX12_IMPL_CPP

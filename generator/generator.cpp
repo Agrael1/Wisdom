@@ -1150,6 +1150,24 @@ void Generator::WriteDocumentation(std::filesystem::path doc_output_path,
 }
 
 // Helpers
+std::string Generator::MakeFunctionKey(std::string_view name, std::string_view this_type)
+{
+    if (this_type.empty()) {
+        return std::string(name);
+    }
+    return wis::format("{}::{}", this_type, name);
+}
+
+std::string Generator::FindFunctionKey(std::string_view name) const
+{
+    for (const auto& [key, func] : function_map) {
+        if (func.name == name) {
+            return key;
+        }
+    }
+    return {};
+}
+
 TypeKind Generator::GetType(std::string_view type_name) const noexcept
 {
     if (type_name.empty()) {
@@ -1170,7 +1188,10 @@ TypeKind Generator::GetType(std::string_view type_name) const noexcept
     if (auto it = handle_map.find(type_name); it != handle_map.end()) {
         return TypeKind::Handle;
     }
-    if (auto it = function_map.find(type_name); it != function_map.end()) {
+    if (auto it = function_map.find(std::string(type_name)); it != function_map.end()) {
+        return TypeKind::Function;
+    }
+    if (!FindFunctionKey(type_name).empty()) {
         return TypeKind::Function;
     }
     if (delegate_map.contains(type_name)) {
@@ -1213,11 +1234,23 @@ std::string Generator::GetCFullTypename(std::string_view type, std::string_view 
     case TypeKind::View:
         return wis::format("Wis{}{}", impl, type);
     case TypeKind::Function: {
-        auto& func = function_map.at(type);
-        if (!func.this_type.empty() && !(func.modifier & (Destroy | Construct))) {
-            return wis::format("wis{}{}{}", impl, func.this_type, type);
+        auto it = function_map.find(std::string(type));
+        if (it == function_map.end()) {
+            auto key = FindFunctionKey(type);
+            if (key.empty()) {
+                return "";
+            }
+            it = function_map.find(key);
+            if (it == function_map.end()) {
+                return "";
+            }
         }
-        return wis::format("wis{}{}", impl, type);
+
+        auto& func = it->second;
+        if (!func.this_type.empty() && !(func.modifier & (Destroy | Construct))) {
+            return wis::format("wis{}{}{}", impl, func.this_type, func.name);
+        }
+        return wis::format("wis{}{}", impl, func.name);
     }
     case TypeKind::Alias:
         break;
@@ -1294,7 +1327,18 @@ std::string Generator::FinalizeCDocumentation(std::string doc, std::string_view 
         }*/
         else if (auto h = handle_map.find(this_type_view); h != handle_map.end()) {
             replacement = GetCFullTypename(h->second.name, impl);
-        } else if (auto f = function_map.find(std::string(this_type_view)); f != function_map.end()) {
+        } else {
+            auto f = function_map.find(std::string(this_type_view));
+            if (f == function_map.end()) {
+                auto key = FindFunctionKey(this_type_view);
+                if (!key.empty()) {
+                    f = function_map.find(key);
+                }
+            }
+            if (f == function_map.end()) {
+                doc.replace(first, last - first + 1, replacement);
+                continue;
+            }
             auto member = f->second.HasValue(value);
             replacement = member ? wis::format("`{}`", member->name)
                                  : GetCFullTypename(f->second.name, impl);
@@ -1357,7 +1401,18 @@ std::string Generator::FinalizeCPPDocumentation(std::string doc, std::string_vie
         }*/
         else if (auto h = handle_map.find(this_type_view); h != handle_map.end()) {
             replacement = GetCPPFullTypename(h->second.name, impl);
-        } else if (auto f = function_map.find(std::string(this_type_view)); f != function_map.end()) {
+        } else {
+            auto f = function_map.find(std::string(this_type_view));
+            if (f == function_map.end()) {
+                auto key = FindFunctionKey(this_type_view);
+                if (!key.empty()) {
+                    f = function_map.find(key);
+                }
+            }
+            if (f == function_map.end()) {
+                doc.replace(first, last - first + 1, replacement);
+                continue;
+            }
             auto member = f->second.HasValue(value);
             replacement = member ? wis::format("`{}`", member->name)
                                  : GetCPPFullTypename(f->second.name, impl);

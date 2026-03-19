@@ -138,6 +138,11 @@ struct VKPipelineImpl {
     detail::VKDeviceControlBlock* device_header;
 };
 
+struct VKSurfaceImpl {
+    VkSurfaceKHR                    surface;
+    detail::VKInstanceControlBlock* instance_header;
+};
+
 } // namespace impl
 
 //-----------------------------------------------------------------------------

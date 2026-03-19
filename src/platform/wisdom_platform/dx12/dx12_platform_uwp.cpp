@@ -1,7 +1,7 @@
 #ifndef WIS_DX12_PLATFORM_UWP_CPP
 #define WIS_DX12_PLATFORM_UWP_CPP
 
-#if defined(WISDOM_DX12) && defined(WIS_PLATFORM_UWP_PRESENT)
+#if defined(WISDOM_DX12) && defined(WIS_PLATFORM_WIN32_PRESENT)
 #include <wisdom_platform/generated/cpp_platform_api.hpp>
 #include <wisdom/dx12/detail/dx12_utils.hpp>
 
@@ -32,6 +32,17 @@ WIS_EXTERN_C WISDOM_PLATFORM_API void wisDX12DestroyUWPExtension(WisDX12UWPExten
         impl.factory->Release();
         impl.factory = nullptr;
     }
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_PLATFORM_API WisResult wisDX12UWPExtensionCreateSurface(WisDX12UWPExtension*    self,
+                                                                            const WisUWPWindowDesc* info,
+                                                                            WisDX12Surface*         surface)
+{
+    new (surface) wis::impl::DX12SurfaceImpl{
+        .surface = info->core_window,
+    };
+    return wis::detail::dx_success;
 }
 
 #endif // defined(WISDOM_DX12) && defined(WIS_PLATFORM_WIN32_PRESENT)

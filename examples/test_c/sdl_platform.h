@@ -15,4 +15,5 @@ typedef struct SDLPlatform {
 } SDLPlatform;
 
 SDLPlatform CreatePlatform();
+WisSurface  CreateSurface(const SDLPlatform* platform, SDL_Window* window);
 void        DestroyPlatform(SDLPlatform* platform);

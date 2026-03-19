@@ -38,9 +38,11 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
     for (auto* func = type->FirstChildElement("func"); func;
          func       = func->NextSiblingElement("func")) {
 
-        auto  name = func->FindAttribute("name")->Value();
-        auto& ref  = function_map[name];
-        functions_in_order.emplace_back(name);
+        auto        name      = func->FindAttribute("name")->Value();
+        auto*       this_type = func->FindAttribute("for");
+        std::string key       = MakeFunctionKey(name, this_type ? this_type->Value() : "");
+        auto&       ref       = function_map[key];
+        functions_in_order.emplace_back(key);
         ref.name = name;
 
         if (auto* version = func->FindAttribute("version")) {
@@ -49,14 +51,19 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
             throw std::runtime_error(wis::format("Function {} is missing version attribute.", name));
         }
 
-        auto* this_type = func->FindAttribute("for");
+        if (auto* platform = func->FindAttribute("platform")) {
+            ref.platform = platform->Value();
+            auto& platform_ref = platform_map[ref.platform];
+            platform_ref.functions_in_order.emplace_back(key);
+        }
+
         if (this_type) {
             ref.this_type = this_type->Value();
             auto& handle  = handle_map[ref.this_type];
-            handle.functions.emplace_back(name);
+            handle.functions.emplace_back(key);
             TryMakeRef(ref.this_type, ref.name);
         } else {
-            free_functions_in_order.emplace_back(name);
+            free_functions_in_order.emplace_back(key);
         }
 
         if (auto* doc = func->FindAttribute("doc")) {
@@ -432,6 +439,7 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, std::string_
 
     ImplementedFor impl_code = ImplCode(impl);
     auto           re_impl   = GetImplString(impl_code);
+    auto           c_name    = wis::format("wis{}{}{}", re_impl, func.modifier & (Destroy | Construct) ? "" : func.this_type, func.name);
 
     // Convert args and call C function
     std::string body = "{\n";
@@ -493,7 +501,7 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, std::string_
 
         body += wis::format("    out_result = convert_result_{}(::{}({}",
                             impl,
-                            GetCFullTypename(func.name, re_impl),
+                            c_name,
                             func.this_type.empty()
                                     ? ""
                                     : "&_impl_storage");
@@ -518,7 +526,7 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, std::string_
     case ReturnTypeKind::ResultOnly: {
         body += wis::format("    return convert_result_{}(::{}({}",
                             impl,
-                            GetCFullTypename(func.name, re_impl),
+                            c_name,
                             func.this_type.empty() ? "" : "&_impl_storage");
         constexpr static std::string_view arg_prefix = ",\n    ";
         if (func.parameters.size() > 0 && !func.this_type.empty()) {
@@ -549,7 +557,7 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, std::string_
 
         body += wis::format("    return {}(::{}({}",
                             return_cast,
-                            GetCFullTypename(func.name, re_impl),
+                            c_name,
                             func.this_type.empty() ? "" : "&_impl_storage");
         constexpr static std::string_view arg_prefix = ",\n    ";
         if (func.parameters.size() > 0 && !func.this_type.empty()) {
@@ -560,7 +568,7 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, std::string_
     } break;
     case ReturnTypeKind::Void: {
         body += wis::format("    ::{}({}",
-                            GetCFullTypename(func.name, re_impl),
+                            c_name,
                             func.this_type.empty() ? "" : "&_impl_storage");
         constexpr static std::string_view arg_prefix = ",\n    ";
         if (func.parameters.size() > 0 && !func.this_type.empty()) {
@@ -655,9 +663,11 @@ std::string Generator::MakeDelegateDescription(const WisFunction& s)
 void Generator::WriteFunctionDocumentation(std::filesystem::path func_output_path)
 {
     for (auto& func_name : functions_in_order) {
-        auto  full_func_name = GetCFullTypename(func_name, "");
-        auto  func_doc_path  = func_output_path / wis::format("{}_function.h", MakeSnakeCase(full_func_name.substr(3)));
-        auto& func_def       = function_map[func_name];
+        auto&       func_def       = function_map[func_name];
+        std::string full_func_name = wis::format("wis{}{}",
+                                                 func_def.modifier & (Destroy | Construct) ? "" : func_def.this_type,
+                                                 func_def.name);
+        auto        func_doc_path  = func_output_path / wis::format("{}_function.h", MakeSnakeCase(full_func_name.substr(3)));
 
         std::string vk_code      = MakeCFunctionDecl(func_def, "vk", "", DocKind::VersionOnly);
         std::string dx_code      = MakeCFunctionDecl(func_def, "dx", "", DocKind::VersionOnly);
@@ -675,11 +685,11 @@ void Generator::WriteFunctionDocumentation(std::filesystem::path func_output_pat
 
         ReplaceAll(func_description, "\n", "\n * ");
         ReplaceAll(func_refs, "\n", "\n * ");
-        func_description = FinalizeCDocumentation(func_description, func_name);
+        func_description = FinalizeCDocumentation(func_description, func_def.name);
 
         WriteDocumentation(func_doc_path,
                            function_doc_template,
-                           GetCFullTypename(func_name, ""),
+                           full_func_name,
                            func_template_content,
                            vuids,
                            func_description,

@@ -55,6 +55,22 @@ public:
     }
 
 public:
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a Vulkan surface using Xlib.
+     * @param info Xlib windowing data.
+     * @param out_result denoting the outcome of operation.
+     * @return surface points to wis::Surface, initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::VKSurface CreateSurface(const wis::XlibWindowDesc& info,
+                                                      wis::Result&               out_result) noexcept
+    {
+        wis::VKSurface surface;
+        out_result = convert_result_vk(::wisVKXlibExtensionCreateSurface(&_impl_storage,
+                                                                         reinterpret_cast<const WisXlibWindowDesc*>(&info),
+                                                                         surface.GetStorage()));
+        return surface;
+    }
 };
 
 #endif // defined(WISDOM_VULKAN)
@@ -99,6 +115,22 @@ public:
     }
 
 public:
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a surface using Win32.
+     * @param info XCB windowing data.
+     * @param out_result denoting the outcome of operation.
+     * @return surface points to wis::Surface, initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::VKSurface CreateSurface(const wis::XCBWindowDesc& info,
+                                                      wis::Result&              out_result) noexcept
+    {
+        wis::VKSurface surface;
+        out_result = convert_result_vk(::wisVKXCBExtensionCreateSurface(&_impl_storage,
+                                                                        reinterpret_cast<const WisXCBWindowDesc*>(&info),
+                                                                        surface.GetStorage()));
+        return surface;
+    }
 };
 
 #endif // defined(WISDOM_VULKAN)
@@ -143,6 +175,22 @@ public:
     }
 
 public:
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a surface using Wayland.
+     * @param info Wayland windowing data.
+     * @param out_result denoting the outcome of operation.
+     * @return surface points to wis::Surface, initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::VKSurface CreateSurface(const wis::WaylandWindowDesc& info,
+                                                      wis::Result&                  out_result) noexcept
+    {
+        wis::VKSurface surface;
+        out_result = convert_result_vk(::wisVKWaylandExtensionCreateSurface(&_impl_storage,
+                                                                            reinterpret_cast<const WisWaylandWindowDesc*>(&info),
+                                                                            surface.GetStorage()));
+        return surface;
+    }
 };
 
 #endif // defined(WISDOM_VULKAN)
@@ -187,6 +235,22 @@ public:
     }
 
 public:
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a surface using Win32.
+     * @param info Win32 windowing data.
+     * @param out_result denoting the outcome of operation.
+     * @return surface points to wis::Surface, initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::DX12Surface CreateSurface(const wis::Win32WindowDesc& info,
+                                                        wis::Result&                out_result) noexcept
+    {
+        wis::DX12Surface surface;
+        out_result = convert_result_dx(::wisDX12Win32ExtensionCreateSurface(&_impl_storage,
+                                                                            reinterpret_cast<const WisWin32WindowDesc*>(&info),
+                                                                            surface.GetStorage()));
+        return surface;
+    }
 };
 
 #endif // defined(WISDOM_DX12)
@@ -218,6 +282,22 @@ public:
     }
 
 public:
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a surface using Win32.
+     * @param info Win32 windowing data.
+     * @param out_result denoting the outcome of operation.
+     * @return surface points to wis::Surface, initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::VKSurface CreateSurface(const wis::Win32WindowDesc& info,
+                                                      wis::Result&                out_result) noexcept
+    {
+        wis::VKSurface surface;
+        out_result = convert_result_vk(::wisVKWin32ExtensionCreateSurface(&_impl_storage,
+                                                                          reinterpret_cast<const WisWin32WindowDesc*>(&info),
+                                                                          surface.GetStorage()));
+        return surface;
+    }
 };
 
 #endif // defined(WISDOM_VULKAN)
@@ -261,6 +341,22 @@ public:
     }
 
 public:
+    /**
+     * @brief Provided by Wisdom 0.7.0. Creates a surface using UWP.
+     * @param info UWP windowing data.
+     * @param out_result denoting the outcome of operation.
+     * @return surface points to wis::Surface, initialized on success.
+     *
+     * */
+    WIS_NODISCARD inline wis::DX12Surface CreateSurface(const wis::UWPWindowDesc& info,
+                                                        wis::Result&              out_result) noexcept
+    {
+        wis::DX12Surface surface;
+        out_result = convert_result_dx(::wisDX12UWPExtensionCreateSurface(&_impl_storage,
+                                                                          reinterpret_cast<const WisUWPWindowDesc*>(&info),
+                                                                          surface.GetStorage()));
+        return surface;
+    }
 };
 
 #endif // defined(WISDOM_DX12)

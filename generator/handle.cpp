@@ -55,15 +55,16 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
 
         std::string_view xdestroy_name = std::string_view(xdestroy.c_str(), destr_name.size());
         std::string_view xdestroy_doc  = std::string_view(xdestroy_name.data() + destr_name.size(), destr_doc.size());
+        std::string      destroy_key   = MakeFunctionKey(xdestroy_name, name);
 
-        auto& destroy     = function_map[xdestroy_name];
+        auto& destroy     = function_map[destroy_key];
         destroy.name      = xdestroy_name;
         destroy.this_type = name;
         destroy.modifier  = Modifier::Destroy;
         destroy.version   = version;
         destroy.doc       = xdestroy_doc;
-        ref.functions.emplace_back(destroy.name);
-        functions_in_order.emplace_back(destroy.name);
+        ref.functions.emplace_back(destroy_key);
+        functions_in_order.emplace_back(destroy_key);
         dependency_tree[name].dependencies.emplace_back(destroy.name);
 
         // if the handle is an extension, add create function as well
@@ -73,25 +74,26 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
             auto&            xcreate      = creators.emplace_back(create_name + create_doc);
             std::string_view xcreate_name = std::string_view(xcreate.c_str(), create_name.size());
             std::string_view xcreate_doc  = std::string_view(xcreate_name.data() + create_name.size(), create_doc.size());
-            auto&            create       = function_map[xcreate_name];
+            std::string      create_key   = MakeFunctionKey(xcreate_name, name);
+            auto&            create       = function_map[create_key];
             create.name                   = xcreate_name;
             create.this_type              = name;
             create.modifier               = Modifier::Construct;
             create.version                = version;
             create.doc                    = xcreate_doc;
-            ref.functions.emplace_back(create.name);
-            functions_in_order.emplace_back(create.name);
+            ref.functions.emplace_back(create_key);
+            functions_in_order.emplace_back(create_key);
             dependency_tree[name].dependencies.emplace_back(create.name);
 
             if (!ref.platform.empty()) {
                 auto& platform = platform_map[ref.platform];
-                platform.functions_in_order.emplace_back(create.name);
+                platform.functions_in_order.emplace_back(create_key);
             }
         }
 
         if (!ref.platform.empty()) {
             auto& platform = platform_map[ref.platform];
-            platform.functions_in_order.emplace_back(destroy.name);
+            platform.functions_in_order.emplace_back(destroy_key);
         }
 
         // Parse implementations
@@ -238,14 +240,15 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, std::string_view impl, 
     // Add all the functions
     for (const auto& func_name : s.functions) {
         auto& func_ref = function_map[func_name];
+        auto  c_name   = wis::format("wis{}{}{}", impl_string, func_ref.modifier & (Destroy | Construct) ? "" : func_ref.this_type, func_ref.name);
         if (func_ref.modifier & Modifier::Destroy) {
             deleter += wis::format("            ::{}(handle);\n",
-                                   GetCFullTypename(func_ref.name, impl_string));
+                                   c_name);
             continue;
         }
         if (func_ref.modifier & Modifier::Construct) {
             ctor_decl += wis::format("        ::{}(GetStorage());\n    }}\n",
-                                     GetCFullTypename(func_ref.name, impl_string));
+                                     c_name);
             continue;
         }
 

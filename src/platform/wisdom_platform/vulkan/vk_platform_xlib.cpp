@@ -18,13 +18,7 @@
 #undef None
 #undef Always
 
-
 namespace wis::detail {
-struct VKXlibExtensionTable {
-    PFN_vkCreateXlibSurfaceKHR                        vkCreateXlibSurfaceKHR;
-    PFN_vkGetPhysicalDeviceXlibPresentationSupportKHR vkGetPhysicalDeviceXlibPresentationSupportKHR;
-};
-
 inline WisResult VKXlibExtensionInit(VKInstanceExtensionHeader*    self,
                                      impl::VKInstanceImpl*         instance_impl,
                                      VKInstanceExtensionCollector* collector) noexcept
@@ -32,7 +26,6 @@ inline WisResult VKXlibExtensionInit(VKInstanceExtensionHeader*    self,
     auto& impl = wis::from_handle_ref<wis::impl::VKXlibExtensionImpl>(self);
 
     if (!instance_impl) {
-        collector->EnableExtension(VK_KHR_SURFACE_EXTENSION_NAME);
         collector->EnableExtension(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
     } else {
         impl.instance_control_block = instance_impl->shared_header;
@@ -40,17 +33,7 @@ inline WisResult VKXlibExtensionInit(VKInstanceExtensionHeader*    self,
 
         auto  instance = instance_impl->instance;
         auto& gtable   = impl.instance_control_block->header.global_table;
-        auto* ftable = impl.function_table = new (std::nothrow) wis::detail::VKXlibExtensionTable;
-        if (!ftable) {
-            return wis::detail::make_result<wis::detail::Func(), "Out of memory to create a function table">(VK_ERROR_OUT_OF_HOST_MEMORY);
-        }
-
-        ftable->vkCreateXlibSurfaceKHR =
-                reinterpret_cast<PFN_vkCreateXlibSurfaceKHR>(
-                        gtable.vkGetInstanceProcAddr(instance, "vkCreateXlibSurfaceKHR"));
-        ftable->vkGetPhysicalDeviceXlibPresentationSupportKHR =
-                reinterpret_cast<PFN_vkGetPhysicalDeviceXlibPresentationSupportKHR>(
-                        gtable.vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceXlibPresentationSupportKHR"));
+        impl.vkCreateXlibSurfaceKHR = gtable.vkGetInstanceProcAddr(instance, "vkCreateXlibSurfaceKHR");
     }
 
     return wis::detail::vk_success;
@@ -73,6 +56,40 @@ WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKDestroyXlibExtension(WisVKXlibExtensi
     if (impl.instance_control_block) {
         wis::detail::release_vk_instance(impl.instance_control_block);
     }
+}
+
+//-----------------------------------------------------------------------------
+WISDOM_PLATFORM_API WisResult wisVKXlibExtensionCreateSurface(WisVKXlibExtension*      self,
+                                                              const WisXlibWindowDesc* info,
+                                                              WisVKSurface*            surface)
+{
+    auto& impl                   = wis::from_handle_ref<wis::impl::VKXlibExtensionImpl>(self);
+    auto  vkCreateXlibSurfaceKHR = reinterpret_cast<PFN_vkCreateXlibSurfaceKHR>(impl.vkCreateXlibSurfaceKHR);
+
+    VkXlibSurfaceCreateInfoKHR vk_info{
+        .sType  = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR,
+        .pNext  = nullptr,
+        .flags  = 0,
+        .dpy    = static_cast<Display*>(info->display),
+        .window = static_cast<Window>(info->window),
+    };
+
+    VkSurfaceKHR vk_surface = VK_NULL_HANDLE;
+    auto         vr         = vkCreateXlibSurfaceKHR(impl.instance_control_block->header.instance,
+                                     &vk_info,
+                                     nullptr,
+                                     &vk_surface);
+    if (!wis::detail::succeeded(vr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to create Xlib surface">(vr);
+    }
+
+    new (surface) wis::impl::VKSurfaceImpl{
+        .surface         = vk_surface,
+        .instance_header = impl.instance_control_block,
+    };
+    impl.instance_control_block->AddRef(); // Surface holds a reference to the instance
+
+    return wis::detail::vk_success;
 }
 
 #endif // defined(WISDOM_VULKAN) && defined(WIS_PLATFORM_XLIB_PRESENT)

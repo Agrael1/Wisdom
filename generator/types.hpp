@@ -192,7 +192,7 @@ struct WisHandle {
     std::array<uint32_t, 2> sizes{};
     std::array<uint32_t, 2> view_sizes{};
 
-    std::vector<std::string_view> functions;
+    std::vector<std::string> functions;
 
 public:
     uint32_t GetSize(ImplementedFor impl) const noexcept
@@ -334,6 +334,6 @@ struct WisPlatform {
     ImplOs           os;
 
     std::vector<std::string_view> structs_in_order;
-    std::vector<std::string_view> functions_in_order;
+    std::vector<std::string>      functions_in_order;
     std::vector<std::string_view> handles_in_order;
 };

@@ -21,6 +21,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 // Handles
 //==============================================================
 
+typedef struct WisDX12Surface           WisSurface;
 typedef struct WisDX12ViewHeap          WisViewHeap;
 typedef struct WisDX12Pipeline          WisPipeline;
 typedef struct WisDX12Shader            WisShader;
@@ -64,6 +65,7 @@ typedef struct WisDX12GraphicsPipelineDesc    WisGraphicsPipelineDesc;
 // Functions
 //==============================================================
 
+#define wisDestroySurface                           wisDX12DestroySurface
 #define wisDestroyViewHeap                          wisDX12DestroyViewHeap
 #define wisDestroyPipeline                          wisDX12DestroyPipeline
 #define wisDestroyShader                            wisDX12DestroyShader
@@ -122,7 +124,7 @@ typedef struct WisDX12GraphicsPipelineDesc    WisGraphicsPipelineDesc;
 #define wisViewHeapWriteDepthStencil                wisDX12ViewHeapWriteDepthStencil
 #define wisViewHeapGetViewAddress                   wisDX12ViewHeapGetViewAddress
 #define wisViewHeapCopyViews                        wisDX12ViewHeapCopyViews
-#define wisViewHeapGetCPUAddress                    wisDX12ViewHeapGetCPUAddress
+#define wisViewHeapGetCPUHandle                     wisDX12ViewHeapGetCPUHandle
 #define wisCommandAllocatorReset                    wisDX12CommandAllocatorReset
 #define wisCommandAllocatorCreateCommandList        wisDX12CommandAllocatorCreateCommandList
 #define wisCommandListBegin                         wisDX12CommandListBegin
@@ -179,6 +181,7 @@ typedef struct WisDX12GraphicsPipelineDesc    WisGraphicsPipelineDesc;
 // Handles
 //==============================================================
 
+typedef struct WisVKSurface           WisSurface;
 typedef struct WisVKViewHeap          WisViewHeap;
 typedef struct WisVKPipeline          WisPipeline;
 typedef struct WisVKShader            WisShader;
@@ -222,6 +225,7 @@ typedef struct WisVKGraphicsPipelineDesc    WisGraphicsPipelineDesc;
 // Functions
 //==============================================================
 
+#define wisDestroySurface                           wisVKDestroySurface
 #define wisDestroyViewHeap                          wisVKDestroyViewHeap
 #define wisDestroyPipeline                          wisVKDestroyPipeline
 #define wisDestroyShader                            wisVKDestroyShader
@@ -280,7 +284,7 @@ typedef struct WisVKGraphicsPipelineDesc    WisGraphicsPipelineDesc;
 #define wisViewHeapWriteDepthStencil                wisVKViewHeapWriteDepthStencil
 #define wisViewHeapGetViewAddress                   wisVKViewHeapGetViewAddress
 #define wisViewHeapCopyViews                        wisVKViewHeapCopyViews
-#define wisViewHeapGetCPUAddress                    wisVKViewHeapGetCPUAddress
+#define wisViewHeapGetCPUHandle                     wisVKViewHeapGetCPUHandle
 #define wisCommandAllocatorReset                    wisVKCommandAllocatorReset
 #define wisCommandAllocatorCreateCommandList        wisVKCommandAllocatorCreateCommandList
 #define wisCommandListBegin                         wisVKCommandListBegin

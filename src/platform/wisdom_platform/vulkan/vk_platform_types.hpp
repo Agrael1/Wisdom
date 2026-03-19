@@ -5,7 +5,7 @@
 #endif // __cplusplus
 
 #define WISDOM_BUILD_BINARIES 1
-#include <wisdom/vulkan/vk_types.hpp>
+#include <wisdom/generated/vk_cpp_api.hpp>
 
 namespace wis {
 //-----------------------------------------------------------------------------
@@ -20,25 +20,25 @@ namespace impl {
 struct VKXlibExtensionImpl {
     VKInstanceExtensionHeader       header;
     detail::VKInstanceControlBlock* instance_control_block;
-    detail::VKXlibExtensionTable*   function_table;
+    PFN_vkVoidFunction              vkCreateXlibSurfaceKHR;
 };
 
 struct VKXCBExtensionImpl {
     VKInstanceExtensionHeader       header;
     detail::VKInstanceControlBlock* instance_control_block;
-    detail::VKXCBExtensionTable*    function_table;
+    PFN_vkVoidFunction              vkCreateXcbSurfaceKHR;
 };
 
 struct VKWaylandExtensionImpl {
     VKInstanceExtensionHeader       header;
     detail::VKInstanceControlBlock* instance_control_block;
-    detail::VKWaylandExtensionTable* function_table;
+    PFN_vkVoidFunction              vkCreateWaylandSurfaceKHR;
 };
 
 struct VKWin32ExtensionImpl {
     VKInstanceExtensionHeader       header; // The instance extension header, containing the function pointer for initialization
     detail::VKInstanceControlBlock* instance_control_block; // Pointer to the instance control block, used to access instance-level data and functions
-    detail::VKWin32ExtensionTable*  function_table; // Pointer to the function table containing the loaded extension functions
+    PFN_vkVoidFunction              vkCreateWin32SurfaceKHR; // Pointer to the function table containing the loaded extension functions
 };
 
 } // namespace impl
