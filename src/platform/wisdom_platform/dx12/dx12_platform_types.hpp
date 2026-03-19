@@ -5,7 +5,7 @@
 #endif // __cplusplus
 
 #define WISDOM_BUILD_BINARIES 1
-#include <wisdom/dx12/dx12_types.hpp>
+#include <wisdom/generated/dx12_cpp_api.hpp>
 
 namespace wis {
 //-----------------------------------------------------------------------------

@@ -7,13 +7,7 @@
 #include <wisdom/vulkan/detail/vk_detail.hpp>
 #include <wisdom/vulkan/vk_extensions.hpp>
 
-
 namespace wis::detail {
-struct VKWin32ExtensionTable {
-    // Function pointers for Win32 surface creation
-    PFN_vkCreateWin32SurfaceKHR                        vkCreateWin32SurfaceKHR;
-    PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR vkGetPhysicalDeviceWin32PresentationSupportKHR;
-};
 inline WisResult VKWin32ExtensionInit(VKInstanceExtensionHeader*    self,
                                       impl::VKInstanceImpl*         instance_impl,
                                       VKInstanceExtensionCollector* collector) noexcept
@@ -21,7 +15,6 @@ inline WisResult VKWin32ExtensionInit(VKInstanceExtensionHeader*    self,
     auto& impl = wis::from_handle_ref<wis::impl::VKWin32ExtensionImpl>(self);
 
     if (!instance_impl) {
-        collector->EnableExtension(VK_KHR_SURFACE_EXTENSION_NAME);
         collector->EnableExtension(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
     } else {
         // Create control block for instance
@@ -29,18 +22,9 @@ inline WisResult VKWin32ExtensionInit(VKInstanceExtensionHeader*    self,
         impl.instance_control_block->AddRef(); // AddRef instance control block to ensure it lives as long as the extension
 
         // Collect functions
-        auto  instance = instance_impl->instance;
-        auto& gtable   = impl.instance_control_block->header.global_table;
-        auto* ftable = impl.function_table = new(std::nothrow) wis::detail::VKWin32ExtensionTable;
-        if (!ftable) {
-            return wis::detail::make_result<wis::detail::Func(), "Out of memory to create a function table">(VK_ERROR_OUT_OF_HOST_MEMORY);
-        }
-        ftable->vkCreateWin32SurfaceKHR =
-                reinterpret_cast<PFN_vkCreateWin32SurfaceKHR>(
-                        gtable.vkGetInstanceProcAddr(instance, "vkCreateWin32SurfaceKHR"));
-        ftable->vkGetPhysicalDeviceWin32PresentationSupportKHR =
-                reinterpret_cast<PFN_vkGetPhysicalDeviceWin32PresentationSupportKHR>(
-                        gtable.vkGetInstanceProcAddr(instance, "vkGetPhysicalDeviceWin32PresentationSupportKHR"));
+        auto  instance               = instance_impl->instance;
+        auto& gtable                 = impl.instance_control_block->header.global_table;
+        impl.vkCreateWin32SurfaceKHR = gtable.vkGetInstanceProcAddr(instance, "vkCreateWin32SurfaceKHR");
     }
 
     return wis::detail::vk_success;
@@ -64,5 +48,40 @@ WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKDestroyWin32Extension(WisVKWin32Exten
         wis::detail::release_vk_instance(impl.instance_control_block);
     }
 }
+
+//-----------------------------------------------------------------------------
+WISDOM_PLATFORM_API WisResult wisVKWin32ExtensionCreateSurface(WisVKWin32Extension*      self,
+                                                               const WisWin32WindowDesc* info,
+                                                               WisVKSurface*             surface)
+{
+    auto& impl                    = wis::from_handle_ref<wis::impl::VKWin32ExtensionImpl>(self);
+    auto  vkCreateWin32SurfaceKHR = reinterpret_cast<PFN_vkCreateWin32SurfaceKHR>(impl.vkCreateWin32SurfaceKHR);
+
+    VkWin32SurfaceCreateInfoKHR vk_info{
+        .sType     = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR,
+        .pNext     = nullptr,
+        .flags     = 0,
+        .hinstance = reinterpret_cast<HINSTANCE>(info->hinstance),
+        .hwnd      = reinterpret_cast<HWND>(info->hwnd),
+    };
+
+    VkSurfaceKHR vk_surface = VK_NULL_HANDLE;
+    auto         vr      = vkCreateWin32SurfaceKHR(impl.instance_control_block->header.instance,
+                                        &vk_info,
+                                        nullptr,
+                                        &vk_surface);
+    if (!wis::detail::succeeded(vr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to create Win32 surface">(vr);
+    }
+
+    new (surface) wis::impl::VKSurfaceImpl{
+        .surface         = vk_surface,
+        .instance_header = impl.instance_control_block,
+    };
+    impl.instance_control_block->AddRef(); // Surface holds a reference to the instance
+
+    return wis::detail::vk_success;
+}
+
 #endif // defined(WISDOM_VULKAN) && defined(WIS_PLATFORM_WIN32_PRESENT)
 #endif // WIS_VK_PLATFORM_WIN32_CPP

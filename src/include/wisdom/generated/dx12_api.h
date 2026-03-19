@@ -8,6 +8,12 @@
 extern "C" {
 #endif // __cplusplus
 /**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU surface, which can be used as a target for rendering and presentation.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12Surface, 1);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Class representing a storage for resource views used in contiguous array.
  *
  * */
@@ -284,6 +290,13 @@ typedef struct WisDX12GraphicsPipelineDesc {
     WisDX12PipelineCacheView   cache; ///< Pipeline cache data. Used to speed up pipeline creation if available.
     WisPipelineFlags           flags; ///< Pipeline flags. Describe additional options for the pipeline.
 } WisDX12GraphicsPipelineDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisSurface handle.
+ * @param self is a pointer to the valid WisSurface instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroySurface(WisDX12Surface* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisViewHeap handle.
@@ -920,7 +933,7 @@ WISDOM_API void wisDX12ViewHeapCopyViews(const WisDX12ViewHeap* self,
  * @return u64 CPU descriptor handle for the view heap.
  *
  * */
-WISDOM_API uint64_t wisDX12ViewHeapGetCPUAddress(const WisDX12ViewHeap* self);
+WISDOM_API uint64_t wisDX12ViewHeapGetCPUHandle(const WisDX12ViewHeap* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Resets the command allocator, so it can be reused for allocating new command lists.

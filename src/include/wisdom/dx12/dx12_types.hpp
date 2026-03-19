@@ -119,6 +119,10 @@ struct DX12PipelineImpl {
     ID3D12PipelineState* pipeline_state;
 };
 
+struct DX12SurfaceImpl {
+    void* surface; // Store the surface as a void pointer to avoid including Windows headers in this file, it will be cast to the appropriate type in the implementation file
+};
+
 } // namespace impl
 
 // Manual variants of generated structures with virtual functions

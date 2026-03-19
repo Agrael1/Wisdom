@@ -1,5 +1,4 @@
-#include <wisdom/wisdom.h>
-#include <wisdom/wisdom_platform.h>
+#include "sdl_platform.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -148,7 +147,7 @@ void SavePipelineCache(const WisPipelineCache* cache, const char* filename)
 }
 
 typedef struct BasicRenderer {
-    WisDevice device;
+    WisDevice  device;
 
     // Command submission
     WisCommandQueue gfx_queue;
@@ -177,23 +176,11 @@ typedef struct BasicRenderTask {
 } BasicRenderTask;
 
 //------------------------------------------------------------------------------
-WisDevice CreateDevice()
+WisDevice CreateDevice(SDL_Window* window, const WisInstance* instance)
 {
-    WisDebugDesc debug_desc       = { 0 };
-    debug_desc.enable_debug_layer = true;
-    debug_desc.callback           = LogCallback;
-    debug_desc.user_data          = NULL;
-
-    WisInstance instance = { 0 };
-    WisResult   result   = wisCreateInstance(&debug_desc, NULL, 0, &instance);
-    printf("CreateInstance result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
-
     WisAdapterQuery adapter_query = { 0 };
-    result                        = wisInstanceQueryAdapters(&instance, WisAdapterPreferencePerformance, &adapter_query);
+    WisResult       result        = wisInstanceQueryAdapters(instance, WisAdapterPreferencePerformance, &adapter_query);
     printf("QueryAdapters result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
-
-    // Destroy instance as we no longer need it
-    wisDestroyInstance(&instance);
 
     WisCommandQueueDesc queue_descs[] = {
         { WisCommandQueueTypeGraphics,   WisCommandQueuePriorityHigh },
@@ -224,18 +211,43 @@ WisDevice CreateDevice()
             break; // Successfully created a device, exit loop
         }
     }
+
     wisDestroyAdapterQuery(&adapter_query);
     return device;
 }
 
 //------------------------------------------------------------------------------
-void InitRenderer(BasicRenderer* renderer)
+void InitRenderer(BasicRenderer* renderer, SDL_Window* window)
 {
-    renderer->device           = CreateDevice();
+    WisDebugDesc debug_desc       = { 0 };
+    debug_desc.enable_debug_layer = true;
+    debug_desc.callback           = LogCallback;
+    debug_desc.user_data          = NULL;
+
+    SDLPlatform                 platform     = CreatePlatform();
+    WisInstanceExtensionHeader* extensions[] = {
+        platform.platform_extension
+    };
+    WisInstance instance = { 0 };
+    WisResult   result   = wisCreateInstance(&debug_desc, extensions, sizeof(extensions) / sizeof(WisInstanceExtensionHeader*), &instance);
+    printf("CreateInstance result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+
+    WisSurface surface = CreateSurface(&platform, window);
+
+    // TODO: Check which adapter supports presentation to surface
+
+    renderer->device           = CreateDevice(window, &instance);
     renderer->frame_index      = 0;
     renderer->next_fence_value = 1;
 
-    WisResult result = wisDeviceCreateCommandQueue(&renderer->device, WisCommandQueueTypeGraphics, &renderer->gfx_queue);
+    // TODO: Create swapchain
+
+    // Destroy instance as we no longer need it
+    wisDestroySurface(&surface);
+    wisDestroyInstance(&instance);
+    DestroyPlatform(&platform);
+
+    result = wisDeviceCreateCommandQueue(&renderer->device, WisCommandQueueTypeGraphics, &renderer->gfx_queue);
     printf("CreateCommandQueue result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
     result = wisDeviceGetResourceAllocator(&renderer->device, &renderer->allocator);
     printf("GetResourceAllocator result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
@@ -608,8 +620,13 @@ void Render(BasicRenderer* renderer, const ResourceContainer* resources, const B
 // Entry point for testing
 int main()
 {
+    // init SDL and create a window here
+    SDL_Init(SDL_INIT_VIDEO);
+
+    SDL_Window* window = SDL_CreateWindow("Wisdom Renderer Test", 800, 600, SDL_WINDOW_RESIZABLE);
+
     BasicRenderer renderer = { 0 };
-    InitRenderer(&renderer);
+    InitRenderer(&renderer, window);
 
     // Query and print device properties
     GetDeviceProperties(&renderer.device);
@@ -634,6 +651,9 @@ int main()
     DestroyRenderTask(&render_task);
     DestroyResourceContainer(&resources);
     DestoyRenderer(&renderer);
+
+    SDL_DestroyWindow(window);
+    SDL_Quit();
 
     return 0;
 }

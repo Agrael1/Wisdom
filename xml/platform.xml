@@ -37,33 +37,50 @@
 
   <handles>
     <handle name="XlibExtension" extends="Instance" platform="Xlib" version="0.7.0" doc="Extension for Xlib surface creation functions.">
-      <impl for="vk" size="3"/>
+      <impl for="vk" size="2"/>
     </handle>
     <handle name="XCBExtension" extends="Instance" platform="XCB" version="0.7.0" doc="Extension for Xlib surface creation functions.">
-      <impl for="vk" size="3"/>
+      <impl for="vk" size="2"/>
     </handle>
     <handle name="WaylandExtension" extends="Instance" platform="Wayland" version="0.7.0" doc="Extension for Xlib surface creation functions.">
-      <impl for="vk" size="3"/>
+      <impl for="vk" size="2"/>
     </handle>
     <handle name="Win32Extension" extends="Instance" platform="Win32" version="0.7.0" doc="Extension for Win32 surface creation functions.">
       <impl for="vk" size="2"/>
       <impl for="dx" size="1"/>
     </handle>
     <handle name="UWPExtension" extends="Instance" platform="UWP" version="0.7.0" doc="Extension for UWP surface creation functions.">
-      <impl for="vk" size="3"/>
+      <impl for="vk" size="2"/>
       <impl for="dx" size="1"/>
     </handle>
   </handles>
 
-  <!--<functions>
-        <func name="CreateXlibSurface" version="0.7.0" for="Instance" platform="Xlib" doc="Creates a Vulkan surface using Xlib.">
-            <ret type="Swapchain" name="swapchain" result="true" doc="points to {Swapchain::}, initialized on success."/>
-            <arg type="XlibWindowCreateInfo" name="info" mod="const,ref" doc="Xlib windowing data."/>
-        </func>
+  <functions>
+    <func name="CreateSurface" version="0.7.0" for="XlibExtension" platform="Xlib" doc="Creates a Vulkan surface using Xlib.">
+      <ret type="Surface" name="surface" result="true" doc="points to {Surface::}, initialized on success."/>
+      <arg type="XlibWindowDesc" name="info" mod="const,ref" doc="Xlib windowing data."/>
+    </func>
 
-        <func name="CreateWin32Surface" version="0.7.0" for="Instance" platform="Win32" doc="Creates a surface using Win32.">
-            <ret type="Swapchain" name="swapchain" result="true" doc="points to {Swapchain::}, initialized on success."/>
-            <arg type="Win32WindowCreateInfo" name="info" mod="const,ref" doc="Win32 windowing data."/>
-        </func>
-    </functions>-->
+    <func name="CreateSurface" version="0.7.0" for="XCBExtension" platform="XCB" doc="Creates a surface using Win32.">
+      <ret type="Surface" name="surface" result="true" doc="points to {Surface::}, initialized on success."/>
+      <arg type="XCBWindowDesc" name="info" mod="const,ref" doc="XCB windowing data."/>
+    </func>
+
+    <func name="CreateSurface" version="0.7.0" for="WaylandExtension" platform="Wayland" doc="Creates a surface using Wayland.">
+      <ret type="Surface" name="surface" result="true" doc="points to {Surface::}, initialized on success."/>
+      <arg type="WaylandWindowDesc" name="info" mod="const,ref" doc="Wayland windowing data."/>
+    </func>
+
+    <func name="CreateSurface" version="0.7.0" for="Win32Extension" platform="Win32" doc="Creates a surface using Win32.">
+      <ret type="Surface" name="surface" result="true" doc="points to {Surface::}, initialized on success."/>
+      <arg type="Win32WindowDesc" name="info" mod="const,ref" doc="Win32 windowing data."/>
+    </func>
+
+    <func name="CreateSurface" version="0.7.0" for="UWPExtension" platform="UWP" doc="Creates a surface using UWP.">
+      <ret type="Surface" name="surface" result="true" doc="points to {Surface::}, initialized on success."/>
+      <arg type="UWPWindowDesc" name="info" mod="const,ref" doc="UWP windowing data."/>
+    </func>
+
+    
+  </functions>
 </registry>

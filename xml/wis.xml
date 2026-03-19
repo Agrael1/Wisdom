@@ -7,6 +7,10 @@
   </includes>
 
   <handles>
+    <handle name="Surface" version="0.7.0" doc="Class representing a GPU surface, which can be used as a target for rendering and presentation.">
+      <impl for="vk" size="2"/>
+      <impl for="dx" size="1"/>
+    </handle>
     <handle name="ViewHeap" version="0.7.0" doc="Class representing a storage for resource views used in contiguous array.">
       <impl for="vk" size="3"/>
       <impl for="dx" size="4"/>
@@ -303,7 +307,7 @@ Can still be enqueued after the signal.">
       <arg type="u32" name="src_index" doc="defines the index in the source view heap to copy views from."/>
       <arg type="u32" name="count" doc="defines the number of views to copy."/>
     </func>
-    <func for="ViewHeap" name="GetCPUAddress" version="0.7.0" mod="const" doc="Returns the CPU descriptor handle for the view heap.">
+    <func for="ViewHeap" name="GetCPUHandle" version="0.7.0" mod="const" doc="Returns the CPU descriptor handle for the view heap.">
       <ret type="u64" name="handle" doc="CPU descriptor handle for the view heap."/>
     </func>
 

@@ -650,7 +650,7 @@ WIS_EXTERN_C WISDOM_API void wisVKViewHeapCopyViews(const WisVKViewHeap* self,
 }
 
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API uint64_t wisVKViewHeapGetCPUAddress(const WisVKViewHeap* self)
+WIS_EXTERN_C WISDOM_API uint64_t wisVKViewHeapGetCPUHandle(const WisVKViewHeap* self)
 {
     auto& heap = wis::from_handle_ref<const wis::impl::VKViewHeapImpl>(self);
     return std::bit_cast<uint64_t>(heap.view_heap);

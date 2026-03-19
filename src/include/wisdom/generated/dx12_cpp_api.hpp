@@ -124,6 +124,24 @@ struct DX12GraphicsPipelineDesc {
     wis::PipelineFlags           flags; ///< Pipeline flags. Describe additional options for the pipeline.
 };
 
+struct DX12SurfaceDeleter {
+    void operator()(WisDX12Surface* handle) noexcept
+    {
+        ::wisDX12DestroySurface(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU surface, which can be used as a target for rendering and presentation.
+ *
+ * */
+class DX12Surface : public wis::impl::Implements<wis::impl::DX12SurfaceImpl, WisDX12Surface, wis::DX12SurfaceDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+};
+
 struct DX12ViewHeapDeleter {
     void operator()(WisDX12ViewHeap* handle) noexcept
     {
@@ -209,9 +227,9 @@ public:
      * @return u64 CPU descriptor handle for the view heap.
      *
      * */
-    WIS_NODISCARD inline std::uint64_t GetCPUAddress() const noexcept
+    WIS_NODISCARD inline std::uint64_t GetCPUHandle() const noexcept
     {
-        return (::wisDX12ViewHeapGetCPUAddress(&_impl_storage));
+        return (::wisDX12ViewHeapGetCPUHandle(&_impl_storage));
     }
 };
 
