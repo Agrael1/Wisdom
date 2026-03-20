@@ -33,7 +33,6 @@ static inline constexpr char template_enum[] =
 void Generator::ParseEnum(tinyxml2::XMLElement* type)
 {
     auto name = type->FindAttribute("name")->Value();
-    enums_in_order.push_back(name);
     module_map[active_module_name].enums_in_order.push_back(name);
     type_map[name] = TypeKind::Enum;
     auto& ref = enum_map[name];
@@ -138,8 +137,7 @@ std::string Generator::MakeCPPEnum(const WisEnum& s, DocKind kind)
 void Generator::WriteEnumDocumentation(std::filesystem::path enum_output_path)
 {
     std::filesystem::create_directories(enum_output_path);
-    auto module_it = module_map.find(active_module_name);
-    auto& enum_names = module_it != module_map.end() ? module_it->second.enums_in_order : enums_in_order;
+    auto& enum_names = module_map.at(active_module_name).enums_in_order;
     for (auto& enum_name : enum_names) {
         // Make a folder for enums starting with this letter
         std::filesystem::path enum_file_path = enum_output_path / wis::format("{}_enum.h", MakeSnakeCase(enum_name));

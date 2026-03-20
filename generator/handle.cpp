@@ -29,7 +29,6 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
         auto  name    = type->FindAttribute("name")->Value();
         auto  version = type->FindAttribute("version")->Value();
         auto& ref     = handle_map[name];
-        handles_in_order.emplace_back(name);
         module_map[active_module_name].handles_in_order.emplace_back(name);
         type_map[name] = TypeKind::Handle;
 
@@ -57,8 +56,6 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
         destroy.modifier  = Modifier::Destroy;
         destroy.version   = version;
         destroy.doc       = destr_doc;
-        functions_in_order.emplace_back(destroy_key);
-
         type_map[kref] = TypeKind::Function;
         module_map[active_module_name].functions_in_order.emplace_back(destroy_key);
         dependency_tree[name].functions.emplace_back(destroy_key);
@@ -77,8 +74,6 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
             create.modifier  = Modifier::Construct;
             create.version   = version;
             create.doc       = create_doc;
-            functions_in_order.emplace_back(create_key);
-
             type_map[iref] = TypeKind::Function;
             module_map[active_module_name].functions_in_order.emplace_back(create_key);
             dependency_tree[name].functions.emplace_back(create_key);
@@ -124,7 +119,6 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
         }
 
         if (has_view) {
-            views_in_order.emplace_back(name);
             module_map[active_module_name].views_in_order.emplace_back(name);
             view_set.insert(name);
         }
@@ -275,8 +269,7 @@ std::string Generator::MakeCPPView(const WisHandle& s, Backend backend, DocKind 
 //-----------------------------------------------------------------------------
 void Generator::WriteHandleDocumentation(std::filesystem::path handle_output_path)
 {
-    auto  module_it    = module_map.find(active_module_name);
-    auto& handle_names = module_it != module_map.end() ? module_it->second.handles_in_order : handles_in_order;
+    auto& handle_names = module_map.at(active_module_name).handles_in_order;
     for (const auto& handle_name : handle_names) {
         auto backend = handle_map[handle_name].GetBackend();
 

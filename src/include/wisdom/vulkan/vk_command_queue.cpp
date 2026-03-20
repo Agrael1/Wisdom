@@ -1,7 +1,7 @@
 #ifndef WIS_VK_COMMAND_QUEUE_CPP
 #define WIS_VK_COMMAND_QUEUE_CPP
 #include <wisdom/generated/vk_cpp_api.hpp>
-#include <wisdom/generated/vk_api.h>
+#include <wisdom/generated/backend_api.h>
 #include <wisdom/generated/vk_convert.hpp>
 #include <wisdom/util/allocation.hpp>
 #include <wisdom/vulkan/detail/vk_detail.hpp>

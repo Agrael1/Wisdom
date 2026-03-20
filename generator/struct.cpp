@@ -37,7 +37,6 @@ void Generator::ParseStruct(tinyxml2::XMLElement* type)
 {
     auto  name = type->FindAttribute("name")->Value();
     auto& ref  = struct_map[name];
-    structs_in_order.emplace_back(name);
     module_map[active_module_name].structs_in_order.emplace_back(name);
     type_map[name] = TypeKind::Struct;
     ref.name = name;
@@ -186,8 +185,7 @@ std::string Generator::MakeStructDescription(const WisStruct& s)
 void Generator::WriteStructDocumentation(std::filesystem::path struct_output_path)
 {
     std::filesystem::create_directories(struct_output_path);
-    auto module_it = module_map.find(active_module_name);
-    auto& struct_names = module_it != module_map.end() ? module_it->second.structs_in_order : structs_in_order;
+    auto& struct_names = module_map.at(active_module_name).structs_in_order;
     for (const auto& struct_name : struct_names) {
         // Make a folder for enums starting with this letter
         std::filesystem::path struct_file_path = struct_output_path / wis::format("{}_struct.h", MakeSnakeCase(struct_name));

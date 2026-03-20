@@ -6,14 +6,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-
-#ifdef WISDOM_DX12
-#include <wisdom/generated/dx12_api.h>
-#endif // WISDOM_DX12
-
-#ifdef WISDOM_VULKAN
-#include <wisdom/generated/vk_api.h>
-#endif // WISDOM_VULKAN
+#include <wisdom/generated/backend_api.h>
 
 #ifdef __cplusplus
 extern "C" {

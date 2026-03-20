@@ -28,7 +28,6 @@ void Generator::ParseConstants(tinyxml2::XMLElement* constants)
          val       = val->NextSiblingElement("value")) {
         auto  name = val->FindAttribute("name")->Value();
         auto& ref  = constant_map[name];
-        constants_in_order.emplace_back(name);
         module_map[active_module_name].constants_in_order.emplace_back(name);
 
         ref.name  = name;
@@ -132,8 +131,7 @@ void Generator::WriteConstantDocumentation(std::filesystem::path const_output_pa
     std::string all_c_code;
     std::string all_cpp_code;
 
-    auto module_it = module_map.find(active_module_name);
-    auto& constant_names = module_it != module_map.end() ? module_it->second.constants_in_order : constants_in_order;
+    auto& constant_names = module_map.at(active_module_name).constants_in_order;
     for (auto& const_name : constant_names) {
         auto& const_ref = constant_map[const_name];
         all_c_code += MakeCConstant(const_ref, DocKind::VersionOnly);
