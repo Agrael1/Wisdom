@@ -22,10 +22,6 @@
  *                                          const WisXCBWindowDesc* info,
  *                                          WisVKSurface*           surface);
  * 
- * // Provided by Wisdom 0.7.0. 
- * WisResult wisDX12XCBExtensionCreateSurface(WisDX12XCBExtension* self,
- *                                            const WisXCBWindowDesc* info,
- *                                            WisDX12Surface*         surface);
  * ```
  * </details>
  * 
@@ -33,24 +29,10 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
- * WIS_NODISCARD wis::Surface XCBExtension::CreateSurface(const wis::XCBWindowDesc& info,
- *                                                        wis::Result&              out_result) noexcept;
- * }
- * ```
- * <details>
- * <summary>C++ Implementation Specific Version:</summary>
- * ```cpp
- * namespace wis{
- * // Provided by Wisdom 0.7.0. 
  * WIS_NODISCARD wis::VKSurface VKXCBExtension::CreateSurface(const wis::XCBWindowDesc& info,
  *                                                            wis::Result&              out_result) noexcept;
- * 
- * // Provided by Wisdom 0.7.0. 
- * WIS_NODISCARD wis::DX12Surface DX12XCBExtension::CreateSurface(const wis::XCBWindowDesc& info,
- *                                                                wis::Result&              out_result) noexcept;
  * }
  * ```
- * </details>
  * \endcond
  *
  * @section wisXCBExtensionCreateSurface_memb Parameters

@@ -133,13 +133,10 @@ public:
     std::string        GetSpecificationCode(std::string_view c_code, std::string_view c_impl_code, std::string_view cpp_code, std::string_view cpp_impl_code);
 
     TypeKind    GetType(std::string_view type_name) const noexcept;
+    XBackend    GetTypeBackendSupport(std::string_view type_name) const noexcept;
     void        TryMakeRef(std::string_view type, std::string_view from);
     void        TryMakeRef(std::string_view type, FunctionKey from);
     std::string GetRefs(std::string_view for_type);
-    bool        IsTypeAvailableForBackend(std::string_view type, Backend backend, std::unordered_set<std::string_view>& visiting) const;
-    bool        IsTypeAvailableForBackend(std::string_view type, Backend backend) const;
-    bool        IsFunctionAvailableForBackend(const WisFunction& func, Backend backend) const;
-    bool        IsVariantAvailableForBackend(const WisStruct& variant, Backend backend) const;
 
     static Backend                    ParseBackend(std::string_view backend) noexcept;
     static ImplOs                     GetImplOs(std::string_view os) noexcept;

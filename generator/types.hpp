@@ -182,6 +182,7 @@ struct WisStruct {
     std::string_view             version;
     std::string_view             platform; // optional
     Modifier                     modifier = Modifier::None;
+    XBackend                     backend  = XBackend::All; // support query
     std::vector<WisStructMember> members;
 
 public:
@@ -195,6 +196,10 @@ public:
             return v.name == name;
         });
         return *enum_value;
+    }
+    void FilterBackend(XBackend b)
+    {
+        backend = backend & b;
     }
 };
 
@@ -297,6 +302,7 @@ struct WisFunction {
     std::string_view version;
     std::string_view platform; // optional
     Modifier         modifier = Modifier::None;
+    XBackend         backend  = XBackend::All; // support query
 
     WisReturnType                     return_type;
     std::vector<WisFunctionParameter> parameters;
@@ -323,6 +329,11 @@ struct WisFunction {
     bool IsCD() const noexcept
     {
         return modifier & (Modifier::Construct | Modifier::Destroy);
+    }
+
+    void FilterBackend(XBackend b)
+    {
+        backend = backend & b;
     }
 };
 

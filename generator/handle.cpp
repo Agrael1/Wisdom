@@ -68,7 +68,7 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
             std::string create_name = "Init" + std::string(name);
             std::string create_doc  = "Initializes a {" + std::string(name) + "::} handle.";
 
-            auto& iref = ref.functions.emplace_back(std::move(create_name));
+            auto&       iref       = ref.functions.emplace_back(std::move(create_name));
             FunctionKey create_key = MakeFunctionKey(name, iref);
 
             auto& create     = function_map[create_key];
@@ -228,7 +228,7 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, Backend backend, DocKin
     for (const auto& func_name : s.functions) {
         FunctionKey func_key{ s.name, func_name };
         auto&       func_ref = function_map[func_key];
-        auto  c_name   = wis::format("wis{}{}{}", impl_string, func_ref.modifier & (Destroy | Construct) ? "" : func_ref.this_type, func_ref.name);
+        auto        c_name   = wis::format("wis{}{}{}", impl_string, func_ref.modifier & (Destroy | Construct) ? "" : func_ref.this_type, func_ref.name);
         if (func_ref.modifier & Modifier::Destroy) {
             deleter += wis::format("            ::{}(handle);\n",
                                    c_name);
@@ -278,15 +278,25 @@ void Generator::WriteHandleDocumentation(std::filesystem::path handle_output_pat
     auto  module_it    = module_map.find(active_module_name);
     auto& handle_names = module_it != module_map.end() ? module_it->second.handles_in_order : handles_in_order;
     for (const auto& handle_name : handle_names) {
+        auto backend = handle_map[handle_name].GetXBackend();
+
         // Make a folder for enums starting with this letter
         std::filesystem::create_directories(handle_output_path);
         std::filesystem::path handle_file_path = handle_output_path / wis::format("{}_handle.h", MakeSnakeCase(handle_name));
         auto&                 handle_ref       = handle_map[handle_name];
 
-        std::string vk_code = MakeCHandle(handle_ref, Backend::Vulkan, DocKind::VersionOnly);
-        std::string dx_code = MakeCHandle(handle_ref, Backend::DX12, DocKind::VersionOnly);
+        std::string vk_code;
+        std::string dx_code;
+        if (has(backend, XBackend::Vulkan)) {
+            vk_code = MakeCHandle(handle_ref, Backend::Vulkan, DocKind::VersionOnly);
+            vk_code = wis::format(" Vulkan Version:\n```c\n{}```\n", vk_code);
+        }
+        if (has(backend, XBackend::DX12)) {
+            dx_code = MakeCHandle(handle_ref, Backend::DX12, DocKind::VersionOnly);
+            dx_code = wis::format(" DX12 Version:\n```c\n{}```\n", dx_code);
+        }
 
-        std::string handle_template_content = wis::format(" * Vulkan Version:\n```c\n{}```\nDX12 Version:\n```c\n{}```\n", vk_code, dx_code);
+        std::string handle_template_content = " * " + vk_code + dx_code;
         std::string handle_refs             = GetRefs(handle_name);
         ReplaceAll(handle_template_content, "\n", "\n * ");
         ReplaceAll(handle_refs, "\n", "\n * ");
