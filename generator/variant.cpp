@@ -170,8 +170,8 @@ void Generator::WriteVariantDocumentation(std::filesystem::path struct_output_pa
         std::filesystem::path variant_file_path = struct_output_path / wis::format("{}_struct.h", MakeSnakeCase(variant_name));
         auto&                 variant_ref       = variant_map[variant_name];
 
-        auto supports_vk = has(variant_ref.backend, XBackend::Vulkan);
-        auto supports_dx = has(variant_ref.backend, XBackend::DX12);
+        auto supports_vk = has(variant_ref.backend, Backend::Vulkan);
+        auto supports_dx = has(variant_ref.backend, Backend::DX12);
 
         std::string vk_code      = supports_vk ? MakeCVariant(variant_ref, Backend::Vulkan, DocKind::VersionOnly) : "";
         std::string dx_code      = supports_dx ? MakeCVariant(variant_ref, Backend::DX12, DocKind::VersionOnly) : "";

@@ -59,7 +59,7 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
             ref.this_type = this_type->Value();
             auto& handle  = handle_map[ref.this_type];
             handle.functions.emplace_back(std::string(name));
-            ref.FilterBackend(handle.GetXBackend());
+            ref.FilterBackend(handle.GetBackend());
             TryMakeRef(ref.this_type, key);
         } else {
             free_functions_in_order.emplace_back(name);
@@ -676,8 +676,8 @@ void Generator::WriteFunctionDocumentation(std::filesystem::path func_output_pat
                                                  func_def.name);
         auto        func_doc_path  = func_output_path / wis::format("{}_function.h", MakeSnakeCase(full_func_name.substr(3)));
 
-        auto supports_vk = has(func_def.backend, XBackend::Vulkan);
-        auto supports_dx = has(func_def.backend, XBackend::DX12);
+        auto supports_vk = has(func_def.backend, Backend::Vulkan);
+        auto supports_dx = has(func_def.backend, Backend::DX12);
 
         std::string vk_code      = supports_vk ? MakeCFunctionDecl(func_def, Backend::Vulkan, "", DocKind::VersionOnly) : "";
         std::string dx_code      = supports_dx ? MakeCFunctionDecl(func_def, Backend::DX12, "", DocKind::VersionOnly) : "";
