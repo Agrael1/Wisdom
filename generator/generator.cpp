@@ -522,12 +522,12 @@ extern "C" {
     // Write handles
     for (auto& handle_name : handles_in_order) {
         auto& handle_def = handle_map[handle_name];
-        auto supported = handle_def.GetXBackend();
-        if (has(supported, XBackend::DX12)) {
+        auto supported = handle_def.GetBackend();
+        if (has(supported, Backend::DX12)) {
             file_dx << MakeCHandle(handle_def, Backend::DX12);
             file_dx << "\n";
         }
-        if (has(supported, XBackend::Vulkan)) {
+        if (has(supported, Backend::Vulkan)) {
             file_vk << MakeCHandle(handle_def, Backend::Vulkan);
             file_vk << "\n";
         }
@@ -536,11 +536,11 @@ extern "C" {
     // Write variants
     for (auto& variant_name : variants_in_order) {
         auto& variant_def = variant_map[variant_name];
-        if (has(variant_def.backend, XBackend::DX12)) {
+        if (has(variant_def.backend, Backend::DX12)) {
             file_dx << MakeCVariant(variant_def, Backend::DX12);
             file_dx << "\n";
         }
-        if (has(variant_def.backend, XBackend::Vulkan)) {
+        if (has(variant_def.backend, Backend::Vulkan)) {
             file_vk << MakeCVariant(variant_def, Backend::Vulkan);
             file_vk << "\n";
         }
@@ -549,11 +549,11 @@ extern "C" {
     // Write functions
     for (auto& func_name : functions_in_order) {
         auto& func_def = function_map[func_name];
-        if (has(func_def.backend, XBackend::DX12)) {
+        if (has(func_def.backend, Backend::DX12)) {
             file_dx << MakeCFunctionDecl(func_def, Backend::DX12, "WISDOM_API ");
             file_dx << "\n";
         }
-        if (has(func_def.backend, XBackend::Vulkan)) {
+        if (has(func_def.backend, Backend::Vulkan)) {
             file_vk << MakeCFunctionDecl(func_def, Backend::Vulkan, "WISDOM_API ");
             file_vk << "\n";
         }
@@ -614,7 +614,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
     // Write handles
     for (auto& handle_name : handles_in_order) {
         auto& handle_def = handle_map[handle_name];
-        if (has(handle_def.GetXBackend(), XBackend::DX12)) {
+        if (has(handle_def.GetBackend(), Backend::DX12)) {
             file_w << wis::format("typedef struct {} {};\n", GetCFullTypename(handle_def.name, Backend::DX12), GetCFullTypename(handle_def.name));
         }
     }
@@ -634,7 +634,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
     // Write variants
     for (auto& variant_name : variants_in_order) {
         auto& variant_def = variant_map[variant_name];
-        if (has(variant_def.backend, XBackend::DX12)) {
+        if (has(variant_def.backend, Backend::DX12)) {
             file_w << wis::format("typedef struct {} {};\n", GetCFullTypename(variant_def.name, Backend::DX12), GetCFullTypename(variant_def.name));
         }
     }
@@ -646,7 +646,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
     // Write functions
     for (auto& func_name : functions_in_order) {
         auto& func_def = function_map[func_name];
-        if (has(func_def.backend, XBackend::DX12)) {
+        if (has(func_def.backend, Backend::DX12)) {
             file_w << wis::format("#define {} {}\n",
                                   wis::format("wis{}{}", func_def.name.starts_with("Destroy") ? "" : func_def.this_type, func_def.name),
                                   wis::format("wis{}{}{}", impl_dx, func_def.name.starts_with("Destroy") ? "" : func_def.this_type, func_def.name));
@@ -690,7 +690,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
     // Write handles
     for (auto& handle_name : handles_in_order) {
         auto& handle_def = handle_map[handle_name];
-        if (has(handle_def.GetXBackend(), XBackend::Vulkan)) {
+        if (has(handle_def.GetBackend(), Backend::Vulkan)) {
             file_w << wis::format("typedef struct {} {};\n", GetCFullTypename(handle_def.name, Backend::Vulkan), GetCFullTypename(handle_def.name));
         }
     }
@@ -710,7 +710,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
     // Write variants
     for (auto& variant_name : variants_in_order) {
         auto& variant_def = variant_map[variant_name];
-        if (has(variant_def.backend, XBackend::Vulkan)) {
+        if (has(variant_def.backend, Backend::Vulkan)) {
             file_w << wis::format("typedef struct {} {};\n", GetCFullTypename(variant_def.name, Backend::Vulkan), GetCFullTypename(variant_def.name));
         }
     }
@@ -722,7 +722,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
     // Write functions
     for (auto& func_name : functions_in_order) {
         auto& func_def = function_map[func_name];
-        if (has(func_def.backend, XBackend::Vulkan)) {
+        if (has(func_def.backend, Backend::Vulkan)) {
             file_w << wis::format("#define {} {}\n",
                                   wis::format("wis{}{}", func_def.name.starts_with("Destroy") ? "" : func_def.this_type, func_def.name),
                                   wis::format("wis{}{}{}", impl_vk, func_def.name.starts_with("Destroy") ? "" : func_def.this_type, func_def.name));
@@ -829,11 +829,11 @@ namespace wis {
     // Write variants
     for (auto& variant_name : variants_in_order) {
         auto& variant_def = variant_map[variant_name];
-        if (has(variant_def.backend, XBackend::DX12)) {
+        if (has(variant_def.backend, Backend::DX12)) {
             file_dx << MakeCPPVariant(variant_def, Backend::DX12);
             file_dx << "\n";
         }
-        if (has(variant_def.backend, XBackend::Vulkan)) {
+        if (has(variant_def.backend, Backend::Vulkan)) {
             file_vk << MakeCPPVariant(variant_def, Backend::Vulkan);
             file_vk << "\n";
         }
@@ -842,12 +842,12 @@ namespace wis {
     // Write handles
     for (auto& handle_name : handles_in_order) {
         auto& handle_def = handle_map[handle_name];
-        auto supported = handle_def.GetXBackend();
-        if (has(supported, XBackend::DX12)) {
+        auto supported = handle_def.GetBackend();
+        if (has(supported, Backend::DX12)) {
             file_dx << MakeCPPHandle(handle_def, Backend::DX12);
             file_dx << "\n";
         }
-        if (has(supported, XBackend::Vulkan)) {
+        if (has(supported, Backend::Vulkan)) {
             file_vk << MakeCPPHandle(handle_def, Backend::Vulkan);
             file_vk << "\n";
         }
@@ -857,11 +857,11 @@ namespace wis {
     for (auto& func_name : free_functions_in_order) {
         FunctionKey key      = MakeFunctionKey("", func_name);
         auto&       func_def = function_map[key];
-        if (has(func_def.backend, XBackend::DX12)) {
+        if (has(func_def.backend, Backend::DX12)) {
             file_dx << MakeCPPFunctionImpl(func_def, Backend::DX12, "inline ");
             file_dx << "\n";
         }
-        if (has(func_def.backend, XBackend::Vulkan)) {
+        if (has(func_def.backend, Backend::Vulkan)) {
             file_vk << MakeCPPFunctionImpl(func_def, Backend::Vulkan, "inline ");
             file_vk << "\n";
         }
@@ -916,7 +916,7 @@ static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderInterm
     // Write handles
     for (auto& handle_name : handles_in_order) {
         auto& handle_def = handle_map[handle_name];
-        if (has(handle_def.GetXBackend(), XBackend::DX12)) {
+        if (has(handle_def.GetBackend(), Backend::DX12)) {
             file_w << wis::format("using {} = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, Backend::DX12));
         }
     }
@@ -936,7 +936,7 @@ static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderInterm
     // Write variants
     for (auto& variant_name : variants_in_order) {
         auto& variant_def = variant_map[variant_name];
-        if (has(variant_def.backend, XBackend::DX12)) {
+        if (has(variant_def.backend, Backend::DX12)) {
             file_w << wis::format("using {} = {};\n", variant_def.name, GetCPPFullTypename(variant_def.name, Backend::DX12));
         }
     }
@@ -949,7 +949,7 @@ static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderInterm
     for (auto& func_name : free_functions_in_order) {
         FunctionKey key      = MakeFunctionKey("", func_name);
         auto&       func_def = function_map[key];
-        if (has(func_def.backend, XBackend::DX12)) {
+        if (has(func_def.backend, Backend::DX12)) {
             file_w << MakeCPPFunctionImpl(func_def, Backend::DX12, "inline ", DocKind::Full, ProtoType::Universal);
             file_w << '\n';
         }
@@ -972,7 +972,7 @@ static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderInterm
     // Write handles
     for (auto& handle_name : handles_in_order) {
         auto& handle_def = handle_map[handle_name];
-        if (has(handle_def.GetXBackend(), XBackend::Vulkan)) {
+        if (has(handle_def.GetBackend(), Backend::Vulkan)) {
             file_w << wis::format("using {} = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, Backend::Vulkan));
         }
     }
@@ -992,7 +992,7 @@ static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderInterm
     // Write variants
     for (auto& variant_name : variants_in_order) {
         auto& variant_def = variant_map[variant_name];
-        if (has(variant_def.backend, XBackend::Vulkan)) {
+        if (has(variant_def.backend, Backend::Vulkan)) {
             file_w << wis::format("using {} = {};\n", variant_def.name, GetCPPFullTypename(variant_def.name, Backend::Vulkan));
         }
     }
@@ -1005,7 +1005,7 @@ static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderInterm
     for (auto& func_name : free_functions_in_order) {
         FunctionKey key      = MakeFunctionKey("", func_name);
         auto&       func_def = function_map[key];
-        if (has(func_def.backend, XBackend::Vulkan)) {
+        if (has(func_def.backend, Backend::Vulkan)) {
             file_w << MakeCPPFunctionImpl(func_def, Backend::Vulkan, "inline ", DocKind::Full, ProtoType::Universal);
             file_w << '\n';
         }
@@ -1399,18 +1399,18 @@ TypeKind Generator::GetType(std::string_view type_name) const noexcept
     return TypeKind::None;
 }
 
-XBackend Generator::GetTypeBackendSupport(std::string_view type_name) const noexcept
+Backend Generator::GetTypeBackendSupport(std::string_view type_name) const noexcept
 {
     auto xtype = GetType(type_name);
     switch (xtype) {
     case TypeKind::Variant:
         return variant_map.at(type_name).backend;
     case TypeKind::Handle:
-        return handle_map.at(type_name).GetXBackend();
+        return handle_map.at(type_name).GetBackend();
     case TypeKind::View:
-        return handle_map.at(type_name.substr(0, type_name.size() - 4)).GetXBackend();
+        return handle_map.at(type_name.substr(0, type_name.size() - 4)).GetBackend();
     default:
-        return XBackend::All;
+        return Backend::All;
     }
 }
 

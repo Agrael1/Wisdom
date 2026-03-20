@@ -278,7 +278,7 @@ void Generator::WriteHandleDocumentation(std::filesystem::path handle_output_pat
     auto  module_it    = module_map.find(active_module_name);
     auto& handle_names = module_it != module_map.end() ? module_it->second.handles_in_order : handles_in_order;
     for (const auto& handle_name : handle_names) {
-        auto backend = handle_map[handle_name].GetXBackend();
+        auto backend = handle_map[handle_name].GetBackend();
 
         // Make a folder for enums starting with this letter
         std::filesystem::create_directories(handle_output_path);
@@ -287,11 +287,11 @@ void Generator::WriteHandleDocumentation(std::filesystem::path handle_output_pat
 
         std::string vk_code;
         std::string dx_code;
-        if (has(backend, XBackend::Vulkan)) {
+        if (has(backend, Backend::Vulkan)) {
             vk_code = MakeCHandle(handle_ref, Backend::Vulkan, DocKind::VersionOnly);
             vk_code = wis::format(" Vulkan Version:\n```c\n{}```\n", vk_code);
         }
-        if (has(backend, XBackend::DX12)) {
+        if (has(backend, Backend::DX12)) {
             dx_code = MakeCHandle(handle_ref, Backend::DX12, DocKind::VersionOnly);
             dx_code = wis::format(" DX12 Version:\n```c\n{}```\n", dx_code);
         }

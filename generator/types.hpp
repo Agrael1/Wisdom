@@ -33,24 +33,19 @@ enum class TypeKind {
 };
 enum class Backend {
     Any,
-    DX12,
-    Vulkan,
-};
-enum class XBackend {
-    None,
     DX12   = 1 << 0,
     Vulkan = 1 << 1,
     All    = DX12 | Vulkan,
 };
-constexpr XBackend operator|(XBackend a, XBackend b)
+constexpr Backend operator|(Backend a, Backend b)
 {
-    return static_cast<XBackend>(static_cast<int>(a) | static_cast<int>(b));
+    return static_cast<Backend>(static_cast<int>(a) | static_cast<int>(b));
 }
-constexpr XBackend operator&(XBackend a, XBackend b)
+constexpr Backend operator&(Backend a, Backend b)
 {
-    return static_cast<XBackend>(static_cast<int>(a) & static_cast<int>(b));
+    return static_cast<Backend>(static_cast<int>(a) & static_cast<int>(b));
 }
-constexpr bool has(XBackend a, XBackend b)
+constexpr bool has(Backend a, Backend b)
 {
     return (a & b) == b;
 }
@@ -182,7 +177,7 @@ struct WisStruct {
     std::string_view             version;
     std::string_view             platform; // optional
     Modifier                     modifier = Modifier::None;
-    XBackend                     backend  = XBackend::All; // support query
+    Backend                      backend  = Backend::All; // support query
     std::vector<WisStructMember> members;
 
 public:
@@ -197,7 +192,7 @@ public:
         });
         return *enum_value;
     }
-    void FilterBackend(XBackend b)
+    void FilterBackend(Backend b)
     {
         backend = backend & b;
     }
@@ -236,14 +231,14 @@ public:
         }
         return 0;
     }
-    XBackend GetXBackend() const noexcept
+    Backend GetBackend() const noexcept
     {
-        XBackend result = XBackend::None;
+        Backend result = Backend::Any;
         if (sizes[0] != 0) {
-            result = result | XBackend::DX12;
+            result = result | Backend::DX12;
         }
         if (sizes[1] != 0) {
-            result = result | XBackend::Vulkan;
+            result = result | Backend::Vulkan;
         }
         return result;
     }
@@ -302,7 +297,7 @@ struct WisFunction {
     std::string_view version;
     std::string_view platform; // optional
     Modifier         modifier = Modifier::None;
-    XBackend         backend  = XBackend::All; // support query
+    Backend          backend  = Backend::All; // support query
 
     WisReturnType                     return_type;
     std::vector<WisFunctionParameter> parameters;
@@ -331,7 +326,7 @@ struct WisFunction {
         return modifier & (Modifier::Construct | Modifier::Destroy);
     }
 
-    void FilterBackend(XBackend b)
+    void FilterBackend(Backend b)
     {
         backend = backend & b;
     }

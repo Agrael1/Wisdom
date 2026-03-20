@@ -133,7 +133,7 @@ public:
     std::string        GetSpecificationCode(std::string_view c_code, std::string_view c_impl_code, std::string_view cpp_code, std::string_view cpp_impl_code);
 
     TypeKind    GetType(std::string_view type_name) const noexcept;
-    XBackend    GetTypeBackendSupport(std::string_view type_name) const noexcept;
+    Backend     GetTypeBackendSupport(std::string_view type_name) const noexcept;
     void        TryMakeRef(std::string_view type, std::string_view from);
     void        TryMakeRef(std::string_view type, FunctionKey from);
     std::string GetRefs(std::string_view for_type);
