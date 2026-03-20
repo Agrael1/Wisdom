@@ -32,7 +32,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * Cull mode for rasterizer.
- * Triangle culling depends on wis::WindingOrder option.
+ * Triangle culling depends on WisWindingOrder option.
  * 
  * \note Translates to  `D3D12_CULL_MODE` for DirectX 12 implementation, and `VkCullModeFlags` for Vulkan implementation.
  * 
@@ -47,6 +47,7 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisRasterizerDesc
+ * @see Structs:
+ * WisRasterizerDesc
  * \endcond
  */

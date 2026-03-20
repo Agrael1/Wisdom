@@ -51,6 +51,7 @@
  * @section WisInstanceExtensionHeader_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see wisCreateInstance
+ * @see Functions:
+ * wisCreateInstance
  * \endcond
  */

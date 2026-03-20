@@ -58,6 +58,7 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisComponentMapping, WisComponentMapping, WisComponentMapping, WisComponentMapping
+ * @see Structs:
+ * WisComponentMapping
  * \endcond
  */

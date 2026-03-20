@@ -31,6 +31,7 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
         auto& ref     = handle_map[name];
         handles_in_order.emplace_back(name);
         module_map[active_module_name].handles_in_order.emplace_back(name);
+        type_map[name] = TypeKind::Handle;
 
         ref.name    = name;
         ref.version = version;
@@ -47,41 +48,47 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
         std::string destr_name = "Destroy" + std::string(name);
         std::string destr_doc  = "Destroys a {" + std::string(name) + "::} handle.";
 
-        std::string destroy_key = MakeFunctionKey(destr_name, name);
+        auto&       kref        = ref.functions.emplace_back(std::move(destr_name));
+        FunctionKey destroy_key = MakeFunctionKey(name, kref);
 
         auto& destroy     = function_map[destroy_key];
-        destroy.name      = destr_name;
+        destroy.name      = kref;
         destroy.this_type = name;
         destroy.modifier  = Modifier::Destroy;
         destroy.version   = version;
         destroy.doc       = destr_doc;
-        ref.functions.emplace_back(destroy_key);
         functions_in_order.emplace_back(destroy_key);
+
+        type_map[kref] = TypeKind::Function;
         module_map[active_module_name].functions_in_order.emplace_back(destroy_key);
-        dependency_tree[name].dependencies.emplace_back(destroy.name);
+        dependency_tree[name].functions.emplace_back(destroy_key);
 
         // if the handle is an extension, add create function as well
         if (ref.extends != Extends::None) {
             std::string create_name = "Init" + std::string(name);
             std::string create_doc  = "Initializes a {" + std::string(name) + "::} handle.";
-            std::string create_key  = MakeFunctionKey(create_name, name);
-            auto&       create      = function_map[create_key];
-            create.name             = create_name;
-            create.this_type        = name;
-            create.modifier         = Modifier::Construct;
-            create.version          = version;
-            create.doc              = create_doc;
-            ref.functions.emplace_back(create_key);
+
+            auto& iref = ref.functions.emplace_back(std::move(create_name));
+            FunctionKey create_key = MakeFunctionKey(name, iref);
+
+            auto& create     = function_map[create_key];
+            create.name      = iref;
+            create.this_type = name;
+            create.modifier  = Modifier::Construct;
+            create.version   = version;
+            create.doc       = create_doc;
             functions_in_order.emplace_back(create_key);
+
+            type_map[iref] = TypeKind::Function;
             module_map[active_module_name].functions_in_order.emplace_back(create_key);
-            dependency_tree[name].dependencies.emplace_back(create.name);
+            dependency_tree[name].functions.emplace_back(create_key);
         }
 
         // Parse implementations
         for (auto* impl = type->FirstChildElement("impl"); impl;
              impl       = impl->NextSiblingElement("impl")) {
-            auto impl_for      = impl->FindAttribute("for")->Value();
-            auto backend = ParseBackend(impl_for);
+            auto impl_for = impl->FindAttribute("for")->Value();
+            auto backend  = ParseBackend(impl_for);
 
             uint32_t size = impl->UnsignedAttribute("size", 0);
             if (backend == Backend::DX12) {
@@ -127,7 +134,7 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
 //-----------------------------------------------------------------------------
 std::string Generator::MakeCHandle(const WisHandle& s, Backend backend, DocKind kind)
 {
-    auto    impl_string = GetBackendSuffix(backend);
+    auto impl_string = GetBackendSuffix(backend);
 
     auto extends_macro = s.extends == Extends::None
             ? std::string("WIS_DEFINE_HANDLE")
@@ -161,8 +168,8 @@ std::string Generator::MakeCHandle(const WisHandle& s, Backend backend, DocKind 
 //-----------------------------------------------------------------------------
 std::string Generator::MakeCPPHandle(const WisHandle& s, Backend backend, DocKind kind)
 {
-    auto    impl_string = GetBackendSuffix(backend);
-    auto           full_name   = GetCFullTypename(s.name, backend);
+    auto impl_string = GetBackendSuffix(backend);
+    auto full_name   = GetCFullTypename(s.name, backend);
 
     std::string deleter = wis::format("struct {}{}Deleter {{\n    "
                                       "void operator()({}* handle) noexcept {{\n        ",
@@ -219,7 +226,8 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, Backend backend, DocKin
 
     // Add all the functions
     for (const auto& func_name : s.functions) {
-        auto& func_ref = function_map[func_name];
+        FunctionKey func_key{ s.name, func_name };
+        auto&       func_ref = function_map[func_key];
         auto  c_name   = wis::format("wis{}{}{}", impl_string, func_ref.modifier & (Destroy | Construct) ? "" : func_ref.this_type, func_ref.name);
         if (func_ref.modifier & Modifier::Destroy) {
             deleter += wis::format("            ::{}(handle);\n",
@@ -254,8 +262,8 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, Backend backend, DocKin
 
 std::string Generator::MakeCPPView(const WisHandle& s, Backend backend, DocKind kind)
 {
-    auto    impl_string = GetBackendSuffix(backend);
-    auto           full_name   = GetCFullTypename(s.name, backend);
+    auto impl_string = GetBackendSuffix(backend);
+    auto full_name   = GetCFullTypename(s.name, backend);
 
     std::string view_decl;
     if (s.GetViewSize(backend) > 0) {
@@ -267,7 +275,7 @@ std::string Generator::MakeCPPView(const WisHandle& s, Backend backend, DocKind 
 //-----------------------------------------------------------------------------
 void Generator::WriteHandleDocumentation(std::filesystem::path handle_output_path)
 {
-    auto module_it = module_map.find(active_module_name);
+    auto  module_it    = module_map.find(active_module_name);
     auto& handle_names = module_it != module_map.end() ? module_it->second.handles_in_order : handles_in_order;
     for (const auto& handle_name : handle_names) {
         // Make a folder for enums starting with this letter

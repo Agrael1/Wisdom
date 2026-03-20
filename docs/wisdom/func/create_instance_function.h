@@ -66,7 +66,7 @@
  * \cond WIS_GEN_DESC
  * - `debug_desc` points to WisDebugDesc, which defines debug callback and debug layer usage. If `nullptr`, debug layer is disabled.
  * - `extensions` points to an array of extensions that are to be initialized with pointers to WisInstanceExtensionHeader.
- * - `extension_count` counts the number of extensions in the `extensions` array.
+ * - `extension_count` counts the number of extensions in the  array.
  * - `instance` points to WisInstance, which is initialized on success.
  * 
  * - **return** denoting the outcome of operation.
@@ -99,8 +99,8 @@
  * 
  * \cond WIS_GEN_WIS_IDS
  * @validusage_begin
- * @vuid_begin{WIS-wisCreateInstance-extensions-null} If `extension_count` is greater than 0, `extensions` @wis_must be a valid pointer to an array of `extension_count` valid WisInstanceExtensionHeader handles. @vuid_end
- * @vuid_begin{WIS-wisCreateInstance-instance-null} `instance` @wis_mustnot be null. @vuid_end
+ * @vuid_begin{WIS-WisCreateInstance-extensions-null} If  extension_count is greater than 0,  extensions @wis_must be a valid pointer to an array of  extension_count valid WisInstanceExtensionHeader handles. @vuid_end
+ * @vuid_begin{WIS-WisCreateInstance-instance-null}  instance @wis_mustnot be null. @vuid_end
  * @validusage_end
  * \endcond
  *

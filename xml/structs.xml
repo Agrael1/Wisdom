@@ -155,7 +155,7 @@
       <member type="MemoryFlags" name="memory_flags" default="None" doc="The flags of the memory to allocate for the texture."/>
     </type>
 
-    <type name="PushConstantDataDesc" category="struct" version="0.7.0" doc="Push constant set description for {CommandList::SetPushConstant}.">
+    <type name="PushConstantDataDesc" category="struct" version="0.7.0" doc="Push constant set description for {CommandList::SetPushConstants}.">
       <member type="PipelineType" name="pipeline" default="Graphics" doc="defines the pipeline type to set the push constants for."/>
       <member type="u32" name="root_index" doc="defines the root index in the root signature to set the push constants for."/>
       <member type="void" name="data" mod="const,ptr" doc="points to the data to set as push constants."/>
@@ -170,7 +170,7 @@
       <member type="u64" name="buffer_address" doc="defines buffer device address to push."/>
     </type>
 
-    <type name="DescriptorTableDataDesc" category="struct" version="0.7.0" doc="Push descriptor set description for {CommandList::SetPushDescriptor}.">
+    <type name="DescriptorTableDataDesc" category="struct" version="0.7.0" doc="Push descriptor set description for {CommandList::SetDescriptorTable}.">
       <member type="PipelineType" name="pipeline" default="Graphics" doc="defines the pipeline type to set the push descriptors for."/>
       <member type="u32" name="root_index" doc="defines the root index in the root signature to set the push descriptors for."/>
       <member type="DescriptorHeapType" name="heap_type" doc="defines the type of the descriptor heap to bind."/>
@@ -316,7 +316,7 @@ Viewport is considered from Top Left corner.">
       <member type="TargetSubresource" name="target_subresource" doc="Target subresource description for the region."/>
     </type>
 
-    <type name="RenderTargetDesc" category="struct" version="0.7.0" doc="Render target description for {CommandList::BeginRenderPass}.">
+    <type name="RenderTargetDesc" category="struct" version="0.7.0" doc="Render target description for {ViewHeap::WriteRenderTarget} and {ViewHeap::WriteDepthStencil}.">
       <member type="DataFormat" name="format" doc="Render target format."/>
       <member type="TextureLayout" name="layout" default="Texture2D" doc="Render target layout. Default is {TextureLayout::Texture2D}."/>
       <member type="u16" name="mip_level" default="0" doc="Mipmap level of the target subresource."/>
@@ -328,9 +328,9 @@ Viewport is considered from Top Left corner.">
     <!-- Variants -->
     <type name="DeviceRequirements" category="variant" version="0.7.0" doc="Device requirements. Used to specify required features and properties for device creation.">
       <member type="CommandQueueDesc" name="queue_descs" mod="const,span" default="nullptr" doc="points to an array of {CommandQueueDesc::} for which queues will be created during device creation."/>
-      <member type="size" name="queue_desc_count" default="0" doc="counts the number of queue descriptions in the {CreateDevice::queue_descs} array."/>
+      <member type="size" name="queue_desc_count" default="0" doc="counts the number of queue descriptions in the {AdapterQuery::CreateDevice} queue_descs array."/>
       <member type="DeviceExtensionHeader" name="extensions" mod="ptr,span" default="nullptr" doc="points to an array of extensions that are to be initialized with pointers to {DeviceExtensionHeader::}."/>
-      <member type="size" name="extension_count" default="0" doc="counts the number of extensions in the {CreateDevice::extensions} array."/>
+      <member type="size" name="extension_count" default="0" doc="counts the number of extensions in the {AdapterQuery::CreateDevice} extensions array."/>
     </type>
 
 
@@ -362,7 +362,7 @@ Viewport is considered from Top Left corner.">
       <member type="u32" name="sampler_increment_size" doc="Size of a single sampler in the sampler heap. Used for calculating sampler offsets."/>
     </type>
 
-    <type name="DeviceCommandQueuesProperties" category="struct" version="0.7.0" doc="Device memory properties. Used to query memory type support and limits.">
+    <type name="DeviceCommandQueueProperties" category="struct" version="0.7.0" doc="Device memory properties. Used to query memory type support and limits.">
       <member type="QueryPropertyType" name="property_type" doc="Defines the type of the queried property. @wis_must be {QueryPropertyType::DeviceCommandQueuesProperties}.."/>
       <member type="void" name="next_in_chain" mod="ptr" doc="Pointer to the next queried data struct."/>
 

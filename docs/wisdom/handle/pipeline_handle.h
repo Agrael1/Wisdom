@@ -24,6 +24,7 @@
  * @section WisPipeline_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see wisDestroyPipeline, wisDeviceCreateComputePipeline, wisDeviceCreateGraphicsPipeline
+ * @see Functions:
+ * wisDestroyPipeline, wisDeviceCreateComputePipeline, wisDeviceCreateGraphicsPipeline
  * \endcond
  */

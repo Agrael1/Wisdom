@@ -41,6 +41,7 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisInputBindingDesc
+ * @see Structs:
+ * WisInputBindingDesc
  * \endcond
  */

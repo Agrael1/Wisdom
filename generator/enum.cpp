@@ -35,6 +35,7 @@ void Generator::ParseEnum(tinyxml2::XMLElement* type)
     auto name = type->FindAttribute("name")->Value();
     enums_in_order.push_back(name);
     module_map[active_module_name].enums_in_order.push_back(name);
+    type_map[name] = TypeKind::Enum;
     auto& ref = enum_map[name];
     ref.name  = name;
 

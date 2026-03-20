@@ -88,6 +88,7 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisBlendAttachmentDesc, WisBlendAttachmentDesc, WisBlendAttachmentDesc, WisBlendAttachmentDesc
+ * @see Structs:
+ * WisBlendAttachmentDesc
  * \endcond
  */

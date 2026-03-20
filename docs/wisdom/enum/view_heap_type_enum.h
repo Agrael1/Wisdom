@@ -43,6 +43,7 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see wisDeviceCreateViewHeap
+ * @see Functions:
+ * wisDeviceCreateViewHeap
  * \endcond
  */

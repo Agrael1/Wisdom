@@ -384,7 +384,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DeviceQueryProperties(const WisDX12Device* s
 
         switch (header_local.property_type) {
         case WisQueryPropertyTypeDeviceCommandQueueProperties: {
-            auto* props = static_cast<WisDeviceCommandQueuesProperties*>(next);
+            auto* props = static_cast<WisDeviceCommandQueueProperties*>(next);
             for (size_t i = 0; i < WisCommandQueueTypeCount; ++i) {
                 props->supported_queues[i]   = (device.queue_priorities[i] & ~0x7fu) != 0;
                 props->max_queue_priority[i] = WisCommandQueuePriority(device.queue_priorities[i] & 0x7f);

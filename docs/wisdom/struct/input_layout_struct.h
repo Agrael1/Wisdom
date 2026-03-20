@@ -48,6 +48,7 @@
  * @section WisInputLayout_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see WisGraphicsPipelineDesc
+ * @see Structs:
+ * WisGraphicsPipelineDesc
  * \endcond
  */

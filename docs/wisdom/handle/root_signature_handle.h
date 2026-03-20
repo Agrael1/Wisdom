@@ -24,6 +24,7 @@
  * @section WisRootSignature_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see wisDestroyRootSignature, wisDeviceCreateRootSignature
+ * @see Functions:
+ * wisDestroyRootSignature, wisDeviceCreateRootSignature
  * \endcond
  */

@@ -38,13 +38,16 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
     for (auto* func = type->FirstChildElement("func"); func;
          func       = func->NextSiblingElement("func")) {
 
-        auto        name      = func->FindAttribute("name")->Value();
-        auto*       this_type = func->FindAttribute("for");
-        std::string key       = MakeFunctionKey(name, this_type ? this_type->Value() : "");
-        auto&       ref       = function_map[key];
+        auto  name      = func->FindAttribute("name")->Value();
+        auto* this_type = func->FindAttribute("for");
+
+        auto key = MakeFunctionKey(this_type ? this_type->Value() : "", name);
+
+        auto& ref = function_map[key];
         functions_in_order.emplace_back(key);
         module_map[active_module_name].functions_in_order.emplace_back(key);
-        ref.name = name;
+        type_map[name] = TypeKind::Function;
+        ref.name       = name;
 
         if (auto* version = func->FindAttribute("version")) {
             ref.version = version->Value();
@@ -55,11 +58,11 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
         if (this_type) {
             ref.this_type = this_type->Value();
             auto& handle  = handle_map[ref.this_type];
-            handle.functions.emplace_back(key);
-            TryMakeRef(ref.this_type, ref.name);
+            handle.functions.emplace_back(std::string(name));
+            TryMakeRef(ref.this_type, key);
         } else {
-            free_functions_in_order.emplace_back(key);
-            module_map[active_module_name].free_functions_in_order.emplace_back(key);
+            free_functions_in_order.emplace_back(name);
+            module_map[active_module_name].free_functions_in_order.emplace_back(name);
         }
 
         if (auto* doc = func->FindAttribute("doc")) {
@@ -94,7 +97,7 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
             if (auto* has_result = return_type->FindAttribute("result")) {
                 ref.return_type.has_result = std::string_view(has_result->Value()) == "true";
             }
-            TryMakeRef(ref.return_type.type, ref.name);
+            TryMakeRef(ref.return_type.type, key);
         }
 
         // Parse parameters
@@ -118,7 +121,7 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
             if (auto* doc = param->FindAttribute("doc")) {
                 p.doc = doc->Value();
             }
-            TryMakeRef(p.type, ref.name);
+            TryMakeRef(p.type, key);
         }
     }
 }
@@ -130,7 +133,8 @@ void Generator::ParseDelegate(tinyxml2::XMLElement* func)
     auto& ref  = delegate_map[name];
     delegates_in_order.push_back(name);
     module_map[active_module_name].delegates_in_order.push_back(name);
-    ref.name = name;
+    type_map[name] = TypeKind::FuncPointer;
+    ref.name       = name;
 
     if (auto* version = func->FindAttribute("version")) {
         ref.version = version->Value();
@@ -178,7 +182,7 @@ std::string Generator::MakeCFunctionProto(const WisFunction& func, Backend backe
 
     std::string full_return_type;
     std::string post_return;
-    std::string function_full_name = wis::format("wis{}{}{}", re_impl, func.modifier & (Destroy | Construct) ? "" : func.this_type, func.name);
+    std::string function_full_name = wis::format("wis{}{}{}", re_impl, func.IsCD() ? "" : func.this_type, func.name);
     size_t      post_return_length = 0;
 
     if (func.return_type.IsVoid()) {
@@ -434,7 +438,7 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, Backend back
 
     auto re_impl     = GetBackendSuffix(backend);
     auto backend_tag = GetBackendTag(backend);
-    auto c_name      = wis::format("wis{}{}{}", re_impl, func.modifier & (Destroy | Construct) ? "" : func.this_type, func.name);
+    auto c_name      = wis::format("wis{}{}{}", re_impl, func.IsCD() ? "" : func.this_type, func.name);
 
     // Convert args and call C function
     std::string body = "{\n";
@@ -658,7 +662,7 @@ std::string Generator::MakeDelegateDescription(const WisFunction& s)
 void Generator::WriteFunctionDocumentation(std::filesystem::path func_output_path)
 {
     std::filesystem::create_directories(func_output_path);
-    auto module_it = module_map.find(active_module_name);
+    auto  module_it      = module_map.find(active_module_name);
     auto& function_names = module_it != module_map.end() ? module_it->second.functions_in_order : functions_in_order;
     for (auto& func_name : function_names) {
         auto&       func_def       = function_map[func_name];

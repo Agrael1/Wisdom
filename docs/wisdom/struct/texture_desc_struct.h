@@ -71,6 +71,7 @@
  * @section WisTextureDesc_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see wisResourceAllocatorCreateTexture
+ * @see Functions:
+ * wisResourceAllocatorCreateTexture
  * \endcond
  */

@@ -43,7 +43,7 @@
  * - `WisBarrierFlagsNone = 0`: No flags set. Barrier is regular.
  * - `WisBarrierFlagsDiscardContent = (1 << 0)`: Discard resource content. The content of the resource before the barrier is treated as if resource was not initialized.
  * - `WisBarrierFlagsDepthResource = (1 << 1)`: Resource is a depth resource. This flag @wis_must be set for all depth resources to make transitions on them.
- * - `WisBarrierFlagsStencilResource = (1 << 2)`: Resource is a stencil resource. This flag @wis_must be set for all stencil resources to make transitions on them. If resource has format `WisDataFormatD24UnormS8Uint` both `WisBarrierFlags::DepthResource` and `WisBarrierFlags::StencilResource` @wis_must be set.
+ * - `WisBarrierFlagsStencilResource = (1 << 2)`: Resource is a stencil resource. This flag @wis_must be set for all stencil resources to make transitions on them. If resource has format `WisDataFormatD24UnormS8Uint` both `WisBarrierFlagsDepthResource` and `WisBarrierFlagsStencilResource` @wis_must be set.
  * - `WisBarrierFlagsWholeRange = (1 << 3)`: Transition whole resource. If not set, the transition is applied only to the specified subresource range. If set, the subresource range is ignored and the transition is applied to all subresources of the resource.
  * - `WisBarrierFlagsPlanarImage = (1 << 4)`: Resource is a planar image. If the flag is not set, plane slices in WisSubresourceRange are ignored.
  * \endcond
@@ -53,6 +53,7 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisTextureBarrier
+ * @see Structs:
+ * WisTextureBarrier
  * \endcond
  */

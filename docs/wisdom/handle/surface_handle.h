@@ -24,6 +24,7 @@
  * @section WisSurface_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see wisDestroySurface
+ * @see Functions:
+ * wisDestroySurface
  * \endcond
  */

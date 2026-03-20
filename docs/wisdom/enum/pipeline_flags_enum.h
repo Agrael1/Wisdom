@@ -47,6 +47,7 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisComputePipelineDesc, WisGraphicsPipelineDesc
+ * @see Structs:
+ * WisComputePipelineDesc, WisGraphicsPipelineDesc
  * \endcond
  */

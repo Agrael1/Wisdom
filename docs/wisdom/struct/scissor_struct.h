@@ -50,6 +50,7 @@
  * @section WisScissor_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see wisCommandListSetScissors
+ * @see Functions:
+ * wisCommandListSetScissors
  * \endcond
  */

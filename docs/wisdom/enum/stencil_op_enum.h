@@ -61,6 +61,7 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisStencilDesc, WisStencilDesc, WisStencilDesc
+ * @see Structs:
+ * WisStencilDesc
  * \endcond
  */

@@ -627,7 +627,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDeviceQueryProperties(const WisVKDevice* self,
 
         switch (header_local.property_type) {
         case WisQueryPropertyTypeDeviceCommandQueueProperties: {
-            auto* props = static_cast<WisDeviceCommandQueuesProperties*>(next);
+            auto* props = static_cast<WisDeviceCommandQueueProperties*>(next);
             for (size_t i = 0; i < WisCommandQueueTypeCount; ++i) {
                 auto&                   family_index = header.queue_residency[i];
                 bool                    supported    = family_index != wis::detail::VKQueueFamilyProperties::invalid_family_index;

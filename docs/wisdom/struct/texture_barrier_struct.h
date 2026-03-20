@@ -141,6 +141,7 @@
  * @section WisTextureBarrier_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see WisBarrierGroup
+ * @see Structs:
+ * WisBarrierGroup
  * \endcond
  */

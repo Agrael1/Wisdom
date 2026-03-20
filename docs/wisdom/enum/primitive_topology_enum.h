@@ -68,6 +68,7 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see wisCommandListSetPrimitiveTopology
+ * @see Functions:
+ * wisCommandListSetPrimitiveTopology
  * \endcond
  */

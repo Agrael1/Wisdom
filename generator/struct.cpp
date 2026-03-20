@@ -39,6 +39,7 @@ void Generator::ParseStruct(tinyxml2::XMLElement* type)
     auto& ref  = struct_map[name];
     structs_in_order.emplace_back(name);
     module_map[active_module_name].structs_in_order.emplace_back(name);
+    type_map[name] = TypeKind::Struct;
     ref.name = name;
 
     if (auto* size = type->FindAttribute("doc")) {

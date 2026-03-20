@@ -24,6 +24,7 @@
  * @section WisPipelineCache_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see wisDestroyPipelineCache, wisDeviceCreatePipelineCache, wisPipelineCacheSerialize, wisPipelineCacheGetSerializedSize
+ * @see Functions:
+ * wisDestroyPipelineCache, wisDeviceCreatePipelineCache, wisPipelineCacheSerialize, wisPipelineCacheGetSerializedSize
  * \endcond
  */

@@ -18,7 +18,7 @@ void Generator::ParseFile(std::filesystem::path file)
 
     bool has_modules = false;
     for (auto* module_node = root->FirstChildElement("module"); module_node;
-         module_node      = module_node->NextSiblingElement("module")) {
+         module_node       = module_node->NextSiblingElement("module")) {
         has_modules = true;
 
         auto* module_attr   = module_node->FindAttribute("name");
@@ -29,15 +29,15 @@ void Generator::ParseFile(std::filesystem::path file)
             throw std::runtime_error("Module metadata is missing. Required attributes: name, version, base_dir, doc_dir.");
         }
 
-        auto module_name = std::string_view(module_attr->Value());
+        auto module_name    = std::string_view(module_attr->Value());
         auto [it, inserted] = module_map.try_emplace(module_name);
         if (inserted) {
             modules_in_order.emplace_back(module_name);
         }
 
-        auto& module   = it->second;
-        module.name    = module_name;
-        module.version = version_attr->Value();
+        auto& module    = it->second;
+        module.name     = module_name;
+        module.version  = version_attr->Value();
         module.gen_path = base_dir_attr->Value();
         module.doc_path = doc_dir_attr->Value();
         if (auto* backend = module_node->FindAttribute("backend")) {
@@ -63,15 +63,15 @@ void Generator::ParseFile(std::filesystem::path file)
         throw std::runtime_error("Top-level registry metadata is missing. Required attributes: module, version, base_dir, doc_dir.");
     }
 
-    auto module_name = std::string_view(module_attr->Value());
+    auto module_name    = std::string_view(module_attr->Value());
     auto [it, inserted] = module_map.try_emplace(module_name);
     if (inserted) {
         modules_in_order.emplace_back(module_name);
     }
 
-    auto& module   = it->second;
-    module.name    = module_name;
-    module.version = version_attr->Value();
+    auto& module    = it->second;
+    module.name     = module_name;
+    module.version  = version_attr->Value();
     module.gen_path = base_dir_attr->Value();
     module.doc_path = doc_dir_attr->Value();
     if (auto* backend = root->FindAttribute("backend")) {
@@ -96,10 +96,10 @@ void Generator::ParsePlatformFile(std::filesystem::path file)
         throw std::runtime_error("Invalid XML file: missing <registry> root element");
     }
 
-    bool has_modules      = false;
+    bool has_modules       = false;
     bool selected_platform = false;
     for (auto* module_node = root->FirstChildElement("module"); module_node;
-         module_node      = module_node->NextSiblingElement("module")) {
+         module_node       = module_node->NextSiblingElement("module")) {
         has_modules = true;
 
         auto* module_attr   = module_node->FindAttribute("name");
@@ -110,15 +110,15 @@ void Generator::ParsePlatformFile(std::filesystem::path file)
             throw std::runtime_error("Module metadata is missing. Required attributes: name, version, base_dir, doc_dir.");
         }
 
-        auto module_name = std::string_view(module_attr->Value());
+        auto module_name    = std::string_view(module_attr->Value());
         auto [it, inserted] = module_map.try_emplace(module_name);
         if (inserted) {
             modules_in_order.emplace_back(module_name);
         }
 
-        auto& module   = it->second;
-        module.name    = module_name;
-        module.version = version_attr->Value();
+        auto& module    = it->second;
+        module.name     = module_name;
+        module.version  = version_attr->Value();
         module.gen_path = base_dir_attr->Value();
         module.doc_path = doc_dir_attr->Value();
         if (auto* backend = module_node->FindAttribute("backend")) {
@@ -149,15 +149,15 @@ void Generator::ParsePlatformFile(std::filesystem::path file)
         throw std::runtime_error("Top-level registry metadata is missing. Required attributes: module, version, base_dir, doc_dir.");
     }
 
-    auto module_name = std::string_view(module_attr->Value());
+    auto module_name    = std::string_view(module_attr->Value());
     auto [it, inserted] = module_map.try_emplace(module_name);
     if (inserted) {
         modules_in_order.emplace_back(module_name);
     }
 
-    auto& module   = it->second;
-    module.name    = module_name;
-    module.version = version_attr->Value();
+    auto& module    = it->second;
+    module.name     = module_name;
+    module.version  = version_attr->Value();
     module.gen_path = base_dir_attr->Value();
     module.doc_path = doc_dir_attr->Value();
     if (auto* backend = root->FindAttribute("backend")) {
@@ -213,8 +213,8 @@ void Generator::WriteModuleAPIDoc(std::string_view module_name)
         throw std::runtime_error("Module metadata is not available for documentation output.");
     }
 
-    auto previous_module  = active_module_name;
-    active_module_name    = module_name;
+    auto previous_module = active_module_name;
+    active_module_name   = module_name;
 
     std::filesystem::path module_doc_output_path = std::filesystem::path(doc_output_dir) / it->second.doc_path;
     std::filesystem::path enum_output_path       = module_doc_output_path / "enum";
@@ -244,7 +244,7 @@ void Generator::ParseFile(tinyxml2::XMLDocument& doc)
 
     bool has_modules = false;
     for (auto* module_node = root->FirstChildElement("module"); module_node;
-         module_node      = module_node->NextSiblingElement("module")) {
+         module_node       = module_node->NextSiblingElement("module")) {
         has_modules = true;
         ParseRegistrySections(module_node);
     }
@@ -821,7 +821,9 @@ namespace wis {
 
     // Write functions
     for (auto& func_name : free_functions_in_order) {
-        auto& func_def = function_map[func_name];
+        FunctionKey key      = MakeFunctionKey("", func_name);
+        auto&       func_def = function_map[key];
+
         file_dx << MakeCPPFunctionImpl(func_def, Backend::DX12, "inline ");
         file_dx << "\n";
         file_vk << MakeCPPFunctionImpl(func_def, Backend::Vulkan, "inline ");
@@ -884,7 +886,7 @@ static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderInterm
     for (auto& handle_name : views_in_order) {
         auto& handle_def = handle_map[handle_name];
         if (handle_def.GetViewSize(Backend::DX12) > 0) {
-        file_w << wis::format("using {}View = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, Backend::DX12) + "View");
+            file_w << wis::format("using {}View = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, Backend::DX12) + "View");
         }
     }
 
@@ -904,7 +906,8 @@ static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderInterm
 
     // Write functions
     for (auto& func_name : free_functions_in_order) {
-        auto& func_def = function_map[func_name];
+        FunctionKey key      = MakeFunctionKey("", func_name);
+        auto&       func_def = function_map[key];
         file_w << MakeCPPFunctionImpl(func_def, Backend::DX12, "inline ", DocKind::Full, ProtoType::Universal);
         file_w << '\n';
     }
@@ -933,7 +936,7 @@ static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderInterm
     for (auto& handle_name : views_in_order) {
         auto& handle_def = handle_map[handle_name];
         if (handle_def.GetViewSize(Backend::Vulkan) > 0) {
-        file_w << wis::format("using {}View = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, Backend::Vulkan) + "View");
+            file_w << wis::format("using {}View = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, Backend::Vulkan) + "View");
         }
     }
 
@@ -953,7 +956,8 @@ static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderInterm
 
     // Write functions
     for (auto& func_name : free_functions_in_order) {
-        auto& func_def = function_map[func_name];
+        FunctionKey key      = MakeFunctionKey("", func_name);
+        auto&       func_def = function_map[key];
         file_w << MakeCPPFunctionImpl(func_def, Backend::Vulkan, "inline ", DocKind::Full, ProtoType::Universal);
         file_w << '\n';
     }
@@ -1323,68 +1327,52 @@ void Generator::WriteDocumentation(std::filesystem::path doc_output_path,
 }
 
 // Helpers
-std::string Generator::MakeFunctionKey(std::string_view name, std::string_view this_type)
-{
-    if (this_type.empty()) {
-        return std::string(name);
-    }
-    return wis::format("{}::{}", this_type, name);
-}
-
-std::string Generator::FindFunctionKey(std::string_view name) const
-{
-    for (const auto& [key, func] : function_map) {
-        if (func.name == name) {
-            return key;
-        }
-    }
-    return {};
-}
-
 TypeKind Generator::GetType(std::string_view type_name) const noexcept
 {
     if (type_name.empty()) {
         return TypeKind::None;
     }
-    if (auto it = enum_map.find(type_name); it != enum_map.end()) {
-        return TypeKind::Enum;
+    if (standard_types.contains(type_name)) {
+        return TypeKind::Base;
     }
-    if (auto it = bitmask_map.find(type_name); it != bitmask_map.end()) {
-        return TypeKind::Bitmask;
+    if (auto it = type_map.find(type_name); it != type_map.end()) {
+        return it->second;
     }
-    if (auto it = struct_map.find(type_name); it != struct_map.end()) {
-        return TypeKind::Struct;
+
+    // Special case - views
+    if (type_name.ends_with("View")) {
+        auto base_type = type_name.substr(0, type_name.size() - 4);
+        if (handle_map.contains(base_type)) {
+            return TypeKind::View;
+        }
     }
-    if (auto it = variant_map.find(type_name); it != variant_map.end()) {
-        return TypeKind::Variant;
-    }
-    if (auto it = handle_map.find(type_name); it != handle_map.end()) {
-        return TypeKind::Handle;
-    }
-    if (auto it = function_map.find(std::string(type_name)); it != function_map.end()) {
-        return TypeKind::Function;
-    }
-    if (!FindFunctionKey(type_name).empty()) {
-        return TypeKind::Function;
-    }
-    if (delegate_map.contains(type_name)) {
-        return TypeKind::FuncPointer;
-    }
-    if (view_set.contains(type_name.substr(0, type_name.size() - 4))) {
-        return TypeKind::View; // A view, but we don't need extra type
-    }
-    return TypeKind::Base;
+
+    return TypeKind::None;
 }
 
 void Generator::TryMakeRef(std::string_view type, std::string_view ref)
 {
     // ref is reverse, meaning ref uses type
-    auto xtype = GetType(type);
-    if (xtype == TypeKind::None || xtype == TypeKind::Base) {
+    auto xtype = GetType(ref);
+    switch (xtype) {
+    case TypeKind::Struct:
+    case TypeKind::Variant:
+        dependency_tree[type].structs.push_back(ref);
+        return;
+    case TypeKind::Handle:
+        dependency_tree[type].handles.push_back(ref);
+        return;
+
+    default:
         return;
     }
-    dependency_tree[type].dependencies.push_back(ref);
 }
+
+void Generator::TryMakeRef(std::string_view type, FunctionKey ref)
+{
+    dependency_tree[type].functions.push_back(ref);
+}
+
 std::string Generator::GetCFullTypename(std::string_view type, Backend backend)
 {
     auto suffix = GetBackendSuffix(backend);
@@ -1394,42 +1382,27 @@ std::string Generator::GetCFullTypename(std::string_view type, Backend backend)
     default:
     case TypeKind::None:
         return "";
-    case TypeKind::Struct:
-        return wis::format("Wis{}", type);
-    case TypeKind::Variant:
-        return wis::format("Wis{}{}", suffix, type);
-    case TypeKind::Union:
-        break;
     case TypeKind::Enum:
     case TypeKind::Bitmask:
     case TypeKind::FuncPointer:
+    case TypeKind::Struct:
         return wis::format("Wis{}", type);
     case TypeKind::Handle:
     case TypeKind::View:
+    case TypeKind::Function:
+    case TypeKind::Variant:
         return wis::format("Wis{}{}", suffix, type);
-    case TypeKind::Function: {
-        auto it = function_map.find(std::string(type));
-        if (it == function_map.end()) {
-            auto key = FindFunctionKey(type);
-            if (key.empty()) {
-                return "";
-            }
-            it = function_map.find(key);
-            if (it == function_map.end()) {
-                return "";
-            }
-        }
-
-        auto& func = it->second;
-        if (!func.this_type.empty() && !(func.modifier & (Destroy | Construct))) {
-            return wis::format("wis{}{}{}", suffix, func.this_type, func.name);
-        }
-        return wis::format("wis{}{}", suffix, func.name);
-    }
-    case TypeKind::Alias:
-        break;
     }
     return "";
+}
+std::string Generator::GetCFullFunctionName(FunctionKey type, Backend backend)
+{
+    auto& func_def = function_map[type];
+    if (func_def.IsCD()) {
+        return wis::format("wis{}{}", GetBackendSuffix(backend), func_def.name);
+    } else {
+        return wis::format("wis{}{}{}", GetBackendSuffix(backend), func_def.this_type, func_def.name);
+    }
 }
 std::string Generator::GetCPPFullTypename(std::string_view type, Backend backend)
 {
@@ -1457,6 +1430,15 @@ std::string Generator::GetCPPFullTypename(std::string_view type, Backend backend
     }
     return "";
 }
+std::string Generator::GetCPPFullFunctionName(FunctionKey type, Backend backend)
+{
+    auto& func_def = function_map[type];
+    if (func_def.IsCD()) {
+        return wis::format("wis::{}{}", GetBackendSuffix(backend), func_def.name);
+    } else {
+        return wis::format("wis::{}{}::{}", GetBackendSuffix(backend), func_def.this_type, func_def.name);
+    }
+}
 std::string Generator::FinalizeCDocumentation(std::string doc, std::string_view this_type, Backend backend)
 {
     if (doc.empty()) {
@@ -1478,45 +1460,64 @@ std::string Generator::FinalizeCDocumentation(std::string doc, std::string_view 
 
         std::string replacement;
 
-        if (auto x = enum_map.find(this_type_view); x != enum_map.end()) {
-            auto evalue = x->second.HasValue(value);
-            replacement = evalue ? wis::format("`Wis{}{}`", x->second.name, evalue->name)
-                                 : GetCPPFullTypename(x->second.name, backend);
-
-        } else if (auto y = bitmask_map.find(this_type_view); y != bitmask_map.end()) {
-            auto evalue = y->second.HasValue(value);
-            replacement = evalue ? wis::format("`{}::{}`", GetCFullTypename(y->second.name, backend), evalue->name)
-                                 : GetCFullTypename(y->second.name, backend);
-        } else if (auto z = struct_map.find(this_type_view); z != struct_map.end()) {
-            auto member = z->second.HasValue(value);
-            replacement = member ? wis::format("`{}::{}`", GetCFullTypename(z->second.name, backend), member->name)
-                                 : GetCFullTypename(z->second.name, backend);
-        } else if (auto z = variant_map.find(this_type_view); z != variant_map.end()) {
-            auto member = z->second.HasValue(value);
-            replacement = member ? wis::format("`{}::{}`", GetCFullTypename(z->second.name, backend), member->name)
-                                 : GetCFullTypename(z->second.name, backend);
-        } /*else if (auto d = delegate_map.find(this_type_view); d != delegate_map.end()) {
-            auto member = d->second.HasValue(value);
-            replacement = member ? wis::format("{}::{}", GetCFullTypename(d->second.name, impl), member->name)
-                                 : GetCFullTypename(d->second.name, impl);
-        }*/
-        else if (auto h = handle_map.find(this_type_view); h != handle_map.end()) {
-            replacement = GetCFullTypename(h->second.name, backend);
-        } else {
-            auto f = function_map.find(std::string(this_type_view));
-            if (f == function_map.end()) {
-                auto key = FindFunctionKey(this_type_view);
-                if (!key.empty()) {
-                    f = function_map.find(key);
+        switch (GetType(this_type_view)) {
+        case TypeKind::Base:
+            replacement = GetCFullTypename(this_type_view, backend);
+            break;
+        case TypeKind::None:
+            break;
+        case TypeKind::Enum: {
+            auto& x      = enum_map.at(this_type_view);
+            auto  evalue = x.HasValue(value);
+            replacement  = evalue ? wis::format("`{}{}`", GetCFullTypename(x.name, backend), evalue->name)
+                                  : GetCFullTypename(x.name, backend);
+            break;
+        }
+        case TypeKind::Bitmask: {
+            auto& b      = bitmask_map.at(this_type_view);
+            auto  evalue = b.HasValue(value);
+            replacement  = evalue ? wis::format("`{}{}`", GetCFullTypename(b.name, backend), evalue->name)
+                                  : GetCFullTypename(b.name, backend);
+            break;
+        }
+        case TypeKind::Struct: {
+            auto& s      = struct_map.at(this_type_view);
+            auto  member = s.HasValue(value);
+            replacement  = member ? wis::format("`{}::{}`", GetCFullTypename(s.name, backend), member->name)
+                                  : GetCFullTypename(s.name, backend);
+            break;
+        }
+        case TypeKind::Variant: {
+            auto& v     = variant_map.at(this_type_view);
+            auto  m     = v.HasValue(value);
+            replacement = m ? wis::format("`{}::{}`", GetCFullTypename(v.name, backend), m->name)
+                            : GetCFullTypename(v.name, backend);
+            break;
+        }
+        case TypeKind::FuncPointer: {
+            auto& d     = delegate_map.at(this_type_view);
+            auto  m     = d.HasValue(value);
+            replacement = m ? wis::format("`{}::{}`", GetCFullTypename(d.name, backend), m->name)
+                            : GetCFullTypename(d.name, backend);
+            break;
+        }
+        case TypeKind::Handle: {
+            auto& h = handle_map.at(this_type_view);
+            if (value.empty()) {
+                replacement = GetCFullTypename(h.name, backend);
+            } else {
+                // member function
+                FunctionKey key = MakeFunctionKey(type, value);
+                auto        f   = function_map.find(key);
+                if (f != function_map.end()) {
+                    replacement = GetCFullFunctionName(key);
                 }
             }
-            if (f == function_map.end()) {
-                doc.replace(first, last - first + 1, replacement);
-                continue;
-            }
-            auto member = f->second.HasValue(value);
-            replacement = member ? wis::format("`{}`", member->name)
-                                 : GetCFullTypename(f->second.name, backend);
+            break;
+        }
+        case TypeKind::View: {
+            replacement = GetCFullTypename(this_type_view, backend);
+        }
         }
         doc.replace(first, last - first + 1, replacement);
     }
@@ -1552,45 +1553,64 @@ std::string Generator::FinalizeCPPDocumentation(std::string doc, std::string_vie
 
         std::string replacement;
 
-        if (auto x = enum_map.find(this_type_view); x != enum_map.end()) {
-            auto evalue = x->second.HasValue(value);
-            replacement = evalue ? wis::format("`{}::{}`", GetCPPFullTypename(x->second.name, backend), evalue->name)
-                                 : GetCPPFullTypename(x->second.name, backend);
-
-        } else if (auto y = bitmask_map.find(this_type_view); y != bitmask_map.end()) {
-            auto evalue = y->second.HasValue(value);
-            replacement = evalue ? wis::format("`{}::{}`", GetCPPFullTypename(y->second.name, backend), evalue->name)
-                                 : GetCFullTypename(y->second.name, backend);
-        } else if (auto z = struct_map.find(this_type_view); z != struct_map.end()) {
-            auto member = z->second.HasValue(value);
-            replacement = member ? wis::format("`{}::{}`", GetCPPFullTypename(z->second.name, backend), member->name)
-                                 : GetCPPFullTypename(z->second.name, backend);
-        } else if (auto z = variant_map.find(this_type_view); z != variant_map.end()) {
-            auto member = z->second.HasValue(value);
-            replacement = member ? wis::format("`{}::{}`", GetCPPFullTypename(z->second.name, backend), member->name)
-                                 : GetCPPFullTypename(z->second.name, backend);
-        } /*else if (auto d = delegate_map.find(this_type_view); d != delegate_map.end()) {
-            auto member = d->second.HasValue(value);
-            replacement = member ? wis::format("{}::{}", GetCFullTypename(d->second.name, impl), member->name)
-                                 : GetCFullTypename(d->second.name, impl);
-        }*/
-        else if (auto h = handle_map.find(this_type_view); h != handle_map.end()) {
-            replacement = GetCPPFullTypename(h->second.name, backend);
-        } else {
-            auto f = function_map.find(std::string(this_type_view));
-            if (f == function_map.end()) {
-                auto key = FindFunctionKey(this_type_view);
-                if (!key.empty()) {
-                    f = function_map.find(key);
+        switch (GetType(this_type_view)) {
+        case TypeKind::Base:
+            replacement = GetCFullTypename(this_type_view, backend);
+            break;
+        case TypeKind::None:
+            break;
+        case TypeKind::Enum: {
+            auto& x      = enum_map.at(this_type_view);
+            auto  evalue = x.HasValue(value);
+            replacement  = evalue ? wis::format("`{}::{}`", GetCPPFullTypename(x.name, backend), evalue->name)
+                                  : GetCPPFullTypename(x.name, backend);
+            break;
+        }
+        case TypeKind::Bitmask: {
+            auto& b      = bitmask_map.at(this_type_view);
+            auto  evalue = b.HasValue(value);
+            replacement  = evalue ? wis::format("`{}::{}`", GetCPPFullTypename(b.name, backend), evalue->name)
+                                  : GetCPPFullTypename(b.name, backend);
+            break;
+        }
+        case TypeKind::Struct: {
+            auto& s      = struct_map.at(this_type_view);
+            auto  member = s.HasValue(value);
+            replacement  = member ? wis::format("`{}::{}`", GetCPPFullTypename(s.name, backend), member->name)
+                                  : GetCPPFullTypename(s.name, backend);
+            break;
+        }
+        case TypeKind::Variant: {
+            auto& v     = variant_map.at(this_type_view);
+            auto  m     = v.HasValue(value);
+            replacement = m ? wis::format("`{}::{}`", GetCPPFullTypename(v.name, backend), m->name)
+                            : GetCPPFullTypename(v.name, backend);
+            break;
+        }
+        case TypeKind::FuncPointer: {
+            auto& d     = delegate_map.at(this_type_view);
+            auto  m     = d.HasValue(value);
+            replacement = m ? wis::format("`{}::{}`", GetCPPFullTypename(d.name, backend), m->name)
+                            : GetCPPFullTypename(d.name, backend);
+            break;
+        }
+        case TypeKind::Handle: {
+            auto& h = handle_map.at(this_type_view);
+            if (value.empty()) {
+                replacement = GetCPPFullTypename(h.name, backend);
+            } else {
+                // member function
+                FunctionKey key = MakeFunctionKey(type, value);
+                auto        f   = function_map.find(key);
+                if (f != function_map.end()) {
+                    replacement = GetCPPFullFunctionName(key);
                 }
             }
-            if (f == function_map.end()) {
-                doc.replace(first, last - first + 1, replacement);
-                continue;
-            }
-            auto member = f->second.HasValue(value);
-            replacement = member ? wis::format("`{}`", member->name)
-                                 : GetCPPFullTypename(f->second.name, backend);
+            break;
+        }
+        case TypeKind::View: {
+            replacement = GetCPPFullTypename(this_type_view, backend);
+        }
         }
         doc.replace(first, last - first + 1, replacement);
     }
@@ -1781,31 +1801,85 @@ Modifier Generator::GetModifiers(std::string_view mod_str) noexcept
     return mods;
 }
 
+template<typename Kty>
+void Deduplicate(std::vector<Kty>& dependency)
+{
+    // deduplicate handles
+    std::unordered_set<Kty> seen;
+    // Use the erase-remove idiom with a custom predicate
+    auto new_end = std::remove_if(dependency.begin(), dependency.end(), [&](auto sv) {
+        // If insert fails, the element is a duplicate
+        return !seen.insert(sv).second;
+    });
+
+    dependency.erase(new_end, dependency.end());
+}
+
 std::string Generator::GetRefs(std::string_view for_type)
 {
     auto it = dependency_tree.find(for_type);
     if (it == dependency_tree.end()) {
         return "";
     }
-    auto& xrefs = it->second.dependencies;
+    auto& xrefs = it->second;
 
     std::size_t                  ref_count     = 0;
     static constexpr std::size_t max_ref_count = 10;
+
+    auto type = GetType(for_type);
+
     // Gather references
     std::string refs;
-    for (auto& ref : xrefs) {
-        if (ref.empty()) {
-            continue;
-        }
 
-        refs += GetCFullTypename(ref, Backend::Any);
-        if (++ref_count > max_ref_count) {
-            break;
-        }
+    // First go handles
+    if (!xrefs.handles.empty()) {
+        refs += "Handles:\n";
+    }
+    Deduplicate(xrefs.handles);
+
+    for (auto& h : xrefs.handles) {
+        refs += GetCFullTypename(h, Backend::Any);
         refs += ", ";
     }
-    refs.pop_back(); // remove last space
-    refs.pop_back(); // remove last comma
+    if (!xrefs.handles.empty()) {
+        refs.pop_back(); // remove last space
+        refs.pop_back(); // remove last comma
+    }
+
+    // Then go structs
+    if (!xrefs.structs.empty()) {
+        if (!refs.empty()) {
+            refs += "\n";
+        }
+        refs += "Structs:\n";
+    }
+    Deduplicate(xrefs.structs);
+    for (auto& s : xrefs.structs) {
+        refs += GetCFullTypename(s, Backend::Any);
+        refs += ", ";
+    }
+    if (!xrefs.structs.empty()) {
+        refs.pop_back(); // remove last space
+        refs.pop_back(); // remove last comma
+    }
+
+    // last go functions
+    if (!xrefs.functions.empty()) {
+        if (!refs.empty()) {
+            refs += "\n";
+        }
+        refs += "Functions:\n";
+    }
+    Deduplicate(xrefs.functions);
+    for (auto& f : xrefs.functions) {
+        refs += GetCFullFunctionName(f);
+        refs += ", ";
+    }
+    if (!xrefs.functions.empty()) {
+        refs.pop_back(); // remove last space
+        refs.pop_back(); // remove last comma
+    }
+
     if (!refs.empty()) {
         refs = wis::format(" * @see {}\n", refs);
     }

@@ -56,6 +56,7 @@
  * @section WisRenderTargetDesc_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see wisViewHeapWriteRenderTarget, wisViewHeapWriteDepthStencil
+ * @see Functions:
+ * wisViewHeapWriteRenderTarget, wisViewHeapWriteDepthStencil
  * \endcond
  */

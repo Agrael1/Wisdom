@@ -43,6 +43,7 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisDescriptorHeapDesc, WisDescriptorTableDataDesc
+ * @see Structs:
+ * WisDescriptorHeapDesc, WisDescriptorTableDataDesc
  * \endcond
  */

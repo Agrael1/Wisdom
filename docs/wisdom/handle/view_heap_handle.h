@@ -22,6 +22,7 @@
  * @section WisViewHeap_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see wisDestroyViewHeap, wisDeviceCreateViewHeap, wisViewHeapWriteRenderTarget, wisViewHeapWriteDepthStencil, wisViewHeapGetViewAddress, wisViewHeapCopyViews, wisDescriptorHeapGetCPUHandle
+ * @see Functions:
+ * wisDestroyViewHeap, wisDeviceCreateViewHeap, wisViewHeapWriteRenderTarget, wisViewHeapWriteDepthStencil, wisViewHeapGetViewAddress, wisViewHeapCopyViews, wisViewHeapGetCPUHandle
  * \endcond
  */

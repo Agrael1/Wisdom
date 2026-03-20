@@ -2,6 +2,7 @@
 #include <string>
 #include <optional>
 #include <vector>
+#include <list>
 #include <algorithm>
 
 enum class DocKind {
@@ -35,6 +36,25 @@ enum class Backend {
     DX12,
     Vulkan,
 };
+enum class XBackend {
+    None,
+    DX12   = 1 << 0,
+    Vulkan = 1 << 1,
+    All    = DX12 | Vulkan,
+};
+constexpr XBackend operator|(XBackend a, XBackend b)
+{
+    return static_cast<XBackend>(static_cast<int>(a) | static_cast<int>(b));
+}
+constexpr XBackend operator&(XBackend a, XBackend b)
+{
+    return static_cast<XBackend>(static_cast<int>(a) & static_cast<int>(b));
+}
+constexpr bool has(XBackend a, XBackend b)
+{
+    return (a & b) == b;
+}
+
 enum class ImplOs {
     None,
     Windows = 1 << 0,
@@ -88,10 +108,6 @@ struct InlineTypeInfo {
     std::string_view value;
     std::size_t      pos;
     std::size_t      after;
-};
-
-struct Dependencies {
-    std::vector<std::string_view> dependencies;
 };
 
 struct WisConvert {
@@ -192,7 +208,7 @@ struct WisHandle {
     std::array<uint32_t, 2> sizes{};
     std::array<uint32_t, 2> view_sizes{};
 
-    std::vector<std::string> functions;
+    std::list<std::string> functions; // must be string to hold destructors
 
 public:
     uint32_t GetSize(Backend backend) const noexcept
@@ -214,6 +230,17 @@ public:
             return view_sizes[1];
         }
         return 0;
+    }
+    XBackend GetXBackend() const noexcept
+    {
+        XBackend result = XBackend::None;
+        if (sizes[0] != 0) {
+            result = result | XBackend::DX12;
+        }
+        if (sizes[1] != 0) {
+            result = result | XBackend::Vulkan;
+        }
+        return result;
     }
 };
 
@@ -264,7 +291,7 @@ struct WisReturnType {
     }
 };
 struct WisFunction {
-    std::string      name;
+    std::string_view name;
     std::string      doc;
     std::string_view this_type;
     std::string_view version;
@@ -290,6 +317,12 @@ struct WisFunction {
             return {};
         }
         return *enum_value;
+    }
+
+    // constructor or destructor
+    bool IsCD() const noexcept
+    {
+        return modifier & (Modifier::Construct | Modifier::Destroy);
     }
 };
 
@@ -326,6 +359,30 @@ struct Validation {
 using ValidationList = std::vector<Validation>;
 using MethodList     = std::vector<std::string_view>;
 
+using FunctionKey = std::pair<std::string_view, std::string_view>; // (this type :: function name)
+
+// Define hash function for function_key_t to be used in unordered_map
+namespace std {
+template<>
+struct hash<FunctionKey> {
+    std::size_t operator()(const FunctionKey& k) const noexcept
+    {
+        return std::hash<std::string_view>{}(k.first) ^ (std::hash<std::string_view>{}(k.second) << 1);
+    }
+};
+} // namespace std
+
+constexpr FunctionKey MakeFunctionKey(std::string_view this_type, std::string_view func_name)
+{
+    return { this_type, func_name };
+}
+
+struct Dependencies {
+    std::vector<std::string_view> structs;
+    std::vector<std::string_view> handles;
+    std::vector<FunctionKey>      functions;
+};
+
 struct WisModule {
     std::string_view name;
     std::string_view doc_path;
@@ -339,9 +396,9 @@ struct WisModule {
     std::vector<std::string_view> structs_in_order;
     std::vector<std::string_view> variants_in_order;
     std::vector<std::string_view> handles_in_order;
-    std::vector<std::string>      functions_in_order;
+    std::vector<FunctionKey>      functions_in_order;
     std::vector<std::string_view> delegates_in_order;
     std::vector<std::string_view> constants_in_order;
-    std::vector<std::string>      free_functions_in_order;
+    std::vector<std::string_view> free_functions_in_order;
     std::vector<std::string_view> views_in_order;
 };

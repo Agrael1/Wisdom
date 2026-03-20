@@ -80,6 +80,7 @@
  * @section WisAdapterDesc_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see wisAdapterQueryGetAdapterDesc
+ * @see Functions:
+ * wisAdapterQueryGetAdapterDesc
  * \endcond
  */

@@ -55,6 +55,9 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisCommandQueueDesc, WisBufferBarrier, WisBufferBarrier, WisTextureBarrier, WisTextureBarrier, wisDeviceCreateCommandQueue, wisDeviceCreateCommandAllocator
+ * @see Structs:
+ * WisCommandQueueDesc, WisBufferBarrier, WisTextureBarrier
+ * Functions:
+ * wisDeviceCreateCommandQueue, wisDeviceCreateCommandAllocator
  * \endcond
  */

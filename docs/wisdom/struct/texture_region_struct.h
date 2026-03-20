@@ -44,6 +44,7 @@
  * @section WisTextureRegion_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see wisTextureWriteSubresource
+ * @see Functions:
+ * wisTextureWriteSubresource
  * \endcond
  */

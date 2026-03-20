@@ -22,6 +22,7 @@
  * @section WisWin32Extension_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see wisDestroyWin32Extension, wisInitWin32Extension, wisWin32ExtensionCreateSurface
+ * @see Functions:
+ * wisDestroyWin32Extension, wisInitWin32Extension, wisWin32ExtensionCreateSurface
  * \endcond
  */
