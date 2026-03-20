@@ -2,7 +2,7 @@
 #define WIS_DX12_COMMAND_ALLOCATOR_CPP
 
 #include <wisdom/generated/dx12_cpp_api.hpp>
-#include <wisdom/generated/dx12_api.h>
+#include <wisdom/generated/backend_api.h>
 #include <wisdom/generated/dx12_convert.hpp>
 #include <wisdom/dx12/detail/dx12_utils.hpp>
 #include <wisdom/util/allocation.hpp>

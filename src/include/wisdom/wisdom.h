@@ -12,8 +12,9 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 #define FORCEVK_SWITCH 0
 #endif // WISDOM_VULKAN_FOUND
 
+#include "generated/backend_api.h"
+
 #if defined(WISDOM_DX12) && !FORCEVK_SWITCH
-#include "generated/dx12_api.h"
 
 #define WIS_SHADER_INTERMEDIATE_DXIL 1
 
@@ -178,7 +179,6 @@ typedef struct WisDX12GraphicsPipelineDesc    WisGraphicsPipelineDesc;
             WisDX12CommandList*: wisGetDX12CommandListView,           \
             default: (void)0)(handle)
 #elif defined(WISDOM_VULKAN)
-#include "generated/vk_api.h"
 
 #define WIS_SHADER_INTERMEDIATE_SPIRV 1
 

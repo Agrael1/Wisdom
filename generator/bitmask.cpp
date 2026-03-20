@@ -33,7 +33,6 @@ void Generator::ParseBitmask(tinyxml2::XMLElement* type)
 {
     auto  name = type->FindAttribute("name")->Value();
     auto& ref  = bitmask_map[name];
-    bitmasks_in_order.push_back(name);
     module_map[active_module_name].bitmasks_in_order.push_back(name);
     type_map[name] = TypeKind::Bitmask;
     ref.name = name;
@@ -247,8 +246,7 @@ std::string Generator::MakeBitmaskConverter(const WisBitmask& s, Backend backend
 void Generator::WriteBitmaskDocumentation(std::filesystem::path enum_output_path)
 {
     std::filesystem::create_directories(enum_output_path);
-    auto module_it = module_map.find(active_module_name);
-    auto& bitmask_names = module_it != module_map.end() ? module_it->second.bitmasks_in_order : bitmasks_in_order;
+    auto& bitmask_names = module_map.at(active_module_name).bitmasks_in_order;
     for (auto& enum_name : bitmask_names) {
         // Make a folder for enums starting with this letter
         std::filesystem::path enum_file_path = enum_output_path / wis::format("{}_enum.h", MakeSnakeCase(enum_name));

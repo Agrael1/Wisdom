@@ -44,7 +44,6 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
         auto key = MakeFunctionKey(this_type ? this_type->Value() : "", name);
 
         auto& ref = function_map[key];
-        functions_in_order.emplace_back(key);
         module_map[active_module_name].functions_in_order.emplace_back(key);
         type_map[name] = TypeKind::Function;
         ref.name       = name;
@@ -62,7 +61,6 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
             ref.FilterBackend(handle.GetBackend());
             TryMakeRef(ref.this_type, key);
         } else {
-            free_functions_in_order.emplace_back(name);
             module_map[active_module_name].free_functions_in_order.emplace_back(name);
         }
 
@@ -136,7 +134,6 @@ void Generator::ParseDelegate(tinyxml2::XMLElement* func)
 {
     auto  name = func->FindAttribute("name")->Value();
     auto& ref  = delegate_map[name];
-    delegates_in_order.push_back(name);
     module_map[active_module_name].delegates_in_order.push_back(name);
     type_map[name] = TypeKind::FuncPointer;
     ref.name       = name;
@@ -667,8 +664,7 @@ std::string Generator::MakeDelegateDescription(const WisFunction& s)
 void Generator::WriteFunctionDocumentation(std::filesystem::path func_output_path)
 {
     std::filesystem::create_directories(func_output_path);
-    auto  module_it      = module_map.find(active_module_name);
-    auto& function_names = module_it != module_map.end() ? module_it->second.functions_in_order : functions_in_order;
+    auto& function_names = module_map.at(active_module_name).functions_in_order;
     for (auto& func_name : function_names) {
         auto&       func_def       = function_map[func_name];
         std::string full_func_name = wis::format("wis{}{}",
@@ -728,9 +724,7 @@ void Generator::WriteFunctionDocumentation(std::filesystem::path func_output_pat
 void Generator::WriteDelegateDocumentation(std::filesystem::path func_output_path)
 {
     std::filesystem::create_directories(func_output_path);
-    auto module_it = module_map.find(active_module_name);
-    if (module_it != module_map.end()) {
-        for (auto& delegate_name : module_it->second.delegates_in_order) {
+    for (auto& delegate_name : module_map.at(active_module_name).delegates_in_order) {
             auto  full_delegate_name = GetCFullTypename(delegate_name, Backend::Any);
             auto  delegate_doc_path  = func_output_path / wis::format("{}_delegate.h", MakeSnakeCase(full_delegate_name.substr(3)));
             auto& delegate_def       = delegate_map[delegate_name];
@@ -752,31 +746,5 @@ void Generator::WriteDelegateDocumentation(std::filesystem::path func_output_pat
                                vuids,
                                delegate_description,
                                delegate_refs);
-        }
-        return;
-    }
-
-    for (auto& delegate_pair : delegate_map) {
-        auto  full_delegate_name = GetCFullTypename(delegate_pair.first, Backend::Any);
-        auto  delegate_doc_path  = func_output_path / wis::format("{}_delegate.h", MakeSnakeCase(full_delegate_name.substr(3)));
-        auto& delegate_def       = delegate_pair.second;
-
-        std::string regular_code              = MakeCDelegate(delegate_def, DocKind::VersionOnly);
-        std::string regular_code_cpp          = MakeCPPDelegate(delegate_def, DocKind::VersionOnly);
-        std::string delegate_template_content = GetSpecificationCode(regular_code, "", regular_code_cpp, "");
-
-        std::string delegate_description = MakeDelegateDescription(delegate_def);
-        std::string delegate_refs        = GetRefs(delegate_def.name);
-        std::string vuids                = MakeValidationForType(delegate_def.name);
-        ReplaceAll(delegate_description, "\n", "\n * ");
-        ReplaceAll(delegate_refs, "\n", "\n * ");
-        delegate_description = FinalizeCDocumentation(delegate_description, delegate_pair.first);
-        WriteDocumentation(delegate_doc_path,
-                           function_doc_template,
-                           GetCFullTypename(delegate_pair.first, Backend::Any),
-                           delegate_template_content,
-                           vuids,
-                           delegate_description,
-                           delegate_refs);
     }
 }

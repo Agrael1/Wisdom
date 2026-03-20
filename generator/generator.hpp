@@ -41,7 +41,6 @@ public:
 
 public:
     void ParseIncludes(tinyxml2::XMLElement* includes);
-    void ParseFile(tinyxml2::XMLDocument& doc);
     void ParseTypes(tinyxml2::XMLElement* types);
     void ParseEnum(tinyxml2::XMLElement* type);
     void ParseStruct(tinyxml2::XMLElement* type);
@@ -356,16 +355,6 @@ private:
     std::unordered_map<std::string_view, ValidationList> validation_map;
 
     // Ordered members
-    std::vector<std::string_view> enums_in_order;
-    std::vector<std::string_view> bitmasks_in_order;
-    std::vector<std::string_view> structs_in_order;
-    std::vector<std::string_view> variants_in_order;
-    std::vector<std::string_view> handles_in_order;
-    std::vector<FunctionKey>      functions_in_order;
-    std::vector<std::string_view> delegates_in_order;
-    std::vector<std::string_view> constants_in_order;
-    std::vector<std::string_view> free_functions_in_order;
-    std::vector<std::string_view> views_in_order;
     std::vector<std::string_view> modules_in_order;
 
     std::string_view active_module_name;

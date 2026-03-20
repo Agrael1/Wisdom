@@ -5,6 +5,7 @@ wis_make_target_bundle(
         "wisdom/global/definitions.h"
         "wisdom/global/internal.hpp"
         "wisdom/generated/c_api.h"
+        "wisdom/generated/backend_api.h"
         "wisdom/generated/cpp_api.hpp"
         "wisdom/generated/wisdom_exports.h"
         "wisdom/bridge/span.hpp"
@@ -43,7 +44,6 @@ if (WISDOM_DX12)
             "wisdom/dx12/detail/dx12_detail.hpp"
             "wisdom/generated/dx12_cpp_api.hpp"
             "wisdom/generated/dx12_convert.hpp"
-            "wisdom/generated/dx12_api.h"
             SOURCES
             "wisdom/dx12/dx12_impl.cpp"
             "wisdom/dx12/dx12_instance.cpp"
@@ -82,7 +82,6 @@ if (WISDOM_VULKAN)
             "wisdom/vulkan/vk_tables.hpp"
             "wisdom/vulkan/vk_extensions.hpp"
             "wisdom/generated/vk_cpp_api.hpp"
-            "wisdom/generated/vk_api.h"
             SOURCES
             "wisdom/vulkan/vk_device.cpp"
             "wisdom/vulkan/vk_fence.cpp"

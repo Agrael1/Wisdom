@@ -6,7 +6,7 @@
 #endif // __cplusplus
 
 #include <wisdom/generated/cpp_api.hpp>
-#include <wisdom/generated/dx12_api.h>
+#include <wisdom/generated/backend_api.h>
 #include <wisdom/global/internal.hpp>
 #include <wisdom/dx12/dx12_types.hpp>
 

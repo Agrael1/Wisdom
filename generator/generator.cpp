@@ -50,126 +50,6 @@ void Generator::ParseFile(std::filesystem::path file)
         active_module_name = module_name;
         ParseRegistrySections(module_node);
     }
-
-    if (has_modules) {
-        return;
-    }
-
-    auto* module_attr   = root->FindAttribute("module");
-    auto* version_attr  = root->FindAttribute("version");
-    auto* base_dir_attr = root->FindAttribute("base_dir");
-    auto* doc_dir_attr  = root->FindAttribute("doc_dir");
-    if (!module_attr || !version_attr || !base_dir_attr || !doc_dir_attr) {
-        throw std::runtime_error("Top-level registry metadata is missing. Required attributes: module, version, base_dir, doc_dir.");
-    }
-
-    auto module_name    = std::string_view(module_attr->Value());
-    auto [it, inserted] = module_map.try_emplace(module_name);
-    if (inserted) {
-        modules_in_order.emplace_back(module_name);
-    }
-
-    auto& module    = it->second;
-    module.name     = module_name;
-    module.version  = version_attr->Value();
-    module.gen_path = base_dir_attr->Value();
-    module.doc_path = doc_dir_attr->Value();
-    if (auto* backend = root->FindAttribute("backend")) {
-        module.backend = ParseBackend(backend->Value());
-    }
-    if (auto* os = root->FindAttribute("os")) {
-        module.os = GetImplOs(os->Value());
-    }
-
-    active_module_name = module_name;
-    ParseRegistrySections(root);
-}
-
-void Generator::ParsePlatformFile(std::filesystem::path file)
-{
-    auto  absolute = std::filesystem::absolute(file);
-    auto& doc      = documents[absolute];
-    doc.LoadFile(absolute.string().c_str());
-
-    auto* root = doc.FirstChildElement("registry");
-    if (!root) {
-        throw std::runtime_error("Invalid XML file: missing <registry> root element");
-    }
-
-    bool has_modules       = false;
-    bool selected_platform = false;
-    for (auto* module_node = root->FirstChildElement("module"); module_node;
-         module_node       = module_node->NextSiblingElement("module")) {
-        has_modules = true;
-
-        auto* module_attr   = module_node->FindAttribute("name");
-        auto* version_attr  = module_node->FindAttribute("version");
-        auto* base_dir_attr = module_node->FindAttribute("base_dir");
-        auto* doc_dir_attr  = module_node->FindAttribute("doc_dir");
-        if (!module_attr || !version_attr || !base_dir_attr || !doc_dir_attr) {
-            throw std::runtime_error("Module metadata is missing. Required attributes: name, version, base_dir, doc_dir.");
-        }
-
-        auto module_name    = std::string_view(module_attr->Value());
-        auto [it, inserted] = module_map.try_emplace(module_name);
-        if (inserted) {
-            modules_in_order.emplace_back(module_name);
-        }
-
-        auto& module    = it->second;
-        module.name     = module_name;
-        module.version  = version_attr->Value();
-        module.gen_path = base_dir_attr->Value();
-        module.doc_path = doc_dir_attr->Value();
-        if (auto* backend = module_node->FindAttribute("backend")) {
-            module.backend = ParseBackend(backend->Value());
-        }
-        if (auto* os = module_node->FindAttribute("os")) {
-            module.os = GetImplOs(os->Value());
-        }
-
-        active_module_name = module_name;
-        if (!selected_platform) {
-            platform_module_name = module_name;
-            selected_platform    = true;
-        }
-
-        ParseRegistrySections(module_node);
-    }
-
-    if (has_modules) {
-        return;
-    }
-
-    auto* module_attr   = root->FindAttribute("module");
-    auto* version_attr  = root->FindAttribute("version");
-    auto* base_dir_attr = root->FindAttribute("base_dir");
-    auto* doc_dir_attr  = root->FindAttribute("doc_dir");
-    if (!module_attr || !version_attr || !base_dir_attr || !doc_dir_attr) {
-        throw std::runtime_error("Top-level registry metadata is missing. Required attributes: module, version, base_dir, doc_dir.");
-    }
-
-    auto module_name    = std::string_view(module_attr->Value());
-    auto [it, inserted] = module_map.try_emplace(module_name);
-    if (inserted) {
-        modules_in_order.emplace_back(module_name);
-    }
-
-    auto& module    = it->second;
-    module.name     = module_name;
-    module.version  = version_attr->Value();
-    module.gen_path = base_dir_attr->Value();
-    module.doc_path = doc_dir_attr->Value();
-    if (auto* backend = root->FindAttribute("backend")) {
-        module.backend = ParseBackend(backend->Value());
-    }
-    if (auto* os = root->FindAttribute("os")) {
-        module.os = GetImplOs(os->Value());
-    }
-
-    active_module_name   = module_name;
-    platform_module_name = module_name;
-    ParseRegistrySections(root);
 }
 
 void Generator::WriteMainAPI()
@@ -235,27 +115,6 @@ void Generator::WriteModuleAPIDoc(std::string_view module_name)
 }
 
 //-----------------------------------------------------------------------------
-void Generator::ParseFile(tinyxml2::XMLDocument& doc)
-{
-    auto* root = doc.FirstChildElement("registry");
-    if (!root) {
-        throw std::runtime_error("Invalid XML file: missing <registry> root element");
-    }
-
-    bool has_modules = false;
-    for (auto* module_node = root->FirstChildElement("module"); module_node;
-         module_node       = module_node->NextSiblingElement("module")) {
-        has_modules = true;
-        ParseRegistrySections(module_node);
-    }
-
-    if (has_modules) {
-        return;
-    }
-
-    ParseRegistrySections(root);
-}
-
 void Generator::ParseRegistrySections(tinyxml2::XMLElement* root)
 {
     if (auto* include = root->FirstChildElement("includes")) {
@@ -329,6 +188,19 @@ void Generator::ParseTypes(tinyxml2::XMLElement* types)
 
 void Generator::WriteCAPI(std::filesystem::path path)
 {
+    auto& module = module_map.at(active_module_name);
+
+    bool has_independent_api = !module.enums_in_order.empty() ||
+            !module.bitmasks_in_order.empty() ||
+            !module.structs_in_order.empty() ||
+            !module.constants_in_order.empty() ||
+            !module.delegates_in_order.empty();
+
+    if (!has_independent_api) {
+        std::filesystem::remove(path);
+        return;
+    }
+
     files.push_back(path);
     std::ofstream file{ path, std::ios::out | std::ios::trunc };
     if (!file.is_open()) {
@@ -353,14 +225,14 @@ extern "C" {
             "//==============================================================\n\n";
 
     // Write enums
-    for (auto& enum_name : enums_in_order) {
+    for (auto& enum_name : module.enums_in_order) {
         auto& enum_def = enum_map[enum_name];
         file << MakeCEnum(enum_def);
         file << "\n";
     }
 
     // Write bitmasks
-    for (auto& bitmask_name : bitmasks_in_order) {
+    for (auto& bitmask_name : module.bitmasks_in_order) {
         auto& bitmask_def = bitmask_map[bitmask_name];
         file << MakeCBitmask(bitmask_def);
         file << "\n";
@@ -370,7 +242,7 @@ extern "C" {
             "// Delegates\n"
             "//==============================================================\n\n";
     // Write delegates (before structs, as structs may reference delegates)
-    for (auto& delegate_name : delegates_in_order) {
+    for (auto& delegate_name : module.delegates_in_order) {
         auto& delegate_def = delegate_map[delegate_name];
         file << MakeCDelegate(delegate_def);
         file << "\n";
@@ -380,7 +252,7 @@ extern "C" {
             "// Structs\n"
             "//==============================================================\n\n";
     // Write structs
-    for (auto& struct_name : structs_in_order) {
+    for (auto& struct_name : module.structs_in_order) {
         auto& struct_def = struct_map[struct_name];
         file << MakeCStruct(struct_def);
         file << "\n";
@@ -390,7 +262,7 @@ extern "C" {
             "// Constants\n"
             "//==============================================================\n\n";
     // Write constants
-    for (auto& const_name : constants_in_order) {
+    for (auto& const_name : module.constants_in_order) {
         auto& const_def = constant_map[const_name];
         file << MakeCConstant(const_def);
         file << "\n";
@@ -407,6 +279,7 @@ extern "C" {
 
 void Generator::WriteCPPAPI(std::filesystem::path path)
 {
+    auto& module = module_map.at(active_module_name);
     files.push_back(path);
     std::ofstream file{ path, std::ios::out | std::ios::trunc };
     if (!file.is_open()) {
@@ -428,14 +301,14 @@ namespace wis {
             "//==============================================================\n\n";
 
     // Write enums
-    for (auto& enum_name : enums_in_order) {
+    for (auto& enum_name : module.enums_in_order) {
         auto& enum_def = enum_map[enum_name];
         file << MakeCPPEnum(enum_def);
         file << "\n";
     }
 
     // Write bitmasks
-    for (auto& bitmask_name : bitmasks_in_order) {
+    for (auto& bitmask_name : module.bitmasks_in_order) {
         auto& bitmask_def = bitmask_map[bitmask_name];
         file << MakeCPPBitmask(bitmask_def);
         file << "\n";
@@ -445,7 +318,7 @@ namespace wis {
             "// Delegates\n"
             "//==============================================================\n\n";
     // Write delegates (before structs, as structs may reference delegates)
-    for (auto& delegate_name : delegates_in_order) {
+    for (auto& delegate_name : module.delegates_in_order) {
         auto& delegate_def = delegate_map[delegate_name];
         file << MakeCPPDelegate(delegate_def);
         file << "\n";
@@ -455,7 +328,7 @@ namespace wis {
             "// Structs\n"
             "//==============================================================\n\n";
     // Write structs
-    for (auto& struct_name : structs_in_order) {
+    for (auto& struct_name : module.structs_in_order) {
         auto& struct_def = struct_map[struct_name];
         file << MakeCPPStruct(struct_def);
         file << "\n";
@@ -465,7 +338,7 @@ namespace wis {
             "// Constants\n"
             "//==============================================================\n\n";
     // Write constants
-    for (auto& const_name : constants_in_order) {
+    for (auto& const_name : module.constants_in_order) {
         auto& const_def = constant_map[const_name];
         file << MakeCPPConstant(const_def);
         file << "\n";
@@ -483,99 +356,111 @@ namespace wis {
 
 void Generator::WriteCDependentAPI(std::filesystem::path dir)
 {
-    std::filesystem::path path_dx = dir / "dx12_api.h";
-    std::filesystem::path path_vk = dir / "vk_api.h";
-    files.push_back(path_dx);
-    files.push_back(path_vk);
+    auto& module = module_map.at(active_module_name);
+    std::filesystem::path path_b  = dir / "backend_api.h";
+    files.push_back(path_b);
 
-    std::ofstream file_dx{ path_dx, std::ios::out | std::ios::trunc };
-    if (!file_dx.is_open()) {
-        throw std::runtime_error("Failed to open output file: " + path_dx.string());
-    }
-    std::ofstream file_vk{ path_vk, std::ios::out | std::ios::trunc };
-    if (!file_vk.is_open()) {
-        throw std::runtime_error("Failed to open output file: " + path_vk.string());
+    std::ofstream file_b{ path_b, std::ios::out | std::ios::trunc };
+    if (!file_b.is_open()) {
+        throw std::runtime_error("Failed to open output file: " + path_b.string());
     }
 
     // Write header
-    file_dx << R"(// This file is generated. Do not edit directly.
-#ifndef WISDOM_C_DX12_API_H
-#define WISDOM_C_DX12_API_H
+    file_b << R"(// This file is generated. Do not edit directly.
+#ifndef WISDOM_C_BACKEND_API_H
+#define WISDOM_C_BACKEND_API_H
+
 #include <wisdom/generated/c_api.h>
 #include <string.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif // __cplusplus
-)";
-    file_vk << R"(// This file is generated. Do not edit directly.
-#ifndef WISDOM_C_VK_API_H
-#define WISDOM_C_VK_API_H
-#include <wisdom/generated/c_api.h>
-#include <string.h>
-
+#ifdef WISDOM_DX12
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
 )";
 
     // Write handles
-    for (auto& handle_name : handles_in_order) {
+    for (auto& handle_name : module.handles_in_order) {
         auto& handle_def = handle_map[handle_name];
         auto supported = handle_def.GetBackend();
         if (has(supported, Backend::DX12)) {
-            file_dx << MakeCHandle(handle_def, Backend::DX12);
-            file_dx << "\n";
-        }
-        if (has(supported, Backend::Vulkan)) {
-            file_vk << MakeCHandle(handle_def, Backend::Vulkan);
-            file_vk << "\n";
+            file_b << MakeCHandle(handle_def, Backend::DX12);
+            file_b << "\n";
         }
     }
 
     // Write variants
-    for (auto& variant_name : variants_in_order) {
+    for (auto& variant_name : module.variants_in_order) {
         auto& variant_def = variant_map[variant_name];
         if (has(variant_def.backend, Backend::DX12)) {
-            file_dx << MakeCVariant(variant_def, Backend::DX12);
-            file_dx << "\n";
-        }
-        if (has(variant_def.backend, Backend::Vulkan)) {
-            file_vk << MakeCVariant(variant_def, Backend::Vulkan);
-            file_vk << "\n";
+            file_b << MakeCVariant(variant_def, Backend::DX12);
+            file_b << "\n";
         }
     }
 
     // Write functions
-    for (auto& func_name : functions_in_order) {
+    for (auto& func_name : module.functions_in_order) {
         auto& func_def = function_map[func_name];
         if (has(func_def.backend, Backend::DX12)) {
-            file_dx << MakeCFunctionDecl(func_def, Backend::DX12, "WISDOM_API ");
-            file_dx << "\n";
+            file_b << MakeCFunctionDecl(func_def, Backend::DX12, "WISDOM_API ");
+            file_b << "\n";
         }
+    }
+
+    file_b << R"(
+#ifdef __cplusplus
+}
+#endif // __cplusplus
+#endif // WISDOM_DX12
+
+#ifdef WISDOM_VULKAN
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
+)";
+
+    // Write Vulkan handles
+    for (auto& handle_name : module.handles_in_order) {
+        auto& handle_def = handle_map[handle_name];
+        auto supported = handle_def.GetBackend();
+        if (has(supported, Backend::Vulkan)) {
+            file_b << MakeCHandle(handle_def, Backend::Vulkan);
+            file_b << "\n";
+        }
+    }
+
+    // Write Vulkan variants
+    for (auto& variant_name : module.variants_in_order) {
+        auto& variant_def = variant_map[variant_name];
+        if (has(variant_def.backend, Backend::Vulkan)) {
+            file_b << MakeCVariant(variant_def, Backend::Vulkan);
+            file_b << "\n";
+        }
+    }
+
+    // Write Vulkan functions
+    for (auto& func_name : module.functions_in_order) {
+        auto& func_def = function_map[func_name];
         if (has(func_def.backend, Backend::Vulkan)) {
-            file_vk << MakeCFunctionDecl(func_def, Backend::Vulkan, "WISDOM_API ");
-            file_vk << "\n";
+            file_b << MakeCFunctionDecl(func_def, Backend::Vulkan, "WISDOM_API ");
+            file_b << "\n";
         }
     }
 
     // Write footer
-    file_dx << R"(
+    file_b << R"(
 #ifdef __cplusplus
 }
 #endif // __cplusplus
-#endif // WISDOM_C_DX12_API_H
-)";
-    file_vk << R"(
-#ifdef __cplusplus
-}
-#endif // __cplusplus
-#endif // WISDOM_C_VK_API_H
+#endif // WISDOM_VULKAN
+
+#endif // WISDOM_C_BACKEND_API_H
 )";
 }
 
 void Generator::WriteCIndependentAPI(std::filesystem::path dir)
 {
+    auto& module = module_map.at(active_module_name);
     std::filesystem::path path_w = dir / "wisdom.h";
     files.push_back(path_w);
 
@@ -599,8 +484,9 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 #define FORCEVK_SWITCH 0
 #endif // WISDOM_VULKAN_FOUND
 
+#include "generated/backend_api.h"
+
 #if defined(WISDOM_DX12) && !FORCEVK_SWITCH
-#include "generated/dx12_api.h"
 
 #define WIS_SHADER_INTERMEDIATE_DXIL 1
 )";
@@ -612,7 +498,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
               "//==============================================================\n\n";
 
     // Write handles
-    for (auto& handle_name : handles_in_order) {
+    for (auto& handle_name : module.handles_in_order) {
         auto& handle_def = handle_map[handle_name];
         if (has(handle_def.GetBackend(), Backend::DX12)) {
             file_w << wis::format("typedef struct {} {};\n", GetCFullTypename(handle_def.name, Backend::DX12), GetCFullTypename(handle_def.name));
@@ -620,7 +506,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
     }
 
     // Write Views for handles
-    for (auto& handle_name : views_in_order) {
+    for (auto& handle_name : module.views_in_order) {
         auto& handle_def = handle_map[handle_name];
         if (handle_def.GetViewSize(Backend::DX12) > 0) {
             file_w << wis::format("typedef struct {}View {}View;\n", GetCFullTypename(handle_def.name, Backend::DX12), GetCFullTypename(handle_def.name));
@@ -632,7 +518,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
               "//==============================================================\n\n";
 
     // Write variants
-    for (auto& variant_name : variants_in_order) {
+    for (auto& variant_name : module.variants_in_order) {
         auto& variant_def = variant_map[variant_name];
         if (has(variant_def.backend, Backend::DX12)) {
             file_w << wis::format("typedef struct {} {};\n", GetCFullTypename(variant_def.name, Backend::DX12), GetCFullTypename(variant_def.name));
@@ -644,7 +530,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
               "//==============================================================\n\n";
 
     // Write functions
-    for (auto& func_name : functions_in_order) {
+    for (auto& func_name : module.functions_in_order) {
         auto& func_def = function_map[func_name];
         if (has(func_def.backend, Backend::DX12)) {
             file_w << wis::format("#define {} {}\n",
@@ -654,7 +540,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
     }
 
     // Write functions that convert handles to views
-    for (auto& handle_name : views_in_order) {
+    for (auto& handle_name : module.views_in_order) {
         auto& handle_def = handle_map[handle_name];
         if (handle_def.GetViewSize(Backend::DX12) > 0) {
             file_w << wis::format("#define {} {}\n",
@@ -667,7 +553,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 #define wisGetView(handle) \ 
     _Generic((handle), \ 
 )";
-    for (auto& handle_name : views_in_order) {
+    for (auto& handle_name : module.views_in_order) {
         auto& handle_def = handle_map[handle_name];
         if (handle_def.GetViewSize(Backend::DX12) > 0) {
             file_w << wis::format("const {}*: wisGet{}{}View, \\\n", GetCFullTypename(handle_def.name, Backend::DX12), impl_dx, handle_def.name);
@@ -678,7 +564,6 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 
     file_w << R"(
 #elif defined(WISDOM_VULKAN)
-#include "generated/vk_api.h"
 
 #define WIS_SHADER_INTERMEDIATE_SPIRV 1
 )";
@@ -688,7 +573,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
               "//==============================================================\n\n";
 
     // Write handles
-    for (auto& handle_name : handles_in_order) {
+    for (auto& handle_name : module.handles_in_order) {
         auto& handle_def = handle_map[handle_name];
         if (has(handle_def.GetBackend(), Backend::Vulkan)) {
             file_w << wis::format("typedef struct {} {};\n", GetCFullTypename(handle_def.name, Backend::Vulkan), GetCFullTypename(handle_def.name));
@@ -696,7 +581,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
     }
 
     // Write Views for handles
-    for (auto& handle_name : views_in_order) {
+    for (auto& handle_name : module.views_in_order) {
         auto& handle_def = handle_map[handle_name];
         if (handle_def.GetViewSize(Backend::Vulkan) > 0) {
             file_w << wis::format("typedef struct {}View {}View;\n", GetCFullTypename(handle_def.name, Backend::Vulkan), GetCFullTypename(handle_def.name));
@@ -708,7 +593,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
               "//==============================================================\n\n";
 
     // Write variants
-    for (auto& variant_name : variants_in_order) {
+    for (auto& variant_name : module.variants_in_order) {
         auto& variant_def = variant_map[variant_name];
         if (has(variant_def.backend, Backend::Vulkan)) {
             file_w << wis::format("typedef struct {} {};\n", GetCFullTypename(variant_def.name, Backend::Vulkan), GetCFullTypename(variant_def.name));
@@ -720,7 +605,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
               "//==============================================================\n\n";
 
     // Write functions
-    for (auto& func_name : functions_in_order) {
+    for (auto& func_name : module.functions_in_order) {
         auto& func_def = function_map[func_name];
         if (has(func_def.backend, Backend::Vulkan)) {
             file_w << wis::format("#define {} {}\n",
@@ -730,7 +615,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
     }
 
     // Write functions that convert handles to views
-    for (auto& handle_name : views_in_order) {
+    for (auto& handle_name : module.views_in_order) {
         auto& handle_def = handle_map[handle_name];
         if (handle_def.GetViewSize(Backend::Vulkan) > 0) {
             file_w << wis::format("#define {} {}\n",
@@ -743,7 +628,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 #define wisGetView(handle) \ 
     _Generic((handle), \ 
 )";
-    for (auto& handle_name : views_in_order) {
+    for (auto& handle_name : module.views_in_order) {
         auto& handle_def = handle_map[handle_name];
         if (handle_def.GetViewSize(Backend::Vulkan) > 0) {
             file_w << wis::format("const {}*: wisGet{}{}View, \\\n", GetCFullTypename(handle_def.name, Backend::Vulkan), impl_vk, handle_def.name);
@@ -770,6 +655,7 @@ static inline bool wisHandleValid(const void* handle) {
 //-----------------------------------------------------------------------------
 void Generator::WriteCPPDependentAPI(std::filesystem::path dir)
 {
+    auto& module = module_map.at(active_module_name);
     std::filesystem::path path_dx = dir / "dx12_cpp_api.hpp";
     std::filesystem::path path_vk = dir / "vk_cpp_api.hpp";
     files.push_back(path_dx);
@@ -793,7 +679,7 @@ void Generator::WriteCPPDependentAPI(std::filesystem::path dir)
 #endif // __cplusplus
 
 #include <wisdom/generated/cpp_api.hpp>
-#include <wisdom/generated/dx12_api.h>
+#include <wisdom/generated/backend_api.h>
 #include <wisdom/global/internal.hpp>
 #include <wisdom/dx12/dx12_types.hpp>
 
@@ -807,14 +693,14 @@ namespace wis {
 #endif // __cplusplus
 
 #include <wisdom/generated/cpp_api.hpp>
-#include <wisdom/generated/vk_api.h>
+#include <wisdom/generated/backend_api.h>
 #include <wisdom/global/internal.hpp>
 #include <wisdom/vulkan/vk_types.hpp>
 
 namespace wis {
 )";
     // Write Views for handles
-    for (auto& handle_name : views_in_order) {
+    for (auto& handle_name : module.views_in_order) {
         auto& handle_def = handle_map[handle_name];
         if (handle_def.GetViewSize(Backend::DX12) > 0) {
             file_dx << MakeCPPView(handle_def, Backend::DX12);
@@ -827,7 +713,7 @@ namespace wis {
     }
 
     // Write variants
-    for (auto& variant_name : variants_in_order) {
+    for (auto& variant_name : module.variants_in_order) {
         auto& variant_def = variant_map[variant_name];
         if (has(variant_def.backend, Backend::DX12)) {
             file_dx << MakeCPPVariant(variant_def, Backend::DX12);
@@ -840,7 +726,7 @@ namespace wis {
     }
 
     // Write handles
-    for (auto& handle_name : handles_in_order) {
+    for (auto& handle_name : module.handles_in_order) {
         auto& handle_def = handle_map[handle_name];
         auto supported = handle_def.GetBackend();
         if (has(supported, Backend::DX12)) {
@@ -854,7 +740,7 @@ namespace wis {
     }
 
     // Write functions
-    for (auto& func_name : free_functions_in_order) {
+    for (auto& func_name : module.free_functions_in_order) {
         FunctionKey key      = MakeFunctionKey("", func_name);
         auto&       func_def = function_map[key];
         if (has(func_def.backend, Backend::DX12)) {
@@ -880,6 +766,7 @@ namespace wis {
 
 void Generator::WriteCPPIndependentAPI(std::filesystem::path dir)
 {
+    auto& module = module_map.at(active_module_name);
     std::filesystem::path path_w = dir / "wisdom.hpp";
     files.push_back(path_w);
 
@@ -914,7 +801,7 @@ static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderInterm
               "//==============================================================\n\n";
 
     // Write handles
-    for (auto& handle_name : handles_in_order) {
+    for (auto& handle_name : module.handles_in_order) {
         auto& handle_def = handle_map[handle_name];
         if (has(handle_def.GetBackend(), Backend::DX12)) {
             file_w << wis::format("using {} = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, Backend::DX12));
@@ -922,7 +809,7 @@ static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderInterm
     }
 
     // Write Views for handles
-    for (auto& handle_name : views_in_order) {
+    for (auto& handle_name : module.views_in_order) {
         auto& handle_def = handle_map[handle_name];
         if (handle_def.GetViewSize(Backend::DX12) > 0) {
             file_w << wis::format("using {}View = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, Backend::DX12) + "View");
@@ -934,7 +821,7 @@ static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderInterm
               "//==============================================================\n\n";
 
     // Write variants
-    for (auto& variant_name : variants_in_order) {
+    for (auto& variant_name : module.variants_in_order) {
         auto& variant_def = variant_map[variant_name];
         if (has(variant_def.backend, Backend::DX12)) {
             file_w << wis::format("using {} = {};\n", variant_def.name, GetCPPFullTypename(variant_def.name, Backend::DX12));
@@ -946,7 +833,7 @@ static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderInterm
               "//==============================================================\n\n";
 
     // Write functions
-    for (auto& func_name : free_functions_in_order) {
+    for (auto& func_name : module.free_functions_in_order) {
         FunctionKey key      = MakeFunctionKey("", func_name);
         auto&       func_def = function_map[key];
         if (has(func_def.backend, Backend::DX12)) {
@@ -970,7 +857,7 @@ static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderInterm
               "//==============================================================\n\n";
 
     // Write handles
-    for (auto& handle_name : handles_in_order) {
+    for (auto& handle_name : module.handles_in_order) {
         auto& handle_def = handle_map[handle_name];
         if (has(handle_def.GetBackend(), Backend::Vulkan)) {
             file_w << wis::format("using {} = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, Backend::Vulkan));
@@ -978,7 +865,7 @@ static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderInterm
     }
 
     // Write Views for handles
-    for (auto& handle_name : views_in_order) {
+    for (auto& handle_name : module.views_in_order) {
         auto& handle_def = handle_map[handle_name];
         if (handle_def.GetViewSize(Backend::Vulkan) > 0) {
             file_w << wis::format("using {}View = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, Backend::Vulkan) + "View");
@@ -990,7 +877,7 @@ static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderInterm
               "//==============================================================\n\n";
 
     // Write variants
-    for (auto& variant_name : variants_in_order) {
+    for (auto& variant_name : module.variants_in_order) {
         auto& variant_def = variant_map[variant_name];
         if (has(variant_def.backend, Backend::Vulkan)) {
             file_w << wis::format("using {} = {};\n", variant_def.name, GetCPPFullTypename(variant_def.name, Backend::Vulkan));
@@ -1002,7 +889,7 @@ static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderInterm
               "//==============================================================\n\n";
 
     // Write functions
-    for (auto& func_name : free_functions_in_order) {
+    for (auto& func_name : module.free_functions_in_order) {
         FunctionKey key      = MakeFunctionKey("", func_name);
         auto&       func_def = function_map[key];
         if (has(func_def.backend, Backend::Vulkan)) {
@@ -1036,25 +923,14 @@ void Generator::WriteCPlatformAPI(std::filesystem::path path)
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-
-#ifdef WISDOM_DX12
-#include <wisdom/generated/dx12_api.h>
-#endif // WISDOM_DX12
-
-#ifdef WISDOM_VULKAN
-#include <wisdom/generated/vk_api.h>
-#endif // WISDOM_VULKAN
+#include <wisdom/generated/backend_api.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
 )";
 
-    if (!module_map.contains(platform_module_name)) {
-        throw std::runtime_error("Platform module metadata is not available. ParsePlatformFile must be called first.");
-    }
-
-    auto& platform_module = module_map[platform_module_name];
+    auto& platform_module = module_map[active_module_name];
     file << MakeCPlatform(platform_module);
     file << "\n";
 
@@ -1094,11 +970,7 @@ void Generator::WriteCPPPlatformAPI(std::filesystem::path path)
 namespace wis {
 )";
 
-    if (!module_map.contains(platform_module_name)) {
-        throw std::runtime_error("Platform module metadata is not available. ParsePlatformFile must be called first.");
-    }
-
-    auto& platform_module = module_map[platform_module_name];
+    auto& platform_module = module_map[active_module_name];
     file << MakeCPPPlatform(platform_module);
     file << "\n";
 
@@ -1142,11 +1014,8 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 #if defined(WISDOM_DX12) && !FORCEVK_SWITCH
 
 )";
-    if (!module_map.contains(platform_module_name)) {
-        throw std::runtime_error("Platform module metadata is not available. ParsePlatformFile must be called first.");
-    }
 
-    auto& platform_module = module_map[platform_module_name];
+    auto& platform_module = module_map[active_module_name];
     file_w << MakeCIndependentPlatform(platform_module, Backend::DX12);
     file_w << "\n";
 
@@ -1203,11 +1072,7 @@ namespace wis {
               "// Handles\n"
               "//==============================================================\n\n";
 
-    if (!module_map.contains(platform_module_name)) {
-        throw std::runtime_error("Platform module metadata is not available. ParsePlatformFile must be called first.");
-    }
-
-    auto& platform_module = module_map[platform_module_name];
+    auto& platform_module = module_map[active_module_name];
 
     // Write handles
     file_w << MakeCPPIndependentPlatform(platform_module, Backend::DX12);
@@ -1237,6 +1102,7 @@ namespace wis {
 
 void Generator::WriteConversions(std::filesystem::path dir)
 {
+    auto& module = module_map.at(active_module_name);
     std::filesystem::path path_dx = dir / "dx12_convert.hpp";
     std::filesystem::path path_vk = dir / "vk_convert.hpp";
     files.push_back(path_dx);
@@ -1280,7 +1146,7 @@ namespace wis{ namespace detail {
 )";
 
     // Write enums
-    for (auto& enum_name : enums_in_order) {
+    for (auto& enum_name : module.enums_in_order) {
         auto& enum_def = enum_map[enum_name];
         file_dx << MakeEnumConverter(enum_def, Backend::DX12);
         file_dx << "\n";
@@ -1288,7 +1154,7 @@ namespace wis{ namespace detail {
         file_vk << "\n";
     }
     // Write bitmasks
-    for (auto& bitmask_name : bitmasks_in_order) {
+    for (auto& bitmask_name : module.bitmasks_in_order) {
         auto& bitmask_def = bitmask_map[bitmask_name];
         file_dx << MakeBitmaskConverter(bitmask_def, Backend::DX12);
         file_dx << "\n";

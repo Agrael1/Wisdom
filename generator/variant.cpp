@@ -37,7 +37,6 @@ void Generator::ParseVariant(tinyxml2::XMLElement* type)
 {
     auto  name = type->FindAttribute("name")->Value();
     auto& ref  = variant_map[name];
-    variants_in_order.emplace_back(name);
     module_map[active_module_name].variants_in_order.emplace_back(name);
     type_map[name] = TypeKind::Variant;
     ref.name = name;
@@ -163,8 +162,7 @@ std::string Generator::MakeVariantDescription(const WisStruct& s)
 void Generator::WriteVariantDocumentation(std::filesystem::path struct_output_path)
 {
     std::filesystem::create_directories(struct_output_path);
-    auto module_it = module_map.find(active_module_name);
-    auto& variant_names = module_it != module_map.end() ? module_it->second.variants_in_order : variants_in_order;
+    auto& variant_names = module_map.at(active_module_name).variants_in_order;
     for (const auto& variant_name : variant_names) {
         // Make a folder for enums starting with this letter
         std::filesystem::path variant_file_path = struct_output_path / wis::format("{}_struct.h", MakeSnakeCase(variant_name));

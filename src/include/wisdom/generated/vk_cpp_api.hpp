@@ -6,7 +6,7 @@
 #endif // __cplusplus
 
 #include <wisdom/generated/cpp_api.hpp>
-#include <wisdom/generated/vk_api.h>
+#include <wisdom/generated/backend_api.h>
 #include <wisdom/global/internal.hpp>
 #include <wisdom/vulkan/vk_types.hpp>
 

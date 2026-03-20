@@ -37,7 +37,7 @@ int main()
     g.WriteModuleAPIDoc();
 
 
-    g.ParsePlatformFile(platform_file);
+    g.ParseFile(platform_file);
     g.WritePlatformAPI();
     g.WriteModuleAPIDoc();
 
