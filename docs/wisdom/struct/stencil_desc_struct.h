@@ -56,6 +56,7 @@
  * @section WisStencilDesc_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see WisDepthStencilDesc, WisDepthStencilDesc
+ * @see Structs:
+ * WisDepthStencilDesc
  * \endcond
  */

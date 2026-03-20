@@ -1296,7 +1296,7 @@ public:
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Returns the description of the adapter at given index.
-     * @param index defines the index of the adapter to get the description for. It @wis_must be less than the value returned by wis::GetAdapterCount.
+     * @param index defines the index of the adapter to get the description for. It @wis_must be less than the value returned by wis::AdapterQuery::GetAdapterCount.
      * @param out_result denoting the outcome of operation.
      * @return desc points to wis::AdapterDesc, which is initialized on success.
      *
@@ -1312,7 +1312,7 @@ public:
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Checks if the adapter at given index supports presentation to given surface.
-     * @param index defines the index of the adapter to check the support for. It @wis_must be less than the value returned by wis::GetAdapterCount.
+     * @param index defines the index of the adapter to check the support for. It @wis_must be less than the value returned by wis::AdapterQuery::GetAdapterCount.
      * @param surface points to wis::Surface to check the presentation support for.
      * @return bool `true` if the adapter supports presentation to the surface, `false` otherwise.
      *
@@ -1326,7 +1326,7 @@ public:
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Creates the device for the adapter at given index.
-     * @param index defines the index of the adapter to create the device for. It @wis_must be less than the value returned by wis::GetAdapterCount.
+     * @param index defines the index of the adapter to create the device for. It @wis_must be less than the value returned by wis::AdapterQuery::GetAdapterCount.
      * @param requirements points to wis::DeviceRequirements, which defines required features and properties for device creation.
      * @param out_result denoting the outcome of operation.
      * @return device points to wis::Device, which is initialized on success.

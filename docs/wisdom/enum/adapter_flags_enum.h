@@ -51,6 +51,7 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisAdapterDesc
+ * @see Structs:
+ * WisAdapterDesc
  * \endcond
  */

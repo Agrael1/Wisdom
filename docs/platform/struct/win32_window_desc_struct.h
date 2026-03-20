@@ -44,6 +44,7 @@
  * @section WisWin32WindowDesc_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see wisWin32ExtensionCreateSurface
+ * @see Functions:
+ * wisWin32ExtensionCreateSurface
  * \endcond
  */

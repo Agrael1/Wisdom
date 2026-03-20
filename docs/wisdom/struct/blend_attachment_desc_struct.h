@@ -50,7 +50,7 @@
  * - `src_alpha_blend` Source alpha blend factor. Default is `WisBlendFactorOne`.
  * - `dst_alpha_blend` Destination alpha blend factor. Default is `WisBlendFactorZero`.
  * - `alpha_blend_op` Alpha blend operation. Default is `WisBlendOpAdd`.
- * - `color_write_mask` Color write mask. Default is `WisColorComponents::All`.
+ * - `color_write_mask` Color write mask. Default is `WisColorComponentsAll`.
  * \endcond
  *
  * @section WisBlendAttachmentDesc_descr Description
@@ -62,6 +62,7 @@
  * @section WisBlendAttachmentDesc_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see WisBlendStateDesc
+ * @see Structs:
+ * WisBlendStateDesc
  * \endcond
  */

@@ -839,7 +839,7 @@ typedef enum WisInputClass {
  *
  * */
 typedef enum WisQueryPropertyType {
-    WisQueryPropertyTypeDeviceCommandQueueProperties   = 0, ///< Properties of the device command queues. Expects a  struct.
+    WisQueryPropertyTypeDeviceCommandQueueProperties   = 0, ///< Properties of the device command queues. Expects a WisDeviceCommandQueueProperties struct.
     WisQueryPropertyTypeDeviceDescriptorHeapProperties = 1, ///< Properties of the device descriptor heap. Expects a WisDeviceDescriptorHeapProperties struct.
     WisQueryPropertyTypeDeviceMemoryProperties         = 2, ///< Properties of the device descriptor heap. Expects a WisDeviceMemoryProperties struct.
     WisQueryPropertyTypeDeviceBindingProperties        = 3, ///< Properties of the device resource binding. Expects a WisDeviceBindingProperties struct.
@@ -945,7 +945,7 @@ typedef enum WisFillMode {
 
 /**
  * @brief Provided by Wisdom 0.7.0. Cull mode for rasterizer.
- * Triangle culling depends on wis::WindingOrder option.
+ * Triangle culling depends on WisWindingOrder option.
  *
  * */
 typedef enum WisCullMode {
@@ -1187,7 +1187,7 @@ typedef enum WisTextureFlags {
 typedef enum WisTextureBindingFlags {
     WisTextureBindingFlagsNone        = 0, ///< No flags set. Texture view is regular. Implies color read.
     WisTextureBindingFlagsDepthView   = (1u << 0), ///< Texture view is used to read depth. Used for special formats that feature depth and stencil. The bound texture @wis_must be in TODO: specific layout before being used by shader.
-    WisTextureBindingFlagsStencilView = (1u << 1), ///< Texture view is used to read stencil. Used for special formats that feature depth and stencil. The bound texture @wis_must be in TODO: specific layout before being used by shader. Cannot be combined with `WisTextureBindingFlags::DepthView`.
+    WisTextureBindingFlagsStencilView = (1u << 1), ///< Texture view is used to read stencil. Used for special formats that feature depth and stencil. The bound texture @wis_must be in TODO: specific layout before being used by shader. Cannot be combined with `WisTextureBindingFlagsDepthView`.
 } WisTextureBindingFlags;
 
 /**
@@ -1254,7 +1254,7 @@ typedef enum WisBarrierFlags {
     WisBarrierFlagsNone            = 0, ///< No flags set. Barrier is regular.
     WisBarrierFlagsDiscardContent  = (1u << 0), ///< Discard resource content. The content of the resource before the barrier is treated as if resource was not initialized.
     WisBarrierFlagsDepthResource   = (1u << 1), ///< Resource is a depth resource. This flag @wis_must be set for all depth resources to make transitions on them.
-    WisBarrierFlagsStencilResource = (1u << 2), ///< Resource is a stencil resource. This flag @wis_must be set for all stencil resources to make transitions on them. If resource has format `WisDataFormatD24UnormS8Uint` both `WisBarrierFlags::DepthResource` and `WisBarrierFlags::StencilResource` @wis_must be set.
+    WisBarrierFlagsStencilResource = (1u << 2), ///< Resource is a stencil resource. This flag @wis_must be set for all stencil resources to make transitions on them. If resource has format `WisDataFormatD24UnormS8Uint` both `WisBarrierFlagsDepthResource` and `WisBarrierFlagsStencilResource` @wis_must be set.
     WisBarrierFlagsWholeRange      = (1u << 3), ///< Transition whole resource. If not set, the transition is applied only to the specified subresource range. If set, the subresource range is ignored and the transition is applied to all subresources of the resource.
     WisBarrierFlagsPlanarImage     = (1u << 4), ///< Resource is a planar image. If the flag is not set, plane slices in WisSubresourceRange are ignored.
 } WisBarrierFlags;
@@ -1364,7 +1364,7 @@ typedef struct WisSamplerDesc {
     float            max_lod; ///< Max LOD value.
     float            mip_lod_bias; ///< Mip LOD bias value.
     WisCompareOp     comparison_op; ///< Comparison operation for comparison samplers.
-    WisStaticBorder  static_border_color; ///< Static border color. Used if any address mode is set to wis::AddressMode.
+    WisStaticBorder  static_border_color; ///< Static border color. Used if any address mode is set to WisAddressMode.
     WisSamplerFlags  flags; ///< Sampler flags. Used to set additional sampler options.
 } WisSamplerDesc;
 
@@ -1500,7 +1500,7 @@ typedef struct WisTextureDesc {
 } WisTextureDesc;
 
 /**
- * @brief Provided by Wisdom 0.7.0. Push constant set description for WisCommandList.
+ * @brief Provided by Wisdom 0.7.0. Push constant set description for wisCommandListSetPushConstants.
  *
  * */
 typedef struct WisPushConstantDataDesc {
@@ -1512,7 +1512,7 @@ typedef struct WisPushConstantDataDesc {
 } WisPushConstantDataDesc;
 
 /**
- * @brief Provided by Wisdom 0.7.0. Push descriptor set description for WisCommandList.
+ * @brief Provided by Wisdom 0.7.0. Push descriptor set description for wisCommandListSetPushDescriptor.
  *
  * */
 typedef struct WisPushDescriptorDataDesc {
@@ -1523,7 +1523,7 @@ typedef struct WisPushDescriptorDataDesc {
 } WisPushDescriptorDataDesc;
 
 /**
- * @brief Provided by Wisdom 0.7.0. Push descriptor set description for WisCommandList.
+ * @brief Provided by Wisdom 0.7.0. Push descriptor set description for wisCommandListSetDescriptorTable.
  *
  * */
 typedef struct WisDescriptorTableDataDesc {
@@ -1534,7 +1534,7 @@ typedef struct WisDescriptorTableDataDesc {
 } WisDescriptorTableDataDesc;
 
 /**
- * @brief Provided by Wisdom 0.7.0. Constant buffer binding description for WisDescriptorHeap and WisDescriptorHeap.
+ * @brief Provided by Wisdom 0.7.0. Constant buffer binding description for wisDescriptorHeapWriteConstantBuffer and .
  *
  * */
 typedef struct WisConstantBufferBinding {
@@ -1543,7 +1543,7 @@ typedef struct WisConstantBufferBinding {
 } WisConstantBufferBinding;
 
 /**
- * @brief Provided by Wisdom 0.7.0. Buffer binding description for WisDescriptorHeap.
+ * @brief Provided by Wisdom 0.7.0. Buffer binding description for wisDescriptorHeapWriteStructuredBuffer.
  *
  * */
 typedef struct WisBufferBinding {
@@ -1553,7 +1553,7 @@ typedef struct WisBufferBinding {
 } WisBufferBinding;
 
 /**
- * @brief Provided by Wisdom 0.7.0. Texture binding description for WisDescriptorHeap and WisDescriptorHeap.
+ * @brief Provided by Wisdom 0.7.0. Texture binding description for wisDescriptorHeapWriteTexture and wisDescriptorHeapWriteRWTexture.
  *
  * */
 typedef struct WisTextureBinding {
@@ -1675,7 +1675,7 @@ typedef struct WisBlendAttachmentDesc {
     WisBlendFactor     src_alpha_blend; ///< Source alpha blend factor. Default is `WisBlendFactorOne`.
     WisBlendFactor     dst_alpha_blend; ///< Destination alpha blend factor. Default is `WisBlendFactorZero`.
     WisBlendOp         alpha_blend_op; ///< Alpha blend operation. Default is `WisBlendOpAdd`.
-    WisColorComponents color_write_mask; ///< Color write mask. Default is `WisColorComponents::All`.
+    WisColorComponents color_write_mask; ///< Color write mask. Default is `WisColorComponentsAll`.
 } WisBlendAttachmentDesc;
 
 /**
@@ -1747,7 +1747,7 @@ typedef struct WisTextureRegion {
 } WisTextureRegion;
 
 /**
- * @brief Provided by Wisdom 0.7.0. Render target description for WisCommandList.
+ * @brief Provided by Wisdom 0.7.0. Render target description for wisViewHeapWriteRenderTarget and wisViewHeapWriteDepthStencil.
  *
  * */
 typedef struct WisRenderTargetDesc {
@@ -1798,13 +1798,13 @@ typedef struct WisDeviceDescriptorHeapProperties {
  * @brief Provided by Wisdom 0.7.0. Device memory properties. Used to query memory type support and limits.
  *
  * */
-typedef struct WisDeviceCommandQueuesProperties {
-    WisQueryPropertyType    property_type; ///< Defines the type of the queried property. @wis_must be wis::QueryPropertyType..
+typedef struct WisDeviceCommandQueueProperties {
+    WisQueryPropertyType    property_type; ///< Defines the type of the queried property. @wis_must be WisQueryPropertyType..
     void*                   next_in_chain; ///< Pointer to the next queried data struct.
-    bool                    supported_queues[5]; ///< Array of supported queue types. If a queue type is supported, the value is `1`, otherwise `0`. Order of queue types is the same as in wis::CommandQueueType enum.
+    bool                    supported_queues[5]; ///< Array of supported queue types. If a queue type is supported, the value is `1`, otherwise `0`. Order of queue types is the same as in WisCommandQueueType enum.
     bool                    relaxed_queue_transition; ///< Indicates if relaxed queue transition is supported. This feature allows executing command lists that contain buffers used on different queue types without explicit resource state transitions when the buffers is used on a different queue type. It is supported on Windows 10 22H2 and later with WDDM 3.0 or later. On Vulkan it requires `VK_KHR_maintenance9` extension.
-    WisCommandQueuePriority max_queue_priority[5]; ///< Array of maximum supported priorities for each queue type. If a queue type is not supported, the value is `0`. Order of queue types is the same as in wis::CommandQueueType enum.
-} WisDeviceCommandQueuesProperties;
+    WisCommandQueuePriority max_queue_priority[5]; ///< Array of maximum supported priorities for each queue type. If a queue type is not supported, the value is `0`. Order of queue types is the same as in WisCommandQueueType enum.
+} WisDeviceCommandQueueProperties;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Device memory properties. Used to query memory type support and limits.
@@ -1815,7 +1815,7 @@ typedef struct WisDeviceMemoryProperties {
     void*                next_in_chain; ///< Pointer to the next queried data struct.
     bool                 gpu_upload_supported; ///< Indicates if GPU upload memory type is supported. This memory type allows mapping the memory and writing to it from CPU, while being accessible from GPU. It is usually implemented as write-combined memory on integrated GPUs and as a part of shared system memory on discrete GPUs.
     bool                 host_image_copy_supported; ///< Indicates if host image copy is supported. This feature allows copying data directly from CPU memory to optimal tiled image layout on GPU, without the need for an intermediate staging buffer. It is supported on Windows 10 22H2 and later with WDDM 3.0 or later. On Vulkan it requires `VK_EXT_host_image_copy` extension.
-    uint32_t             supported_initial_transitions; ///< Bitfield of supported initial resource state transitions for buffers and textures. If a transition is supported, the corresponding bit is set to `1`, otherwise `0`. Bit positions are the same as in wis::TextureState enum. `WisTextureStateUndefined` is always supported.
+    uint32_t             supported_initial_transitions; ///< Bitfield of supported initial resource state transitions for buffers and textures. If a transition is supported, the corresponding bit is set to `1`, otherwise `0`. Bit positions are the same as in WisTextureState enum. `WisTextureStateUndefined` is always supported.
 } WisDeviceMemoryProperties;
 
 //==============================================================

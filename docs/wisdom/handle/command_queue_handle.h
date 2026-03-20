@@ -22,6 +22,7 @@
  * @section WisCommandQueue_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see wisDestroyCommandQueue, wisDeviceCreateCommandQueue, wisCommandQueueSubmit, wisCommandQueueSignalFence, wisCommandQueueWaitFence
+ * @see Functions:
+ * wisDestroyCommandQueue, wisDeviceCreateCommandQueue, wisCommandQueueSubmit, wisCommandQueueSignalFence, wisCommandQueueWaitFence
  * \endcond
  */

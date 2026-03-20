@@ -22,6 +22,7 @@
  * @section WisDescriptorHeap_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see wisDestroyDescriptorHeap, wisDeviceCreateDescriptorHeap, wisDescriptorHeapGetCPUHandle, wisDescriptorHeapWriteConstantBuffer, wisDescriptorHeapWriteStructuredBuffer, wisDescriptorHeapWriteRWStructuredBuffer, wisDescriptorHeapWriteSampler, wisDescriptorHeapWriteTexture, wisDescriptorHeapWriteRWTexture, wisDescriptorHeapWriteAccelerationStructure, wisDescriptorHeapCopyDescripto
+ * @see Functions:
+ * wisDestroyDescriptorHeap, wisDeviceCreateDescriptorHeap, wisDescriptorHeapGetCPUHandle, wisDescriptorHeapWriteConstantBuffer, wisDescriptorHeapWriteStructuredBuffer, wisDescriptorHeapWriteRWStructuredBuffer, wisDescriptorHeapWriteSampler, wisDescriptorHeapWriteTexture, wisDescriptorHeapWriteRWTexture, wisDescriptorHeapWriteAccelerationStructure, wisDescriptorHeapCopyDescriptors, wisCommandListSetDescriptorHeaps
  * \endcond
  */

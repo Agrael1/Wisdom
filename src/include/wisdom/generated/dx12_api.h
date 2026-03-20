@@ -203,9 +203,9 @@ typedef struct WisDX12InstanceExtensionHeader {
  * */
 typedef struct WisDX12DeviceRequirements {
     const WisCommandQueueDesc*     queue_descs; ///< points to an array of WisCommandQueueDesc for which queues will be created during device creation.
-    size_t                         queue_desc_count; ///< counts the number of queue descriptions in the wisAdapterQueryCreateDevice array.
+    size_t                         queue_desc_count; ///< counts the number of queue descriptions in the wisAdapterQueryCreateDevice queue_descs array.
     WisDX12DeviceExtensionHeader** extensions; ///< points to an array of extensions that are to be initialized with pointers to WisDeviceExtensionHeader.
-    size_t                         extension_count; ///< counts the number of extensions in the wisAdapterQueryCreateDevice array.
+    size_t                         extension_count; ///< counts the number of extensions in the wisAdapterQueryCreateDevice extensions array.
 } WisDX12DeviceRequirements;
 
 /**
@@ -422,7 +422,7 @@ WISDOM_API void wisDX12DestroyInstance(WisDX12Instance* self);
  * @brief Provided by Wisdom 0.7.0. Creates the WisInstance with extensions, specified in extension array.
  * @param debug_desc points to WisDebugDesc, which defines debug callback and debug layer usage. If `nullptr`, debug layer is disabled.
  * @param extensions points to an array of extensions that are to be initialized with pointers to WisInstanceExtensionHeader.
- * @param extension_count counts the number of extensions in the `extensions` array.
+ * @param extension_count counts the number of extensions in the  array.
  * @param instance points to WisInstance, which is initialized on success.
  * @return Result denoting the outcome of operation.
  *

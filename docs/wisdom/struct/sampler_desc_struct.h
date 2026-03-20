@@ -70,7 +70,7 @@
  * - `max_lod` Max LOD value.
  * - `mip_lod_bias` Mip LOD bias value.
  * - `comparison_op` Comparison operation for comparison samplers.
- * - `static_border_color` Static border color. Used if any address mode is set to wis::AddressMode.
+ * - `static_border_color` Static border color. Used if any address mode is set to WisAddressMode.
  * - `flags` Sampler flags. Used to set additional sampler options.
  * \endcond
  *
@@ -83,6 +83,9 @@
  * @section WisSamplerDesc_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see WisStaticSamplerDesc, wisDescriptorHeapWriteSampler
+ * @see Structs:
+ * WisStaticSamplerDesc
+ * Functions:
+ * wisDescriptorHeapWriteSampler
  * \endcond
  */

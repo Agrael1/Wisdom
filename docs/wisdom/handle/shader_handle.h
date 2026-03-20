@@ -24,6 +24,7 @@
  * @section WisShader_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see wisDestroyShader, wisDeviceCreateShader
+ * @see Functions:
+ * wisDestroyShader, wisDeviceCreateShader
  * \endcond
  */

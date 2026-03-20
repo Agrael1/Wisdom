@@ -64,6 +64,7 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisSamplerDesc, WisStencilDesc, WisDepthStencilDesc
+ * @see Structs:
+ * WisSamplerDesc, WisStencilDesc, WisDepthStencilDesc
  * \endcond
  */

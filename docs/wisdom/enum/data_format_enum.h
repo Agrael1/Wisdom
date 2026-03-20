@@ -479,6 +479,7 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisTextureDesc, WisTextureBinding, WisInputAttributeDesc, WisRenderAttachmentsDesc, WisRenderAttachmentsDesc, WisRenderTargetDesc
+ * @see Structs:
+ * WisTextureDesc, WisTextureBinding, WisInputAttributeDesc, WisRenderAttachmentsDesc, WisRenderTargetDesc
  * \endcond
  */

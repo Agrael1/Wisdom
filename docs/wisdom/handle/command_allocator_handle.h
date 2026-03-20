@@ -22,6 +22,7 @@
  * @section WisCommandAllocator_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see wisDestroyCommandAllocator, wisDeviceCreateCommandAllocator, wisCommandAllocatorReset, wisCommandAllocatorCreateCommandList
+ * @see Functions:
+ * wisDestroyCommandAllocator, wisDeviceCreateCommandAllocator, wisCommandAllocatorReset, wisCommandAllocatorCreateCommandList
  * \endcond
  */

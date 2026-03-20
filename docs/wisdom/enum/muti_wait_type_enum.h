@@ -41,6 +41,7 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see wisDeviceWaitForMultipleFences
+ * @see Functions:
+ * wisDeviceWaitForMultipleFences
  * \endcond
  */

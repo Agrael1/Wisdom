@@ -24,6 +24,7 @@
  * @section WisCommandList_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see wisDestroyCommandList, wisCommandAllocatorCreateCommandList, wisCommandListBegin, wisCommandListEnd, wisCommandListSetDescriptorHeaps, wisCommandListSetRootSignature, wisCommandListSetPushConstants, wisCommandListSetPushDescriptor, wisCommandListSetDescriptorTable, wisCommandListInsertBarriers, wisCommandListSetPipeli
+ * @see Functions:
+ * wisDestroyCommandList, wisCommandAllocatorCreateCommandList, wisCommandListBegin, wisCommandListEnd, wisCommandListSetDescriptorHeaps, wisCommandListSetRootSignature, wisCommandListSetPushConstants, wisCommandListSetPushDescriptor, wisCommandListSetDescriptorTable, wisCommandListInsertBarriers, wisCommandListSetPipeline, wisCommandListSetViewports, wisCommandListSetScissors, wisCommandListSetPrimitiveTopology, wisCommandListSetDepthBias, wisCommandListSetPrimitiveRestartValue, wisCommandListDispatch
  * \endcond
  */

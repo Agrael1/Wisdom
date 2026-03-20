@@ -2,8 +2,8 @@
 <registry>
 	<validations>
 		<validation for="CreateInstance">
-			<vuid id="extensions-null" severity="error" msg="If {CreateInstance::extension_count} is greater than 0, {CreateInstance::extensions} must be a valid pointer to an array of {CreateInstance::extension_count} valid {InstanceExtensionHeader::} handles."/>
-			<vuid id="instance-null" severity="error" msg="{CreateInstance::instance} must not be null."/>
+			<vuid id="extensions-null" severity="error" msg="If {::CreateInstance} extension_count is greater than 0, {::CreateInstance} extensions must be a valid pointer to an array of {::CreateInstance} extension_count valid {InstanceExtensionHeader::} handles."/>
+			<vuid id="instance-null" severity="error" msg="{::CreateInstance} instance must not be null."/>
 		</validation>
 	</validations>
 </registry>

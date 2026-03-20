@@ -35,6 +35,7 @@ void Generator::ParseBitmask(tinyxml2::XMLElement* type)
     auto& ref  = bitmask_map[name];
     bitmasks_in_order.push_back(name);
     module_map[active_module_name].bitmasks_in_order.push_back(name);
+    type_map[name] = TypeKind::Bitmask;
     ref.name = name;
 
     // Unused currently, but keep for u64 flags

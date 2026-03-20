@@ -56,6 +56,7 @@
  * @section WisViewport_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see wisCommandListSetViewports
+ * @see Functions:
+ * wisCommandListSetViewports
  * \endcond
  */

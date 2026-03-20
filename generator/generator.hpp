@@ -124,16 +124,17 @@ public:
                             std::string_view      refs);
 
     // Helpers
-    std::string GetCFullTypename(std::string_view type, Backend backend = Backend::Any);
-    std::string GetCPPFullTypename(std::string_view type, Backend backend = Backend::Any);
-    std::string FinalizeCDocumentation(std::string doc, std::string_view this_type, Backend backend = Backend::Any);
-    std::string FinalizeCPPDocumentation(std::string doc, std::string_view this_type, Backend backend = Backend::Any);
-    std::string GetSpecificationCode(std::string_view c_code, std::string_view c_impl_code, std::string_view cpp_code, std::string_view cpp_impl_code);
-    static std::string MakeFunctionKey(std::string_view name, std::string_view this_type);
-    std::string        FindFunctionKey(std::string_view name) const;
+    std::string        GetCFullTypename(std::string_view type, Backend backend = Backend::Any);
+    std::string        GetCFullFunctionName(FunctionKey type, Backend backend = Backend::Any);
+    std::string        GetCPPFullTypename(std::string_view type, Backend backend = Backend::Any);
+    std::string        GetCPPFullFunctionName(FunctionKey type, Backend backend = Backend::Any);
+    std::string        FinalizeCDocumentation(std::string doc, std::string_view this_type, Backend backend = Backend::Any);
+    std::string        FinalizeCPPDocumentation(std::string doc, std::string_view this_type, Backend backend = Backend::Any);
+    std::string        GetSpecificationCode(std::string_view c_code, std::string_view c_impl_code, std::string_view cpp_code, std::string_view cpp_impl_code);
 
     TypeKind    GetType(std::string_view type_name) const noexcept;
     void        TryMakeRef(std::string_view type, std::string_view from);
+    void        TryMakeRef(std::string_view type, FunctionKey from);
     std::string GetRefs(std::string_view for_type);
     bool        IsTypeAvailableForBackend(std::string_view type, Backend backend, std::unordered_set<std::string_view>& visiting) const;
     bool        IsTypeAvailableForBackend(std::string_view type, Backend backend) const;
@@ -341,12 +342,14 @@ public:
 private:
     std::unordered_map<std::filesystem::path, tinyxml2::XMLDocument> documents;
 
+    std::unordered_map<std::string_view, TypeKind> type_map; // For quick lookup of type kinds
+
     std::unordered_map<std::string_view, WisEnum>     enum_map;
     std::unordered_map<std::string_view, WisBitmask>  bitmask_map;
     std::unordered_map<std::string_view, WisStruct>   struct_map;
     std::unordered_map<std::string_view, WisStruct>   variant_map;
     std::unordered_map<std::string_view, WisHandle>   handle_map;
-    std::unordered_map<std::string, WisFunction> function_map;
+    std::unordered_map<FunctionKey, WisFunction>      function_map;
     std::unordered_map<std::string_view, WisFunction> delegate_map;
     std::unordered_map<std::string_view, WisConstant> constant_map;
     std::unordered_map<std::string_view, WisModule>   module_map;
@@ -356,17 +359,17 @@ private:
     std::unordered_map<std::string_view, ValidationList> validation_map;
 
     // Ordered members
-    std::vector<std::string_view>      enums_in_order;
-    std::vector<std::string_view>      bitmasks_in_order;
-    std::vector<std::string_view>      structs_in_order;
-    std::vector<std::string_view>      variants_in_order;
-    std::vector<std::string_view>      handles_in_order;
-    std::vector<std::string>           functions_in_order;
-    std::vector<std::string_view>      delegates_in_order;
-    std::vector<std::string_view>      constants_in_order;
-    std::vector<std::string>           free_functions_in_order;
-    std::vector<std::string_view>      views_in_order;
-    std::vector<std::string_view>      modules_in_order;
+    std::vector<std::string_view> enums_in_order;
+    std::vector<std::string_view> bitmasks_in_order;
+    std::vector<std::string_view> structs_in_order;
+    std::vector<std::string_view> variants_in_order;
+    std::vector<std::string_view> handles_in_order;
+    std::vector<FunctionKey>      functions_in_order;
+    std::vector<std::string_view> delegates_in_order;
+    std::vector<std::string_view> constants_in_order;
+    std::vector<std::string_view> free_functions_in_order;
+    std::vector<std::string_view> views_in_order;
+    std::vector<std::string_view> modules_in_order;
 
     std::string_view active_module_name;
     std::string_view platform_module_name;

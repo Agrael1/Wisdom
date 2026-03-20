@@ -53,6 +53,7 @@
  * @section WisTextureBinding_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see wisDescriptorHeapWriteTexture, wisDescriptorHeapWriteRWTexture
+ * @see Functions:
+ * wisDescriptorHeapWriteTexture, wisDescriptorHeapWriteRWTexture
  * \endcond
  */

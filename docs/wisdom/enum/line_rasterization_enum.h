@@ -46,6 +46,7 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisRasterizerDesc
+ * @see Structs:
+ * WisRasterizerDesc
  * \endcond
  */

@@ -46,6 +46,7 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisCommandQueueDesc, WisDeviceCommandQueuesProperties
+ * @see Structs:
+ * WisCommandQueueDesc, WisDeviceCommandQueueProperties
  * \endcond
  */

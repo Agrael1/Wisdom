@@ -53,6 +53,7 @@
  * @section WisDescriptorTableEntry_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see WisDescriptorTable
+ * @see Structs:
+ * WisDescriptorTable
  * \endcond
  */

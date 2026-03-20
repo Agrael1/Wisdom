@@ -36,7 +36,7 @@
  * Query type for GPU queries.
  * 
  * Values:
- * - `WisQueryPropertyTypeDeviceCommandQueueProperties = 0`: Properties of the device command queues. Expects a  struct.
+ * - `WisQueryPropertyTypeDeviceCommandQueueProperties = 0`: Properties of the device command queues. Expects a WisDeviceCommandQueueProperties struct.
  * - `WisQueryPropertyTypeDeviceDescriptorHeapProperties = 1`: Properties of the device descriptor heap. Expects a WisDeviceDescriptorHeapProperties struct.
  * - `WisQueryPropertyTypeDeviceMemoryProperties = 2`: Properties of the device descriptor heap. Expects a WisDeviceMemoryProperties struct.
  * - `WisQueryPropertyTypeDeviceBindingProperties = 3`: Properties of the device resource binding. Expects a WisDeviceBindingProperties struct.
@@ -47,6 +47,7 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisQueryStructHeader, WisDeviceBindingProperties, WisDeviceDescriptorHeapProperties, WisDeviceCommandQueuesProperties, WisDeviceMemoryProperties
+ * @see Structs:
+ * WisQueryStructHeader, WisDeviceBindingProperties, WisDeviceDescriptorHeapProperties, WisDeviceCommandQueueProperties, WisDeviceMemoryProperties
  * \endcond
  */

@@ -169,6 +169,7 @@
  * @section WisGraphicsPipelineDesc_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see wisDeviceCreateGraphicsPipeline
+ * @see Functions:
+ * wisDeviceCreateGraphicsPipeline
  * \endcond
  */

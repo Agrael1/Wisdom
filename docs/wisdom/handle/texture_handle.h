@@ -24,6 +24,7 @@
  * @section WisTexture_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see wisDestroyTexture, wisResourceAllocatorCreateTexture, wisTextureWriteSubresource
+ * @see Functions:
+ * wisDestroyTexture, wisResourceAllocatorCreateTexture, wisTextureWriteSubresource
  * \endcond
  */

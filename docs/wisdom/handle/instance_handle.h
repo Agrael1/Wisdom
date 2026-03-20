@@ -27,6 +27,7 @@
  * @section WisInstance_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see wisDestroyInstance, wisCreateInstance, wisInstanceQueryAdapters
+ * @see Functions:
+ * wisDestroyInstance, wisCreateInstance, wisInstanceQueryAdapters
  * \endcond
  */

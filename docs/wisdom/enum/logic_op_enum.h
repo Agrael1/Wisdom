@@ -85,6 +85,7 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisBlendStateDesc
+ * @see Structs:
+ * WisBlendStateDesc
  * \endcond
  */

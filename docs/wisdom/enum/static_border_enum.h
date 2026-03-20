@@ -46,6 +46,7 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisSamplerDesc
+ * @see Structs:
+ * WisSamplerDesc
  * \endcond
  */

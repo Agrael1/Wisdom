@@ -39,6 +39,7 @@ void Generator::ParseVariant(tinyxml2::XMLElement* type)
     auto& ref  = variant_map[name];
     variants_in_order.emplace_back(name);
     module_map[active_module_name].variants_in_order.emplace_back(name);
+    type_map[name] = TypeKind::Variant;
     ref.name = name;
 
     if (auto* size = type->FindAttribute("doc")) {

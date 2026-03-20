@@ -102,6 +102,7 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisBufferBarrier, WisBufferBarrier, WisGlobalBarrier, WisGlobalBarrier, WisTextureBarrier, WisTextureBarrier
+ * @see Structs:
+ * WisBufferBarrier, WisGlobalBarrier, WisTextureBarrier
  * \endcond
  */

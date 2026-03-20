@@ -70,6 +70,7 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see WisBufferDesc
+ * @see Structs:
+ * WisBufferDesc
  * \endcond
  */

@@ -836,7 +836,7 @@ enum class InputClass {
  *
  * */
 enum class QueryPropertyType {
-    DeviceCommandQueueProperties   = 0, ///< Properties of the device command queues. Expects a  struct.
+    DeviceCommandQueueProperties   = 0, ///< Properties of the device command queues. Expects a wis::DeviceCommandQueueProperties struct.
     DeviceDescriptorHeapProperties = 1, ///< Properties of the device descriptor heap. Expects a wis::DeviceDescriptorHeapProperties struct.
     DeviceMemoryProperties         = 2, ///< Properties of the device descriptor heap. Expects a wis::DeviceMemoryProperties struct.
     DeviceBindingProperties        = 3, ///< Properties of the device resource binding. Expects a wis::DeviceBindingProperties struct.
@@ -1506,7 +1506,7 @@ struct TextureDesc {
 };
 
 /**
- * @brief Provided by Wisdom 0.7.0. Push constant set description for wis::CommandList.
+ * @brief Provided by Wisdom 0.7.0. Push constant set description for wis::CommandList::SetPushConstants.
  *
  * */
 struct PushConstantDataDesc {
@@ -1518,7 +1518,7 @@ struct PushConstantDataDesc {
 };
 
 /**
- * @brief Provided by Wisdom 0.7.0. Push descriptor set description for wis::CommandList.
+ * @brief Provided by Wisdom 0.7.0. Push descriptor set description for wis::CommandList::SetPushDescriptor.
  *
  * */
 struct PushDescriptorDataDesc {
@@ -1529,7 +1529,7 @@ struct PushDescriptorDataDesc {
 };
 
 /**
- * @brief Provided by Wisdom 0.7.0. Push descriptor set description for wis::CommandList.
+ * @brief Provided by Wisdom 0.7.0. Push descriptor set description for wis::CommandList::SetDescriptorTable.
  *
  * */
 struct DescriptorTableDataDesc {
@@ -1540,7 +1540,7 @@ struct DescriptorTableDataDesc {
 };
 
 /**
- * @brief Provided by Wisdom 0.7.0. Constant buffer binding description for wis::DescriptorHeap and wis::DescriptorHeap.
+ * @brief Provided by Wisdom 0.7.0. Constant buffer binding description for wis::DescriptorHeap::WriteConstantBuffer and .
  *
  * */
 struct ConstantBufferBinding {
@@ -1549,7 +1549,7 @@ struct ConstantBufferBinding {
 };
 
 /**
- * @brief Provided by Wisdom 0.7.0. Buffer binding description for wis::DescriptorHeap.
+ * @brief Provided by Wisdom 0.7.0. Buffer binding description for wis::DescriptorHeap::WriteStructuredBuffer.
  *
  * */
 struct BufferBinding {
@@ -1559,7 +1559,7 @@ struct BufferBinding {
 };
 
 /**
- * @brief Provided by Wisdom 0.7.0. Texture binding description for wis::DescriptorHeap and wis::DescriptorHeap.
+ * @brief Provided by Wisdom 0.7.0. Texture binding description for wis::DescriptorHeap::WriteTexture and wis::DescriptorHeap::WriteRWTexture.
  *
  * */
 struct TextureBinding {
@@ -1751,7 +1751,7 @@ struct TextureRegion {
 };
 
 /**
- * @brief Provided by Wisdom 0.7.0. Render target description for wis::CommandList.
+ * @brief Provided by Wisdom 0.7.0. Render target description for wis::ViewHeap::WriteRenderTarget and wis::ViewHeap::WriteDepthStencil.
  *
  * */
 struct RenderTargetDesc {
@@ -1802,7 +1802,7 @@ struct DeviceDescriptorHeapProperties {
  * @brief Provided by Wisdom 0.7.0. Device memory properties. Used to query memory type support and limits.
  *
  * */
-struct DeviceCommandQueuesProperties {
+struct DeviceCommandQueueProperties {
     wis::QueryPropertyType                   property_type; ///< Defines the type of the queried property. @wis_must be wis::QueryPropertyType..
     void*                                    next_in_chain; ///< Pointer to the next queried data struct.
     std::array<bool, 5>                      supported_queues; ///< Array of supported queue types. If a queue type is supported, the value is `1`, otherwise `0`. Order of queue types is the same as in wis::CommandQueueType enum.

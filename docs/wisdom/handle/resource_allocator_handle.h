@@ -22,6 +22,7 @@
  * @section WisResourceAllocator_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see wisDestroyResourceAllocator, wisDeviceGetResourceAllocator, wisResourceAllocatorCreateBuffer, wisResourceAllocatorCreateTexture
+ * @see Functions:
+ * wisDestroyResourceAllocator, wisDeviceGetResourceAllocator, wisResourceAllocatorCreateBuffer, wisResourceAllocatorCreateTexture
  * \endcond
  */

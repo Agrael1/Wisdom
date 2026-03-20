@@ -480,7 +480,7 @@ void GetDeviceProperties(const WisDevice* device)
     WisDeviceMemoryProperties memory_properties = {
         .property_type = WisQueryPropertyTypeDeviceMemoryProperties
     };
-    WisDeviceCommandQueuesProperties command_queues_properties = {
+    WisDeviceCommandQueueProperties command_queues_properties = {
         .property_type = WisQueryPropertyTypeDeviceCommandQueueProperties,
         .next_in_chain = &memory_properties
     };
