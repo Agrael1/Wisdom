@@ -70,6 +70,8 @@ void Generator::ParseVariant(tinyxml2::XMLElement* type)
 
         m.type = type;
         m.name = name;
+        ref.FilterBackend(GetTypeBackendSupport(type));
+
         if (auto* arr = member->FindAttribute("array")) {
             m.array_size = arr->Value();
         }
@@ -168,15 +170,39 @@ void Generator::WriteVariantDocumentation(std::filesystem::path struct_output_pa
         std::filesystem::path variant_file_path = struct_output_path / wis::format("{}_struct.h", MakeSnakeCase(variant_name));
         auto&                 variant_ref       = variant_map[variant_name];
 
-        std::string cimpl_code   = MakeCVariant(variant_ref, Backend::Vulkan, DocKind::VersionOnly) + '\n' + MakeCVariant(variant_ref, Backend::DX12, DocKind::VersionOnly);
-        std::string regular_code = MakeCVariant(variant_ref, Backend::Any, DocKind::VersionOnly);
+        auto supports_vk = has(variant_ref.backend, XBackend::Vulkan);
+        auto supports_dx = has(variant_ref.backend, XBackend::DX12);
 
-        std::string vk_cpp           = variant_ref.modifier & Modifier::COnly ? "" : MakeCPPVariant(variant_ref, Backend::Vulkan, DocKind::VersionOnly);
-        std::string dx_cpp           = variant_ref.modifier & Modifier::COnly ? "" : MakeCPPVariant(variant_ref, Backend::DX12, DocKind::VersionOnly);
-        std::string cimpl_code_cpp   = variant_ref.modifier & Modifier::COnly ? "" : vk_cpp + '\n' + dx_cpp;
-        std::string regular_code_cpp = variant_ref.modifier & Modifier::COnly ? "" : MakeCPPVariant(variant_ref, Backend::Any, DocKind::VersionOnly);
+        std::string vk_code      = supports_vk ? MakeCVariant(variant_ref, Backend::Vulkan, DocKind::VersionOnly) : "";
+        std::string dx_code      = supports_dx ? MakeCVariant(variant_ref, Backend::DX12, DocKind::VersionOnly) : "";
+        std::string regular_code = supports_vk && supports_dx ? MakeCVariant(variant_ref, Backend::Any, DocKind::VersionOnly) : "";
 
-        std::string variant_template_content = GetSpecificationCode(regular_code, cimpl_code, regular_code_cpp, cimpl_code_cpp);
+        std::string c_code     = regular_code;
+        std::string cimpl_code = supports_vk && supports_dx
+                ? (vk_code + '\n' + dx_code)
+                : "";
+        if (c_code.empty()) {
+            c_code = !vk_code.empty() ? vk_code : dx_code;
+        }
+
+        std::string vk_cpp = variant_ref.modifier & Modifier::COnly || !supports_vk
+                ? ""
+                : MakeCPPVariant(variant_ref, Backend::Vulkan, DocKind::VersionOnly);
+        std::string dx_cpp = variant_ref.modifier & Modifier::COnly || !supports_dx
+                ? ""
+                : MakeCPPVariant(variant_ref, Backend::DX12, DocKind::VersionOnly);
+        std::string regular_code_cpp = variant_ref.modifier & Modifier::COnly || !(supports_vk && supports_dx)
+                ? ""
+                : MakeCPPVariant(variant_ref, Backend::Any, DocKind::VersionOnly);
+        std::string cpp_code      = regular_code_cpp;
+        std::string cimpl_code_cpp = variant_ref.modifier & Modifier::COnly || !(supports_vk && supports_dx)
+                ? ""
+                : vk_cpp + '\n' + dx_cpp;
+        if (cpp_code.empty()) {
+            cpp_code = !vk_cpp.empty() ? vk_cpp : dx_cpp;
+        }
+
+        std::string variant_template_content = GetSpecificationCode(c_code, cimpl_code, cpp_code, cimpl_code_cpp);
 
         std::string variant_description = wis::format(" * {}", MakeVariantDescription(variant_ref));
         std::string variant_refs        = GetRefs(variant_name);

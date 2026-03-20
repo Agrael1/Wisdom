@@ -17,10 +17,6 @@
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0. 
- * WisResult wisVKUWPExtensionCreateSurface(WisVKUWPExtension* self,
- *                                          const WisUWPWindowDesc* info,
- *                                          WisVKSurface*           surface);
  * 
  * // Provided by Wisdom 0.7.0. 
  * WisResult wisDX12UWPExtensionCreateSurface(WisDX12UWPExtension* self,
@@ -33,24 +29,10 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
- * WIS_NODISCARD wis::Surface UWPExtension::CreateSurface(const wis::UWPWindowDesc& info,
- *                                                        wis::Result&              out_result) noexcept;
- * }
- * ```
- * <details>
- * <summary>C++ Implementation Specific Version:</summary>
- * ```cpp
- * namespace wis{
- * // Provided by Wisdom 0.7.0. 
- * WIS_NODISCARD wis::VKSurface VKUWPExtension::CreateSurface(const wis::UWPWindowDesc& info,
- *                                                            wis::Result&              out_result) noexcept;
- * 
- * // Provided by Wisdom 0.7.0. 
  * WIS_NODISCARD wis::DX12Surface DX12UWPExtension::CreateSurface(const wis::UWPWindowDesc& info,
  *                                                                wis::Result&              out_result) noexcept;
  * }
  * ```
- * </details>
  * \endcond
  *
  * @section wisUWPExtensionCreateSurface_memb Parameters

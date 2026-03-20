@@ -22,10 +22,6 @@
  *                                              const WisWaylandWindowDesc* info,
  *                                              WisVKSurface*               surface);
  * 
- * // Provided by Wisdom 0.7.0. 
- * WisResult wisDX12WaylandExtensionCreateSurface(WisDX12WaylandExtension* self,
- *                                                const WisWaylandWindowDesc* info,
- *                                                WisDX12Surface*             surface);
  * ```
  * </details>
  * 
@@ -33,24 +29,10 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
- * WIS_NODISCARD wis::Surface WaylandExtension::CreateSurface(const wis::WaylandWindowDesc& info,
- *                                                            wis::Result&                  out_result) noexcept;
- * }
- * ```
- * <details>
- * <summary>C++ Implementation Specific Version:</summary>
- * ```cpp
- * namespace wis{
- * // Provided by Wisdom 0.7.0. 
  * WIS_NODISCARD wis::VKSurface VKWaylandExtension::CreateSurface(const wis::WaylandWindowDesc& info,
  *                                                                wis::Result&                  out_result) noexcept;
- * 
- * // Provided by Wisdom 0.7.0. 
- * WIS_NODISCARD wis::DX12Surface DX12WaylandExtension::CreateSurface(const wis::WaylandWindowDesc& info,
- *                                                                    wis::Result&                  out_result) noexcept;
  * }
  * ```
- * </details>
  * \endcond
  *
  * @section wisWaylandExtensionCreateSurface_memb Parameters

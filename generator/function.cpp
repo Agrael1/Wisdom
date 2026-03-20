@@ -59,6 +59,7 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
             ref.this_type = this_type->Value();
             auto& handle  = handle_map[ref.this_type];
             handle.functions.emplace_back(std::string(name));
+            ref.FilterBackend(handle.GetXBackend());
             TryMakeRef(ref.this_type, key);
         } else {
             free_functions_in_order.emplace_back(name);
@@ -80,6 +81,9 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
             if (ref.return_type.type == "Result") {
                 ref.return_type.has_result = true;
                 ref.return_type.type       = "";
+            } else {
+                // get backend support
+               ref.FilterBackend(GetTypeBackendSupport(ref.return_type.type));
             }
 
             if (auto* doc = return_type->FindAttribute("doc")) {
@@ -121,6 +125,7 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
             if (auto* doc = param->FindAttribute("doc")) {
                 p.doc = doc->Value();
             }
+            ref.FilterBackend(GetTypeBackendSupport(p.type));
             TryMakeRef(p.type, key);
         }
     }
@@ -671,15 +676,36 @@ void Generator::WriteFunctionDocumentation(std::filesystem::path func_output_pat
                                                  func_def.name);
         auto        func_doc_path  = func_output_path / wis::format("{}_function.h", MakeSnakeCase(full_func_name.substr(3)));
 
-        std::string vk_code      = MakeCFunctionDecl(func_def, Backend::Vulkan, "", DocKind::VersionOnly);
-        std::string dx_code      = MakeCFunctionDecl(func_def, Backend::DX12, "", DocKind::VersionOnly);
+        auto supports_vk = has(func_def.backend, XBackend::Vulkan);
+        auto supports_dx = has(func_def.backend, XBackend::DX12);
+
+        std::string vk_code      = supports_vk ? MakeCFunctionDecl(func_def, Backend::Vulkan, "", DocKind::VersionOnly) : "";
+        std::string dx_code      = supports_dx ? MakeCFunctionDecl(func_def, Backend::DX12, "", DocKind::VersionOnly) : "";
         std::string regular_code = MakeCFunctionDecl(func_def, Backend::Any, "", DocKind::VersionOnly);
+        std::string c_code       = regular_code;
+        std::string cimpl_code   = (vk_code + '\n' + dx_code);
+        if (c_code.empty()) {
+            c_code = !vk_code.empty() ? vk_code : dx_code;
+        }
 
-        std::string vk_code_cpp      = func_def.modifier & Modifier::Destroy ? "" : MakeCPPFunctionImpl(func_def, Backend::Vulkan, "", DocKind::VersionOnly);
-        std::string dx_code_cpp      = func_def.modifier & Modifier::Destroy ? "" : MakeCPPFunctionImpl(func_def, Backend::DX12, "", DocKind::VersionOnly);
-        std::string regular_code_cpp = func_def.modifier & Modifier::Destroy ? "" : MakeCPPFunctionImpl(func_def, Backend::Any, "", DocKind::VersionOnly);
+        std::string vk_code_cpp = func_def.modifier & Modifier::Destroy || !supports_vk
+                ? ""
+                : MakeCPPFunctionImpl(func_def, Backend::Vulkan, "", DocKind::VersionOnly);
+        std::string dx_code_cpp = func_def.modifier & Modifier::Destroy || !supports_dx
+                ? ""
+                : MakeCPPFunctionImpl(func_def, Backend::DX12, "", DocKind::VersionOnly);
+        std::string regular_code_cpp = func_def.modifier & Modifier::Destroy || !(supports_vk && supports_dx)
+                ? ""
+                : MakeCPPFunctionImpl(func_def, Backend::Any, "", DocKind::VersionOnly);
+        std::string cpp_code     = regular_code_cpp;
+        std::string cpp_impl_code = func_def.modifier & Modifier::Destroy || !(supports_vk && supports_dx)
+                ? ""
+                : vk_code_cpp + '\n' + dx_code_cpp;
+        if (cpp_code.empty()) {
+            cpp_code = !vk_code_cpp.empty() ? vk_code_cpp : dx_code_cpp;
+        }
 
-        std::string func_template_content = GetSpecificationCode(regular_code, vk_code + '\n' + dx_code, regular_code_cpp, vk_code_cpp + '\n' + dx_code_cpp);
+        std::string func_template_content = GetSpecificationCode(c_code, cimpl_code, cpp_code, cpp_impl_code);
 
         std::string func_description = MakeFunctionDescription(func_def);
         std::string func_refs        = GetRefs(func_def.name);
