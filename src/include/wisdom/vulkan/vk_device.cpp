@@ -1,7 +1,6 @@
 #ifndef WIS_VK_DEVICE_CPP
 #define WIS_VK_DEVICE_CPP
-#include <wisdom/generated/vk_cpp_api.hpp>
-#include <wisdom/generated/backend_api.h>
+#include <wisdom/generated/backend_api.hpp>
 #include <wisdom/generated/vk_convert.hpp>
 #include <wisdom/vulkan/detail/vk_ext1.hpp>
 #include <wisdom/util/allocation.hpp>

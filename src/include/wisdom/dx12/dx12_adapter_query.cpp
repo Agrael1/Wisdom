@@ -3,9 +3,8 @@
 
 #include <wisdom/dx12/detail/dx12_detail.hpp>
 #include <wisdom/dx12/detail/dx12_utils.hpp>
-#include <wisdom/generated/backend_api.h>
 #include <wisdom/generated/dx12_convert.hpp>
-#include <wisdom/generated/dx12_cpp_api.hpp>
+#include <wisdom/generated/backend_api.hpp>
 #include <wisdom/util/allocation.hpp>
 #include <wisdom/util/com_ptr.hpp>
 

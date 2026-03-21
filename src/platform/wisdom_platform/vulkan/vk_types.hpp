@@ -5,7 +5,7 @@
 #endif // __cplusplus
 
 #define WISDOM_BUILD_BINARIES 1
-#include <wisdom/generated/vk_cpp_api.hpp>
+#include <wisdom/generated/backend_api.hpp>
 
 namespace wis {
 //-----------------------------------------------------------------------------
