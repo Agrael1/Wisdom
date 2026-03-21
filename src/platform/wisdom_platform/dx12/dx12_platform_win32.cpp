@@ -2,7 +2,7 @@
 #define WIS_DX12_PLATFORM_WIN32_CPP
 
 #if defined(WISDOM_DX12) && defined(WIS_PLATFORM_WIN32_PRESENT)
-#include <wisdom_platform/generated/cpp_platform_api.hpp>
+#include <wisdom_platform/generated/backend_api.hpp>
 #include <wisdom/dx12/detail/dx12_utils.hpp>
 
 namespace wis::detail {

@@ -12,8 +12,9 @@
 #define FORCEVK_SWITCH 0
 #endif // WISDOM_VULKAN_FOUND
 
+#include "generated/backend_api.hpp"
+
 #if defined(WISDOM_DX12) && !FORCEVK_SWITCH
-#include "generated/dx12_cpp_api.hpp"
 
 namespace wis {
 static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderIntermediate::DXIL;
@@ -90,7 +91,6 @@ WIS_NODISCARD inline wis::Instance CreateInstance(const wis::DebugDesc*         
 } // namespace wis
 
 #elif defined(WISDOM_VULKAN)
-#include "generated/vk_cpp_api.hpp"
 
 namespace wis {
 static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderIntermediate::SPIRV;
