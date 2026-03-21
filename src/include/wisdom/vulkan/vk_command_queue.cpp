@@ -12,7 +12,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyCommandQueue(WisVKCommandQueue* self)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKCommandQueueImpl>(self);
     if (impl.queue) {
-        wis::detail::release_vk_device(impl.device_header);
+        wis::detail::VKReleaseDevice(impl.device_header);
         impl.device_header = nullptr;
         impl.device        = VK_NULL_HANDLE;
         impl.queue         = VK_NULL_HANDLE;

@@ -38,7 +38,7 @@ DX12GetOptimalBarrierLayout(WisCommandQueueType type, WisTextureState state) noe
         case WisTextureStateCopyDst:
             return D3D12_BARRIER_LAYOUT_DIRECT_QUEUE_COPY_DEST;
         default:
-            return wis::detail::convert_dx(state);
+            return wis::detail::DX12Convert(state);
         }
     case WisCommandQueueTypeCompute:
         switch (state) {
@@ -55,10 +55,10 @@ DX12GetOptimalBarrierLayout(WisCommandQueueType type, WisTextureState state) noe
         case WisTextureStateCopyDst:
             return D3D12_BARRIER_LAYOUT_COMPUTE_QUEUE_COPY_DEST;
         default:
-            return wis::detail::convert_dx(state);
+            return wis::detail::DX12Convert(state);
         }
     default:
-        return wis::detail::convert_dx(state);
+        return wis::detail::DX12Convert(state);
     }
 }
 
@@ -351,10 +351,10 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListInsertBarriers(const WisDX12Comma
         }
 
         buffer_barriers_span[i] = D3D12_BUFFER_BARRIER{
-            .SyncBefore   = wis::detail::convert_dx(src.sync_before),
-            .SyncAfter    = wis::detail::convert_dx(src.sync_after),
-            .AccessBefore = wis::detail::convert_dx(src.access_before),
-            .AccessAfter  = wis::detail::convert_dx(src.access_after),
+            .SyncBefore   = wis::detail::DX12Convert(src.sync_before),
+            .SyncAfter    = wis::detail::DX12Convert(src.sync_after),
+            .AccessBefore = wis::detail::DX12Convert(src.access_before),
+            .AccessAfter  = wis::detail::DX12Convert(src.access_after),
             .pResource    = std::bit_cast<ID3D12Resource*>(src.buffer),
             .Offset       = src.offset,
             .Size         = src.size,
@@ -381,10 +381,10 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListInsertBarriers(const WisDX12Comma
                 release_barrier ? src.state_after : WisTextureStateCommon);
 
         texture_barriers_span[i] = D3D12_TEXTURE_BARRIER{
-            .SyncBefore   = wis::detail::convert_dx(src.sync_before),
-            .SyncAfter    = wis::detail::convert_dx(src.sync_after),
-            .AccessBefore = wis::detail::convert_dx(src.access_before),
-            .AccessAfter  = wis::detail::convert_dx(src.access_after),
+            .SyncBefore   = wis::detail::DX12Convert(src.sync_before),
+            .SyncAfter    = wis::detail::DX12Convert(src.sync_after),
+            .AccessBefore = wis::detail::DX12Convert(src.access_before),
+            .AccessAfter  = wis::detail::DX12Convert(src.access_after),
             .LayoutBefore = layout_before,
             .LayoutAfter  = layout_after,
             .pResource    = std::bit_cast<ID3D12Resource*>(src.texture),
@@ -408,10 +408,10 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListInsertBarriers(const WisDX12Comma
     for (size_t i = 0; i < barriers->global_barrier_count; ++i) {
         auto& src               = barriers->global_barriers[i];
         global_barriers_span[i] = D3D12_GLOBAL_BARRIER{
-            .SyncBefore   = wis::detail::convert_dx(src.sync_before),
-            .SyncAfter    = wis::detail::convert_dx(src.sync_after),
-            .AccessBefore = wis::detail::convert_dx(src.access_before),
-            .AccessAfter  = wis::detail::convert_dx(src.access_after),
+            .SyncBefore   = wis::detail::DX12Convert(src.sync_before),
+            .SyncAfter    = wis::detail::DX12Convert(src.sync_after),
+            .AccessBefore = wis::detail::DX12Convert(src.access_before),
+            .AccessAfter  = wis::detail::DX12Convert(src.access_after),
         };
     }
 
@@ -485,7 +485,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetPrimitiveTopology(WisDX12Comma
                                                                     WisPrimitiveTopology topology)
 {
     auto& impl = wis::from_handle_ref<wis::impl::DX12CommandListImpl>(self);
-    impl.list->IASetPrimitiveTopology(wis::detail::convert_dx(topology));
+    impl.list->IASetPrimitiveTopology(wis::detail::DX12Convert(topology));
 }
 
 //-----------------------------------------------------------------------------
@@ -503,7 +503,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetPrimitiveRestartValue(WisDX12C
                                                                         WisPrimitiveRestartValue value)
 {
     auto& impl = wis::from_handle_ref<wis::impl::DX12CommandListImpl>(self);
-    impl.list->IASetIndexBufferStripCutValue(wis::detail::convert_dx(value));
+    impl.list->IASetIndexBufferStripCutValue(wis::detail::DX12Convert(value));
 }
 
 //-----------------------------------------------------------------------------

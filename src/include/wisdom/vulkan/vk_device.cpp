@@ -114,7 +114,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyDevice(WisVKDevice* self)
     if (!impl.device) {
         return;
     }
-    wis::detail::release_vk_device(impl.device_header);
+    wis::detail::VKReleaseDevice(impl.device_header);
     impl.device_header = nullptr;
     impl.device        = VK_NULL_HANDLE;
 }
@@ -910,7 +910,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(const WisVKD
             .sType               = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
             .pNext               = &map,
             .flags               = 0,
-            .stage               = static_cast<VkShaderStageFlagBits>(wis::detail::convert_vk(stage)),
+            .stage               = static_cast<VkShaderStageFlagBits>(wis::detail::VKConvert(stage)),
             .module              = smodule,
             .pName               = "main",
             .pSpecializationInfo = nullptr,
@@ -941,7 +941,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(const WisVKD
         ia_span[i] = {
             .location = src.location,
             .binding  = desc->input_layout.bindings[src.binding_index].slot,
-            .format   = wis::detail::convert_vk(src.format),
+            .format   = wis::detail::VKConvert(src.format),
             .offset   = src.offset_bytes,
         };
     }
@@ -974,7 +974,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(const WisVKD
         .sType                  = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
         .pNext                  = nullptr,
         .flags                  = 0,
-        .topology               = wis::detail::convert_vk(desc->topology_type),
+        .topology               = wis::detail::VKConvert(desc->topology_type),
         .primitiveRestartEnable = desc->flags & WisPipelineFlagsEnablePrimitiveRestart ? true : false,
     };
 
@@ -1016,7 +1016,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(const WisVKD
         const void* pNext = nullptr;
         if (features.line_rasterization && raster.line_rasterization != WisLineRasterizationDefault) {
             pNext                                 = &line_rasterizer;
-            line_rasterizer.lineRasterizationMode = wis::detail::convert_vk(raster.line_rasterization);
+            line_rasterizer.lineRasterizationMode = wis::detail::VKConvert(raster.line_rasterization);
             if (features.conservative_rasterization && raster.conservative_rasterization) {
                 line_rasterizer.pNext = &conservative_rasterizer;
             }
@@ -1030,9 +1030,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(const WisVKD
             .flags                   = 0,
             .depthClampEnable        = !desc->rasterizer_desc->depth_clip_enable,
             .rasterizerDiscardEnable = false,
-            .polygonMode             = wis::detail::convert_vk(desc->rasterizer_desc->fill_mode),
-            .cullMode                = wis::detail::convert_vk(desc->rasterizer_desc->cull_mode),
-            .frontFace               = wis::detail::convert_vk(desc->rasterizer_desc->front_face),
+            .polygonMode             = wis::detail::VKConvert(desc->rasterizer_desc->fill_mode),
+            .cullMode                = wis::detail::VKConvert(desc->rasterizer_desc->cull_mode),
+            .frontFace               = wis::detail::VKConvert(desc->rasterizer_desc->front_face),
             .depthBiasEnable         = desc->rasterizer_desc->depth_bias_enable,
             .depthBiasConstantFactor = desc->rasterizer_desc->depth_bias,
             .depthBiasClamp          = desc->rasterizer_desc->depth_bias_clamp,
@@ -1048,7 +1048,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(const WisVKD
     }
     VkFormat rt_formats[wis::MaxRenderTargets];
     for (uint32_t i = 0; i < rt_count; i++) {
-        rt_formats[i] = wis::detail::convert_vk(desc->render_attachments.attachment_formats[i]);
+        rt_formats[i] = wis::detail::VKConvert(desc->render_attachments.attachment_formats[i]);
     }
 
     VkPipelineRenderingCreateInfo dynamic_rendering{
@@ -1057,7 +1057,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(const WisVKD
         .viewMask                = desc->render_attachments.view_mask,
         .colorAttachmentCount    = rt_count,
         .pColorAttachmentFormats = rt_formats,
-        .depthAttachmentFormat   = wis::detail::convert_vk(desc->render_attachments.depth_attachment),
+        .depthAttachmentFormat   = wis::detail::VKConvert(desc->render_attachments.depth_attachment),
         .stencilAttachmentFormat = VK_FORMAT_UNDEFINED // TODO: formats for pure stencils
     };
 
@@ -1080,7 +1080,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(const WisVKD
             .sType                 = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
             .pNext                 = nullptr,
             .flags                 = 0,
-            .rasterizationSamples  = wis::detail::convert_vk(desc->sample_desc->rate),
+            .rasterizationSamples  = wis::detail::VKConvert(desc->sample_desc->rate),
             .sampleShadingEnable   = true,
             .minSampleShading      = 1.0f,
             .pSampleMask           = &desc->sample_desc->sample_mask,
@@ -1108,25 +1108,25 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(const WisVKD
             .flags                 = 0,
             .depthTestEnable       = ds.depth_enable,
             .depthWriteEnable      = ds.depth_write_enable,
-            .depthCompareOp        = wis::detail::convert_vk(ds.depth_comp),
+            .depthCompareOp        = wis::detail::VKConvert(ds.depth_comp),
             .depthBoundsTestEnable = ds.depth_bound_test,
             .stencilTestEnable     = ds.stencil_enable,
             .front =
                     VkStencilOpState{
-                                     .failOp      = wis::detail::convert_vk(ds.stencil_front.fail_op),
-                                     .passOp      = wis::detail::convert_vk(ds.stencil_front.pass_op),
-                                     .depthFailOp = wis::detail::convert_vk(ds.stencil_front.depth_fail_op),
-                                     .compareOp   = wis::detail::convert_vk(ds.stencil_front.stencil_comp),
+                                     .failOp      = wis::detail::VKConvert(ds.stencil_front.fail_op),
+                                     .passOp      = wis::detail::VKConvert(ds.stencil_front.pass_op),
+                                     .depthFailOp = wis::detail::VKConvert(ds.stencil_front.depth_fail_op),
+                                     .compareOp   = wis::detail::VKConvert(ds.stencil_front.stencil_comp),
                                      .compareMask = ds.stencil_front.read_mask,
                                      .writeMask   = ds.stencil_front.write_mask,
                                      .reference   = 0,
                                      },
             .back =
                     VkStencilOpState{
-                                     .failOp      = wis::detail::convert_vk(ds.stencil_back.fail_op),
-                                     .passOp      = wis::detail::convert_vk(ds.stencil_back.pass_op),
-                                     .depthFailOp = wis::detail::convert_vk(ds.stencil_back.depth_fail_op),
-                                     .compareOp   = wis::detail::convert_vk(ds.stencil_back.stencil_comp),
+                                     .failOp      = wis::detail::VKConvert(ds.stencil_back.fail_op),
+                                     .passOp      = wis::detail::VKConvert(ds.stencil_back.pass_op),
+                                     .depthFailOp = wis::detail::VKConvert(ds.stencil_back.depth_fail_op),
+                                     .compareOp   = wis::detail::VKConvert(ds.stencil_back.stencil_comp),
                                      .compareMask = ds.stencil_back.read_mask,
                                      .writeMask   = ds.stencil_back.write_mask,
                                      .reference   = 0,
@@ -1163,7 +1163,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(const WisVKD
             .pNext           = nullptr,
             .flags           = 0,
             .logicOpEnable   = blend.logic_op_enable,
-            .logicOp         = wis::detail::convert_vk(blend.logic_op),
+            .logicOp         = wis::detail::VKConvert(blend.logic_op),
             .attachmentCount = blend.logic_op_enable ? 0u : blend_count,
             .pAttachments    = blend.logic_op_enable ? nullptr : color_blend_attachment,
             .blendConstants  = { 0.0f, 0.0f, 0.0f, 0.0f },
@@ -1174,24 +1174,24 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(const WisVKD
                 auto& a               = blend.attachments[i];
                 auto& b               = color_blend_attachment[i];
                 b.blendEnable         = a.blend_enable;
-                b.srcColorBlendFactor = wis::detail::convert_vk(a.src_color_blend);
-                b.dstColorBlendFactor = wis::detail::convert_vk(a.dst_color_blend);
-                b.colorBlendOp        = wis::detail::convert_vk(a.color_blend_op);
-                b.srcAlphaBlendFactor = wis::detail::convert_vk(a.src_alpha_blend);
-                b.dstAlphaBlendFactor = wis::detail::convert_vk(a.dst_alpha_blend);
-                b.alphaBlendOp        = wis::detail::convert_vk(a.alpha_blend_op);
+                b.srcColorBlendFactor = wis::detail::VKConvert(a.src_color_blend);
+                b.dstColorBlendFactor = wis::detail::VKConvert(a.dst_color_blend);
+                b.colorBlendOp        = wis::detail::VKConvert(a.color_blend_op);
+                b.srcAlphaBlendFactor = wis::detail::VKConvert(a.src_alpha_blend);
+                b.dstAlphaBlendFactor = wis::detail::VKConvert(a.dst_alpha_blend);
+                b.alphaBlendOp        = wis::detail::VKConvert(a.alpha_blend_op);
                 b.colorWriteMask      = VkColorComponentFlags(a.color_write_mask);
             }
         } else {
             auto& a               = blend.attachments[0];
             auto& b               = color_blend_attachment[0];
             b.blendEnable         = a.blend_enable;
-            b.srcColorBlendFactor = wis::detail::convert_vk(a.src_color_blend);
-            b.dstColorBlendFactor = wis::detail::convert_vk(a.dst_color_blend);
-            b.colorBlendOp        = wis::detail::convert_vk(a.color_blend_op);
-            b.srcAlphaBlendFactor = wis::detail::convert_vk(a.src_alpha_blend);
-            b.dstAlphaBlendFactor = wis::detail::convert_vk(a.dst_alpha_blend);
-            b.alphaBlendOp        = wis::detail::convert_vk(a.alpha_blend_op);
+            b.srcColorBlendFactor = wis::detail::VKConvert(a.src_color_blend);
+            b.dstColorBlendFactor = wis::detail::VKConvert(a.dst_color_blend);
+            b.colorBlendOp        = wis::detail::VKConvert(a.color_blend_op);
+            b.srcAlphaBlendFactor = wis::detail::VKConvert(a.src_alpha_blend);
+            b.dstAlphaBlendFactor = wis::detail::VKConvert(a.dst_alpha_blend);
+            b.alphaBlendOp        = wis::detail::VKConvert(a.alpha_blend_op);
             b.colorWriteMask      = VkColorComponentFlags(a.color_write_mask);
 
             for (uint32_t i = 1; i < blend_count; i++) {

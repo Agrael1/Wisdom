@@ -156,8 +156,8 @@ VKCreateGeometryDesc(const wis::AcceleratedGeometryInput& desc) noexcept
     wis::VKAcceleratedGeometryDesc out;
     out.first = {
         .sType        = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR,
-        .geometryType = wis::detail::convert_vk(desc.geometry_type),
-        .flags        = wis::detail::convert_vk(desc.flags)
+        .geometryType = wis::detail::VKConvert(desc.geometry_type),
+        .flags        = wis::detail::VKConvert(desc.flags)
     };
     out.second = {
         .primitiveCount = desc.triangle_or_aabb_count,
@@ -166,11 +166,11 @@ VKCreateGeometryDesc(const wis::AcceleratedGeometryInput& desc) noexcept
     case wis::ASGeometryType::Triangles:
         out.first.geometry.triangles = {
             .sType         = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR,
-            .vertexFormat  = wis::detail::convert_vk(desc.vertex_format),
+            .vertexFormat  = wis::detail::VKConvert(desc.vertex_format),
             .vertexData    = { .deviceAddress = desc.vertex_or_aabb_buffer_address },
             .vertexStride  = desc.vertex_or_aabb_buffer_stride,
             .maxVertex     = desc.vertex_count,
-            .indexType     = wis::detail::convert_vk(desc.index_format),
+            .indexType     = wis::detail::VKConvert(desc.index_format),
             .indexData     = { .deviceAddress = desc.index_buffer_address },
             .transformData = { .deviceAddress = desc.transform_matrix_address }
         };

@@ -67,7 +67,7 @@ wis::ImplDX12Device::CreateFence(wis::Result& result, uint64_t initial_value, wi
     wis::DX12Fence out_fence;
     auto&          internal = out_fence.GetMutableInternal();
 
-    HRESULT hr = device->CreateFence(initial_value, wis::detail::convert_dx(flags), internal.fence.iid(), internal.fence.put_void());
+    HRESULT hr = device->CreateFence(initial_value, wis::detail::DX12Convert(flags), internal.fence.iid(), internal.fence.put_void());
 
     if (!wis::succeeded(hr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "ID3D12Device10::CreateFence failed to create fence">(hr);
@@ -149,7 +149,7 @@ wis::ImplDX12Device::CreateGraphicsPipeline(wis::Result& result, const wis::DX12
                                                                        desc.shaders.domain);
     //--Topology
     pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_PRIMITIVE_TOPOLOGY>() =
-            wis::detail::convert_dx(desc.topology_type);
+            wis::detail::DX12Convert(desc.topology_type);
 
     //--Root signature
     pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_ROOT_SIGNATURE>() =
@@ -176,7 +176,7 @@ wis::ImplDX12Device::CreateGraphicsPipeline(wis::Result& result, const wis::DX12
 
         *ia_stage.allocate() = { .SemanticName         = i.semantic_name,
                                  .SemanticIndex        = i.semantic_index,
-                                 .Format               = wis::detail::convert_dx(i.format),
+                                 .Format               = wis::detail::DX12Convert(i.format),
                                  .InputSlot            = i.input_slot,
                                  .AlignedByteOffset    = i.offset_bytes,
                                  .InputSlotClass       = D3D12_INPUT_CLASSIFICATION(slot->input_class),
@@ -193,9 +193,9 @@ wis::ImplDX12Device::CreateGraphicsPipeline(wis::Result& result, const wis::DX12
         pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_RASTERIZER2>() =
                 CD3DX12_RASTERIZER_DESC2{
                     D3D12_RASTERIZER_DESC2{
-                                           .FillMode              = wis::detail::convert_dx(desc.rasterizer->fill_mode),
-                                           .CullMode              = wis::detail::convert_dx(desc.rasterizer->cull_mode),
-                                           .FrontCounterClockwise = wis::detail::convert_dx(desc.rasterizer->front_face),
+                                           .FillMode              = wis::detail::DX12Convert(desc.rasterizer->fill_mode),
+                                           .CullMode              = wis::detail::DX12Convert(desc.rasterizer->cull_mode),
+                                           .FrontCounterClockwise = wis::detail::DX12Convert(desc.rasterizer->front_face),
                                            .DepthBias             = bias ? desc.rasterizer->depth_bias : 0.0f,
                                            .DepthBiasClamp        = bias ? desc.rasterizer->depth_bias_clamp : 0.0f,
                                            .SlopeScaledDepthBias  = bias ? desc.rasterizer->depth_bias_slope_factor : 0.0f,
@@ -207,7 +207,7 @@ wis::ImplDX12Device::CreateGraphicsPipeline(wis::Result& result, const wis::DX12
     //--Multisample
     if (desc.sample) {
         pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_SAMPLE_DESC>() = DXGI_SAMPLE_DESC{
-            .Count   = wis::detail::convert_dx(desc.sample->rate),
+            .Count   = wis::detail::DX12Convert(desc.sample->rate),
             .Quality = 0,
         };
         pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_SAMPLE_MASK>() =
@@ -222,23 +222,23 @@ wis::ImplDX12Device::CreateGraphicsPipeline(wis::Result& result, const wis::DX12
                     D3D12_DEPTH_STENCIL_DESC2{
                                               .DepthEnable    = ds.depth_enable,
                                               .DepthWriteMask = D3D12_DEPTH_WRITE_MASK(ds.depth_write_enable),
-                                              .DepthFunc      = wis::detail::convert_dx(ds.depth_comp),
+                                              .DepthFunc      = wis::detail::DX12Convert(ds.depth_comp),
                                               .StencilEnable  = ds.stencil_enable,
                                               .FrontFace =
                                     D3D12_DEPTH_STENCILOP_DESC1{
-                                            .StencilFailOp      = wis::detail::convert_dx(ds.stencil_front.fail_op),
-                                            .StencilDepthFailOp = wis::detail::convert_dx(ds.stencil_front.depth_fail_op),
-                                            .StencilPassOp      = wis::detail::convert_dx(ds.stencil_front.pass_op),
-                                            .StencilFunc        = wis::detail::convert_dx(ds.stencil_front.comparison),
+                                            .StencilFailOp      = wis::detail::DX12Convert(ds.stencil_front.fail_op),
+                                            .StencilDepthFailOp = wis::detail::DX12Convert(ds.stencil_front.depth_fail_op),
+                                            .StencilPassOp      = wis::detail::DX12Convert(ds.stencil_front.pass_op),
+                                            .StencilFunc        = wis::detail::DX12Convert(ds.stencil_front.comparison),
                                             .StencilReadMask    = ds.stencil_front.read_mask,
                                             .StencilWriteMask   = ds.stencil_front.write_mask,
                                     },
                                               .BackFace =
                                     D3D12_DEPTH_STENCILOP_DESC1{
-                                            .StencilFailOp      = wis::detail::convert_dx(ds.stencil_back.fail_op),
-                                            .StencilDepthFailOp = wis::detail::convert_dx(ds.stencil_back.depth_fail_op),
-                                            .StencilPassOp      = wis::detail::convert_dx(ds.stencil_back.pass_op),
-                                            .StencilFunc        = wis::detail::convert_dx(ds.stencil_back.comparison),
+                                            .StencilFailOp      = wis::detail::DX12Convert(ds.stencil_back.fail_op),
+                                            .StencilDepthFailOp = wis::detail::DX12Convert(ds.stencil_back.depth_fail_op),
+                                            .StencilPassOp      = wis::detail::DX12Convert(ds.stencil_back.pass_op),
+                                            .StencilFunc        = wis::detail::DX12Convert(ds.stencil_back.comparison),
                                             .StencilReadMask    = ds.stencil_back.read_mask,
                                             .StencilWriteMask   = ds.stencil_back.write_mask,
                                     },
@@ -249,13 +249,13 @@ wis::ImplDX12Device::CreateGraphicsPipeline(wis::Result& result, const wis::DX12
 
     //--Render targets
     pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_DEPTH_STENCIL_FORMAT>(
-            wis::detail::convert_dx(desc.attachments.depth_attachment));
+            wis::detail::DX12Convert(desc.attachments.depth_attachment));
 
     D3D12_RT_FORMAT_ARRAY rta{ .NumRenderTargets = uint32_t(std::min(
                                        desc.attachments.attachments_count,
                                        wis::max_render_targets)) };
     for (size_t i = 0; i < rta.NumRenderTargets; i++) {
-        rta.RTFormats[i] = wis::detail::convert_dx(desc.attachments.attachment_formats[i]);
+        rta.RTFormats[i] = wis::detail::DX12Convert(desc.attachments.attachment_formats[i]);
     }
     pipeline_stream.allocate<CD3DX12_PIPELINE_STATE_STREAM_RENDER_TARGET_FORMATS>() = rta;
 
@@ -288,19 +288,19 @@ wis::ImplDX12Device::CreateGraphicsPipeline(wis::Result& result, const wis::DX12
         };
         if (blend.logic_op_enable) {
             bdesc.RenderTarget[0].LogicOpEnable = true;
-            bdesc.RenderTarget[0].LogicOp       = wis::detail::convert_dx(blend.logic_op);
+            bdesc.RenderTarget[0].LogicOp       = wis::detail::DX12Convert(blend.logic_op);
         } else {
             for (size_t i = 0; i < blend.attachment_count; i++) {
                 auto& a               = blend.attachments[i];
                 bdesc.RenderTarget[i] = D3D12_RENDER_TARGET_BLEND_DESC{
                     .BlendEnable           = a.blend_enable,
                     .LogicOpEnable         = false,
-                    .SrcBlend              = wis::detail::convert_dx(a.src_color_blend),
-                    .DestBlend             = wis::detail::convert_dx(a.dst_color_blend),
-                    .BlendOp               = wis::detail::convert_dx(a.color_blend_op),
-                    .SrcBlendAlpha         = wis::detail::convert_dx(a.src_alpha_blend),
-                    .DestBlendAlpha        = wis::detail::convert_dx(a.dst_alpha_blend),
-                    .BlendOpAlpha          = wis::detail::convert_dx(a.alpha_blend_op),
+                    .SrcBlend              = wis::detail::DX12Convert(a.src_color_blend),
+                    .DestBlend             = wis::detail::DX12Convert(a.dst_color_blend),
+                    .BlendOp               = wis::detail::DX12Convert(a.color_blend_op),
+                    .SrcBlendAlpha         = wis::detail::DX12Convert(a.src_alpha_blend),
+                    .DestBlendAlpha        = wis::detail::DX12Convert(a.dst_alpha_blend),
+                    .BlendOpAlpha          = wis::detail::DX12Convert(a.alpha_blend_op),
                     .LogicOp               = D3D12_LOGIC_OP_NOOP,
                     .RenderTargetWriteMask = UINT8(a.color_write_mask),
                 };
@@ -394,7 +394,7 @@ wis::ImplDX12Device::CreateRenderTarget(wis::Result& result, DX12TextureView tex
     auto&            internal = out_target.GetMutableInternal();
 
     D3D12_RENDER_TARGET_VIEW_DESC rtv_desc{
-        .Format        = wis::detail::convert_dx(desc.format),
+        .Format        = wis::detail::DX12Convert(desc.format),
         .ViewDimension = D3D12_RTV_DIMENSION(desc.layout),
         .Texture2DArray{
                         .MipSlice        = desc.mip,
@@ -484,7 +484,7 @@ wis::ImplDX12Device::CreateDepthStencilTarget(wis::Result& result, DX12TextureVi
     auto&            internal = out_target.GetMutableInternal();
 
     D3D12_DEPTH_STENCIL_VIEW_DESC rtv_desc{
-        .Format        = wis::detail::convert_dx(desc.format),
+        .Format        = wis::detail::DX12Convert(desc.format),
         .ViewDimension = detail::to_dsv(desc.layout),
         .Texture2DArray{
                         .MipSlice        = desc.mip,
@@ -543,19 +543,19 @@ wis::ImplDX12Device::CreateSampler(wis::Result& result, const wis::SamplerDesc& 
     DX12Sampler out_sampler;
     auto&       internal = out_sampler.GetMutableInternal();
 
-    auto min_filter   = !desc.anisotropic ? wis::detail::convert_dx(desc.min_filter) : D3D12_FILTER_TYPE_LINEAR;
-    auto mag_filter   = !desc.anisotropic ? wis::detail::convert_dx(desc.mag_filter) : D3D12_FILTER_TYPE_LINEAR;
-    auto basic_filter = D3D12_ENCODE_BASIC_FILTER(min_filter, mag_filter, wis::detail::convert_dx(desc.mip_filter), D3D12_FILTER_REDUCTION_TYPE::D3D12_FILTER_REDUCTION_TYPE_STANDARD);
+    auto min_filter   = !desc.anisotropic ? wis::detail::DX12Convert(desc.min_filter) : D3D12_FILTER_TYPE_LINEAR;
+    auto mag_filter   = !desc.anisotropic ? wis::detail::DX12Convert(desc.mag_filter) : D3D12_FILTER_TYPE_LINEAR;
+    auto basic_filter = D3D12_ENCODE_BASIC_FILTER(min_filter, mag_filter, wis::detail::DX12Convert(desc.mip_filter), D3D12_FILTER_REDUCTION_TYPE::D3D12_FILTER_REDUCTION_TYPE_STANDARD);
     auto filter       = D3D12_FILTER(desc.anisotropic * D3D12_ANISOTROPIC_FILTERING_BIT | basic_filter);
 
     D3D12_SAMPLER_DESC sampler_desc{
         .Filter         = filter,
-        .AddressU       = wis::detail::convert_dx(desc.address_u),
-        .AddressV       = wis::detail::convert_dx(desc.address_v),
-        .AddressW       = wis::detail::convert_dx(desc.address_w),
+        .AddressU       = wis::detail::DX12Convert(desc.address_u),
+        .AddressV       = wis::detail::DX12Convert(desc.address_v),
+        .AddressW       = wis::detail::DX12Convert(desc.address_w),
         .MipLODBias     = desc.mip_lod_bias,
         .MaxAnisotropy  = desc.anisotropic ? std::min(uint32_t(D3D12_MAX_MAXANISOTROPY), desc.max_anisotropy) : 0,
-        .ComparisonFunc = wis::detail::convert_dx(desc.comparison_op),
+        .ComparisonFunc = wis::detail::DX12Convert(desc.comparison_op),
         .BorderColor    = { desc.border_color[0], desc.border_color[1], desc.border_color[2], desc.border_color[3] },
         .MinLOD         = desc.min_lod,
         .MaxLOD         = desc.max_lod,
@@ -580,13 +580,13 @@ wis::ImplDX12Device::CreateShaderResource(wis::Result& result, DX12TextureView t
     auto&              internal = out_resource.GetMutableInternal();
 
     D3D12_SHADER_RESOURCE_VIEW_DESC srv_desc{
-        .Format                  = wis::detail::convert_dx(desc.format),
-        .ViewDimension           = wis::detail::convert_dx(desc.view_type),
+        .Format                  = wis::detail::DX12Convert(desc.format),
+        .ViewDimension           = wis::detail::DX12Convert(desc.view_type),
         .Shader4ComponentMapping = UINT(D3D12_ENCODE_SHADER_4_COMPONENT_MAPPING(
-                wis::detail::convert_dx(desc.component_mapping.r),
-                wis::detail::convert_dx(desc.component_mapping.g),
-                wis::detail::convert_dx(desc.component_mapping.b),
-                wis::detail::convert_dx(desc.component_mapping.a))),
+                wis::detail::DX12Convert(desc.component_mapping.r),
+                wis::detail::DX12Convert(desc.component_mapping.g),
+                wis::detail::DX12Convert(desc.component_mapping.b),
+                wis::detail::DX12Convert(desc.component_mapping.a))),
     };
 
     switch (desc.view_type) {
@@ -678,8 +678,8 @@ wis::ImplDX12Device::CreateUnorderedAccessTexture(wis::Result& result, DX12Textu
     auto&              internal = out_resource.GetMutableInternal();
 
     D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc{
-        .Format        = wis::detail::convert_dx(desc.format),
-        .ViewDimension = D3D12_UAV_DIMENSION(convert_dx(desc.view_type)),
+        .Format        = wis::detail::DX12Convert(desc.format),
+        .ViewDimension = D3D12_UAV_DIMENSION(DX12Convert(desc.view_type)),
     };
 
     switch (desc.view_type) {
@@ -790,14 +790,14 @@ wis::ImplDX12Device::CreateDescriptorStorage(wis::Result&                      r
     D3D12_DESCRIPTOR_HEAP_DESC resource_heap_desc{
         .Type           = D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV,
         .NumDescriptors = size_resources,
-        .Flags          = wis::detail::convert_dx(memory),
+        .Flags          = wis::detail::DX12Convert(memory),
         .NodeMask       = 0u
     };
 
     D3D12_DESCRIPTOR_HEAP_DESC sampler_heap_desc{
         .Type           = D3D12_DESCRIPTOR_HEAP_TYPE::D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER,
         .NumDescriptors = size_samplers,
-        .Flags          = wis::detail::convert_dx(memory),
+        .Flags          = wis::detail::DX12Convert(memory),
         .NodeMask       = 0u
     };
 
@@ -916,7 +916,7 @@ wis::ImplDX12Device::CreateRootSignature(wis::Result&                      resul
                               .ShaderRegister = i,
                               .RegisterSpace  = 0, // always 0 for push descriptors
             },
-            .ShaderVisibility = wis::detail::convert_dx(descriptor.stage),
+            .ShaderVisibility = wis::detail::DX12Convert(descriptor.stage),
         };
     }
 
@@ -947,7 +947,7 @@ wis::ImplDX12Device::CreateRootSignature(wis::Result&                      resul
         };
         for (uint32_t j = 0; j < spaces; ++j) {
             base_memory[0] = {
-                .RangeType                         = wis::detail::convert_dx(desc.binding_type),
+                .RangeType                         = wis::detail::DX12Convert(desc.binding_type),
                 .NumDescriptors                    = UINT32_MAX,
                 .BaseShaderRegister                = 0,
                 .RegisterSpace                     = j + desc.binding_space,

@@ -242,7 +242,7 @@ void InitRenderer(BasicRenderer* renderer, SDL_Window* window)
 
     WisSurface surface = CreateSurface(&platform, window);
 
-    renderer->device           = CreateDevice(window, &instance, wisGetView(&surface));
+    renderer->device           = CreateDevice(window, &instance, wisGetSurfaceView(&surface));
     renderer->frame_index      = 0;
     renderer->next_fence_value = 1;
 
@@ -290,7 +290,7 @@ void InitRenderer(BasicRenderer* renderer, SDL_Window* window)
 void DestoyRenderer(BasicRenderer* renderer)
 {
     if (renderer->next_fence_value > 0) {
-        WisResult result = wisCommandQueueSignalFence(&renderer->gfx_queue, wisGetView(&renderer->fence), renderer->next_fence_value);
+        WisResult result = wisCommandQueueSignalFence(&renderer->gfx_queue, wisGetFenceView(&renderer->fence), renderer->next_fence_value);
         printf("Flush SignalFence result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
 
         result = wisFenceWait(&renderer->fence, renderer->next_fence_value, UINT64_MAX);
@@ -314,7 +314,7 @@ void DestoyRenderer(BasicRenderer* renderer)
 //------------------------------------------------------------------------------
 void WaitForFinish(BasicRenderer* renderer)
 {
-    WisResult result = wisCommandQueueSignalFence(&renderer->gfx_queue, wisGetView(&renderer->fence), renderer->next_fence_value);
+    WisResult result = wisCommandQueueSignalFence(&renderer->gfx_queue, wisGetFenceView(&renderer->fence), renderer->next_fence_value);
     printf("WaitForFinish SignalFence result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
     result = wisFenceWait(&renderer->fence, renderer->next_fence_value, UINT64_MAX);
     printf("WaitForFinish FenceWait result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
@@ -374,9 +374,9 @@ void InitRenderTask(BasicRenderTask* task, BasicRenderer* renderer)
     WisShader compute_shader = CreateShader(&renderer->device, "basic.cs.hlsl");
 
     WisComputePipelineDesc compute_pipeline_desc = {
-        .root_signature = wisGetView(&task->compute_signature),
-        .compute_shader = wisGetView(&compute_shader),
-        .cache          = wisGetView(&pipeline_cache),
+        .root_signature = wisGetRootSignatureView(&task->compute_signature),
+        .compute_shader = wisGetShaderView(&compute_shader),
+        .cache          = wisGetPipelineCacheView(&pipeline_cache),
         .flags          = WisPipelineFlagsNone,
     };
     result = wisDeviceCreateComputePipeline(&renderer->device, &compute_pipeline_desc, &task->compute_pipeline);
@@ -411,14 +411,14 @@ void InitRenderTask(BasicRenderTask* task, BasicRenderer* renderer)
     };
 
     WisGraphicsPipelineDesc graphics_pipeline_desc = {
-        .root_signature     = wisGetView(&task->root_signature),
-        .vertex_shader      = wisGetView(&vertex_shader),
-        .pixel_shader       = wisGetView(&pixel_shader),
+        .root_signature     = wisGetRootSignatureView(&task->root_signature),
+        .vertex_shader      = wisGetShaderView(&vertex_shader),
+        .pixel_shader       = wisGetShaderView(&pixel_shader),
         .render_attachments = attachments,
         .topology_type      = WisTopologyTypeTriangle,
         .rasterizer_desc    = &rasterizer,
         .depth_stencil_desc = &depth_stencil,
-        .cache              = wisGetView(&pipeline_cache),
+        .cache              = wisGetPipelineCacheView(&pipeline_cache),
         .flags              = WisPipelineFlagsNone,
     };
     result = wisDeviceCreateGraphicsPipeline(&renderer->device, &graphics_pipeline_desc, &task->graphics_pipeline);
@@ -534,7 +534,7 @@ void Render(BasicRenderer* renderer, const ResourceContainer* resources, const B
     WisResult result = wisCommandAllocatorReset(&frame->command_allocator);
     printf("Frame[%u] CommandAllocatorReset result: %d, platform_code: %d, error: %s\n", renderer->frame_index, result.status, result.platform_code, result.error ? result.error : "None");
 
-    WisCommandListView command_list_view = wisGetView(&frame->command_list);
+    WisCommandListView command_list_view = wisGetCommandListView(&frame->command_list);
 
     // Record frame skeleton: compute updates particles, graphics draws them.
     uint32_t frame_number = (uint32_t)(renderer->next_fence_value - 1);
@@ -574,7 +574,7 @@ void Render(BasicRenderer* renderer, const ResourceContainer* resources, const B
         .sync_after        = WisBarrierSyncAllShading,
         .access_before     = WisResourceAccessNone,
         .access_after      = WisResourceAccessShaderResource,
-        .buffer            = wisGetView(&resources->particle_buffer),
+        .buffer            = wisGetBufferView(&resources->particle_buffer),
         .offset            = 0,
         .size              = WIS_WHOLE_SIZE,
         .queue_type_before = WisCommandQueueTypeGraphics,
@@ -590,16 +590,16 @@ void Render(BasicRenderer* renderer, const ResourceContainer* resources, const B
 
     result = wisCommandListBegin(&frame->command_list);
 
-    wisCommandListSetRootSignature(&frame->command_list, wisGetView(&task->compute_signature), WisPipelineTypeCompute);
-    wisCommandListSetPipeline(&frame->command_list, wisGetView(&task->compute_pipeline), WisPipelineTypeCompute);
+    wisCommandListSetRootSignature(&frame->command_list, wisGetRootSignatureView(&task->compute_signature), WisPipelineTypeCompute);
+    wisCommandListSetPipeline(&frame->command_list, wisGetPipelineView(&task->compute_pipeline), WisPipelineTypeCompute);
     wisCommandListSetPushConstants(&frame->command_list, &compute_constants_desc);
     wisCommandListSetPushDescriptor(&frame->command_list, &compute_push_descriptor_desc);
     wisCommandListDispatch(&frame->command_list, PARTICLE_COUNT, 1, 1);
 
     wisCommandListInsertBarriers(&frame->command_list, &barrier_group);
 
-    wisCommandListSetRootSignature(&frame->command_list, wisGetView(&task->root_signature), WisPipelineTypeGraphics);
-    wisCommandListSetPipeline(&frame->command_list, wisGetView(&task->graphics_pipeline), WisPipelineTypeGraphics);
+    wisCommandListSetRootSignature(&frame->command_list, wisGetRootSignatureView(&task->root_signature), WisPipelineTypeGraphics);
+    wisCommandListSetPipeline(&frame->command_list, wisGetPipelineView(&task->graphics_pipeline), WisPipelineTypeGraphics);
     wisCommandListSetPushConstants(&frame->command_list, &push_constant_data_desc);
     wisCommandListSetPushDescriptor(&frame->command_list, &push_descriptor_data_desc);
 
@@ -616,7 +616,7 @@ void Render(BasicRenderer* renderer, const ResourceContainer* resources, const B
     printf("Frame[%u] QueueSubmit result: %d, platform_code: %d, error: %s\n", renderer->frame_index, result.status, result.platform_code, result.error ? result.error : "None");
 
     frame->fence_value = renderer->next_fence_value;
-    result             = wisCommandQueueSignalFence(&renderer->gfx_queue, wisGetView(&renderer->fence), renderer->next_fence_value);
+    result             = wisCommandQueueSignalFence(&renderer->gfx_queue, wisGetFenceView(&renderer->fence), renderer->next_fence_value);
     printf("Frame[%u] SignalFence result: %d, platform_code: %d, error: %s\n", renderer->frame_index, result.status, result.platform_code, result.error ? result.error : "None");
     renderer->next_fence_value++;
 

@@ -1,16 +1,18 @@
 // This file is generated. Do not edit directly.
-#ifndef WISDOM_H
-#define WISDOM_H
+#ifndef WISDOM_CORE_H
+#define WISDOM_CORE_H
 
 #ifdef WISDOM_UWP
 static_assert(WISDOM_UWP && _WIN32, "Platform error");
 #endif // WISDOM_UWP
 
+#ifndef FORCEVK_SWITCH
 #if defined(WISDOM_VULKAN) && defined(WISDOM_FORCE_VULKAN)
 #define FORCEVK_SWITCH 1
 #else
 #define FORCEVK_SWITCH 0
 #endif // WISDOM_VULKAN_FOUND
+#endif // FORCEVK_SWITCH
 
 #include "generated/backend_api.h"
 
@@ -67,6 +69,15 @@ typedef struct WisDX12GraphicsPipelineDesc    WisGraphicsPipelineDesc;
 // Functions
 //==============================================================
 
+#define wisGetSurfaceView                           wisGetDX12SurfaceView
+#define wisGetPipelineView                          wisGetDX12PipelineView
+#define wisGetShaderView                            wisGetDX12ShaderView
+#define wisGetPipelineCacheView                     wisGetDX12PipelineCacheView
+#define wisGetTextureView                           wisGetDX12TextureView
+#define wisGetBufferView                            wisGetDX12BufferView
+#define wisGetRootSignatureView                     wisGetDX12RootSignatureView
+#define wisGetFenceView                             wisGetDX12FenceView
+#define wisGetCommandListView                       wisGetDX12CommandListView
 #define wisDestroySurface                           wisDX12DestroySurface
 #define wisDestroyViewHeap                          wisDX12DestroyViewHeap
 #define wisDestroyPipeline                          wisDX12DestroyPipeline
@@ -147,37 +158,7 @@ typedef struct WisDX12GraphicsPipelineDesc    WisGraphicsPipelineDesc;
 #define wisCommandListDispatch                      wisDX12CommandListDispatch
 #define wisPipelineCacheSerialize                   wisDX12PipelineCacheSerialize
 #define wisPipelineCacheGetSerializedSize           wisDX12PipelineCacheGetSerializedSize
-#define wisGetSurfaceView                           wisGetDX12SurfaceView
-#define wisGetPipelineView                          wisGetDX12PipelineView
-#define wisGetShaderView                            wisGetDX12ShaderView
-#define wisGetPipelineCacheView                     wisGetDX12PipelineCacheView
-#define wisGetTextureView                           wisGetDX12TextureView
-#define wisGetBufferView                            wisGetDX12BufferView
-#define wisGetRootSignatureView                     wisGetDX12RootSignatureView
-#define wisGetFenceView                             wisGetDX12FenceView
-#define wisGetCommandListView                       wisGetDX12CommandListView
 
-#define wisGetView(handle)                                            \
-    _Generic((handle),                                                \
-            const WisDX12Surface*: wisGetDX12SurfaceView,             \
-            WisDX12Surface*: wisGetDX12SurfaceView,                   \
-            const WisDX12Pipeline*: wisGetDX12PipelineView,           \
-            WisDX12Pipeline*: wisGetDX12PipelineView,                 \
-            const WisDX12Shader*: wisGetDX12ShaderView,               \
-            WisDX12Shader*: wisGetDX12ShaderView,                     \
-            const WisDX12PipelineCache*: wisGetDX12PipelineCacheView, \
-            WisDX12PipelineCache*: wisGetDX12PipelineCacheView,       \
-            const WisDX12Texture*: wisGetDX12TextureView,             \
-            WisDX12Texture*: wisGetDX12TextureView,                   \
-            const WisDX12Buffer*: wisGetDX12BufferView,               \
-            WisDX12Buffer*: wisGetDX12BufferView,                     \
-            const WisDX12RootSignature*: wisGetDX12RootSignatureView, \
-            WisDX12RootSignature*: wisGetDX12RootSignatureView,       \
-            const WisDX12Fence*: wisGetDX12FenceView,                 \
-            WisDX12Fence*: wisGetDX12FenceView,                       \
-            const WisDX12CommandList*: wisGetDX12CommandListView,     \
-            WisDX12CommandList*: wisGetDX12CommandListView,           \
-            default: (void)0)(handle)
 #elif defined(WISDOM_VULKAN)
 
 #define WIS_SHADER_INTERMEDIATE_SPIRV 1
@@ -231,6 +212,15 @@ typedef struct WisVKGraphicsPipelineDesc    WisGraphicsPipelineDesc;
 // Functions
 //==============================================================
 
+#define wisGetSurfaceView                           wisGetVKSurfaceView
+#define wisGetPipelineView                          wisGetVKPipelineView
+#define wisGetShaderView                            wisGetVKShaderView
+#define wisGetPipelineCacheView                     wisGetVKPipelineCacheView
+#define wisGetTextureView                           wisGetVKTextureView
+#define wisGetBufferView                            wisGetVKBufferView
+#define wisGetRootSignatureView                     wisGetVKRootSignatureView
+#define wisGetFenceView                             wisGetVKFenceView
+#define wisGetCommandListView                       wisGetVKCommandListView
 #define wisDestroySurface                           wisVKDestroySurface
 #define wisDestroyViewHeap                          wisVKDestroyViewHeap
 #define wisDestroyPipeline                          wisVKDestroyPipeline
@@ -311,45 +301,19 @@ typedef struct WisVKGraphicsPipelineDesc    WisGraphicsPipelineDesc;
 #define wisCommandListDispatch                      wisVKCommandListDispatch
 #define wisPipelineCacheSerialize                   wisVKPipelineCacheSerialize
 #define wisPipelineCacheGetSerializedSize           wisVKPipelineCacheGetSerializedSize
-#define wisGetSurfaceView                           wisGetVKSurfaceView
-#define wisGetPipelineView                          wisGetVKPipelineView
-#define wisGetShaderView                            wisGetVKShaderView
-#define wisGetPipelineCacheView                     wisGetVKPipelineCacheView
-#define wisGetTextureView                           wisGetVKTextureView
-#define wisGetBufferView                            wisGetVKBufferView
-#define wisGetRootSignatureView                     wisGetVKRootSignatureView
-#define wisGetFenceView                             wisGetVKFenceView
-#define wisGetCommandListView                       wisGetVKCommandListView
 
-#define wisGetView(handle)                                        \
-    _Generic((handle),                                            \
-            const WisVKSurface*: wisGetVKSurfaceView,             \
-            WisVKSurface*: wisGetVKSurfaceView,                   \
-            const WisVKPipeline*: wisGetVKPipelineView,           \
-            WisVKPipeline*: wisGetVKPipelineView,                 \
-            const WisVKShader*: wisGetVKShaderView,               \
-            WisVKShader*: wisGetVKShaderView,                     \
-            const WisVKPipelineCache*: wisGetVKPipelineCacheView, \
-            WisVKPipelineCache*: wisGetVKPipelineCacheView,       \
-            const WisVKTexture*: wisGetVKTextureView,             \
-            WisVKTexture*: wisGetVKTextureView,                   \
-            const WisVKBuffer*: wisGetVKBufferView,               \
-            WisVKBuffer*: wisGetVKBufferView,                     \
-            const WisVKRootSignature*: wisGetVKRootSignatureView, \
-            WisVKRootSignature*: wisGetVKRootSignatureView,       \
-            const WisVKFence*: wisGetVKFenceView,                 \
-            WisVKFence*: wisGetVKFenceView,                       \
-            const WisVKCommandList*: wisGetVKCommandListView,     \
-            WisVKCommandList*: wisGetVKCommandListView,           \
-            default: (void)0)(handle)
 #else
 #error "No API selected for Wisdom. Define WISDOM_DX12 or WISDOM_VULKAN."
 #endif // API selection
 
+#ifndef WISDOM_HANDLE_VALID_DEFINED
+#define WISDOM_HANDLE_VALID_DEFINED
 static inline bool wisHandleValid(const void* handle)
 {
     const uint64_t zero = 0;
     return memcmp(handle, &zero, sizeof(uint64_t)) != 0;
 }
 
-#endif // WISDOM_H
+#endif // WISDOM_HANDLE_VALID_DEFINED
+
+#endif // WISDOM_CORE_H

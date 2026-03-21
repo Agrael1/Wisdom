@@ -470,7 +470,7 @@ wis::ImplVKDevice::CreateGraphicsPipeline(wis::Result& result, const wis::VKGrap
         auto& ia    = ia_data[i];
         auto& a     = desc.input_layout.attributes[i];
         ia.binding  = a.input_slot;
-        ia.format   = wis::detail::convert_vk(a.format);
+        ia.format   = wis::detail::VKConvert(a.format);
         ia.location = a.location;
         ia.offset   = a.offset_bytes;
     }
@@ -520,9 +520,9 @@ wis::ImplVKDevice::CreateGraphicsPipeline(wis::Result& result, const wis::VKGrap
             .flags                   = 0,
             .depthClampEnable        = desc.rasterizer->depth_clip_enable,
             .rasterizerDiscardEnable = false,
-            .polygonMode             = wis::detail::convert_vk(desc.rasterizer->fill_mode),
-            .cullMode                = wis::detail::convert_vk(desc.rasterizer->cull_mode),
-            .frontFace               = wis::detail::convert_vk(desc.rasterizer->front_face),
+            .polygonMode             = wis::detail::VKConvert(desc.rasterizer->fill_mode),
+            .cullMode                = wis::detail::VKConvert(desc.rasterizer->cull_mode),
+            .frontFace               = wis::detail::VKConvert(desc.rasterizer->front_face),
             .depthBiasEnable         = desc.rasterizer->depth_bias_enable,
             .depthBiasConstantFactor = desc.rasterizer->depth_bias,
             .depthBiasClamp          = desc.rasterizer->depth_bias_clamp,
@@ -535,7 +535,7 @@ wis::ImplVKDevice::CreateGraphicsPipeline(wis::Result& result, const wis::VKGrap
         .sType                  = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO,
         .pNext                  = nullptr,
         .flags                  = 0,
-        .topology               = wis::detail::convert_vk(desc.topology_type),
+        .topology               = wis::detail::VKConvert(desc.topology_type),
         .primitiveRestartEnable = false,
     };
 
@@ -543,7 +543,7 @@ wis::ImplVKDevice::CreateGraphicsPipeline(wis::Result& result, const wis::VKGrap
     uint32_t rt_size = std::min(desc.attachments.attachments_count, wis::max_render_targets);
     VkFormat rt_formats[8]{};
     for (uint32_t i = 0; i < rt_size; i++) {
-        rt_formats[i] = wis::detail::convert_vk(desc.attachments.attachment_formats[i]);
+        rt_formats[i] = wis::detail::VKConvert(desc.attachments.attachment_formats[i]);
     }
 
     VkPipelineRenderingCreateInfo dynamic_rendering{
@@ -552,7 +552,7 @@ wis::ImplVKDevice::CreateGraphicsPipeline(wis::Result& result, const wis::VKGrap
         .viewMask                = ext1.GetFeatures().multiview ? desc.view_mask : 0,
         .colorAttachmentCount    = rt_size,
         .pColorAttachmentFormats = rt_formats,
-        .depthAttachmentFormat   = wis::detail::convert_vk(desc.attachments.depth_attachment),
+        .depthAttachmentFormat   = wis::detail::VKConvert(desc.attachments.depth_attachment),
         .stencilAttachmentFormat = VK_FORMAT_UNDEFINED // TODO: formats for pure stencils
     };
 
@@ -580,12 +580,12 @@ wis::ImplVKDevice::CreateGraphicsPipeline(wis::Result& result, const wis::VKGrap
                 auto& a               = blend.attachments[i];
                 auto& b               = color_blend_attachment[i];
                 b.blendEnable         = a.blend_enable;
-                b.srcColorBlendFactor = wis::detail::convert_vk(a.src_color_blend);
-                b.dstColorBlendFactor = wis::detail::convert_vk(a.dst_color_blend);
-                b.colorBlendOp        = wis::detail::convert_vk(a.color_blend_op);
-                b.srcAlphaBlendFactor = wis::detail::convert_vk(a.src_alpha_blend);
-                b.dstAlphaBlendFactor = wis::detail::convert_vk(a.dst_alpha_blend);
-                b.alphaBlendOp        = wis::detail::convert_vk(a.alpha_blend_op);
+                b.srcColorBlendFactor = wis::detail::VKConvert(a.src_color_blend);
+                b.dstColorBlendFactor = wis::detail::VKConvert(a.dst_color_blend);
+                b.colorBlendOp        = wis::detail::VKConvert(a.color_blend_op);
+                b.srcAlphaBlendFactor = wis::detail::VKConvert(a.src_alpha_blend);
+                b.dstAlphaBlendFactor = wis::detail::VKConvert(a.dst_alpha_blend);
+                b.alphaBlendOp        = wis::detail::VKConvert(a.alpha_blend_op);
                 b.colorWriteMask      = VkColorComponentFlags(a.color_write_mask);
             }
         }
@@ -595,7 +595,7 @@ wis::ImplVKDevice::CreateGraphicsPipeline(wis::Result& result, const wis::VKGrap
             .pNext           = nullptr,
             .flags           = 0,
             .logicOpEnable   = blend.logic_op_enable,
-            .logicOp         = wis::detail::convert_vk(blend.logic_op),
+            .logicOp         = wis::detail::VKConvert(blend.logic_op),
             .attachmentCount = blend.logic_op_enable ? 0u : blend.attachment_count,
             .pAttachments    = blend.logic_op_enable ? nullptr : color_blend_attachment,
             .blendConstants  = { 0.0f, 0.0f, 0.0f, 0.0f },
@@ -631,7 +631,7 @@ wis::ImplVKDevice::CreateGraphicsPipeline(wis::Result& result, const wis::VKGrap
             .sType                 = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO,
             .pNext                 = nullptr,
             .flags                 = 0,
-            .rasterizationSamples  = wis::detail::convert_vk(desc.sample->rate),
+            .rasterizationSamples  = wis::detail::VKConvert(desc.sample->rate),
             .sampleShadingEnable   = true,
             .minSampleShading      = desc.sample->quality,
             .pSampleMask           = &desc.sample->sample_mask,
@@ -658,25 +658,25 @@ wis::ImplVKDevice::CreateGraphicsPipeline(wis::Result& result, const wis::VKGrap
             .flags                 = 0,
             .depthTestEnable       = ds.depth_enable,
             .depthWriteEnable      = ds.depth_write_enable,
-            .depthCompareOp        = wis::detail::convert_vk(ds.depth_comp),
+            .depthCompareOp        = wis::detail::VKConvert(ds.depth_comp),
             .depthBoundsTestEnable = ds.depth_bound_test,
             .stencilTestEnable     = ds.stencil_enable,
             .front =
                     VkStencilOpState{
-                                     .failOp      = wis::detail::convert_vk(ds.stencil_front.fail_op),
-                                     .passOp      = wis::detail::convert_vk(ds.stencil_front.pass_op),
-                                     .depthFailOp = wis::detail::convert_vk(ds.stencil_front.depth_fail_op),
-                                     .compareOp   = wis::detail::convert_vk(ds.stencil_front.comparison),
+                                     .failOp      = wis::detail::VKConvert(ds.stencil_front.fail_op),
+                                     .passOp      = wis::detail::VKConvert(ds.stencil_front.pass_op),
+                                     .depthFailOp = wis::detail::VKConvert(ds.stencil_front.depth_fail_op),
+                                     .compareOp   = wis::detail::VKConvert(ds.stencil_front.comparison),
                                      .compareMask = ds.stencil_front.read_mask,
                                      .writeMask   = ds.stencil_front.write_mask,
                                      .reference   = 0,
                                      },
             .back =
                     VkStencilOpState{
-                                     .failOp      = wis::detail::convert_vk(ds.stencil_back.fail_op),
-                                     .passOp      = wis::detail::convert_vk(ds.stencil_back.pass_op),
-                                     .depthFailOp = wis::detail::convert_vk(ds.stencil_back.depth_fail_op),
-                                     .compareOp   = wis::detail::convert_vk(ds.stencil_back.comparison),
+                                     .failOp      = wis::detail::VKConvert(ds.stencil_back.fail_op),
+                                     .passOp      = wis::detail::VKConvert(ds.stencil_back.pass_op),
+                                     .depthFailOp = wis::detail::VKConvert(ds.stencil_back.depth_fail_op),
+                                     .compareOp   = wis::detail::VKConvert(ds.stencil_back.comparison),
                                      .compareMask = ds.stencil_back.read_mask,
                                      .writeMask   = ds.stencil_back.write_mask,
                                      .reference   = 0,
@@ -710,7 +710,7 @@ wis::ImplVKDevice::CreateGraphicsPipeline(wis::Result& result, const wis::VKGrap
         .pDynamicStates    = dynamic_state_enables.data()
     };
 
-    VkPipelineCreateFlags flags = wis::detail::convert_vk(desc.flags);
+    VkPipelineCreateFlags flags = wis::detail::VKConvert(desc.flags);
 
     VkGraphicsPipelineCreateInfo info{
         .sType               = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO,
@@ -994,7 +994,7 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface sur
     }
 
     auto format = std::ranges::find_if(surface_formats, [=](VkSurfaceFormatKHR fmt) {
-        return fmt.format == wis::detail::convert_vk(desc.format);
+        return fmt.format == wis::detail::VKConvert(desc.format);
     });
 
     if (format == surface_formats.end() || format->format == VkFormat::VK_FORMAT_UNDEFINED) {
@@ -1044,7 +1044,7 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface sur
     VkSwapchainPresentScalingCreateInfoEXT scaling_create_info{
         .sType           = VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_EXT,
         .pNext           = nullptr,
-        .scalingBehavior = wis::detail::convert_vk(desc.scaling),
+        .scalingBehavior = wis::detail::VKConvert(desc.scaling),
         .presentGravityX = VK_PRESENT_GRAVITY_CENTERED_BIT_EXT,
         .presentGravityY = VK_PRESENT_GRAVITY_CENTERED_BIT_EXT
     };
@@ -1055,7 +1055,7 @@ wis::ImplVKDevice::VKCreateSwapChain(wis::Result& result, wis::SharedSurface sur
         .flags           = 0,
         .surface         = surface.get(),
         .minImageCount   = desc.buffer_count,
-        .imageFormat     = wis::detail::convert_vk(desc.format),
+        .imageFormat     = wis::detail::VKConvert(desc.format),
         .imageColorSpace = format->colorSpace,
         .imageExtent     = {
                             std::clamp(desc.size.width, cap.minImageExtent.width, cap.maxImageExtent.width),
@@ -1199,7 +1199,7 @@ wis::ImplVKDevice::CreateRenderTarget(wis::Result& result, wis::VKTextureView te
     VKRenderTarget out_render_target;
     auto&          internal = out_render_target.GetMutableInternal();
 
-    auto                  vk_format = wis::detail::convert_vk(desc.format);
+    auto                  vk_format = wis::detail::VKConvert(desc.format);
     VkImageViewCreateInfo info{
         .sType  = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
         .pNext  = nullptr,
@@ -1347,17 +1347,17 @@ wis::ImplVKDevice::CreateSampler(wis::Result& result, const wis::SamplerDesc& de
         .sType            = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
         .pNext            = &custom_border_color,
         .flags            = 0,
-        .magFilter        = wis::detail::convert_vk(desc.mag_filter),
-        .minFilter        = wis::detail::convert_vk(desc.min_filter),
+        .magFilter        = wis::detail::VKConvert(desc.mag_filter),
+        .minFilter        = wis::detail::VKConvert(desc.min_filter),
         .mipmapMode       = VkSamplerMipmapMode(desc.mip_filter),
-        .addressModeU     = wis::detail::convert_vk(desc.address_u),
-        .addressModeV     = wis::detail::convert_vk(desc.address_v),
-        .addressModeW     = wis::detail::convert_vk(desc.address_w),
+        .addressModeU     = wis::detail::VKConvert(desc.address_u),
+        .addressModeV     = wis::detail::VKConvert(desc.address_v),
+        .addressModeW     = wis::detail::VKConvert(desc.address_w),
         .mipLodBias       = desc.mip_lod_bias,
         .anisotropyEnable = desc.anisotropic,
         .maxAnisotropy    = float(desc.max_anisotropy),
         .compareEnable    = desc.comparison_op != wis::Compare::Never,
-        .compareOp        = wis::detail::convert_vk(desc.comparison_op),
+        .compareOp        = wis::detail::VKConvert(desc.comparison_op),
         .minLod           = desc.min_lod,
         .maxLod           = desc.max_lod,
         .borderColor      = VkBorderColor::VK_BORDER_COLOR_FLOAT_CUSTOM_EXT
@@ -1380,16 +1380,16 @@ wis::ImplVKDevice::CreateShaderResource(wis::Result& result, wis::VKTextureView 
         .sType      = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
         .pNext      = nullptr,
         .image      = std::get<0>(texture),
-        .viewType   = wis::detail::convert_vk(desc.view_type),
-        .format     = wis::detail::convert_vk(desc.format),
+        .viewType   = wis::detail::VKConvert(desc.view_type),
+        .format     = wis::detail::VKConvert(desc.format),
         .components = {
-                       .r = wis::detail::convert_vk(desc.component_mapping.r),
-                       .g = wis::detail::convert_vk(desc.component_mapping.g),
-                       .b = wis::detail::convert_vk(desc.component_mapping.b),
-                       .a = wis::detail::convert_vk(desc.component_mapping.a),
+                       .r = wis::detail::VKConvert(desc.component_mapping.r),
+                       .g = wis::detail::VKConvert(desc.component_mapping.g),
+                       .b = wis::detail::VKConvert(desc.component_mapping.b),
+                       .a = wis::detail::VKConvert(desc.component_mapping.a),
                        },
         .subresourceRange = {
-                       .aspectMask = aspect_flags(wis::detail::convert_vk(desc.format)),
+                       .aspectMask = aspect_flags(wis::detail::VKConvert(desc.format)),
                        },
     };
 
@@ -1476,7 +1476,7 @@ wis::ImplVKDevice::CreateDescriptorStorage(wis::Result&                      res
     std::span<uint32_t>              pool_size_data{ reinterpret_cast<uint32_t*>(pool_sizes.data() + descriptor_bindings_count), descriptor_bindings_count }; // For variable descriptor count
 
     for (size_t i = 0; i < descriptor_bindings_count; i++) {
-        pool_sizes[i].type            = wis::detail::convert_vk(descriptor_bindings[i].binding_type);
+        pool_sizes[i].type            = wis::detail::VKConvert(descriptor_bindings[i].binding_type);
         pool_sizes[i].descriptorCount = descriptor_bindings[i].binding_count;
         pool_size_data[i]             = descriptor_bindings[i].binding_count;
     }
@@ -1517,7 +1517,7 @@ wis::ImplVKDevice::CreateDescriptorStorage(wis::Result&                      res
     };
 
     for (uint32_t i = 0; i < descriptor_bindings_count; i++) {
-        binding_layout.descriptorType  = wis::detail::convert_vk(descriptor_bindings[i].binding_type);
+        binding_layout.descriptorType  = wis::detail::VKConvert(descriptor_bindings[i].binding_type);
         binding_layout.descriptorCount = descriptor_bindings[i].binding_type == wis::DescriptorType::Sampler
                 ? wis::max_descriptor_storage_sampler_count
                 : wis::max_descriptor_storage_resource_count; // Max descriptor count
@@ -1590,9 +1590,9 @@ wis::ImplVKDevice::CreateRootSignature(wis::Result& result, const wis::PushConst
             auto& r           = push_descriptors[i];
             auto& b           = push_bindings[i];
             b.binding         = i;
-            b.descriptorType  = wis::detail::convert_vk(r.type);
+            b.descriptorType  = wis::detail::VKConvert(r.type);
             b.descriptorCount = 1; // Push descriptors are always single
-            b.stageFlags      = wis::detail::convert_vk(r.stage);
+            b.stageFlags      = wis::detail::VKConvert(r.stage);
         }
         VkDescriptorSetLayoutCreateInfo push_desc_info{
             .sType        = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO,
@@ -1630,7 +1630,7 @@ wis::ImplVKDevice::CreateRootSignature(wis::Result& result, const wis::PushConst
 
     auto desc_layouts = internal.vk_dsls.get() + 1;
     for (uint32_t i = 0; i < descriptor_bindings_count; i++) {
-        binding_layout.descriptorType  = wis::detail::convert_vk(descriptor_bindings[i].binding_type);
+        binding_layout.descriptorType  = wis::detail::VKConvert(descriptor_bindings[i].binding_type);
         binding_layout.descriptorCount = descriptor_bindings[i].binding_type == wis::DescriptorType::Sampler
                 ? wis::max_descriptor_storage_sampler_count
                 : wis::max_descriptor_storage_resource_count;
@@ -1650,7 +1650,7 @@ wis::ImplVKDevice::CreateRootSignature(wis::Result& result, const wis::PushConst
     for (uint32_t i = 0; i < constants_count; i++) {
         auto& c      = xpush_constants[i];
         auto& r      = push_constants[i];
-        c.stageFlags = wis::detail::convert_vk(r.stage);
+        c.stageFlags = wis::detail::VKConvert(r.stage);
         c.offset     = 0;
         c.size       = r.size_bytes;
     }

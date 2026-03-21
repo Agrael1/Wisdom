@@ -53,10 +53,10 @@ inline D3D12_RESOURCE_DESC1 DX12FillTextureDesc(const WisTextureDesc& desc) noex
         .Height           = desc.height,
         .DepthOrArraySize = desc.depth_or_array_size,
         .MipLevels        = desc.mip_levels,
-        .Format           = wis::detail::convert_dx(desc.format),
+        .Format           = wis::detail::DX12Convert(desc.format),
         .SampleDesc       = { 1, 0 },
         .Layout           = D3D12_TEXTURE_LAYOUT_UNKNOWN,
-        .Flags            = wis::detail::convert_dx(desc.usage_flags),
+        .Flags            = wis::detail::DX12Convert(desc.usage_flags),
     };
     switch (desc.layout) {
     case WisTextureLayoutTexture1D:
@@ -82,13 +82,13 @@ inline D3D12_RESOURCE_DESC1 DX12FillTextureDesc(const WisTextureDesc& desc) noex
     case WisTextureLayoutTexture2DMS:
         out.Dimension          = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
         out.DepthOrArraySize   = 1;
-        out.SampleDesc.Count   = wis::detail::convert_dx(desc.sample_count);
+        out.SampleDesc.Count   = wis::detail::DX12Convert(desc.sample_count);
         out.SampleDesc.Quality = 4;
         out.MipLevels          = 1;
         return out;
     case WisTextureLayoutTexture2DMSArray:
         out.Dimension          = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-        out.SampleDesc.Count   = wis::detail::convert_dx(desc.sample_count);
+        out.SampleDesc.Count   = wis::detail::DX12Convert(desc.sample_count);
         out.SampleDesc.Quality = 4;
         out.MipLevels          = 1;
         return out;
@@ -133,13 +133,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12ResourceAllocatorCreateBuffer(const Wis
         .Format                   = DXGI_FORMAT_UNKNOWN,
         .SampleDesc               = { 1, 0 },
         .Layout                   = D3D12_TEXTURE_LAYOUT_ROW_MAJOR,
-        .Flags                    = wis::detail::convert_dx(desc->usage_flags),
+        .Flags                    = wis::detail::DX12Convert(desc->usage_flags),
         .SamplerFeedbackMipRegion = { 0, 0, 0 },
     };
 
     D3D12MA::ALLOCATION_DESC all_desc{
-        .Flags    = wis::detail::convert_dx(desc->memory_flags),
-        .HeapType = wis::detail::convert_dx(desc->memory_type),
+        .Flags    = wis::detail::DX12Convert(desc->memory_flags),
+        .HeapType = wis::detail::DX12Convert(desc->memory_type),
     };
     return wis::detail::DX12CreateResource(all_desc, buffer_desc, D3D12_BARRIER_LAYOUT_UNDEFINED, allocator, buffer);
 }
@@ -153,10 +153,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12ResourceAllocatorCreateTexture(const Wi
     auto& [allocator]                 = wis::from_handle_ref<const wis::impl::DX12ResourceAllocatorImpl>(self);
     D3D12_RESOURCE_DESC1     tex_desc = wis::detail::DX12FillTextureDesc(*desc);
     D3D12MA::ALLOCATION_DESC all_desc{
-        .Flags    = wis::detail::convert_dx(desc->memory_flags),
-        .HeapType = wis::detail::convert_dx(desc->memory_type),
+        .Flags    = wis::detail::DX12Convert(desc->memory_flags),
+        .HeapType = wis::detail::DX12Convert(desc->memory_type),
     };
-    D3D12_BARRIER_LAYOUT initial_layout = wis::detail::convert_dx(initial_state);
+    D3D12_BARRIER_LAYOUT initial_layout = wis::detail::DX12Convert(initial_state);
     return wis::detail::DX12CreateResource(all_desc, tex_desc, initial_layout, allocator, buffer);
 }
 

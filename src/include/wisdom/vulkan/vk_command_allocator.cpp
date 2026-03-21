@@ -10,7 +10,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyCommandAllocator(WisVKCommandAllocator*
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKCommandAllocatorImpl>(self);
     if (impl.command_pool != VK_NULL_HANDLE) {
-        wis::detail::release_vk_command_pool(impl.command_pool_header);
+        wis::detail::VKReleaseCommandPool(impl.command_pool_header);
         impl.command_pool = VK_NULL_HANDLE;
     }
 }

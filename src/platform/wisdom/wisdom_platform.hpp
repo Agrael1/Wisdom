@@ -17,6 +17,7 @@
 #include "../wisdom_platform/generated/backend_api.hpp"
 
 #if defined(WISDOM_DX12) && !FORCEVK_SWITCH
+
 namespace wis {
 
 //==============================================================
@@ -29,6 +30,7 @@ using UWPExtension   = wis::DX12UWPExtension;
 } // namespace wis
 
 #elif defined(WISDOM_VULKAN)
+
 namespace wis {
 
 //==============================================================

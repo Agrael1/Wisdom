@@ -38,7 +38,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CommandAllocatorCreateCommandList(const
     wis::com_ptr<ID3D12GraphicsCommandList9> command_list;
 
     auto hr = device->CreateCommandList1(0,
-                                         wis::detail::convert_dx(type),
+                                         wis::detail::DX12Convert(type),
                                          D3D12_COMMAND_LIST_FLAG_NONE,
                                          IID_ID3D12GraphicsCommandList9,
                                          command_list.put_void_unchecked());

@@ -17,7 +17,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyPipelineCache(WisVKPipelineCache* self)
 
         table.vkDestroyPipelineCache(device, impl.cache, nullptr);
 
-        wis::detail::release_vk_device(impl.device_header);
+        wis::detail::VKReleaseDevice(impl.device_header);
         impl.cache = VK_NULL_HANDLE;
     }
 }

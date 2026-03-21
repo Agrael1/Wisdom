@@ -1,17 +1,17 @@
 // This file is generated. Do not edit directly.
-#ifndef WISDOM_CPP_VK_CONVERT_HPP
-#define WISDOM_CPP_VK_CONVERT_HPP
+#ifndef WISDOM_CORE_CPP_VK_CONVERT_HPP
+#define WISDOM_CORE_CPP_VK_CONVERT_HPP
 #ifndef __cplusplus
 #error "This is a C++ only header"
 #endif // __cplusplus
 
-#include <wisdom/generated/c_api.h>
+#include "c_api.h"
 #include <vulkan/vulkan.h>
 
 namespace wis {
 namespace detail {
 
-constexpr inline VkFormat convert_vk(WisDataFormat value) noexcept
+constexpr inline VkFormat VKConvert(WisDataFormat value) noexcept
 {
     switch (value) {
     case WisDataFormatRGBA32Float:
@@ -153,7 +153,7 @@ constexpr inline VkFormat convert_vk(WisDataFormat value) noexcept
     }
 }
 
-constexpr inline VkSampleCountFlagBits convert_vk(WisSampleCount value) noexcept
+constexpr inline VkSampleCountFlagBits VKConvert(WisSampleCount value) noexcept
 {
     switch (value) {
     case WisSampleCountS1:
@@ -171,7 +171,7 @@ constexpr inline VkSampleCountFlagBits convert_vk(WisSampleCount value) noexcept
     }
 }
 
-constexpr inline VkQueueGlobalPriorityEXT convert_vk(WisCommandQueuePriority value) noexcept
+constexpr inline VkQueueGlobalPriorityEXT VKConvert(WisCommandQueuePriority value) noexcept
 {
     switch (value) {
     case WisCommandQueuePriorityNormal:
@@ -185,7 +185,7 @@ constexpr inline VkQueueGlobalPriorityEXT convert_vk(WisCommandQueuePriority val
     }
 }
 
-constexpr inline VkPipelineBindPoint convert_vk(WisPipelineType value) noexcept
+constexpr inline VkPipelineBindPoint VKConvert(WisPipelineType value) noexcept
 {
     switch (value) {
     case WisPipelineTypeGraphics:
@@ -199,7 +199,7 @@ constexpr inline VkPipelineBindPoint convert_vk(WisPipelineType value) noexcept
     }
 }
 
-constexpr inline VkShaderStageFlags convert_vk(WisShaderVisibility value) noexcept
+constexpr inline VkShaderStageFlags VKConvert(WisShaderVisibility value) noexcept
 {
     switch (value) {
     case WisShaderVisibilityAll:
@@ -223,7 +223,7 @@ constexpr inline VkShaderStageFlags convert_vk(WisShaderVisibility value) noexce
     }
 }
 
-constexpr inline VkDescriptorType convert_vk(WisDescriptorType value) noexcept
+constexpr inline VkDescriptorType VKConvert(WisDescriptorType value) noexcept
 {
     switch (value) {
     case WisDescriptorTypeSampler:
@@ -245,7 +245,7 @@ constexpr inline VkDescriptorType convert_vk(WisDescriptorType value) noexcept
     }
 }
 
-constexpr inline VkCompareOp convert_vk(WisCompareOp value) noexcept
+constexpr inline VkCompareOp VKConvert(WisCompareOp value) noexcept
 {
     switch (value) {
     case WisCompareOpNone:
@@ -271,7 +271,7 @@ constexpr inline VkCompareOp convert_vk(WisCompareOp value) noexcept
     }
 }
 
-constexpr inline VkSamplerAddressMode convert_vk(WisAddressMode value) noexcept
+constexpr inline VkSamplerAddressMode VKConvert(WisAddressMode value) noexcept
 {
     switch (value) {
     case WisAddressModeRepeat:
@@ -289,7 +289,7 @@ constexpr inline VkSamplerAddressMode convert_vk(WisAddressMode value) noexcept
     }
 }
 
-constexpr inline VkFilter convert_vk(WisFilter value) noexcept
+constexpr inline VkFilter VKConvert(WisFilter value) noexcept
 {
     switch (value) {
     case WisFilterPoint:
@@ -301,7 +301,7 @@ constexpr inline VkFilter convert_vk(WisFilter value) noexcept
     }
 }
 
-constexpr inline VkSamplerReductionModeEXT convert_vk(WisReductionMode value) noexcept
+constexpr inline VkSamplerReductionModeEXT VKConvert(WisReductionMode value) noexcept
 {
     switch (value) {
     case WisReductionModeStandard:
@@ -315,7 +315,7 @@ constexpr inline VkSamplerReductionModeEXT convert_vk(WisReductionMode value) no
     }
 }
 
-constexpr inline VkBorderColor convert_vk(WisStaticBorder value) noexcept
+constexpr inline VkBorderColor VKConvert(WisStaticBorder value) noexcept
 {
     switch (value) {
     case WisStaticBorderTransparentBlack:
@@ -329,7 +329,7 @@ constexpr inline VkBorderColor convert_vk(WisStaticBorder value) noexcept
     }
 }
 
-constexpr inline VkComponentSwizzle convert_vk(WisComponentSwizzle value) noexcept
+constexpr inline VkComponentSwizzle VKConvert(WisComponentSwizzle value) noexcept
 {
     switch (value) {
     case WisComponentSwizzleIdentity:
@@ -351,7 +351,7 @@ constexpr inline VkComponentSwizzle convert_vk(WisComponentSwizzle value) noexce
     }
 }
 
-constexpr inline VkMemoryPropertyFlags convert_vk(WisMemoryType value) noexcept
+constexpr inline VkMemoryPropertyFlags VKConvert(WisMemoryType value) noexcept
 {
     switch (value) {
     case WisMemoryTypeDeviceLocal:
@@ -367,7 +367,7 @@ constexpr inline VkMemoryPropertyFlags convert_vk(WisMemoryType value) noexcept
     }
 }
 
-constexpr inline VkImageLayout convert_vk(WisTextureState value) noexcept
+constexpr inline VkImageLayout VKConvert(WisTextureState value) noexcept
 {
     switch (value) {
     case WisTextureStateUndefined:
@@ -403,7 +403,7 @@ constexpr inline VkImageLayout convert_vk(WisTextureState value) noexcept
     }
 }
 
-constexpr inline VkStencilOp convert_vk(WisStencilOp value) noexcept
+constexpr inline VkStencilOp VKConvert(WisStencilOp value) noexcept
 {
     switch (value) {
     case WisStencilOpKeep:
@@ -427,7 +427,7 @@ constexpr inline VkStencilOp convert_vk(WisStencilOp value) noexcept
     }
 }
 
-constexpr inline VkPrimitiveTopology convert_vk(WisTopologyType value) noexcept
+constexpr inline VkPrimitiveTopology VKConvert(WisTopologyType value) noexcept
 {
     switch (value) {
     case WisTopologyTypePoint:
@@ -443,7 +443,7 @@ constexpr inline VkPrimitiveTopology convert_vk(WisTopologyType value) noexcept
     }
 }
 
-constexpr inline VkPolygonMode convert_vk(WisFillMode value) noexcept
+constexpr inline VkPolygonMode VKConvert(WisFillMode value) noexcept
 {
     switch (value) {
     case WisFillModeLines:
@@ -455,7 +455,7 @@ constexpr inline VkPolygonMode convert_vk(WisFillMode value) noexcept
     }
 }
 
-constexpr inline VkCullModeFlags convert_vk(WisCullMode value) noexcept
+constexpr inline VkCullModeFlags VKConvert(WisCullMode value) noexcept
 {
     switch (value) {
     case WisCullModeNone:
@@ -469,7 +469,7 @@ constexpr inline VkCullModeFlags convert_vk(WisCullMode value) noexcept
     }
 }
 
-constexpr inline VkFrontFace convert_vk(WisWindingOrder value) noexcept
+constexpr inline VkFrontFace VKConvert(WisWindingOrder value) noexcept
 {
     switch (value) {
     case WisWindingOrderClockwise:
@@ -481,17 +481,17 @@ constexpr inline VkFrontFace convert_vk(WisWindingOrder value) noexcept
     }
 }
 
-constexpr inline VkConservativeRasterizationModeEXT convert_vk(WisConservativeRasterization value) noexcept
+constexpr inline VkConservativeRasterizationModeEXT VKConvert(WisConservativeRasterization value) noexcept
 {
     return static_cast<VkConservativeRasterizationModeEXT>(value);
 }
 
-constexpr inline VkLineRasterizationModeEXT convert_vk(WisLineRasterization value) noexcept
+constexpr inline VkLineRasterizationModeEXT VKConvert(WisLineRasterization value) noexcept
 {
     return static_cast<VkLineRasterizationModeEXT>(value);
 }
 
-constexpr inline VkBlendFactor convert_vk(WisBlendFactor value) noexcept
+constexpr inline VkBlendFactor VKConvert(WisBlendFactor value) noexcept
 {
     switch (value) {
     case WisBlendFactorZero:
@@ -533,7 +533,7 @@ constexpr inline VkBlendFactor convert_vk(WisBlendFactor value) noexcept
     }
 }
 
-constexpr inline VkBlendOp convert_vk(WisBlendOp value) noexcept
+constexpr inline VkBlendOp VKConvert(WisBlendOp value) noexcept
 {
     switch (value) {
     case WisBlendOpAdd:
@@ -551,7 +551,7 @@ constexpr inline VkBlendOp convert_vk(WisBlendOp value) noexcept
     }
 }
 
-constexpr inline VkLogicOp convert_vk(WisLogicOp value) noexcept
+constexpr inline VkLogicOp VKConvert(WisLogicOp value) noexcept
 {
     switch (value) {
     case WisLogicOpClear:
@@ -591,7 +591,7 @@ constexpr inline VkLogicOp convert_vk(WisLogicOp value) noexcept
     }
 }
 
-constexpr inline VkPrimitiveTopology convert_vk(WisPrimitiveTopology value) noexcept
+constexpr inline VkPrimitiveTopology VKConvert(WisPrimitiveTopology value) noexcept
 {
     switch (value) {
     case WisPrimitiveTopologyPointList:
@@ -619,7 +619,7 @@ constexpr inline VkPrimitiveTopology convert_vk(WisPrimitiveTopology value) noex
     }
 }
 
-constexpr inline VkBufferUsageFlags convert_vk(WisBufferUsageFlags value) noexcept
+constexpr inline VkBufferUsageFlags VKConvert(WisBufferUsageFlags value) noexcept
 {
     VkBufferUsageFlags result = static_cast<VkBufferUsageFlags>(0);
     if (value & WisBufferUsageFlagsCopySrc) {
@@ -655,7 +655,7 @@ constexpr inline VkBufferUsageFlags convert_vk(WisBufferUsageFlags value) noexce
     return result;
 }
 
-constexpr inline VkImageUsageFlags convert_vk(WisTextureUsageFlags value) noexcept
+constexpr inline VkImageUsageFlags VKConvert(WisTextureUsageFlags value) noexcept
 {
     VkImageUsageFlags result = static_cast<VkImageUsageFlags>(0);
     if (value & WisTextureUsageFlagsRenderTarget) {
@@ -682,7 +682,7 @@ constexpr inline VkImageUsageFlags convert_vk(WisTextureUsageFlags value) noexce
     return result;
 }
 
-constexpr inline VmaAllocationCreateFlags convert_vk(WisMemoryFlags value) noexcept
+constexpr inline VmaAllocationCreateFlags VKConvert(WisMemoryFlags value) noexcept
 {
     VmaAllocationCreateFlags result = static_cast<VmaAllocationCreateFlags>(0);
     if (value & WisMemoryFlagsDedicatedAllocation) {
@@ -694,7 +694,7 @@ constexpr inline VmaAllocationCreateFlags convert_vk(WisMemoryFlags value) noexc
     return result;
 }
 
-constexpr inline VkPipelineStageFlags2 convert_vk(WisBarrierSync value) noexcept
+constexpr inline VkPipelineStageFlags2 VKConvert(WisBarrierSync value) noexcept
 {
     VkPipelineStageFlags2 result = static_cast<VkPipelineStageFlags2>(0);
     if (value & WisBarrierSyncAll) {
@@ -757,7 +757,7 @@ constexpr inline VkPipelineStageFlags2 convert_vk(WisBarrierSync value) noexcept
     return result;
 }
 
-constexpr inline VkAccessFlags2 convert_vk(WisResourceAccess value) noexcept
+constexpr inline VkAccessFlags2 VKConvert(WisResourceAccess value) noexcept
 {
     VkAccessFlags2 result = static_cast<VkAccessFlags2>(0);
     if (value & WisResourceAccessVertexBuffer) {
@@ -828,4 +828,4 @@ constexpr inline VkAccessFlags2 convert_vk(WisResourceAccess value) noexcept
 
 } // namespace detail
 } // namespace wis
-#endif // WISDOM_VK_CONVERT_HPP
+#endif // WISDOM_CORE_CPP_VK_CONVERT_HPP

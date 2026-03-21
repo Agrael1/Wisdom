@@ -13,9 +13,9 @@ inline VkImageCreateInfo VKFillImageDesc(const WisTextureDesc& desc) noexcept
         .sType         = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
         .pNext         = nullptr,
         .flags         = 0,
-        .format        = wis::detail::convert_vk(desc.format),
+        .format        = wis::detail::VKConvert(desc.format),
         .samples       = VK_SAMPLE_COUNT_1_BIT,
-        .usage         = wis::detail::convert_vk(desc.usage_flags),
+        .usage         = wis::detail::VKConvert(desc.usage_flags),
         .sharingMode   = VK_SHARING_MODE_EXCLUSIVE,
         .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
     };
@@ -58,14 +58,14 @@ inline VkImageCreateInfo VKFillImageDesc(const WisTextureDesc& desc) noexcept
         info.extent      = { desc.width, desc.height, 1 };
         info.mipLevels   = 1;
         info.arrayLayers = 1;
-        info.samples     = wis::detail::convert_vk(desc.sample_count);
+        info.samples     = wis::detail::VKConvert(desc.sample_count);
         break;
     case WisTextureLayoutTexture2DMSArray:
         info.imageType   = VK_IMAGE_TYPE_2D;
         info.extent      = { desc.width, desc.height, 1 };
         info.mipLevels   = 1;
         info.arrayLayers = desc.depth_or_array_size;
-        info.samples     = wis::detail::convert_vk(desc.sample_count);
+        info.samples     = wis::detail::VKConvert(desc.sample_count);
         break;
     case WisTextureLayoutTextureCube:
         info.imageType   = VK_IMAGE_TYPE_2D;
@@ -91,7 +91,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyResourceAllocator(WisVKResourceAllocato
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKResourceAllocatorImpl>(self);
     if (impl.allocator) {
-        wis::detail::release_vk_device(impl.device_header);
+        wis::detail::VKReleaseDevice(impl.device_header);
         impl.allocator = nullptr;
     }
 }
@@ -106,10 +106,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateBuffer(const WisVK
     VkBufferCreateInfo buffer_info{
         .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
         .size  = wis::aligned_size(desc->size_bytes, 265u), // align to uniform buffer alignment for safety
-        .usage = (VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | wis::detail::convert_vk(desc->usage_flags)),
+        .usage = (VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | wis::detail::VKConvert(desc->usage_flags)),
     };
 
-    VmaAllocationCreateFlags flags = wis::detail::convert_vk(desc->memory_flags);
+    VmaAllocationCreateFlags flags = wis::detail::VKConvert(desc->memory_flags);
     if (desc->memory_flags & WisMemoryFlagsMapped) {
         switch (desc->memory_type) {
         case WisMemoryTypeUpload:
@@ -128,7 +128,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateBuffer(const WisVK
     VmaAllocationCreateInfo alloc_info{
         .flags         = flags,
         .usage         = VmaMemoryUsage::VMA_MEMORY_USAGE_AUTO,
-        .requiredFlags = wis::detail::convert_vk(desc->memory_type)
+        .requiredFlags = wis::detail::VKConvert(desc->memory_type)
     };
     VkBuffer      buffer_handle     = VK_NULL_HANDLE;
     VmaAllocation allocation_handle = VK_NULL_HANDLE;
@@ -178,11 +178,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateTexture(const WisV
 
     VkImageCreateInfo image_info = wis::detail::VKFillImageDesc(*desc);
 
-    VmaAllocationCreateFlags flags = wis::detail::convert_vk(desc->memory_flags) & ~VMA_ALLOCATION_CREATE_MAPPED_BIT;
+    VmaAllocationCreateFlags flags = wis::detail::VKConvert(desc->memory_flags) & ~VMA_ALLOCATION_CREATE_MAPPED_BIT;
     VmaAllocationCreateInfo  alloc_info{
          .flags         = flags,
          .usage         = VmaMemoryUsage::VMA_MEMORY_USAGE_AUTO,
-         .requiredFlags = wis::detail::convert_vk(desc->memory_type)
+         .requiredFlags = wis::detail::VKConvert(desc->memory_type)
     };
     VkImage       image_handle      = VK_NULL_HANDLE;
     VmaAllocation allocation_handle = VK_NULL_HANDLE;
@@ -214,7 +214,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateTexture(const WisV
             .pNext            = nullptr,
             .image            = image_handle,
             .oldLayout        = VK_IMAGE_LAYOUT_UNDEFINED,
-            .newLayout        = wis::detail::convert_vk(initial_state),
+            .newLayout        = wis::detail::VKConvert(initial_state),
             .subresourceRange = {
                                  .aspectMask     = wis::detail::VKAspectFlags(image_info.format),
                                  .baseMipLevel   = 0,

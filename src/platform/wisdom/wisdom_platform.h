@@ -18,8 +18,17 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 
 #if defined(WISDOM_DX12) && !FORCEVK_SWITCH
 
+//==============================================================
+// Handles
+//==============================================================
+
 typedef struct WisDX12Win32Extension WisWin32Extension;
 typedef struct WisDX12UWPExtension   WisUWPExtension;
+
+//==============================================================
+// Functions
+//==============================================================
+
 #define wisDestroyWin32Extension       wisDX12DestroyWin32Extension
 #define wisInitWin32Extension          wisDX12InitWin32Extension
 #define wisDestroyUWPExtension         wisDX12DestroyUWPExtension
@@ -29,10 +38,19 @@ typedef struct WisDX12UWPExtension   WisUWPExtension;
 
 #elif defined(WISDOM_VULKAN)
 
+//==============================================================
+// Handles
+//==============================================================
+
 typedef struct WisVKXlibExtension    WisXlibExtension;
 typedef struct WisVKXCBExtension     WisXCBExtension;
 typedef struct WisVKWaylandExtension WisWaylandExtension;
 typedef struct WisVKWin32Extension   WisWin32Extension;
+
+//==============================================================
+// Functions
+//==============================================================
+
 #define wisDestroyXlibExtension          wisVKDestroyXlibExtension
 #define wisInitXlibExtension             wisVKInitXlibExtension
 #define wisDestroyXCBExtension           wisVKDestroyXCBExtension
@@ -49,5 +67,15 @@ typedef struct WisVKWin32Extension   WisWin32Extension;
 #else
 #error "No API selected for Wisdom. Define WISDOM_DX12 or WISDOM_VULKAN."
 #endif // API selection
+
+#ifndef WISDOM_HANDLE_VALID_DEFINED
+#define WISDOM_HANDLE_VALID_DEFINED
+static inline bool wisHandleValid(const void* handle)
+{
+    const uint64_t zero = 0;
+    return memcmp(handle, &zero, sizeof(uint64_t)) != 0;
+}
+
+#endif // WISDOM_HANDLE_VALID_DEFINED
 
 #endif // WISDOM_PLATFORM_H

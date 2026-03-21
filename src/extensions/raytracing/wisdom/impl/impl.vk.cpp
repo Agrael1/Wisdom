@@ -67,7 +67,7 @@ wis::ASAllocationInfo wis::ImplVKRaytracing::GetTopLevelASSize(const wis::TopLev
     VkAccelerationStructureBuildGeometryInfoKHR build_info{
         .sType         = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR,
         .type          = VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR,
-        .flags         = wis::detail::convert_vk(tlas_desc.flags),
+        .flags         = wis::detail::VKConvert(tlas_desc.flags),
         .mode          = tlas_desc.update ? VK_BUILD_ACCELERATION_STRUCTURE_MODE_UPDATE_KHR : VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR,
         .geometryCount = 1u,
         .pGeometries   = &geometry,
@@ -114,7 +114,7 @@ wis::ASAllocationInfo wis::ImplVKRaytracing::GetBottomLevelASSize(const wis::VKB
     VkAccelerationStructureBuildGeometryInfoKHR build_info{
         .sType         = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR,
         .type          = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR,
-        .flags         = wis::detail::convert_vk(blas_desc.flags),
+        .flags         = wis::detail::VKConvert(blas_desc.flags),
         .mode          = blas_desc.update ? VK_BUILD_ACCELERATION_STRUCTURE_MODE_UPDATE_KHR : VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR,
         .geometryCount = blas_desc.geometry_count,
         .ppGeometries  = direct
@@ -184,7 +184,7 @@ wis::ImplVKRaytracing::CreateRaytracingPipeline(wis::Result& result, const wis::
         auto& _export  = rt_pipeline_desc.exports[i]; // export is a keyword
         stages_span[i] = {
             .sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-            .stage  = wis::detail::convert_vk(_export.shader_type),
+            .stage  = wis::detail::VKConvert(_export.shader_type),
             .module = std::get<0>(rt_pipeline_desc.shaders[_export.shader_array_index]),
             .pName  = _export.entry_point,
         };
@@ -230,7 +230,7 @@ wis::ImplVKRaytracing::CreateRaytracingPipeline(wis::Result& result, const wis::
         auto& hg          = rt_pipeline_desc.hit_groups[i];
         hit_group_span[i] = {
             .sType              = VK_STRUCTURE_TYPE_RAY_TRACING_SHADER_GROUP_CREATE_INFO_KHR,
-            .type               = wis::detail::convert_vk(hg.type),
+            .type               = wis::detail::VKConvert(hg.type),
             .generalShader      = VK_SHADER_UNUSED_KHR,
             .closestHitShader   = hg.closest_hit_export_index == UINT32_MAX ? VK_SHADER_UNUSED_KHR : hg.closest_hit_export_index,
             .anyHitShader       = hg.any_hit_export_index == UINT32_MAX ? VK_SHADER_UNUSED_KHR : hg.any_hit_export_index,
@@ -306,7 +306,7 @@ void wis::ImplVKRaytracing::BuildBottomLevelAS(wis::VKCommandListView cmd_buffer
     VkAccelerationStructureBuildGeometryInfoKHR build_info{
         .sType                    = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR,
         .type                     = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR,
-        .flags                    = wis::detail::convert_vk(blas_desc.flags),
+        .flags                    = wis::detail::VKConvert(blas_desc.flags),
         .mode                     = blas_desc.update ? VK_BUILD_ACCELERATION_STRUCTURE_MODE_UPDATE_KHR : VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR,
         .srcAccelerationStructure = std::get<0>(src_acceleration_structure),
         .dstAccelerationStructure = std::get<0>(dst_acceleration_structure),
@@ -333,7 +333,7 @@ void wis::ImplVKRaytracing::BuildTopLevelAS(wis::VKCommandListView cmd_buffer, c
     VkAccelerationStructureBuildGeometryInfoKHR build_info{
         .sType                    = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR,
         .type                     = VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR,
-        .flags                    = wis::detail::convert_vk(tlas_desc.flags),
+        .flags                    = wis::detail::VKConvert(tlas_desc.flags),
         .mode                     = tlas_desc.update ? VK_BUILD_ACCELERATION_STRUCTURE_MODE_UPDATE_KHR : VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR,
         .srcAccelerationStructure = std::get<0>(src_acceleration_structure),
         .dstAccelerationStructure = std::get<0>(dst_acceleration_structure),
@@ -365,7 +365,7 @@ void wis::ImplVKRaytracing::CopyAccelerationStructure(wis::VKCommandListView    
         .sType = VK_STRUCTURE_TYPE_COPY_ACCELERATION_STRUCTURE_INFO_KHR,
         .src   = std::get<0>(src),
         .dst   = std::get<0>(dst),
-        .mode  = wis::detail::convert_vk(mode),
+        .mode  = wis::detail::VKConvert(mode),
     };
     table.vkCmdCopyAccelerationStructureKHR(std::get<0>(cmd_list), &copy_info);
 }

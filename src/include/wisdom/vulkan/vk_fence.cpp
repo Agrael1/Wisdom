@@ -14,7 +14,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyFence(WisVKFence* self)
         auto& table = impl.device_header->header.device_table;
         table.vkDestroySemaphore(impl.device, impl.fence, nullptr);
         impl.fence = VK_NULL_HANDLE;
-        wis::detail::release_vk_device(impl.device_header);
+        wis::detail::VKReleaseDevice(impl.device_header);
         impl.device_header = nullptr;
         impl.device        = VK_NULL_HANDLE;
     }

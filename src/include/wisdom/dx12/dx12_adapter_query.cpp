@@ -175,8 +175,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(const WisDX12A
         if (desc.priority > WisCommandQueuePriorityNormal) {
             // Check if selected queue type is supported by the device
             D3D12_FEATURE_DATA_COMMAND_QUEUE_PRIORITY queue_priority = {
-                .CommandListType = wis::detail::convert_dx(desc.type),
-                .Priority        = static_cast<UINT>(wis::detail::convert_dx(desc.priority)),
+                .CommandListType = wis::detail::DX12Convert(desc.type),
+                .Priority        = static_cast<UINT>(wis::detail::DX12Convert(desc.priority)),
             };
             device_impl.device->CheckFeatureSupport(D3D12_FEATURE_COMMAND_QUEUE_PRIORITY, &queue_priority, sizeof(queue_priority));
             device_impl.queue_priorities[desc.type] = queue_priority.PriorityForTypeIsSupported ? desc.priority : WisCommandQueuePriorityNormal;
