@@ -3,7 +3,7 @@ if (WISDOM_DX12)
           TARGET
           platform-dx12
           HEADERS
-          "wisdom_platform/dx12/dx12_platform_types.hpp"
+          "wisdom_platform/dx12/dx12_types.hpp"
           SOURCES
           "wisdom_platform/dx12/dx12_platform_win32.cpp"
           "wisdom_platform/dx12/dx12_platform_uwp.cpp"
@@ -24,7 +24,7 @@ if (WISDOM_VULKAN)
           TARGET
           platform-vk
           HEADERS
-          "wisdom_platform/vulkan/vk_platform_types.hpp"
+          "wisdom_platform/vulkan/vk_types.hpp"
           SOURCES
           "wisdom_platform/vulkan/vk_platform_win32.cpp"
           "wisdom_platform/vulkan/vk_platform_wayland.cpp"

@@ -15,7 +15,7 @@ static constexpr WisResult vk_success{ WisStatusOk, VK_SUCCESS, "Operation succe
  * @param hr The VkResult value returned by a Vulkan function call that indicates the result of the operation.
  * @return A WisStatus value that corresponds to the given VkResult, providing a standardized status code for use within the Wisdom library.
  */
-constexpr WisStatus convert_vk(const VkResult hr) noexcept
+constexpr WisStatus VKConvert(const VkResult hr) noexcept
 {
     switch (hr) {
     case VK_SUCCESS:
@@ -52,7 +52,7 @@ template<func_pair func, wis::fixed_string message>
 WIS_CONSTEXPR23 WisResult make_result(VkResult hr, wis::source_location sl = wis::source_location::current()) noexcept
 {
     static const auto str = wis::detail::make_error_string<message, func>(sl);
-    return { wis::detail::convert_vk(hr), hr, str.c_str() };
+    return { wis::detail::VKConvert(hr), hr, str.c_str() };
 }
 
 //-----------------------------------------------------------------------------

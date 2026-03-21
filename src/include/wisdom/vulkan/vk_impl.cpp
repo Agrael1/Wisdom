@@ -20,7 +20,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyBuffer(WisVKBuffer* self)
 
         impl.buffer = VK_NULL_HANDLE;
 
-        wis::detail::release_vk_device(impl.device_header);
+        wis::detail::VKReleaseDevice(impl.device_header);
         impl.device_header = nullptr;
     }
 }
@@ -62,7 +62,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyTexture(WisVKTexture* self)
 
         impl.image = VK_NULL_HANDLE;
 
-        wis::detail::release_vk_device(impl.device_header);
+        wis::detail::VKReleaseDevice(impl.device_header);
         impl.device_header = nullptr;
     }
 }
@@ -137,7 +137,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyShader(WisVKShader* self)
         auto& table  = header.device_table;
         table.vkDestroyShaderModule(header.device, impl.shader_module, nullptr);
         impl.shader_module = VK_NULL_HANDLE;
-        wis::detail::release_vk_device(impl.device_header);
+        wis::detail::VKReleaseDevice(impl.device_header);
         impl.device_header = nullptr;
     }
 }
@@ -152,7 +152,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyPipeline(WisVKPipeline* self)
         table.vkDestroyPipeline(header.device, impl.pipeline, nullptr);
         impl.pipeline = VK_NULL_HANDLE;
 
-        wis::detail::release_vk_device(impl.device_header);
+        wis::detail::VKReleaseDevice(impl.device_header);
         impl.device_header = nullptr;
     }
 }
@@ -164,7 +164,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroySurface(WisVKSurface* self)
     if (impl.surface != VK_NULL_HANDLE) {
         impl.surface = VK_NULL_HANDLE;
 
-        wis::detail::release_vk_surface(impl.surface_header);
+        wis::detail::VKReleaseSurface(impl.surface_header);
         impl.surface_header = nullptr;
     }
 }

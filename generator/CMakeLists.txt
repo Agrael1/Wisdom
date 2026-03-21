@@ -26,16 +26,13 @@ target_sources(
           "handle.cpp"
           "variant.cpp"
           "function.cpp"
-          "validation.cpp" "bitmask.cpp" "constant.cpp" "platform.cpp")
+          "validation.cpp" "bitmask.cpp" "constant.cpp" )
 target_compile_definitions(
   ${PROJECT_NAME}
   PRIVATE CLANG_FORMAT_EXECUTABLE="${CLANG_FORMAT_EXECUTABLE}"
           WISDOM_VERSION="${WISDOM_VERSION}"
           "INPUT_FILE=\"${CMAKE_CURRENT_SOURCE_DIR}/../xml/wis.xml\""
-          "PLATFORM_FILE=\"${CMAKE_CURRENT_SOURCE_DIR}/../xml/platform.xml\""
-          "OUTPUT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../bindings\""
-          "CPP_OUTPUT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../src/include/wisdom\""
-          "PLATFORM_OUTPUT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../src/platform/wisdom_platform\""
+          "CPP_OUTPUT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../src\""
           "DOC_OUTPUT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../docs\"")
 target_include_directories(
   ${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../wisdom/include")

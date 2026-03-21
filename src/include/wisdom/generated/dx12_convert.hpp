@@ -1,11 +1,11 @@
 // This file is generated. Do not edit directly.
-#ifndef WISDOM_CPP_DX12_CONVERT_HPP
-#define WISDOM_CPP_DX12_CONVERT_HPP
+#ifndef WISDOM_CORE_CPP_DX12_CONVERT_HPP
+#define WISDOM_CORE_CPP_DX12_CONVERT_HPP
 #ifndef __cplusplus
 #error "This is a C++ only header"
 #endif // __cplusplus
 
-#include <wisdom/generated/c_api.h>
+#include "c_api.h"
 #include <dxgi1_6.h>
 #include <d3d12.h>
 #include <D3D12MemAlloc.h>
@@ -13,22 +13,22 @@
 namespace wis {
 namespace detail {
 
-constexpr inline DXGI_FORMAT convert_dx(WisDataFormat value) noexcept
+constexpr inline DXGI_FORMAT DX12Convert(WisDataFormat value) noexcept
 {
     return static_cast<DXGI_FORMAT>(value);
 }
 
-constexpr inline uint32_t convert_dx(WisSampleCount value) noexcept
+constexpr inline uint32_t DX12Convert(WisSampleCount value) noexcept
 {
     return static_cast<uint32_t>(value);
 }
 
-constexpr inline DXGI_GPU_PREFERENCE convert_dx(WisAdapterPreference value) noexcept
+constexpr inline DXGI_GPU_PREFERENCE DX12Convert(WisAdapterPreference value) noexcept
 {
     return static_cast<DXGI_GPU_PREFERENCE>(value);
 }
 
-constexpr inline D3D12_COMMAND_LIST_TYPE convert_dx(WisCommandQueueType value) noexcept
+constexpr inline D3D12_COMMAND_LIST_TYPE DX12Convert(WisCommandQueueType value) noexcept
 {
     switch (value) {
     case WisCommandQueueTypeGraphics:
@@ -46,7 +46,7 @@ constexpr inline D3D12_COMMAND_LIST_TYPE convert_dx(WisCommandQueueType value) n
     }
 }
 
-constexpr inline D3D12_COMMAND_QUEUE_PRIORITY convert_dx(WisCommandQueuePriority value) noexcept
+constexpr inline D3D12_COMMAND_QUEUE_PRIORITY DX12Convert(WisCommandQueuePriority value) noexcept
 {
     switch (value) {
     case WisCommandQueuePriorityNormal:
@@ -60,12 +60,12 @@ constexpr inline D3D12_COMMAND_QUEUE_PRIORITY convert_dx(WisCommandQueuePriority
     }
 }
 
-constexpr inline D3D12_SHADER_VISIBILITY convert_dx(WisShaderVisibility value) noexcept
+constexpr inline D3D12_SHADER_VISIBILITY DX12Convert(WisShaderVisibility value) noexcept
 {
     return static_cast<D3D12_SHADER_VISIBILITY>(value);
 }
 
-constexpr inline D3D12_DESCRIPTOR_RANGE_TYPE convert_dx(WisDescriptorType value) noexcept
+constexpr inline D3D12_DESCRIPTOR_RANGE_TYPE DX12Convert(WisDescriptorType value) noexcept
 {
     switch (value) {
     case WisDescriptorTypeSampler:
@@ -87,12 +87,12 @@ constexpr inline D3D12_DESCRIPTOR_RANGE_TYPE convert_dx(WisDescriptorType value)
     }
 }
 
-constexpr inline D3D12_COMPARISON_FUNC convert_dx(WisCompareOp value) noexcept
+constexpr inline D3D12_COMPARISON_FUNC DX12Convert(WisCompareOp value) noexcept
 {
     return static_cast<D3D12_COMPARISON_FUNC>(value);
 }
 
-constexpr inline D3D12_TEXTURE_ADDRESS_MODE convert_dx(WisAddressMode value) noexcept
+constexpr inline D3D12_TEXTURE_ADDRESS_MODE DX12Convert(WisAddressMode value) noexcept
 {
     switch (value) {
     case WisAddressModeRepeat:
@@ -110,7 +110,7 @@ constexpr inline D3D12_TEXTURE_ADDRESS_MODE convert_dx(WisAddressMode value) noe
     }
 }
 
-constexpr inline D3D12_FILTER_TYPE convert_dx(WisFilter value) noexcept
+constexpr inline D3D12_FILTER_TYPE DX12Convert(WisFilter value) noexcept
 {
     switch (value) {
     case WisFilterPoint:
@@ -122,7 +122,7 @@ constexpr inline D3D12_FILTER_TYPE convert_dx(WisFilter value) noexcept
     }
 }
 
-constexpr inline D3D12_FILTER_REDUCTION_TYPE convert_dx(WisReductionMode value) noexcept
+constexpr inline D3D12_FILTER_REDUCTION_TYPE DX12Convert(WisReductionMode value) noexcept
 {
     switch (value) {
     case WisReductionModeStandard:
@@ -136,7 +136,7 @@ constexpr inline D3D12_FILTER_REDUCTION_TYPE convert_dx(WisReductionMode value) 
     }
 }
 
-constexpr inline D3D12_STATIC_BORDER_COLOR convert_dx(WisStaticBorder value) noexcept
+constexpr inline D3D12_STATIC_BORDER_COLOR DX12Convert(WisStaticBorder value) noexcept
 {
     switch (value) {
     case WisStaticBorderTransparentBlack:
@@ -150,17 +150,17 @@ constexpr inline D3D12_STATIC_BORDER_COLOR convert_dx(WisStaticBorder value) noe
     }
 }
 
-constexpr inline D3D12_DESCRIPTOR_HEAP_TYPE convert_dx(WisDescriptorHeapType value) noexcept
+constexpr inline D3D12_DESCRIPTOR_HEAP_TYPE DX12Convert(WisDescriptorHeapType value) noexcept
 {
     return static_cast<D3D12_DESCRIPTOR_HEAP_TYPE>(value);
 }
 
-constexpr inline D3D12_DESCRIPTOR_HEAP_FLAGS convert_dx(WisDescriptorMemoryType value) noexcept
+constexpr inline D3D12_DESCRIPTOR_HEAP_FLAGS DX12Convert(WisDescriptorMemoryType value) noexcept
 {
     return static_cast<D3D12_DESCRIPTOR_HEAP_FLAGS>(value);
 }
 
-constexpr inline D3D12_SHADER_COMPONENT_MAPPING convert_dx(WisComponentSwizzle value) noexcept
+constexpr inline D3D12_SHADER_COMPONENT_MAPPING DX12Convert(WisComponentSwizzle value) noexcept
 {
     switch (value) {
     case WisComponentSwizzleRed:
@@ -180,7 +180,7 @@ constexpr inline D3D12_SHADER_COMPONENT_MAPPING convert_dx(WisComponentSwizzle v
     }
 }
 
-constexpr inline D3D12_HEAP_TYPE convert_dx(WisMemoryType value) noexcept
+constexpr inline D3D12_HEAP_TYPE DX12Convert(WisMemoryType value) noexcept
 {
     switch (value) {
     case WisMemoryTypeDeviceLocal:
@@ -196,7 +196,7 @@ constexpr inline D3D12_HEAP_TYPE convert_dx(WisMemoryType value) noexcept
     }
 }
 
-constexpr inline D3D12_BARRIER_LAYOUT convert_dx(WisTextureState value) noexcept
+constexpr inline D3D12_BARRIER_LAYOUT DX12Convert(WisTextureState value) noexcept
 {
     switch (value) {
     case WisTextureStateUndefined:
@@ -232,12 +232,12 @@ constexpr inline D3D12_BARRIER_LAYOUT convert_dx(WisTextureState value) noexcept
     }
 }
 
-constexpr inline D3D12_STENCIL_OP convert_dx(WisStencilOp value) noexcept
+constexpr inline D3D12_STENCIL_OP DX12Convert(WisStencilOp value) noexcept
 {
     return static_cast<D3D12_STENCIL_OP>(value);
 }
 
-constexpr inline D3D12_PRIMITIVE_TOPOLOGY_TYPE convert_dx(WisTopologyType value) noexcept
+constexpr inline D3D12_PRIMITIVE_TOPOLOGY_TYPE DX12Convert(WisTopologyType value) noexcept
 {
     switch (value) {
     case WisTopologyTypePoint:
@@ -253,47 +253,47 @@ constexpr inline D3D12_PRIMITIVE_TOPOLOGY_TYPE convert_dx(WisTopologyType value)
     }
 }
 
-constexpr inline D3D12_FILL_MODE convert_dx(WisFillMode value) noexcept
+constexpr inline D3D12_FILL_MODE DX12Convert(WisFillMode value) noexcept
 {
     return static_cast<D3D12_FILL_MODE>(value);
 }
 
-constexpr inline D3D12_CULL_MODE convert_dx(WisCullMode value) noexcept
+constexpr inline D3D12_CULL_MODE DX12Convert(WisCullMode value) noexcept
 {
     return static_cast<D3D12_CULL_MODE>(value);
 }
 
-constexpr inline BOOL convert_dx(WisWindingOrder value) noexcept
+constexpr inline BOOL DX12Convert(WisWindingOrder value) noexcept
 {
     return static_cast<BOOL>(value);
 }
 
-constexpr inline D3D12_CONSERVATIVE_RASTERIZATION_MODE convert_dx(WisConservativeRasterization value) noexcept
+constexpr inline D3D12_CONSERVATIVE_RASTERIZATION_MODE DX12Convert(WisConservativeRasterization value) noexcept
 {
     return static_cast<D3D12_CONSERVATIVE_RASTERIZATION_MODE>(value);
 }
 
-constexpr inline D3D12_LINE_RASTERIZATION_MODE convert_dx(WisLineRasterization value) noexcept
+constexpr inline D3D12_LINE_RASTERIZATION_MODE DX12Convert(WisLineRasterization value) noexcept
 {
     return static_cast<D3D12_LINE_RASTERIZATION_MODE>(value);
 }
 
-constexpr inline D3D12_BLEND convert_dx(WisBlendFactor value) noexcept
+constexpr inline D3D12_BLEND DX12Convert(WisBlendFactor value) noexcept
 {
     return static_cast<D3D12_BLEND>(value);
 }
 
-constexpr inline D3D12_BLEND_OP convert_dx(WisBlendOp value) noexcept
+constexpr inline D3D12_BLEND_OP DX12Convert(WisBlendOp value) noexcept
 {
     return static_cast<D3D12_BLEND_OP>(value);
 }
 
-constexpr inline D3D12_LOGIC_OP convert_dx(WisLogicOp value) noexcept
+constexpr inline D3D12_LOGIC_OP DX12Convert(WisLogicOp value) noexcept
 {
     return static_cast<D3D12_LOGIC_OP>(value);
 }
 
-constexpr inline D3D_PRIMITIVE_TOPOLOGY convert_dx(WisPrimitiveTopology value) noexcept
+constexpr inline D3D_PRIMITIVE_TOPOLOGY DX12Convert(WisPrimitiveTopology value) noexcept
 {
     switch (value) {
     case WisPrimitiveTopologyPointList:
@@ -321,7 +321,7 @@ constexpr inline D3D_PRIMITIVE_TOPOLOGY convert_dx(WisPrimitiveTopology value) n
     }
 }
 
-constexpr inline D3D12_INDEX_BUFFER_STRIP_CUT_VALUE convert_dx(WisPrimitiveRestartValue value) noexcept
+constexpr inline D3D12_INDEX_BUFFER_STRIP_CUT_VALUE DX12Convert(WisPrimitiveRestartValue value) noexcept
 {
     switch (value) {
     case WisPrimitiveRestartValueNone:
@@ -335,7 +335,7 @@ constexpr inline D3D12_INDEX_BUFFER_STRIP_CUT_VALUE convert_dx(WisPrimitiveResta
     }
 }
 
-constexpr inline D3D12_DESCRIPTOR_HEAP_TYPE convert_dx(WisViewHeapType value) noexcept
+constexpr inline D3D12_DESCRIPTOR_HEAP_TYPE DX12Convert(WisViewHeapType value) noexcept
 {
     switch (value) {
     case WisViewHeapTypeRenderTarget:
@@ -347,7 +347,7 @@ constexpr inline D3D12_DESCRIPTOR_HEAP_TYPE convert_dx(WisViewHeapType value) no
     }
 }
 
-constexpr inline D3D12_SAMPLER_FLAGS convert_dx(WisSamplerFlags value) noexcept
+constexpr inline D3D12_SAMPLER_FLAGS DX12Convert(WisSamplerFlags value) noexcept
 {
     D3D12_SAMPLER_FLAGS result = static_cast<D3D12_SAMPLER_FLAGS>(0);
     if (value & WisSamplerFlagsNonNormalizedCoordinates) {
@@ -356,7 +356,7 @@ constexpr inline D3D12_SAMPLER_FLAGS convert_dx(WisSamplerFlags value) noexcept
     return result;
 }
 
-constexpr inline D3D12_RESOURCE_FLAGS convert_dx(WisBufferUsageFlags value) noexcept
+constexpr inline D3D12_RESOURCE_FLAGS DX12Convert(WisBufferUsageFlags value) noexcept
 {
     D3D12_RESOURCE_FLAGS result = static_cast<D3D12_RESOURCE_FLAGS>(0);
     if (value & WisBufferUsageFlagsStorageBuffer) {
@@ -368,7 +368,7 @@ constexpr inline D3D12_RESOURCE_FLAGS convert_dx(WisBufferUsageFlags value) noex
     return result;
 }
 
-constexpr inline D3D12_RESOURCE_FLAGS convert_dx(WisTextureUsageFlags value) noexcept
+constexpr inline D3D12_RESOURCE_FLAGS DX12Convert(WisTextureUsageFlags value) noexcept
 {
     D3D12_RESOURCE_FLAGS result = static_cast<D3D12_RESOURCE_FLAGS>(0);
     if (value & WisTextureUsageFlagsRenderTarget) {
@@ -395,7 +395,7 @@ constexpr inline D3D12_RESOURCE_FLAGS convert_dx(WisTextureUsageFlags value) noe
     return result;
 }
 
-constexpr inline D3D12MA::ALLOCATION_FLAGS convert_dx(WisMemoryFlags value) noexcept
+constexpr inline D3D12MA::ALLOCATION_FLAGS DX12Convert(WisMemoryFlags value) noexcept
 {
     D3D12MA::ALLOCATION_FLAGS result = static_cast<D3D12MA::ALLOCATION_FLAGS>(0);
     if (value & WisMemoryFlagsDedicatedAllocation) {
@@ -407,7 +407,7 @@ constexpr inline D3D12MA::ALLOCATION_FLAGS convert_dx(WisMemoryFlags value) noex
     return result;
 }
 
-constexpr inline D3D12_BARRIER_SYNC convert_dx(WisBarrierSync value) noexcept
+constexpr inline D3D12_BARRIER_SYNC DX12Convert(WisBarrierSync value) noexcept
 {
     D3D12_BARRIER_SYNC result = static_cast<D3D12_BARRIER_SYNC>(0);
     if (value & WisBarrierSyncAll) {
@@ -470,7 +470,7 @@ constexpr inline D3D12_BARRIER_SYNC convert_dx(WisBarrierSync value) noexcept
     return result;
 }
 
-constexpr inline D3D12_BARRIER_ACCESS convert_dx(WisResourceAccess value) noexcept
+constexpr inline D3D12_BARRIER_ACCESS DX12Convert(WisResourceAccess value) noexcept
 {
     D3D12_BARRIER_ACCESS result = static_cast<D3D12_BARRIER_ACCESS>(0);
     if (value & WisResourceAccessVertexBuffer) {
@@ -541,4 +541,4 @@ constexpr inline D3D12_BARRIER_ACCESS convert_dx(WisResourceAccess value) noexce
 
 } // namespace detail
 } // namespace wis
-#endif // WISDOM_DX12_CONVERT_HPP
+#endif // WISDOM_CORE_CPP_DX12_CONVERT_HPP

@@ -28,17 +28,17 @@ inline DXGI_FORMAT DX12GetSRVFormat(const WisTextureBinding& binding) noexcept
         }
         return DXGI_FORMAT_R32_FLOAT_X8X24_TYPELESS;
     default:
-        return wis::detail::convert_dx(binding.format);
+        return wis::detail::DX12Convert(binding.format);
     }
 }
 
 inline uint32_t
 DX12GetComponentMapping(WisComponentMapping mapping) noexcept
 {
-    uint32_t r = mapping.r ? wis::detail::convert_dx(mapping.r) : D3D12_SHADER_COMPONENT_MAPPING_FROM_MEMORY_COMPONENT_0;
-    uint32_t g = mapping.g ? wis::detail::convert_dx(mapping.g) : D3D12_SHADER_COMPONENT_MAPPING_FROM_MEMORY_COMPONENT_1;
-    uint32_t b = mapping.b ? wis::detail::convert_dx(mapping.b) : D3D12_SHADER_COMPONENT_MAPPING_FROM_MEMORY_COMPONENT_2;
-    uint32_t a = mapping.a ? wis::detail::convert_dx(mapping.a) : D3D12_SHADER_COMPONENT_MAPPING_FROM_MEMORY_COMPONENT_3;
+    uint32_t r = mapping.r ? wis::detail::DX12Convert(mapping.r) : D3D12_SHADER_COMPONENT_MAPPING_FROM_MEMORY_COMPONENT_0;
+    uint32_t g = mapping.g ? wis::detail::DX12Convert(mapping.g) : D3D12_SHADER_COMPONENT_MAPPING_FROM_MEMORY_COMPONENT_1;
+    uint32_t b = mapping.b ? wis::detail::DX12Convert(mapping.b) : D3D12_SHADER_COMPONENT_MAPPING_FROM_MEMORY_COMPONENT_2;
+    uint32_t a = mapping.a ? wis::detail::DX12Convert(mapping.a) : D3D12_SHADER_COMPONENT_MAPPING_FROM_MEMORY_COMPONENT_3;
     return D3D12_ENCODE_SHADER_4_COMPONENT_MAPPING(r, g, b, a);
 }
 
@@ -296,13 +296,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DescriptorHeapWriteSampler(const WisDX1
 {
     auto& heap = wis::from_handle_ref<const wis::impl::DX12DescriptorHeapImpl>(self);
 
-    auto min_filter     = !sampler->is_anisotropic ? wis::detail::convert_dx(sampler->min_filter) : D3D12_FILTER_TYPE_LINEAR;
-    auto mag_filter     = !sampler->is_anisotropic ? wis::detail::convert_dx(sampler->mag_filter) : D3D12_FILTER_TYPE_LINEAR;
+    auto min_filter     = !sampler->is_anisotropic ? wis::detail::DX12Convert(sampler->min_filter) : D3D12_FILTER_TYPE_LINEAR;
+    auto mag_filter     = !sampler->is_anisotropic ? wis::detail::DX12Convert(sampler->mag_filter) : D3D12_FILTER_TYPE_LINEAR;
     auto reduction_mode = sampler->comparison_op != WisCompareOpNone
             ? D3D12_FILTER_REDUCTION_TYPE::D3D12_FILTER_REDUCTION_TYPE_COMPARISON
-            : wis::detail::convert_dx(sampler->reduction_mode);
+            : wis::detail::DX12Convert(sampler->reduction_mode);
 
-    auto basic_filter = D3D12_ENCODE_BASIC_FILTER(min_filter, mag_filter, wis::detail::convert_dx(sampler->mip_filter), reduction_mode);
+    auto basic_filter = D3D12_ENCODE_BASIC_FILTER(min_filter, mag_filter, wis::detail::DX12Convert(sampler->mip_filter), reduction_mode);
     auto filter       = D3D12_FILTER(sampler->is_anisotropic * D3D12_ANISOTROPIC_FILTERING_BIT | basic_filter);
 
     constexpr static std::array<float, 4> border_colors[] = {
@@ -314,12 +314,12 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DescriptorHeapWriteSampler(const WisDX1
 
     D3D12_SAMPLER_DESC sampler_desc{
         .Filter         = filter,
-        .AddressU       = wis::detail::convert_dx(sampler->address_u),
-        .AddressV       = wis::detail::convert_dx(sampler->address_v),
-        .AddressW       = wis::detail::convert_dx(sampler->address_w),
+        .AddressU       = wis::detail::DX12Convert(sampler->address_u),
+        .AddressV       = wis::detail::DX12Convert(sampler->address_v),
+        .AddressW       = wis::detail::DX12Convert(sampler->address_w),
         .MipLODBias     = sampler->mip_lod_bias,
         .MaxAnisotropy  = std::clamp(sampler->max_anisotropy, 1u, uint32_t(D3D12_MAX_MAXANISOTROPY)),
-        .ComparisonFunc = wis::detail::convert_dx(sampler->comparison_op),
+        .ComparisonFunc = wis::detail::DX12Convert(sampler->comparison_op),
         .BorderColor    = { border_color[0], border_color[1], border_color[2], border_color[3] },
         .MinLOD         = sampler->min_lod,
         .MaxLOD         = sampler->max_lod,
@@ -393,7 +393,7 @@ WIS_EXTERN_C WISDOM_API uint64_t wisDX12ViewHeapWriteRenderTarget(const WisDX12V
 {
     auto&                         heap = wis::from_handle_ref<const wis::impl::DX12ViewHeapImpl>(self);
     D3D12_RENDER_TARGET_VIEW_DESC rtv_desc{
-        .Format = wis::detail::convert_dx(render_target->format),
+        .Format = wis::detail::DX12Convert(render_target->format),
     };
     switch (render_target->layout) {
     case WisTextureLayoutTexture1D:
@@ -463,7 +463,7 @@ WIS_EXTERN_C WISDOM_API uint64_t wisDX12ViewHeapWriteDepthStencil(const WisDX12V
 {
     auto&                         heap = wis::from_handle_ref<const wis::impl::DX12ViewHeapImpl>(self);
     D3D12_DEPTH_STENCIL_VIEW_DESC dsv_desc{
-        .Format = wis::detail::convert_dx(render_target->format),
+        .Format = wis::detail::DX12Convert(render_target->format),
     };
     switch (render_target->layout) {
     case WisTextureLayoutTexture1D:

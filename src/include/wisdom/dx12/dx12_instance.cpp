@@ -95,7 +95,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12InstanceQueryAdapters(const WisDX12Inst
     // Dynamic reallocation loop
     while (true) {
         auto hr = factory_ref->EnumAdapterByGpuPreference(static_cast<uint32_t>(count),
-                                                          wis::detail::convert_dx(preference),
+                                                          wis::detail::DX12Convert(preference),
                                                           IID_IDXGIAdapter4,
                                                           reinterpret_cast<void**>(adapters.get() + count));
 

@@ -45,7 +45,7 @@ WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKDestroyWin32Extension(WisVKWin32Exten
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKWin32ExtensionImpl>(self);
     if (impl.instance_control_block) {
-        wis::detail::release_vk_instance(impl.instance_control_block);
+        wis::detail::VKReleaseInstance(impl.instance_control_block);
     }
 }
 

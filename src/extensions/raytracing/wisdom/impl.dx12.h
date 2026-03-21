@@ -53,7 +53,7 @@ public:
     {
         D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS inputs{
             .Type          = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL,
-            .Flags         = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS(convert_dx(tlas_desc.flags) | (tlas_desc.update ? D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE : 0)),
+            .Flags         = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS(DX12Convert(tlas_desc.flags) | (tlas_desc.update ? D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE : 0)),
             .NumDescs      = tlas_desc.instance_count,
             .DescsLayout   = tlas_desc.indirect ? D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS : D3D12_ELEMENTS_LAYOUT_ARRAY,
             .InstanceDescs = tlas_desc.gpu_address
@@ -70,7 +70,7 @@ public:
     {
         D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS inputs{
             .Type        = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL,
-            .Flags       = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS(convert_dx(tlas_desc.flags) | (tlas_desc.update ? D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE : 0)),
+            .Flags       = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS(DX12Convert(tlas_desc.flags) | (tlas_desc.update ? D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE : 0)),
             .NumDescs    = tlas_desc.geometry_count,
             .DescsLayout = tlas_desc.geometry_array ? D3D12_ELEMENTS_LAYOUT_ARRAY : D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS,
         };
@@ -118,7 +118,7 @@ public:
             .DestAccelerationStructureData = std::get<0>(dst_acceleration_structure),
             .Inputs                        = {
                                               .Type        = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL,
-                                              .Flags       = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS(convert_dx(blas_desc.flags) | (blas_desc.update ? D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE : 0)),
+                                              .Flags       = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS(DX12Convert(blas_desc.flags) | (blas_desc.update ? D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE : 0)),
                                               .NumDescs    = blas_desc.geometry_count,
                                               .DescsLayout = blas_desc.geometry_array ? D3D12_ELEMENTS_LAYOUT_ARRAY : D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS,
                                               },
@@ -138,7 +138,7 @@ public:
         auto* cmd_list_i = static_cast<ID3D12GraphicsCommandList4*>(std::get<0>(cmd_list));
         cmd_list_i->CopyRaytracingAccelerationStructure(std::get<0>(dst),
                                                         std::get<0>(src),
-                                                        wis::detail::convert_dx(mode));
+                                                        wis::detail::DX12Convert(mode));
     }
 
     void BuildTopLevelAS(wis::DX12CommandListView           cmd_list,
@@ -153,7 +153,7 @@ public:
             .DestAccelerationStructureData = std::get<0>(dst_acceleration_structure),
             .Inputs                        = {
                                               .Type          = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL,
-                                              .Flags         = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS(convert_dx(tlas_desc.flags) | (tlas_desc.update ? D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE : 0)),
+                                              .Flags         = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS(DX12Convert(tlas_desc.flags) | (tlas_desc.update ? D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE : 0)),
                                               .NumDescs      = tlas_desc.instance_count,
                                               .DescsLayout   = tlas_desc.indirect ? D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS : D3D12_ELEMENTS_LAYOUT_ARRAY,
                                               .InstanceDescs = tlas_desc.gpu_address },
@@ -202,15 +202,15 @@ public:
 DX12CreateGeometryDesc(const wis::AcceleratedGeometryInput& desc) noexcept
 {
     D3D12_RAYTRACING_GEOMETRY_DESC geometry{
-        .Type  = wis::detail::convert_dx(desc.geometry_type),
-        .Flags = wis::detail::convert_dx(desc.flags),
+        .Type  = wis::detail::DX12Convert(desc.geometry_type),
+        .Flags = wis::detail::DX12Convert(desc.flags),
     };
     switch (desc.geometry_type) {
     case wis::ASGeometryType::Triangles:
         geometry.Triangles = {
             .Transform3x4 = desc.transform_matrix_address,
-            .IndexFormat  = wis::detail::convert_dx(desc.index_format),
-            .VertexFormat = wis::detail::convert_dx(desc.vertex_format),
+            .IndexFormat  = wis::detail::DX12Convert(desc.index_format),
+            .VertexFormat = wis::detail::DX12Convert(desc.vertex_format),
             .IndexCount   = desc.triangle_or_aabb_count * 3,
             .VertexCount  = desc.vertex_count,
             .IndexBuffer  = desc.index_buffer_address,

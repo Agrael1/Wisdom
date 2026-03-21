@@ -15,24 +15,15 @@
 class Generator
 {
     static constexpr std::string_view main_output_dir     = CPP_OUTPUT_DIR;
-    static constexpr std::string_view platform_output_dir = PLATFORM_OUTPUT_DIR;
     static constexpr std::string_view doc_output_dir      = DOC_OUTPUT_DIR;
     static constexpr std::string_view empty_doc           = " * ";
-
-    static constexpr inline std::array<std::string_view, 5> impls{
-        "",
-        "DX12",
-        "VK"
-    };
 
 public:
     Generator() = default;
 
 public:
     void ParseFile(std::filesystem::path file);
-    void ParsePlatformFile(std::filesystem::path file);
-    void WriteMainAPI();
-    void WritePlatformAPI();
+    void WriteModuleAPI();
     void WriteModuleAPIDoc(std::string_view module_name = {});
     auto GetFiles() const
     {
@@ -63,7 +54,6 @@ public:
     std::string MakeCFunctionDecl(const WisFunction& func, Backend backend = Backend::Any, std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full);
     std::string MakeCDelegate(const WisFunction& func, DocKind kind = DocKind::Full);
     std::string MakeCConstant(const WisConstant& c, DocKind kind = DocKind::Full);
-    std::string MakeCPlatform(const WisModule& p, DocKind kind = DocKind::Full);
     std::string MakeConstantDescription(const WisConstant& c);
 
     std::string MakeEnumDescription(const WisEnum& s);
@@ -90,10 +80,7 @@ public:
     std::string MakeCPPFunctionImpl(const WisFunction& func, Backend backend = Backend::Any, std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full, ProtoType type = ProtoType::Prefixed);
     std::string MakeCPPDelegate(const WisFunction& func, DocKind kind = DocKind::Full);
     std::string MakeCPPConstant(const WisConstant& c, DocKind kind = DocKind::Full);
-    std::string MakeCPPPlatform(const WisModule& p, DocKind kind = DocKind::Full);
-    std::string MakeCIndependentPlatform(const WisModule& p, Backend backend = Backend::Any, DocKind kind = DocKind::Full);
-    std::string MakeCPPIndependentPlatform(const WisModule& p, Backend backend = Backend::Any, DocKind kind = DocKind::Full);
-
+    
     // Write
     void WriteCAPI(std::filesystem::path path);
     void WriteCPPAPI(std::filesystem::path path);
@@ -101,10 +88,10 @@ public:
     void WriteCIndependentAPI(std::filesystem::path path);
     void WriteCPPBackendAPI(std::filesystem::path path);
     void WriteCPPIndependentAPI(std::filesystem::path path);
-    void WriteCPlatformAPI(std::filesystem::path path);
-    void WriteCPPPlatformAPI(std::filesystem::path path);
+
     void WriteCIndependentPlatformAPI(std::filesystem::path path);
     void WriteCPPIndependentPlatformAPI(std::filesystem::path path);
+
     void WriteConversions(std::filesystem::path path);
     void WriteEnumDocumentation(std::filesystem::path enum_output_path);
     void WriteBitmaskDocumentation(std::filesystem::path bitmask_output_path);

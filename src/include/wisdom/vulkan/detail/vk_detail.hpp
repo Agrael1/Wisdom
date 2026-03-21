@@ -365,7 +365,7 @@ inline constexpr VkImageAspectFlags VKAspectFlags(VkFormat format) noexcept
  * @param header The control block header associated with the instance, which holds the reference count and
  * the debug messenger handle
  */
-inline void release_vk_instance(VKInstanceControlBlock* header) noexcept
+inline void VKReleaseInstance(VKInstanceControlBlock* header) noexcept
 {
     if (header && header->Release() == 1) {
         auto& head = header->header;
@@ -391,7 +391,7 @@ inline void release_vk_instance(VKInstanceControlBlock* header) noexcept
  * @param device The Vulkan device to release
  * @param header The control block header associated with the device, which holds the reference count and a pointer to the instance control block header
  */
-inline void release_vk_device(VKDeviceControlBlock* header) noexcept
+inline void VKReleaseDevice(VKDeviceControlBlock* header) noexcept
 {
     if (header && header->Release() == 1) {
         // Last reference, destroy device
@@ -403,7 +403,7 @@ inline void release_vk_device(VKDeviceControlBlock* header) noexcept
         header->header.device_table.vkDestroyDevice(header->header.device, nullptr);
 
         // Destroy instance
-        release_vk_instance(header->header.shared_header);
+        VKReleaseInstance(header->header.shared_header);
 
         delete header;
     }
@@ -415,7 +415,7 @@ inline void release_vk_device(VKDeviceControlBlock* header) noexcept
  * @param command_pool The Vulkan command pool to release
  * @param header The control block header associated with the command pool, which holds the reference count and a pointer to the device control block header
  */
-inline void release_vk_command_pool(VKCommandPoolControlBlock* header) noexcept
+inline void VKReleaseCommandPool(VKCommandPoolControlBlock* header) noexcept
 {
     if (header && header->Release() == 1) {
         // Last reference, destroy command pool
@@ -425,7 +425,7 @@ inline void release_vk_command_pool(VKCommandPoolControlBlock* header) noexcept
         auto& table = header->header.device_header->header.device_table;
         table.vkDestroyCommandPool(header->header.device, header->header.command_pool, nullptr);
 
-        release_vk_device(header->header.device_header);
+        VKReleaseDevice(header->header.device_header);
         delete header;
     }
 }
@@ -435,7 +435,7 @@ inline void release_vk_command_pool(VKCommandPoolControlBlock* header) noexcept
  * @param command_pool The Vulkan command pool to release
  * @param header The control block header associated with the command pool, which holds the reference count and a pointer to the device control block header
  */
-inline void release_vk_surface(VKSurfaceControlBlock* header) noexcept
+inline void VKReleaseSurface(VKSurfaceControlBlock* header) noexcept
 {
     if (header && header->Release() == 1) {
         // Last reference, destroy command pool
@@ -445,7 +445,7 @@ inline void release_vk_surface(VKSurfaceControlBlock* header) noexcept
         auto& table = header->header.instance_header->header.instance_table;
         table.vkDestroySurfaceKHR(header->header.instance_header->header.instance, header->header.surface, nullptr);
 
-        release_vk_instance(header->header.instance_header);
+        VKReleaseInstance(header->header.instance_header);
         delete header;
     }
 }

@@ -224,7 +224,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyInstance(WisVKInstance* self)
         return;
     }
 
-    wis::detail::release_vk_instance(impl.shared_header);
+    wis::detail::VKReleaseInstance(impl.shared_header);
     impl.shared_header = nullptr;
     impl.instance      = VK_NULL_HANDLE;
 }

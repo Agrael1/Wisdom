@@ -46,7 +46,7 @@ WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKDestroyXCBExtension(WisVKXCBExtension
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKXCBExtensionImpl>(self);
     if (impl.instance_control_block) {
-        wis::detail::release_vk_instance(impl.instance_control_block);
+        wis::detail::VKReleaseInstance(impl.instance_control_block);
     }
 }
 

@@ -39,7 +39,7 @@ void wis::ImplDX12CommandList::CopyBufferToTexture(DX12BufferView src_buffer, DX
         };
 
         uint32_t row_pitch = 0;
-        D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::CalculateMinimumRowMajorRowPitch(convert_dx(region.texture.format), region.texture.size.width, row_pitch);
+        D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::CalculateMinimumRowMajorRowPitch(DX12Convert(region.texture.format), region.texture.size.width, row_pitch);
 
         D3D12_TEXTURE_COPY_LOCATION src{
             .pResource       = std::get<0>(src_buffer),
@@ -47,7 +47,7 @@ void wis::ImplDX12CommandList::CopyBufferToTexture(DX12BufferView src_buffer, DX
             .PlacedFootprint = {
                                 .Offset    = region.buffer_offset,
                                 .Footprint = {
-                            .Format   = wis::detail::convert_dx(region.texture.format),
+                            .Format   = wis::detail::DX12Convert(region.texture.format),
                             .Width    = region.texture.size.width,
                             .Height   = region.texture.size.height,
                             .Depth    = region.texture.size.depth_or_layers,
@@ -119,7 +119,7 @@ void wis::ImplDX12CommandList::CopyTextureToBuffer(DX12TextureView src_texture, 
         };
 
         uint32_t row_pitch = 0;
-        D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::CalculateMinimumRowMajorRowPitch(convert_dx(region.texture.format), region.texture.size.width, row_pitch);
+        D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::CalculateMinimumRowMajorRowPitch(DX12Convert(region.texture.format), region.texture.size.width, row_pitch);
 
         D3D12_TEXTURE_COPY_LOCATION dst{
             .pResource       = std::get<0>(dest_buffer),
@@ -127,7 +127,7 @@ void wis::ImplDX12CommandList::CopyTextureToBuffer(DX12TextureView src_texture, 
             .PlacedFootprint = {
                                 .Offset    = region.buffer_offset,
                                 .Footprint = {
-                            .Format   = wis::detail::convert_dx(region.texture.format),
+                            .Format   = wis::detail::DX12Convert(region.texture.format),
                             .Width    = region.texture.size.width,
                             .Height   = region.texture.size.height,
                             .Depth    = region.texture.size.depth_or_layers,
@@ -178,10 +178,10 @@ namespace wis::detail {
 inline D3D12_BUFFER_BARRIER to_dx(wis::BufferBarrier barrier, ID3D12Resource* buffer) noexcept
 {
     return D3D12_BUFFER_BARRIER{
-        .SyncBefore   = wis::detail::convert_dx(barrier.sync_before),
-        .SyncAfter    = wis::detail::convert_dx(barrier.sync_after),
-        .AccessBefore = wis::detail::convert_dx(barrier.access_before),
-        .AccessAfter  = wis::detail::convert_dx(barrier.access_after),
+        .SyncBefore   = wis::detail::DX12Convert(barrier.sync_before),
+        .SyncAfter    = wis::detail::DX12Convert(barrier.sync_after),
+        .AccessBefore = wis::detail::DX12Convert(barrier.access_before),
+        .AccessAfter  = wis::detail::DX12Convert(barrier.access_after),
         .pResource    = buffer,
         .Offset       = barrier.offset,
         .Size         = barrier.size
@@ -193,12 +193,12 @@ inline D3D12_TEXTURE_BARRIER to_dx(wis::TextureBarrier barrier, ID3D12Resource* 
     bool  zero_range  = subresource.base_array_layer == 0 && subresource.base_mip_level == 0 && subresource.layer_count == 0 && subresource.level_count == 0;
 
     return D3D12_TEXTURE_BARRIER{
-        .SyncBefore   = wis::detail::convert_dx(barrier.sync_before),
-        .SyncAfter    = wis::detail::convert_dx(barrier.sync_after),
-        .AccessBefore = wis::detail::convert_dx(barrier.access_before),
-        .AccessAfter  = wis::detail::convert_dx(barrier.access_after),
-        .LayoutBefore = wis::detail::convert_dx(barrier.state_before),
-        .LayoutAfter  = wis::detail::convert_dx(barrier.state_after),
+        .SyncBefore   = wis::detail::DX12Convert(barrier.sync_before),
+        .SyncAfter    = wis::detail::DX12Convert(barrier.sync_after),
+        .AccessBefore = wis::detail::DX12Convert(barrier.access_before),
+        .AccessAfter  = wis::detail::DX12Convert(barrier.access_after),
+        .LayoutBefore = wis::detail::DX12Convert(barrier.state_before),
+        .LayoutAfter  = wis::detail::DX12Convert(barrier.state_after),
         .pResource    = buffer,
         .Subresources = zero_range ? D3D12_BARRIER_SUBRESOURCE_RANGE{ .IndexOrFirstMipLevel = 0xffffffff }
                                    : D3D12_BARRIER_SUBRESOURCE_RANGE{
@@ -277,10 +277,10 @@ void wis::ImplDX12CommandList::BeginRenderPass(const wis::DX12RenderPassDesc& pa
         data[i]      = {
                  .cpuDescriptor   = std::get<0>(target.target),
                  .BeginningAccess = {
-                                     .Type = wis::detail::convert_dx(target.load_op),
+                                     .Type = wis::detail::DX12Convert(target.load_op),
                                      },
                  .EndingAccess = {
-                                     .Type = wis::detail::convert_dx(target.store_op),
+                                     .Type = wis::detail::DX12Convert(target.store_op),
                                      }
         };
         if (data[i].BeginningAccess.Type == D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR) {
@@ -295,24 +295,24 @@ void wis::ImplDX12CommandList::BeginRenderPass(const wis::DX12RenderPassDesc& pa
         depth_stencil = {
             .cpuDescriptor        = std::get<0>(pass_desc.depth_stencil->target),
             .DepthBeginningAccess = {
-                                     .Type  = ds_selector & DSSelect::Depth ? wis::detail::convert_dx(pass_desc.depth_stencil->load_op_depth) : D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_NO_ACCESS,
+                                     .Type  = ds_selector & DSSelect::Depth ? wis::detail::DX12Convert(pass_desc.depth_stencil->load_op_depth) : D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_NO_ACCESS,
                                      .Clear = {
                             .ClearValue{
                                     .DepthStencil{
                                             .Depth   = pass_desc.depth_stencil->clear_depth,
                                             .Stencil = pass_desc.depth_stencil->clear_stencil } } },
                                      },
-            .StencilBeginningAccess = { .Type = ds_selector & DSSelect::Stencil ? wis::detail::convert_dx(pass_desc.depth_stencil->load_op_stencil) : D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_NO_ACCESS, .Clear = { .ClearValue{ .DepthStencil{ .Depth = pass_desc.depth_stencil->clear_depth, .Stencil = pass_desc.depth_stencil->clear_stencil } } } },
+            .StencilBeginningAccess = { .Type = ds_selector & DSSelect::Stencil ? wis::detail::DX12Convert(pass_desc.depth_stencil->load_op_stencil) : D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_NO_ACCESS, .Clear = { .ClearValue{ .DepthStencil{ .Depth = pass_desc.depth_stencil->clear_depth, .Stencil = pass_desc.depth_stencil->clear_stencil } } } },
             .DepthEndingAccess      = {
-                                     .Type = ds_selector & DSSelect::Depth ? wis::detail::convert_dx(pass_desc.depth_stencil->store_op_depth) : D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS,
+                                     .Type = ds_selector & DSSelect::Depth ? wis::detail::DX12Convert(pass_desc.depth_stencil->store_op_depth) : D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS,
                                      },
             .StencilEndingAccess = {
-                                     .Type = ds_selector & DSSelect::Stencil ? wis::detail::convert_dx(pass_desc.depth_stencil->store_op_stencil) : D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS,
+                                     .Type = ds_selector & DSSelect::Stencil ? wis::detail::DX12Convert(pass_desc.depth_stencil->store_op_stencil) : D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS,
                                      }
         };
     }
 
-    list->BeginRenderPass(pass_desc.target_count, data, (ds_selector != DSSelect::None) ? &depth_stencil : nullptr, wis::detail::convert_dx(pass_desc.flags));
+    list->BeginRenderPass(pass_desc.target_count, data, (ds_selector != DSSelect::None) ? &depth_stencil : nullptr, wis::detail::DX12Convert(pass_desc.flags));
 
     if (pass_desc.view_mask) {
         list->SetViewInstanceMask(pass_desc.view_mask);
@@ -326,7 +326,7 @@ void wis::ImplDX12CommandList::EndRenderPass() noexcept
 
 void wis::ImplDX12CommandList::IASetPrimitiveTopology(wis::PrimitiveTopology vp) noexcept
 {
-    list->IASetPrimitiveTopology(convert_dx(vp));
+    list->IASetPrimitiveTopology(DX12Convert(vp));
 }
 
 void wis::ImplDX12CommandList::IASetVertexBuffers(const wis::DX12VertexBufferBinding* resources, uint32_t count, uint32_t start_slot) noexcept
@@ -350,7 +350,7 @@ void wis::ImplDX12CommandList::IASetIndexBuffer(wis::DX12BufferView buffer, wis:
     D3D12_INDEX_BUFFER_VIEW ibv{
         .BufferLocation = std::get<0>(buffer)->GetGPUVirtualAddress() + offset,
         .SizeInBytes    = uint32_t(std::get<0>(buffer)->GetDesc().Width - offset),
-        .Format         = wis::detail::convert_dx(type)
+        .Format         = wis::detail::DX12Convert(type)
     };
     list->IASetIndexBuffer(&ibv);
 }
@@ -359,7 +359,7 @@ void wis::ImplDX12CommandList::IASetIndexBuffer2(wis::DX12BufferView buffer, wis
     D3D12_INDEX_BUFFER_VIEW ibv{
         .BufferLocation = std::get<0>(buffer)->GetGPUVirtualAddress() + offset,
         .SizeInBytes    = size,
-        .Format         = wis::detail::convert_dx(type)
+        .Format         = wis::detail::DX12Convert(type)
     };
     list->IASetIndexBuffer(&ibv);
 }

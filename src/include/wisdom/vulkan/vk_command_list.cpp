@@ -148,7 +148,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyCommandList(WisVKCommandList* self)
         impl.command_list_table->vkFreeCommandBuffers(header.device, header.command_pool, 1, &impl.command_buffer);
         impl.command_buffer = VK_NULL_HANDLE;
 
-        wis::detail::release_vk_command_pool(impl.command_pool_header);
+        wis::detail::VKReleaseCommandPool(impl.command_pool_header);
     }
 }
 
@@ -320,10 +320,10 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListInsertBarriers(const WisVKCommandLi
         buffer_barriers_span[i] = {
             .sType               = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2,
             .pNext               = nullptr,
-            .srcStageMask        = wis::detail::convert_vk(src.sync_before),
-            .srcAccessMask       = wis::detail::convert_vk(src.access_before),
-            .dstStageMask        = wis::detail::convert_vk(src.sync_after),
-            .dstAccessMask       = wis::detail::convert_vk(src.access_after),
+            .srcStageMask        = wis::detail::VKConvert(src.sync_before),
+            .srcAccessMask       = wis::detail::VKConvert(src.access_before),
+            .dstStageMask        = wis::detail::VKConvert(src.sync_after),
+            .dstAccessMask       = wis::detail::VKConvert(src.access_after),
             .srcQueueFamilyIndex = q1,
             .dstQueueFamilyIndex = q2,
             .buffer              = std::bit_cast<VkBuffer>(src.buffer),
@@ -362,14 +362,14 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListInsertBarriers(const WisVKCommandLi
         texture_barriers_span[i] = {
             .sType               = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
             .pNext               = nullptr,
-            .srcStageMask        = wis::detail::convert_vk(src.sync_before),
-            .srcAccessMask       = wis::detail::convert_vk(src.access_before),
-            .dstStageMask        = wis::detail::convert_vk(src.sync_after),
-            .dstAccessMask       = wis::detail::convert_vk(src.access_after),
+            .srcStageMask        = wis::detail::VKConvert(src.sync_before),
+            .srcAccessMask       = wis::detail::VKConvert(src.access_before),
+            .dstStageMask        = wis::detail::VKConvert(src.sync_after),
+            .dstAccessMask       = wis::detail::VKConvert(src.access_after),
             .oldLayout           = src.flags & WisBarrierFlagsDiscardContent
                               ? VK_IMAGE_LAYOUT_UNDEFINED
-                              : wis::detail::convert_vk(src.state_before),
-            .newLayout           = wis::detail::convert_vk(src.state_after),
+                              : wis::detail::VKConvert(src.state_before),
+            .newLayout           = wis::detail::VKConvert(src.state_after),
             .srcQueueFamilyIndex = q1,
             .dstQueueFamilyIndex = q2,
             .image               = std::bit_cast<VkImage>(src.texture)
@@ -406,10 +406,10 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListInsertBarriers(const WisVKCommandLi
         global_barriers_span[i] = {
             .sType         = VK_STRUCTURE_TYPE_MEMORY_BARRIER_2,
             .pNext         = nullptr,
-            .srcStageMask  = wis::detail::convert_vk(src.sync_before),
-            .srcAccessMask = wis::detail::convert_vk(src.access_before),
-            .dstStageMask  = wis::detail::convert_vk(src.sync_after),
-            .dstAccessMask = wis::detail::convert_vk(src.access_after),
+            .srcStageMask  = wis::detail::VKConvert(src.sync_before),
+            .srcAccessMask = wis::detail::VKConvert(src.access_before),
+            .dstStageMask  = wis::detail::VKConvert(src.sync_after),
+            .dstAccessMask = wis::detail::VKConvert(src.access_after),
         };
     }
 
@@ -434,7 +434,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetPipeline(const WisVKCommandList*
 {
     auto& impl        = wis::from_handle_ref<const wis::impl::VKCommandListImpl>(self);
     auto  vk_pipeline = std::bit_cast<VkPipeline>(pipeline);
-    impl.command_list_table->vkCmdBindPipeline(impl.command_buffer, wis::detail::convert_vk(type), vk_pipeline);
+    impl.command_list_table->vkCmdBindPipeline(impl.command_buffer, wis::detail::VKConvert(type), vk_pipeline);
 }
 
 //-----------------------------------------------------------------------------
@@ -483,7 +483,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetPrimitiveTopology(WisVKCommandLi
                                                                   WisPrimitiveTopology topology)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKCommandListImpl>(self);
-    impl.command_list_table->vkCmdSetPrimitiveTopology(impl.command_buffer, wis::detail::convert_vk(topology));
+    impl.command_list_table->vkCmdSetPrimitiveTopology(impl.command_buffer, wis::detail::VKConvert(topology));
 }
 
 //-----------------------------------------------------------------------------

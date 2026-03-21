@@ -42,7 +42,6 @@ if (WISDOM_DX12)
             "wisdom/dx12/dx12_types.hpp"
             "wisdom/dx12/detail/dx12_utils.hpp"
             "wisdom/dx12/detail/dx12_detail.hpp"
-            "wisdom/generated/dx12_cpp_api.hpp"
             "wisdom/generated/dx12_convert.hpp"
             SOURCES
             "wisdom/dx12/dx12_impl.cpp"
@@ -81,7 +80,6 @@ if (WISDOM_VULKAN)
             "wisdom/vulkan/vk_loader.hpp"
             "wisdom/vulkan/vk_tables.hpp"
             "wisdom/vulkan/vk_extensions.hpp"
-            "wisdom/generated/vk_cpp_api.hpp"
             SOURCES
             "wisdom/vulkan/vk_device.cpp"
             "wisdom/vulkan/vk_fence.cpp"

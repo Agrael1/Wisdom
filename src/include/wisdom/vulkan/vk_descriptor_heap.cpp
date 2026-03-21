@@ -29,12 +29,12 @@ VKGetSRVDesc(const WisTextureBinding& binding) noexcept
         .sType      = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
         .pNext      = nullptr,
         .flags      = 0,
-        .format     = wis::detail::convert_vk(binding.format),
+        .format     = wis::detail::VKConvert(binding.format),
         .components = {
-                       .r = wis::detail::convert_vk(binding.component_mapping.r),
-                       .g = wis::detail::convert_vk(binding.component_mapping.g),
-                       .b = wis::detail::convert_vk(binding.component_mapping.b),
-                       .a = wis::detail::convert_vk(binding.component_mapping.a),
+                       .r = wis::detail::VKConvert(binding.component_mapping.r),
+                       .g = wis::detail::VKConvert(binding.component_mapping.g),
+                       .b = wis::detail::VKConvert(binding.component_mapping.b),
+                       .a = wis::detail::VKConvert(binding.component_mapping.a),
                        },
     };
     auto aspect_flags = VKGetAspectFlags(binding);
@@ -142,7 +142,7 @@ VKGetUAVDesc(const WisTextureBinding& binding) noexcept
         .sType      = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
         .pNext      = nullptr,
         .flags      = 0,
-        .format     = wis::detail::convert_vk(binding.format),
+        .format     = wis::detail::VKConvert(binding.format),
         .components = {},
     };
     auto aspect_flags = VKGetAspectFlags(binding);
@@ -236,7 +236,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyDescriptorHeap(WisVKDescriptorHeap* sel
             vmaDestroyBuffer(impl.device_header->header.allocator, impl.buffer, impl.allocation);
         }
 
-        wis::detail::release_vk_device(impl.device_header);
+        wis::detail::VKReleaseDevice(impl.device_header);
         impl.buffer = VK_NULL_HANDLE;
     }
 }
@@ -255,7 +255,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyViewHeap(WisVKViewHeap* self)
         delete[] impl.view_heap;
         impl.view_heap = nullptr;
 
-        wis::detail::release_vk_device(impl.device_header);
+        wis::detail::VKReleaseDevice(impl.device_header);
     }
 }
 
@@ -362,26 +362,26 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDescriptorHeapWriteSampler(const WisVKDes
         .pNext         = nullptr, // Custom border?
         .reductionMode = sampler->comparison_op != WisCompareOpNever
                 ? VK_SAMPLER_REDUCTION_MODE_WEIGHTED_AVERAGE
-                : wis::detail::convert_vk(sampler->reduction_mode)
+                : wis::detail::VKConvert(sampler->reduction_mode)
     };
     VkSamplerCreateInfo sampler_info{
         .sType                   = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
         .pNext                   = &reduction_mode_info,
         .flags                   = 0,
-        .magFilter               = wis::detail::convert_vk(sampler->mag_filter),
-        .minFilter               = wis::detail::convert_vk(sampler->min_filter),
+        .magFilter               = wis::detail::VKConvert(sampler->mag_filter),
+        .minFilter               = wis::detail::VKConvert(sampler->min_filter),
         .mipmapMode              = VkSamplerMipmapMode(sampler->mip_filter),
-        .addressModeU            = wis::detail::convert_vk(sampler->address_u),
-        .addressModeV            = wis::detail::convert_vk(sampler->address_v),
-        .addressModeW            = wis::detail::convert_vk(sampler->address_w),
+        .addressModeU            = wis::detail::VKConvert(sampler->address_u),
+        .addressModeV            = wis::detail::VKConvert(sampler->address_v),
+        .addressModeW            = wis::detail::VKConvert(sampler->address_w),
         .mipLodBias              = sampler->mip_lod_bias,
         .anisotropyEnable        = sampler->is_anisotropic,
         .maxAnisotropy           = normalized_anisotropy,
         .compareEnable           = sampler->comparison_op != WisCompareOpNever,
-        .compareOp               = wis::detail::convert_vk(sampler->comparison_op),
+        .compareOp               = wis::detail::VKConvert(sampler->comparison_op),
         .minLod                  = sampler->min_lod,
         .maxLod                  = sampler->max_lod,
-        .borderColor             = wis::detail::convert_vk(sampler->static_border_color),
+        .borderColor             = wis::detail::VKConvert(sampler->static_border_color),
         .unnormalizedCoordinates = sampler->flags & WisSamplerFlagsNonNormalizedCoordinates ? VK_TRUE : VK_FALSE,
     };
     VkResult result = table.vkWriteSamplerDescriptorsEXT(heap.device, 1, &sampler_info, &host_range);
@@ -515,7 +515,7 @@ WIS_EXTERN_C WISDOM_API uint64_t wisVKViewHeapWriteRenderTarget(const WisVKViewH
     auto& header = heap.device_header->header;
 
     // simply create image view
-    auto                  vk_format = wis::detail::convert_vk(render_target->format);
+    auto                  vk_format = wis::detail::VKConvert(render_target->format);
     VkImageViewCreateInfo info{
         .sType  = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
         .pNext  = nullptr,

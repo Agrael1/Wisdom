@@ -203,19 +203,19 @@ std::string Generator::MakeEnumDescription(const WisEnum& s)
 std::string Generator::MakeEnumConverter(const WisEnum& s, Backend backend)
 {
     std::string converters;
-    auto        backend_tag = GetBackendTag(backend);
+    auto        backend_tag = GetBackendSuffix(backend);
     auto&       cvt     = s.conversion_type[static_cast<size_t>(backend)];
     if (cvt.value.empty()) {
         return converters;
     }
     if (cvt.direct) {
-        converters = wis::format("constexpr inline {} convert_{}({} value) noexcept {{\n    return static_cast<{}>(value);\n}}\n\n",
+        converters = wis::format("constexpr inline {} {}Convert({} value) noexcept {{\n    return static_cast<{}>(value);\n}}\n\n",
                                  cvt.value,
                                  backend_tag,
                                  GetCFullTypename(s.name, backend),
                                  cvt.value);
     } else {
-        converters = wis::format("constexpr inline {} convert_{}({} value) noexcept {{\n    switch(value) {{\n",
+        converters = wis::format("constexpr inline {} {}Convert({} value) noexcept {{\n    switch(value) {{\n",
                                  cvt.value,
                                  backend_tag,
                                  GetCFullTypename(s.name, backend));

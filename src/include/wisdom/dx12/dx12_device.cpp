@@ -40,8 +40,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandQueue(const WisDX12D
     }
 
     D3D12_COMMAND_QUEUE_DESC desc{
-        .Type     = wis::detail::convert_dx(type),
-        .Priority = wis::detail::convert_dx(WisCommandQueuePriority(device.queue_priorities[type] & 0x7f)),
+        .Type     = wis::detail::DX12Convert(type),
+        .Priority = wis::detail::DX12Convert(WisCommandQueuePriority(device.queue_priorities[type] & 0x7f)),
         .Flags    = D3D12_COMMAND_QUEUE_FLAG_NONE,
         .NodeMask = 0,
     };
@@ -68,7 +68,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandAllocator(const WisD
     auto&                                device = wis::from_handle_ref<const wis::impl::DX12DeviceImpl>(self);
     wis::com_ptr<ID3D12CommandAllocator> allocator;
 
-    auto hr = device.device->CreateCommandAllocator(wis::detail::convert_dx(type),
+    auto hr = device.device->CreateCommandAllocator(wis::detail::DX12Convert(type),
                                                     IID_ID3D12CommandAllocator,
                                                     allocator.put_void_unchecked());
     if (!wis::detail::succeeded(hr)) {
@@ -137,9 +137,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateDescriptorHeap(const WisDX1
 
     // Create descriptor heap container
     D3D12_DESCRIPTOR_HEAP_DESC heap_desc{
-        .Type           = wis::detail::convert_dx(desc->type),
+        .Type           = wis::detail::DX12Convert(desc->type),
         .NumDescriptors = static_cast<UINT>(desc->descriptor_count),
-        .Flags          = wis::detail::convert_dx(desc->memory_type),
+        .Flags          = wis::detail::DX12Convert(desc->memory_type),
         .NodeMask       = 0,
     };
 
@@ -171,7 +171,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateViewHeap(const WisDX12Devic
 
     // Create descriptor heap container
     D3D12_DESCRIPTOR_HEAP_DESC heap_desc{
-        .Type           = wis::detail::convert_dx(type),
+        .Type           = wis::detail::DX12Convert(type),
         .NumDescriptors = capacity,
         .Flags          = D3D12_DESCRIPTOR_HEAP_FLAG_NONE,
         .NodeMask       = 0,
@@ -232,7 +232,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(const WisDX12
                               .RegisterSpace  = static_cast<UINT>(src.bind_space),
                               .Num32BitValues = static_cast<UINT>(src.size_bytes / 4),
                               },
-            .ShaderVisibility = wis::detail::convert_dx(src.visibility),
+            .ShaderVisibility = wis::detail::DX12Convert(src.visibility),
         };
     }
     root_parameters_span = root_parameters_span.subspan(desc->push_constant_count);
@@ -252,7 +252,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(const WisDX12
                               .RegisterSpace  = src.bind_space,
                               .Flags          = D3D12_ROOT_DESCRIPTOR_FLAG_NONE,
                               },
-            .ShaderVisibility = wis::detail::convert_dx(src.visibility),
+            .ShaderVisibility = wis::detail::DX12Convert(src.visibility),
         };
     }
     root_parameters_span = root_parameters_span.subspan(desc->push_descriptor_count);
@@ -282,7 +282,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(const WisDX12
             for (size_t i = 0; i < table.entry_count; ++i) {
                 auto& src                     = table.entries[i];
                 ranges_span[i + range_offset] = {
-                    .RangeType                         = wis::detail::convert_dx(src.type),
+                    .RangeType                         = wis::detail::DX12Convert(src.type),
                     .NumDescriptors                    = (src.count == 0 ? 1 : src.count),
                     .BaseShaderRegister                = src.bind_register,
                     .RegisterSpace                     = src.bind_space,
@@ -297,7 +297,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(const WisDX12
                                     .NumDescriptorRanges = static_cast<uint32_t>(table.entry_count),
                                     .pDescriptorRanges   = ranges.get() + range_offset,
                                     },
-                .ShaderVisibility = wis::detail::convert_dx(table.visibility),
+                .ShaderVisibility = wis::detail::DX12Convert(table.visibility),
             };
             range_offset += table.entry_count;
         }
@@ -710,11 +710,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(const WisD
 
     D3D12_RT_FORMAT_ARRAY& rtv_formats = stream.rtv_formats;
     for (uint32_t i = 0; i < desc->render_attachments.attachments_count; i++) {
-        rtv_formats.RTFormats[i] = wis::detail::convert_dx(desc->render_attachments.attachment_formats[i]);
+        rtv_formats.RTFormats[i] = wis::detail::DX12Convert(desc->render_attachments.attachment_formats[i]);
     }
     rtv_formats.NumRenderTargets = desc->render_attachments.attachments_count;
     if (desc->render_attachments.depth_attachment != WisDataFormatUnknown) {
-        stream.depth_stencil_format = wis::detail::convert_dx(desc->render_attachments.depth_attachment);
+        stream.depth_stencil_format = wis::detail::DX12Convert(desc->render_attachments.depth_attachment);
     }
 
     //--Multiview
@@ -759,7 +759,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(const WisD
 
         input_elements_span[i] = { .SemanticName         = attr.semantic_name,
                                    .SemanticIndex        = attr.semantic_index,
-                                   .Format               = wis::detail::convert_dx(attr.format),
+                                   .Format               = wis::detail::DX12Convert(attr.format),
                                    .InputSlot            = slot.slot,
                                    .AlignedByteOffset    = attr.offset_bytes,
                                    .InputSlotClass       = D3D12_INPUT_CLASSIFICATION(slot.input_class),
@@ -768,7 +768,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(const WisD
     stream.input_layout = { input_elements.get(), uint32_t(attrs.size()) };
 
     //--Topology
-    stream.topology = wis::detail::convert_dx(desc->topology_type);
+    stream.topology = wis::detail::DX12Convert(desc->topology_type);
 
     //--Rasterizer
     if (desc->rasterizer_desc) {
@@ -780,22 +780,22 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(const WisD
 
         stream.rasterizer = CD3DX12_RASTERIZER_DESC2{
             D3D12_RASTERIZER_DESC2{
-                                   .FillMode              = wis::detail::convert_dx(raster.fill_mode),
-                                   .CullMode              = wis::detail::convert_dx(raster.cull_mode),
-                                   .FrontCounterClockwise = wis::detail::convert_dx(raster.front_face),
+                                   .FillMode              = wis::detail::DX12Convert(raster.fill_mode),
+                                   .CullMode              = wis::detail::DX12Convert(raster.cull_mode),
+                                   .FrontCounterClockwise = wis::detail::DX12Convert(raster.front_face),
                                    .DepthBias             = bias ? raster.depth_bias : 0.0f,
                                    .DepthBiasClamp        = bias ? raster.depth_bias_clamp : 0.0f,
                                    .SlopeScaledDepthBias  = bias ? raster.depth_bias_slope_factor : 0.0f,
                                    .DepthClipEnable       = raster.depth_clip_enable,
-                                   .LineRasterizationMode = wis::detail::convert_dx(raster.line_rasterization),
-                                   .ConservativeRaster    = wis::detail::convert_dx(raster.conservative_rasterization) }
+                                   .LineRasterizationMode = wis::detail::DX12Convert(raster.line_rasterization),
+                                   .ConservativeRaster    = wis::detail::DX12Convert(raster.conservative_rasterization) }
         };
     }
 
     //--Multisample
     if (desc->sample_desc) {
         stream.sample_desc = DXGI_SAMPLE_DESC{
-            .Count   = wis::detail::convert_dx(desc->sample_desc->rate),
+            .Count   = wis::detail::DX12Convert(desc->sample_desc->rate),
             .Quality = DXGI_STANDARD_MULTISAMPLE_QUALITY_PATTERN,
         };
         stream.sample_mask = desc->sample_desc->sample_mask;
@@ -812,23 +812,23 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(const WisD
         stream.depth_stencil = CD3DX12_DEPTH_STENCIL_DESC2{
             { .DepthEnable    = ds.depth_enable,
              .DepthWriteMask = D3D12_DEPTH_WRITE_MASK(ds.depth_write_enable),
-             .DepthFunc      = wis::detail::convert_dx(ds.depth_comp),
+             .DepthFunc      = wis::detail::DX12Convert(ds.depth_comp),
              .StencilEnable  = ds.stencil_enable,
              .FrontFace =
                       D3D12_DEPTH_STENCILOP_DESC1{
-                              .StencilFailOp      = wis::detail::convert_dx(ds.stencil_front.fail_op),
-                              .StencilDepthFailOp = wis::detail::convert_dx(ds.stencil_front.depth_fail_op),
-                              .StencilPassOp      = wis::detail::convert_dx(ds.stencil_front.pass_op),
-                              .StencilFunc        = wis::detail::convert_dx(ds.stencil_front.stencil_comp),
+                              .StencilFailOp      = wis::detail::DX12Convert(ds.stencil_front.fail_op),
+                              .StencilDepthFailOp = wis::detail::DX12Convert(ds.stencil_front.depth_fail_op),
+                              .StencilPassOp      = wis::detail::DX12Convert(ds.stencil_front.pass_op),
+                              .StencilFunc        = wis::detail::DX12Convert(ds.stencil_front.stencil_comp),
                               .StencilReadMask    = ds.stencil_front.read_mask,
                               .StencilWriteMask   = ds.stencil_front.write_mask,
                       },
              .BackFace =
                       D3D12_DEPTH_STENCILOP_DESC1{
-                              .StencilFailOp      = wis::detail::convert_dx(ds.stencil_back.fail_op),
-                              .StencilDepthFailOp = wis::detail::convert_dx(ds.stencil_back.depth_fail_op),
-                              .StencilPassOp      = wis::detail::convert_dx(ds.stencil_back.pass_op),
-                              .StencilFunc        = wis::detail::convert_dx(ds.stencil_back.stencil_comp),
+                              .StencilFailOp      = wis::detail::DX12Convert(ds.stencil_back.fail_op),
+                              .StencilDepthFailOp = wis::detail::DX12Convert(ds.stencil_back.depth_fail_op),
+                              .StencilPassOp      = wis::detail::DX12Convert(ds.stencil_back.pass_op),
+                              .StencilFunc        = wis::detail::DX12Convert(ds.stencil_back.stencil_comp),
                               .StencilReadMask    = ds.stencil_back.read_mask,
                               .StencilWriteMask   = ds.stencil_back.write_mask,
                       },
@@ -849,12 +849,12 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(const WisD
                 bdesc.RenderTarget[i] = D3D12_RENDER_TARGET_BLEND_DESC{
                     .BlendEnable           = a.blend_enable,
                     .LogicOpEnable         = false,
-                    .SrcBlend              = wis::detail::convert_dx(a.src_color_blend),
-                    .DestBlend             = wis::detail::convert_dx(a.dst_color_blend),
-                    .BlendOp               = wis::detail::convert_dx(a.color_blend_op),
-                    .SrcBlendAlpha         = wis::detail::convert_dx(a.src_alpha_blend),
-                    .DestBlendAlpha        = wis::detail::convert_dx(a.dst_alpha_blend),
-                    .BlendOpAlpha          = wis::detail::convert_dx(a.alpha_blend_op),
+                    .SrcBlend              = wis::detail::DX12Convert(a.src_color_blend),
+                    .DestBlend             = wis::detail::DX12Convert(a.dst_color_blend),
+                    .BlendOp               = wis::detail::DX12Convert(a.color_blend_op),
+                    .SrcBlendAlpha         = wis::detail::DX12Convert(a.src_alpha_blend),
+                    .DestBlendAlpha        = wis::detail::DX12Convert(a.dst_alpha_blend),
+                    .BlendOpAlpha          = wis::detail::DX12Convert(a.alpha_blend_op),
                     .LogicOp               = D3D12_LOGIC_OP_NOOP,
                     .RenderTargetWriteMask = UINT8(a.color_write_mask),
                 };
@@ -864,19 +864,19 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(const WisD
             bdesc.RenderTarget[0] = D3D12_RENDER_TARGET_BLEND_DESC{
                 .BlendEnable           = a.blend_enable,
                 .LogicOpEnable         = false,
-                .SrcBlend              = wis::detail::convert_dx(a.src_color_blend),
-                .DestBlend             = wis::detail::convert_dx(a.dst_color_blend),
-                .BlendOp               = wis::detail::convert_dx(a.color_blend_op),
-                .SrcBlendAlpha         = wis::detail::convert_dx(a.src_alpha_blend),
-                .DestBlendAlpha        = wis::detail::convert_dx(a.dst_alpha_blend),
-                .BlendOpAlpha          = wis::detail::convert_dx(a.alpha_blend_op),
+                .SrcBlend              = wis::detail::DX12Convert(a.src_color_blend),
+                .DestBlend             = wis::detail::DX12Convert(a.dst_color_blend),
+                .BlendOp               = wis::detail::DX12Convert(a.color_blend_op),
+                .SrcBlendAlpha         = wis::detail::DX12Convert(a.src_alpha_blend),
+                .DestBlendAlpha        = wis::detail::DX12Convert(a.dst_alpha_blend),
+                .BlendOpAlpha          = wis::detail::DX12Convert(a.alpha_blend_op),
                 .LogicOp               = D3D12_LOGIC_OP_NOOP,
                 .RenderTargetWriteMask = UINT8(a.color_write_mask),
             };
         }
         if (blend.logic_op_enable) {
             bdesc.RenderTarget[0].LogicOpEnable = true;
-            bdesc.RenderTarget[0].LogicOp       = wis::detail::convert_dx(blend.logic_op);
+            bdesc.RenderTarget[0].LogicOp       = wis::detail::DX12Convert(blend.logic_op);
         }
     }
 
