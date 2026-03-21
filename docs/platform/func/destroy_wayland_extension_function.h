@@ -18,8 +18,6 @@
  * // Provided by Wisdom 0.7.0. 
  * void wisVKDestroyWaylandExtension(WisVKWaylandExtension* self);
  * 
- * // Provided by Wisdom 0.7.0. 
- * void wisDX12DestroyWaylandExtension(WisDX12WaylandExtension* self);
  * ```
  * </details>
  * 

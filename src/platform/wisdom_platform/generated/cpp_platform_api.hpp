@@ -2,7 +2,7 @@
 #ifndef WISDOM_CPP_PLATFORM_API_HPP
 #define WISDOM_CPP_PLATFORM_API_HPP
 #ifdef __cplusplus
-#include <wisdom_platform/generated/c_platform_api.h>
+#include <wisdom_platform/generated/backend_api.h>
 #include <wisdom/global/internal.hpp>
 #include <wisdom/bridge/span.hpp>
 

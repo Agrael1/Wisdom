@@ -1,6 +1,6 @@
 // This file is generated. Do not edit directly.
-#ifndef WISDOM_C_BACKEND_API_H
-#define WISDOM_C_BACKEND_API_H
+#ifndef WISDOM_CORE_C_BACKEND_API_H
+#define WISDOM_CORE_C_BACKEND_API_H
 
 #include <wisdom/generated/c_api.h>
 #include <string.h>
@@ -2301,4 +2301,4 @@ WISDOM_API size_t wisVKPipelineCacheGetSerializedSize(const WisVKPipelineCache* 
 #endif // __cplusplus
 #endif // WISDOM_VULKAN
 
-#endif // WISDOM_C_BACKEND_API_H
+#endif // WISDOM_CORE_C_BACKEND_API_H

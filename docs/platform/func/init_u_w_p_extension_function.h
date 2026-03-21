@@ -15,8 +15,6 @@
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0. 
- * void wisVKInitUWPExtension(WisVKUWPExtension* self);
  * 
  * // Provided by Wisdom 0.7.0. 
  * void wisDX12InitUWPExtension(WisDX12UWPExtension* self);
@@ -27,21 +25,9 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
- * void UWPExtension::InitUWPExtension() noexcept;
- * }
- * ```
- * <details>
- * <summary>C++ Implementation Specific Version:</summary>
- * ```cpp
- * namespace wis{
- * // Provided by Wisdom 0.7.0. 
- * void VKUWPExtension::InitUWPExtension() noexcept;
- * 
- * // Provided by Wisdom 0.7.0. 
  * void DX12UWPExtension::InitUWPExtension() noexcept;
  * }
  * ```
- * </details>
  * \endcond
  *
  * @section wisInitUWPExtension_memb Parameters

@@ -15,8 +15,6 @@
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0. 
- * void wisVKDestroyUWPExtension(WisVKUWPExtension* self);
  * 
  * // Provided by Wisdom 0.7.0. 
  * void wisDX12DestroyUWPExtension(WisDX12UWPExtension* self);

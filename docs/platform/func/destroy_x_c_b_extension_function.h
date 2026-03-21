@@ -18,8 +18,6 @@
  * // Provided by Wisdom 0.7.0. 
  * void wisVKDestroyXCBExtension(WisVKXCBExtension* self);
  * 
- * // Provided by Wisdom 0.7.0. 
- * void wisDX12DestroyXCBExtension(WisDX12XCBExtension* self);
  * ```
  * </details>
  * 

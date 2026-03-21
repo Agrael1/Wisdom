@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <registry>
-  <module name="Wisdom" version="0.7.0" base_dir="include/wisdom" doc_dir="wisdom">
+  <module name="Core" version="0.7.0" base_dir="include/wisdom" doc_dir="wisdom">
     <includes>
       <include>structs.xml</include>
       <include>validation.xml</include>

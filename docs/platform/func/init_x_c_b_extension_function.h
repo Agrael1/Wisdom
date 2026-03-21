@@ -18,8 +18,6 @@
  * // Provided by Wisdom 0.7.0. 
  * void wisVKInitXCBExtension(WisVKXCBExtension* self);
  * 
- * // Provided by Wisdom 0.7.0. 
- * void wisDX12InitXCBExtension(WisDX12XCBExtension* self);
  * ```
  * </details>
  * 
@@ -27,21 +25,9 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
- * void XCBExtension::InitXCBExtension() noexcept;
- * }
- * ```
- * <details>
- * <summary>C++ Implementation Specific Version:</summary>
- * ```cpp
- * namespace wis{
- * // Provided by Wisdom 0.7.0. 
  * void VKXCBExtension::InitXCBExtension() noexcept;
- * 
- * // Provided by Wisdom 0.7.0. 
- * void DX12XCBExtension::InitXCBExtension() noexcept;
  * }
  * ```
- * </details>
  * \endcond
  *
  * @section wisInitXCBExtension_memb Parameters

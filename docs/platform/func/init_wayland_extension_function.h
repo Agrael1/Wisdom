@@ -18,8 +18,6 @@
  * // Provided by Wisdom 0.7.0. 
  * void wisVKInitWaylandExtension(WisVKWaylandExtension* self);
  * 
- * // Provided by Wisdom 0.7.0. 
- * void wisDX12InitWaylandExtension(WisDX12WaylandExtension* self);
  * ```
  * </details>
  * 
@@ -27,21 +25,9 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
- * void WaylandExtension::InitWaylandExtension() noexcept;
- * }
- * ```
- * <details>
- * <summary>C++ Implementation Specific Version:</summary>
- * ```cpp
- * namespace wis{
- * // Provided by Wisdom 0.7.0. 
  * void VKWaylandExtension::InitWaylandExtension() noexcept;
- * 
- * // Provided by Wisdom 0.7.0. 
- * void DX12WaylandExtension::InitWaylandExtension() noexcept;
  * }
  * ```
- * </details>
  * \endcond
  *
  * @section wisInitWaylandExtension_memb Parameters

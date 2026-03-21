@@ -1,6 +1,6 @@
 // This file is generated. Do not edit directly.
-#ifndef WISDOM_C_API_H
-#define WISDOM_C_API_H
+#ifndef WISDOM_CORE_C_API_H
+#define WISDOM_CORE_C_API_H
 #include <wisdom/global/definitions.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -1858,4 +1858,4 @@ typedef struct WisDeviceMemoryProperties {
 #ifdef __cplusplus
 }
 #endif // __cplusplus
-#endif // WISDOM_C_API_H
+#endif // WISDOM_CORE_C_API_H

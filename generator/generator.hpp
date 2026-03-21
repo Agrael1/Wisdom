@@ -97,9 +97,9 @@ public:
     // Write
     void WriteCAPI(std::filesystem::path path);
     void WriteCPPAPI(std::filesystem::path path);
-    void WriteCDependentAPI(std::filesystem::path path);
+    void WriteCBackendAPI(std::filesystem::path path);
     void WriteCIndependentAPI(std::filesystem::path path);
-    void WriteCPPDependentAPI(std::filesystem::path path);
+    void WriteCPPBackendAPI(std::filesystem::path path);
     void WriteCPPIndependentAPI(std::filesystem::path path);
     void WriteCPlatformAPI(std::filesystem::path path);
     void WriteCPPPlatformAPI(std::filesystem::path path);

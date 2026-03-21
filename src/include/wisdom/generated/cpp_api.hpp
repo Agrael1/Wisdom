@@ -1,7 +1,10 @@
 // This file is generated. Do not edit directly.
-#ifndef WISDOM_CPP_API_HPP
-#define WISDOM_CPP_API_HPP
-#ifdef __cplusplus
+#ifndef WISDOM_CORE_CPP_API_HPP
+#define WISDOM_CORE_CPP_API_HPP
+#ifndef __cplusplus
+#error C++ is required to include this header.
+#endif // __cplusplus
+
 #include <wisdom/global/definitions.h>
 #include <wisdom/bridge/span.hpp>
 
@@ -1860,5 +1863,4 @@ static constexpr std::uint32_t MaxViewports = 16;
 static constexpr std::uint64_t WholeSize = 0xffffffffffffffff;
 
 } // namespace wis
-#endif // __cplusplus
-#endif // WISDOM_CPP_API_HPP
+#endif // WISDOM_CORE_CPP_API_HPP
