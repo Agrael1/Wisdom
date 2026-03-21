@@ -56,10 +56,11 @@ void Generator::WriteMainAPI()
 {
     std::filesystem::path cpp_output_path     = main_output_dir;
     std::filesystem::path cpp_output_path_api = cpp_output_path / "generated";
-    WriteCAPI(cpp_output_path_api / "c_api.h");
-    WriteCPPAPI(cpp_output_path_api / "cpp_api.hpp");
-    WriteCDependentAPI(cpp_output_path_api);
-    WriteCPPDependentAPI(cpp_output_path_api);
+    WriteCAPI(cpp_output_path_api);
+    WriteCPPAPI(cpp_output_path_api);
+
+    WriteCBackendAPI(cpp_output_path_api);
+    WriteCPPBackendAPI(cpp_output_path_api);
 
     WriteCIndependentAPI(cpp_output_path);
     WriteCPPIndependentAPI(cpp_output_path);
@@ -71,7 +72,10 @@ void Generator::WritePlatformAPI()
 {
     std::filesystem::path cpp_output_path     = platform_output_dir;
     std::filesystem::path cpp_output_path_api = cpp_output_path / "generated";
-    WriteCPlatformAPI(cpp_output_path_api / "c_platform_api.h");
+    WriteCAPI(cpp_output_path_api);
+    WriteCPPAPI(cpp_output_path_api);
+
+    WriteCBackendAPI(cpp_output_path_api);
     WriteCPPPlatformAPI(cpp_output_path_api / "cpp_platform_api.hpp");
 
     auto independent_path = cpp_output_path / "../wisdom";
@@ -186,7 +190,7 @@ void Generator::ParseTypes(tinyxml2::XMLElement* types)
 
 //-----------------------------------------------------------------------------
 
-void Generator::WriteCAPI(std::filesystem::path path)
+void Generator::WriteCAPI(std::filesystem::path dir)
 {
     auto& module = module_map.at(active_module_name);
 
@@ -196,8 +200,8 @@ void Generator::WriteCAPI(std::filesystem::path path)
             !module.constants_in_order.empty() ||
             !module.delegates_in_order.empty();
 
+    auto path = dir / "c_api.h";
     if (!has_independent_api) {
-        std::filesystem::remove(path);
         return;
     }
 
@@ -206,158 +210,211 @@ void Generator::WriteCAPI(std::filesystem::path path)
     if (!file.is_open()) {
         throw std::runtime_error("Failed to open output file: " + path.string());
     }
-    // Write header
-    file << R"(// This file is generated. Do not edit directly.
-#ifndef WISDOM_C_API_H
-#define WISDOM_C_API_H
-#include <wisdom/global/definitions.h>
+
+    auto header_guard = MakeUpperSnakeCase(module.name);
+
+    auto includes = module.name == "Core"
+            ? R"(#include <wisdom/global/definitions.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+)"
+            : R"(#include <wisdom/generated/c_api.h>)";
+
+    // Write header
+    // clang-format off
+    file << wis::format(R"(// This file is generated. Do not edit directly.
+#ifndef WISDOM_{0}_C_API_H
+#define WISDOM_{0}_C_API_H
+{1}
 
 #ifdef __cplusplus
-extern "C" {
+extern "C" {{
 #endif // __cplusplus
-)";
+)", header_guard, includes);
+    // clang-format on
 
-    file << "\n//==============================================================\n"
-            "// Enums\n"
-            "//==============================================================\n\n";
+    if (!module.enums_in_order.empty() || !module.bitmasks_in_order.empty()) {
+        file << "\n//==============================================================\n"
+                "// Enums\n"
+                "//==============================================================\n\n";
 
-    // Write enums
-    for (auto& enum_name : module.enums_in_order) {
-        auto& enum_def = enum_map[enum_name];
-        file << MakeCEnum(enum_def);
-        file << "\n";
+        // Write enums
+        for (auto& enum_name : module.enums_in_order) {
+            auto& enum_def = enum_map[enum_name];
+            file << MakeCEnum(enum_def);
+            file << "\n";
+        }
+
+        // Write bitmasks
+        for (auto& bitmask_name : module.bitmasks_in_order) {
+            auto& bitmask_def = bitmask_map[bitmask_name];
+            file << MakeCBitmask(bitmask_def);
+            file << "\n";
+        }
     }
 
-    // Write bitmasks
-    for (auto& bitmask_name : module.bitmasks_in_order) {
-        auto& bitmask_def = bitmask_map[bitmask_name];
-        file << MakeCBitmask(bitmask_def);
-        file << "\n";
+    if (!module.delegates_in_order.empty()) {
+        file << "\n//==============================================================\n"
+                "// Delegates\n"
+                "//==============================================================\n\n";
+        // Write delegates (before structs, as structs may reference delegates)
+        for (auto& delegate_name : module.delegates_in_order) {
+            auto& delegate_def = delegate_map[delegate_name];
+            file << MakeCDelegate(delegate_def);
+            file << "\n";
+        }
     }
 
-    file << "\n//==============================================================\n"
-            "// Delegates\n"
-            "//==============================================================\n\n";
-    // Write delegates (before structs, as structs may reference delegates)
-    for (auto& delegate_name : module.delegates_in_order) {
-        auto& delegate_def = delegate_map[delegate_name];
-        file << MakeCDelegate(delegate_def);
-        file << "\n";
+    if (!module.structs_in_order.empty()) {
+        file << "\n//==============================================================\n"
+                "// Structs\n"
+                "//==============================================================\n\n";
+        // Write structs
+        for (auto& struct_name : module.structs_in_order) {
+            auto& struct_def = struct_map[struct_name];
+            file << MakeCStruct(struct_def);
+            file << "\n";
+        }
     }
 
-    file << "\n//==============================================================\n"
-            "// Structs\n"
-            "//==============================================================\n\n";
-    // Write structs
-    for (auto& struct_name : module.structs_in_order) {
-        auto& struct_def = struct_map[struct_name];
-        file << MakeCStruct(struct_def);
-        file << "\n";
-    }
-
-    file << "\n//==============================================================\n"
-            "// Constants\n"
-            "//==============================================================\n\n";
-    // Write constants
-    for (auto& const_name : module.constants_in_order) {
-        auto& const_def = constant_map[const_name];
-        file << MakeCConstant(const_def);
-        file << "\n";
+    if (!module.constants_in_order.empty()) {
+        file << "\n//==============================================================\n"
+                "// Constants\n"
+                "//==============================================================\n\n";
+        // Write constants
+        for (auto& const_name : module.constants_in_order) {
+            auto& const_def = constant_map[const_name];
+            file << MakeCConstant(const_def);
+            file << "\n";
+        }
     }
 
     // Write footer
-    file << R"(
+    // clang-format off
+    file << wis::format(R"(
 #ifdef __cplusplus
-}
+}}
 #endif // __cplusplus
-#endif // WISDOM_C_API_H
-)";
+#endif // WISDOM_{}_C_API_H
+)", header_guard);
+    // clang-format on
 }
 
-void Generator::WriteCPPAPI(std::filesystem::path path)
+void Generator::WriteCPPAPI(std::filesystem::path dir)
 {
-    auto& module = module_map.at(active_module_name);
+    auto& module              = module_map.at(active_module_name);
+    bool  has_independent_api = !module.enums_in_order.empty() ||
+            !module.bitmasks_in_order.empty() ||
+            !module.structs_in_order.empty() ||
+            !module.constants_in_order.empty() ||
+            !module.delegates_in_order.empty();
+
+    auto path = dir / "cpp_api.hpp";
+    if (!has_independent_api) {
+        return;
+    }
+
     files.push_back(path);
     std::ofstream file{ path, std::ios::out | std::ios::trunc };
     if (!file.is_open()) {
         throw std::runtime_error("Failed to open output file: " + path.string());
     }
-    // Write header
-    file << R"(// This file is generated. Do not edit directly.
-#ifndef WISDOM_CPP_API_HPP
-#define WISDOM_CPP_API_HPP
-#ifdef __cplusplus
-#include <wisdom/global/definitions.h>
+
+    auto header_guard = MakeUpperSnakeCase(module.name);
+
+    auto includes = module.name == "Core"
+            ? R"(#include <wisdom/global/definitions.h>
 #include <wisdom/bridge/span.hpp>
+)"
+            : R"(#include <wisdom/generated/cpp_api.hpp>)";
 
-namespace wis {
-)";
+    // Write header
+    // clang-format off
+    file << wis::format(R"(// This file is generated. Do not edit directly.
+#ifndef WISDOM_{0}_CPP_API_HPP
+#define WISDOM_{0}_CPP_API_HPP
+#ifndef __cplusplus
+#error C++ is required to include this header.
+#endif // __cplusplus
 
-    file << "\n//==============================================================\n"
-            "// Enums\n"
-            "//==============================================================\n\n";
+{1}
 
-    // Write enums
-    for (auto& enum_name : module.enums_in_order) {
-        auto& enum_def = enum_map[enum_name];
-        file << MakeCPPEnum(enum_def);
-        file << "\n";
+namespace wis {{
+)", header_guard, includes);
+    // clang-format on
+    
+    if (!module.enums_in_order.empty() || !module.bitmasks_in_order.empty()) {
+        file << "\n//==============================================================\n"
+                "// Enums\n"
+                "//==============================================================\n\n";
+
+        // Write enums
+        for (auto& enum_name : module.enums_in_order) {
+            auto& enum_def = enum_map[enum_name];
+            file << MakeCPPEnum(enum_def);
+            file << "\n";
+        }
+
+        // Write bitmasks
+        for (auto& bitmask_name : module.bitmasks_in_order) {
+            auto& bitmask_def = bitmask_map[bitmask_name];
+            file << MakeCPPBitmask(bitmask_def);
+            file << "\n";
+        }
     }
 
-    // Write bitmasks
-    for (auto& bitmask_name : module.bitmasks_in_order) {
-        auto& bitmask_def = bitmask_map[bitmask_name];
-        file << MakeCPPBitmask(bitmask_def);
-        file << "\n";
+    if (!module.delegates_in_order.empty()) {
+        file << "\n//==============================================================\n"
+                "// Delegates\n"
+                "//==============================================================\n\n";
+        // Write delegates (before structs, as structs may reference delegates)
+        for (auto& delegate_name : module.delegates_in_order) {
+            auto& delegate_def = delegate_map[delegate_name];
+            file << MakeCPPDelegate(delegate_def);
+            file << "\n";
+        }
     }
 
-    file << "\n//==============================================================\n"
-            "// Delegates\n"
-            "//==============================================================\n\n";
-    // Write delegates (before structs, as structs may reference delegates)
-    for (auto& delegate_name : module.delegates_in_order) {
-        auto& delegate_def = delegate_map[delegate_name];
-        file << MakeCPPDelegate(delegate_def);
-        file << "\n";
+    if (!module.structs_in_order.empty()) {
+        file << "\n//==============================================================\n"
+                "// Structs\n"
+                "//==============================================================\n\n";
+        // Write structs
+        for (auto& struct_name : module.structs_in_order) {
+            auto& struct_def = struct_map[struct_name];
+            file << MakeCPPStruct(struct_def);
+            file << "\n";
+        }
     }
 
-    file << "\n//==============================================================\n"
-            "// Structs\n"
-            "//==============================================================\n\n";
-    // Write structs
-    for (auto& struct_name : module.structs_in_order) {
-        auto& struct_def = struct_map[struct_name];
-        file << MakeCPPStruct(struct_def);
-        file << "\n";
-    }
-
-    file << "\n//==============================================================\n"
-            "// Constants\n"
-            "//==============================================================\n\n";
-    // Write constants
-    for (auto& const_name : module.constants_in_order) {
-        auto& const_def = constant_map[const_name];
-        file << MakeCPPConstant(const_def);
-        file << "\n";
+    if (!module.constants_in_order.empty()) {
+        file << "\n//==============================================================\n"
+                "// Constants\n"
+                "//==============================================================\n\n";
+        // Write constants
+        for (auto& const_name : module.constants_in_order) {
+            auto& const_def = constant_map[const_name];
+            file << MakeCPPConstant(const_def);
+            file << "\n";
+        }
     }
 
     // Write footer
-    file << R"(
-}
-#endif // __cplusplus
-#endif // WISDOM_CPP_API_HPP
-)";
+    // clang-format off
+    file << wis::format(R"(
+}}
+#endif // WISDOM_{}_CPP_API_HPP
+)", header_guard);
+    // clang-format on
 }
 
 //-----------------------------------------------------------------------------
 
-void Generator::WriteCDependentAPI(std::filesystem::path dir)
+void Generator::WriteCBackendAPI(std::filesystem::path dir)
 {
-    auto& module = module_map.at(active_module_name);
-    std::filesystem::path path_b  = dir / "backend_api.h";
+    auto&                 module = module_map.at(active_module_name);
+    std::filesystem::path path_b = dir / "backend_api.h";
     files.push_back(path_b);
 
     std::ofstream file_b{ path_b, std::ios::out | std::ios::trunc };
@@ -365,24 +422,36 @@ void Generator::WriteCDependentAPI(std::filesystem::path dir)
         throw std::runtime_error("Failed to open output file: " + path_b.string());
     }
 
-    // Write header
-    file_b << R"(// This file is generated. Do not edit directly.
-#ifndef WISDOM_C_BACKEND_API_H
-#define WISDOM_C_BACKEND_API_H
+    auto header_guard = MakeUpperSnakeCase(module.name);
 
-#include <wisdom/generated/c_api.h>
-#include <string.h>
+    auto includes = module.name == "Core"
+            ? R"(#include <wisdom/generated/c_api.h>
+#include <string.h>)"
+            : R"(#include <wisdom/generated/backend_api.h>
+#include "c_api.h"
+#include "wisdom_exports.h")";
+    auto api_macro = module.name == "Core" ? "WISDOM_API " : wis::format("WISDOM_{}_API ", header_guard);
+    
+
+    // Write header
+    // clang-format off
+    file_b << wis::format(R"(// This file is generated. Do not edit directly.
+#ifndef WISDOM_{0}_C_BACKEND_API_H
+#define WISDOM_{0}_C_BACKEND_API_H
+
+{1}
 
 #ifdef WISDOM_DX12
 #ifdef __cplusplus
-extern "C" {
+extern "C" {{
 #endif // __cplusplus
-)";
+)", header_guard, includes);
+    // clang-format on
 
     // Write handles
     for (auto& handle_name : module.handles_in_order) {
         auto& handle_def = handle_map[handle_name];
-        auto supported = handle_def.GetBackend();
+        auto  supported  = handle_def.GetBackend();
         if (has(supported, Backend::DX12)) {
             file_b << MakeCHandle(handle_def, Backend::DX12);
             file_b << "\n";
@@ -402,7 +471,7 @@ extern "C" {
     for (auto& func_name : module.functions_in_order) {
         auto& func_def = function_map[func_name];
         if (has(func_def.backend, Backend::DX12)) {
-            file_b << MakeCFunctionDecl(func_def, Backend::DX12, "WISDOM_API ");
+            file_b << MakeCFunctionDecl(func_def, Backend::DX12, api_macro);
             file_b << "\n";
         }
     }
@@ -422,7 +491,7 @@ extern "C" {
     // Write Vulkan handles
     for (auto& handle_name : module.handles_in_order) {
         auto& handle_def = handle_map[handle_name];
-        auto supported = handle_def.GetBackend();
+        auto  supported  = handle_def.GetBackend();
         if (has(supported, Backend::Vulkan)) {
             file_b << MakeCHandle(handle_def, Backend::Vulkan);
             file_b << "\n";
@@ -442,25 +511,25 @@ extern "C" {
     for (auto& func_name : module.functions_in_order) {
         auto& func_def = function_map[func_name];
         if (has(func_def.backend, Backend::Vulkan)) {
-            file_b << MakeCFunctionDecl(func_def, Backend::Vulkan, "WISDOM_API ");
+            file_b << MakeCFunctionDecl(func_def, Backend::Vulkan, api_macro);
             file_b << "\n";
         }
     }
 
     // Write footer
-    file_b << R"(
+    file_b << wis::format(R"(
 #ifdef __cplusplus
-}
+}}
 #endif // __cplusplus
 #endif // WISDOM_VULKAN
 
-#endif // WISDOM_C_BACKEND_API_H
-)";
+#endif // WISDOM_{}_C_BACKEND_API_H
+)", header_guard);
 }
 
 void Generator::WriteCIndependentAPI(std::filesystem::path dir)
 {
-    auto& module = module_map.at(active_module_name);
+    auto&                 module = module_map.at(active_module_name);
     std::filesystem::path path_w = dir / "wisdom.h";
     files.push_back(path_w);
 
@@ -653,9 +722,9 @@ static inline bool wisHandleValid(const void* handle) {
 }
 
 //-----------------------------------------------------------------------------
-void Generator::WriteCPPDependentAPI(std::filesystem::path dir)
+void Generator::WriteCPPBackendAPI(std::filesystem::path dir)
 {
-    auto& module = module_map.at(active_module_name);
+    auto&                 module  = module_map.at(active_module_name);
     std::filesystem::path path_dx = dir / "dx12_cpp_api.hpp";
     std::filesystem::path path_vk = dir / "vk_cpp_api.hpp";
     files.push_back(path_dx);
@@ -728,7 +797,7 @@ namespace wis {
     // Write handles
     for (auto& handle_name : module.handles_in_order) {
         auto& handle_def = handle_map[handle_name];
-        auto supported = handle_def.GetBackend();
+        auto  supported  = handle_def.GetBackend();
         if (has(supported, Backend::DX12)) {
             file_dx << MakeCPPHandle(handle_def, Backend::DX12);
             file_dx << "\n";
@@ -766,7 +835,7 @@ namespace wis {
 
 void Generator::WriteCPPIndependentAPI(std::filesystem::path dir)
 {
-    auto& module = module_map.at(active_module_name);
+    auto&                 module = module_map.at(active_module_name);
     std::filesystem::path path_w = dir / "wisdom.hpp";
     files.push_back(path_w);
 
@@ -955,7 +1024,7 @@ void Generator::WriteCPPPlatformAPI(std::filesystem::path path)
 #ifndef WISDOM_CPP_PLATFORM_API_HPP
 #define WISDOM_CPP_PLATFORM_API_HPP
 #ifdef __cplusplus
-#include <wisdom_platform/generated/c_platform_api.h>
+#include <wisdom_platform/generated/backend_api.h>
 #include <wisdom/global/internal.hpp>
 #include <wisdom/bridge/span.hpp>
 
@@ -1009,7 +1078,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 #endif // WISDOM_VULKAN_FOUND
 #endif // FORCEVK_SWITCH
 
-#include "../wisdom_platform/generated/c_platform_api.h"
+#include "../wisdom_platform/generated/backend_api.h"
 
 #if defined(WISDOM_DX12) && !FORCEVK_SWITCH
 
@@ -1102,7 +1171,7 @@ namespace wis {
 
 void Generator::WriteConversions(std::filesystem::path dir)
 {
-    auto& module = module_map.at(active_module_name);
+    auto&                 module  = module_map.at(active_module_name);
     std::filesystem::path path_dx = dir / "dx12_convert.hpp";
     std::filesystem::path path_vk = dir / "vk_convert.hpp";
     files.push_back(path_dx);

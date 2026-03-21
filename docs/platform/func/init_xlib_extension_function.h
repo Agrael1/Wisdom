@@ -18,8 +18,6 @@
  * // Provided by Wisdom 0.7.0. 
  * void wisVKInitXlibExtension(WisVKXlibExtension* self);
  * 
- * // Provided by Wisdom 0.7.0. 
- * void wisDX12InitXlibExtension(WisDX12XlibExtension* self);
  * ```
  * </details>
  * 
@@ -27,21 +25,9 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
- * void XlibExtension::InitXlibExtension() noexcept;
- * }
- * ```
- * <details>
- * <summary>C++ Implementation Specific Version:</summary>
- * ```cpp
- * namespace wis{
- * // Provided by Wisdom 0.7.0. 
  * void VKXlibExtension::InitXlibExtension() noexcept;
- * 
- * // Provided by Wisdom 0.7.0. 
- * void DX12XlibExtension::InitXlibExtension() noexcept;
  * }
  * ```
- * </details>
  * \endcond
  *
  * @section wisInitXlibExtension_memb Parameters

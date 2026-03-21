@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <registry>
-  <module name="WisdomPlatform" version="0.7.0" base_dir="platform/wisdom_platform" doc_dir="platform">
+  <module name="Platform" version="0.7.0" base_dir="platform/wisdom_platform" doc_dir="platform">
     <types>
       <type name="XlibWindowDesc" category="struct" version="0.7.0" doc="X11 surface creation info. Uses opaque types to avoid Xlib.h inclusion in public headers.">
         <member type="void" name="display" mod="ptr" doc="Pointer to the X11 Display. Cast to Display* internally."/>

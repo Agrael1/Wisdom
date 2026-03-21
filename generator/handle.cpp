@@ -43,6 +43,20 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
             ref.extends = GetExtends(extends->Value());
         }
 
+        // Parse implementations
+        for (auto* impl = type->FirstChildElement("impl"); impl;
+             impl       = impl->NextSiblingElement("impl")) {
+            auto impl_for = impl->FindAttribute("for")->Value();
+            auto backend  = ParseBackend(impl_for);
+
+            uint32_t size = impl->UnsignedAttribute("size", 0);
+            if (backend == Backend::DX12) {
+                ref.sizes[0] = size;
+            } else if (backend == Backend::Vulkan) {
+                ref.sizes[1] = size;
+            }
+        }
+
         // Add destroy function
         std::string destr_name = "Destroy" + std::string(name);
         std::string destr_doc  = "Destroys a {" + std::string(name) + "::} handle.";
@@ -56,6 +70,7 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
         destroy.modifier  = Modifier::Destroy;
         destroy.version   = version;
         destroy.doc       = destr_doc;
+        destroy.FilterBackend(ref.GetBackend());
         type_map[kref] = TypeKind::Function;
         module_map[active_module_name].functions_in_order.emplace_back(destroy_key);
         dependency_tree[name].functions.emplace_back(destroy_key);
@@ -74,24 +89,13 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
             create.modifier  = Modifier::Construct;
             create.version   = version;
             create.doc       = create_doc;
+            create.FilterBackend(ref.GetBackend());
             type_map[iref] = TypeKind::Function;
             module_map[active_module_name].functions_in_order.emplace_back(create_key);
             dependency_tree[name].functions.emplace_back(create_key);
         }
 
-        // Parse implementations
-        for (auto* impl = type->FirstChildElement("impl"); impl;
-             impl       = impl->NextSiblingElement("impl")) {
-            auto impl_for = impl->FindAttribute("for")->Value();
-            auto backend  = ParseBackend(impl_for);
 
-            uint32_t size = impl->UnsignedAttribute("size", 0);
-            if (backend == Backend::DX12) {
-                ref.sizes[0] = size;
-            } else if (backend == Backend::Vulkan) {
-                ref.sizes[1] = size;
-            }
-        }
 
         // view sizes
         bool has_view = false;

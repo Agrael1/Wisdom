@@ -1,62 +1,15 @@
 // This file is generated. Do not edit directly.
-#ifndef WISDOM_C_PLATFORM_API_H
-#define WISDOM_C_PLATFORM_API_H
-#include <wisdom/global/definitions.h>
-#include <wisdom_platform/generated/wisdom_exports.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <stddef.h>
-#include <wisdom/generated/backend_api.h>
+#ifndef WISDOM_PLATFORM_C_BACKEND_API_H
+#define WISDOM_PLATFORM_C_BACKEND_API_H
 
+#include <wisdom/generated/backend_api.h>
+#include "c_api.h"
+#include "wisdom_exports.h"
+
+#ifdef WISDOM_DX12
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
-/**
- * @brief Provided by Wisdom 0.7.0. X11 surface creation info. Uses opaque types to avoid Xlib.h inclusion in public headers.
- *
- * */
-typedef struct WisXlibWindowDesc {
-    void*    display; ///< Pointer to the X11 Display. Cast to Display* internally.
-    uint64_t window; ///< The X11 Window ID. Fits standard 32/64-bit window handles.
-} WisXlibWindowDesc;
-
-/**
- * @brief Provided by Wisdom 0.7.0. Win32 surface creation info.
- *
- * */
-typedef struct WisWin32WindowDesc {
-    void* hinstance; ///< HINSTANCE of the window. Cast to HINSTANCE internally.
-    void* hwnd; ///< HWND of the window. Cast to HWND internally.
-} WisWin32WindowDesc;
-
-/**
- * @brief Provided by Wisdom 0.7.0. Wayland surface creation info. Uses opaque types to avoid Wayland headers in public headers.
- *
- * */
-typedef struct WisWaylandWindowDesc {
-    void* display; ///< Pointer to the Wayland display. Cast to wl_display* internally.
-    void* surface; ///< Pointer to the Wayland surface. Cast to wl_surface* internally.
-} WisWaylandWindowDesc;
-
-/**
- * @brief Provided by Wisdom 0.7.0. X11 surface creation info for XCB. Uses opaque types to avoid XCB headers in public headers.
- *
- * */
-typedef struct WisXCBWindowDesc {
-    void*    connection; ///< Pointer to the XCB connection. Cast to xcb_connection_t* internally.
-    uint32_t window; ///< The X11 Window ID. Fits standard 32/64-bit window handles.
-} WisXCBWindowDesc;
-
-/**
- * @brief Provided by Wisdom 0.7.0. UWP surface creation info. Uses opaque types to avoid Windows Runtime headers in public headers.
- *
- * */
-typedef struct WisUWPWindowDesc {
-    void* core_window; ///< Pointer to the UWP CoreWindow. Cast to ICoreWindow* internally.
-} WisUWPWindowDesc;
-
-#if defined(WISDOM_DX12)
-
 /**
  * @brief Provided by Wisdom 0.7.0. Extension for Win32 surface creation functions.
  *
@@ -121,10 +74,15 @@ WISDOM_PLATFORM_API WisResult wisDX12UWPExtensionCreateSurface(WisDX12UWPExtensi
                                                                const WisUWPWindowDesc* info,
                                                                WisDX12Surface*         surface);
 
-#endif // defined(WISDOM_DX12)
+#ifdef __cplusplus
+}
+#endif // __cplusplus
+#endif // WISDOM_DX12
 
-#if defined(WISDOM_VULKAN)
-
+#ifdef WISDOM_VULKAN
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
 /**
  * @brief Provided by Wisdom 0.7.0. Extension for Xlib surface creation functions.
  *
@@ -253,9 +211,9 @@ WISDOM_PLATFORM_API WisResult wisVKWin32ExtensionCreateSurface(WisVKWin32Extensi
                                                                const WisWin32WindowDesc* info,
                                                                WisVKSurface*             surface);
 
-#endif // defined(WISDOM_VULKAN)
-
 #ifdef __cplusplus
 }
 #endif // __cplusplus
-#endif // WISDOM_C_PLATFORM_API_H
+#endif // WISDOM_VULKAN
+
+#endif // WISDOM_PLATFORM_C_BACKEND_API_H
