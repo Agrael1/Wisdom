@@ -2,7 +2,7 @@
 #define WIS_VK_INSTANCE_CPP
 
 #include <wisdom/util/allocation.hpp>
-#include <wisdom/generated/backend_api.hpp>
+#include <wisdom/generated/cpp_api.hpp>
 #include <wisdom/vulkan/detail/vk_utils.hpp>
 #include <wisdom/vulkan/detail/vk_detail.hpp>
 #include <wisdom/vulkan/vk_extensions.hpp>

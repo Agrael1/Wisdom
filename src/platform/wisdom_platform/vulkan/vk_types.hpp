@@ -4,9 +4,6 @@
 #error "This header requires C++"
 #endif // __cplusplus
 
-#define WISDOM_BUILD_BINARIES 1
-#include <wisdom/generated/backend_api.hpp>
-
 namespace wis {
 //-----------------------------------------------------------------------------
 namespace detail {

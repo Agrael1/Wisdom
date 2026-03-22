@@ -5,7 +5,7 @@ wis_make_target_bundle(
         "wisdom/global/definitions.h"
         "wisdom/global/internal.hpp"
         "wisdom/generated/c_api.h"
-        "wisdom/generated/backend_api.h"
+        "wisdom/generated/c_api.h"
         "wisdom/generated/cpp_api.hpp"
         "wisdom/generated/wisdom_exports.h"
         "wisdom/bridge/span.hpp"

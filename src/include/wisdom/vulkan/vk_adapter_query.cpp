@@ -3,7 +3,7 @@
 
 #include <wisdom/vulkan/detail/vk_ext1.hpp>
 #include <wisdom/vulkan/vk_types.hpp>
-#include <wisdom/generated/backend_api.h>
+#include <wisdom/generated/c_api.h>
 #include <wisdom/util/allocation.hpp>
 #include <algorithm>
 #include <bit>

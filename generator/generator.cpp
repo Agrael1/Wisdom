@@ -65,8 +65,6 @@ void Generator::WriteModuleAPI()
     WriteCAPI(cpp_output_path_api);
     WriteCPPAPI(cpp_output_path_api);
 
-    WriteCBackendAPI(cpp_output_path_api);
-    WriteCPPBackendAPI(cpp_output_path_api);
     WriteConversions(cpp_output_path_api);
 
     auto independent_path = cpp_output_path / "../wisdom";
@@ -209,8 +207,13 @@ void Generator::WriteCAPI(std::filesystem::path dir)
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
+#include <string.h>
 )"
-            : R"(#include <wisdom/generated/c_api.h>)";
+            : R"(#include <wisdom/generated/c_api.h>
+#include "wisdom_exports.h"
+)";
+
+    auto api_macro = module.name == "Core" ? "WISDOM_API " : wis::format("WISDOM_{}_API ", header_guard);
 
     // Write header
     // clang-format off
@@ -281,6 +284,76 @@ extern "C" {{
         }
     }
 
+    file << R"(
+#ifdef WISDOM_DX12
+)";
+
+    // Write handles
+    for (auto& handle_name : module.handles_in_order) {
+        auto& handle_def = handle_map[handle_name];
+        auto  supported  = handle_def.GetBackend();
+        if (has(supported, Backend::DX12)) {
+            file << MakeCHandle(handle_def, Backend::DX12);
+            file << "\n";
+        }
+    }
+
+    // Write variants
+    for (auto& variant_name : module.variants_in_order) {
+        auto& variant_def = variant_map[variant_name];
+        if (has(variant_def.backend, Backend::DX12)) {
+            file << MakeCVariant(variant_def, Backend::DX12);
+            file << "\n";
+        }
+    }
+
+    // Write functions
+    for (auto& func_name : module.functions_in_order) {
+        auto& func_def = function_map[func_name];
+        if (has(func_def.backend, Backend::DX12)) {
+            file << MakeCFunctionDecl(func_def, Backend::DX12, api_macro);
+            file << "\n";
+        }
+    }
+
+    file << R"(
+#endif // WISDOM_DX12
+
+#ifdef WISDOM_VULKAN
+)";
+
+    // Write Vulkan handles
+    for (auto& handle_name : module.handles_in_order) {
+        auto& handle_def = handle_map[handle_name];
+        auto  supported  = handle_def.GetBackend();
+        if (has(supported, Backend::Vulkan)) {
+            file << MakeCHandle(handle_def, Backend::Vulkan);
+            file << "\n";
+        }
+    }
+
+    // Write Vulkan variants
+    for (auto& variant_name : module.variants_in_order) {
+        auto& variant_def = variant_map[variant_name];
+        if (has(variant_def.backend, Backend::Vulkan)) {
+            file << MakeCVariant(variant_def, Backend::Vulkan);
+            file << "\n";
+        }
+    }
+
+    // Write Vulkan functions
+    for (auto& func_name : module.functions_in_order) {
+        auto& func_def = function_map[func_name];
+        if (has(func_def.backend, Backend::Vulkan)) {
+            file << MakeCFunctionDecl(func_def, Backend::Vulkan, api_macro);
+            file << "\n";
+        }
+    }
+
+    file << R"(
+#endif // WISDOM_VULKAN
+)";
+
     // Write footer
     // clang-format off
     file << wis::format(R"(
@@ -313,12 +386,23 @@ void Generator::WriteCPPAPI(std::filesystem::path dir)
     }
 
     auto header_guard = MakeUpperSnakeCase(module.name);
+    auto include_root = dir.parent_path().filename().generic_string();
 
     auto includes = module.name == "Core"
             ? R"(#include <wisdom/global/definitions.h>
 #include <wisdom/bridge/span.hpp>
+#include <wisdom/global/internal.hpp>
+#include "c_api.h"
 )"
-            : R"(#include <wisdom/generated/cpp_api.hpp>)";
+            : R"(// Header guard from unwanted inclusions
+#ifndef WISDOM_BUILD_BINARIES
+#define WISDOM_BUILD_BINARIES
+#endif // WISDOM_BUILD_BINARIES
+
+#include <wisdom/generated/cpp_api.hpp>
+#include "wisdom_exports.h"
+#include "c_api.h"
+)";
 
     // Write header
     // clang-format off
@@ -391,60 +475,21 @@ namespace wis {{
         }
     }
 
-    // Write footer
-    // clang-format off
     file << wis::format(R"(
-}}
-#endif // WISDOM_{}_CPP_API_HPP
-)", header_guard);
-    // clang-format on
-}
-
-//-----------------------------------------------------------------------------
-
-void Generator::WriteCBackendAPI(std::filesystem::path dir)
-{
-    auto&                 module = module_map.at(active_module_name);
-    std::filesystem::path path_b = dir / "backend_api.h";
-    files.push_back(path_b);
-
-    std::ofstream file_b{ path_b, std::ios::out | std::ios::trunc };
-    if (!file_b.is_open()) {
-        throw std::runtime_error("Failed to open output file: " + path_b.string());
-    }
-
-    auto header_guard = MakeUpperSnakeCase(module.name);
-
-    auto includes  = module.name == "Core"
-             ? R"(#include <wisdom/generated/c_api.h>
-#include <string.h>)"
-             : R"(#include <wisdom/generated/backend_api.h>
-#include "c_api.h"
-#include "wisdom_exports.h")";
-    auto api_macro = module.name == "Core" ? "WISDOM_API " : wis::format("WISDOM_{}_API ", header_guard);
-
-    // Write header
-    // clang-format off
-    file_b << wis::format(R"(// This file is generated. Do not edit directly.
-#ifndef WISDOM_{0}_C_BACKEND_API_H
-#define WISDOM_{0}_C_BACKEND_API_H
-
-{1}
+}} // namespace wis
 
 #ifdef WISDOM_DX12
-#ifdef __cplusplus
-extern "C" {{
-#endif // __cplusplus
-)", header_guard, includes);
-    // clang-format on
+#include <{0}/dx12/dx12_types.hpp>
 
-    // Write handles
-    for (auto& handle_name : module.handles_in_order) {
+namespace wis {{
+)", include_root);
+
+    // Write Views for handles
+    for (auto& handle_name : module.views_in_order) {
         auto& handle_def = handle_map[handle_name];
-        auto  supported  = handle_def.GetBackend();
-        if (has(supported, Backend::DX12)) {
-            file_b << MakeCHandle(handle_def, Backend::DX12);
-            file_b << "\n";
+        if (handle_def.GetViewSize(Backend::DX12) > 0) {
+            file << MakeCPPView(handle_def, Backend::DX12);
+            file << "\n";
         }
     }
 
@@ -452,71 +497,92 @@ extern "C" {{
     for (auto& variant_name : module.variants_in_order) {
         auto& variant_def = variant_map[variant_name];
         if (has(variant_def.backend, Backend::DX12)) {
-            file_b << MakeCVariant(variant_def, Backend::DX12);
-            file_b << "\n";
+            file << MakeCPPVariant(variant_def, Backend::DX12);
+            file << "\n";
+        }
+    }
+
+    // Write handles
+    for (auto& handle_name : module.handles_in_order) {
+        auto& handle_def = handle_map[handle_name];
+        auto  supported  = handle_def.GetBackend();
+        if (has(supported, Backend::DX12)) {
+            file << MakeCPPHandle(handle_def, Backend::DX12);
+            file << "\n";
         }
     }
 
     // Write functions
-    for (auto& func_name : module.functions_in_order) {
-        auto& func_def = function_map[func_name];
+    for (auto& func_name : module.free_functions_in_order) {
+        FunctionKey key      = MakeFunctionKey("", func_name);
+        auto&       func_def = function_map[key];
         if (has(func_def.backend, Backend::DX12)) {
-            file_b << MakeCFunctionDecl(func_def, Backend::DX12, api_macro);
-            file_b << "\n";
+            file << MakeCPPFunctionImpl(func_def, Backend::DX12, "inline ");
+            file << "\n";
         }
     }
 
-    file_b << R"(
-#ifdef __cplusplus
-}
-#endif // __cplusplus
+    file << wis::format(R"(
+}} // namespace wis
 #endif // WISDOM_DX12
 
 #ifdef WISDOM_VULKAN
-#ifdef __cplusplus
-extern "C" {
-#endif // __cplusplus
-)";
+#include <{0}/vulkan/vk_types.hpp>
 
-    // Write Vulkan handles
+namespace wis {{
+)", include_root);
+
+    // Write Views for handles
+    for (auto& handle_name : module.views_in_order) {
+        auto& handle_def = handle_map[handle_name];
+        if (handle_def.GetViewSize(Backend::Vulkan) > 0) {
+            file << MakeCPPView(handle_def, Backend::Vulkan);
+            file << "\n";
+        }
+    }
+
+    // Write variants
+    for (auto& variant_name : module.variants_in_order) {
+        auto& variant_def = variant_map[variant_name];
+        if (has(variant_def.backend, Backend::Vulkan)) {
+            file << MakeCPPVariant(variant_def, Backend::Vulkan);
+            file << "\n";
+        }
+    }
+
+    // Write handles
     for (auto& handle_name : module.handles_in_order) {
         auto& handle_def = handle_map[handle_name];
         auto  supported  = handle_def.GetBackend();
         if (has(supported, Backend::Vulkan)) {
-            file_b << MakeCHandle(handle_def, Backend::Vulkan);
-            file_b << "\n";
+            file << MakeCPPHandle(handle_def, Backend::Vulkan);
+            file << "\n";
         }
     }
 
-    // Write Vulkan variants
-    for (auto& variant_name : module.variants_in_order) {
-        auto& variant_def = variant_map[variant_name];
-        if (has(variant_def.backend, Backend::Vulkan)) {
-            file_b << MakeCVariant(variant_def, Backend::Vulkan);
-            file_b << "\n";
-        }
-    }
-
-    // Write Vulkan functions
-    for (auto& func_name : module.functions_in_order) {
-        auto& func_def = function_map[func_name];
+    // Write functions
+    for (auto& func_name : module.free_functions_in_order) {
+        FunctionKey key      = MakeFunctionKey("", func_name);
+        auto&       func_def = function_map[key];
         if (has(func_def.backend, Backend::Vulkan)) {
-            file_b << MakeCFunctionDecl(func_def, Backend::Vulkan, api_macro);
-            file_b << "\n";
+            file << MakeCPPFunctionImpl(func_def, Backend::Vulkan, "inline ");
+            file << "\n";
         }
     }
 
     // Write footer
-    file_b << wis::format(R"(
-#ifdef __cplusplus
-}}
-#endif // __cplusplus
+    // clang-format off
+    file << wis::format(R"(
+}} // namespace wis
 #endif // WISDOM_VULKAN
 
-#endif // WISDOM_{}_C_BACKEND_API_H
-)",
-                          header_guard);
+#endif // WISDOM_{}_CPP_API_HPP
+)", header_guard);
+    // clang-format on
 }
+
+//-----------------------------------------------------------------------------
+
 
 void Generator::WriteCIndependentAPI(std::filesystem::path dir)
 {
@@ -529,8 +595,8 @@ void Generator::WriteCIndependentAPI(std::filesystem::path dir)
     }
 
     auto backend_include = module_folder == "wisdom"
-            ? std::string("generated/backend_api.h")
-            : wis::format("../{}/generated/backend_api.h", module_folder);
+            ? std::string("generated/c_api.h")
+            : wis::format("../{}/generated/c_api.h", module_folder);
     auto header_guard    = wis::format("WISDOM_{}_H", MakeUpperSnakeCase(module.name));
 
     std::filesystem::path path_w = dir / (independent_name + ".h");
@@ -769,137 +835,6 @@ static inline bool wisHandleValid(const void* handle) {
 }
 
 //-----------------------------------------------------------------------------
-void Generator::WriteCPPBackendAPI(std::filesystem::path dir)
-{
-    auto&                 module = module_map.at(active_module_name);
-    std::filesystem::path path_b = dir / "backend_api.hpp";
-    files.push_back(path_b);
-
-    std::ofstream file_b{ path_b, std::ios::out | std::ios::trunc };
-    if (!file_b.is_open()) {
-        throw std::runtime_error("Failed to open output file: " + path_b.string());
-    }
-
-    auto header_guard = MakeUpperSnakeCase(module.name);
-    auto include_root = dir.parent_path().filename().generic_string();
-
-    // Write header
-    // clang-format off
-    file_b << wis::format(R"(// This file is generated. Do not edit directly.
-#ifndef WISDOM_{0}_CPP_BACKEND_API_HPP
-#define WISDOM_{0}_CPP_BACKEND_API_HPP
-#ifndef __cplusplus
-#error "This is a C++ only header"
-#endif // __cplusplus
-
-#include "cpp_api.hpp"
-#include "backend_api.h"
-#include <wisdom/global/internal.hpp>
-
-#ifdef WISDOM_DX12
-#include <{1}/dx12/dx12_types.hpp>
-
-namespace wis {{
-)", header_guard, include_root);
-    // clang-format on
-
-    // Write Views for handles
-    for (auto& handle_name : module.views_in_order) {
-        auto& handle_def = handle_map[handle_name];
-        if (handle_def.GetViewSize(Backend::DX12) > 0) {
-            file_b << MakeCPPView(handle_def, Backend::DX12);
-            file_b << "\n";
-        }
-    }
-
-    // Write variants
-    for (auto& variant_name : module.variants_in_order) {
-        auto& variant_def = variant_map[variant_name];
-        if (has(variant_def.backend, Backend::DX12)) {
-            file_b << MakeCPPVariant(variant_def, Backend::DX12);
-            file_b << "\n";
-        }
-    }
-
-    // Write handles
-    for (auto& handle_name : module.handles_in_order) {
-        auto& handle_def = handle_map[handle_name];
-        auto  supported  = handle_def.GetBackend();
-        if (has(supported, Backend::DX12)) {
-            file_b << MakeCPPHandle(handle_def, Backend::DX12);
-            file_b << "\n";
-        }
-    }
-
-    // Write functions
-    for (auto& func_name : module.free_functions_in_order) {
-        FunctionKey key      = MakeFunctionKey("", func_name);
-        auto&       func_def = function_map[key];
-        if (has(func_def.backend, Backend::DX12)) {
-            file_b << MakeCPPFunctionImpl(func_def, Backend::DX12, "inline ");
-            file_b << "\n";
-        }
-    }
-
-    file_b << wis::format(R"(
-}} // namespace wis
-#endif // WISDOM_DX12
-
-#ifdef WISDOM_VULKAN
-#include <{}/vulkan/vk_types.hpp>
-
-namespace wis {{
-)",
-                          include_root);
-
-    // Write Views for handles
-    for (auto& handle_name : module.views_in_order) {
-        auto& handle_def = handle_map[handle_name];
-        if (handle_def.GetViewSize(Backend::Vulkan) > 0) {
-            file_b << MakeCPPView(handle_def, Backend::Vulkan);
-            file_b << "\n";
-        }
-    }
-
-    // Write variants
-    for (auto& variant_name : module.variants_in_order) {
-        auto& variant_def = variant_map[variant_name];
-        if (has(variant_def.backend, Backend::Vulkan)) {
-            file_b << MakeCPPVariant(variant_def, Backend::Vulkan);
-            file_b << "\n";
-        }
-    }
-
-    // Write handles
-    for (auto& handle_name : module.handles_in_order) {
-        auto& handle_def = handle_map[handle_name];
-        auto  supported  = handle_def.GetBackend();
-        if (has(supported, Backend::Vulkan)) {
-            file_b << MakeCPPHandle(handle_def, Backend::Vulkan);
-            file_b << "\n";
-        }
-    }
-
-    // Write functions
-    for (auto& func_name : module.free_functions_in_order) {
-        FunctionKey key      = MakeFunctionKey("", func_name);
-        auto&       func_def = function_map[key];
-        if (has(func_def.backend, Backend::Vulkan)) {
-            file_b << MakeCPPFunctionImpl(func_def, Backend::Vulkan, "inline ");
-            file_b << "\n";
-        }
-    }
-
-    // Write footer
-    file_b << wis::format(R"(
-}} // namespace wis
-#endif // WISDOM_VULKAN
-
-#endif // WISDOM_{}_CPP_BACKEND_API_HPP
-)",
-                          header_guard);
-}
-
 void Generator::WriteCPPIndependentAPI(std::filesystem::path dir)
 {
     auto& module = module_map.at(active_module_name);
@@ -911,8 +846,8 @@ void Generator::WriteCPPIndependentAPI(std::filesystem::path dir)
     }
 
     auto backend_include = module_folder == "wisdom"
-            ? std::string("generated/backend_api.hpp")
-            : wis::format("../{}/generated/backend_api.hpp", module_folder);
+            ? std::string("generated/cpp_api.hpp")
+            : wis::format("../{}/generated/cpp_api.hpp", module_folder);
     auto header_guard    = wis::format("WISDOM_{}_HPP", MakeUpperSnakeCase(module.name));
 
     std::filesystem::path path_w = dir / (independent_name + ".hpp");

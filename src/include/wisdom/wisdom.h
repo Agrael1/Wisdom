@@ -14,7 +14,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 #endif // WISDOM_VULKAN_FOUND
 #endif // FORCEVK_SWITCH
 
-#include "generated/backend_api.h"
+#include "generated/c_api.h"
 
 #if defined(WISDOM_DX12) && !FORCEVK_SWITCH
 
