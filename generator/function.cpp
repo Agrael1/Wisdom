@@ -438,9 +438,8 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, Backend back
         return func_decl;
     }
 
-    auto re_impl     = GetBackendSuffix(backend);
-    auto backend_tag = GetBackendTag(backend);
-    auto c_name      = wis::format("wis{}{}{}", re_impl, func.IsCD() ? "" : func.this_type, func.name);
+    auto re_impl = GetBackendSuffix(backend);
+    auto c_name  = wis::format("wis{}{}{}", re_impl, func.IsCD() ? "" : func.this_type, func.name);
 
     // Convert args and call C function
     std::string body = "{\n";
@@ -500,12 +499,9 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, Backend back
         // Prepare out parameter
         body += wis::format("    {} {};\n", GetMemberTypeString<Lang::CPP>(func.return_type, backend), ret_value_name);
 
-        body += wis::format("    out_result = convert_result_{}(::{}({}",
-                            backend_tag,
+        body += wis::format("    const WisResult wis_result = ::{}({}",
                             c_name,
-                            func.this_type.empty()
-                                    ? ""
-                                    : "&_impl_storage");
+                            func.this_type.empty() ? "" : "&_impl_storage");
 
         if (func.parameters.size() > 0 && !func.this_type.empty()) {
             body += arg_prefix;
@@ -516,17 +512,17 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, Backend back
         auto ret_type = GetType(func.return_type.type);
 
         if (ret_type == TypeKind::Handle) {
-            body += wis::format(", {}.GetStorage()));\n", ret_value_name);
+            body += wis::format(", {}.GetStorage());\n", ret_value_name);
         } else {
-            body += wis::format(", reinterpret_cast<{}*>(&{})));\n",
+            body += wis::format(", reinterpret_cast<{}*>(&{}));\n",
                                 GetMemberTypeString<Lang::C>(func.return_type, backend),
                                 ret_value_name);
         }
+        body += "    out_result = wis::Result{ static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error };\n";
         body += wis::format("    return {};\n", ret_value_name);
     } break;
     case ReturnTypeKind::ResultOnly: {
-        body += wis::format("    return convert_result_{}(::{}({}",
-                            backend_tag,
+        body += wis::format("    const WisResult wis_result = ::{}({}",
                             c_name,
                             func.this_type.empty() ? "" : "&_impl_storage");
         constexpr static std::string_view arg_prefix = ",\n    ";
@@ -534,7 +530,8 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, Backend back
             body += arg_prefix;
         }
         set_params();
-        body += "));\n";
+        body += ");\n";
+        body += "    return wis::Result{ static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error };\n";
     } break;
     case ReturnTypeKind::Direct: {
         auto        ret_type = GetType(func.return_type.type);

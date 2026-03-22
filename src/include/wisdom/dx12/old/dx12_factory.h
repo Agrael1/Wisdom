@@ -1,6 +1,6 @@
 #ifndef WIS_DX12_FACTORY_H
 #define WIS_DX12_FACTORY_H
-#include <wisdom/generated/backend_api.h>
+#include <wisdom/generated/c_api.h>
 
 WIS_EXTERN_C WisResult WisDX12CreateFactory(const struct WisFactoryCreateInfo* info, WisDX12Instance* out_factory);
 

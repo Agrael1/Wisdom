@@ -7,16 +7,9 @@
 #include <dxgi1_6.h>
 #include <d3d12.h>
 #include <D3D12MemAlloc.h>
-#include <wisdom/generated/cpp_api.hpp>
 #include <wisdom/util/com_ptr.hpp>
 
 namespace wis {
-//-----------------------------------------------------------------------------
-constexpr inline wis::Result convert_result_dx(WisResult result) noexcept
-{
-    return { static_cast<wis::Status>(result.status), result.platform_code, result.error };
-}
-
 //-----------------------------------------------------------------------------
 namespace detail {
 struct DX12DebugLayer;

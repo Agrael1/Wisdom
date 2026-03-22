@@ -2,7 +2,7 @@
 #define WIS_VK_PLATFORM_WIN32_CPP
 
 #if defined(WISDOM_VULKAN) && defined(WIS_PLATFORM_WIN32_PRESENT)
-#include <wisdom_platform/generated/backend_api.hpp>
+#include <wisdom_platform/generated/cpp_api.hpp>
 #include <wisdom/vulkan/detail/vk_utils.hpp>
 #include <wisdom/vulkan/detail/vk_detail.hpp>
 #include <wisdom/vulkan/vk_extensions.hpp>

@@ -5,7 +5,6 @@
 #endif // __cplusplus
 
 #include <wisdom/generated/c_api.h>
-#include <wisdom/generated/cpp_api.hpp>
 #include <wisdom/vulkan/vk_tables.hpp>
 #include <vk_mem_alloc.h>
 #include <cstring>
@@ -15,11 +14,6 @@ namespace wis {
 struct VKInstanceExtensionCollector;
 struct VKDeviceExtensionCollector;
 //-----------------------------------------------------------------------------
-constexpr wis::Result convert_result_vk(WisResult result) noexcept
-{
-    return { static_cast<wis::Status>(result.status), result.platform_code, result.error };
-}
-
 namespace detail {
 struct VKInstanceControlBlock;
 struct VKDeviceControlBlock;

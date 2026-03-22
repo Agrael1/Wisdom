@@ -14,7 +14,7 @@
 #endif // WISDOM_VULKAN_FOUND
 #endif // FORCEVK_SWITCH
 
-#include "../wisdom_platform/generated/backend_api.hpp"
+#include "../wisdom_platform/generated/cpp_api.hpp"
 
 #if defined(WISDOM_DX12) && !FORCEVK_SWITCH
 

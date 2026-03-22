@@ -1,11 +1,11 @@
 #ifndef WIS_DX12_DESCRIPTOR_HEAP_CPP
 #define WIS_DX12_DESCRIPTOR_HEAP_CPP
 
-#include <wisdom/generated/backend_api.h>
 #include <wisdom/generated/dx12_convert.hpp>
 #include <wisdom/dx12/dx12_types.hpp>
 #include <wisdom/dx12/detail/dx12_utils.hpp>
 #include <wisdom/util/allocation.hpp>
+#include <array>
 #include <bit>
 #include <algorithm>
 

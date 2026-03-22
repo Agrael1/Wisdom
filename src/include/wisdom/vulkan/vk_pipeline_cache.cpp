@@ -1,6 +1,6 @@
 #ifndef WIS_VK_PIPELINE_CACHE_CPP
 #define WIS_VK_PIPELINE_CACHE_CPP
-#include <wisdom/generated/backend_api.hpp>
+#include <wisdom/generated/cpp_api.hpp>
 #include <wisdom/generated/vk_convert.hpp>
 #include <wisdom/vulkan/detail/vk_detail.hpp>
 #include <wisdom/vulkan/detail/vk_utils.hpp>

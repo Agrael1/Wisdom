@@ -14,7 +14,7 @@
 #endif // WISDOM_VULKAN_FOUND
 #endif // FORCEVK_SWITCH
 
-#include "generated/backend_api.hpp"
+#include "generated/cpp_api.hpp"
 
 #if defined(WISDOM_DX12) && !FORCEVK_SWITCH
 
@@ -83,10 +83,11 @@ WIS_NODISCARD inline wis::Instance CreateInstance(const wis::DebugDesc*         
                                                   wis::Result&                             out_result) noexcept
 {
     wis::DX12Instance instance;
-    out_result = convert_result_dx(::wisDX12CreateInstance(reinterpret_cast<const WisDebugDesc*>(debug_desc),
-                                                           reinterpret_cast<WisDX12InstanceExtensionHeader**>(extensions.data()),
-                                                           extensions.size(),
-                                                           instance.GetStorage()));
+    const WisResult   wis_result = ::wisDX12CreateInstance(reinterpret_cast<const WisDebugDesc*>(debug_desc),
+                                                         reinterpret_cast<WisDX12InstanceExtensionHeader**>(extensions.data()),
+                                                         extensions.size(),
+                                                         instance.GetStorage());
+    out_result                   = wis::Result{ static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error };
     return instance;
 }
 
@@ -159,10 +160,11 @@ WIS_NODISCARD inline wis::Instance CreateInstance(const wis::DebugDesc*         
                                                   wis::Result&                             out_result) noexcept
 {
     wis::VKInstance instance;
-    out_result = convert_result_vk(::wisVKCreateInstance(reinterpret_cast<const WisDebugDesc*>(debug_desc),
-                                                         reinterpret_cast<WisVKInstanceExtensionHeader**>(extensions.data()),
-                                                         extensions.size(),
-                                                         instance.GetStorage()));
+    const WisResult wis_result = ::wisVKCreateInstance(reinterpret_cast<const WisDebugDesc*>(debug_desc),
+                                                       reinterpret_cast<WisVKInstanceExtensionHeader**>(extensions.data()),
+                                                       extensions.size(),
+                                                       instance.GetStorage());
+    out_result                 = wis::Result{ static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error };
     return instance;
 }
 

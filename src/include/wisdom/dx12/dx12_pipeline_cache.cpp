@@ -1,7 +1,7 @@
 #ifndef WIS_DX12_PIPELINE_CACHE_CPP
 #define WIS_DX12_PIPELINE_CACHE_CPP
 
-#include <wisdom/generated/backend_api.h>
+#include <wisdom/generated/c_api.h>
 #include <wisdom/dx12/dx12_types.hpp>
 #include <wisdom/dx12/detail/dx12_utils.hpp>
 #include <wisdom/util/allocation.hpp>

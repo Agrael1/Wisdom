@@ -1,6 +1,6 @@
 #ifndef WIS_VK_COMMAND_ALLOCATOR_CPP
 #define WIS_VK_COMMAND_ALLOCATOR_CPP
-#include <wisdom/generated/backend_api.hpp>
+#include <wisdom/generated/cpp_api.hpp>
 #include <wisdom/generated/vk_convert.hpp>
 #include <wisdom/vulkan/detail/vk_ext1.hpp>
 #include <wisdom/util/allocation.hpp>
