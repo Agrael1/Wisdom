@@ -1,66 +1,112 @@
-if (WISDOM_DX12)
-  wis_make_target_bundle(
-          TARGET
-          platform-dx12
-          HEADERS
-          "wisdom_platform/dx12/dx12_types.hpp"
-          SOURCES
-          "wisdom_platform/dx12/dx12_platform_win32.cpp"
-          "wisdom_platform/dx12/dx12_platform_uwp.cpp"
-          LINK_TARGETS
-          wisdom-dx12-headers
-          EXPORT_SET
-          wisdom-platform-targets
-          INCLUDE_DIRECTORIES
-          "${CMAKE_CURRENT_SOURCE_DIR}"
-          COMPILE_DEFINITIONS
-          $<$<BOOL:${WISDOM_PLATFORM_WIN32_AVAILABLE}>:$<BUILD_INTERFACE:WIS_PLATFORM_WIN32_PRESENT=1>>
-          $<$<BOOL:${WISDOM_PLATFORM_WIN32_AVAILABLE}>:$<BUILD_INTERFACE:WISDOM_PLATFORM_UWP_PRESENT=1>>
-          DEFINITION_PREFIX WISDOM_PLATFORM)
-endif()
+set(WISDOM_PLATFORM_SOURCES)
+set(WISDOM_PLATFORM_DEFINES
+    $<BUILD_INTERFACE:$<$<BOOL:${WISDOM_PLATFORM_WIN32_PRESENT}>:WIS_PLATFORM_WIN32_PRESENT=1>>
+    $<BUILD_INTERFACE:$<$<BOOL:${WISDOM_PLATFORM_WIN32_PRESENT}>:WISDOM_PLATFORM_UWP_PRESENT=1>>
+    $<BUILD_INTERFACE:$<$<BOOL:${WISDOM_PLATFORM_XLIB_PRESENT}>:WIS_PLATFORM_XLIB_PRESENT=1>>
+    $<BUILD_INTERFACE:$<$<BOOL:${WISDOM_PLATFORM_XCB_PRESENT}>:WIS_PLATFORM_XCB_PRESENT=1>>
+    $<BUILD_INTERFACE:$<$<BOOL:${WISDOM_PLATFORM_WAYLAND_PRESENT}>:WIS_PLATFORM_WAYLAND_PRESENT=1>>
+)
 
-if (WISDOM_VULKAN)
-  wis_make_target_bundle(
-          TARGET
-          platform-vk
-          HEADERS
-          "wisdom_platform/vulkan/vk_types.hpp"
-          SOURCES
-          "wisdom_platform/vulkan/vk_platform_win32.cpp"
-          "wisdom_platform/vulkan/vk_platform_wayland.cpp"
-          "wisdom_platform/vulkan/vk_platform_xcb.cpp"
-          "wisdom_platform/vulkan/vk_platform_xlib.cpp"
-          LINK_TARGETS
-          wisdom-vk-headers
-          EXPORT_SET
-          wisdom-platform-targets
-          INCLUDE_DIRECTORIES
-          "${CMAKE_CURRENT_SOURCE_DIR}"
-          COMPILE_DEFINITIONS
-          $<$<BOOL:${WISDOM_PLATFORM_WIN32_AVAILABLE}>:$<BUILD_INTERFACE:WIS_PLATFORM_WIN32_PRESENT=1>>
-          $<$<BOOL:${WISDOM_PLATFORM_XLIB_AVAILABLE}>:$<BUILD_INTERFACE:WIS_PLATFORM_XLIB_PRESENT=1>>
-          $<$<BOOL:${WISDOM_PLATFORM_XCB_AVAILABLE}>:$<BUILD_INTERFACE:WIS_PLATFORM_XCB_PRESENT=1>>
-          $<$<BOOL:${WISDOM_PLATFORM_WAYLAND_AVAILABLE}>:$<BUILD_INTERFACE:WIS_PLATFORM_WAYLAND_PRESENT=1>>
-          DEFINITION_PREFIX WISDOM_PLATFORM)
-endif()
-
-set(WISDOM_PLATFORM_BACKENDS)
 if (WISDOM_DX12)
-    list(APPEND WISDOM_PLATFORM_BACKENDS platform-dx12)
-endif ()
-if (WISDOM_VULKAN)
-    list(APPEND WISDOM_PLATFORM_BACKENDS platform-vk)
+    list(APPEND WISDOM_PLATFORM_SOURCES
+            "wisdom_platform/dx12/dx12_platform_win32.cpp"
+            "wisdom_platform/dx12/dx12_platform_uwp.cpp")
 endif ()
 
-wis_make_unified_targets(
-        TARGET wisdom-platform
-        EXPORT_SET wisdom-platform-targets
-        BACKENDS ${WISDOM_PLATFORM_BACKENDS}
-        HEADER_COMPILE_DEFINITIONS ${WISDOM_INCLUDE_HEADER_DEFINITIONS} WISDOM_PLATFORM_STATIC=1
-        STATIC_COMPILE_DEFINITIONS WISDOM_PLATFORM_BUILD_BINARIES=1 WISDOM_PLATFORM_STATIC=1
-        SHARED_COMPILE_DEFINITIONS WISDOM_PLATFORM_BUILD_BINARIES=1 WISDOM_PLATFORM_SHARED_LIBRARY=1
-        EXPORT_BASE_NAME WISDOM_PLATFORM
-        EXPORT_FILE_NAME ${CMAKE_CURRENT_SOURCE_DIR}/wisdom_platform/generated/wisdom_exports.h)
+if (WISDOM_VULKAN)
+    list(APPEND WISDOM_PLATFORM_SOURCES
+            "wisdom_platform/vulkan/vk_platform_win32.cpp"
+            "wisdom_platform/vulkan/vk_platform_wayland.cpp"
+            "wisdom_platform/vulkan/vk_platform_xcb.cpp"
+            "wisdom_platform/vulkan/vk_platform_xlib.cpp")
+endif ()
+
+# Platform header target
+add_library(wisdom-platform-headers INTERFACE)
+add_library(wis::wisdom-platform-headers ALIAS wisdom-platform-headers)
+
+target_include_directories(wisdom-platform-headers
+        INTERFACE
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+
+target_link_libraries(wisdom-platform-headers INTERFACE wis::wisdom-headers)
+target_compile_definitions(wisdom-platform-headers INTERFACE WISDOM_PLATFORM_STATIC=1 ${WISDOM_PLATFORM_DEFINES})
+
+install(
+    TARGETS wisdom-platform-headers
+    EXPORT wisdom-platform-targets
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    INCLUDES
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+# Platform library target
+if (WISDOM_BUILD_STATIC)
+    add_library(wisdom-platform STATIC ${WISDOM_PLATFORM_SOURCES})
+    add_library(wis::wisdom-platform ALIAS wisdom-platform)
+
+    target_link_libraries(wisdom-platform PRIVATE wisdom)
+    target_compile_definitions(wisdom-platform PUBLIC WISDOM_PLATFORM_STATIC=1 ${WISDOM_PLATFORM_DEFINES})
+    target_include_directories(wisdom-platform
+        PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+
+    set_target_properties(wisdom-platform PROPERTIES
+            CXX_STANDARD 20
+            # UNITY_BUILD ON
+            DEBUG_POSTFIX d)
+
+
+    install(
+        TARGETS wisdom-platform
+        EXPORT wisdom-platform-targets
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        INCLUDES
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+endif ()
+
+if (WISDOM_BUILD_SHARED)
+    add_library(wisdom-platform-shared SHARED ${WISDOM_PLATFORM_SOURCES})
+    add_library(wis::wisdom-platform-shared ALIAS wisdom-platform-shared)
+
+    target_link_libraries(wisdom-platform-shared PRIVATE wisdom)
+    target_include_directories(wisdom-platform-shared
+        PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+    target_compile_definitions(wisdom-platform-shared
+            PUBLIC WISDOM_PLATFORM_SHARED_LIBRARY=1 ${WISDOM_PLATFORM_DEFINES}
+            PRIVATE wisdom_platform_shared_EXPORTS=1)
+
+    set_target_properties(wisdom-platform-shared PROPERTIES
+            CXX_STANDARD 20
+            # UNITY_BUILD ON
+            POSITION_INDEPENDENT_CODE ON
+            DEBUG_POSTFIX d)
+
+    include(GenerateExportHeader)
+    generate_export_header(
+            wisdom-platform-shared
+            BASE_NAME WISDOM_PLATFORM
+            EXPORT_MACRO_NAME WISDOM_PLATFORM_API
+            EXPORT_FILE_NAME ${CMAKE_CURRENT_SOURCE_DIR}/wisdom_platform/generated/wisdom_exports.h
+            STATIC_DEFINE WISDOM_PLATFORM_STATIC
+            INCLUDE_GUARD_NAME WISDOM_PLATFORM_EXPORTS_H)
+
+    install(
+        TARGETS wisdom-platform-shared
+        EXPORT wisdom-platform-targets
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        INCLUDES
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+endif ()
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/wisdom_platform/
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/wisdom_platform)

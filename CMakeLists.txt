@@ -55,7 +55,6 @@ set(WISDOM_VULKAN_HEADER_PATH
 # Load all dependencies
 include(cmake/deps.cmake)
 include(cmake/doc.cmake)
-include(cmake/targets.cmake)
 
 message(
         STATUS

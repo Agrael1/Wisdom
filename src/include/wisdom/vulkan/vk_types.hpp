@@ -155,8 +155,8 @@ struct VKDeviceExtensionHeader {
 };
 } // namespace wis
 
-// Include implementation if header only build
-#if !defined(WISDOM_BUILD_BINARIES)
+// Include implementation for header-only mode
+#if defined(WISDOM_HEADER_ONLY)
 #if !WIS_HAS_CPP20 && !defined(WISDOM_LANG_DISABLE_CHECK)
 #error "C++20 is required to build wisdom as header-only library"
 #endif // !WIS_HAS_CPP20
@@ -173,5 +173,5 @@ struct VKDeviceExtensionHeader {
 #include "vk_resource_allocator.cpp"
 #include "vk_command_allocator.cpp"
 #include "vk_pipeline_cache.cpp"
-#endif // WISDOM_BUILD_BINARIES
+#endif // WISDOM_HEADER_ONLY
 #endif // WIS_VK_TYPES_HPP

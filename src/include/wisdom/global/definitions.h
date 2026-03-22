@@ -1,10 +1,10 @@
 #ifndef WIS_GLOBAL_DEFINITIONS_H
 #define WIS_GLOBAL_DEFINITIONS_H
-#if defined(WISDOM_BUILD_BINARIES) || defined(WISDOM_MODULE_DECL) // If we are building the binaries
-#define WIS_INLINE
-#else
+#if defined(WISDOM_HEADER_ONLY) && !defined(WISDOM_MODULE_DECL)
 #define WIS_INLINE inline
-#endif // WISDOM_BUILD_BINARIES
+#else
+#define WIS_INLINE
+#endif // WISDOM_HEADER_ONLY
 
 #ifndef WISDOM_EXPORT
 #ifndef WISDOM_MODULE_DECL
@@ -146,7 +146,6 @@
         uint64_t                   opaque[size];   \
     } name
 
-// TODO: CMake definition for WISDOM_API when building shared library
 #ifdef WISDOM_SHARED_LIBRARY
 #include <wisdom/generated/wisdom_exports.h>
 #endif // WISDOM_SHARED_LIBRARY
