@@ -41,8 +41,8 @@ struct VKWin32ExtensionImpl {
 } // namespace impl
 } // namespace wis
 
-// Include implementation if header only build
-#ifndef WISDOM_PLATFORM_BUILD_BINARIES
+// Include implementation for header-only mode
+#ifdef WISDOM_HEADER_ONLY
 #if !WIS_HAS_CPP20 && !defined(WISDOM_LANG_DISABLE_CHECK)
 #error "C++20 is required to build wisdom as header-only library"
 #endif // !WIS_HAS_CPP20
@@ -52,5 +52,5 @@ struct VKWin32ExtensionImpl {
 #include "vk_platform_xcb.cpp"
 #include "vk_platform_wayland.cpp"
 
-#endif // WISDOM_BUILD_BINARIES
+#endif // WISDOM_HEADER_ONLY
 #endif // WIS_VK_PLATFORM_TYPES_HPP

@@ -12,7 +12,12 @@ target_include_directories(
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/extensions/raytracing>)
 
-if(WISDOM_BUILD_BINARIES)
+if(WISDOM_HEADER_ONLY)
+  add_library(wisdom-raytracing INTERFACE)
+  add_library(wis::raytracing ALIAS wisdom-raytracing)
+  add_library(wis::wisdom-raytracing ALIAS wisdom-raytracing)
+  target_link_libraries(wisdom-raytracing INTERFACE wisdom-raytracing-headers)
+else()
   add_library(
     wisdom-raytracing STATIC
     "wisdom/wisdom_raytracing.hpp"
@@ -32,11 +37,6 @@ if(WISDOM_BUILD_BINARIES)
     PUBLIC
       $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
       $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/extensions/raytracing>)
-else()
-  add_library(wisdom-raytracing INTERFACE)
-  add_library(wis::raytracing ALIAS wisdom-raytracing)
-  add_library(wis::wisdom-raytracing ALIAS wisdom-raytracing)
-  target_link_libraries(wisdom-raytracing INTERFACE wisdom-raytracing-headers)
 endif()
 
 # link the debug library to the main wisdom extension library

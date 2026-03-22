@@ -192,8 +192,8 @@ VKCreateGeometryDesc(const wis::AcceleratedGeometryInput& desc) noexcept
 #pragma endregion VKRaytracing
 } // namespace wis
 
-#ifndef WISDOM_BUILD_BINARIES
+#ifdef WISDOM_HEADER_ONLY
 #include "impl/impl.vk.cpp"
-#endif // !WISDOM_PLATFORM_HEADER_ONLY
+#endif // WISDOM_HEADER_ONLY
 #endif // WISDOM_VULKAN
 #endif // !WISDOM_RAYTRACING_HPP

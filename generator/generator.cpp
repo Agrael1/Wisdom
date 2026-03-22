@@ -394,12 +394,7 @@ void Generator::WriteCPPAPI(std::filesystem::path dir)
 #include <wisdom/global/internal.hpp>
 #include "c_api.h"
 )"
-            : R"(// Header guard from unwanted inclusions
-#ifndef WISDOM_BUILD_BINARIES
-#define WISDOM_BUILD_BINARIES
-#endif // WISDOM_BUILD_BINARIES
-
-#include <wisdom/generated/cpp_api.hpp>
+            : R"(#include <wisdom/generated/cpp_api.hpp>
 #include "wisdom_exports.h"
 #include "c_api.h"
 )";

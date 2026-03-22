@@ -237,8 +237,8 @@ DX12CreateGeometryDesc(const wis::AcceleratedGeometryInput& desc) noexcept
 #pragma endregion DX12Raytracing
 } // namespace wis
 
-#ifndef WISDOM_BUILD_BINARIES
+#ifdef WISDOM_HEADER_ONLY
 #include "impl/impl.dx12.cpp"
-#endif // !WISDOM_PLATFORM_HEADER_ONLY
+#endif // WISDOM_HEADER_ONLY
 #endif // WISDOM_DX12
 #endif // !WISDOM_RAYTRACING_DX12_HPP

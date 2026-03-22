@@ -283,24 +283,21 @@ endfunction()
 
 # Function to detect platform extensions and set relevant variables
 # This should be called after wisdom_detect_platform to ensure platform variables are set
-# It will set WISDOM_PLATFORM_<PLATFORM>_AVAILABLE variables for each platform and a WISDOM_AVAILABLE_PLATFORMS variable listing all available platforms
+# It will set WISDOM_PLATFORM_<PLATFORM>_PRESENT variables for each platform and a WISDOM_PRESENT_PLATFORMS variable listing all available platforms
 function(wisdom_detect_platform_extensions)
-    set(WISDOM_PLATFORM_WIN32_AVAILABLE FALSE CACHE INTERNAL "Win32 platform extension available" FORCE)
-    set(WISDOM_PLATFORM_UWP_AVAILABLE FALSE CACHE INTERNAL "UWP platform extension available" FORCE)
-    set(WISDOM_PLATFORM_XLIB_AVAILABLE FALSE CACHE INTERNAL "Xlib platform extension available" FORCE)
-    set(WISDOM_PLATFORM_XCB_AVAILABLE FALSE CACHE INTERNAL "XCB platform extension available" FORCE)
-    set(WISDOM_PLATFORM_WAYLAND_AVAILABLE FALSE CACHE INTERNAL "Wayland platform extension available" FORCE)
+    set(WISDOM_PLATFORM_WIN32_PRESENT FALSE CACHE INTERNAL "Win32 platform extension available" FORCE)
+    set(WISDOM_PLATFORM_UWP_PRESENT FALSE CACHE INTERNAL "UWP platform extension available" FORCE)
+    set(WISDOM_PLATFORM_XLIB_PRESENT FALSE CACHE INTERNAL "Xlib platform extension available" FORCE)
+    set(WISDOM_PLATFORM_XCB_PRESENT FALSE CACHE INTERNAL "XCB platform extension available" FORCE)
+    set(WISDOM_PLATFORM_WAYLAND_PRESENT FALSE CACHE INTERNAL "Wayland platform extension available" FORCE)
 
     set(_wisdom_available_platforms)
 
     if (WISDOM_WINDOWS)
-        set(WISDOM_PLATFORM_WIN32_AVAILABLE TRUE CACHE INTERNAL "Win32 platform extension available" FORCE)
+        set(WISDOM_PLATFORM_WIN32_PRESENT TRUE CACHE INTERNAL "Win32 platform extension available" FORCE)
+        set(WISDOM_PLATFORM_UWP_PRESENT TRUE CACHE INTERNAL "UWP platform extension available" FORCE)
         list(APPEND _wisdom_available_platforms "WIN32")
-
-        if (WISDOM_WINDOWS_STORE)
-            set(WISDOM_PLATFORM_UWP_AVAILABLE TRUE CACHE INTERNAL "UWP platform extension available" FORCE)
-            list(APPEND _wisdom_available_platforms "UWP")
-        endif ()
+        list(APPEND _wisdom_available_platforms "UWP")
     endif ()
 
     if (WISDOM_LINUX)
@@ -308,19 +305,19 @@ function(wisdom_detect_platform_extensions)
 
         find_package(X11 QUIET)
         if (X11_FOUND)
-            set(WISDOM_PLATFORM_XLIB_AVAILABLE TRUE CACHE INTERNAL "Xlib platform extension available" FORCE)
+            set(WISDOM_PLATFORM_XLIB_PRESENT TRUE CACHE INTERNAL "Xlib platform extension available" FORCE)
             list(APPEND _wisdom_available_platforms "XLIB")
         endif ()
 
         find_package(XCB COMPONENTS XCB QUIET)
         if (XCB_FOUND)
-            set(WISDOM_PLATFORM_XCB_AVAILABLE TRUE CACHE INTERNAL "XCB platform extension available" FORCE)
+            set(WISDOM_PLATFORM_XCB_PRESENT TRUE CACHE INTERNAL "XCB platform extension available" FORCE)
             list(APPEND _wisdom_available_platforms "XCB")
         endif ()
 
         find_package(Wayland QUIET)
         if (Wayland_FOUND)
-            set(WISDOM_PLATFORM_WAYLAND_AVAILABLE TRUE CACHE INTERNAL "Wayland platform extension available" FORCE)
+            set(WISDOM_PLATFORM_WAYLAND_PRESENT TRUE CACHE INTERNAL "Wayland platform extension available" FORCE)
             list(APPEND _wisdom_available_platforms "WAYLAND")
         endif ()
     endif ()
