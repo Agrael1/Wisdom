@@ -24,6 +24,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 // Handles
 //==============================================================
 
+typedef struct WisDX12Swapchain         WisSwapchain;
 typedef struct WisDX12Surface           WisSurface;
 typedef struct WisDX12ViewHeap          WisViewHeap;
 typedef struct WisDX12Pipeline          WisPipeline;
@@ -78,6 +79,7 @@ typedef struct WisDX12GraphicsPipelineDesc    WisGraphicsPipelineDesc;
 #define wisGetRootSignatureView                     wisGetDX12RootSignatureView
 #define wisGetFenceView                             wisGetDX12FenceView
 #define wisGetCommandListView                       wisGetDX12CommandListView
+#define wisDestroySwapchain                         wisDX12DestroySwapchain
 #define wisDestroySurface                           wisDX12DestroySurface
 #define wisDestroyViewHeap                          wisDX12DestroyViewHeap
 #define wisDestroyPipeline                          wisDX12DestroyPipeline
@@ -114,6 +116,9 @@ typedef struct WisDX12GraphicsPipelineDesc    WisGraphicsPipelineDesc;
 #define wisDeviceCreateShader                       wisDX12DeviceCreateShader
 #define wisDeviceCreateComputePipeline              wisDX12DeviceCreateComputePipeline
 #define wisDeviceCreateGraphicsPipeline             wisDX12DeviceCreateGraphicsPipeline
+#define wisDeviceGetFormatPresentationSupport       wisDX12DeviceGetFormatPresentationSupport
+#define wisDeviceGetSurfaceParameters               wisDX12DeviceGetSurfaceParameters
+#define wisDeviceCreateSwapchain                    wisDX12DeviceCreateSwapchain
 #define wisFenceGetCompletedValue                   wisDX12FenceGetCompletedValue
 #define wisFenceWait                                wisDX12FenceWait
 #define wisFenceSignal                              wisDX12FenceSignal
@@ -158,6 +163,8 @@ typedef struct WisDX12GraphicsPipelineDesc    WisGraphicsPipelineDesc;
 #define wisCommandListDispatch                      wisDX12CommandListDispatch
 #define wisPipelineCacheSerialize                   wisDX12PipelineCacheSerialize
 #define wisPipelineCacheGetSerializedSize           wisDX12PipelineCacheGetSerializedSize
+#define wisSwapchainPresent                         wisDX12SwapchainPresent
+#define wisSwapchainGetCurrentIndex                 wisDX12SwapchainGetCurrentIndex
 
 #elif defined(WISDOM_VULKAN)
 
@@ -167,6 +174,7 @@ typedef struct WisDX12GraphicsPipelineDesc    WisGraphicsPipelineDesc;
 // Handles
 //==============================================================
 
+typedef struct WisVKSwapchain         WisSwapchain;
 typedef struct WisVKSurface           WisSurface;
 typedef struct WisVKViewHeap          WisViewHeap;
 typedef struct WisVKPipeline          WisPipeline;
@@ -221,6 +229,7 @@ typedef struct WisVKGraphicsPipelineDesc    WisGraphicsPipelineDesc;
 #define wisGetRootSignatureView                     wisGetVKRootSignatureView
 #define wisGetFenceView                             wisGetVKFenceView
 #define wisGetCommandListView                       wisGetVKCommandListView
+#define wisDestroySwapchain                         wisVKDestroySwapchain
 #define wisDestroySurface                           wisVKDestroySurface
 #define wisDestroyViewHeap                          wisVKDestroyViewHeap
 #define wisDestroyPipeline                          wisVKDestroyPipeline
@@ -257,6 +266,9 @@ typedef struct WisVKGraphicsPipelineDesc    WisGraphicsPipelineDesc;
 #define wisDeviceCreateShader                       wisVKDeviceCreateShader
 #define wisDeviceCreateComputePipeline              wisVKDeviceCreateComputePipeline
 #define wisDeviceCreateGraphicsPipeline             wisVKDeviceCreateGraphicsPipeline
+#define wisDeviceGetFormatPresentationSupport       wisVKDeviceGetFormatPresentationSupport
+#define wisDeviceGetSurfaceParameters               wisVKDeviceGetSurfaceParameters
+#define wisDeviceCreateSwapchain                    wisVKDeviceCreateSwapchain
 #define wisFenceGetCompletedValue                   wisVKFenceGetCompletedValue
 #define wisFenceWait                                wisVKFenceWait
 #define wisFenceSignal                              wisVKFenceSignal
@@ -301,6 +313,8 @@ typedef struct WisVKGraphicsPipelineDesc    WisGraphicsPipelineDesc;
 #define wisCommandListDispatch                      wisVKCommandListDispatch
 #define wisPipelineCacheSerialize                   wisVKPipelineCacheSerialize
 #define wisPipelineCacheGetSerializedSize           wisVKPipelineCacheGetSerializedSize
+#define wisSwapchainPresent                         wisVKSwapchainPresent
+#define wisSwapchainGetCurrentIndex                 wisVKSwapchainGetCurrentIndex
 
 #else
 #error "No API selected for Wisdom. Define WISDOM_DX12 or WISDOM_VULKAN."

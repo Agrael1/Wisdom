@@ -25,6 +25,7 @@ static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderInterm
 // Handles
 //==============================================================
 
+using Swapchain         = wis::DX12Swapchain;
 using Surface           = wis::DX12Surface;
 using ViewHeap          = wis::DX12ViewHeap;
 using Pipeline          = wis::DX12Pipeline;
@@ -102,6 +103,7 @@ static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderInterm
 // Handles
 //==============================================================
 
+using Swapchain         = wis::VKSwapchain;
 using Surface           = wis::VKSurface;
 using ViewHeap          = wis::VKViewHeap;
 using Pipeline          = wis::VKPipeline;

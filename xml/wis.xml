@@ -8,9 +8,13 @@
     </includes>
 
     <handles>
+      <handle name="Swapchain" version="0.7.0" doc="Class representing a swapchain, which is a collection of render targets used for presentation.">
+        <impl for="vk" size="8"/>
+        <impl for="dx" size="3"/>
+      </handle>
       <handle name="Surface" version="0.7.0" doc="Class representing a GPU surface, which can be used as a target for rendering and presentation.">
         <impl for="vk" size="2"/>
-        <impl for="dx" size="1"/>
+        <impl for="dx" size="2"/>
         <view size="1"/>
       </handle>
       <handle name="ViewHeap" version="0.7.0" doc="Class representing a storage for resource views used in contiguous array.">
@@ -182,6 +186,21 @@ Default is {MutiWaitType::All}"/>
       <func for="Device" name="CreateGraphicsPipeline" version="0.7.0" mod="const" doc="Creates a graphics pipeline state object with given descriptor.">
         <ret type="Pipeline" name="pipeline" result="true" doc="points to {Pipeline::}, which is initialized on success."/>
         <arg type="GraphicsPipelineDesc" name="desc" mod="const,ref" doc="points to {GraphicsPipelineDesc::}, which describes the graphics pipeline to create."/>
+      </func>
+      <func for="Device" name="GetFormatPresentationSupport" version="0.7.0" mod="const" doc="Checks if the surface format is supported for presentation and returns the supported format.">
+        <ret type="bool" name="result" doc="Result of operation."/>
+        <arg type="SurfaceView" name="surface" doc="points to {Surface::} to check the presentation support for."/>
+        <arg type="DataFormat" name="format" doc="defines the format to check the presentation support for."/>
+      </func>
+      <func for="Device" name="GetSurfaceParameters" version="0.7.0" mod="const" doc="Checks if the surface format is supported for presentation and returns the supported format.">
+        <ret type="SurfaceParameters" result="true" name="params" doc="Parameters of the surface."/>
+        <arg type="SurfaceView" name="surface" doc="points to {Surface::} to check the presentation support for."/>
+      </func>
+      <func for="Device" name="CreateSwapchain" version="0.7.0" mod="const" doc="Creates a swapchain for given surface with given descriptor.">
+        <ret type="Swapchain" name="swapchain" result="true" doc="points to {Swapchain::}, which is initialized on success."/>
+        <arg type="Surface" name="surface" mod="const,ref" doc="points to {Surface::} to create the swapchain for. Surface is ref-counted."/>
+        <arg type="CommandQueue" name="queue" mod="const,ref" doc="points to {CommandQueue::} to create the swapchain for. Queue is ref-counted and @wis_must be a graphics queue."/>
+        <arg type="SwapchainDesc" name="desc" mod="const,ref" doc="points to {SwapchainDesc::}, which describes the swapchain to create."/>
       </func>
 
       <!-- Fence Functions -->
@@ -364,8 +383,8 @@ Can still be enqueued after the signal.">
       <func for="CommandList" name="SetScissors" version="0.7.0" doc="Sets multiple scissor rects.
 Each n-th rect corresponds to n-th Viewport set in RSSetViewports if SV_ViewportArrayIndex is used in geometry shader.
 Otherwise the first is chosen.">
-        <arg type="Scissor" name="scissors" mod="const,span" doc="The scissors to set."/>
-        <arg type="size" name="count" doc="The number of scissors to set."/>
+        <arg type="Rect" name="scissor_rects" mod="const,span" doc="The scissors to set."/>
+        <arg type="size" name="rect_count" doc="The number of scissors to set."/>
       </func>
       <func for="CommandList" name="SetPrimitiveTopology" version="0.7.0" doc="Sets the primitive topology. Detemines how vertices shall be processed.">
         <arg type="PrimitiveTopology" name="topology" doc="The primitive topology to set."/>
@@ -392,6 +411,17 @@ Otherwise the first is chosen.">
       </func>
       <func for="PipelineCache" name="GetSerializedSize" version="0.7.0" mod="const" doc="Gets the size of the data in the pipeline cache.">
         <ret type="size" name="size" doc="Size of the data in bytes."/>
+      </func>
+
+      <!-- Swapchain -->
+      <func for="Swapchain" name="Present" version="0.7.0" mod="const" doc="Presents the swapchain image to the screen.">
+        <ret type="Result" name="result" doc="Result of operation."/>
+        <arg type="PresentFlags" name="flags" default="0" doc="defines the presentation options."/>
+        <arg type="Rect" name="rects" mod="const,span" default="nullptr" doc="points to the array of rectangles to present. If `nullptr`, the entire image is presented."/>
+        <arg type="size" name="rect_count" default="0" doc="defines the number of rectangles to present. Must be 0 if rects is `nullptr`."/>
+      </func>
+      <func for="Swapchain" name="GetCurrentIndex" version="0.7.0" mod="const" doc="Gets the index of the current backbuffer.">
+        <ret type="u32" name="index" doc="Index of the current backbuffer."/>
       </func>
 
     </functions>

@@ -1080,6 +1080,27 @@ typedef enum WisViewHeapType {
 } WisViewHeapType;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Swapchain scaling mode.
+ *
+ * */
+typedef enum WisSwapchainScaling {
+    WisSwapchainScalingNone    = 0, ///< No scaling. The swapchain size is equal to the window size.
+    WisSwapchainScalingStretch = 1, ///< Stretch scaling. The swapchain size is stretched to the window size.
+    WisSwapchainScalingAspect  = 2, ///< Aspect scaling. The swapchain size is scaled to the window size with aspect ratio preserved.
+} WisSwapchainScaling;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Composite alpha flags for swapchain creation.
+ *
+ * */
+typedef enum WisCompositeAlpha {
+    WisCompositeAlphaOpaque         = 0, ///< The alpha channel, if it exists, is ignored. The image is treated as opaque.
+    WisCompositeAlphaPreMultiplied  = 1, ///< The alpha channel, if it exists, is respected and used in compositing. The premultiplied alpha format is expected.
+    WisCompositeAlphaPostMultiplied = 2, ///< The alpha channel, if it exists, is respected and used in compositing. The postmultiplied alpha format is expected.
+    WisCompositeAlphaInherit        = 3, ///< The alpha channel, if it exists, is respected and used in compositing based on the platform's default behavior.
+} WisCompositeAlpha;
+
+/**
  * @brief Provided by Wisdom 0.7.0. Flags that describe adapter.
  *
  * */
@@ -1284,6 +1305,26 @@ typedef enum WisColorComponents {
     WisColorComponentsA    = (1u << 3), ///< Use alpha component for blending.
     WisColorComponentsAll  = 15, ///< Use all color components for blending.
 } WisColorComponents;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Swapchain creation flags.
+ *
+ * */
+typedef enum WisSwapchainFlags {
+    WisSwapchainFlagsNone         = 0, ///< No flags set. Swapchain is regular.
+    WisSwapchainFlagsAllowTearing = (1u << 0), ///< Allow tearing.
+    WisSwapchainFlagsVSync        = (1u << 1), ///< Present with vertical sync. If set, the swapchain is presented with vertical sync pulse.
+    WisSwapchainFlagsStereo       = (1u << 2), ///< Stereo swapchain. If set, the swapchain is created for stereo rendering. If not set, the swapchain is created for mono rendering.
+} WisSwapchainFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Swapchain creation flags.
+ *
+ * */
+typedef enum WisPresentFlags {
+    WisPresentFlagsNone           = 0, ///< No flags set. Swapchain is regular.
+    WisPresentFlagsTimeoutOnBlock = (1u << 0), ///< Fail present if the presentation engine is busy. If not set, the implementation @wis_may choose to block until the presentation engine is available.
+} WisPresentFlags;
 
 //==============================================================
 // Delegates
@@ -1685,8 +1726,8 @@ typedef struct WisBlendAttachmentDesc {
  *
  * */
 typedef struct WisViewport {
-    float top_leftx; ///< Top left corner x coordinate.
-    float top_lefty; ///< Top left corner y coordinate.
+    float x; ///< Top left corner x coordinate.
+    float y; ///< Top left corner y coordinate.
     float width; ///< Viewport width.
     float height; ///< Viewport height.
     float min_depth; ///< Minimum depth of the viewport.
@@ -1694,15 +1735,15 @@ typedef struct WisViewport {
 } WisViewport;
 
 /**
- * @brief Provided by Wisdom 0.7.0. Scissor description for WisCommandList.
+ * @brief Provided by Wisdom 0.7.0. Scissor rect for WisCommandList and present rect.
  *
  * */
-typedef struct WisScissor {
-    int32_t left; ///< Left corner x coordinate.
-    int32_t top; ///< Top corner y coordinate.
-    int32_t right; ///< Right corner x coordinate.
-    int32_t bottom; ///< Bottom corner y coordinate.
-} WisScissor;
+typedef struct WisRect {
+    int32_t  x; ///< Left corner x coordinate.
+    int32_t  y; ///< Top corner y coordinate.
+    uint32_t width; ///< Width of the rect.
+    uint32_t height; ///< Height of the rect.
+} WisRect;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Blend state description for WisGraphicsPipelineDesc.
@@ -1759,6 +1800,33 @@ typedef struct WisRenderTargetDesc {
     uint16_t         array_layer_count; ///< Number of array layers in the target subresource. For 3D textures, this defines the number of depth slices.
     uint16_t         plane_slice; ///< Depth slice of the target subresource. Used only for 2D textures (YUV).
 } WisRenderTargetDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Surface parameters for WisSurface creation.
+ *
+ * */
+typedef struct WisSurfaceParameters {
+    uint32_t             min_swapchain_images; ///< Minimum number of images in the swapchain.
+    uint32_t             max_swapchain_images; ///< Maximum number of images in the swapchain.
+    uint32_t             alpha_modes_supported; ///< Bitmask of supported alpha modes for the swapchain. Each bit represents a different alpha mode. Used to determine the supported alpha modes for the swapchain.
+    WisTextureUsageFlags texture_usage_flags_supported; ///< Bitmask of supported texture usage flags for the swapchain images.
+    bool                 stereo_supported; ///< Indicates if stereo rendering is supported. If true, the surface can be used to create a swapchain with stereo support.
+} WisSurfaceParameters;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Swapchain description for WisSwapchain creation.
+ *
+ * */
+typedef struct WisSwapchainDesc {
+    uint32_t             width; ///< Swapchain image width in pixels.
+    uint32_t             height; ///< Swapchain image height in pixels.
+    uint32_t             image_count; ///< Number of images in the swapchain.
+    WisTextureUsageFlags texture_usage_flags; ///< Texture usage flags for the swapchain images. Describe how the swapchain images will be used.
+    WisDataFormat        format; ///< Swapchain image format.
+    WisSwapchainScaling  scaling; ///< Swapchain scaling mode.
+    WisSwapchainFlags    flags; ///< Swapchain flags. Describe additional options for the swapchain.
+    WisCompositeAlpha    composite_alpha; ///< Composite alpha mode. Describe how the alpha channel of the swapchain images is treated during compositing.
+} WisSwapchainDesc;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Query struct header. Used as a header for all query structs.
@@ -1853,15 +1921,24 @@ typedef struct WisDeviceMemoryProperties {
 /// @brief Provided by Wisdom 0.7.0. Defines the maximum amount of viewports that can be bound at once. The same count applies to scissors.
 #define WIS_MAX_VIEWPORTS ((uint32_t)16)
 
+/// @brief Provided by Wisdom 0.7.0. Defines the maximum amount of present rectangles and copy regions in the Copy* commands that can be used in a single operation.
+#define WIS_MAX_COPY_REGIONS ((uint32_t)16)
+
 /// @brief Provided by Wisdom 0.7.0. Select whole size of a resource.
 #define WIS_WHOLE_SIZE ((uint64_t)0xffffffffffffffff)
 
 #ifdef WISDOM_DX12
 /**
+ * @brief Provided by Wisdom 0.7.0. Class representing a swapchain, which is a collection of render targets used for presentation.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12Swapchain, 3);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Class representing a GPU surface, which can be used as a target for rendering and presentation.
  *
  * */
-WIS_DEFINE_HANDLE(WisDX12Surface, 1);
+WIS_DEFINE_HANDLE(WisDX12Surface, 2);
 WIS_DEFINE_HANDLE_VIEW(WisDX12Surface, 1);
 
 static inline WisDX12SurfaceView wisGetDX12SurfaceView(const WisDX12Surface* handle)
@@ -2148,6 +2225,13 @@ typedef struct WisDX12GraphicsPipelineDesc {
     WisDX12PipelineCacheView   cache; ///< Pipeline cache data. Used to speed up pipeline creation if available.
     WisPipelineFlags           flags; ///< Pipeline flags. Describe additional options for the pipeline.
 } WisDX12GraphicsPipelineDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisSwapchain handle.
+ * @param self is a pointer to the valid WisSwapchain instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroySwapchain(WisDX12Swapchain* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisSurface handle.
@@ -2507,6 +2591,46 @@ WISDOM_API WisResult wisDX12DeviceCreateComputePipeline(const WisDX12Device*    
 WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(const WisDX12Device*               self,
                                                          const WisDX12GraphicsPipelineDesc* desc,
                                                          WisDX12Pipeline*                   pipeline);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Checks if the surface format is supported for presentation and returns the supported format.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param surface points to WisSurface to check the presentation support for.
+ * @param format defines the format to check the presentation support for.
+ * @return bool Result of operation.
+ *
+ * */
+WISDOM_API bool wisDX12DeviceGetFormatPresentationSupport(const WisDX12Device* self,
+                                                          WisDX12SurfaceView   surface,
+                                                          WisDataFormat        format);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Checks if the surface format is supported for presentation and returns the supported format.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param surface points to WisSurface to check the presentation support for.
+ * @param params Parameters of the surface.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DeviceGetSurfaceParameters(const WisDX12Device*  self,
+                                                       WisDX12SurfaceView    surface,
+                                                       WisSurfaceParameters* params);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a swapchain for given surface with given descriptor.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param surface points to WisSurface to create the swapchain for. Surface is ref-counted.
+ * @param queue points to WisCommandQueue to create the swapchain for. Queue is ref-counted and @wis_must be a graphics queue.
+ * @param desc points to WisSwapchainDesc, which describes the swapchain to create.
+ * @param swapchain points to WisSwapchain, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DeviceCreateSwapchain(const WisDX12Device*       self,
+                                                  const WisDX12Surface*      surface,
+                                                  const WisDX12CommandQueue* queue,
+                                                  const WisSwapchainDesc*    desc,
+                                                  WisDX12Swapchain*          swapchain);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Get the current value of the fence.
@@ -2924,13 +3048,13 @@ WISDOM_API void wisDX12CommandListSetViewports(WisDX12CommandList* self,
  * Each n-th rect corresponds to n-th Viewport set in RSSetViewports if SV_ViewportArrayIndex is used in geometry shader.
  * Otherwise the first is chosen.
  * @param self is a pointer to the valid WisCommandList instance.
- * @param scissors The scissors to set.
- * @param count The number of scissors to set.
+ * @param scissor_rects The scissors to set.
+ * @param rect_count The number of scissors to set.
  *
  * */
 WISDOM_API void wisDX12CommandListSetScissors(WisDX12CommandList* self,
-                                              const WisScissor*   scissors,
-                                              size_t              count);
+                                              const WisRect*      scissor_rects,
+                                              size_t              rect_count);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Sets the primitive topology. Detemines how vertices shall be processed.
@@ -2996,9 +3120,37 @@ WISDOM_API WisResult wisDX12PipelineCacheSerialize(const WisDX12PipelineCache* s
  * */
 WISDOM_API size_t wisDX12PipelineCacheGetSerializedSize(const WisDX12PipelineCache* self);
 
+/**
+ * @brief Provided by Wisdom 0.7.0. Presents the swapchain image to the screen.
+ * @param self is a pointer to the valid WisSwapchain instance.
+ * @param flags defines the presentation options.
+ * @param rects points to the array of rectangles to present. If `nullptr`, the entire image is presented.
+ * @param rect_count defines the number of rectangles to present. Must be 0 if rects is `nullptr`.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12SwapchainPresent(const WisDX12Swapchain* self,
+                                             WisPresentFlags         flags,
+                                             const WisRect*          rects,
+                                             size_t                  rect_count);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Gets the index of the current backbuffer.
+ * @param self is a pointer to the valid WisSwapchain instance.
+ * @return u32 Index of the current backbuffer.
+ *
+ * */
+WISDOM_API uint32_t wisDX12SwapchainGetCurrentIndex(const WisDX12Swapchain* self);
+
 #endif // WISDOM_DX12
 
 #ifdef WISDOM_VULKAN
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a swapchain, which is a collection of render targets used for presentation.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisVKSwapchain, 8);
+
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a GPU surface, which can be used as a target for rendering and presentation.
  *
@@ -3290,6 +3442,13 @@ typedef struct WisVKGraphicsPipelineDesc {
     WisVKPipelineCacheView     cache; ///< Pipeline cache data. Used to speed up pipeline creation if available.
     WisPipelineFlags           flags; ///< Pipeline flags. Describe additional options for the pipeline.
 } WisVKGraphicsPipelineDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisSwapchain handle.
+ * @param self is a pointer to the valid WisSwapchain instance.
+ *
+ * */
+WISDOM_API void wisVKDestroySwapchain(WisVKSwapchain* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisSurface handle.
@@ -3649,6 +3808,46 @@ WISDOM_API WisResult wisVKDeviceCreateComputePipeline(const WisVKDevice*        
 WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(const WisVKDevice*               self,
                                                        const WisVKGraphicsPipelineDesc* desc,
                                                        WisVKPipeline*                   pipeline);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Checks if the surface format is supported for presentation and returns the supported format.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param surface points to WisSurface to check the presentation support for.
+ * @param format defines the format to check the presentation support for.
+ * @return bool Result of operation.
+ *
+ * */
+WISDOM_API bool wisVKDeviceGetFormatPresentationSupport(const WisVKDevice* self,
+                                                        WisVKSurfaceView   surface,
+                                                        WisDataFormat      format);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Checks if the surface format is supported for presentation and returns the supported format.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param surface points to WisSurface to check the presentation support for.
+ * @param params Parameters of the surface.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKDeviceGetSurfaceParameters(const WisVKDevice*    self,
+                                                     WisVKSurfaceView      surface,
+                                                     WisSurfaceParameters* params);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a swapchain for given surface with given descriptor.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param surface points to WisSurface to create the swapchain for. Surface is ref-counted.
+ * @param queue points to WisCommandQueue to create the swapchain for. Queue is ref-counted and @wis_must be a graphics queue.
+ * @param desc points to WisSwapchainDesc, which describes the swapchain to create.
+ * @param swapchain points to WisSwapchain, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKDeviceCreateSwapchain(const WisVKDevice*       self,
+                                                const WisVKSurface*      surface,
+                                                const WisVKCommandQueue* queue,
+                                                const WisSwapchainDesc*  desc,
+                                                WisVKSwapchain*          swapchain);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Get the current value of the fence.
@@ -4066,13 +4265,13 @@ WISDOM_API void wisVKCommandListSetViewports(WisVKCommandList*  self,
  * Each n-th rect corresponds to n-th Viewport set in RSSetViewports if SV_ViewportArrayIndex is used in geometry shader.
  * Otherwise the first is chosen.
  * @param self is a pointer to the valid WisCommandList instance.
- * @param scissors The scissors to set.
- * @param count The number of scissors to set.
+ * @param scissor_rects The scissors to set.
+ * @param rect_count The number of scissors to set.
  *
  * */
 WISDOM_API void wisVKCommandListSetScissors(WisVKCommandList* self,
-                                            const WisScissor* scissors,
-                                            size_t            count);
+                                            const WisRect*    scissor_rects,
+                                            size_t            rect_count);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Sets the primitive topology. Detemines how vertices shall be processed.
@@ -4137,6 +4336,28 @@ WISDOM_API WisResult wisVKPipelineCacheSerialize(const WisVKPipelineCache* self,
  *
  * */
 WISDOM_API size_t wisVKPipelineCacheGetSerializedSize(const WisVKPipelineCache* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Presents the swapchain image to the screen.
+ * @param self is a pointer to the valid WisSwapchain instance.
+ * @param flags defines the presentation options.
+ * @param rects points to the array of rectangles to present. If `nullptr`, the entire image is presented.
+ * @param rect_count defines the number of rectangles to present. Must be 0 if rects is `nullptr`.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKSwapchainPresent(const WisVKSwapchain* self,
+                                           WisPresentFlags       flags,
+                                           const WisRect*        rects,
+                                           size_t                rect_count);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Gets the index of the current backbuffer.
+ * @param self is a pointer to the valid WisSwapchain instance.
+ * @return u32 Index of the current backbuffer.
+ *
+ * */
+WISDOM_API uint32_t wisVKSwapchainGetCurrentIndex(const WisVKSwapchain* self);
 
 #endif // WISDOM_VULKAN
 

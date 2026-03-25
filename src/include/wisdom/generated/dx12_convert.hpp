@@ -347,6 +347,36 @@ constexpr inline D3D12_DESCRIPTOR_HEAP_TYPE DX12Convert(WisViewHeapType value) n
     }
 }
 
+constexpr inline DXGI_SCALING DX12Convert(WisSwapchainScaling value) noexcept
+{
+    switch (value) {
+    case WisSwapchainScalingNone:
+        return DXGI_SCALING_NONE;
+    case WisSwapchainScalingStretch:
+        return DXGI_SCALING_STRETCH;
+    case WisSwapchainScalingAspect:
+        return DXGI_SCALING_ASPECT_RATIO_STRETCH;
+    default:
+        return static_cast<DXGI_SCALING>(0);
+    }
+}
+
+constexpr inline DXGI_ALPHA_MODE DX12Convert(WisCompositeAlpha value) noexcept
+{
+    switch (value) {
+    case WisCompositeAlphaOpaque:
+        return DXGI_ALPHA_MODE_IGNORE;
+    case WisCompositeAlphaPreMultiplied:
+        return DXGI_ALPHA_MODE_PREMULTIPLIED;
+    case WisCompositeAlphaPostMultiplied:
+        return DXGI_ALPHA_MODE_STRAIGHT;
+    case WisCompositeAlphaInherit:
+        return DXGI_ALPHA_MODE_UNSPECIFIED;
+    default:
+        return static_cast<DXGI_ALPHA_MODE>(0);
+    }
+}
+
 constexpr inline D3D12_SAMPLER_FLAGS DX12Convert(WisSamplerFlags value) noexcept
 {
     D3D12_SAMPLER_FLAGS result = static_cast<D3D12_SAMPLER_FLAGS>(0);
@@ -391,6 +421,33 @@ constexpr inline D3D12_RESOURCE_FLAGS DX12Convert(WisTextureUsageFlags value) no
     }
     if (value & WisTextureUsageFlagsHostCopy) {
         result |= D3D12_RESOURCE_FLAG_NONE;
+    }
+    return result;
+}
+
+constexpr inline WisTextureUsageFlags DX12Convert(D3D12_RESOURCE_FLAGS value) noexcept
+{
+    WisTextureUsageFlags result = static_cast<WisTextureUsageFlags>(0);
+    if (value & D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET) {
+        result = static_cast<WisTextureUsageFlags>(result | WisTextureUsageFlagsRenderTarget);
+    }
+    if (value & D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL) {
+        result = static_cast<WisTextureUsageFlags>(result | WisTextureUsageFlagsDepthStencil);
+    }
+    if (value & D3D12_RESOURCE_FLAG_NONE) {
+        result = static_cast<WisTextureUsageFlags>(result | WisTextureUsageFlagsCopySrc);
+    }
+    if (value & D3D12_RESOURCE_FLAG_NONE) {
+        result = static_cast<WisTextureUsageFlags>(result | WisTextureUsageFlagsCopyDst);
+    }
+    if (value & D3D12_RESOURCE_FLAG_NONE) {
+        result = static_cast<WisTextureUsageFlags>(result | WisTextureUsageFlagsShaderResource);
+    }
+    if (value & D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS) {
+        result = static_cast<WisTextureUsageFlags>(result | WisTextureUsageFlagsUnorderedAccess);
+    }
+    if (value & D3D12_RESOURCE_FLAG_NONE) {
+        result = static_cast<WisTextureUsageFlags>(result | WisTextureUsageFlagsHostCopy);
     }
     return result;
 }
@@ -535,6 +592,15 @@ constexpr inline D3D12_BARRIER_ACCESS DX12Convert(WisResourceAccess value) noexc
     }
     if (value & WisResourceAccessNone) {
         result |= D3D12_BARRIER_ACCESS_NO_ACCESS;
+    }
+    return result;
+}
+
+constexpr inline uint32_t DX12Convert(WisPresentFlags value) noexcept
+{
+    uint32_t result = static_cast<uint32_t>(0);
+    if (value & WisPresentFlagsTimeoutOnBlock) {
+        result |= DXGI_PRESENT_DO_NOT_WAIT;
     }
     return result;
 }

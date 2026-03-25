@@ -41,6 +41,7 @@ WIS_EXTERN_C WISDOM_PLATFORM_API WisResult wisDX12UWPExtensionCreateSurface(WisD
 {
     new (surface) wis::impl::DX12SurfaceImpl{
         .surface = info->core_window,
+        .uwp     = true,
     };
     return wis::detail::dx_success;
 }

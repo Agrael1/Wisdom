@@ -109,6 +109,7 @@ struct WisConvert {
     std::string_view value;
     std::string_view default_value;
     bool             direct = false;
+    bool             convert_back = false;
 };
 struct WisEnumValue {
     std::string_view                name;

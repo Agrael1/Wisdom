@@ -114,6 +114,14 @@ struct DX12PipelineImpl {
 
 struct DX12SurfaceImpl {
     void* surface; // Store the surface as a void pointer to avoid including Windows headers in this file, it will be cast to the appropriate type in the implementation file
+    bool  uwp; // Whether the surface is a UWP CoreWindow, which requires special handling when creating the swapchain
+};
+
+struct DX12SwapchainImpl {
+    IDXGISwapChain4* swapchain;
+    uint32_t         flags;
+    uint8_t          vsync;
+    uint8_t          backbuffer_count;
 };
 
 } // namespace impl

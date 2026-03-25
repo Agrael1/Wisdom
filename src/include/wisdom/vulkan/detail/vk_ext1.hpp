@@ -118,6 +118,29 @@ public:
             });
         }
 
+        // Conservative rasterization
+        collector.EnableExtension({
+                .name = VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+        });
+
+        // Swapchain maintenance
+        if (collector.IsExtensionPresent(VK_KHR_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME)) {
+            features.swapchain_maintenance = true;
+            collector.EnableExtension({
+                    .name                = VK_KHR_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME,
+                    .feature_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_EXT,
+                    .feature_struct_size = sizeof(VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT),
+            });
+        }
+
+        // Incremental present
+        if (collector.IsExtensionPresent(VK_KHR_INCREMENTAL_PRESENT_EXTENSION_NAME)) {
+            features.incremental_present = true;
+            collector.EnableExtension({
+                    .name = VK_KHR_INCREMENTAL_PRESENT_EXTENSION_NAME,
+            });
+        }
+
         return wis::detail::vk_success;
     }
     ::WisResult Init(const impl::VKDeviceImpl&         device_impl,

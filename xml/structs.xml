@@ -274,19 +274,19 @@
 
     <type name="Viewport" category="struct" version="0.7.0" doc="Viewport description for {CommandList::}.
 Viewport is considered from Top Left corner.">
-      <member type="f32" name="top_leftx" doc="Top left corner x coordinate."/>
-      <member type="f32" name="top_lefty" doc="Top left corner y coordinate."/>
+      <member type="f32" name="x" doc="Top left corner x coordinate."/>
+      <member type="f32" name="y" doc="Top left corner y coordinate."/>
       <member type="f32" name="width" doc="Viewport width."/>
       <member type="f32" name="height" doc="Viewport height."/>
       <member type="f32" name="min_depth" doc="Minimum depth of the viewport."/>
       <member type="f32" name="max_depth" doc="Maximum depth of the viewport."/>
     </type>
 
-    <type name="Scissor" category="struct" version="0.7.0" doc="Scissor description for {CommandList::}.">
-      <member type="i32" name="left" doc="Left corner x coordinate."/>
-      <member type="i32" name="top" doc="Top corner y coordinate."/>
-      <member type="i32" name="right" doc="Right corner x coordinate."/>
-      <member type="i32" name="bottom" doc="Bottom corner y coordinate."/>
+    <type name="Rect" category="struct" version="0.7.0" doc="Scissor rect for {CommandList::} and present rect.">
+      <member type="i32" name="x" doc="Left corner x coordinate."/>
+      <member type="i32" name="y" doc="Top corner y coordinate."/>
+      <member type="u32" name="width" doc="Width of the rect."/>
+      <member type="u32" name="height" doc="Height of the rect."/>
     </type>
 
     <type name="BlendStateDesc" category="struct" version="0.7.0" doc="Blend state description for {GraphicsPipelineDesc::}.">
@@ -323,6 +323,25 @@ Viewport is considered from Top Left corner.">
       <member type="u16" name="base_array_layer" default="0" doc="Array layer of the target subresource. For 3D textures, this defines the base depth slice."/>
       <member type="u16" name="array_layer_count" default="1" doc="Number of array layers in the target subresource. For 3D textures, this defines the number of depth slices."/>
       <member type="u16" name="plane_slice" default="0" doc="Depth slice of the target subresource. Used only for 2D textures (YUV)."/>
+    </type>
+
+    <type name="SurfaceParameters" category="struct" version="0.7.0" doc="Surface parameters for {Surface::} creation.">
+      <member type="u32" name="min_swapchain_images" doc="Minimum number of images in the swapchain."/>
+      <member type="u32" name="max_swapchain_images" doc="Maximum number of images in the swapchain."/>
+      <member type="u32" name="alpha_modes_supported" doc="Bitmask of supported alpha modes for the swapchain. Each bit represents a different alpha mode. Used to determine the supported alpha modes for the swapchain."/>
+      <member type="TextureUsageFlags" name="texture_usage_flags_supported" doc="Bitmask of supported texture usage flags for the swapchain images."/>
+      <member type="bool" name="stereo_supported" doc="Indicates if stereo rendering is supported. If true, the surface can be used to create a swapchain with stereo support."/>
+    </type>
+
+    <type name="SwapchainDesc" category="struct" version="0.7.0" doc="Swapchain description for {Swapchain::} creation.">
+      <member type="u32" name="width" doc="Swapchain image width in pixels."/>
+      <member type="u32" name="height" doc="Swapchain image height in pixels."/>
+      <member type="u32" name="image_count" doc="Number of images in the swapchain."/>
+      <member type="TextureUsageFlags" name="texture_usage_flags" doc="Texture usage flags for the swapchain images. Describe how the swapchain images will be used."/>
+      <member type="DataFormat" name="format" doc="Swapchain image format."/>
+      <member type="SwapchainScaling" name="scaling" doc="Swapchain scaling mode."/>
+      <member type="SwapchainFlags" name="flags" doc="Swapchain flags. Describe additional options for the swapchain."/>
+      <member type="CompositeAlpha" name="composite_alpha" doc="Composite alpha mode. Describe how the alpha channel of the swapchain images is treated during compositing."/>
     </type>
 
     <!-- Variants -->

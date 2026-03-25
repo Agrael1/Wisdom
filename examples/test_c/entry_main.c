@@ -160,6 +160,10 @@ typedef struct BasicRenderer {
     WisResourceAllocator allocator;
     WisDescriptorHeap    descriptor_heap;
     WisDescriptorHeap    sampler_heap;
+
+    // Swapchain
+    WisDataFormat swapchain_format;
+    WisSwapchain  swapchain;
 } BasicRenderer;
 
 typedef struct ResourceContainer {
@@ -246,15 +250,40 @@ void InitRenderer(BasicRenderer* renderer, SDL_Window* window)
     renderer->frame_index      = 0;
     renderer->next_fence_value = 1;
 
-    // TODO: Create swapchain
+    result = wisDeviceCreateCommandQueue(&renderer->device, WisCommandQueueTypeGraphics, &renderer->gfx_queue);
+    printf("CreateCommandQueue result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+
+    // Query format support and choose swapchain format
+    bool present_support = wisDeviceGetFormatPresentationSupport(&renderer->device, wisGetSurfaceView(&surface), WisDataFormatRGB10A2Unorm);
+    if (present_support) {
+        renderer->swapchain_format = WisDataFormatRGB10A2Unorm;
+        printf("Surface supports the desired swapchain format.\n");
+    } else {
+        renderer->swapchain_format = WisDataFormatBGRA8Unorm;
+    }
+
+    WisSurfaceParameters surface_params;
+    result = wisDeviceGetSurfaceParameters(&renderer->device, wisGetSurfaceView(&surface), &surface_params);
+
+    uint32_t desired_image_count = 3; // Triple buffering
+
+    WisSwapchainDesc swapchain_desc = {
+        .width               = 800,
+        .height              = 600,
+        .image_count         = desired_image_count,
+        .texture_usage_flags = WisTextureUsageFlagsRenderTarget,
+        .format              = renderer->swapchain_format,
+        .scaling             = WisSwapchainScalingNone,
+        .flags               = WisSwapchainFlagsVSync,
+        .composite_alpha     = WisCompositeAlphaOpaque,
+    };
+    result = wisDeviceCreateSwapchain(&renderer->device, &surface, &renderer->gfx_queue, &swapchain_desc, &renderer->swapchain);
 
     // Destroy instance as we no longer need it
     wisDestroySurface(&surface);
     wisDestroyInstance(&instance);
     DestroyPlatform(&platform);
 
-    result = wisDeviceCreateCommandQueue(&renderer->device, WisCommandQueueTypeGraphics, &renderer->gfx_queue);
-    printf("CreateCommandQueue result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
     result = wisDeviceGetResourceAllocator(&renderer->device, &renderer->allocator);
     printf("GetResourceAllocator result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
     result = wisDeviceCreateFence(&renderer->device, 0, &renderer->fence);
@@ -309,6 +338,7 @@ void DestoyRenderer(BasicRenderer* renderer)
     wisDestroyCommandQueue(&renderer->gfx_queue);
     wisDestroyResourceAllocator(&renderer->allocator);
     wisDestroyDevice(&renderer->device);
+    wisDestroySwapchain(&renderer->swapchain);
 }
 
 //------------------------------------------------------------------------------
@@ -538,6 +568,7 @@ void Render(BasicRenderer* renderer, const ResourceContainer* resources, const B
 
     // Record frame skeleton: compute updates particles, graphics draws them.
     uint32_t frame_number = (uint32_t)(renderer->next_fence_value - 1);
+    uint32_t swapchain_index = wisSwapchainGetCurrentIndex(&renderer->swapchain);
 
     uint32_t                compute_params[4]      = { PARTICLE_COUNT, frame_number, 16, 0 };
     WisPushConstantDataDesc compute_constants_desc = {
@@ -586,7 +617,7 @@ void Render(BasicRenderer* renderer, const ResourceContainer* resources, const B
     };
 
     WisViewport viewport = { .width = 800.0f, .height = 600.0f, .min_depth = 0.0f, .max_depth = 1.0f };
-    WisScissor  scissor  = { .left = 0, .top = 0, .right = 800, .bottom = 600 };
+    WisRect     scissor  = { .x = 0, .y = 0, .width = 800, .height = 600 };
 
     result = wisCommandListBegin(&frame->command_list);
 

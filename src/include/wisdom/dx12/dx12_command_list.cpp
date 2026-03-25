@@ -449,8 +449,8 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetViewports(WisDX12CommandList* 
 
     for (size_t i = 0; i < max_count; ++i) {
         dx_viewports[i] = {
-            .TopLeftX = viewports[i].top_leftx,
-            .TopLeftY = viewports[i].top_lefty,
+            .TopLeftX = viewports[i].x,
+            .TopLeftY = viewports[i].y,
             .Width    = viewports[i].width,
             .Height   = viewports[i].height,
             .MinDepth = viewports[i].min_depth,
@@ -462,18 +462,18 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetViewports(WisDX12CommandList* 
 
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetScissors(WisDX12CommandList* self,
-                                                           const WisScissor*   scissors,
+                                                           const WisRect*   scissors,
                                                            size_t              count)
 {
     auto&      impl = wis::from_handle_ref<wis::impl::DX12CommandListImpl>(self);
-    D3D12_RECT dx_scissors[D3D12_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE];
-    auto       max_count = std::min(count, static_cast<size_t>(D3D12_VIEWPORT_AND_SCISSORRECT_OBJECT_COUNT_PER_PIPELINE));
+    D3D12_RECT dx_scissors[wis::MaxViewports];
+    auto       max_count = std::min(count, static_cast<size_t>(wis::MaxViewports));
     for (size_t i = 0; i < max_count; ++i) {
         dx_scissors[i] = {
-            .left   = scissors[i].left,
-            .top    = scissors[i].top,
-            .right  = scissors[i].right,
-            .bottom = scissors[i].bottom,
+            .left   = scissors[i].x,
+            .top    = scissors[i].y,
+            .right  = static_cast<LONG>(scissors[i].x + scissors[i].width),
+            .bottom = static_cast<LONG>(scissors[i].y + scissors[i].height),
         };
     }
 

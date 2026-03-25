@@ -16,7 +16,7 @@
  *  DX12 Version:
  * ```c
  * // Provided by Wisdom 0.7.0. 
- * WIS_DEFINE_HANDLE(WisDX12Surface,1);
+ * WIS_DEFINE_HANDLE(WisDX12Surface,2);
  * WIS_DEFINE_HANDLE_VIEW(WisDX12Surface,1);
  * ```
  * \endcond
@@ -25,6 +25,6 @@
  * <hr>
  * \cond WIS_GEN_REFS
  * @see Functions:
- * wisDestroySurface
+ * wisDestroySurface, wisDeviceCreateSwapchain
  * \endcond
  */
