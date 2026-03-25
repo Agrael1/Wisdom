@@ -11,21 +11,21 @@
  * ```c
  * // Provided by Wisdom 0.7.0. 
  * void wisCommandListSetScissors(WisCommandList* self,
- *                                const WisScissor* scissors,
- *                                size_t            count);
+ *                                const WisRect*  scissor_rects,
+ *                                size_t          rect_count);
  * ```
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
  * // Provided by Wisdom 0.7.0. 
  * void wisVKCommandListSetScissors(WisVKCommandList* self,
- *                                  const WisScissor* scissors,
- *                                  size_t            count);
+ *                                  const WisRect*    scissor_rects,
+ *                                  size_t            rect_count);
  * 
  * // Provided by Wisdom 0.7.0. 
  * void wisDX12CommandListSetScissors(WisDX12CommandList* self,
- *                                    const WisScissor*   scissors,
- *                                    size_t              count);
+ *                                    const WisRect*      scissor_rects,
+ *                                    size_t              rect_count);
  * ```
  * </details>
  * 
@@ -33,7 +33,7 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
- * void CommandList::SetScissors(wis::span<const wis::Scissor> scissors) noexcept;
+ * void CommandList::SetScissors(wis::span<const wis::Rect> scissor_rects) noexcept;
  * }
  * ```
  * <details>
@@ -41,10 +41,10 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
- * void VKCommandList::SetScissors(wis::span<const wis::Scissor> scissors) noexcept;
+ * void VKCommandList::SetScissors(wis::span<const wis::Rect> scissor_rects) noexcept;
  * 
  * // Provided by Wisdom 0.7.0. 
- * void DX12CommandList::SetScissors(wis::span<const wis::Scissor> scissors) noexcept;
+ * void DX12CommandList::SetScissors(wis::span<const wis::Rect> scissor_rects) noexcept;
  * }
  * ```
  * </details>
@@ -54,8 +54,8 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisCommandList instance.
- * - `scissors` The scissors to set.
- * - `count` The number of scissors to set.
+ * - `scissor_rects` The scissors to set.
+ * - `rect_count` The number of scissors to set.
  * \endcond
  *
  * @section wisCommandListSetScissors_descr Description

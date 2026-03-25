@@ -619,6 +619,36 @@ constexpr inline VkPrimitiveTopology VKConvert(WisPrimitiveTopology value) noexc
     }
 }
 
+constexpr inline VkPresentScalingFlagsEXT VKConvert(WisSwapchainScaling value) noexcept
+{
+    switch (value) {
+    case WisSwapchainScalingNone:
+        return VK_PRESENT_SCALING_ONE_TO_ONE_BIT_EXT;
+    case WisSwapchainScalingStretch:
+        return VK_PRESENT_SCALING_STRETCH_BIT_EXT;
+    case WisSwapchainScalingAspect:
+        return VK_PRESENT_SCALING_ASPECT_RATIO_STRETCH_BIT_EXT;
+    default:
+        return static_cast<VkPresentScalingFlagsEXT>(0);
+    }
+}
+
+constexpr inline VkCompositeAlphaFlagBitsKHR VKConvert(WisCompositeAlpha value) noexcept
+{
+    switch (value) {
+    case WisCompositeAlphaOpaque:
+        return VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+    case WisCompositeAlphaPreMultiplied:
+        return VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR;
+    case WisCompositeAlphaPostMultiplied:
+        return VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR;
+    case WisCompositeAlphaInherit:
+        return VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR;
+    default:
+        return static_cast<VkCompositeAlphaFlagBitsKHR>(0);
+    }
+}
+
 constexpr inline VkBufferUsageFlags VKConvert(WisBufferUsageFlags value) noexcept
 {
     VkBufferUsageFlags result = static_cast<VkBufferUsageFlags>(0);
@@ -678,6 +708,33 @@ constexpr inline VkImageUsageFlags VKConvert(WisTextureUsageFlags value) noexcep
     }
     if (value & WisTextureUsageFlagsHostCopy) {
         result |= VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT;
+    }
+    return result;
+}
+
+constexpr inline WisTextureUsageFlags VKConvert(VkImageUsageFlags value) noexcept
+{
+    WisTextureUsageFlags result = static_cast<WisTextureUsageFlags>(0);
+    if (value & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT) {
+        result = static_cast<WisTextureUsageFlags>(result | WisTextureUsageFlagsRenderTarget);
+    }
+    if (value & VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT) {
+        result = static_cast<WisTextureUsageFlags>(result | WisTextureUsageFlagsDepthStencil);
+    }
+    if (value & VK_IMAGE_USAGE_TRANSFER_SRC_BIT) {
+        result = static_cast<WisTextureUsageFlags>(result | WisTextureUsageFlagsCopySrc);
+    }
+    if (value & VK_IMAGE_USAGE_TRANSFER_DST_BIT) {
+        result = static_cast<WisTextureUsageFlags>(result | WisTextureUsageFlagsCopyDst);
+    }
+    if (value & VK_IMAGE_USAGE_SAMPLED_BIT) {
+        result = static_cast<WisTextureUsageFlags>(result | WisTextureUsageFlagsShaderResource);
+    }
+    if (value & VK_IMAGE_USAGE_STORAGE_BIT) {
+        result = static_cast<WisTextureUsageFlags>(result | WisTextureUsageFlagsUnorderedAccess);
+    }
+    if (value & VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT) {
+        result = static_cast<WisTextureUsageFlags>(result | WisTextureUsageFlagsHostCopy);
     }
     return result;
 }

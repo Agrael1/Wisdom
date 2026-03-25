@@ -123,7 +123,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyRootSignature(WisVKRootSignature* self)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKRootSignatureImpl>(self);
     if (impl.root_signature_header != nullptr) {
-        delete impl.root_signature_header;
+        ::operator delete(impl.root_signature_header);
         impl.root_signature_header = nullptr;
     }
 }
@@ -162,9 +162,8 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroySurface(WisVKSurface* self)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKSurfaceImpl>(self);
     if (impl.surface != VK_NULL_HANDLE) {
-        impl.surface = VK_NULL_HANDLE;
-
         wis::detail::VKReleaseSurface(impl.surface_header);
+        impl.surface        = VK_NULL_HANDLE;
         impl.surface_header = nullptr;
     }
 }

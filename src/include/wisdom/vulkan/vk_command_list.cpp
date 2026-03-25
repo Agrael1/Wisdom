@@ -449,8 +449,8 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetViewports(WisVKCommandList*  sel
     for (size_t i = 0; i < max_count; i++) {
         const auto& vp  = viewports[i];
         vk_viewports[i] = {
-            .x        = vp.top_leftx,
-            .y        = vp.top_lefty,
+            .x        = vp.x,
+            .y        = vp.y,
             .width    = vp.width,
             .height   = -vp.height, // Invert height to convert from top-left origin to bottom-left origin
             .minDepth = vp.min_depth,
@@ -462,7 +462,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetViewports(WisVKCommandList*  sel
 
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKCommandListSetScissors(WisVKCommandList* self,
-                                                         const WisScissor* scissors,
+                                                         const WisRect* scissors,
                                                          size_t            count)
 {
     auto&    impl      = wis::from_handle_ref<wis::impl::VKCommandListImpl>(self);
@@ -471,8 +471,8 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetScissors(WisVKCommandList* self,
     for (size_t i = 0; i < max_count; i++) {
         auto& vp    = scissors[i];
         vk_rects[i] = {
-            .offset = {                      vp.left,                       vp.top },
-            .extent = { uint32_t(vp.right - vp.left), uint32_t(vp.bottom - vp.top) },
+            .offset = {                      vp.x,                       vp.y },
+            .extent = { uint32_t(vp.width), uint32_t(vp.height) },
         };
     }
     impl.command_list_table->vkCmdSetScissor(impl.command_buffer, 0, max_count, vk_rects);

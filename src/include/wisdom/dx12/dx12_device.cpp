@@ -185,7 +185,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateViewHeap(const WisDX12Devic
 
     auto* raw_heap  = descriptor_heap.detach();
     auto& heap_impl = *new (heap) wis::impl::DX12ViewHeapImpl{
-        .view_heap = raw_heap,
+        .view_heap       = raw_heap,
         .device          = device.device,
         .cpu_handle      = raw_heap->GetCPUDescriptorHandleForHeapStart(),
         .descriptor_size = device.device->GetDescriptorHandleIncrementSize(heap_desc.Type),
@@ -961,6 +961,129 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(const WisD
 
     auto& pipeline_impl = *new (pipeline) wis::impl::DX12PipelineImpl{
         .pipeline_state = pipeline_state.detach(),
+    };
+
+    return wis::detail::dx_success;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API bool wisDX12DeviceGetFormatPresentationSupport(const WisDX12Device* self,
+                                                                       WisDX12SurfaceView   surface,
+                                                                       WisDataFormat        format)
+{
+    auto& impl = wis::from_handle_ref<const wis::impl::DX12DeviceImpl>(self);
+    (void)surface;
+
+    D3D12_FEATURE_DATA_FORMAT_SUPPORT formatSupport = {
+        .Format = wis::detail::DX12Convert(format)
+    };
+    impl.device->CheckFeatureSupport(D3D12_FEATURE_FORMAT_SUPPORT, &formatSupport, sizeof(formatSupport));
+
+    // Check if it supports being a render target and display
+    return formatSupport.Support1 & D3D12_FORMAT_SUPPORT1_DISPLAY;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceGetSurfaceParameters(const WisDX12Device*  self,
+                                                                    WisDX12SurfaceView    surface,
+                                                                    WisSurfaceParameters* params)
+{
+    auto& impl = wis::from_handle_ref<const wis::impl::DX12DeviceImpl>(self);
+    *params    = {
+           .min_swapchain_images          = 2,
+           .max_swapchain_images          = DXGI_MAX_SWAP_CHAIN_BUFFERS,
+           .alpha_modes_supported         = 0b0000'1111, // Support all alpha modes (premultiplied, postmultiplied, opaque, custom)
+           .texture_usage_flags_supported = static_cast<WisTextureUsageFlags>(WisTextureUsageFlagsRenderTarget |
+                                                                           WisTextureUsageFlagsShaderResource |
+                                                                           WisTextureUsageFlagsCopySrc |
+                                                                           WisTextureUsageFlagsCopyDst |
+                                                                           WisTextureUsageFlagsUnorderedAccess),
+           .stereo_supported              = impl.factory->IsWindowedStereoEnabled() > 0,
+    };
+
+    return wis::detail::dx_success;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateSwapchain(const WisDX12Device*       self,
+                                                               const WisDX12Surface*      surface,
+                                                               const WisDX12CommandQueue* queue,
+                                                               const WisSwapchainDesc*    desc,
+                                                               WisDX12Swapchain*          swapchain)
+{
+    auto& device       = wis::from_handle_ref<const wis::impl::DX12DeviceImpl>(self);
+    auto& surface_impl = wis::from_handle_ref<const wis::impl::DX12SurfaceImpl>(surface);
+    auto& queue_impl   = wis::from_handle_ref<const wis::impl::DX12CommandQueueImpl>(queue);
+
+    bool tearing = [&]() {
+        BOOL xtearing = FALSE;
+        device.factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &xtearing, sizeof(xtearing));
+        return bool(xtearing);
+    }();
+
+    DXGI_USAGE usage = 0;
+    switch (desc->texture_usage_flags) {
+    case WisTextureUsageFlagsRenderTarget:
+        usage |= DXGI_USAGE_RENDER_TARGET_OUTPUT;
+        break;
+    case WisTextureUsageFlagsShaderResource:
+        usage |= DXGI_USAGE_SHADER_INPUT;
+        break;
+    case WisTextureUsageFlagsUnorderedAccess:
+        usage |= DXGI_USAGE_UNORDERED_ACCESS;
+        break;
+    default:
+        break;
+    }
+
+    UINT swapchain_flags = tearing
+            ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING
+            : 0u;
+
+    DXGI_SWAP_CHAIN_DESC1 swap_chain_desc{
+        .Width       = desc->width,
+        .Height      = desc->height,
+        .Format      = wis::detail::DX12Convert(desc->format),
+        .Stereo      = desc->flags & WisSwapchainFlagsStereo ? TRUE : FALSE,
+        .SampleDesc  = { 1, 0 },
+        .BufferUsage = usage,
+        .BufferCount = desc->image_count,
+        .Scaling     = wis::detail::DX12Convert(desc->scaling),
+        .SwapEffect  = DXGI_SWAP_EFFECT_FLIP_DISCARD,
+        .AlphaMode   = wis::detail::DX12Convert(desc->composite_alpha),
+        .Flags       = swapchain_flags,
+    };
+
+    wis::com_ptr<IDXGISwapChain1> swap_chain1;
+    HRESULT                       hr = S_OK;
+    if (surface_impl.uwp) {
+        hr = device.factory->CreateSwapChainForCoreWindow(
+                queue_impl.queue,
+                static_cast<IUnknown*>(surface_impl.surface),
+                &swap_chain_desc,
+                nullptr,
+                swap_chain1.put_unchecked());
+    } else {
+        hr = device.factory->CreateSwapChainForHwnd(
+                queue_impl.queue,
+                static_cast<HWND>(surface_impl.surface),
+                &swap_chain_desc,
+                nullptr,
+                nullptr,
+                swap_chain1.put_unchecked());
+    }
+
+    if (!wis::detail::succeeded(hr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to create swapchain for surface">(hr);
+    }
+    wis::com_ptr<IDXGISwapChain4> swap_chain;
+    swap_chain1.as(&swap_chain);
+
+    new (swapchain) wis::impl::DX12SwapchainImpl{
+        .swapchain           = swap_chain.detach(),
+        .flags               = swap_chain_desc.Flags,
+        .vsync               = desc->flags & WisSwapchainFlagsVSync ? true : false,
+        .backbuffer_count    = static_cast<uint8_t>(desc->image_count),
     };
 
     return wis::detail::dx_success;

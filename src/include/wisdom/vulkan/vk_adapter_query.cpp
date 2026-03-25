@@ -664,16 +664,16 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
     }
     control_block_size += sizeof(std::binary_semaphore) * semaphore_count;
 
-    std::unique_ptr<wis::detail::VKDeviceControlBlock> header{ reinterpret_cast<wis::detail::VKDeviceControlBlock*>(operator new(control_block_size, std::nothrow)) };
-    if (!header) {
+    std::unique_ptr<std::byte[]> header_storage{ static_cast<std::byte*>(operator new(control_block_size, std::nothrow)) };
+    if (!header_storage) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to allocate memory for Vulkan device header">(VK_ERROR_OUT_OF_HOST_MEMORY);
     }
 
     // Start header lifetime
-    std::construct_at(header.get());
+    wis::detail::VKDeviceControlBlock* header = new (header_storage.get()) wis::detail::VKDeviceControlBlock{};
     header->header.instance = impl.instance; // store instance handle in device header for later use in resource allocator
 
-    wis::span<std::binary_semaphore> semaphores{ reinterpret_cast<std::binary_semaphore*>(header.get() + 1), semaphore_count };
+    wis::span<std::binary_semaphore> semaphores{ reinterpret_cast<std::binary_semaphore*>(header + 1), semaphore_count };
     for (auto& sem : semaphores) {
         std::construct_at(&sem, 1); // Initialize all semaphores to the non-signaled state
     }
@@ -735,6 +735,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
         return wis::detail::make_result<wis::detail::Func(), "Failed to initialize Vulkan command list function table">(VK_ERROR_UNKNOWN);
     }
 
+    if (!header->header.swapchain_table.Init(device_handle, gtable.vkGetDeviceProcAddr)) {
+        device_table.vkDestroyDevice(device_handle, nullptr); // cleanup
+        return wis::detail::make_result<wis::detail::Func(), "Failed to initialize Vulkan swapchain function table">(VK_ERROR_UNKNOWN);
+    }
+
     // Create resource allocator
     res = VKInitResourceAllocator(device_handle, adapter, impl.shared_header->header, header->header);
     if (res.status != WisStatusOk) {
@@ -742,11 +747,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
         return res;
     }
 
+    header_storage.release(); // release ownership of header storage, it will be managed by the device impl from now on
+
     // Fill device impl
     auto& device_impl = *new (device) wis::impl::VKDeviceImpl{
         .device          = device_handle,
         .physical_device = adapter,
-        .device_header   = header.release(),
+        .device_header   = header,
     };
 
     auto& device_header         = device_impl.device_header->header;

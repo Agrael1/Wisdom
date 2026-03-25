@@ -57,12 +57,13 @@ void Generator::ParseBitmask(tinyxml2::XMLElement* type)
         auto impl_for      = impl_type->FindAttribute("for")->Value();
         auto backend       = ParseBackend(impl_for);
         auto impl_name     = impl_type->FindAttribute("name")->Value();
+        bool convert_back  = impl_type->FindAttribute("convert_back") != nullptr;
 
         if (auto direct = impl_type->FindAttribute("direct")) {
-            ref.conversion_type[static_cast<size_t>(backend)] = WisConvert{ impl_name, {}, true };
+            ref.conversion_type[static_cast<size_t>(backend)] = WisConvert{ impl_name, {}, true, convert_back };
             continue;
         }
-        ref.conversion_type[static_cast<size_t>(backend)] = WisConvert{ impl_name, {}, false };
+        ref.conversion_type[static_cast<size_t>(backend)] = WisConvert{ impl_name, {}, false, convert_back };
     }
 
     for (auto* member = type->FirstChildElement("value"); member;
@@ -192,10 +193,13 @@ std::string Generator::MakeBitmaskConverter(const WisBitmask& s, Backend backend
 {
     std::string converters;
     auto        backend_tag = GetBackendSuffix(backend);
-    auto&       cvt     = s.conversion_type[static_cast<size_t>(backend)];
+    auto&       cvt         = s.conversion_type[static_cast<size_t>(backend)];
     if (cvt.value.empty()) {
         return converters;
     }
+
+    auto wisdom_type = GetCFullTypename(s.name, Backend::Any);
+
     if (cvt.direct) {
         converters = wis::format("constexpr inline {} {}Convert({} value) noexcept {{\n    return static_cast<{}>(value);\n}}\n\n",
                                  cvt.value,
@@ -239,6 +243,39 @@ std::string Generator::MakeBitmaskConverter(const WisBitmask& s, Backend backend
 
         converters += wis::format("    return result;\n}}\n\n");
     }
+
+    if (cvt.convert_back) {
+        if (cvt.direct) {
+            converters += wis::format("constexpr inline {} {}Convert({} value) noexcept {{\n    return static_cast<{}>(value);\n}}\n\n",
+                                      wisdom_type,
+                                      backend_tag,
+                                      cvt.value,
+                                      wisdom_type);
+        } else {
+            converters += wis::format("constexpr inline {} {}Convert({} value) noexcept {{\n",
+                                      wisdom_type,
+                                      backend_tag,
+                                      cvt.value);
+            converters += wis::format("    {} result = static_cast<{}>(0);\n",
+                                      wisdom_type,
+                                      wisdom_type);
+
+            for (auto& m : s.values) {
+                auto convert_value = m.converts[static_cast<size_t>(backend)];
+                if (convert_value.empty()) {
+                    continue;
+                }
+                converters += wis::format("    if (value & {}) {{ result = static_cast<{}>(result | {}{}); }}\n",
+                                          convert_value,
+                                          wisdom_type,
+                                          wisdom_type,
+                                          m.name);
+            }
+
+            converters += wis::format("    return result;\n}}\n\n");
+        }
+    }
+
     return converters;
 }
 

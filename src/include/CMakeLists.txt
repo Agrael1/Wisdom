@@ -27,6 +27,7 @@ if (WISDOM_DX12)
             "wisdom/dx12/dx12_descriptor_heap.cpp"
             "wisdom/dx12/dx12_resource_allocator.cpp"
             "wisdom/dx12/dx12_command_allocator.cpp"
+            "wisdom/dx12/dx12_swapchain.cpp"
             "wisdom/dx12/dx12_pipeline_cache.cpp")
 endif ()
 
@@ -44,6 +45,7 @@ if (WISDOM_VULKAN)
             "wisdom/vulkan/vk_descriptor_heap.cpp"
             "wisdom/vulkan/vk_resource_allocator.cpp"
             "wisdom/vulkan/vk_command_allocator.cpp"
+            "wisdom/vulkan/vk_swapchain.cpp"
             "wisdom/vulkan/vk_pipeline_cache.cpp")
 endif ()
 

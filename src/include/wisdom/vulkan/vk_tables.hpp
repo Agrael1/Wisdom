@@ -42,7 +42,6 @@ struct VKMainAdapter {
     PFN_vkGetPhysicalDeviceMemoryProperties2       vkGetPhysicalDeviceMemoryProperties2;
     PFN_vkGetPhysicalDeviceSurfaceCapabilities2KHR vkGetPhysicalDeviceSurfaceCapabilities2KHR;
     PFN_vkGetPhysicalDeviceSurfaceSupportKHR       vkGetPhysicalDeviceSurfaceSupportKHR;
-    PFN_vkGetPhysicalDeviceSurfaceCapabilitiesKHR  vkGetPhysicalDeviceSurfaceCapabilitiesKHR;
     PFN_vkGetPhysicalDeviceSurfaceFormatsKHR       vkGetPhysicalDeviceSurfaceFormatsKHR;
     PFN_vkGetPhysicalDeviceSurfacePresentModesKHR  vkGetPhysicalDeviceSurfacePresentModesKHR;
     PFN_vkCreateDevice                             vkCreateDevice;
@@ -60,7 +59,6 @@ public:
         ASSIGN_INSTANCE_PROC_ADDR_CHECK_VAR(instance, vkGetPhysicalDeviceMemoryProperties2, "vkGetPhysicalDeviceMemoryProperties2KHR");
         ASSIGN_INSTANCE_PROC_ADDR_OPTIONAL(instance, vkGetPhysicalDeviceSurfaceCapabilities2KHR);
         ASSIGN_INSTANCE_PROC_ADDR_CHECK(instance, vkGetPhysicalDeviceSurfaceSupportKHR);
-        ASSIGN_INSTANCE_PROC_ADDR_CHECK(instance, vkGetPhysicalDeviceSurfaceCapabilitiesKHR);
         ASSIGN_INSTANCE_PROC_ADDR_CHECK(instance, vkGetPhysicalDeviceSurfaceFormatsKHR);
         ASSIGN_INSTANCE_PROC_ADDR_CHECK(instance, vkGetPhysicalDeviceSurfacePresentModesKHR);
         ASSIGN_INSTANCE_PROC_ADDR_CHECK(instance, vkCreateDevice);
@@ -242,6 +240,7 @@ struct VKMainDevice {
     PFN_vkGetBufferDeviceAddress            vkGetBufferDeviceAddress;
     PFN_vkWriteResourceDescriptorsEXT       vkWriteResourceDescriptorsEXT;
     PFN_vkWriteSamplerDescriptorsEXT        vkWriteSamplerDescriptorsEXT;
+    PFN_vkCreateSwapchainKHR                vkCreateSwapchainKHR;
 
     // Host copy
     PFN_vkTransitionImageLayoutEXT vkTransitionImageLayoutEXT;
@@ -314,6 +313,7 @@ public:
 
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkWriteResourceDescriptorsEXT);
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkWriteSamplerDescriptorsEXT);
+        ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkCreateSwapchainKHR);
 
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkTransitionImageLayoutEXT);
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkCopyMemoryToImageEXT);
@@ -324,6 +324,25 @@ public:
         return true;
     }
 };
+
+struct VKMainSwapchain {
+    PFN_vkAcquireNextImageKHR   vkAcquireNextImageKHR;
+    PFN_vkGetSwapchainImagesKHR vkGetSwapchainImagesKHR;
+    PFN_vkDestroySwapchainKHR   vkDestroySwapchainKHR;
+    PFN_vkQueuePresentKHR       vkQueuePresentKHR; // technically a queue function, but for speed store here
+    PFN_vkQueueSubmit2          vkQueueSubmit2; // technically a queue function, but for speed store here
+    
+    bool Init(VkDevice device, PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr) noexcept
+    {
+        ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkAcquireNextImageKHR);
+        ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkGetSwapchainImagesKHR);
+        ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkDestroySwapchainKHR);
+        ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkQueuePresentKHR);
+        ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkQueueSubmit2);
+        return true;
+    }
+};
+
 } // namespace impl
 } // namespace wis
 

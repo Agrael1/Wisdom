@@ -62,6 +62,6 @@
  *
  * \cond WIS_GEN_REFS
  * @see Structs:
- * WisTextureDesc
+ * WisTextureDesc, WisSurfaceParameters, WisSwapchainDesc
  * \endcond
  */

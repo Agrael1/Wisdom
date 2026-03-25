@@ -22,6 +22,7 @@ struct VKCommandPoolControlBlock;
 struct VKRootSignatureControlBlock;
 struct VKSurfaceControlBlock;
 struct VKQueueFamilyExtras;
+struct VKSwapchainControlBlock;
 } // namespace detail
 
 namespace impl {
@@ -136,6 +137,17 @@ struct VKPipelineImpl {
 struct VKSurfaceImpl {
     VkSurfaceKHR                   surface;
     detail::VKSurfaceControlBlock* surface_header;
+};
+
+struct VKSwapchainImpl {
+    VkSwapchainKHR                   swapchain;
+    detail::VKSwapchainControlBlock* swapchain_header;
+    impl::VKMainSwapchain*           swapchain_table;
+    VkQueue                          present_queue; // store a copy of the present queue handle for faster access during presentation
+    VkDevice                         device;
+    mutable uint32_t                 present_index;
+    uint32_t                         acquire_index;
+    mutable bool                     lazy_acquire; // If true, the next call to GetCurrentIndex will acquire the next image from the swapchain.
 };
 
 } // namespace impl

@@ -10,6 +10,7 @@
 #include <vk_mem_alloc.h>
 #include <atomic>
 #include <semaphore>
+#include <array>
 
 namespace wis::detail {
 //-----------------------------------------------------------------------------
@@ -131,6 +132,10 @@ struct VKDeviceFeatures {
     uint32_t line_rasterization                : 1 = false;
     uint32_t conservative_rasterization        : 1 = false;
 
+    // Swapchain
+    uint32_t swapchain_maintenance : 1 = false;
+    uint32_t incremental_present   : 1 = false;
+
     // Properties
     uint8_t  max_vertex_attributes                    = 0; // rarely greater than 32, so 8 bits is sufficient
     uint8_t  max_vertex_bindings                      = 0;
@@ -177,6 +182,7 @@ struct VKDeviceHeader {
     impl::VKMainDevice       device_table;
     impl::VKMainCommandQueue command_queue_table;
     impl::VKMainCommandList  command_list_table;
+    impl::VKMainSwapchain    swapchain_table;
     VkDevice                 device;
     VKInstanceControlBlock*  shared_header;
     VkInstance               instance;
@@ -247,6 +253,31 @@ struct VKSurfaceHeader {
 
 //-----------------------------------------------------------------------------
 struct VKSurfaceControlBlock : public VKControlBlock<VKSurfaceHeader> {
+};
+
+//-----------------------------------------------------------------------------
+struct VKSwapchainHeader {
+    VKSurfaceControlBlock*                 surface_header; // hold reference to surface control block to ensure surface lifetime
+    VKDeviceControlBlock*                  device_header; // hold reference to device control block to ensure device lifetime
+    VkSwapchainCreateInfoKHR               create_info; // store create info for later use in presentation and swapchain recreation
+    VkSwapchainPresentScalingCreateInfoKHR scaling_create_info; // store scaling create info for later use in presentation and swapchain recreation
+
+    wis::span<const VkSemaphore> GetImageAvailableSemaphores() const noexcept {
+        return wis::span<const VkSemaphore>{
+            reinterpret_cast<const VkSemaphore*>(this + 1),
+            create_info.minImageCount
+        };
+    }
+    wis::span<const VkSemaphore> GetRenderFinishedSemaphores() const noexcept {
+        return wis::span<const VkSemaphore>{
+            reinterpret_cast<const VkSemaphore*>(this + 1) + create_info.minImageCount,
+            create_info.minImageCount
+        };
+    }
+};
+
+//-----------------------------------------------------------------------------
+struct VKSwapchainControlBlock : public VKControlBlock<VKSwapchainHeader> {
 };
 
 //-----------------------------------------------------------------------------
@@ -405,7 +436,7 @@ inline void VKReleaseDevice(VKDeviceControlBlock* header) noexcept
         // Destroy instance
         VKReleaseInstance(header->header.shared_header);
 
-        delete header;
+        ::operator delete(header);
     }
 }
 
@@ -426,7 +457,7 @@ inline void VKReleaseCommandPool(VKCommandPoolControlBlock* header) noexcept
         table.vkDestroyCommandPool(header->header.device, header->header.command_pool, nullptr);
 
         VKReleaseDevice(header->header.device_header);
-        delete header;
+        delete[] header;
     }
 }
 //-----------------------------------------------------------------------------
@@ -446,9 +477,29 @@ inline void VKReleaseSurface(VKSurfaceControlBlock* header) noexcept
         table.vkDestroySurfaceKHR(header->header.instance_header->header.instance, header->header.surface, nullptr);
 
         VKReleaseInstance(header->header.instance_header);
-        delete header;
+        delete[] header;
     }
 }
+
+//-----------------------------------------------------------------------------
+
+inline void VKReleaseSwapchain(VkSwapchainKHR swap, VKSwapchainControlBlock* header) noexcept
+{
+    if (header && header->Release() == 1) {
+        // Last reference, destroy swapchain
+        std::atomic_thread_fence(std::memory_order_acquire);
+        auto& head = header->header;
+
+        // Destroy swapchain
+        auto& table = head.device_header->header.swapchain_table;
+        table.vkDestroySwapchainKHR(head.device_header->header.device, swap, nullptr);
+
+        VKReleaseDevice(header->header.device_header);
+        VKReleaseSurface(header->header.surface_header);
+        ::operator delete(header);
+    }
+}
+
 } // namespace wis::detail
 
 #endif // WIS_VK_DETAIL_HPP

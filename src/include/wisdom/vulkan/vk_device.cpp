@@ -462,11 +462,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(const WisVKDevi
     };
 
     // start lifetime
-    std::construct_at(root_sig_control_block.get());
-    root_sig_control_block->constant_data_size     = static_cast<uint32_t>(total_dwords_needed);
-    root_sig_control_block->mapping_count          = static_cast<uint32_t>(total_table_count);
-    root_sig_control_block->embedded_sampler_count = static_cast<uint32_t>(static_sampler_count);
-    root_sig_control_block->root_parameter_count   = static_cast<uint32_t>(root_param_count);
+    wis::detail::VKRootSignatureControlBlock* rootsig_header = std::construct_at(root_sig_control_block.get());
+    rootsig_header->constant_data_size                       = static_cast<uint32_t>(total_dwords_needed);
+    rootsig_header->mapping_count                            = static_cast<uint32_t>(total_table_count);
+    rootsig_header->embedded_sampler_count                   = static_cast<uint32_t>(static_sampler_count);
+    rootsig_header->root_parameter_count                     = static_cast<uint32_t>(root_param_count);
 
     // Fill mapping data
     uint32_t all_offset = 0;
@@ -475,12 +475,12 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(const WisVKDevi
             continue;
         }
 
-        root_sig_control_block->shader_mapping_offset[i] = local_offsets_per_shader[i].offset -
+        rootsig_header->shader_mapping_offset[i] = local_offsets_per_shader[i].offset -
                 (local_offsets_per_shader[i].even
                          ? 0
                          : table_counts_per_shader[0]); // If even, "all" maps are after this stage, if odd, "all" maps are before this stage
 
-        root_sig_control_block->shader_mapping_sizes[i] = table_counts_per_shader[i] +
+        rootsig_header->shader_mapping_sizes[i] = table_counts_per_shader[i] +
                 (local_offsets_per_shader[i].even
                          ? 0
                          : table_counts_per_shader[0]); // If even, this stage maps + "all" maps, if odd, only this stage maps
@@ -490,12 +490,12 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(const WisVKDevi
             all_offset = local_offsets_per_shader[i].offset + table_counts_per_shader[i];
         }
     }
-    root_sig_control_block->shader_mapping_offset[0] = all_offset;
-    root_sig_control_block->shader_mapping_sizes[0]  = table_counts_per_shader[0];
-    local_offsets_per_shader[0]                      = { all_offset, true };
+    rootsig_header->shader_mapping_offset[0] = all_offset;
+    rootsig_header->shader_mapping_sizes[0]  = table_counts_per_shader[0];
+    local_offsets_per_shader[0]              = { all_offset, true };
 
-    auto     mappings            = root_sig_control_block->GetMappings();
-    auto     root_param_offsets  = root_sig_control_block->GetRootBindingOffsets();
+    auto     mappings            = rootsig_header->GetMappings();
+    auto     root_param_offsets  = rootsig_header->GetRootBindingOffsets();
     uint32_t push_address_offset = 0;
     uint32_t root_param_index    = 0;
 
@@ -602,8 +602,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(const WisVKDevi
     }
 
     // Fill root signature impl
+    root_sig_control_block.release();
     auto& layout_impl = *new (layout) wis::impl::VKRootSignatureImpl{
-        .root_signature_header = root_sig_control_block.release()
+        .root_signature_header = rootsig_header
     };
 
     return wis::detail::vk_success;
@@ -1284,6 +1285,278 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(const WisVKD
         .device_header = device.device_header
     };
     device.device_header->AddRef();
+
+    return wis::detail::vk_success;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceGetSurfaceParameters(const WisVKDevice*    self,
+                                                                  WisVKSurfaceView      surface,
+                                                                  WisSurfaceParameters* params)
+{
+    auto& device       = wis::from_handle_ref<const wis::impl::VKDeviceImpl>(self);
+    auto  atable       = device.device_header->header.shared_header->header.adapter_table;
+    auto  surface_impl = std::bit_cast<VkSurfaceKHR>(surface);
+    auto& features     = device.device_header->header.features;
+
+    VkSurfaceCapabilities2KHR capabilities{
+        .sType = VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_KHR,
+        .pNext = nullptr,
+    };
+    VkPhysicalDeviceSurfaceInfo2KHR surface_info{
+        .sType   = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR,
+        .pNext   = nullptr,
+        .surface = surface_impl
+    };
+    atable.vkGetPhysicalDeviceSurfaceCapabilities2KHR(device.physical_device, &surface_info, &capabilities);
+
+    // clang-format off
+    uint32_t alpha = 
+        (capabilities.surfaceCapabilities.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR ? 1 << WisCompositeAlphaOpaque : 0) |
+        (capabilities.surfaceCapabilities.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR ? 1 << WisCompositeAlphaPreMultiplied : 0) |
+        (capabilities.surfaceCapabilities.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR ? 1 << WisCompositeAlphaPostMultiplied : 0) |
+        (capabilities.surfaceCapabilities.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR ? 1 << WisCompositeAlphaInherit : 0);
+    // clang-format on
+
+    *params = {
+        .min_swapchain_images          = capabilities.surfaceCapabilities.minImageCount,
+        .max_swapchain_images          = capabilities.surfaceCapabilities.maxImageCount == 0 ? 16 : capabilities.surfaceCapabilities.maxImageCount,
+        .alpha_modes_supported         = alpha,
+        .texture_usage_flags_supported = wis::detail::VKConvert(capabilities.surfaceCapabilities.supportedUsageFlags),
+        .stereo_supported              = capabilities.surfaceCapabilities.maxImageArrayLayers > 1,
+    };
+    return wis::detail::vk_success;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API bool wisVKDeviceGetFormatPresentationSupport(const WisVKDevice* self,
+                                                                     WisVKSurfaceView   surface,
+                                                                     WisDataFormat      format)
+{
+    auto& device     = wis::from_handle_ref<const wis::impl::VKDeviceImpl>(self);
+    auto  atable     = device.device_header->header.shared_header->header.adapter_table;
+    auto  vk_surface = std::bit_cast<VkSurfaceKHR>(surface);
+
+    static constexpr uint32_t             reasonable_format_count = 64;
+    VkSurfaceFormatKHR                    formats[reasonable_format_count];
+    std::unique_ptr<VkSurfaceFormatKHR[]> dynamic_formats;
+    wis::span<VkSurfaceFormatKHR>         format_span;
+
+    uint32_t format_count = 0;
+    auto     vr           = atable.vkGetPhysicalDeviceSurfaceFormatsKHR(device.physical_device, vk_surface, &format_count, nullptr);
+    if (!wis::detail::succeeded(vr) || format_count == 0) {
+        return false;
+    }
+
+    if (format_count > reasonable_format_count) {
+        dynamic_formats = wis::make_unique<VkSurfaceFormatKHR[]>(format_count);
+        if (!dynamic_formats) {
+            format_count = reasonable_format_count;
+            format_span  = { formats, format_count };
+        }
+        format_span = { dynamic_formats.get(), format_count };
+    } else {
+        format_span = { formats, format_count };
+    }
+
+    vr = atable.vkGetPhysicalDeviceSurfaceFormatsKHR(device.physical_device, vk_surface, &format_count, format_span.data());
+    if (!wis::detail::succeeded(vr)) {
+        return false;
+    }
+
+    auto vk_format = wis::detail::VKConvert(format);
+    return std::any_of(format_span.begin(), format_span.end(), [vk_format](const VkSurfaceFormatKHR& fmt) {
+        return fmt.format == vk_format;
+    });
+}
+
+WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateSwapchain(const WisVKDevice*       self,
+                                                             const WisVKSurface*      surface,
+                                                             const WisVKCommandQueue* queue,
+                                                             const WisSwapchainDesc*  desc,
+                                                             WisVKSwapchain*          swapchain)
+{
+    auto& device       = *wis::from_handle<const wis::impl::VKDeviceImpl>(self);
+    auto& dheader      = device.device_header->header;
+    auto& table        = dheader.device_table;
+    auto& features     = dheader.features;
+    auto& surface_impl = *wis::from_handle<const wis::impl::VKSurfaceImpl>(surface);
+    auto& atable       = dheader.shared_header->header.adapter_table;
+    auto& stable       = device.device_header->header.swapchain_table;
+    auto& queue_impl   = *wis::from_handle<const wis::impl::VKCommandQueueImpl>(queue);
+
+    // Query format and colorspace
+    static constexpr uint32_t             reasonable_format_count = 64;
+    VkSurfaceFormatKHR                    formats[reasonable_format_count];
+    std::unique_ptr<VkSurfaceFormatKHR[]> dynamic_formats;
+    wis::span<VkSurfaceFormatKHR>         format_span;
+
+    uint32_t format_count = 0;
+
+    auto vr = atable.vkGetPhysicalDeviceSurfaceFormatsKHR(device.physical_device, surface_impl.surface, &format_count, nullptr);
+    if (!wis::detail::succeeded(vr) || format_count == 0) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to get surface formats or no formats supported by the surface">(VK_ERROR_INITIALIZATION_FAILED);
+    }
+
+    if (format_count > reasonable_format_count) {
+        dynamic_formats = wis::make_unique<VkSurfaceFormatKHR[]>(format_count);
+        if (!dynamic_formats) {
+            format_count = reasonable_format_count;
+            format_span  = { formats, format_count };
+        }
+        format_span = { dynamic_formats.get(), format_count };
+    } else {
+        format_span = { formats, format_count };
+    }
+
+    vr = atable.vkGetPhysicalDeviceSurfaceFormatsKHR(device.physical_device, surface_impl.surface, &format_count, format_span.data());
+    if (!wis::detail::succeeded(vr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to get surface formats">(vr);
+    }
+
+    auto vk_format = wis::detail::VKConvert(desc->format);
+    auto format_it = std::ranges::find_if(format_span, [vk_format](const VkSurfaceFormatKHR& fmt) {
+        return fmt.format == vk_format;
+    });
+
+    if (format_it == format_span.end()) {
+        return wis::detail::make_result<wis::detail::Func(), "The requested format is not supported for presentation on the given surface">(VK_ERROR_FORMAT_NOT_SUPPORTED);
+    }
+
+    // Query surface props
+    VkSurfaceCapabilities2KHR capabilities{
+        .sType = VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_KHR,
+        .pNext = nullptr,
+    };
+    VkPhysicalDeviceSurfaceInfo2KHR surface_info{
+        .sType   = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR,
+        .pNext   = nullptr,
+        .surface = surface_impl.surface
+    };
+    uint32_t array_layer_count = 1;
+    atable.vkGetPhysicalDeviceSurfaceCapabilities2KHR(device.physical_device, &surface_info, &capabilities);
+
+    // validate requested parameters against capabilities
+    if (desc->image_count < capabilities.surfaceCapabilities.minImageCount || (capabilities.surfaceCapabilities.maxImageCount != 0 && desc->image_count > capabilities.surfaceCapabilities.maxImageCount)) {
+        return wis::detail::make_result<wis::detail::Func(), "Requested swapchain image count is out of bounds for the given surface">(VK_ERROR_INITIALIZATION_FAILED);
+    }
+    if (desc->flags & WisSwapchainFlagsStereo) {
+        if (capabilities.surfaceCapabilities.maxImageArrayLayers == 1) {
+            return wis::detail::make_result<wis::detail::Func(), "Stereo swapchain requested but the surface does not support image array layers">(VK_ERROR_INITIALIZATION_FAILED);
+        }
+        array_layer_count++;
+    }
+
+    // Presentation mode flags
+    static constexpr uint32_t reasonable_presentation_count = 16;
+    VkPresentModeKHR          modes[reasonable_presentation_count];
+    uint32_t                  presentation_count = 0;
+    atable.vkGetPhysicalDeviceSurfacePresentModesKHR(device.physical_device, surface_impl.surface, &presentation_count, nullptr);
+    atable.vkGetPhysicalDeviceSurfacePresentModesKHR(device.physical_device, surface_impl.surface, &presentation_count, modes);
+
+    auto present_mode = VK_PRESENT_MODE_FIFO_KHR;
+    bool tearing      = desc->flags & WisSwapchainFlagsAllowTearing;
+    if ((desc->flags & WisSwapchainFlagsVSync) == 0) {
+        if (tearing) {
+            if ((tearing = std::ranges::count(modes, VK_PRESENT_MODE_IMMEDIATE_KHR) > 0)) {
+                present_mode = VK_PRESENT_MODE_IMMEDIATE_KHR;
+            } else if ((tearing = std::ranges::count(modes, VK_PRESENT_MODE_FIFO_RELAXED_KHR) > 0)) {
+                present_mode = VK_PRESENT_MODE_FIFO_RELAXED_KHR;
+            }
+        } else if (std::ranges::count(modes, VK_PRESENT_MODE_MAILBOX_KHR) > 0 && !(desc->flags & WisSwapchainFlagsStereo)) {
+            present_mode = VK_PRESENT_MODE_MAILBOX_KHR;
+        }
+    }
+
+    // Create swapchain control block in a single allocation with the header to ensure they are close together in memory, which is important for cache performance since the header is accessed on every frame.
+    std::size_t header_size = sizeof(wis::detail::VKSwapchainControlBlock) +
+            desc->image_count * sizeof(VkSemaphore) * 2 + // semaphores for present and render complete for each image
+            0;
+    std::unique_ptr<std::byte[]> header_storage{ new (std::nothrow) std::byte[header_size] };
+    if (!header_storage) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to allocate memory for swapchain control block">(VK_ERROR_OUT_OF_HOST_MEMORY);
+    }
+    wis::detail::VKSwapchainControlBlock* header = new (header_storage.get()) wis::detail::VKSwapchainControlBlock;
+
+    auto& swap_head = header->header;
+
+    if (features.swapchain_maintenance) {
+        swap_head.scaling_create_info = {
+            .sType           = VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_EXT,
+            .pNext           = nullptr,
+            .scalingBehavior = wis::detail::VKConvert(desc->scaling),
+            .presentGravityX = VK_PRESENT_GRAVITY_CENTERED_BIT_EXT,
+            .presentGravityY = VK_PRESENT_GRAVITY_CENTERED_BIT_EXT,
+        };
+    }
+    swap_head.create_info = {
+        .sType           = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
+        .pNext           = features.swapchain_maintenance ? &swap_head.scaling_create_info : nullptr,
+        .flags           = 0,
+        .surface         = surface_impl.surface,
+        .minImageCount   = desc->image_count,
+        .imageFormat     = vk_format,
+        .imageColorSpace = format_it->colorSpace,
+        .imageExtent     = {
+                            .width  = std::clamp(desc->width, capabilities.surfaceCapabilities.minImageExtent.width, capabilities.surfaceCapabilities.maxImageExtent.width),
+                            .height = std::clamp(desc->height, capabilities.surfaceCapabilities.minImageExtent.height, capabilities.surfaceCapabilities.maxImageExtent.height),
+                            },
+        .imageArrayLayers      = array_layer_count,
+        .imageUsage            = wis::detail::VKConvert(desc->texture_usage_flags),
+        .imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE,
+        .queueFamilyIndexCount = 0,
+        .pQueueFamilyIndices   = nullptr,
+        .preTransform          = capabilities.surfaceCapabilities.currentTransform,
+        .compositeAlpha        = wis::detail::VKConvert(desc->composite_alpha),
+        .presentMode           = present_mode,
+        .clipped               = true,
+        .oldSwapchain          = VK_NULL_HANDLE,
+    };
+
+    VkSwapchainKHR swapchain_handle = VK_NULL_HANDLE;
+
+    vr = table.vkCreateSwapchainKHR(device.device,
+                                    &swap_head.create_info,
+                                    nullptr,
+                                    &swapchain_handle);
+
+    if (!wis::detail::succeeded(vr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to create swapchain">(vr);
+    }
+
+    // Initalize semaphores in the control block
+    wis::span<VkSemaphore> semaphore_storage{ reinterpret_cast<VkSemaphore*>(header + 1), desc->image_count * 2 }; // semaphores are stored immediately after the control block
+    for (uint32_t i = 0; i < desc->image_count * 2; i++) {
+        VkSemaphoreCreateInfo semaphore_info{
+            .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+            .pNext = nullptr,
+            .flags = 0,
+        };
+        vr = table.vkCreateSemaphore(device.device, &semaphore_info, nullptr, &semaphore_storage[i]);
+        if (!wis::detail::succeeded(vr)) {
+            // Cleanup previously created semaphores
+            for (uint32_t j = 0; j < i; j++) {
+                table.vkDestroySemaphore(device.device, semaphore_storage[j], nullptr);
+            }
+            stable.vkDestroySwapchainKHR(device.device, swapchain_handle, nullptr);
+            return wis::detail::make_result<wis::detail::Func(), "Failed to create synchronization primitives for the swapchain">(vr);
+        }
+    }
+
+    swap_head.surface_header = surface_impl.surface_header;
+    swap_head.device_header  = device.device_header;
+
+    device.device_header->AddRef();
+    surface_impl.surface_header->AddRef();
+
+    header_storage.release(); // ownership transferred to swapchain impl
+    new (swapchain) wis::impl::VKSwapchainImpl{
+        .swapchain        = swapchain_handle,
+        .swapchain_header = header,
+        .swapchain_table  = &device.device_header->header.swapchain_table,
+        .present_queue    = queue_impl.queue, // device header is already stored
+        .device           = device.device,
+    };
 
     return wis::detail::vk_success;
 }

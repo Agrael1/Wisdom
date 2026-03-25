@@ -1207,7 +1207,7 @@ More info could be found [here](https://learn.microsoft.com/en-us/windows/win32/
         <impl name="dx" value="D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_0xFFFFFFFF"/>
       </value>
     </type>
-    
+
     <type name="ViewHeapType" category="enum" version="0.7.0" doc="Type of the view descriptor heap.">
       <impl_type for="dx" name="D3D12_DESCRIPTOR_HEAP_TYPE"/>
       <value name="RenderTarget" value="0" doc="Descriptor heap for render target views.">
@@ -1215,6 +1215,44 @@ More info could be found [here](https://learn.microsoft.com/en-us/windows/win32/
       </value>
       <value name="DepthStencil" value="1" doc="Descriptor heap for depth stencil views.">
         <impl name="dx" value="D3D12_DESCRIPTOR_HEAP_TYPE_DSV"/>
+      </value>
+    </type>
+
+    <type name="SwapchainScaling" category="enum" version="0.7.0" doc="Swapchain scaling mode.">
+      <impl_type for="vk" name="VkPresentScalingFlagsEXT"/>
+      <impl_type for="dx" name="DXGI_SCALING"/>
+      <value name="None" value="0" doc="No scaling. The swapchain size is equal to the window size.">
+        <impl name="dx" value="DXGI_SCALING_NONE"/>
+        <impl name="vk" value="VK_PRESENT_SCALING_ONE_TO_ONE_BIT_EXT"/>
+      </value>
+      <value name="Stretch" value="1" doc="Stretch scaling. The swapchain size is stretched to the window size.">
+        <impl name="dx" value="DXGI_SCALING_STRETCH"/>
+        <impl name="vk" value="VK_PRESENT_SCALING_STRETCH_BIT_EXT"/>
+      </value>
+      <value name="Aspect" value="2" doc="Aspect scaling. The swapchain size is scaled to the window size with aspect ratio preserved.">
+        <impl name="dx" value="DXGI_SCALING_ASPECT_RATIO_STRETCH"/>
+        <impl name="vk" value="VK_PRESENT_SCALING_ASPECT_RATIO_STRETCH_BIT_EXT"/>
+      </value>
+    </type>
+
+    <type name="CompositeAlpha" category="enum" version="0.7.0" doc="Composite alpha flags for swapchain creation.">
+      <impl_type for="vk" name="VkCompositeAlphaFlagBitsKHR"/>
+      <impl_type for="dx" name="DXGI_ALPHA_MODE"/>
+      <value name="Opaque" value="0" doc="The alpha channel, if it exists, is ignored. The image is treated as opaque.">
+        <impl name="vk" value="VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR"/>
+        <impl name="dx" value="DXGI_ALPHA_MODE_IGNORE"/>
+      </value>
+      <value name="PreMultiplied" value="1" doc="The alpha channel, if it exists, is respected and used in compositing. The premultiplied alpha format is expected.">
+        <impl name="vk" value="VK_COMPOSITE_ALPHA_PRE_MULTIPLIED_BIT_KHR"/>
+        <impl name="dx" value="DXGI_ALPHA_MODE_PREMULTIPLIED"/>
+      </value>
+      <value name="PostMultiplied" value="2" doc="The alpha channel, if it exists, is respected and used in compositing. The postmultiplied alpha format is expected.">
+        <impl name="vk" value="VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR"/>
+        <impl name="dx" value="DXGI_ALPHA_MODE_STRAIGHT"/>
+      </value>
+      <value name="Inherit" value="3" doc="The alpha channel, if it exists, is respected and used in compositing based on the platform's default behavior.">
+        <impl name="vk" value="VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR"/>
+        <impl name="dx" value="DXGI_ALPHA_MODE_UNSPECIFIED"/>
       </value>
     </type>
 
@@ -1261,8 +1299,8 @@ Determine how the buffer can be used throughout its lifetime.">
 
     <type name="TextureUsageFlags" category="bitmask" version="0.7.0" doc="Texture usage flags.
 Determine how the texture can be used throughout its lifetime.">
-      <impl_type for="dx" name="D3D12_RESOURCE_FLAGS"/>
-      <impl_type for="vk" name="VkImageUsageFlags"/>
+      <impl_type for="dx" name="D3D12_RESOURCE_FLAGS" convert_back="true"/>
+      <impl_type for="vk" name="VkImageUsageFlags" convert_back="true"/>
       <value name="None" value="0" doc="No flags set. Texture is not used.">
         <impl name="dx" value="D3D12_RESOURCE_FLAG_NONE"/>
       </value>
@@ -1529,5 +1567,19 @@ Used for color blending operations.">
       <value name="All" value="15" doc="Use all color components for blending."/>
     </type>
 
+    <type name="SwapchainFlags" category="bitmask" version="0.7.0" doc="Swapchain creation flags.">
+      <value name="None" value="0" doc="No flags set. Swapchain is regular."/>
+      <value name="AllowTearing" bit="0" doc="Allow tearing."/>
+      <value name="VSync" bit="1" doc="Present with vertical sync. If set, the swapchain is presented with vertical sync pulse."/>
+      <value name="Stereo" bit="2" doc="Stereo swapchain. If set, the swapchain is created for stereo rendering. If not set, the swapchain is created for mono rendering."/>
+    </type>
+    
+    <type name="PresentFlags" category="bitmask" version="0.7.0" doc="Swapchain creation flags.">
+      <impl_type for="dx" name="uint32_t"/>
+      <value name="None" value="0" doc="No flags set. Swapchain is regular."/>
+      <value name="TimeoutOnBlock" bit="0" doc="Fail present if the presentation engine is busy. If not set, the implementation may choose to block until the presentation engine is available.">
+        <impl name="dx" value="DXGI_PRESENT_DO_NOT_WAIT"/>
+      </value>
+    </type>
   </types>
 </registry>
