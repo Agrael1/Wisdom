@@ -117,6 +117,7 @@ struct VKTextureImpl {
     VkImage                       image;
     VmaAllocation                 allocation;
     detail::VKDeviceControlBlock* device_header;
+    bool                          owned_by_swapchain;
 };
 
 struct VKPipelineCacheImpl {

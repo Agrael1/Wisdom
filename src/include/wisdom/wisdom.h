@@ -24,14 +24,14 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 // Handles
 //==============================================================
 
+typedef struct WisDX12Texture           WisTexture;
+typedef struct WisDX12Buffer            WisBuffer;
 typedef struct WisDX12Swapchain         WisSwapchain;
 typedef struct WisDX12Surface           WisSurface;
 typedef struct WisDX12ViewHeap          WisViewHeap;
 typedef struct WisDX12Pipeline          WisPipeline;
 typedef struct WisDX12Shader            WisShader;
 typedef struct WisDX12PipelineCache     WisPipelineCache;
-typedef struct WisDX12Texture           WisTexture;
-typedef struct WisDX12Buffer            WisBuffer;
 typedef struct WisDX12DescriptorHeap    WisDescriptorHeap;
 typedef struct WisDX12RootSignature     WisRootSignature;
 typedef struct WisDX12ResourceAllocator WisResourceAllocator;
@@ -42,12 +42,12 @@ typedef struct WisDX12CommandQueue      WisCommandQueue;
 typedef struct WisDX12Device            WisDevice;
 typedef struct WisDX12AdapterQuery      WisAdapterQuery;
 typedef struct WisDX12Instance          WisInstance;
+typedef struct WisDX12TextureView       WisTextureView;
+typedef struct WisDX12BufferView        WisBufferView;
 typedef struct WisDX12SurfaceView       WisSurfaceView;
 typedef struct WisDX12PipelineView      WisPipelineView;
 typedef struct WisDX12ShaderView        WisShaderView;
 typedef struct WisDX12PipelineCacheView WisPipelineCacheView;
-typedef struct WisDX12TextureView       WisTextureView;
-typedef struct WisDX12BufferView        WisBufferView;
 typedef struct WisDX12RootSignatureView WisRootSignatureView;
 typedef struct WisDX12FenceView         WisFenceView;
 typedef struct WisDX12CommandListView   WisCommandListView;
@@ -70,23 +70,23 @@ typedef struct WisDX12GraphicsPipelineDesc    WisGraphicsPipelineDesc;
 // Functions
 //==============================================================
 
+#define wisGetTextureView                           wisGetDX12TextureView
+#define wisGetBufferView                            wisGetDX12BufferView
 #define wisGetSurfaceView                           wisGetDX12SurfaceView
 #define wisGetPipelineView                          wisGetDX12PipelineView
 #define wisGetShaderView                            wisGetDX12ShaderView
 #define wisGetPipelineCacheView                     wisGetDX12PipelineCacheView
-#define wisGetTextureView                           wisGetDX12TextureView
-#define wisGetBufferView                            wisGetDX12BufferView
 #define wisGetRootSignatureView                     wisGetDX12RootSignatureView
 #define wisGetFenceView                             wisGetDX12FenceView
 #define wisGetCommandListView                       wisGetDX12CommandListView
+#define wisDestroyTexture                           wisDX12DestroyTexture
+#define wisDestroyBuffer                            wisDX12DestroyBuffer
 #define wisDestroySwapchain                         wisDX12DestroySwapchain
 #define wisDestroySurface                           wisDX12DestroySurface
 #define wisDestroyViewHeap                          wisDX12DestroyViewHeap
 #define wisDestroyPipeline                          wisDX12DestroyPipeline
 #define wisDestroyShader                            wisDX12DestroyShader
 #define wisDestroyPipelineCache                     wisDX12DestroyPipelineCache
-#define wisDestroyTexture                           wisDX12DestroyTexture
-#define wisDestroyBuffer                            wisDX12DestroyBuffer
 #define wisDestroyDescriptorHeap                    wisDX12DestroyDescriptorHeap
 #define wisDestroyRootSignature                     wisDX12DestroyRootSignature
 #define wisDestroyResourceAllocator                 wisDX12DestroyResourceAllocator
@@ -166,6 +166,7 @@ typedef struct WisDX12GraphicsPipelineDesc    WisGraphicsPipelineDesc;
 #define wisSwapchainPresent                         wisDX12SwapchainPresent
 #define wisSwapchainGetCurrentIndex                 wisDX12SwapchainGetCurrentIndex
 #define wisSwapchainUpdate                          wisDX12SwapchainUpdate
+#define wisSwapchainGetTextures                     wisDX12SwapchainGetTextures
 
 #elif defined(WISDOM_VULKAN)
 
@@ -175,14 +176,14 @@ typedef struct WisDX12GraphicsPipelineDesc    WisGraphicsPipelineDesc;
 // Handles
 //==============================================================
 
+typedef struct WisVKTexture           WisTexture;
+typedef struct WisVKBuffer            WisBuffer;
 typedef struct WisVKSwapchain         WisSwapchain;
 typedef struct WisVKSurface           WisSurface;
 typedef struct WisVKViewHeap          WisViewHeap;
 typedef struct WisVKPipeline          WisPipeline;
 typedef struct WisVKShader            WisShader;
 typedef struct WisVKPipelineCache     WisPipelineCache;
-typedef struct WisVKTexture           WisTexture;
-typedef struct WisVKBuffer            WisBuffer;
 typedef struct WisVKDescriptorHeap    WisDescriptorHeap;
 typedef struct WisVKRootSignature     WisRootSignature;
 typedef struct WisVKResourceAllocator WisResourceAllocator;
@@ -193,12 +194,12 @@ typedef struct WisVKCommandQueue      WisCommandQueue;
 typedef struct WisVKDevice            WisDevice;
 typedef struct WisVKAdapterQuery      WisAdapterQuery;
 typedef struct WisVKInstance          WisInstance;
+typedef struct WisVKTextureView       WisTextureView;
+typedef struct WisVKBufferView        WisBufferView;
 typedef struct WisVKSurfaceView       WisSurfaceView;
 typedef struct WisVKPipelineView      WisPipelineView;
 typedef struct WisVKShaderView        WisShaderView;
 typedef struct WisVKPipelineCacheView WisPipelineCacheView;
-typedef struct WisVKTextureView       WisTextureView;
-typedef struct WisVKBufferView        WisBufferView;
 typedef struct WisVKRootSignatureView WisRootSignatureView;
 typedef struct WisVKFenceView         WisFenceView;
 typedef struct WisVKCommandListView   WisCommandListView;
@@ -221,23 +222,23 @@ typedef struct WisVKGraphicsPipelineDesc    WisGraphicsPipelineDesc;
 // Functions
 //==============================================================
 
+#define wisGetTextureView                           wisGetVKTextureView
+#define wisGetBufferView                            wisGetVKBufferView
 #define wisGetSurfaceView                           wisGetVKSurfaceView
 #define wisGetPipelineView                          wisGetVKPipelineView
 #define wisGetShaderView                            wisGetVKShaderView
 #define wisGetPipelineCacheView                     wisGetVKPipelineCacheView
-#define wisGetTextureView                           wisGetVKTextureView
-#define wisGetBufferView                            wisGetVKBufferView
 #define wisGetRootSignatureView                     wisGetVKRootSignatureView
 #define wisGetFenceView                             wisGetVKFenceView
 #define wisGetCommandListView                       wisGetVKCommandListView
+#define wisDestroyTexture                           wisVKDestroyTexture
+#define wisDestroyBuffer                            wisVKDestroyBuffer
 #define wisDestroySwapchain                         wisVKDestroySwapchain
 #define wisDestroySurface                           wisVKDestroySurface
 #define wisDestroyViewHeap                          wisVKDestroyViewHeap
 #define wisDestroyPipeline                          wisVKDestroyPipeline
 #define wisDestroyShader                            wisVKDestroyShader
 #define wisDestroyPipelineCache                     wisVKDestroyPipelineCache
-#define wisDestroyTexture                           wisVKDestroyTexture
-#define wisDestroyBuffer                            wisVKDestroyBuffer
 #define wisDestroyDescriptorHeap                    wisVKDestroyDescriptorHeap
 #define wisDestroyRootSignature                     wisVKDestroyRootSignature
 #define wisDestroyResourceAllocator                 wisVKDestroyResourceAllocator
@@ -317,6 +318,7 @@ typedef struct WisVKGraphicsPipelineDesc    WisGraphicsPipelineDesc;
 #define wisSwapchainPresent                         wisVKSwapchainPresent
 #define wisSwapchainGetCurrentIndex                 wisVKSwapchainGetCurrentIndex
 #define wisSwapchainUpdate                          wisVKSwapchainUpdate
+#define wisSwapchainGetTextures                     wisVKSwapchainGetTextures
 
 #else
 #error "No API selected for Wisdom. Define WISDOM_DX12 or WISDOM_VULKAN."

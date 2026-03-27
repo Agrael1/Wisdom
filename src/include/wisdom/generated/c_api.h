@@ -1944,6 +1944,34 @@ typedef struct WisDeviceMemoryProperties {
 
 #ifdef WISDOM_DX12
 /**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU texture resource.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12Texture, 3);
+WIS_DEFINE_HANDLE_VIEW(WisDX12Texture, 1);
+
+static inline WisDX12TextureView wisGetDX12TextureView(const WisDX12Texture* handle)
+{
+    WisDX12TextureView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU buffer resource.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12Buffer, 3);
+WIS_DEFINE_HANDLE_VIEW(WisDX12Buffer, 1);
+
+static inline WisDX12BufferView wisGetDX12BufferView(const WisDX12Buffer* handle)
+{
+    WisDX12BufferView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
+
+/**
  * @brief Provided by Wisdom 0.7.0. Class representing a swapchain, which is a collection of render targets used for presentation.
  *
  * */
@@ -2007,34 +2035,6 @@ WIS_DEFINE_HANDLE_VIEW(WisDX12PipelineCache, 1);
 static inline WisDX12PipelineCacheView wisGetDX12PipelineCacheView(const WisDX12PipelineCache* handle)
 {
     WisDX12PipelineCacheView v;
-    memcpy(&v, handle, sizeof(v));
-    return v;
-}
-
-/**
- * @brief Provided by Wisdom 0.7.0. Class representing a GPU texture resource.
- *
- * */
-WIS_DEFINE_HANDLE(WisDX12Texture, 3);
-WIS_DEFINE_HANDLE_VIEW(WisDX12Texture, 1);
-
-static inline WisDX12TextureView wisGetDX12TextureView(const WisDX12Texture* handle)
-{
-    WisDX12TextureView v;
-    memcpy(&v, handle, sizeof(v));
-    return v;
-}
-
-/**
- * @brief Provided by Wisdom 0.7.0. Class representing a GPU buffer resource.
- *
- * */
-WIS_DEFINE_HANDLE(WisDX12Buffer, 3);
-WIS_DEFINE_HANDLE_VIEW(WisDX12Buffer, 1);
-
-static inline WisDX12BufferView wisGetDX12BufferView(const WisDX12Buffer* handle)
-{
-    WisDX12BufferView v;
     memcpy(&v, handle, sizeof(v));
     return v;
 }
@@ -2242,6 +2242,20 @@ typedef struct WisDX12GraphicsPipelineDesc {
 } WisDX12GraphicsPipelineDesc;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisTexture handle.
+ * @param self is a pointer to the valid WisTexture instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroyTexture(WisDX12Texture* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisBuffer handle.
+ * @param self is a pointer to the valid WisBuffer instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroyBuffer(WisDX12Buffer* self);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisSwapchain handle.
  * @param self is a pointer to the valid WisSwapchain instance.
  *
@@ -2282,20 +2296,6 @@ WISDOM_API void wisDX12DestroyShader(WisDX12Shader* self);
  *
  * */
 WISDOM_API void wisDX12DestroyPipelineCache(WisDX12PipelineCache* self);
-
-/**
- * @brief Provided by Wisdom 0.7.0. Destroys a WisTexture handle.
- * @param self is a pointer to the valid WisTexture instance.
- *
- * */
-WISDOM_API void wisDX12DestroyTexture(WisDX12Texture* self);
-
-/**
- * @brief Provided by Wisdom 0.7.0. Destroys a WisBuffer handle.
- * @param self is a pointer to the valid WisBuffer instance.
- *
- * */
-WISDOM_API void wisDX12DestroyBuffer(WisDX12Buffer* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisDescriptorHeap handle.
@@ -3169,9 +3169,49 @@ WISDOM_API WisResult wisDX12SwapchainGetCurrentIndex(const WisDX12Swapchain* sel
 WISDOM_API WisResult wisDX12SwapchainUpdate(const WisDX12Swapchain*       self,
                                             const WisSwapchainUpdateDesc* desc);
 
+/**
+ * @brief Provided by Wisdom 0.7.0. Gets the swapchain buffers. The textures are in `WisTextureStateCommon`.
+ * @param self is a pointer to the valid WisSwapchain instance.
+ * @param buffers points to the array of texture views, which are filled with swapchain backbuffers on success.
+ * @param buffer_count defines the number of buffers to get. It @wis_must be greater or equal to the value, supplied to `WisSwapchainDesc::image_count` or subsequent `WisSwapchainUpdateDesc::image_count`.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12SwapchainGetTextures(const WisDX12Swapchain* self,
+                                                 WisDX12Texture*         buffers,
+                                                 size_t                  buffer_count);
+
 #endif // WISDOM_DX12
 
 #ifdef WISDOM_VULKAN
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU texture resource.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisVKTexture, 4);
+WIS_DEFINE_HANDLE_VIEW(WisVKTexture, 1);
+
+static inline WisVKTextureView wisGetVKTextureView(const WisVKTexture* handle)
+{
+    WisVKTextureView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU buffer resource.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisVKBuffer, 4);
+WIS_DEFINE_HANDLE_VIEW(WisVKBuffer, 1);
+
+static inline WisVKBufferView wisGetVKBufferView(const WisVKBuffer* handle)
+{
+    WisVKBufferView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
+
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a swapchain, which is a collection of render targets used for presentation.
  *
@@ -3236,34 +3276,6 @@ WIS_DEFINE_HANDLE_VIEW(WisVKPipelineCache, 1);
 static inline WisVKPipelineCacheView wisGetVKPipelineCacheView(const WisVKPipelineCache* handle)
 {
     WisVKPipelineCacheView v;
-    memcpy(&v, handle, sizeof(v));
-    return v;
-}
-
-/**
- * @brief Provided by Wisdom 0.7.0. Class representing a GPU texture resource.
- *
- * */
-WIS_DEFINE_HANDLE(WisVKTexture, 3);
-WIS_DEFINE_HANDLE_VIEW(WisVKTexture, 1);
-
-static inline WisVKTextureView wisGetVKTextureView(const WisVKTexture* handle)
-{
-    WisVKTextureView v;
-    memcpy(&v, handle, sizeof(v));
-    return v;
-}
-
-/**
- * @brief Provided by Wisdom 0.7.0. Class representing a GPU buffer resource.
- *
- * */
-WIS_DEFINE_HANDLE(WisVKBuffer, 4);
-WIS_DEFINE_HANDLE_VIEW(WisVKBuffer, 1);
-
-static inline WisVKBufferView wisGetVKBufferView(const WisVKBuffer* handle)
-{
-    WisVKBufferView v;
     memcpy(&v, handle, sizeof(v));
     return v;
 }
@@ -3471,6 +3483,20 @@ typedef struct WisVKGraphicsPipelineDesc {
 } WisVKGraphicsPipelineDesc;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisTexture handle.
+ * @param self is a pointer to the valid WisTexture instance.
+ *
+ * */
+WISDOM_API void wisVKDestroyTexture(WisVKTexture* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisBuffer handle.
+ * @param self is a pointer to the valid WisBuffer instance.
+ *
+ * */
+WISDOM_API void wisVKDestroyBuffer(WisVKBuffer* self);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisSwapchain handle.
  * @param self is a pointer to the valid WisSwapchain instance.
  *
@@ -3511,20 +3537,6 @@ WISDOM_API void wisVKDestroyShader(WisVKShader* self);
  *
  * */
 WISDOM_API void wisVKDestroyPipelineCache(WisVKPipelineCache* self);
-
-/**
- * @brief Provided by Wisdom 0.7.0. Destroys a WisTexture handle.
- * @param self is a pointer to the valid WisTexture instance.
- *
- * */
-WISDOM_API void wisVKDestroyTexture(WisVKTexture* self);
-
-/**
- * @brief Provided by Wisdom 0.7.0. Destroys a WisBuffer handle.
- * @param self is a pointer to the valid WisBuffer instance.
- *
- * */
-WISDOM_API void wisVKDestroyBuffer(WisVKBuffer* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisDescriptorHeap handle.
@@ -4397,6 +4409,18 @@ WISDOM_API WisResult wisVKSwapchainGetCurrentIndex(const WisVKSwapchain* self,
  * */
 WISDOM_API WisResult wisVKSwapchainUpdate(const WisVKSwapchain*         self,
                                           const WisSwapchainUpdateDesc* desc);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Gets the swapchain buffers. The textures are in `WisTextureStateCommon`.
+ * @param self is a pointer to the valid WisSwapchain instance.
+ * @param buffers points to the array of texture views, which are filled with swapchain backbuffers on success.
+ * @param buffer_count defines the number of buffers to get. It @wis_must be greater or equal to the value, supplied to `WisSwapchainDesc::image_count` or subsequent `WisSwapchainUpdateDesc::image_count`.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKSwapchainGetTextures(const WisVKSwapchain* self,
+                                               WisVKTexture*         buffers,
+                                               size_t                buffer_count);
 
 #endif // WISDOM_VULKAN
 

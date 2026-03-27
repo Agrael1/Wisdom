@@ -25,14 +25,14 @@ static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderInterm
 // Handles
 //==============================================================
 
+using Texture           = wis::DX12Texture;
+using Buffer            = wis::DX12Buffer;
 using Swapchain         = wis::DX12Swapchain;
 using Surface           = wis::DX12Surface;
 using ViewHeap          = wis::DX12ViewHeap;
 using Pipeline          = wis::DX12Pipeline;
 using Shader            = wis::DX12Shader;
 using PipelineCache     = wis::DX12PipelineCache;
-using Texture           = wis::DX12Texture;
-using Buffer            = wis::DX12Buffer;
 using DescriptorHeap    = wis::DX12DescriptorHeap;
 using RootSignature     = wis::DX12RootSignature;
 using ResourceAllocator = wis::DX12ResourceAllocator;
@@ -43,12 +43,12 @@ using CommandQueue      = wis::DX12CommandQueue;
 using Device            = wis::DX12Device;
 using AdapterQuery      = wis::DX12AdapterQuery;
 using Instance          = wis::DX12Instance;
+using TextureView       = wis::DX12TextureView;
+using BufferView        = wis::DX12BufferView;
 using SurfaceView       = wis::DX12SurfaceView;
 using PipelineView      = wis::DX12PipelineView;
 using ShaderView        = wis::DX12ShaderView;
 using PipelineCacheView = wis::DX12PipelineCacheView;
-using TextureView       = wis::DX12TextureView;
-using BufferView        = wis::DX12BufferView;
 using RootSignatureView = wis::DX12RootSignatureView;
 using FenceView         = wis::DX12FenceView;
 using CommandListView   = wis::DX12CommandListView;
@@ -103,14 +103,14 @@ static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderInterm
 // Handles
 //==============================================================
 
+using Texture           = wis::VKTexture;
+using Buffer            = wis::VKBuffer;
 using Swapchain         = wis::VKSwapchain;
 using Surface           = wis::VKSurface;
 using ViewHeap          = wis::VKViewHeap;
 using Pipeline          = wis::VKPipeline;
 using Shader            = wis::VKShader;
 using PipelineCache     = wis::VKPipelineCache;
-using Texture           = wis::VKTexture;
-using Buffer            = wis::VKBuffer;
 using DescriptorHeap    = wis::VKDescriptorHeap;
 using RootSignature     = wis::VKRootSignature;
 using ResourceAllocator = wis::VKResourceAllocator;
@@ -121,12 +121,12 @@ using CommandQueue      = wis::VKCommandQueue;
 using Device            = wis::VKDevice;
 using AdapterQuery      = wis::VKAdapterQuery;
 using Instance          = wis::VKInstance;
+using TextureView       = wis::VKTextureView;
+using BufferView        = wis::VKBufferView;
 using SurfaceView       = wis::VKSurfaceView;
 using PipelineView      = wis::VKPipelineView;
 using ShaderView        = wis::VKShaderView;
 using PipelineCacheView = wis::VKPipelineCacheView;
-using TextureView       = wis::VKTextureView;
-using BufferView        = wis::VKBufferView;
 using RootSignatureView = wis::VKRootSignatureView;
 using FenceView         = wis::VKFenceView;
 using CommandListView   = wis::VKCommandListView;

@@ -10,7 +10,7 @@
  *  Vulkan Version:
  * ```c
  * // Provided by Wisdom 0.7.0. 
- * WIS_DEFINE_HANDLE(WisVKTexture,3);
+ * WIS_DEFINE_HANDLE(WisVKTexture,4);
  * WIS_DEFINE_HANDLE_VIEW(WisVKTexture,1);
  * ```
  *  DX12 Version:
@@ -25,6 +25,6 @@
  * <hr>
  * \cond WIS_GEN_REFS
  * @see Functions:
- * wisDestroyTexture, wisResourceAllocatorCreateTexture, wisTextureWriteSubresource
+ * wisDestroyTexture, wisResourceAllocatorCreateTexture, wisTextureWriteSubresource, wisSwapchainGetTextures
  * \endcond
  */

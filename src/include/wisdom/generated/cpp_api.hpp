@@ -1958,6 +1958,10 @@ static constexpr std::uint64_t WholeSize = 0xffffffffffffffff;
 #include <wisdom/dx12/dx12_types.hpp>
 
 namespace wis {
+using DX12TextureView = WisDX12TextureView;
+
+using DX12BufferView = WisDX12BufferView;
+
 using DX12SurfaceView = WisDX12SurfaceView;
 
 using DX12PipelineView = WisDX12PipelineView;
@@ -1965,10 +1969,6 @@ using DX12PipelineView = WisDX12PipelineView;
 using DX12ShaderView = WisDX12ShaderView;
 
 using DX12PipelineCacheView = WisDX12PipelineCacheView;
-
-using DX12TextureView = WisDX12TextureView;
-
-using DX12BufferView = WisDX12BufferView;
 
 using DX12RootSignatureView = WisDX12RootSignatureView;
 
@@ -2073,6 +2073,95 @@ struct DX12GraphicsPipelineDesc {
     wis::PipelineFlags           flags; ///< Pipeline flags. Describe additional options for the pipeline.
 };
 
+struct DX12TextureDeleter {
+    void operator()(WisDX12Texture* handle) noexcept
+    {
+        ::wisDX12DestroyTexture(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU texture resource.
+ *
+ * */
+class DX12Texture : public wis::impl::Implements<wis::impl::DX12TextureImpl, WisDX12Texture, wis::DX12TextureDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+    WIS_NODISCARD DX12TextureView GetView() const noexcept
+    {
+        DX12TextureView v;
+        std::memcpy(&v, &_impl_storage, sizeof(v));
+        return v;
+    }
+    WIS_NODISCARD operator DX12TextureView() const noexcept
+    {
+        return GetView();
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Writes data direct to the texture subresource. Texture @wis_must be in `wis::TextureState::Common` and @wis_must_not be a depth texture.
+     * @param source_data points to the data to write to the texture.
+     * @param target_region points to wis::TextureRegion, which describes the region of the texture to write to.
+     * @return Result denoting the outcome of operation.
+     *
+     * */
+    inline wis::Result WriteSubresource(const void*               source_data,
+                                        const wis::TextureRegion& target_region) const noexcept
+    {
+        const WisResult wis_result = ::wisDX12TextureWriteSubresource(&_impl_storage,
+                                                                      source_data,
+                                                                      reinterpret_cast<const WisTextureRegion*>(&target_region));
+        return wis::Result{ static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error };
+    }
+};
+
+struct DX12BufferDeleter {
+    void operator()(WisDX12Buffer* handle) noexcept
+    {
+        ::wisDX12DestroyBuffer(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU buffer resource.
+ *
+ * */
+class DX12Buffer : public wis::impl::Implements<wis::impl::DX12BufferImpl, WisDX12Buffer, wis::DX12BufferDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+    WIS_NODISCARD DX12BufferView GetView() const noexcept
+    {
+        DX12BufferView v;
+        std::memcpy(&v, &_impl_storage, sizeof(v));
+        return v;
+    }
+    WIS_NODISCARD operator DX12BufferView() const noexcept
+    {
+        return GetView();
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Maps the buffer memory to CPU accessible address space.
+     * @return void points to the pointer, which is filled with the address of the mapped memory on success.
+     *
+     * */
+    WIS_NODISCARD inline void* Map() const noexcept
+    {
+        return (::wisDX12BufferMap(&_impl_storage));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Unmaps the buffer memory from CPU accessible address space.
+     * @return u64 Address of the buffer on GPU.
+     *
+     * */
+    WIS_NODISCARD inline std::uint64_t GetGPUAddress() const noexcept
+    {
+        return (::wisDX12BufferGetGPUAddress(&_impl_storage));
+    }
+};
+
 struct DX12SwapchainDeleter {
     void operator()(WisDX12Swapchain* handle) noexcept
     {
@@ -2128,6 +2217,19 @@ public:
     {
         const WisResult wis_result = ::wisDX12SwapchainUpdate(&_impl_storage,
                                                               reinterpret_cast<const WisSwapchainUpdateDesc*>(&desc));
+        return wis::Result{ static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error };
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Gets the swapchain buffers. The textures are in `wis::TextureState::Common`.
+     * @param buffers points to the array of texture views, which are filled with swapchain backbuffers on success.
+     * @return Result denoting the outcome of operation.
+     *
+     * */
+    inline wis::Result GetTextures(wis::span<wis::DX12Texture> buffers) const noexcept
+    {
+        const WisResult wis_result = ::wisDX12SwapchainGetTextures(&_impl_storage,
+                                                                   reinterpret_cast<WisDX12Texture*>(buffers.data()),
+                                                                   buffers.size());
         return wis::Result{ static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error };
     }
 };
@@ -2354,95 +2456,6 @@ public:
     WIS_NODISCARD inline std::size_t GetSerializedSize() const noexcept
     {
         return (::wisDX12PipelineCacheGetSerializedSize(&_impl_storage));
-    }
-};
-
-struct DX12TextureDeleter {
-    void operator()(WisDX12Texture* handle) noexcept
-    {
-        ::wisDX12DestroyTexture(handle);
-    }
-};
-/**
- * @brief Provided by Wisdom 0.7.0. Class representing a GPU texture resource.
- *
- * */
-class DX12Texture : public wis::impl::Implements<wis::impl::DX12TextureImpl, WisDX12Texture, wis::DX12TextureDeleter>
-{
-public:
-    using ImplType::ImplType;
-
-public:
-    WIS_NODISCARD DX12TextureView GetView() const noexcept
-    {
-        DX12TextureView v;
-        std::memcpy(&v, &_impl_storage, sizeof(v));
-        return v;
-    }
-    WIS_NODISCARD operator DX12TextureView() const noexcept
-    {
-        return GetView();
-    }
-    /**
-     * @brief Provided by Wisdom 0.7.0. Writes data direct to the texture subresource. Texture @wis_must be in `wis::TextureState::Common` and @wis_must_not be a depth texture.
-     * @param source_data points to the data to write to the texture.
-     * @param target_region points to wis::TextureRegion, which describes the region of the texture to write to.
-     * @return Result denoting the outcome of operation.
-     *
-     * */
-    inline wis::Result WriteSubresource(const void*               source_data,
-                                        const wis::TextureRegion& target_region) const noexcept
-    {
-        const WisResult wis_result = ::wisDX12TextureWriteSubresource(&_impl_storage,
-                                                                      source_data,
-                                                                      reinterpret_cast<const WisTextureRegion*>(&target_region));
-        return wis::Result{ static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error };
-    }
-};
-
-struct DX12BufferDeleter {
-    void operator()(WisDX12Buffer* handle) noexcept
-    {
-        ::wisDX12DestroyBuffer(handle);
-    }
-};
-/**
- * @brief Provided by Wisdom 0.7.0. Class representing a GPU buffer resource.
- *
- * */
-class DX12Buffer : public wis::impl::Implements<wis::impl::DX12BufferImpl, WisDX12Buffer, wis::DX12BufferDeleter>
-{
-public:
-    using ImplType::ImplType;
-
-public:
-    WIS_NODISCARD DX12BufferView GetView() const noexcept
-    {
-        DX12BufferView v;
-        std::memcpy(&v, &_impl_storage, sizeof(v));
-        return v;
-    }
-    WIS_NODISCARD operator DX12BufferView() const noexcept
-    {
-        return GetView();
-    }
-    /**
-     * @brief Provided by Wisdom 0.7.0. Maps the buffer memory to CPU accessible address space.
-     * @return void points to the pointer, which is filled with the address of the mapped memory on success.
-     *
-     * */
-    WIS_NODISCARD inline void* Map() const noexcept
-    {
-        return (::wisDX12BufferMap(&_impl_storage));
-    }
-    /**
-     * @brief Provided by Wisdom 0.7.0. Unmaps the buffer memory from CPU accessible address space.
-     * @return u64 Address of the buffer on GPU.
-     *
-     * */
-    WIS_NODISCARD inline std::uint64_t GetGPUAddress() const noexcept
-    {
-        return (::wisDX12BufferGetGPUAddress(&_impl_storage));
     }
 };
 
@@ -3502,6 +3515,10 @@ WIS_NODISCARD inline wis::DX12Instance DX12CreateInstance(const wis::DebugDesc* 
 #include <wisdom/vulkan/vk_types.hpp>
 
 namespace wis {
+using VKTextureView = WisVKTextureView;
+
+using VKBufferView = WisVKBufferView;
+
 using VKSurfaceView = WisVKSurfaceView;
 
 using VKPipelineView = WisVKPipelineView;
@@ -3509,10 +3526,6 @@ using VKPipelineView = WisVKPipelineView;
 using VKShaderView = WisVKShaderView;
 
 using VKPipelineCacheView = WisVKPipelineCacheView;
-
-using VKTextureView = WisVKTextureView;
-
-using VKBufferView = WisVKBufferView;
 
 using VKRootSignatureView = WisVKRootSignatureView;
 
@@ -3617,6 +3630,95 @@ struct VKGraphicsPipelineDesc {
     wis::PipelineFlags           flags; ///< Pipeline flags. Describe additional options for the pipeline.
 };
 
+struct VKTextureDeleter {
+    void operator()(WisVKTexture* handle) noexcept
+    {
+        ::wisVKDestroyTexture(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU texture resource.
+ *
+ * */
+class VKTexture : public wis::impl::Implements<wis::impl::VKTextureImpl, WisVKTexture, wis::VKTextureDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+    WIS_NODISCARD VKTextureView GetView() const noexcept
+    {
+        VKTextureView v;
+        std::memcpy(&v, &_impl_storage, sizeof(v));
+        return v;
+    }
+    WIS_NODISCARD operator VKTextureView() const noexcept
+    {
+        return GetView();
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Writes data direct to the texture subresource. Texture @wis_must be in `wis::TextureState::Common` and @wis_must_not be a depth texture.
+     * @param source_data points to the data to write to the texture.
+     * @param target_region points to wis::TextureRegion, which describes the region of the texture to write to.
+     * @return Result denoting the outcome of operation.
+     *
+     * */
+    inline wis::Result WriteSubresource(const void*               source_data,
+                                        const wis::TextureRegion& target_region) const noexcept
+    {
+        const WisResult wis_result = ::wisVKTextureWriteSubresource(&_impl_storage,
+                                                                    source_data,
+                                                                    reinterpret_cast<const WisTextureRegion*>(&target_region));
+        return wis::Result{ static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error };
+    }
+};
+
+struct VKBufferDeleter {
+    void operator()(WisVKBuffer* handle) noexcept
+    {
+        ::wisVKDestroyBuffer(handle);
+    }
+};
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU buffer resource.
+ *
+ * */
+class VKBuffer : public wis::impl::Implements<wis::impl::VKBufferImpl, WisVKBuffer, wis::VKBufferDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+    WIS_NODISCARD VKBufferView GetView() const noexcept
+    {
+        VKBufferView v;
+        std::memcpy(&v, &_impl_storage, sizeof(v));
+        return v;
+    }
+    WIS_NODISCARD operator VKBufferView() const noexcept
+    {
+        return GetView();
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Maps the buffer memory to CPU accessible address space.
+     * @return void points to the pointer, which is filled with the address of the mapped memory on success.
+     *
+     * */
+    WIS_NODISCARD inline void* Map() const noexcept
+    {
+        return (::wisVKBufferMap(&_impl_storage));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Unmaps the buffer memory from CPU accessible address space.
+     * @return u64 Address of the buffer on GPU.
+     *
+     * */
+    WIS_NODISCARD inline std::uint64_t GetGPUAddress() const noexcept
+    {
+        return (::wisVKBufferGetGPUAddress(&_impl_storage));
+    }
+};
+
 struct VKSwapchainDeleter {
     void operator()(WisVKSwapchain* handle) noexcept
     {
@@ -3672,6 +3774,19 @@ public:
     {
         const WisResult wis_result = ::wisVKSwapchainUpdate(&_impl_storage,
                                                             reinterpret_cast<const WisSwapchainUpdateDesc*>(&desc));
+        return wis::Result{ static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error };
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Gets the swapchain buffers. The textures are in `wis::TextureState::Common`.
+     * @param buffers points to the array of texture views, which are filled with swapchain backbuffers on success.
+     * @return Result denoting the outcome of operation.
+     *
+     * */
+    inline wis::Result GetTextures(wis::span<wis::VKTexture> buffers) const noexcept
+    {
+        const WisResult wis_result = ::wisVKSwapchainGetTextures(&_impl_storage,
+                                                                 reinterpret_cast<WisVKTexture*>(buffers.data()),
+                                                                 buffers.size());
         return wis::Result{ static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error };
     }
 };
@@ -3898,95 +4013,6 @@ public:
     WIS_NODISCARD inline std::size_t GetSerializedSize() const noexcept
     {
         return (::wisVKPipelineCacheGetSerializedSize(&_impl_storage));
-    }
-};
-
-struct VKTextureDeleter {
-    void operator()(WisVKTexture* handle) noexcept
-    {
-        ::wisVKDestroyTexture(handle);
-    }
-};
-/**
- * @brief Provided by Wisdom 0.7.0. Class representing a GPU texture resource.
- *
- * */
-class VKTexture : public wis::impl::Implements<wis::impl::VKTextureImpl, WisVKTexture, wis::VKTextureDeleter>
-{
-public:
-    using ImplType::ImplType;
-
-public:
-    WIS_NODISCARD VKTextureView GetView() const noexcept
-    {
-        VKTextureView v;
-        std::memcpy(&v, &_impl_storage, sizeof(v));
-        return v;
-    }
-    WIS_NODISCARD operator VKTextureView() const noexcept
-    {
-        return GetView();
-    }
-    /**
-     * @brief Provided by Wisdom 0.7.0. Writes data direct to the texture subresource. Texture @wis_must be in `wis::TextureState::Common` and @wis_must_not be a depth texture.
-     * @param source_data points to the data to write to the texture.
-     * @param target_region points to wis::TextureRegion, which describes the region of the texture to write to.
-     * @return Result denoting the outcome of operation.
-     *
-     * */
-    inline wis::Result WriteSubresource(const void*               source_data,
-                                        const wis::TextureRegion& target_region) const noexcept
-    {
-        const WisResult wis_result = ::wisVKTextureWriteSubresource(&_impl_storage,
-                                                                    source_data,
-                                                                    reinterpret_cast<const WisTextureRegion*>(&target_region));
-        return wis::Result{ static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error };
-    }
-};
-
-struct VKBufferDeleter {
-    void operator()(WisVKBuffer* handle) noexcept
-    {
-        ::wisVKDestroyBuffer(handle);
-    }
-};
-/**
- * @brief Provided by Wisdom 0.7.0. Class representing a GPU buffer resource.
- *
- * */
-class VKBuffer : public wis::impl::Implements<wis::impl::VKBufferImpl, WisVKBuffer, wis::VKBufferDeleter>
-{
-public:
-    using ImplType::ImplType;
-
-public:
-    WIS_NODISCARD VKBufferView GetView() const noexcept
-    {
-        VKBufferView v;
-        std::memcpy(&v, &_impl_storage, sizeof(v));
-        return v;
-    }
-    WIS_NODISCARD operator VKBufferView() const noexcept
-    {
-        return GetView();
-    }
-    /**
-     * @brief Provided by Wisdom 0.7.0. Maps the buffer memory to CPU accessible address space.
-     * @return void points to the pointer, which is filled with the address of the mapped memory on success.
-     *
-     * */
-    WIS_NODISCARD inline void* Map() const noexcept
-    {
-        return (::wisVKBufferMap(&_impl_storage));
-    }
-    /**
-     * @brief Provided by Wisdom 0.7.0. Unmaps the buffer memory from CPU accessible address space.
-     * @return u64 Address of the buffer on GPU.
-     *
-     * */
-    WIS_NODISCARD inline std::uint64_t GetGPUAddress() const noexcept
-    {
-        return (::wisVKBufferGetGPUAddress(&_impl_storage));
     }
 };
 

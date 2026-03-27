@@ -71,12 +71,12 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12SwapchainUpdate(const WisDX12Swapchain*
     auto& swapchain = wis::from_handle_ref<const wis::impl::DX12SwapchainImpl>(self);
 
     // early out conditions
-    uint32_t width = desc->width == 0 ? swapchain.width : desc->width;
-    uint32_t height = desc->height == 0 ? swapchain.height : desc->height;
+    uint32_t width       = desc->width == 0 ? swapchain.width : desc->width;
+    uint32_t height      = desc->height == 0 ? swapchain.height : desc->height;
     uint32_t image_count = desc->image_count == 0 ? swapchain.backbuffer_count : desc->image_count;
 
-    bool size_changed = width != swapchain.width || height != swapchain.height;
-    bool count_changed = image_count != swapchain.backbuffer_count;
+    bool size_changed   = width != swapchain.width || height != swapchain.height;
+    bool count_changed  = image_count != swapchain.backbuffer_count;
     bool format_changed = desc->format != 0 && desc->format != swapchain.data_format;
 
     if (!size_changed && !count_changed && !format_changed) {
@@ -95,10 +95,33 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12SwapchainUpdate(const WisDX12Swapchain*
     if (!wis::detail::succeeded(hr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to resize swap chain buffers">(hr);
     }
-    swapchain.width = width;
-    swapchain.height = height;
-    swapchain.data_format = format_changed ? desc->format : swapchain.data_format;
+    swapchain.width            = width;
+    swapchain.height           = height;
+    swapchain.data_format      = format_changed ? desc->format : swapchain.data_format;
     swapchain.backbuffer_count = image_count;
+    return wis::detail::dx_success;
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisDX12SwapchainGetTextures(const WisDX12Swapchain* self,
+                                                              WisDX12Texture*         buffers,
+                                                              size_t                  buffer_count)
+{
+    auto& impl = wis::from_handle_ref<const wis::impl::DX12SwapchainImpl>(self);
+    if (buffer_count < impl.backbuffer_count) {
+        return wis::detail::make_result<wis::detail::Func(), "Provided buffer count is less than the number of swapchain backbuffers">(E_INVALIDARG);
+    }
+
+    for (uint32_t i = 0; i < impl.backbuffer_count; i++) {
+        ID3D12Resource* backbuffer = nullptr;
+        HRESULT         hr        = impl.swapchain->GetBuffer(i, IID_ID3D12Resource, reinterpret_cast<void**>(&backbuffer));
+        if (!wis::detail::succeeded(hr)) {
+            return wis::detail::make_result<wis::detail::Func(), "Failed to get swap chain buffer resource">(hr);
+        }
+        *new (&buffers[i]) wis::impl::DX12TextureImpl{
+            .resource = backbuffer,
+        };
+    }
     return wis::detail::dx_success;
 }
 

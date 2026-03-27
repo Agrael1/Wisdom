@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #define FRAMES_IN_FLIGHT 2
+#define SWAPCHAIN_FRAMES 3
 #define PARTICLE_COUNT   256
 
 #define SILENCE_VERBOSE_LOGS 1
@@ -171,6 +172,8 @@ typedef struct BasicRenderer {
     // Swapchain
     WisDataFormat swapchain_format;
     WisSwapchain  swapchain;
+    WisTexture    swapchain_textures[SWAPCHAIN_FRAMES];
+    WisViewHeap   rtv_heap;
 } BasicRenderer;
 
 typedef struct ResourceContainer {
@@ -183,7 +186,6 @@ typedef struct BasicRenderTask {
     WisRootSignature compute_signature;
     WisPipeline      compute_pipeline;
     WisPipeline      graphics_pipeline;
-    WisViewHeap      rtv_heap;
 } BasicRenderTask;
 
 //------------------------------------------------------------------------------
@@ -272,12 +274,10 @@ void InitRenderer(BasicRenderer* renderer, SDL_Window* window)
     WisSurfaceParameters surface_params;
     result = wisDeviceGetSurfaceParameters(&renderer->device, wisGetSurfaceView(&surface), &surface_params);
 
-    uint32_t desired_image_count = 3; // Triple buffering
-
     WisSwapchainDesc swapchain_desc = {
         .width               = 800,
         .height              = 600,
-        .image_count         = desired_image_count,
+        .image_count         = SWAPCHAIN_FRAMES,
         .texture_usage_flags = WisTextureUsageFlagsRenderTarget,
         .format              = renderer->swapchain_format,
         .scaling             = WisSwapchainScalingNone,
@@ -290,6 +290,8 @@ void InitRenderer(BasicRenderer* renderer, SDL_Window* window)
     wisDestroySurface(&surface);
     wisDestroyInstance(&instance);
     DestroyPlatform(&platform);
+
+    result = wisSwapchainGetTextures(&renderer->swapchain, renderer->swapchain_textures, SWAPCHAIN_FRAMES);
 
     result = wisDeviceGetResourceAllocator(&renderer->device, &renderer->allocator);
     printf("GetResourceAllocator result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
@@ -320,6 +322,21 @@ void InitRenderer(BasicRenderer* renderer, SDL_Window* window)
     printf("CreateDescriptorHeap result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
     result = wisDeviceCreateDescriptorHeap(&renderer->device, &sampler_heap_desc, &renderer->sampler_heap);
     printf("CreateSamplerHeap result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+
+    result = wisDeviceCreateViewHeap(&renderer->device, WisViewHeapTypeRenderTarget, 10, &renderer->rtv_heap);
+    printf("CreateViewHeap result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+
+    for (uint32_t i = 0; i < SWAPCHAIN_FRAMES; ++i) {
+        WisRenderTargetDesc rtv_desc = {
+            .format            = renderer->swapchain_format,
+            .layout            = WisTextureLayoutTexture2D,
+            .array_layer_count = 1,
+        };
+        wisViewHeapWriteRenderTarget(&renderer->rtv_heap,
+                                     wisGetTextureView(&renderer->swapchain_textures[i]),
+                                     &rtv_desc,
+                                     i);
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -346,6 +363,7 @@ void DestoyRenderer(BasicRenderer* renderer)
     wisDestroyResourceAllocator(&renderer->allocator);
     wisDestroyDevice(&renderer->device);
     wisDestroySwapchain(&renderer->swapchain);
+    wisDestroyViewHeap(&renderer->rtv_heap);
 }
 
 //------------------------------------------------------------------------------
@@ -467,9 +485,6 @@ void InitRenderTask(BasicRenderTask* task, BasicRenderer* renderer)
     wisDestroyShader(&vertex_shader);
     wisDestroyShader(&pixel_shader);
     wisDestroyShader(&compute_shader);
-
-    result = wisDeviceCreateViewHeap(&renderer->device, WisViewHeapTypeRenderTarget, 10, &task->rtv_heap);
-    printf("CreateViewHeap result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
 }
 
 //------------------------------------------------------------------------------
@@ -479,7 +494,6 @@ void DestroyRenderTask(BasicRenderTask* task)
     wisDestroyRootSignature(&task->compute_signature);
     wisDestroyPipeline(&task->compute_pipeline);
     wisDestroyPipeline(&task->graphics_pipeline);
-    wisDestroyViewHeap(&task->rtv_heap);
 }
 
 //------------------------------------------------------------------------------
@@ -574,10 +588,7 @@ void Render(BasicRenderer* renderer, const ResourceContainer* resources, const B
     WisCommandListView command_list_view = wisGetCommandListView(&frame->command_list);
 
     // Record frame skeleton: compute updates particles, graphics draws them.
-    uint32_t frame_number    = (uint32_t)(renderer->next_fence_value - 1);
-    uint32_t swapchain_index = 0;
-    result                   = wisSwapchainGetCurrentIndex(&renderer->swapchain, &swapchain_index);
-    print_info("Frame[%u] Current Swapchain Index: %u, result: %d, platform_code: %d, error: %s\n", renderer->frame_index, swapchain_index, result.status, result.platform_code, result.error ? result.error : "None");
+    uint32_t frame_number = (uint32_t)(renderer->next_fence_value - 1);
 
     uint32_t                compute_params[4]      = { PARTICLE_COUNT, frame_number, 16, 0 };
     WisPushConstantDataDesc compute_constants_desc = {
@@ -646,6 +657,13 @@ void Render(BasicRenderer* renderer, const ResourceContainer* resources, const B
     wisCommandListSetViewports(&frame->command_list, &viewport, 1);
     wisCommandListSetScissors(&frame->command_list, &scissor, 1);
     wisCommandListSetPrimitiveTopology(&frame->command_list, WisPrimitiveTopologyTriangleList);
+
+    uint32_t swapchain_index = 0;
+
+    result                   = wisSwapchainGetCurrentIndex(&renderer->swapchain, &swapchain_index);
+    WisTexture* swap_texture = &renderer->swapchain_textures[swapchain_index];
+    uint64_t    swap_rt      = wisViewHeapGetViewAddress(&renderer->rtv_heap, swapchain_index);
+
     // TODO: Begin render pass with swapchain color target + depth attachment.
     // TODO: Issue draw call for PARTICLE_COUNT * 3 vertices (triangle per particle).
     // TODO: End render pass and present the swapchain image.
@@ -678,12 +696,32 @@ void HandleEvents(bool* running, BasicRenderer* renderer)
         case SDL_EVENT_WINDOW_RESIZED: {
             printf("Window resized to %d x %d\n", event.window.data1, event.window.data2);
             // At later point we should also reset textures
+            for (uint32_t i = 0; i < SWAPCHAIN_FRAMES; ++i) {
+                wisDestroyTexture(&renderer->swapchain_textures[i]);
+            }
 
             WisSwapchainUpdateDesc update_desc = {
                 .width  = (uint32_t)event.window.data1,
                 .height = (uint32_t)event.window.data2,
             };
-            wisSwapchainUpdate(&renderer->swapchain, &update_desc);
+            WisResult result = wisSwapchainUpdate(&renderer->swapchain, &update_desc);
+            printf("Swapchain update result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+
+            result = wisSwapchainGetTextures(&renderer->swapchain, renderer->swapchain_textures, SWAPCHAIN_FRAMES);
+            printf("Swapchain update result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
+
+            // Write them as RTVs to the view heap
+            for (uint32_t i = 0; i < SWAPCHAIN_FRAMES; ++i) {
+                WisRenderTargetDesc rtv_desc = {
+                    .format            = renderer->swapchain_format,
+                    .layout            = WisTextureLayoutTexture2D,
+                    .array_layer_count = 1,
+                };
+                wisViewHeapWriteRenderTarget(&renderer->rtv_heap,
+                                             wisGetTextureView(&renderer->swapchain_textures[i]),
+                                             &rtv_desc,
+                                             i);
+            }
         } break;
         default:
             break;
