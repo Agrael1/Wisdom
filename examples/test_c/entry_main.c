@@ -343,7 +343,7 @@ void InitRenderer(BasicRenderer* renderer, SDL_Window* window)
 void DestoyRenderer(BasicRenderer* renderer)
 {
     if (renderer->next_fence_value > 0) {
-        WisResult result = wisCommandQueueSignalFence(&renderer->gfx_queue, wisGetFenceView(&renderer->fence), renderer->next_fence_value);
+        WisResult result = wisCommandQueueSignalFence(&renderer->gfx_queue, wisGetFenceView(&renderer->fence), ++renderer->next_fence_value);
         printf("Flush SignalFence result: %d, platform_code: %d, error: %s\n", result.status, result.platform_code, result.error ? result.error : "None");
 
         result = wisFenceWait(&renderer->fence, renderer->next_fence_value, UINT64_MAX);
@@ -410,7 +410,7 @@ void InitRenderTask(BasicRenderTask* task, BasicRenderer* renderer)
     WisPushDescriptor push_descriptor = {
         .visibility    = WisShaderVisibilityAll,
         .type          = WisDescriptorTypeBuffer,
-        .bind_register = 0,
+        .bind_register = 1,
         .bind_space    = 0,
     };
     WisRootSignatureDesc root_signature_desc = {
@@ -588,7 +588,12 @@ void Render(BasicRenderer* renderer, const ResourceContainer* resources, const B
     WisCommandListView command_list_view = wisGetCommandListView(&frame->command_list);
 
     // Record frame skeleton: compute updates particles, graphics draws them.
-    uint32_t frame_number = (uint32_t)(renderer->next_fence_value - 1);
+    uint32_t frame_number    = (uint32_t)(renderer->next_fence_value - 1);
+    uint32_t swapchain_index = 0;
+
+    result                   = wisSwapchainGetCurrentIndex(&renderer->swapchain, &swapchain_index);
+    WisTexture* swap_texture = &renderer->swapchain_textures[swapchain_index];
+    uint64_t    swap_rt      = wisViewHeapGetViewAddress(&renderer->rtv_heap, swapchain_index);
 
     uint32_t                compute_params[4]      = { PARTICLE_COUNT, frame_number, 16, 0 };
     WisPushConstantDataDesc compute_constants_desc = {
@@ -631,9 +636,23 @@ void Render(BasicRenderer* renderer, const ResourceContainer* resources, const B
         .queue_type_before = WisCommandQueueTypeGraphics,
         .queue_type_after  = WisCommandQueueTypeGraphics,
     };
-    WisBarrierGroup barrier_group = {
-        .buffer_barriers      = &particle_barrier,
-        .buffer_barrier_count = 1
+    WisTextureBarrier swapchain_barriers = {
+        .sync_before       = WisBarrierSyncRenderTarget,
+        .sync_after        = WisBarrierSyncNone,
+        .access_before     = WisResourceAccessNone,
+        .access_after      = WisResourceAccessNone,
+        .state_before      = WisTextureStateUndefined,
+        .state_after       = WisTextureStatePresent,
+        .texture           = wisGetTextureView(swap_texture),
+        .subresource_range = { 0, 1, 0, 1, 0, 1 },
+        .queue_type_before = WisCommandQueueTypeGraphics,
+        .queue_type_after  = WisCommandQueueTypeGraphics
+    };
+    WisBarrierGroup barrier_groups[2] = {
+        {       .buffer_barriers      = &particle_barrier,
+         .buffer_barrier_count = 1 },
+        { .texture_barriers      = &swapchain_barriers,
+         .texture_barrier_count = 1 },
     };
 
     WisViewport viewport = { .width = 800.0f, .height = 600.0f, .min_depth = 0.0f, .max_depth = 1.0f };
@@ -647,7 +666,7 @@ void Render(BasicRenderer* renderer, const ResourceContainer* resources, const B
     wisCommandListSetPushDescriptor(&frame->command_list, &compute_push_descriptor_desc);
     wisCommandListDispatch(&frame->command_list, PARTICLE_COUNT, 1, 1);
 
-    wisCommandListInsertBarriers(&frame->command_list, &barrier_group);
+    wisCommandListInsertBarriers(&frame->command_list, barrier_groups);
 
     wisCommandListSetRootSignature(&frame->command_list, wisGetRootSignatureView(&task->root_signature), WisPipelineTypeGraphics);
     wisCommandListSetPipeline(&frame->command_list, wisGetPipelineView(&task->graphics_pipeline), WisPipelineTypeGraphics);
@@ -658,16 +677,11 @@ void Render(BasicRenderer* renderer, const ResourceContainer* resources, const B
     wisCommandListSetScissors(&frame->command_list, &scissor, 1);
     wisCommandListSetPrimitiveTopology(&frame->command_list, WisPrimitiveTopologyTriangleList);
 
-    uint32_t swapchain_index = 0;
-
-    result                   = wisSwapchainGetCurrentIndex(&renderer->swapchain, &swapchain_index);
-    WisTexture* swap_texture = &renderer->swapchain_textures[swapchain_index];
-    uint64_t    swap_rt      = wisViewHeapGetViewAddress(&renderer->rtv_heap, swapchain_index);
-
     // TODO: Begin render pass with swapchain color target + depth attachment.
     // TODO: Issue draw call for PARTICLE_COUNT * 3 vertices (triangle per particle).
     // TODO: End render pass and present the swapchain image.
 
+    wisCommandListInsertBarriers(&frame->command_list, barrier_groups + 1);
     result = wisCommandListEnd(&frame->command_list);
 
     result = wisCommandQueueSubmit(&renderer->gfx_queue, &command_list_view, 1);

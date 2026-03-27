@@ -11,32 +11,26 @@ struct VKMappingOffsetInfo {
     uint32_t offset : 31 = 0x7FFFFFF;
     uint32_t even   : 1  = 1; // After even stages there needs to be "all" maps, after odd stages there doesn't. This is a clever hack to avoid overcounting "all" maps in the total count calculation.
 };
-constexpr static VkSpirvResourceTypeFlagsEXT srv_mask = VK_SPIRV_RESOURCE_TYPE_SAMPLED_IMAGE_BIT_EXT |
-        VK_SPIRV_RESOURCE_TYPE_READ_ONLY_IMAGE_BIT_EXT |
-        VK_SPIRV_RESOURCE_TYPE_READ_ONLY_STORAGE_BUFFER_BIT_EXT |
-        VK_SPIRV_RESOURCE_TYPE_ACCELERATION_STRUCTURE_BIT_EXT;
-constexpr static VkSpirvResourceTypeFlagsEXT sampler_mask = VK_SPIRV_RESOURCE_TYPE_SAMPLER_BIT_EXT;
-constexpr static VkSpirvResourceTypeFlagsEXT uav_mask     = VK_SPIRV_RESOURCE_TYPE_READ_WRITE_IMAGE_BIT_EXT |
-        VK_SPIRV_RESOURCE_TYPE_READ_WRITE_STORAGE_BUFFER_BIT_EXT;
-constexpr static VkSpirvResourceTypeFlagsEXT cbv_mask = VK_SPIRV_RESOURCE_TYPE_UNIFORM_BUFFER_BIT_EXT;
 
 constexpr VkSpirvResourceTypeFlagsEXT GetResourceTypeFlags(const WisDescriptorType type) noexcept
 {
     switch (type) {
     case WisDescriptorTypeSampler:
-        return sampler_mask;
+        return VK_SPIRV_RESOURCE_TYPE_SAMPLER_BIT_EXT;
     case WisDescriptorTypeConstantBuffer:
-        return cbv_mask;
+        return VK_SPIRV_RESOURCE_TYPE_UNIFORM_BUFFER_BIT_EXT;
     case WisDescriptorTypeTexture:
-        return srv_mask;
+        return VK_SPIRV_RESOURCE_TYPE_SAMPLED_IMAGE_BIT_EXT |
+                VK_SPIRV_RESOURCE_TYPE_READ_ONLY_IMAGE_BIT_EXT;
     case WisDescriptorTypeRWTexture:
-        return uav_mask;
+        return VK_SPIRV_RESOURCE_TYPE_READ_WRITE_IMAGE_BIT_EXT;
     case WisDescriptorTypeRWBuffer:
-        return uav_mask;
+        return VK_SPIRV_RESOURCE_TYPE_READ_WRITE_STORAGE_BUFFER_BIT_EXT;
     case WisDescriptorTypeBuffer:
-        return srv_mask;
+        return VK_SPIRV_RESOURCE_TYPE_READ_WRITE_STORAGE_BUFFER_BIT_EXT |
+                VK_SPIRV_RESOURCE_TYPE_READ_ONLY_STORAGE_BUFFER_BIT_EXT;
     case WisDescriptorTypeAccelerationStructure:
-        return uav_mask;
+        return VK_SPIRV_RESOURCE_TYPE_ACCELERATION_STRUCTURE_BIT_EXT;
     default:
         return 0;
     }
@@ -205,6 +199,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandAllocator(const WisVKD
     }
 
     pool_control_block->header.device        = device.device;
+    pool_control_block->header.command_pool  = command_pool;
     pool_control_block->header.device_header = device.device_header;
     pool_control_block->header.device_header->AddRef(); // hold reference to device header for command pool control block
 
@@ -405,6 +400,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateViewHeap(const WisVKDevice* s
 
     new (heap) wis::impl::VKViewHeapImpl{
         .view_heap     = view_heap,
+        .capacity      = capacity,
         .device_header = device.device_header,
     };
     device.device_header->AddRef(); // hold reference to device header
@@ -509,7 +505,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(const WisVKDevi
             .descriptorSet = src.bind_space,
             .firstBinding  = src.bind_register,
             .bindingCount  = 1,
-            .resourceMask  = wis::detail::cbv_mask,
+            .resourceMask  = VK_SPIRV_RESOURCE_TYPE_UNIFORM_BUFFER_BIT_EXT,
             .source        = VK_DESCRIPTOR_MAPPING_SOURCE_PUSH_DATA_EXT,
             .sourceData    = { .pushAddressOffset = push_address_offset }
         };
@@ -899,12 +895,26 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(const WisVKD
         if (!smodule) {
             continue;
         }
-        auto  stage = shader_visibilities[i];
+        auto stage  = shader_visibilities[i];
+        auto offset = rsig->shader_mapping_offset[stage];
+
+        const VkDescriptorSetAndBindingMappingEXT* xmappings     = nullptr;
+        uint32_t                                   mapping_count = 0;
+        if (offset == wis::detail::VKRootSignatureControlBlock::invalid_index) {
+            // fill with ALL category
+            xmappings     = rsig->GetMappings().data() + rsig->shader_mapping_offset[WisShaderVisibilityAll];
+            mapping_count = rsig->shader_mapping_sizes[WisShaderVisibilityAll];
+        } else {
+            // fill with stage-specific category
+            xmappings     = rsig->GetMappings().data() + offset;
+            mapping_count = rsig->shader_mapping_sizes[stage];
+        }
+
         auto& map = mappings[shader_stage_count] = {
             .sType        = VK_STRUCTURE_TYPE_SHADER_DESCRIPTOR_SET_AND_BINDING_MAPPING_INFO_EXT,
             .pNext        = nullptr,
-            .mappingCount = rsig->shader_mapping_sizes[stage],
-            .pMappings    = rsig->GetMappings().data() + rsig->shader_mapping_offset[stage],
+            .mappingCount = mapping_count,
+            .pMappings    = xmappings,
         };
 
         shader_stages[shader_stage_count] = {
@@ -916,6 +926,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(const WisVKD
             .pName               = "main",
             .pSpecializationInfo = nullptr,
         };
+        shader_stage_count++;
     }
 
     //--Input assembly and vertex input
@@ -1217,8 +1228,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(const WisVKD
     static constexpr uint32_t max_dynstates                        = 6;
     uint32_t                  dynamic_state_count                  = 4; // viewport, scissor, primitive topology are always dynamic
     VkDynamicState            dynamic_state_enables[max_dynstates] = {
-        VK_DYNAMIC_STATE_VIEWPORT,
-        VK_DYNAMIC_STATE_SCISSOR,
+        VK_DYNAMIC_STATE_VIEWPORT_WITH_COUNT,
+        VK_DYNAMIC_STATE_SCISSOR_WITH_COUNT,
         VK_DYNAMIC_STATE_PRIMITIVE_TOPOLOGY,
         VK_DYNAMIC_STATE_BLEND_CONSTANTS
     };
@@ -1492,9 +1503,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateSwapchain(const WisVKDevice* 
     for (uint32_t i = 0; i < format_count; i++) {
         format_storage[i] = format_span[i];
     }
-    swap_head.format_count    = format_count;
-    swap_head.surface         = surface_impl.surface;
-    swap_head.physical_device = device.physical_device;
+    swap_head.format_count                               = format_count;
+    swap_head.surface                                    = surface_impl.surface;
+    swap_head.physical_device                            = device.physical_device;
     swap_head.vkGetPhysicalDeviceSurfaceCapabilities2KHR = atable.vkGetPhysicalDeviceSurfaceCapabilities2KHR;
 
     if (features.swapchain_maintenance) {
@@ -1583,7 +1594,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateSwapchain(const WisVKDevice* 
     surface_impl.surface_header->AddRef();
 
     header_storage.release(); // ownership transferred to swapchain impl
-    new (swapchain) wis::impl::VKSwapchainImpl{
+    auto& swap_impl = *new (swapchain) wis::impl::VKSwapchainImpl{
         .swapchain        = swapchain_handle,
         .swapchain_header = header,
         .swapchain_table  = &device.device_header->header.swapchain_table,
@@ -1591,6 +1602,12 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateSwapchain(const WisVKDevice* 
         .device           = device.device,
         .destroy_fence    = destruction_fence
     };
+
+    vr = wis::detail::VKAcquireNextImage(swap_impl);
+    if (!wis::detail::succeeded(vr)) {
+        wisVKDestroySwapchain(swapchain);
+        return wis::detail::make_result<wis::detail::Func(), "Failed to acquire next image for the swapchain after creation">(vr);
+    }
 
     return wis::detail::vk_success;
 }

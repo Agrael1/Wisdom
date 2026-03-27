@@ -273,6 +273,13 @@ inline VKQueueResidencyInfo VKGetQueueResidencyInfo(const wis::impl::VKMainAdapt
     // Sort all families
     uint32_t allocated_queue_count = 0;
     auto     selection             = VKGetSortedQueueFamilies(props_span);
+
+    static constexpr std::array<float, 32> queue_priorities = []() {
+        std::array<float, 32> pQueuePriorities;
+        std::fill_n(pQueuePriorities.data(), pQueuePriorities.size(), 1.0f);
+        return pQueuePriorities;
+    }();
+
     for (std::size_t i = 0; i < queue_descs.size(); ++i) {
         auto& desc = queue_descs[i];
         if (desc.type >= WisCommandQueueTypeCount) {
@@ -323,7 +330,8 @@ inline VKQueueResidencyInfo VKGetQueueResidencyInfo(const wis::impl::VKMainAdapt
             .pNext            = priority_next,
             .flags            = 0, // could have added internally synchronized, but we have semaphores for that
             .queueFamilyIndex = selection[desc.type],
-            .queueCount       = family_props.queueCount,
+            .queueCount       = std::min(family_props.queueCount, 32u),
+            .pQueuePriorities = queue_priorities.data(),
         };
 
         // Mark this family as allocated by setting its queueCount to 0 (since we won't be able to allocate it again)
@@ -511,12 +519,12 @@ WIS_EXTERN_C WISDOM_API bool wisVKAdapterQueryGetSurfaceSupport(const WisVKAdapt
                                                                 size_t                   index,
                                                                 WisVKSurfaceView         surface)
 {
-    auto& impl = *wis::from_handle<const wis::impl::VKAdapterQueryImpl>(self);
-    auto& atable = impl.shared_header->header.adapter_table;
+    auto& impl       = *wis::from_handle<const wis::impl::VKAdapterQueryImpl>(self);
+    auto& atable     = impl.shared_header->header.adapter_table;
     auto  vk_surface = std::bit_cast<VkSurfaceKHR>(surface);
 
-    // Get queue families 
-    uint32_t queue_family_count = 0;
+    // Get queue families
+    uint32_t                queue_family_count = 0;
     VkQueueFamilyProperties props[32];
     atable.vkGetPhysicalDeviceQueueFamilyProperties(impl.physical_devices[index], &queue_family_count, nullptr);
     atable.vkGetPhysicalDeviceQueueFamilyProperties(impl.physical_devices[index], &queue_family_count, props);
@@ -671,7 +679,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(const WisVKAdapt
 
     // Start header lifetime
     wis::detail::VKDeviceControlBlock* header = new (header_storage.get()) wis::detail::VKDeviceControlBlock{};
-    header->header.instance = impl.instance; // store instance handle in device header for later use in resource allocator
+    header->header.instance                   = impl.instance; // store instance handle in device header for later use in resource allocator
 
     wis::span<std::binary_semaphore> semaphores{ reinterpret_cast<std::binary_semaphore*>(header + 1), semaphore_count };
     for (auto& sem : semaphores) {

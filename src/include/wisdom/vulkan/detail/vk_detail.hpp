@@ -121,7 +121,6 @@ struct VKInstanceControlBlock : public VKControlBlock<VKInstanceHeader> {
 
 //-----------------------------------------------------------------------------
 struct VKDeviceFeatures {
-    uint32_t has_custom_border_color           : 1 = false;
     uint32_t multiple_viewports                : 1 = false;
     uint32_t dynamic_render_unused_attachments : 1 = false;
     uint32_t index_buffer_range                : 1 = false;
@@ -131,6 +130,8 @@ struct VKDeviceFeatures {
     uint32_t maintenance9                      : 1 = false; // nop QFOT barriers and empty device
     uint32_t line_rasterization                : 1 = false;
     uint32_t conservative_rasterization        : 1 = false;
+    uint32_t memory_priority                   : 1 = false;
+    uint32_t dynamic_memory_priority           : 1 = false;
 
     // Swapchain
     uint32_t swapchain_maintenance : 1 = false;
@@ -264,14 +265,14 @@ struct VKSwapchainHeader {
     VkSurfaceKHR                                   surface; // store surface handle for later use in presentation and swapchain recreation
     VkPhysicalDevice                               physical_device; // store physical device for later use in swapchain recreation
     PFN_vkGetPhysicalDeviceSurfaceCapabilities2KHR vkGetPhysicalDeviceSurfaceCapabilities2KHR; // store function pointer for later use in swapchain recreation
-    
-    VkSwapchainCreateInfoKHR                       create_info; // store create info for later use in presentation and swapchain recreation
-    VkSwapchainPresentScalingCreateInfoKHR         scaling_create_info; // store scaling create info for later use in presentation and swapchain recreation
-    
-    VkPresentModeKHR                               modes[reasonable_mode_count];
-    uint8_t                                        mode_count;
-    uint8_t                                        format_count;
-    bool                                           tearing;
+
+    VkSwapchainCreateInfoKHR               create_info; // store create info for later use in presentation and swapchain recreation
+    VkSwapchainPresentScalingCreateInfoKHR scaling_create_info; // store scaling create info for later use in presentation and swapchain recreation
+
+    VkPresentModeKHR modes[reasonable_mode_count];
+    uint8_t          mode_count;
+    uint8_t          format_count;
+    bool             tearing;
 
     wis::span<const VkSemaphore>
     GetImageAvailableSemaphores() const noexcept
@@ -314,10 +315,12 @@ struct VKSwapchainControlBlock : public VKControlBlock<VKSwapchainHeader> {
 
 //-----------------------------------------------------------------------------
 struct alignas(void*) VKRootSignatureControlBlock {
+    static constexpr uint32_t invalid_index = std::numeric_limits<uint32_t>::max();
+
     constexpr static std::array<uint32_t, WisShaderVisibilityCount> FillInvalid()
     {
         std::array<uint32_t, WisShaderVisibilityCount> arr{};
-        std::fill(arr.begin(), arr.end(), std::numeric_limits<uint32_t>::max());
+        std::fill(arr.begin(), arr.end(), invalid_index);
         return arr;
     }
     uint32_t constant_data_size     = 0; // must be aligned to 8 bytes
@@ -514,7 +517,6 @@ inline void VKReleaseSurface(VKSurfaceControlBlock* header) noexcept
 }
 
 //-----------------------------------------------------------------------------
-
 inline void VKReleaseSwapchain(VkSwapchainKHR swap, VKSwapchainControlBlock* header) noexcept
 {
     if (header && header->Release() == 1) {
@@ -526,6 +528,50 @@ inline void VKReleaseSwapchain(VkSwapchainKHR swap, VKSwapchainControlBlock* hea
     }
 }
 
+//-----------------------------------------------------------------------------
+inline VkResult VKAcquireNextImage(const impl::VKSwapchainImpl& impl) noexcept
+{
+    auto& swapchain_header = impl.swapchain_header->header;
+    auto& swapchain_table  = *impl.swapchain_table;
+    auto  semaphores       = swapchain_header.GetImageAvailableSemaphores();
+
+    // Acquire the next image index for the new swapchain to update internal state
+    auto result = impl.swapchain_table->vkAcquireNextImageKHR(impl.device,
+                                                              impl.swapchain,
+                                                              impl.lazy_acquire ? 0 : std::numeric_limits<uint64_t>::max(),
+                                                              semaphores[impl.acquire_index],
+                                                              nullptr,
+                                                              &impl.present_index);
+
+    if (result != VK_SUCCESS) {
+        return result; // Caller can choose to handle timeout differently (e.g. by skipping rendering and trying again next frame) so return a distinct result code for this case
+    }
+
+    VkPipelineStageFlags2 stage_mask = 0;
+    if (swapchain_header.create_info.imageUsage & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT) {
+        stage_mask |= VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
+    }
+    if (swapchain_header.create_info.imageUsage & VK_IMAGE_USAGE_STORAGE_BIT) {
+        stage_mask |= VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
+    }
+    if (swapchain_header.create_info.imageUsage & VK_IMAGE_USAGE_TRANSFER_DST_BIT) {
+        stage_mask |= VK_PIPELINE_STAGE_2_TRANSFER_BIT;
+    }
+
+    VkSemaphoreSubmitInfo submit_info{
+        .sType     = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
+        .semaphore = semaphores[impl.acquire_index],
+        .stageMask = stage_mask,
+    };
+    VkSubmitInfo2 desc2{
+        .sType                  = VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
+        .pNext                  = nullptr,
+        .waitSemaphoreInfoCount = 1,
+        .pWaitSemaphoreInfos    = &submit_info,
+    };
+    impl.acquire_index = (impl.acquire_index + 1) % swapchain_header.create_info.minImageCount;
+    return swapchain_table.vkQueueSubmit2(impl.present_queue, 1, &desc2, nullptr);
+}
 } // namespace wis::detail
 
 #endif // WIS_VK_DETAIL_HPP
