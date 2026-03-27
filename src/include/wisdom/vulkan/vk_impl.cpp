@@ -56,6 +56,12 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyTexture(WisVKTexture* self)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKTextureImpl>(self);
     if (impl.image != VK_NULL_HANDLE) {
+        if (impl.owned_by_swapchain) {
+            // If the image is owned by the swapchain, we should not destroy it directly, as it will be destroyed when the swapchain is destroyed.
+            impl.image = VK_NULL_HANDLE;
+            return;
+        }
+
         // get allocator
         VmaAllocator allocator = impl.device_header->header.allocator;
         vmaDestroyImage(allocator, impl.image, impl.allocation);

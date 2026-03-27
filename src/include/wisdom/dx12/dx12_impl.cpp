@@ -59,9 +59,15 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyTexture(WisDX12Texture* self)
     }
 
     resource->Release();
+    resource = nullptr;
+    if (!allocation && !allocator) {
+        // If allocation or allocator are null,
+        // we assume that the texture does not own the resource.
+        return;
+    }
+
     allocation->Release();
     allocator->Release();
-    resource = nullptr;
 }
 
 //-----------------------------------------------------------------------------

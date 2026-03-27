@@ -281,4 +281,48 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainUpdate(const WisVKSwapchain*    
     return wis::detail::vk_success;
 }
 
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainGetTextures(const WisVKSwapchain* self,
+                                                            WisVKTexture*         buffers,
+                                                            size_t                buffer_count)
+{
+    auto& impl = wis::from_handle_ref<const wis::impl::VKSwapchainImpl>(self);
+
+    uint32_t actual_buffer_count = 0;
+    auto     vr                  = impl.swapchain_table->vkGetSwapchainImagesKHR(impl.device, impl.swapchain, &actual_buffer_count, nullptr);
+    if (!wis::detail::succeeded(vr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to get swapchain image count">(vr);
+    }
+
+    if (buffer_count < actual_buffer_count) {
+        return wis::detail::make_result<wis::detail::Func(), "Provided buffer count is less than the number of swapchain images">(VK_ERROR_UNKNOWN);
+    }
+
+    // Cheat the allocation of the output array to avoid dynamic memory allocation in this function by treating the output array as a byte array and writing the image handles directly into it
+    auto     bytes     = wis::as_writable_bytes(wis::span{ buffers, buffer_count }); // zero out the output array to ensure that any unused slots are null handles
+    VkImage* vk_images = reinterpret_cast<VkImage*>(bytes.data());
+
+    vr = impl.swapchain_table->vkGetSwapchainImagesKHR(impl.device, impl.swapchain, &actual_buffer_count, vk_images);
+    if (!wis::detail::succeeded(vr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to get swapchain images">(vr);
+    }
+
+    wis::span<WisVKTexture> texture_span{ buffers, actual_buffer_count };
+    wis::span<VkImage>      image_span{ vk_images, actual_buffer_count };
+
+    // Now the VkImage is smaller than WisVKTexture.
+    // We can convert in-place in reverse order since the image handle is at the end of the WisVKTexture struct and we won't overwrite any handles we haven't read yet.
+    for (int i = actual_buffer_count; i-- > 0;) {
+        VkImage image = image_span[i];
+        auto&   tex   = texture_span[i];
+
+        new (&tex) wis::impl::VKTextureImpl{
+            .image              = image,
+            .owned_by_swapchain = true,
+        };
+    }
+
+    return wis::detail::vk_success;
+}
+
 #endif // WIS_VK_SWAPCHAIN_CPP

@@ -8,6 +8,16 @@
     </includes>
 
     <handles>
+      <handle name="Texture" version="0.7.0" doc="Class representing a GPU texture resource.">
+        <impl for="vk" size="4"/>
+        <impl for="dx" size="3"/>
+        <view size="1"/>
+      </handle>
+      <handle name="Buffer" version="0.7.0" doc="Class representing a GPU buffer resource.">
+        <impl for="vk" size="4"/>
+        <impl for="dx" size="3"/>
+        <view size="1"/>
+      </handle>
       <handle name="Swapchain" version="0.7.0" doc="Class representing a swapchain, which is a collection of render targets used for presentation.">
         <impl for="vk" size="8"/>
         <impl for="dx" size="3"/>
@@ -34,16 +44,6 @@
       <handle name="PipelineCache" version="0.7.0" doc="Class representing a cache for pipeline state objects, which allows to reuse already created pipelines and speed up pipeline creation.">
         <impl for="vk" size="2"/>
         <impl for="dx" size="2"/>
-        <view size="1"/>
-      </handle>
-      <handle name="Texture" version="0.7.0" doc="Class representing a GPU texture resource.">
-        <impl for="vk" size="3"/>
-        <impl for="dx" size="3"/>
-        <view size="1"/>
-      </handle>
-      <handle name="Buffer" version="0.7.0" doc="Class representing a GPU buffer resource.">
-        <impl for="vk" size="4"/>
-        <impl for="dx" size="3"/>
         <view size="1"/>
       </handle>
       <handle name="DescriptorHeap" version="0.7.0" doc="Class representing a storage for descriptors used in contiguous array.">
@@ -427,7 +427,11 @@ Otherwise the first is chosen.">
         <ret type="Result" name="result" doc="Result of operation."/>
         <arg type="SwapchainUpdateDesc" name="desc" mod="const,ref" doc="points to {SwapchainUpdateDesc::}, which describes the new swapchain parameters."/>
       </func>
-
+      <func for="Swapchain" name="GetTextures" version="0.7.0" mod="const" doc="Gets the swapchain buffers. The textures are in {TextureState::Common}.">
+        <ret type="Result" name="result" doc="Result of operation."/>
+        <arg type="Texture" name="buffers" mod="span" doc="points to the array of texture views, which are filled with swapchain backbuffers on success."/>
+        <arg type="size" name="buffer_count" doc="defines the number of buffers to get. It @wis_must be greater or equal to the value, supplied to {SwapchainDesc::image_count} or subsequent {SwapchainUpdateDesc::image_count}."/>
+      </func>
     </functions>
 
   </module>
