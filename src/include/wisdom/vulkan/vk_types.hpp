@@ -140,13 +140,14 @@ struct VKSurfaceImpl {
 };
 
 struct VKSwapchainImpl {
-    VkSwapchainKHR                   swapchain;
+    mutable VkSwapchainKHR           swapchain;
     detail::VKSwapchainControlBlock* swapchain_header;
     impl::VKMainSwapchain*           swapchain_table;
     VkQueue                          present_queue; // store a copy of the present queue handle for faster access during presentation
     VkDevice                         device;
+    VkFence                          destroy_fence; // Fence used to synchronize swapchain destruction.
     mutable uint32_t                 present_index;
-    uint32_t                         acquire_index;
+    mutable uint32_t                 acquire_index;
     mutable bool                     lazy_acquire; // If true, the next call to GetCurrentIndex will acquire the next image from the swapchain.
 };
 

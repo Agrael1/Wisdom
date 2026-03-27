@@ -257,21 +257,53 @@ struct VKSurfaceControlBlock : public VKControlBlock<VKSurfaceHeader> {
 
 //-----------------------------------------------------------------------------
 struct VKSwapchainHeader {
-    VKSurfaceControlBlock*                 surface_header; // hold reference to surface control block to ensure surface lifetime
-    VKDeviceControlBlock*                  device_header; // hold reference to device control block to ensure device lifetime
-    VkSwapchainCreateInfoKHR               create_info; // store create info for later use in presentation and swapchain recreation
-    VkSwapchainPresentScalingCreateInfoKHR scaling_create_info; // store scaling create info for later use in presentation and swapchain recreation
+    static constexpr uint32_t reasonable_mode_count = 16;
 
-    wis::span<const VkSemaphore> GetImageAvailableSemaphores() const noexcept {
+    VKSurfaceControlBlock*                         surface_header; // hold reference to surface control block to ensure surface lifetime
+    VKDeviceControlBlock*                          device_header; // hold reference to device control block to ensure device lifetime
+    VkSurfaceKHR                                   surface; // store surface handle for later use in presentation and swapchain recreation
+    VkPhysicalDevice                               physical_device; // store physical device for later use in swapchain recreation
+    PFN_vkGetPhysicalDeviceSurfaceCapabilities2KHR vkGetPhysicalDeviceSurfaceCapabilities2KHR; // store function pointer for later use in swapchain recreation
+    
+    VkSwapchainCreateInfoKHR                       create_info; // store create info for later use in presentation and swapchain recreation
+    VkSwapchainPresentScalingCreateInfoKHR         scaling_create_info; // store scaling create info for later use in presentation and swapchain recreation
+    
+    VkPresentModeKHR                               modes[reasonable_mode_count];
+    uint8_t                                        mode_count;
+    uint8_t                                        format_count;
+    bool                                           tearing;
+
+    wis::span<const VkSemaphore>
+    GetImageAvailableSemaphores() const noexcept
+    {
         return wis::span<const VkSemaphore>{
             reinterpret_cast<const VkSemaphore*>(this + 1),
             create_info.minImageCount
         };
     }
-    wis::span<const VkSemaphore> GetRenderFinishedSemaphores() const noexcept {
+    wis::span<const VkSemaphore> GetRenderFinishedSemaphores() const noexcept
+    {
         return wis::span<const VkSemaphore>{
             reinterpret_cast<const VkSemaphore*>(this + 1) + create_info.minImageCount,
             create_info.minImageCount
+        };
+    }
+    wis::span<const VkSemaphore> GetSemaphores() const noexcept
+    {
+        return wis::span<const VkSemaphore>{
+            reinterpret_cast<const VkSemaphore*>(this + 1),
+            create_info.minImageCount * 2
+        };
+    }
+    wis::span<const VkPresentModeKHR> GetSupportedPresentModes() const noexcept
+    {
+        return wis::span<const VkPresentModeKHR>{ modes, mode_count };
+    }
+    wis::span<VkSurfaceFormatKHR> GetSupportedFormats() noexcept
+    {
+        return wis::span<VkSurfaceFormatKHR>{
+            reinterpret_cast<VkSurfaceFormatKHR*>(this + 1) + create_info.minImageCount * 2,
+            format_count
         };
     }
 };
@@ -488,12 +520,6 @@ inline void VKReleaseSwapchain(VkSwapchainKHR swap, VKSwapchainControlBlock* hea
     if (header && header->Release() == 1) {
         // Last reference, destroy swapchain
         std::atomic_thread_fence(std::memory_order_acquire);
-        auto& head = header->header;
-
-        // Destroy swapchain
-        auto& table = head.device_header->header.swapchain_table;
-        table.vkDestroySwapchainKHR(head.device_header->header.device, swap, nullptr);
-
         VKReleaseDevice(header->header.device_header);
         VKReleaseSurface(header->header.surface_header);
         ::operator delete(header);

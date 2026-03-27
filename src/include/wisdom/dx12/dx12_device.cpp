@@ -1080,10 +1080,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateSwapchain(const WisDX12Devi
     swap_chain1.as(&swap_chain);
 
     new (swapchain) wis::impl::DX12SwapchainImpl{
-        .swapchain           = swap_chain.detach(),
-        .flags               = swap_chain_desc.Flags,
-        .vsync               = desc->flags & WisSwapchainFlagsVSync ? true : false,
-        .backbuffer_count    = static_cast<uint8_t>(desc->image_count),
+        .swapchain        = swap_chain.detach(),
+        .flags            = swap_chain_desc.Flags,
+        .vsync            = desc->flags & WisSwapchainFlagsVSync ? true : false,
+        .backbuffer_count = static_cast<uint8_t>(desc->image_count),
+        .width            = static_cast<uint16_t>(desc->width),
+        .height           = static_cast<uint16_t>(desc->height),
+        .data_format      = static_cast<uint16_t>(desc->format),
     };
 
     return wis::detail::dx_success;

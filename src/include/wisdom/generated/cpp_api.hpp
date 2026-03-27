@@ -1839,6 +1839,18 @@ struct SwapchainDesc {
 };
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Swapchain update description for wis::Swapchain::Update.
+ *
+ * */
+struct SwapchainUpdateDesc {
+    std::uint32_t   width; ///< New swapchain image width in pixels.
+    std::uint32_t   height; ///< New swapchain image height in pixels.
+    std::uint32_t   image_count; ///< Number of images in the swapchain.
+    wis::DataFormat format; ///< Swapchain image format.
+    bool            vsync; ///< Vsync enabled or not. If true, the presentation is synchronized to the vertical blanking interval, which can help prevent screen tearing. If false, the presentation is not synchronized, which can result in higher frame rates but @wis_may cause screen tearing.
+};
+
+/**
  * @brief Provided by Wisdom 0.7.0. Query struct header. Used as a header for all query structs.
  *
  * */
@@ -1933,6 +1945,9 @@ static constexpr std::uint32_t MaxViewports = 16;
 
 /// @brief Provided by Wisdom 0.7.0. Defines the maximum amount of present rectangles and copy regions in the Copy* commands that can be used in a single operation.
 static constexpr std::uint32_t MaxCopyRegions = 16;
+
+/// @brief Provided by Wisdom 0.7.0. [internal] Defines the maximum amount of images that can be present in a swapchain within any implementation.
+static constexpr std::uint32_t AbsoluteMaxSwapchainImages = 16;
 
 /// @brief Provided by Wisdom 0.7.0. Select whole size of a resource.
 static constexpr std::uint64_t WholeSize = 0xffffffffffffffff;
@@ -2091,13 +2106,29 @@ public:
         return wis::Result{ static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error };
     }
     /**
-     * @brief Provided by Wisdom 0.7.0. Gets the index of the current backbuffer.
-     * @return u32 Index of the current backbuffer.
+     * @brief Provided by Wisdom 0.7.0. Gets the index of the current backbuffer. In case of lazy indexing it @wis_may wait for presentation to finish and block.
+     * @param out_result denoting the outcome of operation.
+     * @return index Index of the current backbuffer.
      *
      * */
-    WIS_NODISCARD inline std::uint32_t GetCurrentIndex() const noexcept
+    WIS_NODISCARD inline std::uint32_t GetCurrentIndex(wis::Result& out_result) const noexcept
     {
-        return (::wisDX12SwapchainGetCurrentIndex(&_impl_storage));
+        std::uint32_t   index;
+        const WisResult wis_result = ::wisDX12SwapchainGetCurrentIndex(&_impl_storage, reinterpret_cast<uint32_t*>(&index));
+        out_result                 = wis::Result{ static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error };
+        return index;
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Resizes the swapchain buffers. If the swapchain is currently in use, it @wis_must be resized after the GPU finishes using it, so the call @wis_may block until then.
+     * @param desc points to wis::SwapchainUpdateDesc, which describes the new swapchain parameters.
+     * @return Result denoting the outcome of operation.
+     *
+     * */
+    inline wis::Result Update(const wis::SwapchainUpdateDesc& desc) const noexcept
+    {
+        const WisResult wis_result = ::wisDX12SwapchainUpdate(&_impl_storage,
+                                                              reinterpret_cast<const WisSwapchainUpdateDesc*>(&desc));
+        return wis::Result{ static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error };
     }
 };
 
@@ -3619,13 +3650,29 @@ public:
         return wis::Result{ static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error };
     }
     /**
-     * @brief Provided by Wisdom 0.7.0. Gets the index of the current backbuffer.
-     * @return u32 Index of the current backbuffer.
+     * @brief Provided by Wisdom 0.7.0. Gets the index of the current backbuffer. In case of lazy indexing it @wis_may wait for presentation to finish and block.
+     * @param out_result denoting the outcome of operation.
+     * @return index Index of the current backbuffer.
      *
      * */
-    WIS_NODISCARD inline std::uint32_t GetCurrentIndex() const noexcept
+    WIS_NODISCARD inline std::uint32_t GetCurrentIndex(wis::Result& out_result) const noexcept
     {
-        return (::wisVKSwapchainGetCurrentIndex(&_impl_storage));
+        std::uint32_t   index;
+        const WisResult wis_result = ::wisVKSwapchainGetCurrentIndex(&_impl_storage, reinterpret_cast<uint32_t*>(&index));
+        out_result                 = wis::Result{ static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error };
+        return index;
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Resizes the swapchain buffers. If the swapchain is currently in use, it @wis_must be resized after the GPU finishes using it, so the call @wis_may block until then.
+     * @param desc points to wis::SwapchainUpdateDesc, which describes the new swapchain parameters.
+     * @return Result denoting the outcome of operation.
+     *
+     * */
+    inline wis::Result Update(const wis::SwapchainUpdateDesc& desc) const noexcept
+    {
+        const WisResult wis_result = ::wisVKSwapchainUpdate(&_impl_storage,
+                                                            reinterpret_cast<const WisSwapchainUpdateDesc*>(&desc));
+        return wis::Result{ static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error };
     }
 };
 

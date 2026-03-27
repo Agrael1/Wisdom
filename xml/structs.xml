@@ -344,6 +344,15 @@ Viewport is considered from Top Left corner.">
       <member type="CompositeAlpha" name="composite_alpha" doc="Composite alpha mode. Describe how the alpha channel of the swapchain images is treated during compositing."/>
     </type>
 
+    <type name="SwapchainUpdateDesc" category="struct" version="0.7.0" doc="Swapchain update description for {Swapchain::Update}.">
+      <member type="u32" name="width" doc="New swapchain image width in pixels."/>
+      <member type="u32" name="height" doc="New swapchain image height in pixels."/>
+      <member type="u32" name="image_count" doc="Number of images in the swapchain."/>
+      <member type="DataFormat" name="format" doc="Swapchain image format."/>
+      <member type="bool" name="vsync" doc="Vsync enabled or not. If true, the presentation is synchronized to the vertical blanking interval, which can help prevent screen tearing. If false, the presentation is not synchronized, which can result in higher frame rates but may cause screen tearing."/>
+      <!--TODO: Colorspace-->
+    </type>
+
     <!-- Variants -->
     <type name="DeviceRequirements" category="variant" version="0.7.0" doc="Device requirements. Used to specify required features and properties for device creation.">
       <member type="CommandQueueDesc" name="queue_descs" mod="const,span" default="nullptr" doc="points to an array of {CommandQueueDesc::} for which queues will be created during device creation."/>

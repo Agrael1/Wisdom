@@ -1829,6 +1829,18 @@ typedef struct WisSwapchainDesc {
 } WisSwapchainDesc;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Swapchain update description for wisSwapchainUpdate.
+ *
+ * */
+typedef struct WisSwapchainUpdateDesc {
+    uint32_t      width; ///< New swapchain image width in pixels.
+    uint32_t      height; ///< New swapchain image height in pixels.
+    uint32_t      image_count; ///< Number of images in the swapchain.
+    WisDataFormat format; ///< Swapchain image format.
+    bool          vsync; ///< Vsync enabled or not. If true, the presentation is synchronized to the vertical blanking interval, which can help prevent screen tearing. If false, the presentation is not synchronized, which can result in higher frame rates but @wis_may cause screen tearing.
+} WisSwapchainUpdateDesc;
+
+/**
  * @brief Provided by Wisdom 0.7.0. Query struct header. Used as a header for all query structs.
  *
  * */
@@ -1923,6 +1935,9 @@ typedef struct WisDeviceMemoryProperties {
 
 /// @brief Provided by Wisdom 0.7.0. Defines the maximum amount of present rectangles and copy regions in the Copy* commands that can be used in a single operation.
 #define WIS_MAX_COPY_REGIONS ((uint32_t)16)
+
+/// @brief Provided by Wisdom 0.7.0. [internal] Defines the maximum amount of images that can be present in a swapchain within any implementation.
+#define WIS_ABSOLUTE_MAX_SWAPCHAIN_IMAGES ((uint32_t)16)
 
 /// @brief Provided by Wisdom 0.7.0. Select whole size of a resource.
 #define WIS_WHOLE_SIZE ((uint64_t)0xffffffffffffffff)
@@ -3135,12 +3150,24 @@ WISDOM_API WisResult wisDX12SwapchainPresent(const WisDX12Swapchain* self,
                                              size_t                  rect_count);
 
 /**
- * @brief Provided by Wisdom 0.7.0. Gets the index of the current backbuffer.
+ * @brief Provided by Wisdom 0.7.0. Gets the index of the current backbuffer. In case of lazy indexing it @wis_may wait for presentation to finish and block.
  * @param self is a pointer to the valid WisSwapchain instance.
- * @return u32 Index of the current backbuffer.
+ * @param index Index of the current backbuffer.
+ * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API uint32_t wisDX12SwapchainGetCurrentIndex(const WisDX12Swapchain* self);
+WISDOM_API WisResult wisDX12SwapchainGetCurrentIndex(const WisDX12Swapchain* self,
+                                                     uint32_t*               index);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Resizes the swapchain buffers. If the swapchain is currently in use, it @wis_must be resized after the GPU finishes using it, so the call @wis_may block until then.
+ * @param self is a pointer to the valid WisSwapchain instance.
+ * @param desc points to WisSwapchainUpdateDesc, which describes the new swapchain parameters.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12SwapchainUpdate(const WisDX12Swapchain*       self,
+                                            const WisSwapchainUpdateDesc* desc);
 
 #endif // WISDOM_DX12
 
@@ -4352,12 +4379,24 @@ WISDOM_API WisResult wisVKSwapchainPresent(const WisVKSwapchain* self,
                                            size_t                rect_count);
 
 /**
- * @brief Provided by Wisdom 0.7.0. Gets the index of the current backbuffer.
+ * @brief Provided by Wisdom 0.7.0. Gets the index of the current backbuffer. In case of lazy indexing it @wis_may wait for presentation to finish and block.
  * @param self is a pointer to the valid WisSwapchain instance.
- * @return u32 Index of the current backbuffer.
+ * @param index Index of the current backbuffer.
+ * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API uint32_t wisVKSwapchainGetCurrentIndex(const WisVKSwapchain* self);
+WISDOM_API WisResult wisVKSwapchainGetCurrentIndex(const WisVKSwapchain* self,
+                                                   uint32_t*             index);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Resizes the swapchain buffers. If the swapchain is currently in use, it @wis_must be resized after the GPU finishes using it, so the call @wis_may block until then.
+ * @param self is a pointer to the valid WisSwapchain instance.
+ * @param desc points to WisSwapchainUpdateDesc, which describes the new swapchain parameters.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKSwapchainUpdate(const WisVKSwapchain*         self,
+                                          const WisSwapchainUpdateDesc* desc);
 
 #endif // WISDOM_VULKAN
 
