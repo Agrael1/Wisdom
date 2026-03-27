@@ -3,8 +3,15 @@
 #include <stdlib.h>
 
 #define FRAMES_IN_FLIGHT 2
-#define TEST_FRAME_COUNT 120
 #define PARTICLE_COUNT   256
+
+#define SILENCE_VERBOSE_LOGS 1
+
+#ifdef SILENCE_VERBOSE_LOGS
+#define print_info(...) ((void)0)
+#else
+#define print_info printf
+#endif
 
 typedef struct FrameContext {
     WisCommandAllocator command_allocator;
@@ -557,18 +564,20 @@ void Render(BasicRenderer* renderer, const ResourceContainer* resources, const B
         uint64_t completed = wisFenceGetCompletedValue(&renderer->fence);
         if (completed < frame->fence_value) {
             WisResult result = wisFenceWait(&renderer->fence, frame->fence_value, UINT64_MAX);
-            printf("Frame[%u] FenceWait result: %d, platform_code: %d, error: %s\n", renderer->frame_index, result.status, result.platform_code, result.error ? result.error : "None");
+            print_info("Frame[%u] FenceWait result: %d, platform_code: %d, error: %s\n", renderer->frame_index, result.status, result.platform_code, result.error ? result.error : "None");
         }
     }
 
     WisResult result = wisCommandAllocatorReset(&frame->command_allocator);
-    printf("Frame[%u] CommandAllocatorReset result: %d, platform_code: %d, error: %s\n", renderer->frame_index, result.status, result.platform_code, result.error ? result.error : "None");
+    print_info("Frame[%u] CommandAllocatorReset result: %d, platform_code: %d, error: %s\n", renderer->frame_index, result.status, result.platform_code, result.error ? result.error : "None");
 
     WisCommandListView command_list_view = wisGetCommandListView(&frame->command_list);
 
     // Record frame skeleton: compute updates particles, graphics draws them.
-    uint32_t frame_number = (uint32_t)(renderer->next_fence_value - 1);
-    uint32_t swapchain_index = wisSwapchainGetCurrentIndex(&renderer->swapchain);
+    uint32_t frame_number    = (uint32_t)(renderer->next_fence_value - 1);
+    uint32_t swapchain_index = 0;
+    result                   = wisSwapchainGetCurrentIndex(&renderer->swapchain, &swapchain_index);
+    print_info("Frame[%u] Current Swapchain Index: %u, result: %d, platform_code: %d, error: %s\n", renderer->frame_index, swapchain_index, result.status, result.platform_code, result.error ? result.error : "None");
 
     uint32_t                compute_params[4]      = { PARTICLE_COUNT, frame_number, 16, 0 };
     WisPushConstantDataDesc compute_constants_desc = {
@@ -644,14 +653,42 @@ void Render(BasicRenderer* renderer, const ResourceContainer* resources, const B
     result = wisCommandListEnd(&frame->command_list);
 
     result = wisCommandQueueSubmit(&renderer->gfx_queue, &command_list_view, 1);
-    printf("Frame[%u] QueueSubmit result: %d, platform_code: %d, error: %s\n", renderer->frame_index, result.status, result.platform_code, result.error ? result.error : "None");
+    print_info("Frame[%u] QueueSubmit result: %d, platform_code: %d, error: %s\n", renderer->frame_index, result.status, result.platform_code, result.error ? result.error : "None");
+
+    result = wisSwapchainPresent(&renderer->swapchain, WisPresentFlagsNone, NULL, 0);
+    print_info("Frame[%u] SwapchainPresent result: %d, platform_code: %d, error: %s\n", renderer->frame_index, result.status, result.platform_code, result.error ? result.error : "None");
 
     frame->fence_value = renderer->next_fence_value;
     result             = wisCommandQueueSignalFence(&renderer->gfx_queue, wisGetFenceView(&renderer->fence), renderer->next_fence_value);
-    printf("Frame[%u] SignalFence result: %d, platform_code: %d, error: %s\n", renderer->frame_index, result.status, result.platform_code, result.error ? result.error : "None");
+    print_info("Frame[%u] SignalFence result: %d, platform_code: %d, error: %s\n", renderer->frame_index, result.status, result.platform_code, result.error ? result.error : "None");
     renderer->next_fence_value++;
 
     renderer->frame_index = (renderer->frame_index + 1) % FRAMES_IN_FLIGHT;
+}
+
+void HandleEvents(bool* running, BasicRenderer* renderer)
+{
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+
+        switch (event.type) {
+        case SDL_EVENT_QUIT:
+            *running = false;
+            return;
+        case SDL_EVENT_WINDOW_RESIZED: {
+            printf("Window resized to %d x %d\n", event.window.data1, event.window.data2);
+            // At later point we should also reset textures
+
+            WisSwapchainUpdateDesc update_desc = {
+                .width  = (uint32_t)event.window.data1,
+                .height = (uint32_t)event.window.data2,
+            };
+            wisSwapchainUpdate(&renderer->swapchain, &update_desc);
+        } break;
+        default:
+            break;
+        }
+    }
 }
 
 // Entry point for testing
@@ -678,7 +715,11 @@ int main()
     BindResources(&renderer, &resources);
 
     // Execute render task
-    for (uint32_t i = 0; i < TEST_FRAME_COUNT; ++i) {
+    bool running = true;
+    while (running) {
+        // Handle window events here (e.g., SDL_PollEvent) and break the loop if the window is closed.
+        HandleEvents(&running, &renderer);
+
         Render(&renderer, &resources, &render_task);
     }
     // Wait for GPU to finish before exiting

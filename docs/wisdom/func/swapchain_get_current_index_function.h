@@ -10,16 +10,19 @@
  *  C Version:
  * ```c
  * // Provided by Wisdom 0.7.0. 
- * uint32_t wisSwapchainGetCurrentIndex(const WisSwapchain* self);
+ * WisResult wisSwapchainGetCurrentIndex(const WisSwapchain* self,
+ * uint32_t*           index);
  * ```
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
  * // Provided by Wisdom 0.7.0. 
- * uint32_t wisVKSwapchainGetCurrentIndex(const WisVKSwapchain* self);
+ * WisResult wisVKSwapchainGetCurrentIndex(const WisVKSwapchain* self,
+ * uint32_t*             index);
  * 
  * // Provided by Wisdom 0.7.0. 
- * uint32_t wisDX12SwapchainGetCurrentIndex(const WisDX12Swapchain* self);
+ * WisResult wisDX12SwapchainGetCurrentIndex(const WisDX12Swapchain* self,
+ * uint32_t*               index);
  * ```
  * </details>
  * 
@@ -27,7 +30,7 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
- * WIS_NODISCARD std::uint32_t Swapchain::GetCurrentIndex() const noexcept;
+ * WIS_NODISCARD std::uint32_t Swapchain::GetCurrentIndex(wis::Result& out_result) const noexcept;
  * }
  * ```
  * <details>
@@ -35,10 +38,10 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
- * WIS_NODISCARD std::uint32_t VKSwapchain::GetCurrentIndex() const noexcept;
+ * WIS_NODISCARD std::uint32_t VKSwapchain::GetCurrentIndex(wis::Result& out_result) const noexcept;
  * 
  * // Provided by Wisdom 0.7.0. 
- * WIS_NODISCARD std::uint32_t DX12Swapchain::GetCurrentIndex() const noexcept;
+ * WIS_NODISCARD std::uint32_t DX12Swapchain::GetCurrentIndex(wis::Result& out_result) const noexcept;
  * }
  * ```
  * </details>
@@ -48,8 +51,9 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisSwapchain instance.
+ * - `index` Index of the current backbuffer.
  * 
- * - **return** Index of the current backbuffer.
+ * - **return** denoting the outcome of operation.
  * \endcond
  *
  * @section wisSwapchainGetCurrentIndex_descr Description

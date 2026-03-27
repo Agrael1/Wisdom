@@ -420,8 +420,12 @@ Otherwise the first is chosen.">
         <arg type="Rect" name="rects" mod="const,span" default="nullptr" doc="points to the array of rectangles to present. If `nullptr`, the entire image is presented."/>
         <arg type="size" name="rect_count" default="0" doc="defines the number of rectangles to present. Must be 0 if rects is `nullptr`."/>
       </func>
-      <func for="Swapchain" name="GetCurrentIndex" version="0.7.0" mod="const" doc="Gets the index of the current backbuffer.">
-        <ret type="u32" name="index" doc="Index of the current backbuffer."/>
+      <func for="Swapchain" name="GetCurrentIndex" version="0.7.0" mod="const" doc="Gets the index of the current backbuffer. In case of lazy indexing it may wait for presentation to finish and block.">
+        <ret type="u32" name="index" result="true" doc="Index of the current backbuffer."/>
+      </func>
+      <func for="Swapchain" name="Update" version="0.7.0" mod="const" doc="Resizes the swapchain buffers. If the swapchain is currently in use, it @wis_must be resized after the GPU finishes using it, so the call may block until then.">
+        <ret type="Result" name="result" doc="Result of operation."/>
+        <arg type="SwapchainUpdateDesc" name="desc" mod="const,ref" doc="points to {SwapchainUpdateDesc::}, which describes the new swapchain parameters."/>
       </func>
 
     </functions>

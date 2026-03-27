@@ -480,7 +480,7 @@
  *
  * \cond WIS_GEN_REFS
  * @see Structs:
- * WisTextureDesc, WisTextureBinding, WisInputAttributeDesc, WisRenderAttachmentsDesc, WisRenderTargetDesc, WisSwapchainDesc
+ * WisTextureDesc, WisTextureBinding, WisInputAttributeDesc, WisRenderAttachmentsDesc, WisRenderTargetDesc, WisSwapchainDesc, WisSwapchainUpdateDesc
  * Functions:
  * wisDeviceGetFormatPresentationSupport
  * \endcond

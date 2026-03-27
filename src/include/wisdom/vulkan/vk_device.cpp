@@ -1320,7 +1320,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceGetSurfaceParameters(const WisVKDev
 
     *params = {
         .min_swapchain_images          = capabilities.surfaceCapabilities.minImageCount,
-        .max_swapchain_images          = capabilities.surfaceCapabilities.maxImageCount == 0 ? 16 : capabilities.surfaceCapabilities.maxImageCount,
+        .max_swapchain_images          = capabilities.surfaceCapabilities.maxImageCount == 0 ? wis::AbsoluteMaxSwapchainImages : capabilities.surfaceCapabilities.maxImageCount,
         .alpha_modes_supported         = alpha,
         .texture_usage_flags_supported = wis::detail::VKConvert(capabilities.surfaceCapabilities.supportedUsageFlags),
         .stereo_supported              = capabilities.surfaceCapabilities.maxImageArrayLayers > 1,
@@ -1448,7 +1448,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateSwapchain(const WisVKDevice* 
     }
 
     // Presentation mode flags
-    static constexpr uint32_t reasonable_presentation_count = 16;
+    static constexpr uint32_t reasonable_presentation_count = wis::detail::VKSwapchainHeader::reasonable_mode_count;
     VkPresentModeKHR          modes[reasonable_presentation_count];
     uint32_t                  presentation_count = 0;
     atable.vkGetPhysicalDeviceSurfacePresentModesKHR(device.physical_device, surface_impl.surface, &presentation_count, nullptr);
@@ -1471,14 +1471,31 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateSwapchain(const WisVKDevice* 
     // Create swapchain control block in a single allocation with the header to ensure they are close together in memory, which is important for cache performance since the header is accessed on every frame.
     std::size_t header_size = sizeof(wis::detail::VKSwapchainControlBlock) +
             desc->image_count * sizeof(VkSemaphore) * 2 + // semaphores for present and render complete for each image
-            0;
+            format_count * sizeof(VkSurfaceFormatKHR); // store supported formats for use in mode switching
     std::unique_ptr<std::byte[]> header_storage{ new (std::nothrow) std::byte[header_size] };
     if (!header_storage) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to allocate memory for swapchain control block">(VK_ERROR_OUT_OF_HOST_MEMORY);
     }
     wis::detail::VKSwapchainControlBlock* header = new (header_storage.get()) wis::detail::VKSwapchainControlBlock;
 
-    auto& swap_head = header->header;
+    auto& swap_head   = header->header;
+    swap_head.tearing = tearing;
+
+    // Copy all modes for use in mode switching
+    for (uint32_t i = 0; i < presentation_count && i < reasonable_presentation_count; i++) {
+        swap_head.modes[i] = modes[i];
+    }
+    swap_head.mode_count = presentation_count;
+
+    // Copy the supported formats for use in mode switching
+    auto* format_storage = reinterpret_cast<VkSurfaceFormatKHR*>(reinterpret_cast<VkSemaphore*>(header + 1) + desc->image_count * 2); // format storage is immediately after the semaphores
+    for (uint32_t i = 0; i < format_count; i++) {
+        format_storage[i] = format_span[i];
+    }
+    swap_head.format_count    = format_count;
+    swap_head.surface         = surface_impl.surface;
+    swap_head.physical_device = device.physical_device;
+    swap_head.vkGetPhysicalDeviceSurfaceCapabilities2KHR = atable.vkGetPhysicalDeviceSurfaceCapabilities2KHR;
 
     if (features.swapchain_maintenance) {
         swap_head.scaling_create_info = {
@@ -1543,6 +1560,22 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateSwapchain(const WisVKDevice* 
         }
     }
 
+    // Create the destruction fence
+    VkFenceCreateInfo fence_info{
+        .sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = 0,
+    };
+    VkFence destruction_fence = VK_NULL_HANDLE;
+    vr                        = table.vkCreateFence(device.device, &fence_info, nullptr, &destruction_fence);
+    if (!wis::detail::succeeded(vr)) {
+        for (uint32_t j = 0; j < desc->image_count * 2; j++) {
+            table.vkDestroySemaphore(device.device, semaphore_storage[j], nullptr);
+        }
+        stable.vkDestroySwapchainKHR(device.device, swapchain_handle, nullptr);
+        return wis::detail::make_result<wis::detail::Func(), "Failed to create synchronization primitives for the swapchain">(vr);
+    }
+
     swap_head.surface_header = surface_impl.surface_header;
     swap_head.device_header  = device.device_header;
 
@@ -1556,6 +1589,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateSwapchain(const WisVKDevice* 
         .swapchain_table  = &device.device_header->header.swapchain_table,
         .present_queue    = queue_impl.queue, // device header is already stored
         .device           = device.device,
+        .destroy_fence    = destruction_fence
     };
 
     return wis::detail::vk_success;

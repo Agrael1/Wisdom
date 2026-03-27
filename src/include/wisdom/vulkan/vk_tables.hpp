@@ -331,7 +331,9 @@ struct VKMainSwapchain {
     PFN_vkDestroySwapchainKHR   vkDestroySwapchainKHR;
     PFN_vkQueuePresentKHR       vkQueuePresentKHR; // technically a queue function, but for speed store here
     PFN_vkQueueSubmit2          vkQueueSubmit2; // technically a queue function, but for speed store here
-    
+    PFN_vkWaitForFences         vkWaitForFences; // used during swapchain destruction to synchronize with the GPU
+    PFN_vkCreateSwapchainKHR    vkCreateSwapchainKHR; // used for swapchain recreation, stored here for speed
+
     bool Init(VkDevice device, PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr) noexcept
     {
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkAcquireNextImageKHR);
@@ -339,6 +341,8 @@ struct VKMainSwapchain {
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkDestroySwapchainKHR);
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkQueuePresentKHR);
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkQueueSubmit2);
+        ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkWaitForFences);
+        ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkCreateSwapchainKHR);
         return true;
     }
 };

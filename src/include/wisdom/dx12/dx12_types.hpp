@@ -119,9 +119,12 @@ struct DX12SurfaceImpl {
 
 struct DX12SwapchainImpl {
     IDXGISwapChain4* swapchain;
-    uint32_t         flags;
-    uint8_t          vsync;
-    uint8_t          backbuffer_count;
+    mutable uint32_t         flags;
+    mutable uint8_t          vsync;
+    mutable uint8_t          backbuffer_count;
+    mutable uint16_t         width;
+    mutable uint16_t         height;
+    mutable uint16_t         data_format; // WisDataFormat backing it. Used for compression.
 };
 
 } // namespace impl

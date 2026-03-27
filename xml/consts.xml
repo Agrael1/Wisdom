@@ -12,6 +12,7 @@
     <value type="u32" name="MaxRenderTargets" value="8" version="0.7.0" doc="Defines the maximum amount of render targets that can be bound at once."/>
     <value type="u32" name="MaxViewports" value="16" version="0.7.0" doc="Defines the maximum amount of viewports that can be bound at once. The same count applies to scissors."/>
     <value type="u32" name="MaxCopyRegions" value="16" version="0.7.0" doc="Defines the maximum amount of present rectangles and copy regions in the Copy* commands that can be used in a single operation."/>
+    <value type="u32" name="AbsoluteMaxSwapchainImages" value="16" version="0.7.0" doc="[internal] Defines the maximum amount of images that can be present in a swapchain within any implementation."/>
     <value type="u64" name="WholeSize" value="0xffffffffffffffff" version="0.7.0" doc="Select whole size of a resource."/>
   </constants>
 </registry>

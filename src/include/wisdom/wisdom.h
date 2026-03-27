@@ -165,6 +165,7 @@ typedef struct WisDX12GraphicsPipelineDesc    WisGraphicsPipelineDesc;
 #define wisPipelineCacheGetSerializedSize           wisDX12PipelineCacheGetSerializedSize
 #define wisSwapchainPresent                         wisDX12SwapchainPresent
 #define wisSwapchainGetCurrentIndex                 wisDX12SwapchainGetCurrentIndex
+#define wisSwapchainUpdate                          wisDX12SwapchainUpdate
 
 #elif defined(WISDOM_VULKAN)
 
@@ -315,6 +316,7 @@ typedef struct WisVKGraphicsPipelineDesc    WisGraphicsPipelineDesc;
 #define wisPipelineCacheGetSerializedSize           wisVKPipelineCacheGetSerializedSize
 #define wisSwapchainPresent                         wisVKSwapchainPresent
 #define wisSwapchainGetCurrentIndex                 wisVKSwapchainGetCurrentIndex
+#define wisSwapchainUpdate                          wisVKSwapchainUpdate
 
 #else
 #error "No API selected for Wisdom. Define WISDOM_DX12 or WISDOM_VULKAN."
