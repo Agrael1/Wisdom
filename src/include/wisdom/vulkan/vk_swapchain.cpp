@@ -7,52 +7,6 @@
 #include <wisdom/vulkan/detail/vk_utils.hpp>
 #include <algorithm>
 
-namespace wis::detail {
-inline VkResult VKAcquireNextImage(const impl::VKSwapchainImpl& impl) noexcept
-{
-    auto& swapchain_header = impl.swapchain_header->header;
-    auto& swapchain_table  = *impl.swapchain_table;
-    auto  semaphores       = swapchain_header.GetImageAvailableSemaphores();
-
-    // Acquire the next image index for the new swapchain to update internal state
-    auto result = impl.swapchain_table->vkAcquireNextImageKHR(impl.device,
-                                                              impl.swapchain,
-                                                              impl.lazy_acquire ? 0 : std::numeric_limits<uint64_t>::max(),
-                                                              semaphores[impl.acquire_index],
-                                                              nullptr,
-                                                              &impl.present_index);
-
-    if (result != VK_SUCCESS) {
-        return result; // Caller can choose to handle timeout differently (e.g. by skipping rendering and trying again next frame) so return a distinct result code for this case
-    }
-
-    VkPipelineStageFlags2 stage_mask = 0;
-    if (swapchain_header.create_info.imageUsage & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT) {
-        stage_mask |= VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
-    }
-    if (swapchain_header.create_info.imageUsage & VK_IMAGE_USAGE_STORAGE_BIT) {
-        stage_mask |= VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
-    }
-    if (swapchain_header.create_info.imageUsage & VK_IMAGE_USAGE_TRANSFER_DST_BIT) {
-        stage_mask |= VK_PIPELINE_STAGE_2_TRANSFER_BIT;
-    }
-
-    VkSemaphoreSubmitInfo submit_info{
-        .sType     = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
-        .semaphore = semaphores[impl.acquire_index],
-        .stageMask = stage_mask,
-    };
-
-    VkSubmitInfo2 desc2{
-        .sType                  = VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
-        .pNext                  = nullptr,
-        .waitSemaphoreInfoCount = 1,
-        .pWaitSemaphoreInfos    = &submit_info,
-    };
-    return swapchain_table.vkQueueSubmit2(impl.present_queue, 1, &desc2, nullptr);
-}
-} // namespace wis::detail
-
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroySwapchain(WisVKSwapchain* self)
 {

@@ -68,11 +68,11 @@ if (WISDOM_DOWNLOAD_DXC)
     if (NOT dxc_SOURCE_DIR)
         if (WISDOM_WINDOWS)
             set(DXC_FILE
-                    https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.8.2505/dxc_2025_05_24.zip
+                    https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.9.2602/dxc_2026_02_20.zip
             )
         else ()
             set(DXC_FILE
-                    https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.8.2505/linux_dxc_2025_05_24.x86_64.tar.gz
+                    https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.9.2602/linux_dxc_2026_02_20.x86_64.tar.gz
             )
         endif ()
 

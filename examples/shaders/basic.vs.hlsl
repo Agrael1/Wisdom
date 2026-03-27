@@ -19,7 +19,7 @@ struct FrameConstants
 };
 
 ConstantBuffer<FrameConstants> frameData : register(b0);
-StructuredBuffer<Particle> particleBuffer : register(t0);
+const StructuredBuffer<Particle> particleBuffer : register(t1);
 
 VSOutput main(uint vertexId : SV_VertexID)
 {

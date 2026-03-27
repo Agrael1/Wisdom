@@ -19,16 +19,22 @@ struct DeviceExtension1 : VKDeviceExtensionImpl<DeviceExtension1> {
 public:
     ::WisResult CollectInfo(VKDeviceExtensionCollector& collector) noexcept
     {
-        // Optional extensions
-        if (collector.IsExtensionPresent(VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME)) {
-            features.has_custom_border_color = true;
-
+        // Nvidia's advice - mem priority
+        if (collector.IsExtensionPresent(VK_EXT_MEMORY_PRIORITY_EXTENSION_NAME)) {
+            features.memory_priority = true;
             collector.EnableExtension({
-                    .name                 = VK_EXT_CUSTOM_BORDER_COLOR_EXTENSION_NAME,
-                    .feature_struct       = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_FEATURES_EXT,
-                    .feature_struct_size  = sizeof(VkPhysicalDeviceCustomBorderColorFeaturesEXT),
-                    .property_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_CUSTOM_BORDER_COLOR_PROPERTIES_EXT,
-                    .property_struct_size = sizeof(VkPhysicalDeviceCustomBorderColorPropertiesEXT),
+                    .name                = VK_EXT_MEMORY_PRIORITY_EXTENSION_NAME,
+                    .feature_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PRIORITY_FEATURES_EXT,
+                    .feature_struct_size = sizeof(VkPhysicalDeviceMemoryPriorityFeaturesEXT),
+            });
+        }
+
+        if (collector.IsExtensionPresent(VK_EXT_PAGEABLE_DEVICE_LOCAL_MEMORY_EXTENSION_NAME)) {
+            features.dynamic_memory_priority = true;
+            collector.EnableExtension({
+                    .name                = VK_EXT_PAGEABLE_DEVICE_LOCAL_MEMORY_EXTENSION_NAME,
+                    .feature_struct      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PAGEABLE_DEVICE_LOCAL_MEMORY_FEATURES_EXT,
+                    .feature_struct_size = sizeof(VkPhysicalDevicePageableDeviceLocalMemoryFeaturesEXT),
             });
         }
 
