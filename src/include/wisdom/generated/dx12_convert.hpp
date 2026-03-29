@@ -2,16 +2,19 @@
 #ifndef WISDOM_CORE_CPP_DX12_CONVERT_HPP
 #define WISDOM_CORE_CPP_DX12_CONVERT_HPP
 #ifndef __cplusplus
-#error "This is a C++ only header"
+#    error "This is a C++ only header"
 #endif // __cplusplus
 
-#include "c_api.h"
-#include <dxgi1_6.h>
-#include <d3d12.h>
 #include <D3D12MemAlloc.h>
+#include <d3d12.h>
+#include <dxgi1_6.h>
 
-namespace wis {
-namespace detail {
+#include "c_api.h"
+
+namespace wis
+{
+namespace detail
+{
 
 constexpr inline DXGI_FORMAT DX12Convert(WisDataFormat value) noexcept
 {
@@ -213,6 +216,10 @@ constexpr inline D3D12_BARRIER_LAYOUT DX12Convert(WisTextureState value) noexcep
         return D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_WRITE;
     case WisTextureStateDepthStencilRead:
         return D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_READ;
+    case WisTextureStateDepthWriteStencilRead:
+        return D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_WRITE;
+    case WisTextureStateStencilWriteDepthRead:
+        return D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_WRITE;
     case WisTextureStateShaderResource:
         return D3D12_BARRIER_LAYOUT_SHADER_RESOURCE;
     case WisTextureStateCopySrc:
@@ -374,6 +381,32 @@ constexpr inline DXGI_ALPHA_MODE DX12Convert(WisCompositeAlpha value) noexcept
         return DXGI_ALPHA_MODE_UNSPECIFIED;
     default:
         return static_cast<DXGI_ALPHA_MODE>(0);
+    }
+}
+
+constexpr inline D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE DX12Convert(WisLoadOp value) noexcept
+{
+    switch (value) {
+    case WisLoadOpLoad:
+        return D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE;
+    case WisLoadOpClear:
+        return D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR;
+    case WisLoadOpDontCare:
+        return D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_DISCARD;
+    default:
+        return static_cast<D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE>(0);
+    }
+}
+
+constexpr inline D3D12_RENDER_PASS_ENDING_ACCESS_TYPE DX12Convert(WisStoreOp value) noexcept
+{
+    switch (value) {
+    case WisStoreOpStore:
+        return D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE;
+    case WisStoreOpDontCare:
+        return D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_DISCARD;
+    default:
+        return static_cast<D3D12_RENDER_PASS_ENDING_ACCESS_TYPE>(0);
     }
 }
 
@@ -601,6 +634,18 @@ constexpr inline uint32_t DX12Convert(WisPresentFlags value) noexcept
     uint32_t result = static_cast<uint32_t>(0);
     if (value & WisPresentFlagsTimeoutOnBlock) {
         result |= DXGI_PRESENT_DO_NOT_WAIT;
+    }
+    return result;
+}
+
+constexpr inline D3D12_RENDER_PASS_FLAGS DX12Convert(WisRenderPassFlags value) noexcept
+{
+    D3D12_RENDER_PASS_FLAGS result = static_cast<D3D12_RENDER_PASS_FLAGS>(0);
+    if (value & WisRenderPassFlagsSuspending) {
+        result |= D3D12_RENDER_PASS_FLAG_SUSPENDING_PASS;
+    }
+    if (value & WisRenderPassFlagsResuming) {
+        result |= D3D12_RENDER_PASS_FLAG_RESUMING_PASS;
     }
     return result;
 }

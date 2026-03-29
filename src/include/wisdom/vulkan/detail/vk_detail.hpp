@@ -1,24 +1,31 @@
 #ifndef WIS_VK_DETAIL_HPP
 #define WIS_VK_DETAIL_HPP
 #ifndef __cplusplus
-#error "This header requires C++"
+#    error "This header requires C++"
 #endif // __cplusplus
 
-#include <wisdom/vulkan/vk_tables.hpp>
-#include <wisdom/generated/c_api.h>
 #include <wisdom/bridge/span.hpp>
-#include <vk_mem_alloc.h>
+#include <wisdom/generated/c_api.h>
+#include <wisdom/vulkan/vk_tables.hpp>
+
+#include <array>
 #include <atomic>
 #include <semaphore>
-#include <array>
+#include <vk_mem_alloc.h>
 
-namespace wis::detail {
+namespace wis::detail
+{
 //-----------------------------------------------------------------------------
 /**
- * @brief A control block structure that manages reference counting for Vulkan objects. This template struct is designed to be used as a base for various Vulkan object headers, providing a common mechanism for reference counting and resource management. The AddRef and Release methods allow for thread-safe incrementing and decrementing of the reference count, ensuring proper lifetime management of Vulkan resources.
- * @tparam HeaderType The type of the header that will be stored in the control block. This allows for flexibility in defining different types of Vulkan object headers while still utilizing the same reference counting mechanism provided by VKControlBlock.
+ * @brief A control block structure that manages reference counting for Vulkan objects. This template struct is designed
+ * to be used as a base for various Vulkan object headers, providing a common mechanism for reference counting and
+ * resource management. The AddRef and Release methods allow for thread-safe incrementing and decrementing of the
+ * reference count, ensuring proper lifetime management of Vulkan resources.
+ * @tparam HeaderType The type of the header that will be stored in the control block. This allows for flexibility in
+ * defining different types of Vulkan object headers while still utilizing the same reference counting mechanism
+ * provided by VKControlBlock.
  */
-template<typename HeaderType>
+template <typename HeaderType>
 struct VKControlBlock {
     size_t AddRef() noexcept
     {
@@ -33,21 +40,26 @@ struct VKControlBlock {
     }
 
 public:
-    std::atomic<size_t> m_ref_cnt{ 1 };
-    HeaderType          header;
+    std::atomic<size_t> m_ref_cnt{1};
+    HeaderType header;
 };
 
 //-----------------------------------------------------------------------------
 /**
- * @brief A structure that serves as a thunk for Vulkan debug callbacks. This structure provides a static callback function that can be registered with Vulkan's debug utilities, and it forwards the callback to a user-defined WisDebugCallback. The DebugUtilsMessengerCallbackThunk function is designed to be compatible with Vulkan's expected callback signature, while the DebugUtilsMessengerCallback method allows for processing the debug messages and invoking the user-defined callback with the appropriate severity and message information.
+ * @brief A structure that serves as a thunk for Vulkan debug callbacks. This structure provides a static callback
+ * function that can be registered with Vulkan's debug utilities, and it forwards the callback to a user-defined
+ * WisDebugCallback. The DebugUtilsMessengerCallbackThunk function is designed to be compatible with Vulkan's expected
+ * callback signature, while the DebugUtilsMessengerCallback method allows for processing the debug messages and
+ * invoking the user-defined callback with the appropriate severity and message information.
  */
 struct VKDebugCallbackThunk {
 public:
     static VkBool32 VKAPI_PTR DebugUtilsMessengerCallbackThunk(
-            VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
-            VkDebugUtilsMessageTypeFlagsEXT             messageTypes,
-            const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-            void*                                       pUserData)
+        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+        VkDebugUtilsMessageTypeFlagsEXT messageTypes,
+        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
+        void* pUserData
+    )
     {
         auto* thunk = static_cast<const VKDebugCallbackThunk*>(pUserData);
         thunk->DebugUtilsMessengerCallback(messageSeverity, messageTypes, pCallbackData);
@@ -55,15 +67,20 @@ public:
     }
 
     /**
-     * @brief A method that processes Vulkan debug messages and invokes the user-defined callback with the appropriate severity and message information. This method translates Vulkan's message severity flags into the corresponding WisSeverity values and extracts the device handle from the callback data if available. The user-defined callback is then called with the translated severity, message, device handle, and user data.
+     * @brief A method that processes Vulkan debug messages and invokes the user-defined callback with the appropriate
+     * severity and message information. This method translates Vulkan's message severity flags into the corresponding
+     * WisSeverity values and extracts the device handle from the callback data if available. The user-defined callback
+     * is then called with the translated severity, message, device handle, and user data.
      * @param messageSeverity The severity of the debug message, represented as a Vulkan flag.
      * @param messageTypes The type of the debug message, represented as Vulkan flags (unused in this implementation).
-     * @param pCallbackData A pointer to a structure containing details about the debug message, including the message string and associated Vulkan objects.
+     * @param pCallbackData A pointer to a structure containing details about the debug message, including the message
+     * string and associated Vulkan objects.
      */
     void DebugUtilsMessengerCallback(
-            VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
-            VkDebugUtilsMessageTypeFlagsEXT             messageTypes,
-            const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData) const
+        VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
+        VkDebugUtilsMessageTypeFlagsEXT messageTypes,
+        const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData
+    ) const
     {
         (void)messageTypes; // Unused
         WisSeverity wis_severity = WisSeverityInfo;
@@ -87,7 +104,9 @@ public:
 
         // Get device handle if possible
         uint64_t device = 0;
-        for (auto&& obj : wis::span<const VkDebugUtilsObjectNameInfoEXT>{ pCallbackData->pObjects, pCallbackData->objectCount }) {
+        for (auto&& obj :
+             wis::span<const VkDebugUtilsObjectNameInfoEXT>{pCallbackData->pObjects, pCallbackData->objectCount})
+        {
             if (obj.objectType == VK_OBJECT_TYPE_DEVICE) {
                 device = obj.objectHandle;
                 break;
@@ -98,19 +117,19 @@ public:
     }
 
 public:
-    WisDebugCallback callback  = nullptr;
-    void*            user_data = nullptr;
+    WisDebugCallback callback = nullptr;
+    void* user_data = nullptr;
 };
 
 //-----------------------------------------------------------------------------
 struct VKInstanceHeader {
-    impl::VKMainGlobal       global_table;
-    impl::VKMainInstance     instance_table;
-    impl::VKMainAdapter      adapter_table;
+    impl::VKMainGlobal global_table;
+    impl::VKMainInstance instance_table;
+    impl::VKMainAdapter adapter_table;
     VkDebugUtilsMessengerEXT debug_messenger;
-    unique_library           library;
-    uint32_t                 api_version;
-    VkInstance               instance;
+    unique_library library;
+    uint32_t api_version;
+    VkInstance instance;
 
     std::unique_ptr<VKDebugCallbackThunk> debug_callback_thunk;
 };
@@ -121,46 +140,48 @@ struct VKInstanceControlBlock : public VKControlBlock<VKInstanceHeader> {
 
 //-----------------------------------------------------------------------------
 struct VKDeviceFeatures {
-    uint32_t multiple_viewports                : 1 = false;
+    uint32_t multiple_viewports : 1 = false;
     uint32_t dynamic_render_unused_attachments : 1 = false;
-    uint32_t index_buffer_range                : 1 = false;
-    uint32_t descriptor_heap                   : 1 = false;
-    uint32_t global_priority                   : 1 = false;
-    uint32_t host_image_copy                   : 1 = false;
-    uint32_t maintenance9                      : 1 = false; // nop QFOT barriers and empty device
-    uint32_t line_rasterization                : 1 = false;
-    uint32_t conservative_rasterization        : 1 = false;
-    uint32_t memory_priority                   : 1 = false;
-    uint32_t dynamic_memory_priority           : 1 = false;
+    uint32_t index_buffer_range : 1 = false;
+    uint32_t descriptor_heap : 1 = false;
+    uint32_t global_priority : 1 = false;
+    uint32_t host_image_copy : 1 = false;
+    uint32_t maintenance9 : 1 = false; // nop QFOT barriers and empty device
+    uint32_t line_rasterization : 1 = false;
+    uint32_t conservative_rasterization : 1 = false;
+    uint32_t memory_priority : 1 = false;
+    uint32_t dynamic_memory_priority : 1 = false;
 
     // Swapchain
     uint32_t swapchain_maintenance : 1 = false;
-    uint32_t incremental_present   : 1 = false;
+    uint32_t incremental_present : 1 = false;
 
     // Properties
-    uint8_t  max_vertex_attributes                    = 0; // rarely greater than 32, so 8 bits is sufficient
-    uint8_t  max_vertex_bindings                      = 0;
-    uint16_t resource_desc_size                       = 0;
-    uint16_t sampler_desc_size                        = 0;
-    uint16_t max_root_space                           = 0;
-    uint16_t supported_image_layout_transitions       = 0; // bitmask of supported image layout transitions, indexed by WisImageLayout. A bit value of 1 indicates support for the transition.
-    uint32_t descriptor_heap_reserved_size            = 0;
-    uint32_t sampler_heap_reserved_size               = 0;
+    uint8_t max_vertex_attributes = 0; // rarely greater than 32, so 8 bits is sufficient
+    uint8_t max_vertex_bindings = 0;
+    uint16_t resource_desc_size = 0;
+    uint16_t sampler_desc_size = 0;
+    uint16_t max_root_space = 0;
+    uint16_t supported_image_layout_transitions = 0; // bitmask of supported image layout transitions, indexed by
+                                                     // WisImageLayout. A bit value of 1 indicates support for the
+                                                     // transition.
+    uint32_t descriptor_heap_reserved_size = 0;
+    uint32_t sampler_heap_reserved_size = 0;
     uint32_t sampler_heap_reserved_size_with_embedded = 0;
-    uint32_t descriptor_heap_alignment                = 0;
-    uint32_t sampler_heap_alignment                   = 0;
-    uint64_t max_descriptor_heap_size                 = 0;
-    uint64_t max_sampler_heap_size                    = 0;
+    uint32_t descriptor_heap_alignment = 0;
+    uint32_t sampler_heap_alignment = 0;
+    uint64_t max_descriptor_heap_size = 0;
+    uint64_t max_sampler_heap_size = 0;
 };
 
 //-----------------------------------------------------------------------------
 struct VKQueueFamilyProperties {
     static constexpr uint8_t invalid_family_index = 0xFF;
-    uint8_t                  family_index         = invalid_family_index;
-    uint8_t                  queue_priority       = WisCommandQueuePriorityNormal;
-    uint8_t                  queue_count          = 0;
-    std::atomic<uint8_t>     current_index{ 0 };
-    uint32_t                 semaphore_offset = 0;
+    uint8_t family_index = invalid_family_index;
+    uint8_t queue_priority = WisCommandQueuePriorityNormal;
+    uint8_t queue_count = 0;
+    std::atomic<uint8_t> current_index{0};
+    uint32_t semaphore_offset = 0;
 
 public:
     uint8_t GetNextQueueIndex() noexcept
@@ -173,30 +194,31 @@ public:
 
 //-----------------------------------------------------------------------------
 struct VKQueueFamilyExtras {
-    static constexpr uint8_t invalid_family_index   = 0xFF;
-    uint8_t                  family_index           = invalid_family_index;
-    uint32_t                 compatible_to_families = 0; // Bitmask of compatible queue families for relaxed transitions, indexed by family index. A bit value of 1 indicates compatibility.
+    static constexpr uint8_t invalid_family_index = 0xFF;
+    uint8_t family_index = invalid_family_index;
+    uint32_t compatible_to_families = 0; // Bitmask of compatible queue families for relaxed transitions, indexed by
+                                         // family index. A bit value of 1 indicates compatibility.
 };
 
 //-----------------------------------------------------------------------------
 struct VKDeviceHeader {
-    impl::VKMainDevice       device_table;
+    impl::VKMainDevice device_table;
     impl::VKMainCommandQueue command_queue_table;
-    impl::VKMainCommandList  command_list_table;
-    impl::VKMainSwapchain    swapchain_table;
-    VkDevice                 device;
-    VKInstanceControlBlock*  shared_header;
-    VkInstance               instance;
-    VmaAllocator             allocator;
+    impl::VKMainCommandList command_list_table;
+    impl::VKMainSwapchain swapchain_table;
+    VkDevice device;
+    VKInstanceControlBlock* shared_header;
+    VkInstance instance;
+    VmaAllocator allocator;
 
     // Enabled features
     VKDeviceFeatures features;
 
     // Queue family indices for each command queue type
-    std::array<VKQueueFamilyExtras, WisCommandQueueTypeCount>     queue_family_extras{}; // Used in other parts of code
-    std::array<uint8_t, WisCommandQueueTypeCount>                 queue_residency{};
+    std::array<VKQueueFamilyExtras, WisCommandQueueTypeCount> queue_family_extras{}; // Used in other parts of code
+    std::array<uint8_t, WisCommandQueueTypeCount> queue_residency{};
     std::array<VKQueueFamilyProperties, WisCommandQueueTypeCount> queue_families{};
-    uint32_t                                                      family_count = 0;
+    uint32_t family_count = 0;
 
     // store semaphores
 
@@ -208,9 +230,11 @@ public:
         }
 
         // Destroy semaphores
-        auto&                  last_family = queue_families[family_count - 1];
-        std::binary_semaphore* begin       = reinterpret_cast<std::binary_semaphore*>(reinterpret_cast<uint8_t*>(this) + sizeof(*this));
-        std::binary_semaphore* end         = last_family.semaphore_offset + last_family.queue_count + begin;
+        auto& last_family = queue_families[family_count - 1];
+        std::binary_semaphore* begin = reinterpret_cast<std::binary_semaphore*>(
+            reinterpret_cast<uint8_t*>(this) + sizeof(*this)
+        );
+        std::binary_semaphore* end = last_family.semaphore_offset + last_family.queue_count + begin;
         for (std::binary_semaphore* sem = begin; sem < end; ++sem) {
             sem->release();
             if constexpr (!std::is_trivially_destructible_v<std::binary_semaphore>) {
@@ -229,7 +253,8 @@ public:
         if (family_index == VKQueueFamilyProperties::invalid_family_index) {
             return nullptr; // No valid family index for this queue type
         }
-        return reinterpret_cast<std::binary_semaphore*>(reinterpret_cast<uint8_t*>(this) + sizeof(*this)) + queue_families[type].semaphore_offset + queue_index;
+        return reinterpret_cast<std::binary_semaphore*>(reinterpret_cast<uint8_t*>(this) + sizeof(*this)) +
+               queue_families[type].semaphore_offset + queue_index;
     }
 };
 
@@ -238,9 +263,9 @@ struct VKDeviceControlBlock : public VKControlBlock<VKDeviceHeader> {
 };
 
 struct VKCommandPoolHeader {
-    VkDevice              device;
+    VkDevice device;
     VKDeviceControlBlock* device_header;
-    VkCommandPool         command_pool;
+    VkCommandPool command_pool;
 };
 
 //-----------------------------------------------------------------------------
@@ -249,7 +274,7 @@ struct VKCommandPoolControlBlock : public VKControlBlock<VKCommandPoolHeader> {
 
 struct VKSurfaceHeader {
     VKInstanceControlBlock* instance_header;
-    VkSurfaceKHR            surface;
+    VkSurfaceKHR surface;
 };
 
 //-----------------------------------------------------------------------------
@@ -260,27 +285,25 @@ struct VKSurfaceControlBlock : public VKControlBlock<VKSurfaceHeader> {
 struct VKSwapchainHeader {
     static constexpr uint32_t reasonable_mode_count = 16;
 
-    VKSurfaceControlBlock*                         surface_header; // hold reference to surface control block to ensure surface lifetime
-    VKDeviceControlBlock*                          device_header; // hold reference to device control block to ensure device lifetime
-    VkSurfaceKHR                                   surface; // store surface handle for later use in presentation and swapchain recreation
-    VkPhysicalDevice                               physical_device; // store physical device for later use in swapchain recreation
-    PFN_vkGetPhysicalDeviceSurfaceCapabilities2KHR vkGetPhysicalDeviceSurfaceCapabilities2KHR; // store function pointer for later use in swapchain recreation
+    VKSurfaceControlBlock* surface_header; // hold reference to surface control block to ensure surface lifetime
+    VKDeviceControlBlock* device_header;   // hold reference to device control block to ensure device lifetime
+    VkSurfaceKHR surface;             // store surface handle for later use in presentation and swapchain recreation
+    VkPhysicalDevice physical_device; // store physical device for later use in swapchain recreation
+    PFN_vkGetPhysicalDeviceSurfaceCapabilities2KHR
+        vkGetPhysicalDeviceSurfaceCapabilities2KHR; // store function pointer for later use in swapchain recreation
 
-    VkSwapchainCreateInfoKHR               create_info; // store create info for later use in presentation and swapchain recreation
-    VkSwapchainPresentScalingCreateInfoKHR scaling_create_info; // store scaling create info for later use in presentation and swapchain recreation
+    VkSwapchainCreateInfoKHR create_info; // store create info for later use in presentation and swapchain recreation
+    VkSwapchainPresentScalingCreateInfoKHR
+        scaling_create_info; // store scaling create info for later use in presentation and swapchain recreation
 
     VkPresentModeKHR modes[reasonable_mode_count];
-    uint8_t          mode_count;
-    uint8_t          format_count;
-    bool             tearing;
+    uint8_t mode_count;
+    uint8_t format_count;
+    bool tearing;
 
-    wis::span<const VkSemaphore>
-    GetImageAvailableSemaphores() const noexcept
+    wis::span<const VkSemaphore> GetImageAvailableSemaphores() const noexcept
     {
-        return wis::span<const VkSemaphore>{
-            reinterpret_cast<const VkSemaphore*>(this + 1),
-            create_info.minImageCount
-        };
+        return wis::span<const VkSemaphore>{reinterpret_cast<const VkSemaphore*>(this + 1), create_info.minImageCount};
     }
     wis::span<const VkSemaphore> GetRenderFinishedSemaphores() const noexcept
     {
@@ -298,7 +321,7 @@ struct VKSwapchainHeader {
     }
     wis::span<const VkPresentModeKHR> GetSupportedPresentModes() const noexcept
     {
-        return wis::span<const VkPresentModeKHR>{ modes, mode_count };
+        return wis::span<const VkPresentModeKHR>{modes, mode_count};
     }
     wis::span<VkSurfaceFormatKHR> GetSupportedFormats() noexcept
     {
@@ -323,12 +346,13 @@ struct alignas(void*) VKRootSignatureControlBlock {
         std::fill(arr.begin(), arr.end(), invalid_index);
         return arr;
     }
-    uint32_t constant_data_size     = 0; // must be aligned to 8 bytes
-    uint32_t mapping_count          = 0;
+    uint32_t constant_data_size = 0; // must be aligned to 8 bytes
+    uint32_t mapping_count = 0;
     uint32_t embedded_sampler_count = 0;
-    uint32_t root_parameter_count   = 0;
+    uint32_t root_parameter_count = 0;
 
-    // offset from the start of the control block to the shader visibility mapping for each shader stage, or UINT32_MAX if not used
+    // offset from the start of the control block to the shader visibility mapping for each shader stage, or UINT32_MAX
+    // if not used
 
     struct alignas(void*) {
         std::array<uint32_t, WisShaderVisibilityCount> shader_mapping_offset = FillInvalid();
@@ -339,18 +363,12 @@ struct alignas(void*) VKRootSignatureControlBlock {
 
     wis::span<const uint32_t> GetRootBindingOffsets() const noexcept
     {
-        return wis::span<const uint32_t>{
-            reinterpret_cast<const uint32_t*>(this + 1),
-            root_parameter_count
-        };
+        return wis::span<const uint32_t>{reinterpret_cast<const uint32_t*>(this + 1), root_parameter_count};
     }
 
     wis::span<uint32_t> GetRootBindingOffsets() noexcept
     {
-        return wis::span<uint32_t>{
-            reinterpret_cast<uint32_t*>(this + 1),
-            root_parameter_count
-        };
+        return wis::span<uint32_t>{reinterpret_cast<uint32_t*>(this + 1), root_parameter_count};
     }
 
     wis::span<VkDescriptorSetAndBindingMappingEXT> GetMappings() noexcept
@@ -367,6 +385,13 @@ struct alignas(void*) VKRootSignatureControlBlock {
             mapping_count
         };
     }
+};
+
+//-----------------------------------------------------------------------------
+struct VKRenderTargetView {
+    VkImageView view = VK_NULL_HANDLE;
+    uint16_t width = 0, height = 0;
+    uint16_t array_layer_count = 0;
 };
 
 //-----------------------------------------------------------------------------
@@ -426,7 +451,8 @@ inline constexpr VkImageAspectFlags VKAspectFlags(VkFormat format) noexcept
 
 //-----------------------------------------------------------------------------
 /**
- * @brief Releases a Vulkan instance, destroying it if this is the last reference. Also destroys the debug messenger if it exists.
+ * @brief Releases a Vulkan instance, destroying it if this is the last reference. Also destroys the debug messenger if
+ * it exists.
  * @param instance The Vulkan instance to release
  * @param header The control block header associated with the instance, which holds the reference count and
  * the debug messenger handle
@@ -436,12 +462,8 @@ inline void VKReleaseInstance(VKInstanceControlBlock* header) noexcept
     if (header && header->Release() == 1) {
         auto& head = header->header;
         // Destroy debug messenger if exists
-        if (head.debug_messenger != VK_NULL_HANDLE &&
-            head.instance_table.vkDestroyDebugUtilsMessengerEXT) {
-            head.instance_table.vkDestroyDebugUtilsMessengerEXT(
-                    head.instance,
-                    header->header.debug_messenger,
-                    nullptr);
+        if (head.debug_messenger != VK_NULL_HANDLE && head.instance_table.vkDestroyDebugUtilsMessengerEXT) {
+            head.instance_table.vkDestroyDebugUtilsMessengerEXT(head.instance, header->header.debug_messenger, nullptr);
         }
 
         // Last reference, destroy instance
@@ -455,7 +477,8 @@ inline void VKReleaseInstance(VKInstanceControlBlock* header) noexcept
 /**
  * @brief Releases a Vulkan device, destroying it if this is the last reference. Also releases the associated instance.
  * @param device The Vulkan device to release
- * @param header The control block header associated with the device, which holds the reference count and a pointer to the instance control block header
+ * @param header The control block header associated with the device, which holds the reference count and a pointer to
+ * the instance control block header
  */
 inline void VKReleaseDevice(VKDeviceControlBlock* header) noexcept
 {
@@ -477,9 +500,11 @@ inline void VKReleaseDevice(VKDeviceControlBlock* header) noexcept
 
 //-----------------------------------------------------------------------------
 /**
- * @brief Releases a Vulkan command pool, destroying it if this is the last reference. Also releases the associated device.
+ * @brief Releases a Vulkan command pool, destroying it if this is the last reference. Also releases the associated
+ * device.
  * @param command_pool The Vulkan command pool to release
- * @param header The control block header associated with the command pool, which holds the reference count and a pointer to the device control block header
+ * @param header The control block header associated with the command pool, which holds the reference count and a
+ * pointer to the device control block header
  */
 inline void VKReleaseCommandPool(VKCommandPoolControlBlock* header) noexcept
 {
@@ -497,9 +522,11 @@ inline void VKReleaseCommandPool(VKCommandPoolControlBlock* header) noexcept
 }
 //-----------------------------------------------------------------------------
 /**
- * @brief Releases a Vulkan command pool, destroying it if this is the last reference. Also releases the associated device.
+ * @brief Releases a Vulkan command pool, destroying it if this is the last reference. Also releases the associated
+ * device.
  * @param command_pool The Vulkan command pool to release
- * @param header The control block header associated with the command pool, which holds the reference count and a pointer to the device control block header
+ * @param header The control block header associated with the command pool, which holds the reference count and a
+ * pointer to the device control block header
  */
 inline void VKReleaseSurface(VKSurfaceControlBlock* header) noexcept
 {
@@ -532,19 +559,22 @@ inline void VKReleaseSwapchain(VkSwapchainKHR swap, VKSwapchainControlBlock* hea
 inline VkResult VKAcquireNextImage(const impl::VKSwapchainImpl& impl) noexcept
 {
     auto& swapchain_header = impl.swapchain_header->header;
-    auto& swapchain_table  = *impl.swapchain_table;
-    auto  semaphores       = swapchain_header.GetImageAvailableSemaphores();
+    auto& swapchain_table = *impl.swapchain_table;
+    auto semaphores = swapchain_header.GetImageAvailableSemaphores();
 
     // Acquire the next image index for the new swapchain to update internal state
-    auto result = impl.swapchain_table->vkAcquireNextImageKHR(impl.device,
-                                                              impl.swapchain,
-                                                              impl.lazy_acquire ? 0 : std::numeric_limits<uint64_t>::max(),
-                                                              semaphores[impl.acquire_index],
-                                                              nullptr,
-                                                              &impl.present_index);
+    auto result = impl.swapchain_table->vkAcquireNextImageKHR(
+        impl.device,
+        impl.swapchain,
+        impl.lazy_acquire ? 0 : std::numeric_limits<uint64_t>::max(),
+        semaphores[impl.acquire_index],
+        nullptr,
+        &impl.present_index
+    );
 
     if (result != VK_SUCCESS) {
-        return result; // Caller can choose to handle timeout differently (e.g. by skipping rendering and trying again next frame) so return a distinct result code for this case
+        return result; // Caller can choose to handle timeout differently (e.g. by skipping rendering and trying again
+                       // next frame) so return a distinct result code for this case
     }
 
     VkPipelineStageFlags2 stage_mask = 0;
@@ -558,16 +588,24 @@ inline VkResult VKAcquireNextImage(const impl::VKSwapchainImpl& impl) noexcept
         stage_mask |= VK_PIPELINE_STAGE_2_TRANSFER_BIT;
     }
 
+    if (stage_mask == 0) {
+        stage_mask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+    }
+
     VkSemaphoreSubmitInfo submit_info{
-        .sType     = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
+        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
         .semaphore = semaphores[impl.acquire_index],
-        .stageMask = stage_mask,
+        .stageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT, // TODO: Fix at some point, since that can cause
+                                                           // unnecessary
+                                                           // synchronization. The stage mask should be determined based
+                                                           // on the swapchain's image usage flags, but for now we can
+                                                           // just use ALL_COMMANDS to ensure correctness.
     };
     VkSubmitInfo2 desc2{
-        .sType                  = VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
-        .pNext                  = nullptr,
+        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
+        .pNext = nullptr,
         .waitSemaphoreInfoCount = 1,
-        .pWaitSemaphoreInfos    = &submit_info,
+        .pWaitSemaphoreInfos = &submit_info,
     };
     impl.acquire_index = (impl.acquire_index + 1) % swapchain_header.create_info.minImageCount;
     return swapchain_table.vkQueueSubmit2(impl.present_queue, 1, &desc2, nullptr);

@@ -17,13 +17,15 @@
  *     WisTextureStateUnorderedAccess = 3,
  *     WisTextureStateDepthStencilWrite = 4,
  *     WisTextureStateDepthStencilRead = 5,
- *     WisTextureStateShaderResource = 6,
- *     WisTextureStateCopySrc = 7,
- *     WisTextureStateCopyDst = 8,
- *     WisTextureStatePresent = 9,
- *     WisTextureStateShadingRate = 10,
- *     WisTextureStateVideoDecodeRead = 11,
- *     WisTextureStateVideoDecodeWrite = 12,
+ *     WisTextureStateDepthWriteStencilRead = 6,
+ *     WisTextureStateStencilWriteDepthRead = 7,
+ *     WisTextureStateShaderResource = 8,
+ *     WisTextureStateCopySrc = 9,
+ *     WisTextureStateCopyDst = 10,
+ *     WisTextureStatePresent = 11,
+ *     WisTextureStateShadingRate = 12,
+ *     WisTextureStateVideoDecodeRead = 13,
+ *     WisTextureStateVideoDecodeWrite = 14,
  * } WisTextureState;
  * ```
  * C++ version:
@@ -38,13 +40,15 @@
  *     UnorderedAccess = 3,
  *     DepthStencilWrite = 4,
  *     DepthStencilRead = 5,
- *     ShaderResource = 6,
- *     CopySrc = 7,
- *     CopyDst = 8,
- *     Present = 9,
- *     ShadingRate = 10,
- *     VideoDecodeRead = 11,
- *     VideoDecodeWrite = 12,
+ *     DepthWriteStencilRead = 6,
+ *     StencilWriteDepthRead = 7,
+ *     ShaderResource = 8,
+ *     CopySrc = 9,
+ *     CopyDst = 10,
+ *     Present = 11,
+ *     ShadingRate = 12,
+ *     VideoDecodeRead = 13,
+ *     VideoDecodeWrite = 14,
  * };
  * }
  * ```
@@ -65,13 +69,15 @@
  * - `WisTextureStateUnorderedAccess = 3`: Unordered Access state.
  * - `WisTextureStateDepthStencilWrite = 4`: Depth Stencil Write state.
  * - `WisTextureStateDepthStencilRead = 5`: Depth Stencil Read state.
- * - `WisTextureStateShaderResource = 6`: Shader Resource state.
- * - `WisTextureStateCopySrc = 7`: Copy Source state.
- * - `WisTextureStateCopyDst = 8`: Copy Destination state.
- * - `WisTextureStatePresent = 9`: Present swapchain state.
- * - `WisTextureStateShadingRate = 10`: Shading Rate state. Used for Variable Shading Rate.
- * - `WisTextureStateVideoDecodeRead = 11`: Video Decode Read state.
- * - `WisTextureStateVideoDecodeWrite = 12`: Video Decode Write state.
+ * - `WisTextureStateDepthWriteStencilRead = 6`: Depth Write Stencil Read state.
+ * - `WisTextureStateStencilWriteDepthRead = 7`: Stencil Write Depth Read state.
+ * - `WisTextureStateShaderResource = 8`: Shader Resource state.
+ * - `WisTextureStateCopySrc = 9`: Copy Source state.
+ * - `WisTextureStateCopyDst = 10`: Copy Destination state.
+ * - `WisTextureStatePresent = 11`: Present swapchain state.
+ * - `WisTextureStateShadingRate = 12`: Shading Rate state. Used for Variable Shading Rate.
+ * - `WisTextureStateVideoDecodeRead = 13`: Video Decode Read state.
+ * - `WisTextureStateVideoDecodeWrite = 14`: Video Decode Write state.
  * \endcond
  *
  *
@@ -81,7 +87,5 @@
  * \cond WIS_GEN_REFS
  * @see Structs:
  * WisTextureBarrier
- * Functions:
- * wisResourceAllocatorCreateTexture
  * \endcond
  */

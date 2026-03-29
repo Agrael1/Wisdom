@@ -399,6 +399,12 @@ WIS_EXTERN_C WISDOM_API void wisDX12DeviceQueryProperties(const WisDX12Device* s
                 props->max_sampler_heap_size_with_embedded = options19.MaxSamplerDescriptorHeapSizeWithStaticSamplers;
                 props->descriptor_increment_size           = device.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
                 props->sampler_increment_size              = device.device->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+                props->render_target_increment_size = device.device->GetDescriptorHandleIncrementSize (
+                    D3D12_DESCRIPTOR_HEAP_TYPE_RTV
+                );
+                props->depth_stencil_increment_size = device.device->GetDescriptorHandleIncrementSize(
+                    D3D12_DESCRIPTOR_HEAP_TYPE_DSV
+                );
             }
         } break;
         case WisQueryPropertyTypeDeviceMemoryProperties: {

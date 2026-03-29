@@ -11,7 +11,7 @@
  * ```c
  * // Provided by Wisdom 0.7.0. 
  * uint64_t wisViewHeapWriteRenderTarget(const WisViewHeap* self,
- *                                       WisTextureView             texture,
+ *                                       const WisTexture*          texture,
  *                                       const WisRenderTargetDesc* render_target,
  *                                       uint32_t                   index);
  * ```
@@ -20,13 +20,13 @@
  * ```c
  * // Provided by Wisdom 0.7.0. 
  * uint64_t wisVKViewHeapWriteRenderTarget(const WisVKViewHeap* self,
- *                                         WisVKTextureView           texture,
+ *                                         const WisVKTexture*        texture,
  *                                         const WisRenderTargetDesc* render_target,
  *                                         uint32_t                   index);
  * 
  * // Provided by Wisdom 0.7.0. 
  * uint64_t wisDX12ViewHeapWriteRenderTarget(const WisDX12ViewHeap* self,
- *                                           WisDX12TextureView         texture,
+ *                                           const WisDX12Texture*      texture,
  *                                           const WisRenderTargetDesc* render_target,
  *                                           uint32_t                   index);
  * ```
@@ -36,7 +36,7 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
- * WIS_NODISCARD std::uint64_t ViewHeap::WriteRenderTarget(wis::TextureView             texture,
+ * WIS_NODISCARD std::uint64_t ViewHeap::WriteRenderTarget(const wis::Texture&          texture,
  *                                                         const wis::RenderTargetDesc& render_target,
  *                                                         std::uint32_t                index) const noexcept;
  * }
@@ -46,12 +46,12 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
- * WIS_NODISCARD std::uint64_t VKViewHeap::WriteRenderTarget(wis::VKTextureView           texture,
+ * WIS_NODISCARD std::uint64_t VKViewHeap::WriteRenderTarget(const wis::VKTexture&        texture,
  *                                                           const wis::RenderTargetDesc& render_target,
  *                                                           std::uint32_t                index) const noexcept;
  * 
  * // Provided by Wisdom 0.7.0. 
- * WIS_NODISCARD std::uint64_t DX12ViewHeap::WriteRenderTarget(wis::DX12TextureView         texture,
+ * WIS_NODISCARD std::uint64_t DX12ViewHeap::WriteRenderTarget(const wis::DX12Texture&      texture,
  *                                                             const wis::RenderTargetDesc& render_target,
  *                                                             std::uint32_t                index) const noexcept;
  * }

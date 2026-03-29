@@ -96,8 +96,8 @@ struct VKMainCommandList {
     PFN_vkCmdCopyBufferToImage2        vkCmdCopyBufferToImage2;
     PFN_vkCmdCopyImageToBuffer2        vkCmdCopyImageToBuffer2;
     PFN_vkBeginCommandBuffer           vkBeginCommandBuffer;
-    PFN_vkCmdSetScissor                vkCmdSetScissor;
-    PFN_vkCmdSetViewport               vkCmdSetViewport;
+    PFN_vkCmdSetScissorWithCount vkCmdSetScissorWithCount;
+    PFN_vkCmdSetViewportWithCount vkCmdSetViewportWithCount;
     PFN_vkCmdBindPipeline              vkCmdBindPipeline;
     PFN_vkCmdBindDescriptorSets        vkCmdBindDescriptorSets;
     PFN_vkCmdDispatch                  vkCmdDispatch;
@@ -131,8 +131,8 @@ public:
         ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, vkCmdCopyBufferToImage2, "vkCmdCopyBufferToImage2KHR");
         ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, vkCmdCopyImageToBuffer2, "vkCmdCopyImageToBuffer2KHR");
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkBeginCommandBuffer);
-        ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkCmdSetScissor);
-        ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkCmdSetViewport);
+        ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkCmdSetScissorWithCount);
+        ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkCmdSetViewportWithCount);
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkCmdBindPipeline);
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkCmdBindDescriptorSets);
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkCmdDispatch);

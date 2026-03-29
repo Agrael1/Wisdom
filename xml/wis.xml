@@ -243,7 +243,6 @@ Can still be enqueued after the signal.">
       <func for="ResourceAllocator" name="CreateTexture" version="0.7.0" mod="const" doc="Creates a texture with given descriptor.">
         <ret type="Texture" name="texture" result="true" doc="points to {Texture::}, which is initialized on success."/>
         <arg type="TextureDesc" name="desc" mod="const,ref" doc="points to {TextureDesc::}, which describes the texture to create."/>
-        <arg type="TextureState" name="initial_state" default="Undefined" doc="defines the initial state of the texture. State transition @wis_must be supported, query {DeviceMemoryProperties::} to get if the transition is supported. If not, @wis_must be {TextureState::Undefined}."/>
       </func>
 
       <!-- Buffer Functions -->
@@ -313,13 +312,13 @@ Can still be enqueued after the signal.">
       <!-- View Heap -->
       <func for="ViewHeap" name="WriteRenderTarget" version="0.7.0" mod="const" doc="Writes a render target view to the view heap and returns the CPU descriptor handle for it.">
         <ret type="u64" name="result" doc="CPU descriptor handle for the view heap."/>
-        <arg type="TextureView" name="texture" doc="points to {Texture::} to write the descriptor for."/>
+        <arg type="Texture" name="texture" mod="const,ref" doc="points to {Texture::} to write the descriptor for."/>
         <arg type="RenderTargetDesc" name="render_target" mod="const,ref" doc="points to {RenderTargetDesc::}, which describes the render target view to write."/>
         <arg type="u32" name="index" doc="defines the index in the view heap to write the descriptor to."/>
       </func>
       <func for="ViewHeap" name="WriteDepthStencil" version="0.7.0" mod="const" doc="Writes a depth stencil view to the view heap and returns the CPU descriptor handle for it.">
         <ret type="u64" name="result" doc="CPU descriptor handle for the view heap."/>
-        <arg type="TextureView" name="texture" doc="points to {Texture::} to write the descriptor for."/>
+        <arg type="Texture" name="texture" mod="const,ref" doc="points to {Texture::} to write the descriptor for."/>
         <arg type="RenderTargetDesc" name="render_target" mod="const,ref" doc="points to {RenderTargetDesc::}, which describes the render target view to write."/>
         <arg type="u32" name="index" doc="defines the index in the view heap to write the descriptor to."/>
       </func>
@@ -402,6 +401,23 @@ Otherwise the first is chosen.">
         <arg type="u32" name="group_count_y" default="1" doc="The number of groups to dispatch in Y dimension. Default is 1."/>
         <arg type="u32" name="group_count_z" default="1" doc="The number of groups to dispatch in Z dimension. Default is 1."/>
       </func>
+      <func for="CommandList" name="Draw" version="0.7.0" mod="const" doc="Draws non-indexed geometry.">
+        <arg type="u32" name="vertex_count" doc="The number of vertices to draw."/>
+        <arg type="u32" name="instance_count" default="1" doc="The number of instances to draw. Default is 1."/>
+        <arg type="u32" name="start_vertex" default="0" doc="The index of the first vertex to draw. Default is 0."/>
+        <arg type="u32" name="start_instance" default="0" doc="The index of the first instance to draw. Default is 0."/>
+      </func>
+      <func for="CommandList" name="DrawIndexed" version="0.7.0" mod="const" doc="Draws indexed geometry.">
+        <arg type="u32" name="index_count" doc="The number of indices to draw."/>
+        <arg type="u32" name="instance_count" default="1" doc="The number of instances to draw. Default is 1."/>
+        <arg type="u32" name="start_index" default="0" doc="The index of the first index to draw. Default is 0."/>
+        <arg type="i32" name="base_vertex" default="0" doc="The value added to each index before reading a vertex from the vertex buffer. Default is 0."/>
+        <arg type="u32" name="start_instance" default="0" doc="The index of the first instance to draw. Default is 0."/>
+      </func>
+      <func for="CommandList" name="BeginRenderPass" version="0.7.0" mod="const" doc="Begins a render pass with given descriptor.">
+        <arg type="RenderPassDesc" name="desc" mod="const,ref" doc="points to {RenderPassDesc::}, which describes the render pass to begin."/>
+      </func>
+      <func for="CommandList" name="EndRenderPass" version="0.7.0" mod="const" doc="Ends the current render pass."/>
 
       <!-- Pipeline Cache -->
       <func for="PipelineCache" name="Serialize" version="0.7.0" mod="const" doc="Gets the data from the pipeline cache.">

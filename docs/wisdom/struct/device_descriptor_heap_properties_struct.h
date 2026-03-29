@@ -18,6 +18,8 @@
  *     uint32_t             max_sampler_heap_size_with_embedded;
  *     uint32_t             descriptor_increment_size;
  *     uint32_t             sampler_increment_size;
+ *     uint32_t             render_target_increment_size;
+ *     uint32_t             depth_stencil_increment_size;
  * } WisDeviceDescriptorHeapProperties;
  * 
  * ```
@@ -33,6 +35,8 @@
  *     std::uint32_t          max_sampler_heap_size_with_embedded;
  *     std::uint32_t          descriptor_increment_size;
  *     std::uint32_t          sampler_increment_size;
+ *     std::uint32_t          render_target_increment_size;
+ *     std::uint32_t          depth_stencil_increment_size;
  * };
  * }
  * ```
@@ -48,6 +52,8 @@
  * - `max_sampler_heap_size_with_embedded` Maximum number of samplers in a single descriptor heap, if embedded samplers are used.
  * - `descriptor_increment_size` Size of a single descriptor in the descriptor heap. Used for calculating descriptor offsets.
  * - `sampler_increment_size` Size of a single sampler in the sampler heap. Used for calculating sampler offsets.
+ * - `render_target_increment_size` Size of a single render target view descriptor in the descriptor heap. Used for calculating render target view descriptor offsets.
+ * - `depth_stencil_increment_size` Size of a single depth stencil view descriptor in the descriptor heap. Used for calculating depth stencil view descriptor offsets.
  * \endcond
  *
  * @section WisDeviceDescriptorHeapProperties_descr Description

@@ -25,6 +25,6 @@
  * <hr>
  * \cond WIS_GEN_REFS
  * @see Functions:
- * wisDestroyCommandList, wisCommandAllocatorCreateCommandList, wisCommandListBegin, wisCommandListEnd, wisCommandListSetDescriptorHeaps, wisCommandListSetRootSignature, wisCommandListSetPushConstants, wisCommandListSetPushDescriptor, wisCommandListSetDescriptorTable, wisCommandListInsertBarriers, wisCommandListSetPipeline, wisCommandListSetViewports, wisCommandListSetScissors, wisCommandListSetPrimitiveTopology, wisCommandListSetDepthBias, wisCommandListSetPrimitiveRestartValue, wisCommandListDispatch
+ * wisDestroyCommandList, wisCommandAllocatorCreateCommandList, wisCommandListBegin, wisCommandListEnd, wisCommandListSetDescriptorHeaps, wisCommandListSetRootSignature, wisCommandListSetPushConstants, wisCommandListSetPushDescriptor, wisCommandListSetDescriptorTable, wisCommandListInsertBarriers, wisCommandListSetPipeline, wisCommandListSetViewports, wisCommandListSetScissors, wisCommandListSetPrimitiveTopology, wisCommandListSetDepthBias, wisCommandListSetPrimitiveRestartValue, wisCommandListDispatch, wisCommandListDraw, wisCommandListDrawIndexed, wisCommandListBeginRenderPass, wisCommandListEndRenderPass
  * \endcond
  */
