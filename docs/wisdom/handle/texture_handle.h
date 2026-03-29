@@ -25,6 +25,6 @@
  * <hr>
  * \cond WIS_GEN_REFS
  * @see Functions:
- * wisDestroyTexture, wisResourceAllocatorCreateTexture, wisTextureWriteSubresource, wisSwapchainGetTextures
+ * wisDestroyTexture, wisResourceAllocatorCreateTexture, wisTextureWriteSubresource, wisViewHeapWriteRenderTarget, wisViewHeapWriteDepthStencil, wisSwapchainGetTextures
  * \endcond
  */

@@ -393,7 +393,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateViewHeap(const WisVKDevice* s
                                                             WisVKViewHeap*     heap)
 {
     auto&        device    = *wis::from_handle<const wis::impl::VKDeviceImpl>(self);
-    VkImageView* view_heap = new (std::nothrow) VkImageView[capacity]{};
+    wis::detail::VKRenderTargetView* view_heap = new (std::nothrow) wis::detail::VKRenderTargetView[capacity]{};
     if (!view_heap) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to allocate memory for view heap">(VK_ERROR_OUT_OF_HOST_MEMORY);
     }
@@ -649,6 +649,8 @@ WIS_EXTERN_C WISDOM_API void wisVKDeviceQueryProperties(const WisVKDevice* self,
             props->max_sampler_heap_size_with_embedded = real_sheap_size_with_embedded / header.features.sampler_desc_size;
             props->descriptor_increment_size           = header.features.resource_desc_size;
             props->sampler_increment_size              = header.features.sampler_desc_size;
+            props->render_target_increment_size = sizeof (wis::detail::VKRenderTargetView);
+            props->depth_stencil_increment_size = sizeof (wis::detail::VKRenderTargetView);
         } break;
         case WisQueryPropertyTypeDeviceMemoryProperties: {
             auto* props                          = static_cast<WisDeviceMemoryProperties*>(next);
@@ -1605,7 +1607,17 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateSwapchain(const WisVKDevice* 
 
     vr = wis::detail::VKAcquireNextImage(swap_impl);
     if (!wis::detail::succeeded(vr)) {
-        wisVKDestroySwapchain(swapchain);
+        for (uint32_t j = 0; j < desc->image_count * 2; j++) {
+            table.vkDestroySemaphore(device.device, semaphore_storage[j], nullptr);
+        }
+        stable.vkDestroySwapchainKHR(device.device, swapchain_handle, nullptr);
+        table.vkDestroyFence(device.device, destruction_fence, nullptr);
+        std::memset(
+            &swap_impl,
+            0,
+            sizeof(swap_impl)
+        ); // ensure the destructor doesn't attempt to clean up a partially initialized swapchain
+
         return wis::detail::make_result<wis::detail::Func(), "Failed to acquire next image for the swapchain after creation">(vr);
     }
 

@@ -868,31 +868,39 @@ Support of this memory must be queried.">
         <impl name="dx" value="D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_READ"/>
         <impl name="vk" value="VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL"/>
       </value>
-      <value name="ShaderResource" value="6" doc="Shader Resource state.">
+      <value name="DepthWriteStencilRead" value="6" doc="Depth Write Stencil Read state.">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_WRITE"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL"/>
+      </value>
+      <value name="StencilWriteDepthRead" value="7" doc="Stencil Write Depth Read state.">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_DEPTH_STENCIL_WRITE"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL"/>
+      </value>
+      <value name="ShaderResource" value="8" doc="Shader Resource state.">
         <impl name="dx" value="D3D12_BARRIER_LAYOUT_SHADER_RESOURCE"/>
         <impl name="vk" value="VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL"/>
       </value>
-      <value name="CopySrc" value="7" doc="Copy Source state.">
+      <value name="CopySrc" value="9" doc="Copy Source state.">
         <impl name="dx" value="D3D12_BARRIER_LAYOUT_COPY_SOURCE"/>
         <impl name="vk" value="VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL"/>
       </value>
-      <value name="CopyDst" value="8" doc="Copy Destination state.">
+      <value name="CopyDst" value="10" doc="Copy Destination state.">
         <impl name="dx" value="D3D12_BARRIER_LAYOUT_COPY_DEST"/>
         <impl name="vk" value="VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL"/>
       </value>
-      <value name="Present" value="9" doc="Present swapchain state.">
+      <value name="Present" value="11" doc="Present swapchain state.">
         <impl name="dx" value="D3D12_BARRIER_LAYOUT_PRESENT"/>
         <impl name="vk" value="VK_IMAGE_LAYOUT_PRESENT_SRC_KHR"/>
       </value>
-      <value name="ShadingRate" value="10" doc="Shading Rate state. Used for Variable Shading Rate.">
+      <value name="ShadingRate" value="12" doc="Shading Rate state. Used for Variable Shading Rate.">
         <impl name="dx" value="D3D12_BARRIER_LAYOUT_SHADING_RATE_SOURCE"/>
         <impl name="vk" value="VK_IMAGE_LAYOUT_FRAGMENT_SHADING_RATE_ATTACHMENT_OPTIMAL_KHR"/>
       </value>
-      <value name="VideoDecodeRead" value="11" doc="Video Decode Read state.">
+      <value name="VideoDecodeRead" value="13" doc="Video Decode Read state.">
         <impl name="dx" value="D3D12_BARRIER_LAYOUT_VIDEO_DECODE_READ"/>
         <impl name="vk" value="VK_IMAGE_LAYOUT_VIDEO_DECODE_SRC_KHR"/>
       </value>
-      <value name="VideoDecodeWrite" value="12" doc="Video Decode Write state.">
+      <value name="VideoDecodeWrite" value="14" doc="Video Decode Write state.">
         <impl name="dx" value="D3D12_BARRIER_LAYOUT_VIDEO_DECODE_WRITE"/>
         <impl name="vk" value="VK_IMAGE_LAYOUT_VIDEO_DECODE_DST_KHR"/>
       </value>
@@ -1256,6 +1264,41 @@ More info could be found [here](https://learn.microsoft.com/en-us/windows/win32/
       </value>
     </type>
 
+    <type name="LoadOp" category="enum" version="0.7.0" doc="Attachment load operation for render pass.">
+      <impl_type for="vk" name="VkAttachmentLoadOp"/>
+      <impl_type for="dx" name="D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE"/>
+      <value name="Load" value="0" doc="Load the attachment contents.">
+        <impl name="dx" value="D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_PRESERVE"/>
+        <impl name="vk" value="VK_ATTACHMENT_LOAD_OP_LOAD"/>
+      </value>
+      <value name="Clear" value="1" doc="Clear the attachment contents.">
+        <impl name="dx" value="D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_CLEAR"/>
+        <impl name="vk" value="VK_ATTACHMENT_LOAD_OP_CLEAR"/>
+      </value>
+      <value name="DontCare" value="2" doc="Do not care about the attachment contents.">
+        <impl name="dx" value="D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_DISCARD"/>
+        <impl name="vk" value="VK_ATTACHMENT_LOAD_OP_DONT_CARE"/>
+      </value>
+    </type>
+
+    <type name="StoreOp" category="enum" version="0.7.0" doc="Attachment store operation for render pass.">
+      <impl_type for="vk" name="VkAttachmentStoreOp"/>
+      <impl_type for="dx" name="D3D12_RENDER_PASS_ENDING_ACCESS_TYPE"/>
+      <value name="Store" value="0" doc="Store the attachment contents.">
+        <impl name="dx" value="D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_PRESERVE"/>
+        <impl name="vk" value="VK_ATTACHMENT_STORE_OP_STORE"/>
+      </value>
+      <value name="DontCare" value="1" doc="Do not care about the attachment contents.">
+        <impl name="dx" value="D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_DISCARD"/>
+        <impl name="vk" value="VK_ATTACHMENT_STORE_OP_DONT_CARE"/>
+      </value>
+      <!-- TODO: Resolve and MSAA -->
+      <!-- <value name="Resolve" value="2" doc="Resolve the attachment contents. Used for multisampling attachments.">
+        <impl name="dx" value="D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_RESOLVE"/>
+        <impl name="vk" value="VK_ATTACHMENT_STORE_OP_STORE"/>
+      </value> -->
+    </type>
+
     <!-- Bitmasks -->
 
     <type name="BufferUsageFlags" category="bitmask" version="0.7.0" doc="Buffer usage flags.
@@ -1581,5 +1624,31 @@ Used for color blending operations.">
         <impl name="dx" value="DXGI_PRESENT_DO_NOT_WAIT"/>
       </value>
     </type>
+
+    <type name="RenderPassFlags" category="bitmask" version="0.7.0" doc="Set of flags that affect render pass behavior.
+More on render pass flags [here](https://learn.microsoft.com/en-us/windows/win32/direct3d12/direct3d-12-render-passes).">
+      <impl_type for="vk" name="VkRenderingFlags"/>
+      <impl_type for="dx" name="D3D12_RENDER_PASS_FLAGS"/>
+      <value name="None" value="0" doc="No flags set. Render pass is regular."/>
+      <value name="Suspending" bit="1" doc="Render pass is suspending.">
+        <impl name="dx" value="D3D12_RENDER_PASS_FLAG_SUSPENDING_PASS"/>
+        <impl name="vk" value="VK_RENDERING_SUSPENDING_BIT"/>
+      </value>
+      <value name="Resuming" bit="2" doc="Render pass is resuming.">
+        <impl name="dx" value="D3D12_RENDER_PASS_FLAG_RESUMING_PASS"/>
+        <impl name="vk" value="VK_RENDERING_RESUMING_BIT"/>
+      </value>
+      <value name="AllowUAVWrites" bit="3" doc="Allow UAV writes. If set, unordered access view (UAV) writes are allowed during the render pass. If not set, UAV writes are not allowed and may result in undefined behavior if attempted."/>
+    </type>
+
+    <type name="DepthStencilFlags" category="bitmask" version="0.7.0" doc="Depth stencil select flags.
+Affect which part of the depth stencil buffer is used.">
+      <value name="None" value="0" doc="No flags set. Both attachments are write."/>
+      <value name="IgnoreDepth" bit="0" doc="Don't use depth part of the depth stencil buffer."/>
+      <value name="IgnoreStencil" bit="1" doc="Don't use stencil part of the depth stencil buffer."/>
+      <value name="ReadOnlyDepth" bit="2" doc="Depth part is read only. Texture @wis_must be in either read state, depending on the format."/>
+      <value name="ReadOnlyStencil" bit="3" doc="Stencil part is read only. Texture @wis_must be in either read state, depending on the format."/>
+    </type>
+
   </types>
 </registry>

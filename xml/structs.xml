@@ -353,6 +353,33 @@ Viewport is considered from Top Left corner.">
       <!--TODO: Colorspace-->
     </type>
 
+    <type name="RenderPassRenderTargetDesc" category="struct" version="0.7.0" doc="Description for render target.">
+      <member type="u64" name="target" doc="Render target view. Must reside on {ViewHeap::}"/>
+      <member type="LoadOp" name="load_op" default="Load" doc="Load operation on beginning of render pass. Default is {LoadOp::Load}."/>
+      <member type="StoreOp" name="store_op" default="Store" doc="Store operation on end of render pass. Default is {StoreOp::Store}."/>
+      <member type="f32" name="clear_value" array="4" doc="Clear value for {LoadOp::Clear}."/>
+    </type>
+
+    <type name="RenderPassDepthStencilDesc" category="struct" version="0.7.0" doc="Variant of RenderPassDesc for depth stencil.">
+      <member type="u64" name="target" doc="Depth stencil view."/>
+      <member type="LoadOp" name="load_op_depth" default="Load" doc="Load operation on beginning of render pass for depth. Default is {LoadOp::Load}."/>
+      <member type="LoadOp" name="load_op_stencil" default="Load" doc="Load operation on beginning of render pass for stencil. Default is {LoadOp::Load}."/>
+      <member type="StoreOp" name="store_op_depth" default="Store" doc="Store operation on end of render pass for depth. Default is {StoreOp::Store}."/>
+      <member type="StoreOp" name="store_op_stencil" default="Store" doc="Store operation on end of render pass for stencil. Default is {StoreOp::Store}."/>
+      <member type="DepthStencilFlags" name="flags" default="None" doc="Depth stencil select."/>
+      <member type="f32" name="clear_depth" default="1.0f" doc="Clear depth value for {LoadOp::Clear}. Default is 1.0f."/>
+      <member type="u8" name="clear_stencil" default="0" doc="Clear stencil value for {LoadOp::Clear}. Default is 0."/>
+    </type>
+
+    <type name="RenderPassDesc" category="struct" version="0.7.0" doc="Render pass description.">
+      <member type="RenderPassFlags" name="flags" doc="Render pass flags."/>
+      <member type="RenderPassRenderTargetDesc" name="render_targets" array="8" doc="Array of render target descriptions. Max size is 8."/>
+      <member type="u32" name="render_target_count" doc="Number of render targets in the render pass."/>
+      <member type="u32" name="view_mask" default="0" doc="View mask for multiview rendering. Each bit represents a view that can be rendered to with the render pass. Default is 0, meaning no multiview support."/>
+      <member type="RenderPassDepthStencilDesc" name="depth_stencil" doc="Depth stencil description. If depth stencil is not used, the target field must be set to 0."/>
+    </type>
+
+
     <!-- Variants -->
     <type name="DeviceRequirements" category="variant" version="0.7.0" doc="Device requirements. Used to specify required features and properties for device creation.">
       <member type="CommandQueueDesc" name="queue_descs" mod="const,span" default="nullptr" doc="points to an array of {CommandQueueDesc::} for which queues will be created during device creation."/>
@@ -388,6 +415,8 @@ Viewport is considered from Top Left corner.">
       <member type="u32" name="max_sampler_heap_size_with_embedded" doc="Maximum number of samplers in a single descriptor heap, if embedded samplers are used."/>
       <member type="u32" name="descriptor_increment_size" doc="Size of a single descriptor in the descriptor heap. Used for calculating descriptor offsets."/>
       <member type="u32" name="sampler_increment_size" doc="Size of a single sampler in the sampler heap. Used for calculating sampler offsets."/>
+      <member type="u32" name="render_target_increment_size" doc="Size of a single render target view descriptor in the descriptor heap. Used for calculating render target view descriptor offsets."/>
+      <member type="u32" name="depth_stencil_increment_size" doc="Size of a single depth stencil view descriptor in the descriptor heap. Used for calculating depth stencil view descriptor offsets."/>
     </type>
 
     <type name="DeviceCommandQueueProperties" category="struct" version="0.7.0" doc="Device memory properties. Used to query memory type support and limits.">

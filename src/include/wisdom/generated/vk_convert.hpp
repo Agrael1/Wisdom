@@ -2,14 +2,17 @@
 #ifndef WISDOM_CORE_CPP_VK_CONVERT_HPP
 #define WISDOM_CORE_CPP_VK_CONVERT_HPP
 #ifndef __cplusplus
-#error "This is a C++ only header"
+#    error "This is a C++ only header"
 #endif // __cplusplus
 
-#include "c_api.h"
 #include <vulkan/vulkan.h>
 
-namespace wis {
-namespace detail {
+#include "c_api.h"
+
+namespace wis
+{
+namespace detail
+{
 
 constexpr inline VkFormat VKConvert(WisDataFormat value) noexcept
 {
@@ -361,7 +364,8 @@ constexpr inline VkMemoryPropertyFlags VKConvert(WisMemoryType value) noexcept
     case WisMemoryTypeReadback:
         return VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
     case WisMemoryTypeGPUUpload:
-        return VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+        return VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT |
+               VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
     default:
         return static_cast<VkMemoryPropertyFlags>(0);
     }
@@ -384,6 +388,10 @@ constexpr inline VkImageLayout VKConvert(WisTextureState value) noexcept
         return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
     case WisTextureStateDepthStencilRead:
         return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+    case WisTextureStateDepthWriteStencilRead:
+        return VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL;
+    case WisTextureStateStencilWriteDepthRead:
+        return VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL;
     case WisTextureStateShaderResource:
         return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
     case WisTextureStateCopySrc:
@@ -649,6 +657,32 @@ constexpr inline VkCompositeAlphaFlagBitsKHR VKConvert(WisCompositeAlpha value) 
     }
 }
 
+constexpr inline VkAttachmentLoadOp VKConvert(WisLoadOp value) noexcept
+{
+    switch (value) {
+    case WisLoadOpLoad:
+        return VK_ATTACHMENT_LOAD_OP_LOAD;
+    case WisLoadOpClear:
+        return VK_ATTACHMENT_LOAD_OP_CLEAR;
+    case WisLoadOpDontCare:
+        return VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+    default:
+        return static_cast<VkAttachmentLoadOp>(0);
+    }
+}
+
+constexpr inline VkAttachmentStoreOp VKConvert(WisStoreOp value) noexcept
+{
+    switch (value) {
+    case WisStoreOpStore:
+        return VK_ATTACHMENT_STORE_OP_STORE;
+    case WisStoreOpDontCare:
+        return VK_ATTACHMENT_STORE_OP_DONT_CARE;
+    default:
+        return static_cast<VkAttachmentStoreOp>(0);
+    }
+}
+
 constexpr inline VkBufferUsageFlags VKConvert(WisBufferUsageFlags value) noexcept
 {
     VkBufferUsageFlags result = static_cast<VkBufferUsageFlags>(0);
@@ -758,7 +792,10 @@ constexpr inline VkPipelineStageFlags2 VKConvert(WisBarrierSync value) noexcept
         result |= VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
     }
     if (value & WisBarrierSyncDraw) {
-        result |= VK_PIPELINE_STAGE_2_VERTEX_ATTRIBUTE_INPUT_BIT | VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT | VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
+        result |= VK_PIPELINE_STAGE_2_VERTEX_ATTRIBUTE_INPUT_BIT | VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT |
+                  VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT |
+                  VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT |
+                  VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
     }
     if (value & WisBarrierSyncIndexInput) {
         result |= VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT;
@@ -785,13 +822,15 @@ constexpr inline VkPipelineStageFlags2 VKConvert(WisBarrierSync value) noexcept
         result |= VK_PIPELINE_STAGE_2_COPY_BIT;
     }
     if (value & WisBarrierSyncResolve) {
-        result |= VK_PIPELINE_STAGE_2_COPY_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_2_RESOLVE_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
+        result |= VK_PIPELINE_STAGE_2_COPY_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT |
+                  VK_PIPELINE_STAGE_2_RESOLVE_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
     }
     if (value & WisBarrierSyncExecuteIndirect) {
         result |= VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
     }
     if (value & WisBarrierSyncAllShading) {
-        result |= VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
+        result |= VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT |
+                  VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
     }
     if (value & WisBarrierSyncNonPixelShading) {
         result |= VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
@@ -879,6 +918,18 @@ constexpr inline VkAccessFlags2 VKConvert(WisResourceAccess value) noexcept
     }
     if (value & WisResourceAccessNone) {
         result |= VK_ACCESS_2_NONE;
+    }
+    return result;
+}
+
+constexpr inline VkRenderingFlags VKConvert(WisRenderPassFlags value) noexcept
+{
+    VkRenderingFlags result = static_cast<VkRenderingFlags>(0);
+    if (value & WisRenderPassFlagsSuspending) {
+        result |= VK_RENDERING_SUSPENDING_BIT;
+    }
+    if (value & WisRenderPassFlagsResuming) {
+        result |= VK_RENDERING_RESUMING_BIT;
     }
     return result;
 }

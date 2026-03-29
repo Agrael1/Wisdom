@@ -147,7 +147,6 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12ResourceAllocatorCreateBuffer(const Wis
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisDX12ResourceAllocatorCreateTexture(const WisDX12ResourceAllocator* self,
                                                                         const WisTextureDesc*           desc,
-                                                                        WisTextureState                 initial_state,
                                                                         WisDX12Texture*                 buffer)
 {
     auto& [allocator]                 = wis::from_handle_ref<const wis::impl::DX12ResourceAllocatorImpl>(self);
@@ -156,8 +155,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12ResourceAllocatorCreateTexture(const Wi
         .Flags    = wis::detail::DX12Convert(desc->memory_flags),
         .HeapType = wis::detail::DX12Convert(desc->memory_type),
     };
-    D3D12_BARRIER_LAYOUT initial_layout = wis::detail::DX12Convert(initial_state);
-    return wis::detail::DX12CreateResource(all_desc, tex_desc, initial_layout, allocator, buffer);
+    return wis::detail::DX12CreateResource(all_desc, tex_desc, D3D12_BARRIER_LAYOUT_UNDEFINED, allocator, buffer);
 }
 
 #endif // WIS_DX12_RESOURCE_ALLOCATOR_CPP
