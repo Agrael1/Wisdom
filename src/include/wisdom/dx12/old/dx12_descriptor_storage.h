@@ -9,8 +9,7 @@
 #    include <d3dx12/d3dx12_root_signature.h>
 #endif
 
-namespace wis
-{
+namespace wis {
 
 WISDOM_EXPORT class DX12DescriptorStorage;
 

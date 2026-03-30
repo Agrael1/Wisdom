@@ -43,14 +43,14 @@
  * @section WisBlendAttachmentDesc_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `blend_enable` Blend enable. Default is false.
- * - `src_color_blend` Source color blend factor. Default is `WisBlendFactorOne`.
- * - `dst_color_blend` Destination color blend factor. Default is `WisBlendFactorZero`.
- * - `color_blend_op` Color blend operation. Default is `WisBlendOpAdd`.
- * - `src_alpha_blend` Source alpha blend factor. Default is `WisBlendFactorOne`.
- * - `dst_alpha_blend` Destination alpha blend factor. Default is `WisBlendFactorZero`.
- * - `alpha_blend_op` Alpha blend operation. Default is `WisBlendOpAdd`.
- * - `color_write_mask` Color write mask. Default is `WisColorComponentsAll`.
+ * - `blend_enable` indicates blend enable. Default is false.
+ * - `src_color_blend` specifies source color blend factor. Default is `WisBlendFactorOne`.
+ * - `dst_color_blend` describes destination color blend factor. Default is `WisBlendFactorZero`.
+ * - `color_blend_op` describes color blend operation. Default is `WisBlendOpAdd`.
+ * - `src_alpha_blend` describes source alpha blend factor. Default is `WisBlendFactorOne`.
+ * - `dst_alpha_blend` defines destination alpha blend factor. Default is `WisBlendFactorZero`.
+ * - `alpha_blend_op` defines alpha blend operation. Default is `WisBlendOpAdd`.
+ * - `color_write_mask` defines color write mask. Default is `WisColorComponentsAll`.
  * \endcond
  *
  * @section WisBlendAttachmentDesc_descr Description

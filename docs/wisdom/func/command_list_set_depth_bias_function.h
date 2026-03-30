@@ -63,9 +63,9 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisCommandList instance.
- * - `depth_bias` The depth bias to set.
- * - `depth_bias_clamp` The depth bias clamp to set.
- * - `slope_scaled_depth_bias` The slope scaled depth bias to set.
+ * - `depth_bias` indicates depth bias to set.
+ * - `depth_bias_clamp` indicates depth bias clamp to set.
+ * - `slope_scaled_depth_bias` defines slope-scaled depth bias to set.
  * \endcond
  *
  * @section wisCommandListSetDepthBias_descr Description

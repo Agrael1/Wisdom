@@ -35,9 +35,9 @@
  * @section WisDescriptorTableDataDesc_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `pipeline` defines the pipeline type to set the push descriptors for.
- * - `root_index` defines the root index in the root signature to set the push descriptors for.
- * - `heap_type` defines the type of the descriptor heap to bind.
+ * - `pipeline` specifies the pipeline type to set the push descriptors for.
+ * - `root_index` indicates the root index in the root signature to set the push descriptors for.
+ * - `heap_type` indicates the type of the descriptor heap to bind.
  * - `heap_offset` defines the offset in descriptors from the start of the heap to set the descriptor table to. Used for calculating descriptor indices when binding descriptor tables.
  * \endcond
  *

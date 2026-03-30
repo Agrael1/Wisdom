@@ -6,8 +6,7 @@
 #    include <Windows.h>
 #endif
 
-namespace wis
-{
+namespace wis {
 struct unique_event {
     unique_event(HANDLE event = nullptr) noexcept
         : hevent(event)

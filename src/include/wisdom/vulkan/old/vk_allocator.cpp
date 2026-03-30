@@ -7,8 +7,7 @@
 #    include <wisdom/vulkan/vk_external.h>
 #endif // !WISDOM_MODULE_DECL
 
-namespace wis::detail
-{
+namespace wis::detail {
 constexpr inline VkExternalMemoryBufferCreateInfoKHR external_info_buffer{
     .sType = VK_STRUCTURE_TYPE_EXTERNAL_MEMORY_BUFFER_CREATE_INFO_KHR,
     .pNext = nullptr,

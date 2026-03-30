@@ -10,8 +10,7 @@
 #    include <vulkan/vulkan_xcb.h>
 #    include <xcb/xcb.h>
 
-namespace wis::detail
-{
+namespace wis::detail {
 inline WisResult VKXCBExtensionInit(
     VKInstanceExtensionHeader* self,
     impl::VKInstanceImpl* instance_impl,

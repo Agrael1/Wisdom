@@ -57,7 +57,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisDevice instance.
- * - `type` defines the type of the command list this pool is able to allocate.
+ * - `type` specifies the type of the command list this pool is able to allocate.
  * - `allocator` points to WisCommandAllocator, which is initialized on success.
  * 
  * - **return** denoting the outcome of operation.

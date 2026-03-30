@@ -51,7 +51,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisDevice instance.
- * - `properties` points to one of the query structs, which is filled with device properties.
+ * - `properties` describes a pointer to one of the query structs, which is filled with device properties.
  * \endcond
  *
  * @section wisDeviceQueryProperties_descr Description

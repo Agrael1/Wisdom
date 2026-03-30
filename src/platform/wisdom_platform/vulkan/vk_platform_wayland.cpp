@@ -9,8 +9,7 @@
 
 #    include <vulkan/vulkan_wayland.h>
 
-namespace wis::detail
-{
+namespace wis::detail {
 inline WisResult VKWaylandExtensionInit(
     VKInstanceExtensionHeader* self,
     impl::VKInstanceImpl* instance_impl,

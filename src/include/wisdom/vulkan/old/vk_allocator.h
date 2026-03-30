@@ -5,8 +5,7 @@
 #    include <wisdom/vulkan/vk_resource.h>
 #endif // !WISDOM_MODULE_DECL
 
-namespace wis
-{
+namespace wis {
 WISDOM_EXPORT class VKResourceAllocator;
 
 WISDOM_EXPORT

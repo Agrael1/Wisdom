@@ -84,8 +84,13 @@ wisDX12SwapchainUpdate(const WisDX12Swapchain* self, const WisSwapchainUpdateDes
         return wis::detail::dx_success; // nothing to update
     }
 
-    auto hr = swapchain.swapchain
-                  ->ResizeBuffers(image_count, width, height, wis::detail::DX12Convert(desc->format), swapchain.flags);
+    auto hr = swapchain.swapchain->ResizeBuffers(
+        image_count,
+        width,
+        height,
+        wis::detail::DX12Convert(desc->format),
+        swapchain.flags
+    );
 
     if (!wis::detail::succeeded(hr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to resize swap chain buffers">(hr);

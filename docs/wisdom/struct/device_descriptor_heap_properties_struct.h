@@ -45,15 +45,15 @@
  * @section WisDeviceDescriptorHeapProperties_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `property_type` Defines the type of the queried property. Used to determine what struct is passed. @wis_must be `WisQueryPropertyTypeDeviceDescriptorHeapProperties`.
- * - `next_in_chain` Pointer to the next queried data struct.
- * - `max_descriptor_heap_size` Maximum number of descriptors in a single descriptor heap.
- * - `max_sampler_heap_size` Maximum number of samplers in a single descriptor heap.
- * - `max_sampler_heap_size_with_embedded` Maximum number of samplers in a single descriptor heap, if embedded samplers are used.
- * - `descriptor_increment_size` Size of a single descriptor in the descriptor heap. Used for calculating descriptor offsets.
- * - `sampler_increment_size` Size of a single sampler in the sampler heap. Used for calculating sampler offsets.
- * - `render_target_increment_size` Size of a single render target view descriptor in the descriptor heap. Used for calculating render target view descriptor offsets.
- * - `depth_stencil_increment_size` Size of a single depth stencil view descriptor in the descriptor heap. Used for calculating depth stencil view descriptor offsets.
+ * - `property_type` specifies the type of the queried property. Used to determine what struct is passed. @wis_must be `WisQueryPropertyTypeDeviceDescriptorHeapProperties`.
+ * - `next_in_chain` indicates pointer to the next queried data struct.
+ * - `max_descriptor_heap_size` indicates maximum number of descriptors in a single descriptor heap.
+ * - `max_sampler_heap_size` defines maximum number of samplers in a single descriptor heap.
+ * - `max_sampler_heap_size_with_embedded` defines maximum number of samplers in a single descriptor heap, if embedded samplers are used.
+ * - `descriptor_increment_size` describes size of a single descriptor in the descriptor heap. Used for calculating descriptor offsets.
+ * - `sampler_increment_size` specifies size of a single sampler in the sampler heap. Used for calculating sampler offsets.
+ * - `render_target_increment_size` defines size of a single render target view descriptor in the descriptor heap. Used for calculating render target view descriptor offsets.
+ * - `depth_stencil_increment_size` defines size of a single depth stencil view descriptor in the descriptor heap. Used for calculating depth stencil view descriptor offsets.
  * \endcond
  *
  * @section WisDeviceDescriptorHeapProperties_descr Description

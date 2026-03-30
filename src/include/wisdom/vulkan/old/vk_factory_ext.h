@@ -7,14 +7,12 @@
 #    include <span>
 #endif // !WISDOM_MODULE_DECL
 
-namespace wis
-{
+namespace wis {
 WISDOM_EXPORT class VKFactory;
 }
 
 WISDOM_EXPORT
-namespace wis
-{
+namespace wis {
 struct VKFactoryExtension {
     virtual ~VKFactoryExtension() = default;
     virtual bool Supported() const noexcept { return false; }

@@ -51,7 +51,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisCommandList instance.
- * - `barriers` points to an array of barriers to insert.
+ * - `barriers` specifies a pointer to an array of barriers to insert.
  * \endcond
  *
  * @section wisCommandListInsertBarriers_descr Description

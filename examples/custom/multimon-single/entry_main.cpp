@@ -1,9 +1,10 @@
 #include <glm/vec3.hpp>
-#include <iostream>
-#include <optional>
 #include <window.h>
 #include <wis_helper.h>
 #include <wis_swapchain.h>
+
+#include <iostream>
+#include <optional>
 
 class App
 {

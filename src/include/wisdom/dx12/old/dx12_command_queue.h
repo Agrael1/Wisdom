@@ -6,8 +6,7 @@
 #    include <wisdom/global/internal.h>
 #endif
 
-namespace wis
-{
+namespace wis {
 WISDOM_EXPORT class DX12CommandQueue;
 
 WISDOM_EXPORT

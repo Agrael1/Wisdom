@@ -57,7 +57,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisDescriptorHeap instance.
- * - `data` points to WisConstantBufferBinding, which describes the constant buffer descriptors to write.
+ * - `data` specifies a pointer to WisConstantBufferBinding, which describes the constant buffer descriptors to write.
  * - `index` defines the index in the descriptor heap to write the descriptors to.
  * 
  * - **return** denoting the outcome of operation.

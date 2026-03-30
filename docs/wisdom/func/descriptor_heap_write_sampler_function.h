@@ -57,7 +57,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisDescriptorHeap instance.
- * - `sampler` points to WisSamplerDesc, which describes the sampler descriptor to write.
+ * - `sampler` defines a pointer to WisSamplerDesc, which describes the sampler descriptor to write.
  * - `index` defines the index in the descriptor heap to write the descriptor to.
  * 
  * - **return** denoting the outcome of operation.

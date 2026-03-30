@@ -3,10 +3,8 @@
 #include <wisdom/bridge/source_location.hpp>
 #include <wisdom/util/string_literal.hpp>
 
-namespace wis
-{
-namespace detail
-{
+namespace wis {
+namespace detail {
 using func_pair = std::pair<std::size_t, std::size_t>;
 
 constexpr func_pair Func(wis::source_location sl = wis::source_location::current()) noexcept

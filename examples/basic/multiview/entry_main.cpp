@@ -1,8 +1,9 @@
 #include <glm/vec3.hpp>
-#include <iostream>
 #include <window.h>
 #include <wis_helper.h>
 #include <wis_swapchain.h>
+
+#include <iostream>
 
 // In order to render with multiview, we need to have texture with array layers.
 // In case of stereo rendering, we need to have 2 array layers.
@@ -301,8 +302,15 @@ public:
                  .binding_count = ex::flight_frames}, // space 0 is for root constants
                 {.binding_type = wis::DescriptorType::Sampler, .binding_space = 2, .binding_count = 1},
             };
-            root = setup.device
-                       .CreateRootSignature(result, root_constants, 1, nullptr, 0, bindings, std::size(bindings));
+            root = setup.device.CreateRootSignature(
+                result,
+                root_constants,
+                1,
+                nullptr,
+                0,
+                bindings,
+                std::size(bindings)
+            );
         }
 
         // Create pipeline

@@ -135,8 +135,13 @@ wis::SwapChain ex::Window::CreateSwapchain(
         HWND hwnd = (HWND)
             SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
         if (hwnd) {
-            return static_cast<wis::platform::WindowsExtension*>(ext.get())
-                ->CreateSwapchain(result, setup.device, setup.queue, desc, hwnd);
+            return static_cast<wis::platform::WindowsExtension*>(ext.get())->CreateSwapchain(
+                result,
+                setup.device,
+                setup.queue,
+                desc,
+                hwnd
+            );
         }
     } break;
 #elif defined(SDL_PLATFORM_LINUX)
@@ -146,8 +151,14 @@ wis::SwapChain ex::Window::CreateSwapchain(
         ::Window xwindow = (::Window)
             SDL_GetNumberProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_X11_WINDOW_NUMBER, 0);
         if (xdisplay && xwindow) {
-            return static_cast<wis::platform::X11Extension*>(ext.get())
-                ->CreateSwapchain(result, setup.device, setup.queue, desc, xdisplay, xwindow);
+            return static_cast<wis::platform::X11Extension*>(ext.get())->CreateSwapchain(
+                result,
+                setup.device,
+                setup.queue,
+                desc,
+                xdisplay,
+                xwindow
+            );
         }
     } break;
     case Wayland: {
@@ -156,8 +167,14 @@ wis::SwapChain ex::Window::CreateSwapchain(
         struct wl_surface* surface = (struct wl_surface*)
             SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WAYLAND_SURFACE_POINTER, NULL);
         if (display && surface) {
-            return static_cast<wis::platform::WaylandExtension*>(ext.get())
-                ->CreateSwapchain(result, setup.device, setup.queue, desc, display, surface);
+            return static_cast<wis::platform::WaylandExtension*>(ext.get())->CreateSwapchain(
+                result,
+                setup.device,
+                setup.queue,
+                desc,
+                display,
+                surface
+            );
         }
     } break;
 #endif

@@ -10,8 +10,7 @@
 #    endif // !WISDOM_MODULE_DECL
 
 WISDOM_EXPORT
-namespace wis
-{
+namespace wis {
 class DX12Raytracing;
 
 using DX12AccelerationStructure = D3D12_GPU_VIRTUAL_ADDRESS;
@@ -189,8 +188,11 @@ public:
     ) const noexcept
     {
         auto* cmd_list_i = static_cast<ID3D12GraphicsCommandList4*>(std::get<0>(cmd_list));
-        cmd_list_i
-            ->CopyRaytracingAccelerationStructure(std::get<0>(dst), std::get<0>(src), wis::detail::DX12Convert(mode));
+        cmd_list_i->CopyRaytracingAccelerationStructure(
+            std::get<0>(dst),
+            std::get<0>(src),
+            wis::detail::DX12Convert(mode)
+        );
     }
 
     void BuildTopLevelAS(

@@ -57,8 +57,8 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisCommandQueue instance.
- * - `fence` The fence to signal.
- * - `value` The value to signal the fence with.
+ * - `fence` describes fence to signal.
+ * - `value` describes value used to signal the fence.
  * 
  * - **return** denoting the outcome of operation.
  * \endcond

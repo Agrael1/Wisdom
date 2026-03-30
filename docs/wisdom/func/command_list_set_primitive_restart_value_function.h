@@ -51,7 +51,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisCommandList instance.
- * - `restart_value` The primitive restart value to set.
+ * - `restart_value` describes primitive restart value to set.
  * \endcond
  *
  * @section wisCommandListSetPrimitiveRestartValue_descr Description

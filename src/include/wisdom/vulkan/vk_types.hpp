@@ -7,17 +7,16 @@
 #include <wisdom/generated/c_api.h>
 #include <wisdom/vulkan/vk_tables.hpp>
 
-#include <array>
-#include <cstring>
 #include <vk_mem_alloc.h>
 
-namespace wis
-{
+#include <array>
+#include <cstring>
+
+namespace wis {
 struct VKInstanceExtensionCollector;
 struct VKDeviceExtensionCollector;
 //-----------------------------------------------------------------------------
-namespace detail
-{
+namespace detail {
 struct VKInstanceControlBlock;
 struct VKDeviceControlBlock;
 struct VKDescriptorSetLayoutContainer;
@@ -29,8 +28,7 @@ struct VKSwapchainControlBlock;
 struct VKRenderTargetView;
 } // namespace detail
 
-namespace impl
-{
+namespace impl {
 //-----------------------------------------------------------------------------
 struct VKInstanceImpl {
     VkInstance instance;

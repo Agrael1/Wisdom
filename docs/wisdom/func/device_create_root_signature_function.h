@@ -57,7 +57,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisDevice instance.
- * - `desc` points to WisRootSignatureDesc, which describes the pipeline layout to create.
+ * - `desc` indicates a pointer to WisRootSignatureDesc, which describes the pipeline layout to create.
  * - `layout` points to WisRootSignature, which is initialized on success.
  * 
  * - **return** denoting the outcome of operation.

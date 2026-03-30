@@ -51,7 +51,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisCommandList instance.
- * - `desc` points to WisRenderPassDesc, which describes the render pass to begin.
+ * - `desc` indicates a pointer to WisRenderPassDesc, which describes the render pass to begin.
  * \endcond
  *
  * @section wisCommandListBeginRenderPass_descr Description

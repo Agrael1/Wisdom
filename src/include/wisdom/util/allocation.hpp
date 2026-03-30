@@ -8,11 +8,9 @@
 #include <new>
 #include <type_traits>
 
-namespace wis
-{
+namespace wis {
 
-namespace detail
-{
+namespace detail {
 template <typename T>
 WIS_NODISCARD inline T* launder_ptr(T* ptr) noexcept
 {

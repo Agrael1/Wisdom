@@ -57,8 +57,8 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisFence instance.
- * - `value` Value to wait for.
- * - `wait_ns` The time to wait for the fence to reach the value in nanoseconds. Default is infinite.
+ * - `value` describes value to wait for.
+ * - `wait_ns` describes the time to wait for the fence to reach the value in nanoseconds. Default is infinite.
  * 
  * - **return** denoting the outcome of operation.
  * \endcond

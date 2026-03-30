@@ -32,9 +32,9 @@
  * @section WisDescriptorTable_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `visibility` Shader stage. Defines the stage where the table is used.
- * - `entries` Descriptor table entries array.
- * - `entry_count` Descriptor table entries count.
+ * - `visibility` defines shader stage. Defines the stage where the table is used.
+ * - `entries` points to an array of descriptor table entries.
+ * - `entry_count` specifies descriptor table entries count.
  * \endcond
  *
  * @section WisDescriptorTable_descr Description

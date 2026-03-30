@@ -39,12 +39,12 @@
  * @section WisViewport_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `x` Top left corner x coordinate.
- * - `y` Top left corner y coordinate.
- * - `width` Viewport width.
- * - `height` Viewport height.
- * - `min_depth` Minimum depth of the viewport.
- * - `max_depth` Maximum depth of the viewport.
+ * - `x` defines top left corner x coordinate.
+ * - `y` describes top left corner y coordinate.
+ * - `width` defines viewport width.
+ * - `height` describes viewport height.
+ * - `min_depth` defines minimum depth of the viewport.
+ * - `max_depth` specifies maximum depth of the viewport.
  * \endcond
  *
  * @section WisViewport_descr Description

@@ -8,8 +8,7 @@
 #    include <limits>
 #endif // !WISDOM_MODULE_DECL
 
-namespace wis
-{
+namespace wis {
 WISDOM_EXPORT class VKFence;
 
 WISDOM_EXPORT

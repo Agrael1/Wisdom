@@ -1,5 +1,6 @@
 #pragma once
 #include <SDL3/SDL.h>
+
 #include <memory>
 
 #ifdef WISDOM_FORCE_VULKAN
@@ -8,8 +9,7 @@ import wisdom.fvk;
 import wisdom;
 #endif
 
-namespace ex
-{
+namespace ex {
 static inline constexpr uint32_t swap_buffer_count = 2;
 static inline constexpr uint32_t flight_frames = 2;
 static inline constexpr wis::DataFormat swapchain_format = wis::DataFormat::RGBA8Unorm; // supported by all APIs
@@ -24,7 +24,13 @@ public:
 class PlatformExtension
 {
 public:
-    enum class Selector { None, Windows, X11, Wayland };
+    enum class Selector
+    {
+        None,
+        Windows,
+        X11,
+        Wayland
+    };
 
 public:
     PlatformExtension();

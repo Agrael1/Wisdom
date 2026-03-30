@@ -57,7 +57,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisDevice instance.
- * - `desc` points to WisGraphicsPipelineDesc, which describes the graphics pipeline to create.
+ * - `desc` indicates a pointer to WisGraphicsPipelineDesc, which describes the graphics pipeline to create.
  * - `pipeline` points to WisPipeline, which is initialized on success.
  * 
  * - **return** denoting the outcome of operation.

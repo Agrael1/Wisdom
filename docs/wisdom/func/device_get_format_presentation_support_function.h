@@ -57,8 +57,8 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisDevice instance.
- * - `surface` points to WisSurface to check the presentation support for.
- * - `format` defines the format to check the presentation support for.
+ * - `surface` describes a pointer to WisSurface to check the presentation support for.
+ * - `format` describes the format to check the presentation support for.
  * 
  * - **return** Result of operation.
  * \endcond

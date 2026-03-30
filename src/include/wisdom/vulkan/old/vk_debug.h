@@ -6,12 +6,10 @@
 #endif // !WISDOM_MODULE_DECL
 
 WISDOM_EXPORT
-namespace wis
-{
+namespace wis {
 class VKDebugMessenger;
 
-namespace detail
-{
+namespace detail {
 struct DebugCallbackData {
     DebugCallback callback;
     void* user_data;

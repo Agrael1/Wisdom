@@ -10,8 +10,9 @@
 #include <wisdom/util/com_ptr.hpp>
 #include <wisdom/util/xxhash.h>
 
-#include <bit>
 #include <d3dx12/d3dx12_pipeline_state_stream.h>
+
+#include <bit>
 #include <ranges>
 
 //-----------------------------------------------------------------------------
@@ -96,8 +97,12 @@ wisDX12DeviceCreateFence(const WisDX12Device* self, uint64_t initial_value, WisD
 
     wis::com_ptr<ID3D12Fence> out_fence;
 
-    auto hr = device.device
-                  ->CreateFence(initial_value, D3D12_FENCE_FLAG_NONE, IID_ID3D12Fence, out_fence.put_void_unchecked());
+    auto hr = device.device->CreateFence(
+        initial_value,
+        D3D12_FENCE_FLAG_NONE,
+        IID_ID3D12Fence,
+        out_fence.put_void_unchecked()
+    );
     if (!wis::detail::succeeded(hr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to create fence">(hr);
     }
@@ -149,8 +154,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateDescriptorHeap(
     };
 
     wis::com_ptr<ID3D12DescriptorHeap> descriptor_heap;
-    HRESULT hr = device.device
-                     ->CreateDescriptorHeap(&heap_desc, IID_ID3D12DescriptorHeap, descriptor_heap.put_void_unchecked());
+    HRESULT hr = device.device->CreateDescriptorHeap(
+        &heap_desc,
+        IID_ID3D12DescriptorHeap,
+        descriptor_heap.put_void_unchecked()
+    );
     if (!wis::detail::succeeded(hr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to create descriptor heap">(hr);
     }
@@ -182,8 +190,11 @@ wisDX12DeviceCreateViewHeap(const WisDX12Device* self, WisViewHeapType type, uin
     };
 
     wis::com_ptr<ID3D12DescriptorHeap> descriptor_heap;
-    HRESULT hr = device.device
-                     ->CreateDescriptorHeap(&heap_desc, IID_ID3D12DescriptorHeap, descriptor_heap.put_void_unchecked());
+    HRESULT hr = device.device->CreateDescriptorHeap(
+        &heap_desc,
+        IID_ID3D12DescriptorHeap,
+        descriptor_heap.put_void_unchecked()
+    );
     if (!wis::detail::succeeded(hr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to create descriptor heap">(hr);
     }
@@ -378,8 +389,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(
     // Compute hash of root signature description for caching purposes
     XXH128_hash_t hash = XXH3_128bits(signature->GetBufferPointer(), signature->GetBufferSize());
     wis::detail::DX12RootSignatureKey key{.hash{hash.low64, hash.high64}};
-    root_signature
-        ->SetPrivateData(wis::detail::DX12RootSignatureKey::guid, sizeof(wis::detail::DX12RootSignatureKey), &key);
+    root_signature->SetPrivateData(
+        wis::detail::DX12RootSignatureKey::guid,
+        sizeof(wis::detail::DX12RootSignatureKey),
+        &key
+    );
 
     auto& layout_impl = *new (layout) wis::impl::DX12RootSignatureImpl{.root_signature = root_signature.detach()};
     return res;
@@ -462,7 +476,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceWaitForMultipleFences(
     const WisDX12FenceView* fences,
     const uint64_t* fence_values,
     size_t fence_count,
-    WisMutiWaitType wait_for,
+    WisMultiWaitType wait_for,
     uint64_t timeout
 )
 {
@@ -661,8 +675,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateComputePipeline(
         }
     }
 
-    auto hr = device.device
-                  ->CreatePipelineState(&pso_desc, IID_ID3D12PipelineState, pipeline_state.put_void_unchecked());
+    auto hr = device.device->CreatePipelineState(
+        &pso_desc,
+        IID_ID3D12PipelineState,
+        pipeline_state.put_void_unchecked()
+    );
     if (!wis::detail::succeeded(hr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to create compute pipeline state object">(hr);
     }

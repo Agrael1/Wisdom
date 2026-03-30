@@ -37,11 +37,11 @@
  * @section WisSwapchainUpdateDesc_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `width` New swapchain image width in pixels.
- * - `height` New swapchain image height in pixels.
- * - `image_count` Number of images in the swapchain.
- * - `format` Swapchain image format.
- * - `vsync` Vsync enabled or not. If true, the presentation is synchronized to the vertical blanking interval, which can help prevent screen tearing. If false, the presentation is not synchronized, which can result in higher frame rates but @wis_may cause screen tearing.
+ * - `width` defines new swapchain image width in pixels.
+ * - `height` describes new swapchain image height in pixels.
+ * - `image_count` indicates number of images in the swapchain.
+ * - `format` describes swapchain image format.
+ * - `vsync` indicates controls vsync; when true, presentation is synchronized to the vertical blanking interval to reduce tearing, whereas false can improve frame rate but can introduce tearing.
  * \endcond
  *
  * @section WisSwapchainUpdateDesc_descr Description

@@ -8,8 +8,7 @@
 #    include <wisdom/vulkan/vk_views.h>
 #endif // !WISDOM_MODULE_DECL
 
-namespace wis
-{
+namespace wis {
 WISDOM_EXPORT class VKCommandList;
 WISDOM_EXPORT struct VKBufferBarrier2;
 WISDOM_EXPORT struct VKTextureBarrier2;

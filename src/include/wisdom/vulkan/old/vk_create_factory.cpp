@@ -128,8 +128,7 @@ wis::detail::fixed_allocation<const char*> wis::ImplVKFactory::FoundLayers(
 }
 
 //--------------------------------------------------------------------------------------------------
-namespace wis::detail
-{
+namespace wis::detail {
 inline wis::VKFactory VKCreateFactoryWithExtensions(
     wis::Result& result,
     bool debug_layer,

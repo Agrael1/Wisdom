@@ -7,8 +7,7 @@
 #endif // !WISDOM_MODULE_DECL
 
 WISDOM_EXPORT
-namespace wis
-{
+namespace wis {
 #if defined(WISDOM_DX12) && !defined(WISDOM_FORCE_VULKAN)
 using Raytracing = ImplDX12Raytracing;
 using AccelerationStructure = DX12AccelerationStructure;

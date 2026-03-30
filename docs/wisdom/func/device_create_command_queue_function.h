@@ -57,7 +57,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisDevice instance.
- * - `type` defines the type of the command queue to create.
+ * - `type` specifies the type of the command queue to create.
  * - `queue` points to WisCommandQueue, which is initialized on success.
  * 
  * - **return** denoting the outcome of operation.

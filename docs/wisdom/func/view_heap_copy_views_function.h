@@ -14,7 +14,7 @@
  *                           uint32_t           dst_index,
  *                           uint64_t           src_ptr,
  *                           uint32_t           src_index,
- *                           uint32_t           count);
+ *                           uint32_t           view_count);
  * ```
  * <details>
  * <summary>C Implementation Specific Version:</summary>
@@ -24,14 +24,14 @@
  *                             uint32_t             dst_index,
  *                             uint64_t             src_ptr,
  *                             uint32_t             src_index,
- *                             uint32_t             count);
+ *                             uint32_t             view_count);
  * 
  * // Provided by Wisdom 0.7.0. 
  * void wisDX12ViewHeapCopyViews(const WisDX12ViewHeap* self,
  *                               uint32_t               dst_index,
  *                               uint64_t               src_ptr,
  *                               uint32_t               src_index,
- *                               uint32_t               count);
+ *                               uint32_t               view_count);
  * ```
  * </details>
  * 
@@ -42,7 +42,7 @@
  * void ViewHeap::CopyViews(std::uint32_t dst_index,
  *                          std::uint64_t src_ptr,
  *                          std::uint32_t src_index,
- *                          std::uint32_t count) const noexcept;
+ *                          std::uint32_t view_count) const noexcept;
  * }
  * ```
  * <details>
@@ -53,13 +53,13 @@
  * void VKViewHeap::CopyViews(std::uint32_t dst_index,
  *                            std::uint64_t src_ptr,
  *                            std::uint32_t src_index,
- *                            std::uint32_t count) const noexcept;
+ *                            std::uint32_t view_count) const noexcept;
  * 
  * // Provided by Wisdom 0.7.0. 
  * void DX12ViewHeap::CopyViews(std::uint32_t dst_index,
  *                              std::uint64_t src_ptr,
  *                              std::uint32_t src_index,
- *                              std::uint32_t count) const noexcept;
+ *                              std::uint32_t view_count) const noexcept;
  * }
  * ```
  * </details>
@@ -69,10 +69,10 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisViewHeap instance.
- * - `dst_index` defines the index in the destination view heap to copy views to.
- * - `src_ptr` points to WisViewHeap to copy views from.
- * - `src_index` defines the index in the source view heap to copy views from.
- * - `count` defines the number of views to copy.
+ * - `dst_index` specifies the index in the destination view heap to copy views to.
+ * - `src_ptr` describes a pointer to WisViewHeap to copy views from.
+ * - `src_index` indicates the index in the source view heap to copy views from.
+ * - `view_count` indicates the number of views to copy.
  * \endcond
  *
  * @section wisViewHeapCopyViews_descr Description

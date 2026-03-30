@@ -10,8 +10,7 @@
 #    include <d3d12.h>
 #endif
 
-namespace wis
-{
+namespace wis {
 WISDOM_EXPORT class DX12Fence;
 
 WISDOM_EXPORT

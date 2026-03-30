@@ -51,7 +51,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisCommandList instance.
- * - `data` defines the root parameter index to set the descriptor table for.
+ * - `data` specifies the root parameter index to set the descriptor table for.
  * \endcond
  *
  * @section wisCommandListSetDescriptorTable_descr Description

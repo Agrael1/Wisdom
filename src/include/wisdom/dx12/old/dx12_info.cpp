@@ -8,11 +8,11 @@
 
 #    include <d3d12sdklayers.h>
 #    include <dxgi1_6.h>
+
 #    include <vector>
 #endif // WISDOM_MODULE_DECL
 
-namespace wis
-{
+namespace wis {
 constexpr wis::Severity Convert(DXGI_INFO_QUEUE_MESSAGE_SEVERITY sev) noexcept
 {
     using enum wis::Severity;

@@ -51,7 +51,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisCommandList instance.
- * - `data` points to , which describes the push constant data to set.
+ * - `data` specifies a pointer to , which describes the push constant data to set.
  * \endcond
  *
  * @section wisCommandListSetPushConstants_descr Description

@@ -63,9 +63,9 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisDevice instance.
- * - `type` defines the type of the view heap to create.
- * - `capacity` defines the capacity in descriptors of the view heap to create.
- * - `heap` points to WisDescriptorHeap, which is initialized on success.
+ * - `type` specifies the type of the view heap to create.
+ * - `capacity` specifies the capacity in descriptors of the view heap to create.
+ * - `heap` points to WisViewHeap, which is initialized on success.
  * 
  * - **return** denoting the outcome of operation.
  * \endcond

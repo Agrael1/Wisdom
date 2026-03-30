@@ -75,11 +75,11 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisCommandList instance.
- * - `index_count` The number of indices to draw.
- * - `instance_count` The number of instances to draw. Default is 1.
- * - `start_index` The index of the first index to draw. Default is 0.
- * - `base_vertex` The value added to each index before reading a vertex from the vertex buffer. Default is 0.
- * - `start_instance` The index of the first instance to draw. Default is 0.
+ * - `index_count` defines number of indices to draw.
+ * - `instance_count` describes number of instances to draw; default is 1.
+ * - `start_index` describes index of the first index to draw; default is 0.
+ * - `base_vertex` defines value added to each index before reading a vertex from the vertex buffer; default is 0.
+ * - `start_instance` specifies index of the first instance to draw; default is 0.
  * \endcond
  *
  * @section wisCommandListDrawIndexed_descr Description

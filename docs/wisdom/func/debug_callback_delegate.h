@@ -25,10 +25,10 @@
  * @section WisDebugCallback_memb Parameters
  * <hr>
  * \cond WIS_GEN_DESC
- * - `severity` defines message severity level.
- * - `message` contains the debug message string.
- * - `device` handle to the device that generated the message. Can be `0` if message is not device specific.
- * - `user_data` user defined data pointer passed during callback registration.
+ * - `severity` indicates message severity level.
+ * - `message` describes contains the debug message string.
+ * - `device` defines handle to the device that generated the message. Can be `0` if message is not device specific.
+ * - `user_data` defines user defined data pointer passed during callback registration.
  * \endcond
  *
  * @section WisDebugCallback_descr Description

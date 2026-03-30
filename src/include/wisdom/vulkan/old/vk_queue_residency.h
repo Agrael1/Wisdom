@@ -5,14 +5,21 @@
 #    include <wisdom/util/flags.h>
 #    include <wisdom/util/small_allocator.h>
 
-#    include <atomic>
 #    include <vulkan/vulkan.h>
+
+#    include <atomic>
 #endif // !WISDOM_MODULE_DECL
 
 WISDOM_EXPORT
-namespace wis::detail
+namespace wis::detail {
+enum class QueueTypes : uint8_t
 {
-enum class QueueTypes : uint8_t { Graphics, Compute, Copy, VideoDecode, Count };
+    Graphics,
+    Compute,
+    Copy,
+    VideoDecode,
+    Count
+};
 struct QueueResidency {
     struct QueueInfo {
         uint32_t index;

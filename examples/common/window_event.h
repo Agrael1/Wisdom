@@ -1,6 +1,11 @@
 #pragma once
 
-namespace ex
+namespace ex {
+enum class WindowEvent
 {
-enum class WindowEvent { NoEvent = 0, Quit, Resize, Count };
+    NoEvent = 0,
+    Quit,
+    Resize,
+    Count
+};
 }

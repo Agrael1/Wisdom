@@ -2,8 +2,7 @@
 #include <optional>
 #include <queue>
 
-namespace ex
-{
+namespace ex {
 class Mouse
 {
 public:
@@ -13,7 +12,8 @@ public:
     class Event
     {
     public:
-        enum class Type {
+        enum class Type
+        {
             LPress,
             LRelease,
             RPress,

@@ -60,9 +60,9 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisSwapchain instance.
- * - `flags` defines the presentation options.
- * - `rects` points to the array of rectangles to present. If `nullptr`, the entire image is presented.
- * - `rect_count` defines the number of rectangles to present. Must be 0 if rects is `nullptr`.
+ * - `flags` describes the presentation options.
+ * - `rects` points to an array of rectangles to present. If `nullptr`, the entire image is presented.
+ * - `rect_count` specifies the number of rectangles to present. It @wis_must be 0 if rects is `nullptr`.
  * 
  * - **return** denoting the outcome of operation.
  * \endcond

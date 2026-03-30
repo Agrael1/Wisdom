@@ -8,11 +8,9 @@
 #    include <dlfcn.h>
 #endif
 
-namespace wis
-{
+namespace wis {
 
-namespace detail
-{
+namespace detail {
 inline void* InitializeVulkanLibrary() noexcept
 {
 #if defined(_WIN32)

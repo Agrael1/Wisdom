@@ -60,7 +60,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisDevice instance.
- * - `initial_data` points to the initial cache data. If `nullptr`, the cache is created empty.
+ * - `initial_data` points to an array of initial cache data bytes. If `nullptr`, the cache is created empty.
  * - `data_size` defines the size of the initial cache data in bytes.
  * - `cache` points to WisPipelineCache, which is initialized on success.
  * 

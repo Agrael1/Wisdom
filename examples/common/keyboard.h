@@ -3,8 +3,7 @@
 #include <optional>
 #include <queue>
 
-namespace ex
-{
+namespace ex {
 class Keyboard
 {
     friend class Window;
@@ -13,7 +12,8 @@ public:
     class Event
     {
     public:
-        enum class Type {
+        enum class Type
+        {
             Press,
             Release,
         };

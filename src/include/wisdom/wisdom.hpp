@@ -18,8 +18,7 @@
 
 #if defined(WISDOM_DX12) && !FORCEVK_SWITCH
 
-namespace wis
-{
+namespace wis {
 static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderIntermediate::DXIL;
 
 //==============================================================
@@ -74,8 +73,8 @@ using GraphicsPipelineDesc = wis::DX12GraphicsPipelineDesc;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates the wis::Instance with extensions, specified in extension array.
- * @param debug_desc points to wis::DebugDesc, which defines debug callback and debug layer usage. If `nullptr`, debug
- * layer is disabled.
+ * @param debug_desc describes a pointer to wis::DebugDesc, which defines debug callback and debug layer usage. If
+ * `nullptr`, debug layer is disabled.
  * @param extensions points to an array of extensions that are to be initialized with pointers to
  * wis::InstanceExtensionHeader.
  * @param out_result denoting the outcome of operation.
@@ -103,8 +102,7 @@ WIS_NODISCARD inline wis::Instance CreateInstance(
 
 #elif defined(WISDOM_VULKAN)
 
-namespace wis
-{
+namespace wis {
 static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderIntermediate::SPIRV;
 
 //==============================================================
@@ -159,8 +157,8 @@ using GraphicsPipelineDesc = wis::VKGraphicsPipelineDesc;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates the wis::Instance with extensions, specified in extension array.
- * @param debug_desc points to wis::DebugDesc, which defines debug callback and debug layer usage. If `nullptr`, debug
- * layer is disabled.
+ * @param debug_desc describes a pointer to wis::DebugDesc, which defines debug callback and debug layer usage. If
+ * `nullptr`, debug layer is disabled.
  * @param extensions points to an array of extensions that are to be initialized with pointers to
  * wis::InstanceExtensionHeader.
  * @param out_result denoting the outcome of operation.

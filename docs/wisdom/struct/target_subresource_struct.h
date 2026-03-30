@@ -33,9 +33,9 @@
  * @section WisTargetSubresource_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `mip_level` Mipmap level of the target subresource.
- * - `array_layer` Array layer of the target subresource. For 3D textures @wis_must be 0.
- * - `plane_slice` Depth slice of the target subresource. Used only for 2D textures (YUV).
+ * - `mip_level` describes mipmap level of the target subresource.
+ * - `array_layer` indicates array layer of the target subresource; for 3D textures it @wis_must be 0.
+ * - `plane_slice` indicates depth slice of the target subresource. Used only for 2D textures (YUV).
  * \endcond
  *
  * @section WisTargetSubresource_descr Description

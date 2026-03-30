@@ -35,10 +35,10 @@
  * @section WisBlendStateDesc_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `logic_op_enable` Logic operation enable. Default is false.
- * - `logic_op` Logic operation. Default is `WisLogicOpNoop`.
- * - `attachments` Blend attachment descriptions. Max Array size is 8.
- * - `attachment_count` Blend attachment count. If set as 0 - broadcast to all attachments. Max is 8.
+ * - `logic_op_enable` specifies logic operation enable. Default is false.
+ * - `logic_op` defines logic operation. Default is `WisLogicOpNoop`.
+ * - `attachments` defines blend attachment descriptions. Max Array size is 8.
+ * - `attachment_count` describes blend attachment count. If set as 0 - broadcast to all attachments. Max is 8.
  * \endcond
  *
  * @section WisBlendStateDesc_descr Description

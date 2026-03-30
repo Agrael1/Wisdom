@@ -31,8 +31,8 @@
  * @section WisTextureRegion_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `box` Box defining the region to copy.
- * - `target_subresource` Target subresource description for the region.
+ * - `box` describes box defining the region to copy.
+ * - `target_subresource` defines target subresource description for the region.
  * \endcond
  *
  * @section WisTextureRegion_descr Description

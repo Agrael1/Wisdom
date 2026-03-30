@@ -39,12 +39,12 @@
  * @section WisRenderTargetDesc_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `format` Render target format.
- * - `layout` Render target layout. Default is `WisTextureLayoutTexture2D`.
- * - `mip_level` Mipmap level of the target subresource.
- * - `base_array_layer` Array layer of the target subresource. For 3D textures, this defines the base depth slice.
- * - `array_layer_count` Number of array layers in the target subresource. For 3D textures, this defines the number of depth slices.
- * - `plane_slice` Depth slice of the target subresource. Used only for 2D textures (YUV).
+ * - `format` describes render target format.
+ * - `layout` specifies render target layout. Default is `WisTextureLayoutTexture2D`.
+ * - `mip_level` describes mipmap level of the target subresource.
+ * - `base_array_layer` describes array layer of the target subresource. For 3D textures, this defines the base depth slice.
+ * - `array_layer_count` indicates number of array layers in the target subresource. For 3D textures, this defines the number of depth slices.
+ * - `plane_slice` indicates depth slice of the target subresource. Used only for 2D textures (YUV).
  * \endcond
  *
  * @section WisRenderTargetDesc_descr Description

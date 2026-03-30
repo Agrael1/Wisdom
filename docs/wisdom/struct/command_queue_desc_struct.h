@@ -31,8 +31,8 @@
  * @section WisCommandQueueDesc_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `type` defines the type of the command queue.
- * - `priority` defines command queue priority. Used to set priority of the command queues of the type.
+ * - `type` specifies the type of the command queue.
+ * - `priority` specifies command queue priority. Used to set priority of the command queues of the type.
  * \endcond
  *
  * @section WisCommandQueueDesc_descr Description

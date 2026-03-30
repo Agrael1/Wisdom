@@ -6,8 +6,7 @@
 #    include <wisdom/vulkan/vk_views.h>
 #endif // !WISDOM_MODULE_DECL
 
-namespace wis
-{
+namespace wis {
 WISDOM_EXPORT class VKBuffer;
 WISDOM_EXPORT class VKTexture;
 WISDOM_EXPORT class VKShaderResource;

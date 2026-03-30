@@ -57,7 +57,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisDevice instance.
- * - `surface` points to WisSurface to check the presentation support for.
+ * - `surface` describes a pointer to WisSurface to check the presentation support for.
  * - `params` Parameters of the surface.
  * 
  * - **return** denoting the outcome of operation.

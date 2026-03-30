@@ -10,8 +10,7 @@
 #include <array>
 #include <bit>
 
-namespace wis::detail
-{
+namespace wis::detail {
 inline DXGI_FORMAT DX12GetSRVFormat(const WisTextureBinding& binding) noexcept
 {
     switch (binding.format) {

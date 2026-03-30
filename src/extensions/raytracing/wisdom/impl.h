@@ -7,8 +7,7 @@
 #endif // !WISDOM_MODULE_DECL
 
 WISDOM_EXPORT
-namespace wis
-{
+namespace wis {
 struct AccelerationInstance {
     float transform[3][4];
     uint32_t instance_id : 24;

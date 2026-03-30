@@ -4,9 +4,10 @@
 #include <wisdom/util/log_layer.h>
 #include <wisdom/wisdom_debug.hpp>
 
+#include <stb_image_write.h>
+
 #include <chrono>
 #include <iostream>
-#include <stb_image_write.h>
 
 //--------------------------------------------------------------------------------------------------
 

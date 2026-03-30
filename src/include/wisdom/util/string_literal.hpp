@@ -4,8 +4,7 @@
 
 #include <string_view>
 
-namespace wis
-{
+namespace wis {
 template <typename Char, std::size_t N>
 struct basic_fixed_string {
 public:
@@ -76,8 +75,7 @@ constexpr auto operator+(const basic_fixed_string<Char, N1>& lhs, const basic_fi
 #endif
 }
 
-inline namespace literals
-{
+inline namespace literals {
 template <wis::fixed_string lit>
 constexpr auto operator""_fs() noexcept
 {

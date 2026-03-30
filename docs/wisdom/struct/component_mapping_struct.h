@@ -35,10 +35,10 @@
  * @section WisComponentMapping_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `r` Component mapping for Red channel. Default is `WisComponentSwizzleRed`.
- * - `g` Component mapping for Green channel. Default is `WisComponentSwizzleGreen`.
- * - `b` Component mapping for Blue channel. Default is `WisComponentSwizzleBlue`.
- * - `a` Component mapping for Alpha channel. Default is `WisComponentSwizzleAlpha`.
+ * - `r` specifies component mapping for Red channel. Default is `WisComponentSwizzleRed`.
+ * - `g` indicates component mapping for Green channel. Default is `WisComponentSwizzleGreen`.
+ * - `b` specifies component mapping for Blue channel. Default is `WisComponentSwizzleBlue`.
+ * - `a` describes component mapping for Alpha channel. Default is `WisComponentSwizzleAlpha`.
  * \endcond
  *
  * @section WisComponentMapping_descr Description

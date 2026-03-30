@@ -9,8 +9,7 @@
 #include <algorithm>
 #include <bit>
 
-namespace wis::detail
-{
+namespace wis::detail {
 struct VKQueueResidencyInfo {
     static constexpr uint32_t invalid_index = std::numeric_limits<uint32_t>::max();
     static constexpr uint32_t reasonable_queue_families = 32u;
@@ -328,18 +327,18 @@ inline VKQueueResidencyInfo VKGetQueueResidencyInfo(
 
             // Check if the global priority of the already allocated family is greater.
             if (priority_next > info.data[allocated_family].pNext) {
-                info.data[allocated_family]
-                    .pNext = priority_next; // Upgrade the global priority for the already allocated family
+                info.data[allocated_family].pNext = priority_next; // Upgrade the global priority for the already
+                                                                   // allocated family
             }
 
             info.residency[desc.type] = family_props.queueFlags;
             continue; // This family has already been allocated
         }
 
-        info.residency[desc.type] = family_props
-                                        .queueFlags = allocated_queue_count; // Store where the family is allocated in
-                                                                             // the residency field (abusing queueFlags
-                                                                             // for this purpose)
+        info.residency
+            [desc.type] = family_props.queueFlags = allocated_queue_count; // Store where the family is allocated in
+                                                                           // the residency field (abusing queueFlags
+                                                                           // for this purpose)
 
         info.data[allocated_queue_count++] = {
             .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
@@ -717,8 +716,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(
 
     // Start header lifetime
     wis::detail::VKDeviceControlBlock* header = new (header_storage.get()) wis::detail::VKDeviceControlBlock{};
-    header->header
-        .instance = impl.instance; // store instance handle in device header for later use in resource allocator
+    header->header.instance = impl.instance; // store instance handle in device header for later use in resource
+                                             // allocator
 
     wis::span<std::binary_semaphore> semaphores{reinterpret_cast<std::binary_semaphore*>(header + 1), semaphore_count};
     for (auto& sem : semaphores) {

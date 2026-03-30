@@ -51,7 +51,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisSwapchain instance.
- * - `desc` points to WisSwapchainUpdateDesc, which describes the new swapchain parameters.
+ * - `desc` indicates a pointer to WisSwapchainUpdateDesc, which describes the new swapchain parameters.
  * 
  * - **return** denoting the outcome of operation.
  * \endcond

@@ -39,12 +39,12 @@
  * @section WisBox_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `x` Left corner x coordinate.
- * - `y` Top corner y coordinate.
- * - `z` Front corner z coordinate. Used only for 3D textures.
- * - `width` Width of the box.
- * - `height` Height of the box.
- * - `depth` Depth of the box. Used only for 3D textures.
+ * - `x` defines left corner x coordinate.
+ * - `y` describes top corner y coordinate.
+ * - `z` specifies front corner z coordinate. Used only for 3D textures.
+ * - `width` defines width of the box.
+ * - `height` describes height of the box.
+ * - `depth` describes depth of the box. Used only for 3D textures.
  * \endcond
  *
  * @section WisBox_descr Description

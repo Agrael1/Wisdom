@@ -10,17 +10,14 @@
 #include <d3d12.h>
 #include <dxgi1_6.h>
 
-namespace wis
-{
+namespace wis {
 //-----------------------------------------------------------------------------
-namespace detail
-{
+namespace detail {
 struct DX12DebugLayer;
 struct DX12ShaderHeader;
 } // namespace detail
 
-namespace impl
-{
+namespace impl {
 
 struct DX12InstanceImpl {
     IDXGIFactory6* factory;

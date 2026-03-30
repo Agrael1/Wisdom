@@ -57,7 +57,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisResourceAllocator instance.
- * - `desc` points to WisTextureDesc, which describes the texture to create.
+ * - `desc` indicates a pointer to WisTextureDesc, which describes the texture to create.
  * - `texture` points to WisTexture, which is initialized on success.
  * 
  * - **return** denoting the outcome of operation.

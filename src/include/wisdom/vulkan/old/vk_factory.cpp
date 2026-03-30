@@ -13,8 +13,7 @@
 #    include <vector>
 #endif // !WISDOM_MODULE_DECL
 
-namespace wis::detail
-{
+namespace wis::detail {
 inline constexpr uint32_t order_performance(VkPhysicalDeviceType t)
 {
     switch (t) {

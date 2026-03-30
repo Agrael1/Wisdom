@@ -51,7 +51,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisFence instance.
- * - `value` Value to signal.
+ * - `value` describes value to signal.
  * 
  * - **return** denoting the outcome of operation.
  * \endcond

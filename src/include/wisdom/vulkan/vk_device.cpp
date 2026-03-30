@@ -7,8 +7,7 @@
 
 #include <bit>
 
-namespace wis::detail
-{
+namespace wis::detail {
 struct VKMappingOffsetInfo {
     uint32_t offset : 31 = 0x7FFFFFF;
     uint32_t even : 1 = 1; // After even stages there needs to be "all" maps, after odd stages there doesn't. This is a
@@ -215,8 +214,8 @@ wisVKDeviceCreateCommandAllocator(const WisVKDevice* self, WisCommandQueueType t
     pool_control_block->header.device = device.device;
     pool_control_block->header.command_pool = command_pool;
     pool_control_block->header.device_header = device.device_header;
-    pool_control_block->header.device_header
-        ->AddRef(); // hold reference to device header for command pool control block
+    pool_control_block->header.device_header->AddRef(); // hold reference to device header for command pool control
+                                                        // block
 
     auto& allocator_impl = *new (allocator) wis::impl::VKCommandAllocatorImpl{
         .command_pool = command_pool,
@@ -314,10 +313,8 @@ wisVKDeviceCreateDescriptorHeap(const WisVKDevice* self, const WisDescriptorHeap
                                                                  : features.max_descriptor_heap_size
                                                : std::numeric_limits<std::size_t>::max();
 
-    std::size_t required_size = wis::aligned_size(
-        desc->descriptor_count * descriptor_size + reserved_size,
-        heap_alignment
-    );
+    std::size_t
+        required_size = wis::aligned_size(desc->descriptor_count * descriptor_size + reserved_size, heap_alignment);
 
     if (is_shader_heap && required_size > max_heap_size) {
         return wis::detail::make_result<
@@ -517,12 +514,11 @@ wisVKDeviceCreateRootSignature(const WisVKDevice* self, const WisRootSignatureDe
                                                                                        // this stage, if odd, "all" maps
                                                                                        // are before this stage
 
-        rootsig_header
-            ->shader_mapping_sizes[i] = table_counts_per_shader[i] +
-                                        (local_offsets_per_shader[i].even
-                                             ? 0
-                                             : table_counts_per_shader[0]); // If even, this stage maps + "all" maps, if
-                                                                            // odd, only this stage maps
+        rootsig_header->shader_mapping_sizes
+            [i] = table_counts_per_shader[i] + (local_offsets_per_shader[i].even
+                                                    ? 0
+                                                    : table_counts_per_shader[0]); // If even, this stage maps + "all"
+                                                                                   // maps, if odd, only this stage maps
 
         if (!all_offset) {
             // Set as an offset after mapping[0]
@@ -743,7 +739,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceWaitForMultipleFences(
     const WisVKFenceView* fences,
     const uint64_t* fence_values,
     size_t fence_count,
-    WisMutiWaitType wait_for,
+    WisMultiWaitType wait_for,
     uint64_t timeout
 )
 {
@@ -849,9 +845,10 @@ wisVKDeviceCreateShader(const WisVKDevice* self, const uint8_t* data, size_t siz
         return wis::detail::make_result<wis::detail::Func(), "Failed to create shader module">(vr);
     }
 
-    auto& shader_impl = *new (
-        shader
-    ) wis::impl::VKShaderImpl{.shader_module = shader_handle, .device_header = device.device_header};
+    auto& shader_impl = *new (shader) wis::impl::VKShaderImpl{
+        .shader_module = shader_handle,
+        .device_header = device.device_header
+    };
     device.device_header->AddRef();
     return wis::detail::vk_success;
 }
@@ -905,9 +902,10 @@ wisVKDeviceCreateComputePipeline(const WisVKDevice* self, const WisVKComputePipe
         return wis::detail::make_result<wis::detail::Func(), "Failed to create compute pipeline">(vr);
     }
 
-    auto& pipeline_impl = *new (
-        pipeline
-    ) wis::impl::VKPipelineImpl{.pipeline = pipeline_handle, .device_header = device.device_header};
+    auto& pipeline_impl = *new (pipeline) wis::impl::VKPipelineImpl{
+        .pipeline = pipeline_handle,
+        .device_header = device.device_header
+    };
     pipeline_impl.device_header->AddRef();
     return wis::detail::vk_success;
 }
@@ -1363,9 +1361,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(
         return wis::detail::make_result<wis::detail::Func(), "Failed to create a graphics pipeline">(vr);
     }
 
-    auto& pipeline_impl = *new (
-        pipeline
-    ) wis::impl::VKPipelineImpl{.pipeline = pipeline_handle, .device_header = device.device_header};
+    auto& pipeline_impl = *new (pipeline) wis::impl::VKPipelineImpl{
+        .pipeline = pipeline_handle,
+        .device_header = device.device_header
+    };
     device.device_header->AddRef();
 
     return wis::detail::vk_success;

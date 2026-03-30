@@ -39,12 +39,12 @@
  * @section WisInputAttributeDesc_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `binding_index` Index into an array of bindings that the attribute is tied to.
- * - `semantic_name` Semantic name of the attribute in HLSL. Must be unique and null terminated.
- * - `semantic_index` Semantic index of the attribute in HLSL. Must be unique.
- * - `location` Location of the attribute in HLSL. Must be unique.
- * - `format` Data format of the attribute.
- * - `offset_bytes` Offset in bytes from the beginning of the vertex.
+ * - `binding_index` specifies index into an array of bindings that the attribute is tied to.
+ * - `semantic_name` defines semantic name of the attribute in HLSL; it @wis_must be unique and null-terminated.
+ * - `semantic_index` indicates semantic index of the attribute in HLSL; it @wis_must be unique.
+ * - `location` describes location of the attribute in HLSL; it @wis_must be unique.
+ * - `format` describes data format of the attribute.
+ * - `offset_bytes` describes offset in bytes from the beginning of the vertex.
  * \endcond
  *
  * @section WisInputAttributeDesc_descr Description

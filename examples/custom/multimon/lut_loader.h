@@ -3,7 +3,8 @@
 #include <memory>
 #include <string_view>
 
-enum class LutType {
+enum class LutType
+{
     Undefined,
     Lut1D,
     Lut3D,

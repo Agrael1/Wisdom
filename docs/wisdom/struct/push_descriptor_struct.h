@@ -35,10 +35,10 @@
  * @section WisPushDescriptor_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `visibility` Shader stage visibility for the push descriptor.
- * - `type` Descriptor type. Works only with buffer bindings.
- * - `bind_register` Bind register number in HLSL.
- * - `bind_space` Bind space number in HLSL. `register(regN, spaceN)`
+ * - `visibility` defines shader stage visibility for the push descriptor.
+ * - `type` specifies descriptor type. Works only with buffer bindings.
+ * - `bind_register` describes bind register number in HLSL.
+ * - `bind_space` defines bind space number in HLSL. `register(regN, spaceN)`
  * \endcond
  *
  * @section WisPushDescriptor_descr Description

@@ -57,7 +57,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisDevice instance.
- * - `initial_value` defines the initial value of the fence.
+ * - `initial_value` specifies the initial value of the fence.
  * - `fence` points to WisFence, which is initialized on success.
  * 
  * - **return** denoting the outcome of operation.

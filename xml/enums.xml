@@ -771,7 +771,7 @@ a 4-bit A component in bits 12..15.">
       </value>
     </type>
 
-    <type name="MutiWaitType" category="enum" version="0.7.0" doc="Determines the behavior when wait for multiple fences is issued.">
+    <type name="MultiWaitType" category="enum" version="0.7.0" doc="Determines the behavior when waiting for multiple fences.">
       <value name="All" value="0" doc="All the fences in the batch are triggered."/>
       <value name="Any" value="1" doc="At least one of the fences from the batch is triggered."/>
     </type>

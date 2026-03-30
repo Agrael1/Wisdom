@@ -51,7 +51,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisCommandList instance.
- * - `topology` The primitive topology to set.
+ * - `topology` describes primitive topology to set.
  * \endcond
  *
  * @section wisCommandListSetPrimitiveTopology_descr Description

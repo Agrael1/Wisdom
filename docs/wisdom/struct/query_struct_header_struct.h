@@ -31,8 +31,8 @@
  * @section WisQueryStructHeader_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `property_type` Defines the type of the queried property. Used to determine what struct is passed.
- * - `next_in_chain` Pointer to the next queried data struct.
+ * - `property_type` specifies the type of the queried property. Used to determine what struct is passed.
+ * - `next_in_chain` indicates pointer to the next queried data struct.
  * \endcond
  *
  * @section WisQueryStructHeader_descr Description

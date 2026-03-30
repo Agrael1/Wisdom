@@ -54,8 +54,8 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisCommandList instance.
- * - `scissor_rects` The scissors to set.
- * - `rect_count` The number of scissors to set.
+ * - `scissor_rects` points to an array of scissor rectangles to set.
+ * - `rect_count` specifies number of scissor rectangles to set.
  * \endcond
  *
  * @section wisCommandListSetScissors_descr Description

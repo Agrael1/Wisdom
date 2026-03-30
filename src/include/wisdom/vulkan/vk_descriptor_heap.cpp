@@ -8,8 +8,7 @@
 
 #include <bit>
 
-namespace wis::detail
-{
+namespace wis::detail {
 inline VkImageAspectFlags VKGetAspectFlags(const WisTextureBinding& binding) noexcept
 {
     if ((binding.flags & WisTextureBindingFlagsStencilView) &&
@@ -248,8 +247,11 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyViewHeap(WisVKViewHeap* self)
     if (impl.view_heap) {
         for (uint32_t i = 0; i < impl.capacity; ++i) {
             if (impl.view_heap[i].view != VK_NULL_HANDLE) {
-                impl.device_header->header.device_table
-                    .vkDestroyImageView(impl.device_header->header.device, impl.view_heap[i].view, nullptr);
+                impl.device_header->header.device_table.vkDestroyImageView(
+                    impl.device_header->header.device,
+                    impl.view_heap[i].view,
+                    nullptr
+                );
             }
         }
 
@@ -662,8 +664,11 @@ WIS_EXTERN_C WISDOM_API void wisVKViewHeapCopyViews(
     for (uint32_t i = 0; i < count; ++i) {
         // Destroy existing view at destination if it's not null
         if (dst_views[i].view != VK_NULL_HANDLE) {
-            heap.device_header->header.device_table
-                .vkDestroyImageView(heap.device_header->header.device, dst_views[i].view, nullptr);
+            heap.device_header->header.device_table.vkDestroyImageView(
+                heap.device_header->header.device,
+                dst_views[i].view,
+                nullptr
+            );
         }
         dst_views[i] = src_views[i];
     }

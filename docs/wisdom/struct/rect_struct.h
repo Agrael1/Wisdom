@@ -35,10 +35,10 @@
  * @section WisRect_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `x` Left corner x coordinate.
- * - `y` Top corner y coordinate.
- * - `width` Width of the rect.
- * - `height` Height of the rect.
+ * - `x` defines left corner x coordinate.
+ * - `y` describes top corner y coordinate.
+ * - `width` defines width of the rect.
+ * - `height` describes height of the rect.
  * \endcond
  *
  * @section WisRect_descr Description

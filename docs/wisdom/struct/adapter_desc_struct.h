@@ -45,14 +45,14 @@
  * @section WisAdapterDesc_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `description` Adapter description. Contains name of the graphics adapter.
- * - `vendor_id` denotes Vendor ID. Can be used to find the correct adapter.
- * - `device_id` denotes Device ID. Together with `WisAdapterDesc::vendor_id` uniquely identifies the device.
- * - `dedicated_video_memory` measures dedicated video memory in bytes. Used for device local memory type.
- * - `shared_system_memory` measures memory that is shared with CPU in bytes. Used for upload and readback.
- * - `adapter_id` denotes adapter unique ID (LUID). Can be used to find the correct adapter.
- * - `adapter_uuid` stores UUID of the adapter, used only with Vulkan API on systems with no LUID.
- * - `flags` Adapter flags. Describe the adapter kind.
+ * - `description` defines adapter description. Contains name of the graphics adapter.
+ * - `vendor_id` specifies denotes Vendor ID. Can be used to find the correct adapter.
+ * - `device_id` defines denotes Device ID. Together with `WisAdapterDesc::vendor_id` uniquely identifies the device.
+ * - `dedicated_video_memory` describes measures dedicated video memory in bytes. Used for device local memory type.
+ * - `shared_system_memory` indicates measures memory that is shared with CPU in bytes. Used for upload and readback.
+ * - `adapter_id` describes denotes adapter unique ID (LUID). Can be used to find the correct adapter.
+ * - `adapter_uuid` indicates stores UUID of the adapter, used only with Vulkan API on systems with no LUID.
+ * - `flags` describes adapter flags. Describe the adapter kind.
  * \endcond
  *
  * @section WisAdapterDesc_descr Description

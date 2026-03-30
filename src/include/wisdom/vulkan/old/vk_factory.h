@@ -15,12 +15,10 @@
 #    include <vector>
 #endif // !WISDOM_MODULE_DECL
 
-namespace wis
-{
+namespace wis {
 WISDOM_EXPORT class VKFactory;
 
-namespace detail
-{
+namespace detail {
 constexpr inline std::array instance_extensions{
     VK_KHR_SURFACE_EXTENSION_NAME,
     VK_EXT_SURFACE_MAINTENANCE_1_EXTENSION_NAME,

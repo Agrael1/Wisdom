@@ -31,8 +31,8 @@
  * @section WisConstantBufferBinding_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `buffer_address` defines buffer device address to bind.
- * - `size_bytes` defines the size of the buffer region to bind in bytes.
+ * - `buffer_address` indicates buffer device address to bind.
+ * - `size_bytes` describes the size of the buffer region to bind in bytes.
  * \endcond
  *
  * @section WisConstantBufferBinding_descr Description

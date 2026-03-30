@@ -39,12 +39,12 @@
  * @section WisSubresourceRange_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `base_mip_level` Mipmap level of the subresource.
- * - `mip_level_count` Number of mip levels in the subresource.
- * - `base_array_layer` Array layer of the subresource. For 3D textures, this defines the depth slice.
- * - `array_layer_count` Number of array layers in the subresource. For 3D textures, this defines the number of depth slices.
- * - `plane_slice` Base depth slice of the subresource. Used only for 2D textures (YUV).
- * - `plane_slice_count` Number of depth slices in the subresource. Used only for 2D textures (YUV). Max value is 3.
+ * - `base_mip_level` indicates mipmap level of the subresource.
+ * - `mip_level_count` describes number of mip levels in the subresource.
+ * - `base_array_layer` describes array layer of the subresource. For 3D textures, this defines the depth slice.
+ * - `array_layer_count` indicates number of array layers in the subresource. For 3D textures, this defines the number of depth slices.
+ * - `plane_slice` indicates base depth slice of the subresource. Used only for 2D textures (YUV).
+ * - `plane_slice_count` indicates number of depth slices in the subresource. Used only for 2D textures (YUV). Max value is 3.
  * \endcond
  *
  * @section WisSubresourceRange_descr Description

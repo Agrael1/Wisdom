@@ -9,8 +9,7 @@
 
 #include <algorithm>
 
-namespace wis::detail
-{
+namespace wis::detail {
 //-----------------------------------------------------------------------------
 /**
  * @brief Orders Vulkan physical device types by their expected performance, with discrete GPUs being the highest and

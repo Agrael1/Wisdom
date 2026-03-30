@@ -12,18 +12,18 @@ BreakBeforeBraces: Custom
 BraceWrapping:
   AfterClass: true
   AfterControlStatement: MultiLine
-  AfterEnum: false
+  AfterEnum: true
   AfterFunction: true
-  AfterNamespace: true
+  AfterNamespace: false
   AfterStruct: false
   AfterUnion: false
   BeforeCatch: false
   BeforeElse: false
   SplitEmptyFunction: true
   SplitEmptyRecord: true
-PenaltyBreakAssignment: 10000
-PenaltyBreakBeforeFirstCallParameter: 1
-PenaltyReturnTypeOnItsOwnLine: 10000
+PenaltyBreakAssignment: 100000
+PenaltyBreakBeforeFirstCallParameter: 0
+PenaltyReturnTypeOnItsOwnLine: 1000000
 IndentCaseLabels: false
 BreakInheritanceList: BeforeComma
 BreakConstructorInitializers: BeforeComma
@@ -51,10 +51,12 @@ IncludeCategories:
   - Regex: ^<(wisdom.*)$
     Priority: 1
     CaseSensitive: true
-  - Regex: ^<.*>$
+  - Regex: ^<.*\.h.*>$
     Priority: 2
-  - Regex: ^".*"$
+  - Regex: ^<.*>$
     Priority: 3
+  - Regex: ^".*"$
+    Priority: 4
 AllowShortFunctionsOnASingleLine: InlineOnly
 InsertBraces: true
 AllowShortBlocksOnASingleLine: false
@@ -64,3 +66,7 @@ FixNamespaceComments: true
 AlignEscapedNewlines: Left
 AlignArrayOfStructures: None
 IndentPPDirectives: AfterHash
+PenaltyBreakComment: 1000
+PenaltyBreakOpenParenthesis: 101
+PenaltyBreakBeforeMemberAccess: 1000
+BreakAfterReturnType: None

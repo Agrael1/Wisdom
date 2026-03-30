@@ -9,8 +9,7 @@
 #    include <span>
 #endif // !WISDOM_MODULE_DECL
 
-namespace wis
-{
+namespace wis {
 WISDOM_EXPORT class VKAdapter;
 
 WISDOM_EXPORT

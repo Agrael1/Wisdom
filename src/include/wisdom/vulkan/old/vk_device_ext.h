@@ -5,22 +5,21 @@
 #    include <wisdom/global/internal.h>
 #    include <wisdom/util/misc.h>
 
+#    include <vulkan/vulkan_core.h>
+
 #    include <span>
 #    include <string_view>
 #    include <tuple>
 #    include <unordered_map>
 #    include <unordered_set>
-#    include <vulkan/vulkan_core.h>
 #endif // !WISDOM_MODULE_DECL
 
-namespace wis
-{
+namespace wis {
 WISDOM_EXPORT class VKDevice;
 }
 
 WISDOM_EXPORT
-namespace wis
-{
+namespace wis {
 struct VKDeviceExtension {
     virtual ~VKDeviceExtension() = default;
 

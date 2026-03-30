@@ -5,8 +5,7 @@
 #endif
 
 WISDOM_EXPORT
-namespace wis
-{
+namespace wis {
 class DX12Device;
 
 struct DX12DeviceExtension {

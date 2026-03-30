@@ -77,10 +77,10 @@
  * @section WisComputePipelineDesc_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `root_signature` Root signature description for the pipeline.
- * - `compute_shader` Compute shader bytecode.
- * - `cache` Pipeline cache data. Used to speed up pipeline creation if available.
- * - `flags` Pipeline flags. Describe additional options for the pipeline.
+ * - `root_signature` describes root signature description for the pipeline.
+ * - `compute_shader` indicates compute shader bytecode.
+ * - `cache` defines pipeline cache data. Used to speed up pipeline creation if available.
+ * - `flags` describes pipeline flags. Describe additional options for the pipeline.
  * \endcond
  *
  * @section WisComputePipelineDesc_descr Description

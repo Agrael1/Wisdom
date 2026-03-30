@@ -8,8 +8,7 @@
 
 #include <bit>
 
-namespace wis::detail
-{
+namespace wis::detail {
 constexpr static uint32_t dx12_max_barrier_size = std::max(
     {sizeof(D3D12_BUFFER_BARRIER), sizeof(D3D12_TEXTURE_BARRIER), sizeof(D3D12_GLOBAL_BARRIER)}
 );
@@ -266,13 +265,21 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetPushConstants(
     switch (data->pipeline) {
     default:
     case WisPipelineTypeGraphics:
-        impl.list
-            ->SetGraphicsRoot32BitConstants(data->root_index, data->data_size / 4, data->data, data->push_offset / 4);
+        impl.list->SetGraphicsRoot32BitConstants(
+            data->root_index,
+            data->data_size / 4,
+            data->data,
+            data->push_offset / 4
+        );
         break;
     case WisPipelineTypeRayTracing:
     case WisPipelineTypeCompute:
-        impl.list
-            ->SetComputeRoot32BitConstants(data->root_index, data->data_size / 4, data->data, data->push_offset / 4);
+        impl.list->SetComputeRoot32BitConstants(
+            data->root_index,
+            data->data_size / 4,
+            data->data,
+            data->push_offset / 4
+        );
     }
 }
 
@@ -686,6 +693,25 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListDrawIndexed(
 {
     auto& impl = wis::from_handle_ref<const wis::impl::DX12CommandListImpl>(self);
     impl.list->DrawIndexedInstanced(index_count, instance_count, start_index, base_vertex, start_instance);
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisDX12CommandListCopyBuffer(
+    const WisDX12CommandList* self,
+    WisDX12BufferView dst_buffer,
+    WisDX12BufferView src_buffer,
+    const WisBufferCopyRegion* regions,
+    size_t region_count
+)
+{
+    auto& impl = wis::from_handle_ref<const wis::impl::DX12CommandListImpl>(self);
+    auto* dst = std::bit_cast<ID3D12Resource*>(dst_buffer);
+    auto* src = std::bit_cast<ID3D12Resource*>(src_buffer);
+
+    for (size_t i = 0; i < region_count; ++i) {
+        auto& region = regions[i];
+        impl.list->CopyBufferRegion(dst, region.dst_offset, src, region.src_offset, region.size_bytes);
+    }
 }
 
 #endif // WIS_DX12_COMMAND_LIST_CPP

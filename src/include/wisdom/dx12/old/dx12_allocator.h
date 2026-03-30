@@ -4,8 +4,7 @@
 #    include <wisdom/dx12/dx12_resource.h>
 #endif // !WISDOM_MODULE_DECL
 
-namespace wis
-{
+namespace wis {
 WISDOM_EXPORT class DX12ResourceAllocator;
 WISDOM_EXPORT class DX12Device;
 

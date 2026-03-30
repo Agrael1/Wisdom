@@ -36,12 +36,12 @@
  * @section WisRootSignatureDesc_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `push_constants` describes the global shader push data.
- * - `push_constant_count` counts the number of push constants in the `WisRootSignatureDesc::push_constants` array.
+ * - `push_constants` points to an array of push constants that defines global shader push data.
+ * - `push_constant_count` describes the number of the number of push constants in the `WisRootSignatureDesc::push_constants` array.
  * - `push_descriptors` points to an array of WisPushDescriptor.
- * - `push_descriptor_count` counts the number of push descriptors in the `WisRootSignatureDesc::push_descriptors` array.
+ * - `push_descriptor_count` specifies the number of the number of push descriptors in the `WisRootSignatureDesc::push_descriptors` array.
  * - `descriptor_tables` points to an array of WisDescriptorTable.
- * - `descriptor_table_count` counts the number of descriptor tables in the `WisRootSignatureDesc::descriptor_tables` array.
+ * - `descriptor_table_count` specifies the number of the number of descriptor tables in the `WisRootSignatureDesc::descriptor_tables` array.
  * \endcond
  *
  * @section WisRootSignatureDesc_descr Description

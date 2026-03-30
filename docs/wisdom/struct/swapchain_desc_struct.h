@@ -43,14 +43,14 @@
  * @section WisSwapchainDesc_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `width` Swapchain image width in pixels.
- * - `height` Swapchain image height in pixels.
- * - `image_count` Number of images in the swapchain.
- * - `texture_usage_flags` Texture usage flags for the swapchain images. Describe how the swapchain images will be used.
- * - `format` Swapchain image format.
- * - `scaling` Swapchain scaling mode.
- * - `flags` Swapchain flags. Describe additional options for the swapchain.
- * - `composite_alpha` Composite alpha mode. Describe how the alpha channel of the swapchain images is treated during compositing.
+ * - `width` defines swapchain image width in pixels.
+ * - `height` describes swapchain image height in pixels.
+ * - `image_count` indicates number of images in the swapchain.
+ * - `texture_usage_flags` describes texture usage flags for the swapchain images. Describe how the swapchain images will be used.
+ * - `format` describes swapchain image format.
+ * - `scaling` describes swapchain scaling mode.
+ * - `flags` describes swapchain flags. Describe additional options for the swapchain.
+ * - `composite_alpha` defines composite alpha mode. Describe how the alpha channel of the swapchain images is treated during compositing.
  * \endcond
  *
  * @section WisSwapchainDesc_descr Description

@@ -143,21 +143,21 @@
  * @section WisGraphicsPipelineDesc_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `root_signature` Root signature description for the pipeline.
- * - `vertex_shader` Vertex shader bytecode.
- * - `hull_shader` Hull shader bytecode. If not set, the pipeline will be created without a hull shader.
- * - `domain_shader` Domain shader bytecode. If not set, the pipeline will be created without a domain shader.
- * - `geometry_shader` Geometry shader bytecode. If not set, the pipeline will be created without a geometry shader.
- * - `pixel_shader` Pixel shader bytecode. If not set, the pipeline will be created without a pixel shader.
- * - `render_attachments` Render attachments description for the pipeline. Used to create the compatible render pass for the pipeline.
- * - `input_layout` Input layout description for the pipeline. If not set, the pipeline will be created without an input layout.
- * - `topology_type` Topology type. Default is `WisTopologyTypeTriangle`.
- * - `rasterizer_desc` Rasterizer description for the pipeline. If not set, the pipeline will be created with default rasterizer state.
- * - `sample_desc` Sample description for the pipeline. If not set, the pipeline will be created with default sample state (no multisampling).
- * - `depth_stencil_desc` Depth stencil description for the pipeline. If not set, the pipeline will be created with depth testing and stencil testing disabled.
- * - `blend_state_desc` Blend state description for the pipeline. If not set, the pipeline will be created with blending disabled.
- * - `cache` Pipeline cache data. Used to speed up pipeline creation if available.
- * - `flags` Pipeline flags. Describe additional options for the pipeline.
+ * - `root_signature` describes root signature description for the pipeline.
+ * - `vertex_shader` defines vertex shader bytecode.
+ * - `hull_shader` indicates hull shader bytecode. If not set, the pipeline will be created without a hull shader.
+ * - `domain_shader` specifies domain shader bytecode. If not set, the pipeline will be created without a domain shader.
+ * - `geometry_shader` specifies geometry shader bytecode. If not set, the pipeline will be created without a geometry shader.
+ * - `pixel_shader` defines pixel shader bytecode. If not set, the pipeline will be created without a pixel shader.
+ * - `render_attachments` indicates render attachments description for the pipeline. Used to create the compatible render pass for the pipeline.
+ * - `input_layout` describes input layout description for the pipeline. If not set, the pipeline will be created without an input layout.
+ * - `topology_type` specifies topology type. Default is `WisTopologyTypeTriangle`.
+ * - `rasterizer_desc` describes rasterizer description for the pipeline. If not set, the pipeline will be created with default rasterizer state.
+ * - `sample_desc` defines sample description for the pipeline. If not set, the pipeline will be created with default sample state (no multisampling).
+ * - `depth_stencil_desc` defines depth stencil description for the pipeline. If not set, the pipeline will be created with depth testing and stencil testing disabled.
+ * - `blend_state_desc` indicates blend state description for the pipeline. If not set, the pipeline will be created with blending disabled.
+ * - `cache` defines pipeline cache data. Used to speed up pipeline creation if available.
+ * - `flags` describes pipeline flags. Describe additional options for the pipeline.
  * \endcond
  *
  * @section WisGraphicsPipelineDesc_descr Description

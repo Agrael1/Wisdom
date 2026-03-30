@@ -57,7 +57,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisDescriptorHeap instance.
- * - `address` GPU address of a raytracing acceleration structure.
+ * - `address` specifies GPU address of a raytracing acceleration structure.
  * - `index` defines the index in the descriptor heap to write the descriptor to.
  * 
  * - **return** denoting the outcome of operation.

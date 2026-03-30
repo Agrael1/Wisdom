@@ -58,7 +58,7 @@
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisAdapterQuery instance.
  * - `index` defines the index of the adapter to check the support for. It @wis_must be less than the value returned by wisAdapterQueryGetAdapterCount.
- * - `surface` points to WisSurface to check the presentation support for.
+ * - `surface` describes a pointer to WisSurface to check the presentation support for.
  * 
  * - **return** `true` if the adapter supports presentation to the surface, `false` otherwise.
  * \endcond

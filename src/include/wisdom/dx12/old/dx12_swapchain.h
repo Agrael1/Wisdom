@@ -11,13 +11,11 @@
 #    include <memory>
 #endif
 
-namespace wis
-{
+namespace wis {
 WISDOM_EXPORT class DX12SwapChain;
 
 WISDOM_EXPORT
-namespace detail
-{
+namespace detail {
 struct DX12SwapChainCreateInfo {
     wis::com_ptr<IDXGISwapChain4> chain;
     std::unique_ptr<DX12Texture[]> back_buffers;
