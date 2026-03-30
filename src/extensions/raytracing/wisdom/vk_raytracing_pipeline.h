@@ -6,8 +6,7 @@
 #endif // !WISDOM_MODULE_DECL
 
 WISDOM_EXPORT
-namespace wis
-{
+namespace wis {
 class VKRaytracingPipeline;
 
 using VKRaytracingPipelineView = std::tuple<VkPipeline>;

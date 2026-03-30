@@ -8,8 +8,7 @@
 #endif
 
 WISDOM_EXPORT
-namespace wis
-{
+namespace wis {
 class DX12Shader;
 
 template <>

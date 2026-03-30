@@ -1,16 +1,16 @@
 #pragma once
 #ifndef WISVK_MODULE_DECL
-#    include <array>
 #    include <vulkan/vulkan.h>
 #    include <wisvk/vk_libinit.hpp>
+
+#    include <array>
 #    define WISVK_EXPORT
 #else
 #    define WISVK_EXPORT export
 #endif // WISVK_MODULE_DECL
 
 WISVK_EXPORT
-namespace wis
-{
+namespace wis {
 
 #if !(defined(VK_KHR_ray_tracing_pipeline))
 #    if defined(VK_NV_ray_tracing)

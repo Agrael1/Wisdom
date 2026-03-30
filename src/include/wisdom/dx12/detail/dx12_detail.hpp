@@ -9,11 +9,11 @@
 #include <wisdom/generated/dx12_convert.hpp>
 #include <wisdom/util/com_ptr.hpp>
 
-#include <array>
 #include <d3d12.h>
 
-namespace wis::detail
-{
+#include <array>
+
+namespace wis::detail {
 
 /**
  * @brief Internal class implementing the debug layer for DirectX 12. This class is not exposed to users and is used

@@ -43,14 +43,14 @@
  * @section WisRenderPassDepthStencilDesc_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `target` Depth stencil view.
- * - `load_op_depth` Load operation on beginning of render pass for depth. Default is `WisLoadOpLoad`.
- * - `load_op_stencil` Load operation on beginning of render pass for stencil. Default is `WisLoadOpLoad`.
- * - `store_op_depth` Store operation on end of render pass for depth. Default is `WisStoreOpStore`.
- * - `store_op_stencil` Store operation on end of render pass for stencil. Default is `WisStoreOpStore`.
- * - `flags` Depth stencil select.
- * - `clear_depth` Clear depth value for `WisLoadOpClear`. Default is 1.0f.
- * - `clear_stencil` Clear stencil value for `WisLoadOpClear`. Default is 0.
+ * - `target` indicates depth stencil view.
+ * - `load_op_depth` specifies load operation on beginning of render pass for depth. Default is `WisLoadOpLoad`.
+ * - `load_op_stencil` indicates load operation on beginning of render pass for stencil. Default is `WisLoadOpLoad`.
+ * - `store_op_depth` indicates store operation on end of render pass for depth. Default is `WisStoreOpStore`.
+ * - `store_op_stencil` defines store operation on end of render pass for stencil. Default is `WisStoreOpStore`.
+ * - `flags` describes depth stencil select.
+ * - `clear_depth` indicates clear depth value for `WisLoadOpClear`. Default is 1.0f.
+ * - `clear_stencil` defines clear stencil value for `WisLoadOpClear`. Default is 0.
  * \endcond
  *
  * @section WisRenderPassDepthStencilDesc_descr Description

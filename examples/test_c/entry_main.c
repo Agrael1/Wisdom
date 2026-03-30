@@ -263,11 +263,8 @@ void ResizeDepth(BasicRenderer* renderer, uint32_t width, uint32_t height)
             .memory_type = WisMemoryTypeDeviceLocal,
             .memory_flags = WisMemoryFlagsNone,
         };
-        WisResult result = wisResourceAllocatorCreateTexture(
-            &renderer->allocator,
-            &depth_desc,
-            &renderer->depth_texture[i]
-        );
+        WisResult
+            result = wisResourceAllocatorCreateTexture(&renderer->allocator, &depth_desc, &renderer->depth_texture[i]);
         printf(
             "CreateDepthTexture[%u] result: %d, platform_code: %d, error: %s\n",
             i,

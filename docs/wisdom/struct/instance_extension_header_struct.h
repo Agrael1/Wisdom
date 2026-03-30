@@ -37,7 +37,7 @@
  * @section WisInstanceExtensionHeader_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `opaque` defines opaque member. It @wis_mustnot be changed directly outside extension development.
+ * - `opaque` indicates opaque member; it @wis_must_not be changed directly outside extension development.
  * \endcond
  *
  * @section WisInstanceExtensionHeader_descr Description

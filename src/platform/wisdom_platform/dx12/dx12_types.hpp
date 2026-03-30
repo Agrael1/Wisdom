@@ -4,16 +4,13 @@
 #    error "This header requires C++"
 #endif // __cplusplus
 
-namespace wis
-{
+namespace wis {
 //-----------------------------------------------------------------------------
-namespace detail
-{
+namespace detail {
 
 } // namespace detail
 
-namespace impl
-{
+namespace impl {
 struct DX12Win32ExtensionImpl {
     DX12InstanceExtensionHeader header;
     IDXGIFactory6* factory;

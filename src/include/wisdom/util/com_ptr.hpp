@@ -19,14 +19,12 @@
 #if defined(_WIN32)
 #    include <guiddef.h>
 #    include <unknwn.h>
-namespace wis
-{
+namespace wis {
 using GUID = ::GUID;
 using hresult = HRESULT;
 } // namespace wis
 #else
-namespace wis
-{
+namespace wis {
 /**
  * @brief Platform-independent GUID structure.
  * @details Used on non-Windows platforms where guiddef.h is unavailable.
@@ -50,8 +48,7 @@ using hresult = std::int32_t;
 #    define STDMETHODCALLTYPE
 #endif // STDMETHODCALLTYPE
 
-namespace wis
-{
+namespace wis {
 // ============================================================================
 // GUID Support Detection and Traits
 // ============================================================================

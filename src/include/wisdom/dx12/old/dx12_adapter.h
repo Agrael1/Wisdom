@@ -5,8 +5,7 @@
 #    include <wisdom/global/internal.h>
 #endif // !WISDOM_MODULE_DECL
 
-namespace wis
-{
+namespace wis {
 WISDOM_EXPORT class DX12Adapter;
 
 WISDOM_EXPORT

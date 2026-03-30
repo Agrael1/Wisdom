@@ -35,10 +35,10 @@
  * @section WisRenderPassRenderTargetDesc_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `target` Render target view. Must reside on WisViewHeap
- * - `load_op` Load operation on beginning of render pass. Default is `WisLoadOpLoad`.
- * - `store_op` Store operation on end of render pass. Default is `WisStoreOpStore`.
- * - `clear_value` Clear value for `WisLoadOpClear`.
+ * - `target` indicates render target view; it @wis_must reside on WisViewHeap.
+ * - `load_op` specifies load operation on beginning of render pass. Default is `WisLoadOpLoad`.
+ * - `store_op` indicates store operation on end of render pass. Default is `WisStoreOpStore`.
+ * - `clear_value` indicates clear value for `WisLoadOpClear`.
  * \endcond
  *
  * @section WisRenderPassRenderTargetDesc_descr Description

@@ -7,8 +7,7 @@
 
 #include <vulkan/vulkan.h>
 
-namespace wis::detail
-{
+namespace wis::detail {
 static constexpr WisResult vk_success{WisStatusOk, VK_SUCCESS, "Operation succeeded."};
 
 //-----------------------------------------------------------------------------

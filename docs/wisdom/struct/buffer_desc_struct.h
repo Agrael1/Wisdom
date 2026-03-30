@@ -35,10 +35,10 @@
  * @section WisBufferDesc_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `size_bytes` Size of the buffer in bytes.
- * - `usage_flags` Buffer usage flags. Describe how the buffer will be used.
- * - `memory_type` indicates where the buffer will be allocated.
- * - `memory_flags` The flags of the memory to allocate for the buffer.
+ * - `size_bytes` describes size of the buffer in bytes.
+ * - `usage_flags` describes buffer usage flags. Describe how the buffer will be used.
+ * - `memory_type` specifies where the buffer will be allocated.
+ * - `memory_flags` describes the flags of the memory to allocate for the buffer.
  * \endcond
  *
  * @section WisBufferDesc_descr Description

@@ -16,8 +16,7 @@
 #    include <wisdom/vulkan/vk_swapchain.h>
 #endif // !WISDOM_MODULE_DECL
 
-namespace wis
-{
+namespace wis {
 WISDOM_EXPORT class VKDevice;
 
 WISDOM_EXPORT

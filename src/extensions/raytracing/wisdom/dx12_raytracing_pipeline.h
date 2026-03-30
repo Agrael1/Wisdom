@@ -5,12 +5,12 @@
 #    include <wisdom/util/com_ptr.h>
 
 #    include <d3d12.h>
+
 #    include <memory>
 #endif // !WISDOM_MODULE_DECL
 
 WISDOM_EXPORT
-namespace wis
-{
+namespace wis {
 class DX12RaytracingPipeline;
 
 using DX12RaytracingPipelineView = std::tuple<ID3D12StateObject*>;

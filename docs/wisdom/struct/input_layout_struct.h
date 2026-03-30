@@ -33,10 +33,10 @@
  * @section WisInputLayout_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `bindings` Input slots array. Made to pick up data from several arrays of vertex data.
- * - `binding_count` Input slots count. Max number is 16.
- * - `attributes` Input attributes array. Describes how the vertex data is read by the HLSL shader.
- * - `attribute_count` Input attributes count.
+ * - `bindings` points to an array of input slots used to pick data from multiple vertex arrays.
+ * - `binding_count` indicates input slots count. Max number is 16.
+ * - `attributes` points to an array of input attributes that describes how vertex data is read by the HLSL shader.
+ * - `attribute_count` defines input attributes count.
  * \endcond
  *
  * @section WisInputLayout_descr Description

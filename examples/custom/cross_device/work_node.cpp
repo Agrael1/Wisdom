@@ -160,8 +160,12 @@ std::expected<WorkNode, std::string_view> CreateWorkNode(wis::Adapter&& adapter)
             .size = {data.width, data.height, 1},
             .format = wis::DataFormat::RGBA8Unorm
         };
-        auto res2 = node.extended_alloc
-                        .WriteMemoryToSubresourceDirect(data.data.data(), texture, wis::TextureState::CopyDest, region);
+        auto res2 = node.extended_alloc.WriteMemoryToSubresourceDirect(
+            data.data.data(),
+            texture,
+            wis::TextureState::CopyDest,
+            region
+        );
         if (res2.status != wis::Status::Ok) {
             return std::unexpected(res2.error);
         }

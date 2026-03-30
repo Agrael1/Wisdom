@@ -11,10 +11,8 @@
 
 #include "c_api.h"
 
-namespace wis
-{
-namespace detail
-{
+namespace wis {
+namespace detail {
 
 constexpr inline DXGI_FORMAT DX12Convert(WisDataFormat value) noexcept
 {

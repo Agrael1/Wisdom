@@ -7,7 +7,8 @@
 
 // extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-enum class MenuItems : UINT_PTR {
+enum class MenuItems : UINT_PTR
+{
     Load = ID_FILE_LOADMODEL,
     Exit = ID_FILE_EXIT,
     ShowGrid = ID_OPTIONS_DRAWGRID,

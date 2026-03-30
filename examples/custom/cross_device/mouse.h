@@ -14,7 +14,8 @@ public:
     class Event
     {
     public:
-        enum class Type {
+        enum class Type
+        {
             LPress,
             LRelease,
             RPress,

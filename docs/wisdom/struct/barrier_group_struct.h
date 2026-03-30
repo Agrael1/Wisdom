@@ -80,12 +80,12 @@
  * @section WisBarrierGroup_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `buffer_barriers` Array of buffer barriers.
- * - `buffer_barrier_count` Number of buffer barriers in the `WisBarrierGroup::buffer_barriers` array.
- * - `texture_barriers` Array of texture barriers.
- * - `texture_barrier_count` Number of texture barriers in the `WisBarrierGroup::texture_barriers` array.
- * - `global_barriers` Array of global barriers.
- * - `global_barrier_count` Number of global barriers in the `WisBarrierGroup::global_barriers` array.
+ * - `buffer_barriers` points to an array of buffer barriers.
+ * - `buffer_barrier_count` defines number of buffer barriers in the `WisBarrierGroup::buffer_barriers` array.
+ * - `texture_barriers` points to an array of texture barriers.
+ * - `texture_barrier_count` indicates number of texture barriers in the `WisBarrierGroup::texture_barriers` array.
+ * - `global_barriers` points to an array of global barriers.
+ * - `global_barrier_count` indicates number of global barriers in the `WisBarrierGroup::global_barriers` array.
  * \endcond
  *
  * @section WisBarrierGroup_descr Description

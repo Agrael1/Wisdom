@@ -95,14 +95,14 @@
       <!-- Instance Functions -->
       <func name="CreateInstance" version="0.7.0" doc="Creates the {Instance::} with extensions, specified in extension array.">
         <ret type="Instance" name="instance" result="true" doc="points to {Instance::}, which is initialized on success."/>
-        <arg type="DebugDesc" name="debug_desc" mod="const,ptr" default="nullptr" doc="points to {DebugDesc::}, which defines debug callback and debug layer usage. If `nullptr`, debug layer is disabled."/>
+        <arg type="DebugDesc" name="debug_desc" mod="const,ptr" default="nullptr" doc="describes a pointer to {DebugDesc::}, which defines debug callback and debug layer usage. If `nullptr`, debug layer is disabled."/>
         <arg type="InstanceExtensionHeader" name="extensions" mod="ptr,span" default="nullptr" doc="points to an array of extensions that are to be initialized with pointers to {InstanceExtensionHeader::}."/>
-        <arg type="size" name="extension_count" default="0" doc="counts the number of extensions in the {CreateInstance::extensions} array."/>
+        <arg type="size" name="extension_count" default="0" doc="describes the number of the number of extensions in the {CreateInstance::extensions} array."/>
       </func>
 
       <func name="QueryAdapters" version="0.7.0" for="Instance" mod="const" doc="Queries all the system adapters and allows to iterate through them. The order of adapters depends on `preference`: for MinConsumption - DirectX 12: Integrated, Discrete, External, Software; Vulkan: Integrated GPU, Discrete GPU, Virtual GPU, CPU. For Performance - DirectX 12: External, Discrete, Integrated, Software; Vulkan: Discrete GPU, Integrated GPU, Virtual GPU, CPU.">
         <ret type="AdapterQuery" name="query" result="true" doc="points to {AdapterQuery::}, which is initialized on success."/>
-        <arg type="AdapterPreference" name="preference" default="Performance" doc="defines the order in which adapters are listed."/>
+        <arg type="AdapterPreference" name="preference" default="Performance" doc="indicates the order in which adapters are listed."/>
       </func>
 
       <!-- AdapterQuery Functions -->
@@ -116,91 +116,88 @@
       <func name="GetSurfaceSupport" version="0.7.0" for="AdapterQuery" mod="const" doc="Checks if the adapter at given index supports presentation to given surface.">
         <ret type="bool" name="supported" doc="`true` if the adapter supports presentation to the surface, `false` otherwise."/>
         <arg type="size" name="index" doc="defines the index of the adapter to check the support for. It @wis_must be less than the value returned by {AdapterQuery::GetAdapterCount}."/>
-        <arg type="SurfaceView" name="surface" doc="points to {Surface::} to check the presentation support for."/>
+        <arg type="SurfaceView" name="surface" doc="describes a pointer to {Surface::} to check the presentation support for."/>
       </func>
       <func name="CreateDevice" version="0.7.0" for="AdapterQuery" mod="const" doc="Creates the device for the adapter at given index.">
         <ret type="Device" name="device" result="true" doc="points to {Device::}, which is initialized on success."/>
         <arg type="size" name="index" doc="defines the index of the adapter to create the device for. It @wis_must be less than the value returned by {AdapterQuery::GetAdapterCount}."/>
-        <arg type="DeviceRequirements" name="requirements" mod="const,ref" default="nullptr" doc="points to {DeviceRequirements::}, which defines required features and properties for device creation."/>
+        <arg type="DeviceRequirements" name="requirements" mod="const,ref" default="nullptr" doc="defines a pointer to {DeviceRequirements::}, which defines required features and properties for device creation."/>
       </func>
 
       <!-- Device Functions -->
       <func for="Device" name="CreateCommandQueue" version="0.7.0" mod="const" doc="Creates a command queue of given type.">
         <ret type="CommandQueue" name="queue" result="true" doc="points to {CommandQueue::}, which is initialized on success."/>
-        <arg type="CommandQueueType" name="type" doc="defines the type of the command queue to create."/>
+        <arg type="CommandQueueType" name="type" doc="specifies the type of the command queue to create."/>
       </func>
       <func for="Device" name="CreateCommandAllocator" version="0.7.0" mod="const" doc="Creates a command allocator to allocate command lists with.">
         <ret type="CommandAllocator" name="allocator" result="true" doc="points to {CommandAllocator::}, which is initialized on success."/>
-        <arg type="CommandQueueType" name="type" doc="defines the type of the command list this pool is able to allocate."/>
+        <arg type="CommandQueueType" name="type" doc="specifies the type of the command list this pool is able to allocate."/>
       </func>
       <func for="Device" name="CreateFence" version="0.7.0" mod="const" doc="Creates a fence for GPU-CPU and GPU-GPU synchronization.">
         <ret type="Fence" name="fence" result="true" doc="points to {Fence::}, which is initialized on success."/>
-        <arg type="u64" name="initial_value" default="0" doc="defines the initial value of the fence."/>
+        <arg type="u64" name="initial_value" default="0" doc="specifies the initial value of the fence."/>
       </func>
       <func for="Device" name="GetResourceAllocator" version="0.7.0" mod="const" doc="Creates a resource allocator for managing GPU resources.">
         <ret type="ResourceAllocator" name="allocator" result="true" doc="points to {ResourceAllocator::}, which is initialized on success."/>
       </func>
       <func for="Device" name="CreateRootSignature" version="0.7.0" mod="const" doc="Creates a pipeline layout with given descriptor.">
         <ret type="RootSignature" name="layout" result="true" doc="points to {RootSignature::}, which is initialized on success."/>
-        <arg type="RootSignatureDesc" name="desc" mod="const,ref" doc="points to {RootSignatureDesc::}, which describes the pipeline layout to create."/>
+        <arg type="RootSignatureDesc" name="desc" mod="const,ref" doc="indicates a pointer to {RootSignatureDesc::}, which describes the pipeline layout to create."/>
       </func>
       <func for="Device" name="CreateDescriptorHeap" version="0.7.0" mod="const" doc="Creates a descriptor storage with given description.">
         <ret type="DescriptorHeap" name="heap" result="true" doc="points to {DescriptorHeap::}, which is initialized on success."/>
-        <arg type="DescriptorHeapDesc" name="desc" mod="const,ref" doc="points to {DescriptorHeapDesc::}, which describes the descriptor heap to create."/>
+        <arg type="DescriptorHeapDesc" name="desc" mod="const,ref" doc="indicates a pointer to {DescriptorHeapDesc::}, which describes the descriptor heap to create."/>
       </func>
       <func for="Device" name="CreateViewHeap" version="0.7.0" mod="const" doc="Creates a view storage with given descriptor.">
-        <ret type="ViewHeap" name="heap" result="true" doc="points to {DescriptorHeap::}, which is initialized on success."/>
-        <arg type="ViewHeapType" name="type" doc="defines the type of the view heap to create."/>
-        <arg type="u32" name="capacity" doc="defines the capacity in descriptors of the view heap to create."/>
+        <ret type="ViewHeap" name="heap" result="true" doc="points to {ViewHeap::}, which is initialized on success."/>
+        <arg type="ViewHeapType" name="type" doc="specifies the type of the view heap to create."/>
+        <arg type="u32" name="capacity" doc="specifies the capacity in descriptors of the view heap to create."/>
       </func>
       <func for="Device" name="QueryProperties" version="0.7.0" mod="const" doc="Queries the properties of the device.">
-        <arg type="void" name="properties" mod="ptr" doc="points to one of the query structs, which is filled with device properties."/>
+        <arg type="void" name="properties" mod="ptr" doc="describes a pointer to one of the query structs, which is filled with device properties."/>
       </func>
       <func for="Device" name="WaitForMultipleFences" version="0.7.0" mod="const" doc="Waits on multiple fences simultaneously.
-If wait_all is {MutiWaitType::All}, waits for all fences to be signaled.
+If wait_for is {MultiWaitType::All}, waits for all fences to be signaled.
 Otherwise waits for any fence to be signaled.">
         <ret type="Result" name="result" doc="Result of operation."/>
-        <arg type="FenceView" name="fences" mod="const,ptr" doc="Array of fence views to wait on."/>
-        <arg type="u64" name="fence_values" mod="const,ptr" doc="Fence values to wait fences to reach. Array must have fence_count values."/>
-        <arg type="size" name="fence_count" doc="How many fences to wait on."/>
-        <arg type="MutiWaitType" name="wait_for" default="All" doc="Specifies the kind of wait.
-All - waits for all fences to be signaled.
-Any - waits for any fence to be signaled.
-Default is {MutiWaitType::All}"/>
-        <arg type="u64" name="timeout" default="UINT64_MAX" doc="The timeout in nanoseconds. If UINT64_MAX, waits indefinitely."/>
+        <arg type="FenceView" name="fences" mod="const,ptr" doc="defines an array of fence views to wait on."/>
+        <arg type="u64" name="fence_values" mod="const,ptr" doc="defines fence values to wait for; array @wis_must have fence_count values."/>
+        <arg type="size" name="fence_count" doc="describes number of fences to wait on."/>
+        <arg type="MultiWaitType" name="wait_for" default="All" doc="indicates the kind of wait, where All waits for all fences and Any waits for any fence; default is {MultiWaitType::All}."/>
+        <arg type="u64" name="timeout" default="UINT64_MAX" doc="indicates timeout in nanoseconds; if UINT64_MAX, waits indefinitely."/>
       </func>
       <func for="Device" name="CreatePipelineCache" version="0.7.0" mod="const" doc="Creates a pipeline cache for caching pipeline state objects.">
         <ret type="PipelineCache" name="cache" result="true" doc="points to {PipelineCache::}, which is initialized on success."/>
-        <arg type="u8" name="initial_data" mod="const,span" default="nullptr" doc="points to the initial cache data. If `nullptr`, the cache is created empty."/>
+        <arg type="u8" name="initial_data" mod="const,span" default="nullptr" doc="points to an array of initial cache data bytes. If `nullptr`, the cache is created empty."/>
         <arg type="size" name="data_size" default="0" doc="defines the size of the initial cache data in bytes."/>
       </func>
       <func for="Device" name="CreateShader" version="0.7.0" mod="const" doc="Creates a shader module from given data.">
         <ret type="Shader" name="shader" result="true" doc="points to {Shader::}, which is initialized on success."/>
-        <arg type="u8" name="data" mod="const,span" doc="Shader bytecode."/>
-        <arg type="size" name="size" doc="The size of the shader data in bytes. For SPIR-V must be multiple of 4."/>
+        <arg type="u8" name="data" mod="const,span" doc="points to an array of shader bytecode."/>
+        <arg type="size" name="size" doc="indicates size of shader data in bytes; for SPIR-V it @wis_must be a multiple of 4."/>
       </func>
       <func for="Device" name="CreateComputePipeline" version="0.7.0" mod="const" doc="Creates a compute pipeline state object with given descriptor.">
         <ret type="Pipeline" name="pipeline" result="true" doc="points to {Pipeline::}, which is initialized on success."/>
-        <arg type="ComputePipelineDesc" name="desc" mod="const,ref" doc="points to {ComputePipelineDesc::}, which describes the compute pipeline to create."/>
+        <arg type="ComputePipelineDesc" name="desc" mod="const,ref" doc="indicates a pointer to {ComputePipelineDesc::}, which describes the compute pipeline to create."/>
       </func>
       <func for="Device" name="CreateGraphicsPipeline" version="0.7.0" mod="const" doc="Creates a graphics pipeline state object with given descriptor.">
         <ret type="Pipeline" name="pipeline" result="true" doc="points to {Pipeline::}, which is initialized on success."/>
-        <arg type="GraphicsPipelineDesc" name="desc" mod="const,ref" doc="points to {GraphicsPipelineDesc::}, which describes the graphics pipeline to create."/>
+        <arg type="GraphicsPipelineDesc" name="desc" mod="const,ref" doc="indicates a pointer to {GraphicsPipelineDesc::}, which describes the graphics pipeline to create."/>
       </func>
       <func for="Device" name="GetFormatPresentationSupport" version="0.7.0" mod="const" doc="Checks if the surface format is supported for presentation and returns the supported format.">
         <ret type="bool" name="result" doc="Result of operation."/>
-        <arg type="SurfaceView" name="surface" doc="points to {Surface::} to check the presentation support for."/>
-        <arg type="DataFormat" name="format" doc="defines the format to check the presentation support for."/>
+        <arg type="SurfaceView" name="surface" doc="describes a pointer to {Surface::} to check the presentation support for."/>
+        <arg type="DataFormat" name="format" doc="describes the format to check the presentation support for."/>
       </func>
-      <func for="Device" name="GetSurfaceParameters" version="0.7.0" mod="const" doc="Checks if the surface format is supported for presentation and returns the supported format.">
+      <func for="Device" name="GetSurfaceParameters" version="0.7.0" mod="const" doc="Gets presentation parameters for the specified surface.">
         <ret type="SurfaceParameters" result="true" name="params" doc="Parameters of the surface."/>
-        <arg type="SurfaceView" name="surface" doc="points to {Surface::} to check the presentation support for."/>
+        <arg type="SurfaceView" name="surface" doc="describes a pointer to {Surface::} to check the presentation support for."/>
       </func>
       <func for="Device" name="CreateSwapchain" version="0.7.0" mod="const" doc="Creates a swapchain for given surface with given descriptor.">
         <ret type="Swapchain" name="swapchain" result="true" doc="points to {Swapchain::}, which is initialized on success."/>
-        <arg type="Surface" name="surface" mod="const,ref" doc="points to {Surface::} to create the swapchain for. Surface is ref-counted."/>
-        <arg type="CommandQueue" name="queue" mod="const,ref" doc="points to {CommandQueue::} to create the swapchain for. Queue is ref-counted and @wis_must be a graphics queue."/>
-        <arg type="SwapchainDesc" name="desc" mod="const,ref" doc="points to {SwapchainDesc::}, which describes the swapchain to create."/>
+        <arg type="Surface" name="surface" mod="const,ref" doc="describes a pointer to {Surface::} to create the swapchain for. Surface is ref-counted."/>
+        <arg type="CommandQueue" name="queue" mod="const,ref" doc="describes a pointer to {CommandQueue::} to create the swapchain for. Queue is ref-counted and @wis_must be a graphics queue."/>
+        <arg type="SwapchainDesc" name="desc" mod="const,ref" doc="indicates a pointer to {SwapchainDesc::}, which describes the swapchain to create."/>
       </func>
 
       <!-- Fence Functions -->
@@ -209,55 +206,55 @@ Default is {MutiWaitType::All}"/>
       </func>
       <func for="Fence" name="Wait" version="0.7.0" mod="const" doc="Wait on CPU for the fence to reach a certain value.">
         <ret type="Result" name="result" doc="Result of operation."/>
-        <arg type="u64" name="value" doc="Value to wait for."/>
-        <arg type="u64" name="wait_ns" default="UINT64_MAX" doc="The time to wait for the fence to reach the value in nanoseconds. Default is infinite."/>
+        <arg type="u64" name="value" doc="describes value to wait for."/>
+        <arg type="u64" name="wait_ns" default="UINT64_MAX" doc="describes the time to wait for the fence to reach the value in nanoseconds. Default is infinite."/>
       </func>
       <func for="Fence" name="Signal" version="0.7.0" mod="const" doc="Signal the fence from CPU.">
         <ret type="Result" name="result" doc="Result of operation."/>
-        <arg type="u64" name="value" doc="Value to signal."/>
+        <arg type="u64" name="value" doc="describes value to signal."/>
       </func>
 
       <!-- Command Queue Functions -->
       <func for="CommandQueue" name="Submit" version="0.7.0" mod="const" doc="Executes the command lists.">
         <ret type="Result" name="result" doc="Result of operation."/>
-        <arg type="CommandListView" name="lists" mod="const,span" doc="The command lists to execute."/>
-        <arg type="size" name="count" doc="The number of command lists to execute."/>
+        <arg type="CommandListView" name="lists" mod="const,span" doc="points to an array of command lists to execute."/>
+        <arg type="size" name="list_count" doc="defines number of command lists to execute."/>
       </func>
       <func for="CommandQueue" name="SignalFence" version="0.7.0" mod="const" doc="Enqueue the signal to the queue, that gets executed after all the work has been done.">
         <ret type="Result" name="result" doc="Result of operation."/>
-        <arg type="FenceView" name="fence" doc="The fence to signal."/>
-        <arg type="u64" name="value" doc="The value to signal the fence with."/>
+        <arg type="FenceView" name="fence" doc="describes fence to signal."/>
+        <arg type="u64" name="value" doc="describes value used to signal the fence."/>
       </func>
       <func for="CommandQueue" name="WaitFence" version="0.7.0" mod="const" doc="Enqueues wait operation to the command queue. Queue then waits for the fence to be signalled from CPU or from another queue.
 Can still be enqueued after the signal.">
         <ret type="Result" name="result" doc="Result of operation."/>
-        <arg type="FenceView" name="fence" doc="The fence to wait on."/>
-        <arg type="u64" name="value" doc="The value to wait the fence to reach."/>
+        <arg type="FenceView" name="fence" doc="describes fence to wait on."/>
+        <arg type="u64" name="value" doc="describes value that the fence is expected to reach."/>
       </func>
 
       <!-- Resource Allocator Functions -->
       <func for="ResourceAllocator" name="CreateBuffer" version="0.7.0" mod="const" doc="Creates a buffer with given descriptor.">
         <ret type="Buffer" name="buffer" result="true" doc="points to {Buffer::}, which is initialized on success."/>
-        <arg type="BufferDesc" name="desc" mod="const,ref" doc="points to {BufferDesc::}, which describes the buffer to create."/>
+        <arg type="BufferDesc" name="desc" mod="const,ref" doc="indicates a pointer to {BufferDesc::}, which describes the buffer to create."/>
       </func>
       <func for="ResourceAllocator" name="CreateTexture" version="0.7.0" mod="const" doc="Creates a texture with given descriptor.">
         <ret type="Texture" name="texture" result="true" doc="points to {Texture::}, which is initialized on success."/>
-        <arg type="TextureDesc" name="desc" mod="const,ref" doc="points to {TextureDesc::}, which describes the texture to create."/>
+        <arg type="TextureDesc" name="desc" mod="const,ref" doc="indicates a pointer to {TextureDesc::}, which describes the texture to create."/>
       </func>
 
       <!-- Buffer Functions -->
       <func for="Buffer" name="Map" version="0.7.0" mod="const" doc="Maps the buffer memory to CPU accessible address space.">
         <ret type="void" name="data" mod="ptr" doc="points to the pointer, which is filled with the address of the mapped memory on success."/>
       </func>
-      <func for="Buffer" name="GetGPUAddress" version="0.7.0" mod="const" doc="Unmaps the buffer memory from CPU accessible address space.">
+      <func for="Buffer" name="GetGPUAddress" version="0.7.0" mod="const" doc="Gets the GPU virtual address of the buffer.">
         <ret type="u64" name="address" doc="Address of the buffer on GPU."/>
       </func>
 
       <!-- Texture Functions -->
-      <func for="Texture" name="WriteSubresource" version="0.7.0" mod="const" doc="Writes data direct to the texture subresource. Texture @wis_must be in {TextureState::Common} and @wis_must_not be a depth texture.">
+      <func for="Texture" name="WriteSubresource" version="0.7.0" mod="const" doc="Writes data directly to the texture subresource. Texture @wis_must be in {TextureState::Common} and @wis_must_not be a depth texture.">
         <ret type="Result" name="result" doc="Result of operation."/>
-        <arg type="void" name="source_data" mod="const,ptr" doc="points to the data to write to the texture."/>
-        <arg type="TextureRegion" name="target_region" mod="const,ref" doc="points to {TextureRegion::}, which describes the region of the texture to write to."/>
+        <arg type="void" name="source_data" mod="const,ptr" doc="specifies a pointer to the data to write to the texture."/>
+        <arg type="TextureRegion" name="target_region" mod="const,ref" doc="specifies a pointer to {TextureRegion::}, which describes the region of the texture to write to."/>
       </func>
 
       <!-- Descriptor Heap -->
@@ -266,60 +263,60 @@ Can still be enqueued after the signal.">
       </func>
       <func for="DescriptorHeap" name="WriteConstantBuffer" version="0.7.0" mod="const" doc="Writes {DescriptorType::ConstantBuffer} descriptor to the descriptor heap.">
         <ret type="Result" name="result" doc="Result of operation."/>
-        <arg type="ConstantBufferBinding" name="data" mod="const,ref" doc="points to {ConstantBufferBinding::}, which describes the constant buffer descriptors to write."/>
+        <arg type="ConstantBufferBinding" name="data" mod="const,ref" doc="specifies a pointer to {ConstantBufferBinding::}, which describes the constant buffer descriptors to write."/>
         <arg type="u32" name="index" doc="defines the index in the descriptor heap to write the descriptors to."/>
       </func>
       <func for="DescriptorHeap" name="WriteStructuredBuffer" version="0.7.0" mod="const" doc="Writes {DescriptorType::Buffer} descriptor to the descriptor heap.">
         <ret type="Result" name="result" doc="Result of operation."/>
-        <arg type="BufferView" name="buffer" doc="points to {Buffer::} to write the descriptor for."/>
-        <arg type="BufferBinding" name="data" mod="const,ref" doc="points to {BufferBinding::}, which describes the shader resource view descriptors to write."/>
+        <arg type="BufferView" name="buffer" doc="specifies a pointer to {Buffer::} to write the descriptor for."/>
+        <arg type="BufferBinding" name="data" mod="const,ref" doc="specifies a pointer to {BufferBinding::}, which describes the shader resource view descriptors to write."/>
         <arg type="u32" name="index" doc="defines the index in the descriptor heap to write the descriptors to."/>
       </func>
       <func for="DescriptorHeap" name="WriteRWStructuredBuffer" version="0.7.0" mod="const" doc="Writes {DescriptorType::RWBuffer} descriptor to the descriptor heap.">
         <ret type="Result" name="result" doc="Result of operation."/>
-        <arg type="BufferView" name="buffer" doc="points to {Buffer::} to write the descriptor for."/>
-        <arg type="BufferBinding" name="data" mod="const,ref" doc="points to {BufferBinding::}, which describes the shader resource view descriptors to write."/>
+        <arg type="BufferView" name="buffer" doc="specifies a pointer to {Buffer::} to write the descriptor for."/>
+        <arg type="BufferBinding" name="data" mod="const,ref" doc="specifies a pointer to {BufferBinding::}, which describes the shader resource view descriptors to write."/>
         <arg type="u32" name="index" doc="defines the index in the descriptor heap to write the descriptors to."/>
       </func>
       <func for="DescriptorHeap" name="WriteSampler" version="0.7.0" mod="const" doc="Writes {DescriptorType::Sampler} descriptor to the descriptor heap.">
         <ret type="Result" name="result" doc="Result of operation."/>
-        <arg type="SamplerDesc" name="sampler" mod="const,ref" doc="points to {SamplerDesc::}, which describes the sampler descriptor to write."/>
+        <arg type="SamplerDesc" name="sampler" mod="const,ref" doc="defines a pointer to {SamplerDesc::}, which describes the sampler descriptor to write."/>
         <arg type="u32" name="index" doc="defines the index in the descriptor heap to write the descriptor to."/>
       </func>
       <func for="DescriptorHeap" name="WriteTexture" version="0.7.0" mod="const" doc="Writes a descriptor to the descriptor heap.">
         <ret type="Result" name="result" doc="Result of operation."/>
-        <arg type="TextureView" name="texture" doc="points to {Texture::} to write the descriptor for."/>
-        <arg type="TextureBinding" name="data" mod="const,ref" doc="points to {TextureDataDesc::}, which describes the texture view to write."/>
+        <arg type="TextureView" name="texture" doc="describes a pointer to {Texture::} to write the descriptor for."/>
+        <arg type="TextureBinding" name="data" mod="const,ref" doc="specifies a pointer to {TextureBinding::}, which describes the texture view to write."/>
         <arg type="u32" name="index" doc="defines the index in the descriptor heap to write the descriptor to."/>
       </func>
       <func for="DescriptorHeap" name="WriteRWTexture" version="0.7.0" mod="const" doc="Writes a texture view to the descriptor heap.">
         <ret type="Result" name="result" doc="Result of operation."/>
-        <arg type="TextureView" name="texture" doc="points to {Texture::} to write the descriptor for."/>
-        <arg type="TextureBinding" name="data" mod="const,ref" doc="points to {TextureDataDesc::}, which describes the texture view to write."/>
+        <arg type="TextureView" name="texture" doc="describes a pointer to {Texture::} to write the descriptor for."/>
+        <arg type="TextureBinding" name="data" mod="const,ref" doc="specifies a pointer to {TextureBinding::}, which describes the texture view to write."/>
         <arg type="u32" name="index" doc="defines the index in the descriptor heap to write the descriptor to."/>
       </func>
       <func for="DescriptorHeap" name="WriteAccelerationStructure" version="0.7.0" mod="const" doc="Writes a raytracing acceleration to the descriptor heap.">
         <ret type="Result" name="result" doc="Result of operation."/>
-        <arg type="u64" name="address" doc="GPU address of a raytracing acceleration structure."/>
+        <arg type="u64" name="address" doc="specifies GPU address of a raytracing acceleration structure."/>
         <arg type="u32" name="index" doc="defines the index in the descriptor heap to write the descriptor to."/>
       </func>
       <func for="DescriptorHeap" name="CopyDescriptors" version="0.7.0" mod="const" doc="Copies descriptors from one heap to another.">
-        <arg type="u32" name="dst_index" doc="defines the index in the destination descriptor heap to copy descriptors to."/>
-        <arg type="void" name="src_ptr" mod="const,ptr" doc="points to {DescriptorHeap::} to copy descriptors from. Source heap @wis_must be CPU Only heap."/>
-        <arg type="u32" name="src_index" doc="defines the index in the source descriptor heap to copy descriptors from."/>
-        <arg type="u32" name="count" doc="defines the number of descriptors to copy."/>
+        <arg type="u32" name="dst_index" doc="specifies the index in the destination descriptor heap to copy descriptors to."/>
+        <arg type="void" name="src_ptr" mod="const,ptr" doc="describes a pointer to {DescriptorHeap::} to copy descriptors from. Source heap @wis_must be CPU Only heap."/>
+        <arg type="u32" name="src_index" doc="indicates the index in the source descriptor heap to copy descriptors from."/>
+        <arg type="u32" name="descriptor_count" doc="indicates the number of descriptors to copy."/>
       </func>
       <!-- View Heap -->
       <func for="ViewHeap" name="WriteRenderTarget" version="0.7.0" mod="const" doc="Writes a render target view to the view heap and returns the CPU descriptor handle for it.">
         <ret type="u64" name="result" doc="CPU descriptor handle for the view heap."/>
-        <arg type="Texture" name="texture" mod="const,ref" doc="points to {Texture::} to write the descriptor for."/>
-        <arg type="RenderTargetDesc" name="render_target" mod="const,ref" doc="points to {RenderTargetDesc::}, which describes the render target view to write."/>
+        <arg type="Texture" name="texture" mod="const,ref" doc="describes a pointer to {Texture::} to write the descriptor for."/>
+        <arg type="RenderTargetDesc" name="render_target" mod="const,ref" doc="specifies a pointer to {RenderTargetDesc::}, which describes the render target view to write."/>
         <arg type="u32" name="index" doc="defines the index in the view heap to write the descriptor to."/>
       </func>
       <func for="ViewHeap" name="WriteDepthStencil" version="0.7.0" mod="const" doc="Writes a depth stencil view to the view heap and returns the CPU descriptor handle for it.">
         <ret type="u64" name="result" doc="CPU descriptor handle for the view heap."/>
-        <arg type="Texture" name="texture" mod="const,ref" doc="points to {Texture::} to write the descriptor for."/>
-        <arg type="RenderTargetDesc" name="render_target" mod="const,ref" doc="points to {RenderTargetDesc::}, which describes the render target view to write."/>
+        <arg type="Texture" name="texture" mod="const,ref" doc="describes a pointer to {Texture::} to write the descriptor for."/>
+        <arg type="RenderTargetDesc" name="render_target" mod="const,ref" doc="specifies a pointer to {RenderTargetDesc::}, which describes the depth stencil view to write."/>
         <arg type="u32" name="index" doc="defines the index in the view heap to write the descriptor to."/>
       </func>
       <func for="ViewHeap" name="GetViewAddress" version="0.7.0" mod="const" doc="Returns the CPU descriptor handle for the view heap.">
@@ -327,10 +324,10 @@ Can still be enqueued after the signal.">
         <arg type="u32" name="index" doc="defines the index in the view heap to get the descriptor from."/>
       </func>
       <func for="ViewHeap" name="CopyViews" version="0.7.0" mod="const" doc="Copies views from one heap to another.">
-        <arg type="u32" name="dst_index" doc="defines the index in the destination view heap to copy views to."/>
-        <arg type="u64" name="src_ptr" doc="points to {ViewHeap::} to copy views from."/>
-        <arg type="u32" name="src_index" doc="defines the index in the source view heap to copy views from."/>
-        <arg type="u32" name="count" doc="defines the number of views to copy."/>
+        <arg type="u32" name="dst_index" doc="specifies the index in the destination view heap to copy views to."/>
+        <arg type="u64" name="src_ptr" doc="describes a pointer to {ViewHeap::} to copy views from."/>
+        <arg type="u32" name="src_index" doc="indicates the index in the source view heap to copy views from."/>
+        <arg type="u32" name="view_count" doc="indicates the number of views to copy."/>
       </func>
       <func for="ViewHeap" name="GetCPUHandle" version="0.7.0" mod="const" doc="Returns the CPU descriptor handle for the view heap.">
         <ret type="u64" name="handle" doc="CPU descriptor handle for the view heap."/>
@@ -352,77 +349,83 @@ Can still be enqueued after the signal.">
         <ret type="Result" name="result" doc="Result of operation."/>
       </func>
       <func for="CommandList" name="SetDescriptorHeaps" version="0.7.0" mod="const" doc="Binds descriptor heaps to the command list, so they can be used for resource binding.">
-        <arg type="DescriptorHeap" name="resource_heap" mod="const,ptr" default="nullptr" doc="points to {DescriptorHeap::} with shader resource views, unordered access views and constant buffer views. If `nullptr`, no resource heap is bound."/>
-        <arg type="DescriptorHeap" name="sampler_heap" mod="const,ptr" default="nullptr" doc="points to {DescriptorHeap::} with samplers. If `nullptr`, no sampler heap is bound."/>
+        <arg type="DescriptorHeap" name="resource_heap" mod="const,ptr" default="nullptr" doc="describes a pointer to {DescriptorHeap::} with shader resource views, unordered access views and constant buffer views. If `nullptr`, no resource heap is bound."/>
+        <arg type="DescriptorHeap" name="sampler_heap" mod="const,ptr" default="nullptr" doc="describes a pointer to {DescriptorHeap::} with samplers. If `nullptr`, no sampler heap is bound."/>
       </func>
       <func for="CommandList" name="SetRootSignature" version="0.7.0" mod="const" doc="Sets the root signature for the command list, so it can be used for resource binding.">
-        <arg type="RootSignatureView" name="signature" doc="points to {RootSignature::} to set."/>
-        <arg type="PipelineType" name="pipeline" default="Graphics" doc="defines the pipeline type to set the root signature for."/>
+        <arg type="RootSignatureView" name="signature" doc="specifies a pointer to {RootSignature::} to set."/>
+        <arg type="PipelineType" name="pipeline" default="Graphics" doc="specifies the pipeline type to set the root signature for."/>
       </func>
       <func for="CommandList" name="SetPushConstants" version="0.7.0" mod="const" doc="Sets the push constants for the command list, so they can be used for resource binding.">
-        <arg type="PushConstantDataDesc" name="data" mod="const,ref" doc="points to {PushConstantSetDesc::}, which describes the push constant data to set."/>
+        <arg type="PushConstantDataDesc" name="data" mod="const,ref" doc="specifies a pointer to {PushConstantSetDesc::}, which describes the push constant data to set."/>
       </func>
       <func for="CommandList" name="SetPushDescriptor" version="0.7.0" mod="const" doc="Sets the push descriptors for the command list, so they can be used for resource binding.">
-        <arg type="PushDescriptorDataDesc" name="data" mod="const,ref" doc="points to {PushDescriptorSetDesc::}, which describes the push descriptors to set."/>
+        <arg type="PushDescriptorDataDesc" name="data" mod="const,ref" doc="specifies a pointer to {PushDescriptorSetDesc::}, which describes the push descriptors to set."/>
       </func>
       <func for="CommandList" name="SetDescriptorTable" version="0.7.0" mod="const" doc="Sets the descriptor table offset in descriptor heap for the command list, so it can be used for resource binding.">
-        <arg type="DescriptorTableDataDesc" name="data" mod="const,ref" doc="defines the root parameter index to set the descriptor table for."/>
+        <arg type="DescriptorTableDataDesc" name="data" mod="const,ref" doc="specifies the root parameter index to set the descriptor table for."/>
       </func>
       <func for="CommandList" name="InsertBarriers" version="0.7.0" mod="const" doc="Inserts one or more barriers on the current command list.">
-        <arg type="BarrierGroup" name="barriers" mod="const,ref" doc="points to an array of barriers to insert."/>
+        <arg type="BarrierGroup" name="barriers" mod="const,ref" doc="specifies a pointer to an array of barriers to insert."/>
       </func>
       <func for="CommandList" name="SetPipeline" version="0.7.0" mod="const" doc="Sets the pipeline state object for the command list, so it can be used for draw and dispatch calls.">
-        <arg type="PipelineView" name="pipeline" doc="points to {Pipeline::} to set."/>
-        <arg type="PipelineType" name="type" default="Graphics" doc="defines the pipeline type to set the pipeline for."/>
+        <arg type="PipelineView" name="pipeline" doc="specifies a pointer to {Pipeline::} to set."/>
+        <arg type="PipelineType" name="type" default="Graphics" doc="specifies the pipeline type to set the pipeline for."/>
       </func>
       <func for="CommandList" name="SetViewports" version="0.7.0" doc="Sets multiple viewports.">
-        <arg type="Viewport" name="viewports" mod="const,span" doc="The viewports to set."/>
-        <arg type="size" name="count" doc="The number of viewports to set."/>
+        <arg type="Viewport" name="viewports" mod="const,span" doc="points to an array of viewports to set."/>
+        <arg type="size" name="viewport_count" doc="defines number of viewports to set."/>
       </func>
       <func for="CommandList" name="SetScissors" version="0.7.0" doc="Sets multiple scissor rects.
 Each n-th rect corresponds to n-th Viewport set in RSSetViewports if SV_ViewportArrayIndex is used in geometry shader.
 Otherwise the first is chosen.">
-        <arg type="Rect" name="scissor_rects" mod="const,span" doc="The scissors to set."/>
-        <arg type="size" name="rect_count" doc="The number of scissors to set."/>
+        <arg type="Rect" name="scissor_rects" mod="const,span" doc="points to an array of scissor rectangles to set."/>
+        <arg type="size" name="rect_count" doc="specifies number of scissor rectangles to set."/>
       </func>
-      <func for="CommandList" name="SetPrimitiveTopology" version="0.7.0" doc="Sets the primitive topology. Detemines how vertices shall be processed.">
-        <arg type="PrimitiveTopology" name="topology" doc="The primitive topology to set."/>
+      <func for="CommandList" name="SetPrimitiveTopology" version="0.7.0" doc="Sets the primitive topology. Determines how vertices shall be processed.">
+        <arg type="PrimitiveTopology" name="topology" doc="describes primitive topology to set."/>
       </func>
       <func for="CommandList" name="SetDepthBias" version="0.7.0" doc="Sets the depth bias. Determines how depth values are modified during rasterization.">
-        <arg type="f32" name="depth_bias" doc="The depth bias to set."/>
-        <arg type="f32" name="depth_bias_clamp" default="0.0" doc="The depth bias clamp to set."/>
-        <arg type="f32" name="slope_scaled_depth_bias" default="0.0" doc="The slope scaled depth bias to set."/>
+        <arg type="f32" name="depth_bias" doc="indicates depth bias to set."/>
+        <arg type="f32" name="depth_bias_clamp" default="0.0" doc="indicates depth bias clamp to set."/>
+        <arg type="f32" name="slope_scaled_depth_bias" default="0.0" doc="defines slope-scaled depth bias to set."/>
       </func>
       <func for="CommandList" name="SetPrimitiveRestartValue" version="0.7.0" doc="Sets the primitive restart value. Determines the index value which is treated as a primitive restart when using indexed draw calls.">
-        <arg type="PrimitiveRestartValue" name="restart_value" doc="The primitive restart value to set."/>
+        <arg type="PrimitiveRestartValue" name="restart_value" doc="describes primitive restart value to set."/>
       </func>
       <func for="CommandList" name="Dispatch" version="0.7.0" mod="const" doc="Dispatches compute shader.">
-        <arg type="u32" name="group_count_x" doc="The number of groups to dispatch in X dimension."/>
-        <arg type="u32" name="group_count_y" default="1" doc="The number of groups to dispatch in Y dimension. Default is 1."/>
-        <arg type="u32" name="group_count_z" default="1" doc="The number of groups to dispatch in Z dimension. Default is 1."/>
+        <arg type="u32" name="group_count_x" doc="defines number of groups to dispatch in X dimension."/>
+        <arg type="u32" name="group_count_y" default="1" doc="describes number of groups to dispatch in Y dimension; default is 1."/>
+        <arg type="u32" name="group_count_z" default="1" doc="specifies number of groups to dispatch in Z dimension; default is 1."/>
       </func>
       <func for="CommandList" name="Draw" version="0.7.0" mod="const" doc="Draws non-indexed geometry.">
-        <arg type="u32" name="vertex_count" doc="The number of vertices to draw."/>
-        <arg type="u32" name="instance_count" default="1" doc="The number of instances to draw. Default is 1."/>
-        <arg type="u32" name="start_vertex" default="0" doc="The index of the first vertex to draw. Default is 0."/>
-        <arg type="u32" name="start_instance" default="0" doc="The index of the first instance to draw. Default is 0."/>
+        <arg type="u32" name="vertex_count" doc="specifies number of vertices to draw."/>
+        <arg type="u32" name="instance_count" default="1" doc="describes number of instances to draw; default is 1."/>
+        <arg type="u32" name="start_vertex" default="0" doc="indicates index of the first vertex to draw; default is 0."/>
+        <arg type="u32" name="start_instance" default="0" doc="specifies index of the first instance to draw; default is 0."/>
       </func>
       <func for="CommandList" name="DrawIndexed" version="0.7.0" mod="const" doc="Draws indexed geometry.">
-        <arg type="u32" name="index_count" doc="The number of indices to draw."/>
-        <arg type="u32" name="instance_count" default="1" doc="The number of instances to draw. Default is 1."/>
-        <arg type="u32" name="start_index" default="0" doc="The index of the first index to draw. Default is 0."/>
-        <arg type="i32" name="base_vertex" default="0" doc="The value added to each index before reading a vertex from the vertex buffer. Default is 0."/>
-        <arg type="u32" name="start_instance" default="0" doc="The index of the first instance to draw. Default is 0."/>
+        <arg type="u32" name="index_count" doc="defines number of indices to draw."/>
+        <arg type="u32" name="instance_count" default="1" doc="describes number of instances to draw; default is 1."/>
+        <arg type="u32" name="start_index" default="0" doc="describes index of the first index to draw; default is 0."/>
+        <arg type="i32" name="base_vertex" default="0" doc="defines value added to each index before reading a vertex from the vertex buffer; default is 0."/>
+        <arg type="u32" name="start_instance" default="0" doc="specifies index of the first instance to draw; default is 0."/>
       </func>
       <func for="CommandList" name="BeginRenderPass" version="0.7.0" mod="const" doc="Begins a render pass with given descriptor.">
-        <arg type="RenderPassDesc" name="desc" mod="const,ref" doc="points to {RenderPassDesc::}, which describes the render pass to begin."/>
+        <arg type="RenderPassDesc" name="desc" mod="const,ref" doc="indicates a pointer to {RenderPassDesc::}, which describes the render pass to begin."/>
       </func>
       <func for="CommandList" name="EndRenderPass" version="0.7.0" mod="const" doc="Ends the current render pass."/>
+      <func for="CommandList" name="CopyBuffer" version="0.7.0" mod="const" doc="Copies regions from one buffer to another.">
+        <arg type="BufferView" name="dst_buffer" doc="defines a pointer to the destination buffer."/>
+        <arg type="BufferView" name="src_buffer" doc="describes a pointer to the source buffer."/>
+        <arg type="BufferCopyRegion" name="regions" mod="const,span" doc="points to an array of {BufferCopyRegion::} that defines the copy regions."/>
+        <arg type="size" name="region_count" doc="defines the count of the regions."/>
+      </func>
 
       <!-- Pipeline Cache -->
       <func for="PipelineCache" name="Serialize" version="0.7.0" mod="const" doc="Gets the data from the pipeline cache.">
         <ret type="Result" name="result" doc="Result of operation."/>
-        <arg type="u8" name="data" mod="span" doc="points to the data chunk, which is filled with the data of the cache data on success."/>
+        <arg type="u8" name="data" mod="span" doc="points to an array that is filled with serialized cache data on success."/>
         <arg type="size" name="data_size" doc="defines the size of the data chunk in bytes. It @wis_must be greater or equal to the value returned by {PipelineCache::GetSerializedSize}."/>
       </func>
       <func for="PipelineCache" name="GetSerializedSize" version="0.7.0" mod="const" doc="Gets the size of the data in the pipeline cache.">
@@ -432,21 +435,21 @@ Otherwise the first is chosen.">
       <!-- Swapchain -->
       <func for="Swapchain" name="Present" version="0.7.0" mod="const" doc="Presents the swapchain image to the screen.">
         <ret type="Result" name="result" doc="Result of operation."/>
-        <arg type="PresentFlags" name="flags" default="0" doc="defines the presentation options."/>
-        <arg type="Rect" name="rects" mod="const,span" default="nullptr" doc="points to the array of rectangles to present. If `nullptr`, the entire image is presented."/>
-        <arg type="size" name="rect_count" default="0" doc="defines the number of rectangles to present. Must be 0 if rects is `nullptr`."/>
+        <arg type="PresentFlags" name="flags" default="0" doc="describes the presentation options."/>
+        <arg type="Rect" name="rects" mod="const,span" default="nullptr" doc="points to an array of rectangles to present. If `nullptr`, the entire image is presented."/>
+        <arg type="size" name="rect_count" default="0" doc="specifies the number of rectangles to present. It @wis_must be 0 if rects is `nullptr`."/>
       </func>
       <func for="Swapchain" name="GetCurrentIndex" version="0.7.0" mod="const" doc="Gets the index of the current backbuffer. In case of lazy indexing it may wait for presentation to finish and block.">
         <ret type="u32" name="index" result="true" doc="Index of the current backbuffer."/>
       </func>
       <func for="Swapchain" name="Update" version="0.7.0" mod="const" doc="Resizes the swapchain buffers. If the swapchain is currently in use, it @wis_must be resized after the GPU finishes using it, so the call may block until then.">
         <ret type="Result" name="result" doc="Result of operation."/>
-        <arg type="SwapchainUpdateDesc" name="desc" mod="const,ref" doc="points to {SwapchainUpdateDesc::}, which describes the new swapchain parameters."/>
+        <arg type="SwapchainUpdateDesc" name="desc" mod="const,ref" doc="indicates a pointer to {SwapchainUpdateDesc::}, which describes the new swapchain parameters."/>
       </func>
       <func for="Swapchain" name="GetTextures" version="0.7.0" mod="const" doc="Gets the swapchain buffers. The textures are in {TextureState::Common}.">
         <ret type="Result" name="result" doc="Result of operation."/>
-        <arg type="Texture" name="buffers" mod="span" doc="points to the array of texture views, which are filled with swapchain backbuffers on success."/>
-        <arg type="size" name="buffer_count" doc="defines the number of buffers to get. It @wis_must be greater or equal to the value, supplied to {SwapchainDesc::image_count} or subsequent {SwapchainUpdateDesc::image_count}."/>
+        <arg type="Texture" name="buffers" mod="span" doc="points to an array of texture views, which are filled with swapchain backbuffers on success."/>
+        <arg type="size" name="buffer_count" doc="specifies the number of buffers to get. It @wis_must be greater or equal to the value, supplied to {SwapchainDesc::image_count} or subsequent {SwapchainUpdateDesc::image_count}."/>
       </func>
     </functions>
 

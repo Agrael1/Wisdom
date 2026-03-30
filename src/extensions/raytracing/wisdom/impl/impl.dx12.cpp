@@ -96,10 +96,8 @@ wis::DX12RaytracingPipeline wis::ImplDX12Raytracing::CreateRaytracingPipeline(
     std::unique_ptr<uint8_t[]> subobjects = wis::detail::make_unique_for_overwrite<uint8_t[]>(allocation_size);
 
     // burn shader bytecodes
-    std::span<D3D12_STATE_SUBOBJECT> subobjects_span(
-        reinterpret_cast<D3D12_STATE_SUBOBJECT*>(subobjects.get()),
-        num_subobjects
-    );
+    std::span<D3D12_STATE_SUBOBJECT>
+        subobjects_span(reinterpret_cast<D3D12_STATE_SUBOBJECT*>(subobjects.get()), num_subobjects);
     std::span<D3D12_DXIL_LIBRARY_DESC> dxil_library_span(
         reinterpret_cast<D3D12_DXIL_LIBRARY_DESC*>(subobjects_span.data() + num_subobjects),
         desc.shader_count
@@ -237,8 +235,11 @@ wis::DX12RaytracingPipeline wis::ImplDX12Raytracing::CreateRaytracingPipeline(
         return out_pipeline;
     }
 
-    auto hr = shared_device
-                  ->CreateStateObject(&pipeline_desc, pipe_i.state_object.iid(), pipe_i.state_object.put_void());
+    auto hr = shared_device->CreateStateObject(
+        &pipeline_desc,
+        pipe_i.state_object.iid(),
+        pipe_i.state_object.put_void()
+    );
     if (!wis::succeeded(hr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create raytracing pipeline">(hr);
         return out_pipeline;

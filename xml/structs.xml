@@ -7,504 +7,510 @@
   <types comment="Type definitions">
     <type name="Result" category="struct" mod="nodiscard" version="0.7.0" doc="Main source of communication of operation success.">
       <member type="Status" name="status" default="Ok" doc="defines operation status. Compare with {Status::Ok}."/>
-      <member type="i32" name="platform_code" default="0" doc="defines platform code from underlying implementation. Is an `HRESULT` for DX12 and a `VkResult` for Vulkan."/>
-      <member type="char" name="error" mod="const,ptr" default="nullptr" doc="contains a human readable error message."/>
+      <member type="i32" name="platform_code" default="0" doc="indicates platform code from underlying implementation. Is an `HRESULT` for DX12 and a `VkResult` for Vulkan."/>
+      <member type="char" name="error" mod="const,ptr" default="nullptr" doc="specifies contains a human readable error message."/>
     </type>
 
     <type name="DeviceExtensionHeader" category="variant" mod="c-only" version="0.7.0" doc="Opaque struct, representing device extension header. Used in extension development.">
-      <member type="void" name="opaque" mod="const,ptr" default="nullptr" doc="defines opaque member. In must not be changed directly outside extension development."/>
+      <member type="void" name="opaque" mod="const,ptr" default="nullptr" doc="indicates opaque member; it @wis_must_not be changed directly outside extension development."/>
     </type>
 
     <type name="InstanceExtensionHeader" category="variant" mod="c-only" version="0.7.0" doc="Opaque struct, representing instance extension header. Used in extension development.">
-      <member type="void" name="opaque" mod="const,ptr" default="nullptr" doc="defines opaque member. It must not be changed directly outside extension development."/>
+      <member type="void" name="opaque" mod="const,ptr" default="nullptr" doc="indicates opaque member; it @wis_must_not be changed directly outside extension development."/>
     </type>
 
     <type name="AdapterDesc" category="struct" version="0.7.0"  doc="Adapter description. Describes hardware driver identification as well as memory limits.">
-      <member type="char" name="description" array="256" doc="Adapter description. Contains name of the graphics adapter."/>
-      <member type="u32" name="vendor_id" doc="denotes Vendor ID. Can be used to find the correct adapter."/>
-      <member type="u32" name="device_id" doc="denotes Device ID. Together with {::vendor_id} uniquely identifies the device."/>
-      <member type="u64" name="dedicated_video_memory" doc="measures dedicated video memory in bytes. Used for device local memory type."/>
-      <member type="u64" name="shared_system_memory" doc="measures memory that is shared with CPU in bytes. Used for upload and readback."/>
-      <member type="u64" name="adapter_id" doc="denotes adapter unique ID (LUID). Can be used to find the correct adapter."/>
-      <member type="u8" name="adapter_uuid" array="16" doc="stores UUID of the adapter, used only with Vulkan API on systems with no LUID."/>
-      <member type="AdapterFlags" name="flags" doc="Adapter flags. Describe the adapter kind."/>
+      <member type="char" name="description" array="256" doc="defines adapter description. Contains name of the graphics adapter."/>
+      <member type="u32" name="vendor_id" doc="specifies denotes Vendor ID. Can be used to find the correct adapter."/>
+      <member type="u32" name="device_id" doc="defines denotes Device ID. Together with {::vendor_id} uniquely identifies the device."/>
+      <member type="u64" name="dedicated_video_memory" doc="describes measures dedicated video memory in bytes. Used for device local memory type."/>
+      <member type="u64" name="shared_system_memory" doc="indicates measures memory that is shared with CPU in bytes. Used for upload and readback."/>
+      <member type="u64" name="adapter_id" doc="describes denotes adapter unique ID (LUID). Can be used to find the correct adapter."/>
+      <member type="u8" name="adapter_uuid" array="16" doc="indicates stores UUID of the adapter, used only with Vulkan API on systems with no LUID."/>
+      <member type="AdapterFlags" name="flags" doc="describes adapter flags. Describe the adapter kind."/>
     </type>
 
     <type name="DebugCallback" category="delegate" version="0.7.0" doc="Defines the debug callback function signature. Used for logging and debugging messages from the graphics API.">
-      <arg type="Severity" name="severity" doc="defines message severity level."/>
-      <arg type="char" name="message" mod="const,ptr" doc="contains the debug message string."/>
-      <arg type="u64" name="device" doc="handle to the device that generated the message. Can be `0` if message is not device specific."/>
-      <arg type="void" name="user_data" mod="ptr" doc="user defined data pointer passed during callback registration."/>
+      <arg type="Severity" name="severity" doc="indicates message severity level."/>
+      <arg type="char" name="message" mod="const,ptr" doc="describes contains the debug message string."/>
+      <arg type="u64" name="device" doc="defines handle to the device that generated the message. Can be `0` if message is not device specific."/>
+      <arg type="void" name="user_data" mod="ptr" doc="defines user defined data pointer passed during callback registration."/>
     </type>
 
     <type name="DebugDesc" category="struct" version="0.7.0" doc="Debugging and logging description. Used to configure debug callback behavior.">
-      <member type="bool" name="enable_debug_layer" default="true" doc="enables or disables debug layer on both DX12 and VK backends."/>
-      <member type="DebugCallback" name="callback" doc="defines the debug callback function."/>
-      <member type="void" name="user_data" mod="ptr" default="nullptr" doc="user defined data pointer passed to the callback."/>
+      <member type="bool" name="enable_debug_layer" default="true" doc="describes enables or disables debug layer on both DX12 and VK backends."/>
+      <member type="DebugCallback" name="callback" doc="describes the debug callback function."/>
+      <member type="void" name="user_data" mod="ptr" default="nullptr" doc="defines user defined data pointer passed to the callback."/>
     </type>
 
     <type name="CommandQueueDesc" category="struct" version="0.7.0" doc="Command queue description for {CommandQueue::} creation.">
-      <member type="CommandQueueType" name="type" doc="defines the type of the command queue."/>
-      <member type="CommandQueuePriority" name="priority" doc="defines command queue priority. Used to set priority of the command queues of the type."/>
+      <member type="CommandQueueType" name="type" doc="specifies the type of the command queue."/>
+      <member type="CommandQueuePriority" name="priority" doc="specifies command queue priority. Used to set priority of the command queues of the type."/>
     </type>
 
     <type name="SamplerDesc" category="struct" version="0.7.0" doc="Sampler description for {Sampler::} creation.">
-      <member type="Filter" name="min_filter" doc="Minification filter."/>
-      <member type="Filter" name="mag_filter" doc="Magnification filter."/>
-      <member type="Filter" name="mip_filter" doc="Mip level filter."/>
-      <member type="ReductionMode" name="reduction_mode" doc="Reduction mode for min/mag/mip filters."/>
-      <member type="bool" name="is_anisotropic" doc="Anisotropic filtering enable."/>
-      <member type="u32" name="max_anisotropy" doc="Max anisotropy level. Min is 1, Max is 16."/>
-      <member type="AddressMode" name="address_u" doc="Address mode for U coordinate."/>
-      <member type="AddressMode" name="address_v" doc="Address mode for V coordinate."/>
-      <member type="AddressMode" name="address_w" doc="Address mode for W coordinate."/>
-      <member type="f32" name="min_lod" doc="Min LOD value."/>
-      <member type="f32" name="max_lod" doc="Max LOD value."/>
-      <member type="f32" name="mip_lod_bias" doc="Mip LOD bias value."/>
-      <member type="CompareOp" name="comparison_op" doc="Comparison operation for comparison samplers."/>
-      <member type="StaticBorder" name="static_border_color" doc="Static border color. Used if any address mode is set to {AddressMode::Border}."/>
-      <member type="SamplerFlags" name="flags" doc="Sampler flags. Used to set additional sampler options."/>
+      <member type="Filter" name="min_filter" doc="describes minification filter."/>
+      <member type="Filter" name="mag_filter" doc="specifies magnification filter."/>
+      <member type="Filter" name="mip_filter" doc="indicates mip level filter."/>
+      <member type="ReductionMode" name="reduction_mode" doc="describes reduction mode for min/mag/mip filters."/>
+      <member type="bool" name="is_anisotropic" doc="specifies anisotropic filtering enable."/>
+      <member type="u32" name="max_anisotropy" doc="describes max anisotropy level. Min is 1, Max is 16."/>
+      <member type="AddressMode" name="address_u" doc="specifies address mode for U coordinate."/>
+      <member type="AddressMode" name="address_v" doc="indicates address mode for V coordinate."/>
+      <member type="AddressMode" name="address_w" doc="defines address mode for W coordinate."/>
+      <member type="f32" name="min_lod" doc="specifies min LOD value."/>
+      <member type="f32" name="max_lod" doc="defines max LOD value."/>
+      <member type="f32" name="mip_lod_bias" doc="specifies mip LOD bias value."/>
+      <member type="CompareOp" name="comparison_op" doc="describes comparison operation for comparison samplers."/>
+      <member type="StaticBorder" name="static_border_color" doc="indicates static border color. Used if any address mode is set to {AddressMode::Border}."/>
+      <member type="SamplerFlags" name="flags" doc="describes sampler flags. Used to set additional sampler options."/>
     </type>
 
-    <type name="StaticSamplerDesc" category="struct" version="0.7.0" doc="Static sampler description for {PipelineLayout::} creation.">
-      <member type="SamplerDesc" name="sampler" doc="Sampler description."/>
-      <member type="ShaderVisibility" name="visibility" doc="Shader stage visibility. Defines the stage where the sampler is used."/>
-      <member type="u32" name="bind_register" doc="Bind register number in HLSL."/>
+    <type name="StaticSamplerDesc" category="struct" version="0.7.0" doc="Static sampler description for {RootSignature::} creation.">
+      <member type="SamplerDesc" name="sampler" doc="defines sampler description."/>
+      <member type="ShaderVisibility" name="visibility" doc="defines shader stage visibility; it defines the stage where the sampler is used."/>
+      <member type="u32" name="bind_register" doc="describes bind register number in HLSL."/>
     </type>
 
     <type name="PushConstant" category="struct" version="0.7.0" doc="A set of constants that get read directly from root buffer.">
-      <member type="ShaderVisibility" name="visibility" doc="Shader stage visibility for the push constant."/>
-      <member type="u32" name="size_bytes" doc="Size of the constant in bytes. Must be divisible by 4."/>
-      <member type="u32" name="bind_register" doc="Bind register number in HLSL."/>
-      <member type="u32" name="bind_space" doc="Bind space number in HLSL. `register(regN, spaceN)`"/>
+      <member type="ShaderVisibility" name="visibility" doc="defines shader stage visibility for the push constant."/>
+      <member type="u32" name="size_bytes" doc="describes size of the constant in bytes; it @wis_must be divisible by 4."/>
+      <member type="u32" name="bind_register" doc="describes bind register number in HLSL."/>
+      <member type="u32" name="bind_space" doc="defines bind space number in HLSL as `register(regN, spaceN)`."/>
     </type>
 
     <type name="PushDescriptor" category="struct" version="0.7.0" doc="Push descriptor. Used to push data directly to pipeline.">
-      <member type="ShaderVisibility" name="visibility" doc="Shader stage visibility for the push descriptor."/>
-      <member type="DescriptorType" name="type" doc="Descriptor type. Works only with buffer bindings."/>
-      <member type="u32" name="bind_register" doc="Bind register number in HLSL."/>
-      <member type="u32" name="bind_space" doc="Bind space number in HLSL. `register(regN, spaceN)`"/>
+      <member type="ShaderVisibility" name="visibility" doc="defines shader stage visibility for the push descriptor."/>
+      <member type="DescriptorType" name="type" doc="specifies descriptor type. Works only with buffer bindings."/>
+      <member type="u32" name="bind_register" doc="describes bind register number in HLSL."/>
+      <member type="u32" name="bind_space" doc="defines bind space number in HLSL. `register(regN, spaceN)`"/>
     </type>
 
     <type name="DescriptorTableEntry" category="struct" version="0.7.0" doc="Descriptor table entry for {DescriptorTable::}.">
-      <member type="DescriptorType" name="type" doc="Descriptor type."/>
-      <member type="u32" name="bind_register" doc="Bind register number in HLSL."/>
-      <member type="u32" name="bind_space" doc="Bind space number in HLSL. `register(regN, spaceN)`"/>
-      <member type="u32" name="count" doc="Descriptor count for Array descriptors. UINT32_MAX means unbounded array. 0 means single register, same as 1."/>
-      <member type="u32" name="descriptor_offset" doc="Offset in descriptors from the heap start. Used for calculating descriptor indices when binding descriptor tables."/>
+      <member type="DescriptorType" name="type" doc="specifies descriptor type."/>
+      <member type="u32" name="bind_register" doc="describes bind register number in HLSL."/>
+      <member type="u32" name="bind_space" doc="defines bind space number in HLSL. `register(regN, spaceN)`"/>
+      <member type="u32" name="count" doc="describes descriptor count for Array descriptors. UINT32_MAX means unbounded array. 0 means single register, same as 1."/>
+      <member type="u32" name="descriptor_offset" doc="describes offset in descriptors from the heap start. Used for calculating descriptor indices when binding descriptor tables."/>
     </type>
 
-    <type name="DescriptorTable" category="struct" version="0.7.0" doc="Descriptor table for {PipelineLayout::} creation.">
-      <member type="ShaderVisibility" name="visibility" doc="Shader stage. Defines the stage where the table is used."/>
-      <member type="DescriptorTableEntry" name="entries" mod="const,span" doc="Descriptor table entries array."/>
-      <member type="size" name="entry_count" doc="Descriptor table entries count."/>
+    <type name="DescriptorTable" category="struct" version="0.7.0" doc="Descriptor table for {RootSignature::} creation.">
+      <member type="ShaderVisibility" name="visibility" doc="defines shader stage. Defines the stage where the table is used."/>
+      <member type="DescriptorTableEntry" name="entries" mod="const,span" doc="points to an array of descriptor table entries."/>
+      <member type="size" name="entry_count" doc="specifies descriptor table entries count."/>
     </type>
 
     <type name="RootSignatureDesc" category="struct" version="0.7.0" doc="Pipeline layout description. Defines resource bindings for shaders.">
-      <member type="PushConstant" name="push_constants" mod="const,span" doc="describes the global shader push data."/>
-      <member type="size" name="push_constant_count" default="0" doc="counts the number of push constants in the {RootSignatureDesc::push_constants} array."/>
+      <member type="PushConstant" name="push_constants" mod="const,span" doc="points to an array of push constants that defines global shader push data."/>
+      <member type="size" name="push_constant_count" default="0" doc="describes the number of the number of push constants in the {RootSignatureDesc::push_constants} array."/>
       <member type="PushDescriptor" name="push_descriptors" mod="const,span" default="nullptr" doc="points to an array of {PushDescriptor::}."/>
-      <member type="size" name="push_descriptor_count" default="0" doc="counts the number of push descriptors in the {RootSignatureDesc::push_descriptors} array."/>
-      <!--<member type="StaticSamplerDesc" name="static_samplers" mod="const,span" default="nullptr" doc="points to an array of {StaticSamplerDesc::}."/>
-      <member type="size" name="static_sampler_count" default="0" doc="counts the number of static samplers in the {RootSignatureDesc::static_samplers} array."/> Currently unsupported!-->
+      <member type="size" name="push_descriptor_count" default="0" doc="specifies the number of the number of push descriptors in the {RootSignatureDesc::push_descriptors} array."/>
+      <!--<member type="StaticSamplerDesc" name="static_samplers" mod="const,span" default="nullptr" doc="specifies a pointer to an array of {StaticSamplerDesc::}."/>
+      <member type="size" name="static_sampler_count" default="0" doc="indicates the number of the number of static samplers in the {RootSignatureDesc::static_samplers} array."/> Currently unsupported!-->
       <member type="DescriptorTable" name="descriptor_tables" mod="const,span" default="nullptr" doc="points to an array of {DescriptorTable::}."/>
-      <member type="size" name="descriptor_table_count" default="0" doc="counts the number of descriptor tables in the {RootSignatureDesc::descriptor_tables} array."/>
+      <member type="size" name="descriptor_table_count" default="0" doc="specifies the number of the number of descriptor tables in the {RootSignatureDesc::descriptor_tables} array."/>
     </type>
 
     <type name="DescriptorHeapDesc" category="struct" version="0.7.0" doc="Descriptor heap description for {DescriptorHeap::} creation.">
-      <member type="DescriptorHeapType" name="type" doc="indicates the type of descriptor heap to create (sampler or descriptor)."/>
-      <member type="DescriptorMemoryType" name="memory_type" doc="indicates where the descriptor heap will be allocated."/>
+      <member type="DescriptorHeapType" name="type" doc="specifies the type of descriptor heap to create (sampler or descriptor)."/>
+      <member type="DescriptorMemoryType" name="memory_type" doc="specifies where the descriptor heap will be allocated."/>
       <member type="u32" name="descriptor_count" default="0" doc="indicates the amount of descriptors, present in the heap."/>
-      <member type="DescriptorHeapFlags" name="flags" doc="describe additional options for the descriptor heap."/>
+      <member type="DescriptorHeapFlags" name="flags" doc="describes describe additional options for the descriptor heap."/>
     </type>
 
     <type name="ComponentMapping" category="struct" version="0.7.0" doc="Component mapping for {ShaderResourceDesc::}.">
-      <member type="ComponentSwizzle" name="r" default="Red" doc="Component mapping for Red channel. Default is {ComponentSwizzle::Red}."/>
-      <member type="ComponentSwizzle" name="g" default="Green" doc="Component mapping for Green channel. Default is {ComponentSwizzle::Green}."/>
-      <member type="ComponentSwizzle" name="b" default="Blue" doc="Component mapping for Blue channel. Default is {ComponentSwizzle::Blue}."/>
-      <member type="ComponentSwizzle" name="a" default="Alpha" doc="Component mapping for Alpha channel. Default is {ComponentSwizzle::Alpha}."/>
+      <member type="ComponentSwizzle" name="r" default="Red" doc="specifies component mapping for Red channel. Default is {ComponentSwizzle::Red}."/>
+      <member type="ComponentSwizzle" name="g" default="Green" doc="indicates component mapping for Green channel. Default is {ComponentSwizzle::Green}."/>
+      <member type="ComponentSwizzle" name="b" default="Blue" doc="specifies component mapping for Blue channel. Default is {ComponentSwizzle::Blue}."/>
+      <member type="ComponentSwizzle" name="a" default="Alpha" doc="describes component mapping for Alpha channel. Default is {ComponentSwizzle::Alpha}."/>
     </type>
 
     <type name="SubresourceRange" category="struct" version="0.7.0" doc="Subresource description for texture data updates and copies.">
-      <member type="u16" name="base_mip_level" default="0" doc="Mipmap level of the subresource."/>
-      <member type="u16" name="mip_level_count" default="1" doc="Number of mip levels in the subresource."/>
-      <member type="u16" name="base_array_layer" default="0" doc="Array layer of the subresource. For 3D textures, this defines the depth slice."/>
-      <member type="u16" name="array_layer_count" default="1" doc="Number of array layers in the subresource. For 3D textures, this defines the number of depth slices."/>
-      <member type="u16" name="plane_slice" default="0" doc="Base depth slice of the subresource. Used only for 2D textures (YUV)."/>
-      <member type="u16" name="plane_slice_count" default="1" doc="Number of depth slices in the subresource. Used only for 2D textures (YUV). Max value is 3."/>
+      <member type="u16" name="base_mip_level" default="0" doc="indicates mipmap level of the subresource."/>
+      <member type="u16" name="mip_level_count" default="1" doc="describes number of mip levels in the subresource."/>
+      <member type="u16" name="base_array_layer" default="0" doc="describes array layer of the subresource. For 3D textures, this defines the depth slice."/>
+      <member type="u16" name="array_layer_count" default="1" doc="indicates number of array layers in the subresource. For 3D textures, this defines the number of depth slices."/>
+      <member type="u16" name="plane_slice" default="0" doc="indicates base depth slice of the subresource. Used only for 2D textures (YUV)."/>
+      <member type="u16" name="plane_slice_count" default="1" doc="indicates number of depth slices in the subresource. Used only for 2D textures (YUV). Max value is 3."/>
     </type>
 
     <type name="BufferDesc" category="struct" version="0.7.0" doc="Buffer description for {Buffer::} creation.">
-      <member type="u64" name="size_bytes" doc="Size of the buffer in bytes."/>
-      <member type="BufferUsageFlags" name="usage_flags" doc="Buffer usage flags. Describe how the buffer will be used."/>
-      <member type="MemoryType" name="memory_type" doc="indicates where the buffer will be allocated."/>
-      <member type="MemoryFlags" name="memory_flags" default="None" doc="The flags of the memory to allocate for the buffer."/>
+      <member type="u64" name="size_bytes" doc="describes size of the buffer in bytes."/>
+      <member type="BufferUsageFlags" name="usage_flags" doc="describes buffer usage flags. Describe how the buffer will be used."/>
+      <member type="MemoryType" name="memory_type" doc="specifies where the buffer will be allocated."/>
+      <member type="MemoryFlags" name="memory_flags" default="None" doc="describes the flags of the memory to allocate for the buffer."/>
     </type>
 
     <type name="TextureDesc" category="struct" version="0.7.0" doc="Texture description for {Texture::} creation.">
-      <member type="u32" name="width" doc="Texture width in pixels."/>
-      <member type="u32" name="height" doc="Texture height in pixels."/>
-      <member type="u16" name="depth_or_array_size" doc="Texture depth in pixels. Used only for 3D textures."/>
-      <member type="u16" name="mip_levels" doc="Number of mip levels in the texture."/>
-      <member type="DataFormat" name="format" doc="Texture format."/>
-      <member type="SampleCount" name="sample_count" default="S1" doc="Number of samples per pixel. Used only for multisampled textures."/>
-      <member type="TextureLayout" name="layout" default="Texture2D" doc="Texture layout. Default is {TextureLayout::Texture2D}."/>
-      <member type="TextureUsageFlags" name="usage_flags" doc="Texture usage flags. Describe how the texture will be used."/>
-      <member type="TextureFlags" name="flags" doc="Texture flags. Describe additional options for the texture."/>
-      <member type="MemoryType" name="memory_type" doc="indicates where the texture will be allocated."/>
-      <member type="MemoryFlags" name="memory_flags" default="None" doc="The flags of the memory to allocate for the texture."/>
+      <member type="u32" name="width" doc="defines texture width in pixels."/>
+      <member type="u32" name="height" doc="describes texture height in pixels."/>
+      <member type="u16" name="depth_or_array_size" doc="describes texture depth in pixels. Used only for 3D textures."/>
+      <member type="u16" name="mip_levels" doc="defines number of mip levels in the texture."/>
+      <member type="DataFormat" name="format" doc="describes texture format."/>
+      <member type="SampleCount" name="sample_count" default="S1" doc="specifies number of samples per pixel. Used only for multisampled textures."/>
+      <member type="TextureLayout" name="layout" default="Texture2D" doc="specifies texture layout. Default is {TextureLayout::Texture2D}."/>
+      <member type="TextureUsageFlags" name="usage_flags" doc="describes texture usage flags. Describe how the texture will be used."/>
+      <member type="TextureFlags" name="flags" doc="describes texture flags. Describe additional options for the texture."/>
+      <member type="MemoryType" name="memory_type" doc="specifies where the texture will be allocated."/>
+      <member type="MemoryFlags" name="memory_flags" default="None" doc="describes the flags of the memory to allocate for the texture."/>
     </type>
 
     <type name="PushConstantDataDesc" category="struct" version="0.7.0" doc="Push constant set description for {CommandList::SetPushConstants}.">
-      <member type="PipelineType" name="pipeline" default="Graphics" doc="defines the pipeline type to set the push constants for."/>
-      <member type="u32" name="root_index" doc="defines the root index in the root signature to set the push constants for."/>
-      <member type="void" name="data" mod="const,ptr" doc="points to the data to set as push constants."/>
+      <member type="PipelineType" name="pipeline" default="Graphics" doc="specifies the pipeline type to set the push constants for."/>
+      <member type="u32" name="root_index" doc="indicates the root index in the root signature to set the push constants for."/>
+      <member type="void" name="data" mod="const,ptr" doc="specifies a pointer to the data to set as push constants."/>
       <member type="u32" name="data_size" doc="defines the size of the data in bytes. It @wis_must be less than or equal to the maximum push constant size defined by the device and 4-byte aligned."/>
-      <member type="u32" name="push_offset" doc="defines the offset in bytes from the start of the push constant root parameter to set the data to. It @wis_must be less than the maximum push constant size defined by the device and 4-byte aligned."/>
+      <member type="u32" name="push_offset" doc="specifies the offset in bytes from the start of the push constant root parameter to set the data to. It @wis_must be less than the maximum push constant size defined by the device and 4-byte aligned."/>
     </type>
 
     <type name="PushDescriptorDataDesc" category="struct" version="0.7.0" doc="Push descriptor set description for {CommandList::SetPushDescriptor}.">
-      <member type="PipelineType" name="pipeline" default="Graphics" doc="defines the pipeline type to set the push descriptors for."/>
-      <member type="u32" name="root_index" doc="defines the root index in the root signature to set the push descriptors for."/>
+      <member type="PipelineType" name="pipeline" default="Graphics" doc="specifies the pipeline type to set the push descriptors for."/>
+      <member type="u32" name="root_index" doc="indicates the root index in the root signature to set the push descriptors for."/>
       <member type="DescriptorType" name="descriptor_type" doc="defines the type of the descriptors to push."/>
-      <member type="u64" name="buffer_address" doc="defines buffer device address to push."/>
+      <member type="u64" name="buffer_address" doc="indicates buffer device address to push."/>
     </type>
 
     <type name="DescriptorTableDataDesc" category="struct" version="0.7.0" doc="Push descriptor set description for {CommandList::SetDescriptorTable}.">
-      <member type="PipelineType" name="pipeline" default="Graphics" doc="defines the pipeline type to set the push descriptors for."/>
-      <member type="u32" name="root_index" doc="defines the root index in the root signature to set the push descriptors for."/>
-      <member type="DescriptorHeapType" name="heap_type" doc="defines the type of the descriptor heap to bind."/>
+      <member type="PipelineType" name="pipeline" default="Graphics" doc="specifies the pipeline type to set the push descriptors for."/>
+      <member type="u32" name="root_index" doc="indicates the root index in the root signature to set the push descriptors for."/>
+      <member type="DescriptorHeapType" name="heap_type" doc="indicates the type of the descriptor heap to bind."/>
       <member type="u32" name="heap_offset" doc="defines the offset in descriptors from the start of the heap to set the descriptor table to. Used for calculating descriptor indices when binding descriptor tables."/>
     </type>
 
-    <type name="ConstantBufferBinding" category="struct" version="0.7.0" doc="Constant buffer binding description for {DescriptorHeap::WriteConstantBuffer} and {DescriptorHeap::WriteRWConstantBuffer}.">
-      <member type="u64" name="buffer_address" doc="defines buffer device address to bind."/>
-      <member type="u32" name="size_bytes" doc="defines the size of the buffer region to bind in bytes."/>
+    <type name="ConstantBufferBinding" category="struct" version="0.7.0" doc="Constant buffer binding description for {DescriptorHeap::WriteConstantBuffer}.">
+      <member type="u64" name="buffer_address" doc="indicates buffer device address to bind."/>
+      <member type="u32" name="size_bytes" doc="describes the size of the buffer region to bind in bytes."/>
     </type>
     <type name="BufferBinding" category="struct" version="0.7.0" doc="Buffer binding description for {DescriptorHeap::WriteStructuredBuffer}.">
-      <member type="u64" name="array_offset" doc="defines offset in buffer in structures."/>
-      <member type="u32" name="stride_bytes" doc="defines the size of the single structure in buffer."/>
-      <member type="u32" name="structure_count" doc="defines the number of structures in the buffer region to bind."/>
+      <member type="u64" name="array_offset" doc="describes offset in buffer in structures."/>
+      <member type="u32" name="stride_bytes" doc="describes the size of the single structure in buffer."/>
+      <member type="u32" name="structure_count" doc="describes the number of structures in the buffer region to bind."/>
     </type>
     <type name="TextureBinding" category="struct" version="0.7.0" doc="Texture binding description for {DescriptorHeap::WriteTexture} and {DescriptorHeap::WriteRWTexture}.">
-      <member type="DataFormat" name="format" doc="defines the format of the view."/>
-      <member type="TextureLayout" name="layout" default="Texture2D" doc="defines the layout of the texture. Default is {TextureLayout::Texture2D}."/>
-      <member type="TextureBindingFlags" name="flags" doc="Texture binding flags. Describe additional options for the texture binding."/>
-      <member type="ComponentMapping" name="component_mapping" doc="Component mapping for the texture view."/>
-      <member type="SubresourceRange" name="range" doc="Subresource description for the texture view."/>
+      <member type="DataFormat" name="format" doc="describes the format of the view."/>
+      <member type="TextureLayout" name="layout" default="Texture2D" doc="specifies the layout of the texture. Default is {TextureLayout::Texture2D}."/>
+      <member type="TextureBindingFlags" name="flags" doc="describes texture binding flags. Describe additional options for the texture binding."/>
+      <member type="ComponentMapping" name="component_mapping" doc="specifies component mapping for the texture view."/>
+      <member type="SubresourceRange" name="range" doc="describes subresource description for the texture view."/>
     </type>
 
     <type name="StencilDesc" category="struct" version="0.7.0" doc="Stencil description for {DepthStencilDesc::}.">
-      <member type="StencilOp" name="fail_op" default="Keep" doc="Stencil operation if the stencil test fails. Default is {StencilOp::Keep}."/>
-      <member type="StencilOp" name="depth_fail_op" default="Keep" doc="Stencil operation if the stencil test passes and the depth test fails. Default is {StencilOp::Keep}."/>
-      <member type="StencilOp" name="pass_op" default="Keep" doc="Stencil operation if the stencil test passes. Default is {StencilOp::Keep}."/>
-      <member type="CompareOp" name="stencil_comp" default="Always" doc="Stencil comparison function. Default is {Compare::Always}."/>
-      <member type="u8" name="read_mask" default="0xff" doc="Stencil read mask. Default is 0xff."/>
-      <member type="u8" name="write_mask" default="0xff" doc="Stencil write mask. Default is 0xff."/>
+      <member type="StencilOp" name="fail_op" default="Keep" doc="specifies stencil operation if the stencil test fails. Default is {StencilOp::Keep}."/>
+      <member type="StencilOp" name="depth_fail_op" default="Keep" doc="specifies stencil operation if the stencil test passes and the depth test fails. Default is {StencilOp::Keep}."/>
+      <member type="StencilOp" name="pass_op" default="Keep" doc="describes stencil operation if the stencil test passes. Default is {StencilOp::Keep}."/>
+      <member type="CompareOp" name="stencil_comp" default="Always" doc="defines stencil comparison function. Default is {Compare::Always}."/>
+      <member type="u8" name="read_mask" default="0xff" doc="indicates stencil read mask. Default is 0xff."/>
+      <member type="u8" name="write_mask" default="0xff" doc="specifies stencil write mask. Default is 0xff."/>
     </type>
 
     <type name="DepthStencilDesc" category="struct" version="0.7.0" doc="Depth stencil description for {GraphicsPipelineDesc::}.">
-      <member type="bool" name="depth_enable" default="false" doc="Depth test enable. Default is false."/>
-      <member type="bool" name="depth_write_enable" default="false" doc="Depth write enable. Default is false."/>
-      <member type="CompareOp" name="depth_comp" default="Less" doc="Depth comparison function. Default is {Compare::Less}."/>
-      <member type="bool" name="stencil_enable" default="false" doc="Stencil test enable. Default is false."/>
-      <member type="StencilDesc" name="stencil_front" default="{}" doc="Stencil description for front faces."/>
-      <member type="StencilDesc" name="stencil_back" default="{}" doc="Stencil description for back faces."/>
-      <member type="bool" name="depth_bound_test" default="false" doc="Depth bound test enable. Default is false."/>
+      <member type="bool" name="depth_enable" default="false" doc="indicates depth test enable. Default is false."/>
+      <member type="bool" name="depth_write_enable" default="false" doc="describes depth write enable. Default is false."/>
+      <member type="CompareOp" name="depth_comp" default="Less" doc="indicates depth comparison function. Default is {Compare::Less}."/>
+      <member type="bool" name="stencil_enable" default="false" doc="defines stencil test enable. Default is false."/>
+      <member type="StencilDesc" name="stencil_front" default="{}" doc="specifies stencil description for front faces."/>
+      <member type="StencilDesc" name="stencil_back" default="{}" doc="specifies stencil description for back faces."/>
+      <member type="bool" name="depth_bound_test" default="false" doc="indicates depth bound test enable. Default is false."/>
     </type>
 
     <type name="InputBindingDesc" category="struct" version="0.7.0" doc="Input slot description for {InputLayout::}.">
-      <member type="u32" name="slot" doc="Input slot number. Must be unique."/>
-      <member type="u32" name="stride_bytes" doc="Stride in bytes. Size of one vertex in the slot."/>
-      <member type="InputClass" name="input_class" doc="Input class. Defines how the data is read (Per vertex or Per instance)."/>
+      <member type="u32" name="slot" doc="specifies input slot number; it @wis_must be unique."/>
+      <member type="u32" name="stride_bytes" doc="describes stride in bytes. Size of one vertex in the slot."/>
+      <member type="InputClass" name="input_class" doc="describes input class. Defines how the data is read (Per vertex or Per instance)."/>
     </type>
 
     <type name="InputAttributeDesc" category="struct" version="0.7.0" doc="Input attribute description for {InputLayout::}.">
-      <member type="u32" name="binding_index" doc="Index into an array of bindings that the attribute is tied to."/>
-      <member type="char" name="semantic_name" mod="const,ptr" doc="Semantic name of the attribute in HLSL. Must be unique and null terminated."/>
-      <member type="u32" name="semantic_index" doc="Semantic index of the attribute in HLSL. Must be unique."/>
-      <member type="u32" name="location" doc="Location of the attribute in HLSL. Must be unique."/>
-      <member type="DataFormat" name="format" doc="Data format of the attribute."/>
-      <member type="u32" name="offset_bytes" doc="Offset in bytes from the beginning of the vertex."/>
+      <member type="u32" name="binding_index" doc="specifies index into an array of bindings that the attribute is tied to."/>
+      <member type="char" name="semantic_name" mod="const,ptr" doc="defines semantic name of the attribute in HLSL; it @wis_must be unique and null-terminated."/>
+      <member type="u32" name="semantic_index" doc="indicates semantic index of the attribute in HLSL; it @wis_must be unique."/>
+      <member type="u32" name="location" doc="describes location of the attribute in HLSL; it @wis_must be unique."/>
+      <member type="DataFormat" name="format" doc="describes data format of the attribute."/>
+      <member type="u32" name="offset_bytes" doc="describes offset in bytes from the beginning of the vertex."/>
     </type>
 
     <type name="InputLayout" category="struct" version="0.7.0" doc="Input layout description for {GraphicsPipelineDesc::}.">
-      <member type="InputBindingDesc" name="bindings" mod="const,span" doc="Input slots array. Made to pick up data from several arrays of vertex data."/>
-      <member type="size" name="binding_count" doc="Input slots count. Max number is 16."/>
-      <member type="InputAttributeDesc" name="attributes" mod="const,span" doc="Input attributes array. Describes how the vertex data is read by the HLSL shader."/>
-      <member type="size" name="attribute_count" doc="Input attributes count."/>
+      <member type="InputBindingDesc" name="bindings" mod="const,span" doc="points to an array of input slots used to pick data from multiple vertex arrays."/>
+      <member type="size" name="binding_count" doc="indicates input slots count. Max number is 16."/>
+      <member type="InputAttributeDesc" name="attributes" mod="const,span" doc="points to an array of input attributes that describes how vertex data is read by the HLSL shader."/>
+      <member type="size" name="attribute_count" doc="defines input attributes count."/>
     </type>
 
     <type name="RasterizerDesc" category="struct" version="0.7.0" doc="Rasterizer description for {GraphicsPipelineDesc::}.">
-      <member type="FillMode" name="fill_mode" default="Solid" doc="Fill mode. Solid or Wireframe. Default is {FillMode::Solid}."/>
-      <member type="CullMode" name="cull_mode" default="Back" doc="Cull mode. None, Front, Back. Default is {CullMode::Back}."/>
-      <member type="WindingOrder" name="front_face" default="Clockwise" doc="Front face winding order. Clockwise or CounterClockwise. Default is {WindingOrder::Clockwise}."/>
-      <member type="bool" name="depth_bias_enable" default="false" doc="Depth bias enable. Default is false."/>
-      <member type="f32" name="depth_bias" default="0.0f" doc="Depth bias. Default is 0.0f."/>
-      <member type="f32" name="depth_bias_clamp" default="0.0f" doc="Depth bias clamp. Default is 0.0f."/>
-      <member type="f32" name="depth_bias_slope_factor" default="0.0f" doc="Depth bias slope factor e.g. for shadows. Default is 0.0f."/>
-      <member type="bool" name="depth_clip_enable" default="true" doc="Depth clip enable. Default is true."/>
-      <member type="LineRasterization" name="line_rasterization" default="Default" doc="Line rasterization mode. Default is {LineRasterization::Default}."/>
-      <member type="ConservativeRasterization" name="conservative_rasterization" default="Off" doc="Conservative rasterization mode. Default is {ConservativeRasterization::Off}."/>
+      <member type="FillMode" name="fill_mode" default="Solid" doc="indicates fill mode. Solid or Wireframe. Default is {FillMode::Solid}."/>
+      <member type="CullMode" name="cull_mode" default="Back" doc="defines cull mode. None, Front, Back. Default is {CullMode::Back}."/>
+      <member type="WindingOrder" name="front_face" default="Clockwise" doc="indicates front face winding order. Clockwise or CounterClockwise. Default is {WindingOrder::Clockwise}."/>
+      <member type="bool" name="depth_bias_enable" default="false" doc="describes depth bias enable. Default is false."/>
+      <member type="f32" name="depth_bias" default="0.0f" doc="indicates depth bias. Default is 0.0f."/>
+      <member type="f32" name="depth_bias_clamp" default="0.0f" doc="indicates depth bias clamp. Default is 0.0f."/>
+      <member type="f32" name="depth_bias_slope_factor" default="0.0f" doc="indicates depth bias slope factor e.g. for shadows. Default is 0.0f."/>
+      <member type="bool" name="depth_clip_enable" default="true" doc="specifies depth clip enable. Default is true."/>
+      <member type="LineRasterization" name="line_rasterization" default="Default" doc="specifies line rasterization mode. Default is {LineRasterization::Default}."/>
+      <member type="ConservativeRasterization" name="conservative_rasterization" default="Off" doc="indicates conservative rasterization mode. Default is {ConservativeRasterization::Off}."/>
     </type>
 
     <type name="SampleDesc" category="struct" version="0.7.0" doc="Sample description of Multisampling for {GraphicsPipelineDesc::}.">
-      <member type="SampleCount" name="rate" default="S1" doc="Sample rate. Default is {SampleCount::S1}."/>
-      <member type="u32" name="sample_mask" default="0xffffffff" doc="Sample mask. Default is 0xffffffff."/>
-      <member type="bool" name="alpha_to_coverage_enable" default="false" doc="Alpha to coverage enable. Default is false."/>
+      <member type="SampleCount" name="rate" default="S1" doc="defines sample rate. Default is {SampleCount::S1}."/>
+      <member type="u32" name="sample_mask" default="0xffffffff" doc="describes sample mask. Default is 0xffffffff."/>
+      <member type="bool" name="alpha_to_coverage_enable" default="false" doc="describes alpha to coverage enable. Default is false."/>
     </type>
 
     <type name="RenderAttachmentsDesc" category="struct" version="0.7.0" doc="Render attachments description for {GraphicsPipelineDesc::}.">
-      <member type="DataFormat" name="attachment_formats" array="8" doc="Attachment formats array. Describes the format of the render target."/>
-      <member type="u32" name="attachments_count" doc="Attachment formats count. Max is 8."/>
-      <member type="DataFormat" name="depth_attachment" doc="Depth attachment format. Describes the format of the depth buffer."/>
-      <member type="u32" name="view_mask" default="0" doc="View mask for multiview rendering. Each bit represents a view that can be rendered to with the pipeline. Default is 0, meaning no multiview support."/>
+      <member type="DataFormat" name="attachment_formats" array="8" doc="defines attachment formats array. Describes the format of the render target."/>
+      <member type="u32" name="attachments_count" doc="defines attachment formats count. Max is 8."/>
+      <member type="DataFormat" name="depth_attachment" doc="describes depth attachment format. Describes the format of the depth buffer."/>
+      <member type="u32" name="view_mask" default="0" doc="specifies view mask for multiview rendering. Each bit represents a view that can be rendered to with the pipeline. Default is 0, meaning no multiview support."/>
     </type>
 
     <type name="BlendAttachmentDesc" category="struct" version="0.7.0" doc="Blend attachment description for {BlendStateDesc::}.">
-      <member type="bool" name="blend_enable" default="false" doc="Blend enable. Default is false."/>
-      <member type="BlendFactor" name="src_color_blend" default="One" doc="Source color blend factor. Default is {BlendFactor::One}."/>
-      <member type="BlendFactor" name="dst_color_blend" default="Zero" doc="Destination color blend factor. Default is {BlendFactor::Zero}."/>
-      <member type="BlendOp" name="color_blend_op" default="Add" doc="Color blend operation. Default is {BlendOp::Add}."/>
-      <member type="BlendFactor" name="src_alpha_blend" default="One" doc="Source alpha blend factor. Default is {BlendFactor::One}."/>
-      <member type="BlendFactor" name="dst_alpha_blend" default="Zero" doc="Destination alpha blend factor. Default is {BlendFactor::Zero}."/>
-      <member type="BlendOp" name="alpha_blend_op" default="Add" doc="Alpha blend operation. Default is {BlendOp::Add}."/>
-      <member type="ColorComponents" name="color_write_mask" default="All" doc="Color write mask. Default is {ColorComponents::All}."/>
+      <member type="bool" name="blend_enable" default="false" doc="indicates blend enable. Default is false."/>
+      <member type="BlendFactor" name="src_color_blend" default="One" doc="specifies source color blend factor. Default is {BlendFactor::One}."/>
+      <member type="BlendFactor" name="dst_color_blend" default="Zero" doc="describes destination color blend factor. Default is {BlendFactor::Zero}."/>
+      <member type="BlendOp" name="color_blend_op" default="Add" doc="describes color blend operation. Default is {BlendOp::Add}."/>
+      <member type="BlendFactor" name="src_alpha_blend" default="One" doc="describes source alpha blend factor. Default is {BlendFactor::One}."/>
+      <member type="BlendFactor" name="dst_alpha_blend" default="Zero" doc="defines destination alpha blend factor. Default is {BlendFactor::Zero}."/>
+      <member type="BlendOp" name="alpha_blend_op" default="Add" doc="defines alpha blend operation. Default is {BlendOp::Add}."/>
+      <member type="ColorComponents" name="color_write_mask" default="All" doc="defines color write mask. Default is {ColorComponents::All}."/>
     </type>
 
     <type name="Viewport" category="struct" version="0.7.0" doc="Viewport description for {CommandList::}.
 Viewport is considered from Top Left corner.">
-      <member type="f32" name="x" doc="Top left corner x coordinate."/>
-      <member type="f32" name="y" doc="Top left corner y coordinate."/>
-      <member type="f32" name="width" doc="Viewport width."/>
-      <member type="f32" name="height" doc="Viewport height."/>
-      <member type="f32" name="min_depth" doc="Minimum depth of the viewport."/>
-      <member type="f32" name="max_depth" doc="Maximum depth of the viewport."/>
+      <member type="f32" name="x" doc="defines top left corner x coordinate."/>
+      <member type="f32" name="y" doc="describes top left corner y coordinate."/>
+      <member type="f32" name="width" doc="defines viewport width."/>
+      <member type="f32" name="height" doc="describes viewport height."/>
+      <member type="f32" name="min_depth" doc="defines minimum depth of the viewport."/>
+      <member type="f32" name="max_depth" doc="specifies maximum depth of the viewport."/>
     </type>
 
     <type name="Rect" category="struct" version="0.7.0" doc="Scissor rect for {CommandList::} and present rect.">
-      <member type="i32" name="x" doc="Left corner x coordinate."/>
-      <member type="i32" name="y" doc="Top corner y coordinate."/>
-      <member type="u32" name="width" doc="Width of the rect."/>
-      <member type="u32" name="height" doc="Height of the rect."/>
+      <member type="i32" name="x" doc="defines left corner x coordinate."/>
+      <member type="i32" name="y" doc="describes top corner y coordinate."/>
+      <member type="u32" name="width" doc="defines width of the rect."/>
+      <member type="u32" name="height" doc="describes height of the rect."/>
     </type>
 
     <type name="BlendStateDesc" category="struct" version="0.7.0" doc="Blend state description for {GraphicsPipelineDesc::}.">
-      <member type="bool" name="logic_op_enable" default="false" doc="Logic operation enable. Default is false."/>
-      <member type="LogicOp" name="logic_op" default="Noop" doc="Logic operation. Default is {LogicOp::Noop}."/>
-      <member type="BlendAttachmentDesc" name="attachments" array="8" doc="Blend attachment descriptions. Max Array size is 8."/>
-      <member type="u32" name="attachment_count" doc="Blend attachment count. If set as 0 - broadcast to all attachments. Max is 8."/>
+      <member type="bool" name="logic_op_enable" default="false" doc="specifies logic operation enable. Default is false."/>
+      <member type="LogicOp" name="logic_op" default="Noop" doc="defines logic operation. Default is {LogicOp::Noop}."/>
+      <member type="BlendAttachmentDesc" name="attachments" array="8" doc="defines blend attachment descriptions. Max Array size is 8."/>
+      <member type="u32" name="attachment_count" doc="describes blend attachment count. If set as 0 - broadcast to all attachments. Max is 8."/>
     </type>
 
     <type name="Box" category="struct" version="0.7.0" doc="Box description for texture copy regions.">
-      <member type="u32" name="x" doc="Left corner x coordinate."/>
-      <member type="u32" name="y" doc="Top corner y coordinate."/>
-      <member type="u32" name="z" doc="Front corner z coordinate. Used only for 3D textures."/>
-      <member type="u32" name="width" doc="Width of the box."/>
-      <member type="u32" name="height" doc="Height of the box."/>
-      <member type="u32" name="depth" doc="Depth of the box. Used only for 3D textures."/>
+      <member type="u32" name="x" doc="defines left corner x coordinate."/>
+      <member type="u32" name="y" doc="describes top corner y coordinate."/>
+      <member type="u32" name="z" doc="specifies front corner z coordinate. Used only for 3D textures."/>
+      <member type="u32" name="width" doc="defines width of the box."/>
+      <member type="u32" name="height" doc="describes height of the box."/>
+      <member type="u32" name="depth" doc="describes depth of the box. Used only for 3D textures."/>
     </type>
 
     <type name="TargetSubresource" category="struct" version="0.7.0" doc="Target subresource description for texture copy regions.">
-      <member type="u16" name="mip_level" default="0" doc="Mipmap level of the target subresource."/>
-      <member type="u16" name="array_layer" default="0" doc="Array layer of the target subresource. For 3D textures must be 0."/>
-      <member type="u16" name="plane_slice" default="0" doc="Depth slice of the target subresource. Used only for 2D textures (YUV)."/>
+      <member type="u16" name="mip_level" default="0" doc="describes mipmap level of the target subresource."/>
+      <member type="u16" name="array_layer" default="0" doc="indicates array layer of the target subresource; for 3D textures it @wis_must be 0."/>
+      <member type="u16" name="plane_slice" default="0" doc="indicates depth slice of the target subresource. Used only for 2D textures (YUV)."/>
     </type>
 
     <type name="TextureRegion" category="struct" version="0.7.0" doc="Texture copy region description for texture copy operations.">
-      <member type="Box" name="box" doc="Box defining the region to copy."/>
-      <member type="TargetSubresource" name="target_subresource" doc="Target subresource description for the region."/>
+      <member type="Box" name="box" doc="describes box defining the region to copy."/>
+      <member type="TargetSubresource" name="target_subresource" doc="defines target subresource description for the region."/>
     </type>
 
     <type name="RenderTargetDesc" category="struct" version="0.7.0" doc="Render target description for {ViewHeap::WriteRenderTarget} and {ViewHeap::WriteDepthStencil}.">
-      <member type="DataFormat" name="format" doc="Render target format."/>
-      <member type="TextureLayout" name="layout" default="Texture2D" doc="Render target layout. Default is {TextureLayout::Texture2D}."/>
-      <member type="u16" name="mip_level" default="0" doc="Mipmap level of the target subresource."/>
-      <member type="u16" name="base_array_layer" default="0" doc="Array layer of the target subresource. For 3D textures, this defines the base depth slice."/>
-      <member type="u16" name="array_layer_count" default="1" doc="Number of array layers in the target subresource. For 3D textures, this defines the number of depth slices."/>
-      <member type="u16" name="plane_slice" default="0" doc="Depth slice of the target subresource. Used only for 2D textures (YUV)."/>
+      <member type="DataFormat" name="format" doc="describes render target format."/>
+      <member type="TextureLayout" name="layout" default="Texture2D" doc="specifies render target layout. Default is {TextureLayout::Texture2D}."/>
+      <member type="u16" name="mip_level" default="0" doc="describes mipmap level of the target subresource."/>
+      <member type="u16" name="base_array_layer" default="0" doc="describes array layer of the target subresource. For 3D textures, this defines the base depth slice."/>
+      <member type="u16" name="array_layer_count" default="1" doc="indicates number of array layers in the target subresource. For 3D textures, this defines the number of depth slices."/>
+      <member type="u16" name="plane_slice" default="0" doc="indicates depth slice of the target subresource. Used only for 2D textures (YUV)."/>
     </type>
 
     <type name="SurfaceParameters" category="struct" version="0.7.0" doc="Surface parameters for {Surface::} creation.">
-      <member type="u32" name="min_swapchain_images" doc="Minimum number of images in the swapchain."/>
-      <member type="u32" name="max_swapchain_images" doc="Maximum number of images in the swapchain."/>
-      <member type="u32" name="alpha_modes_supported" doc="Bitmask of supported alpha modes for the swapchain. Each bit represents a different alpha mode. Used to determine the supported alpha modes for the swapchain."/>
-      <member type="TextureUsageFlags" name="texture_usage_flags_supported" doc="Bitmask of supported texture usage flags for the swapchain images."/>
-      <member type="bool" name="stereo_supported" doc="Indicates if stereo rendering is supported. If true, the surface can be used to create a swapchain with stereo support."/>
+      <member type="u32" name="min_swapchain_images" doc="specifies minimum number of images in the swapchain."/>
+      <member type="u32" name="max_swapchain_images" doc="defines maximum number of images in the swapchain."/>
+      <member type="u32" name="alpha_modes_supported" doc="specifies bitmask of supported alpha modes for the swapchain. Each bit represents a different alpha mode. Used to determine the supported alpha modes for the swapchain."/>
+      <member type="TextureUsageFlags" name="texture_usage_flags_supported" doc="specifies bitmask of supported texture usage flags for the swapchain images."/>
+      <member type="bool" name="stereo_supported" doc="indicates if stereo rendering is supported. If true, the surface can be used to create a swapchain with stereo support."/>
     </type>
 
     <type name="SwapchainDesc" category="struct" version="0.7.0" doc="Swapchain description for {Swapchain::} creation.">
-      <member type="u32" name="width" doc="Swapchain image width in pixels."/>
-      <member type="u32" name="height" doc="Swapchain image height in pixels."/>
-      <member type="u32" name="image_count" doc="Number of images in the swapchain."/>
-      <member type="TextureUsageFlags" name="texture_usage_flags" doc="Texture usage flags for the swapchain images. Describe how the swapchain images will be used."/>
-      <member type="DataFormat" name="format" doc="Swapchain image format."/>
-      <member type="SwapchainScaling" name="scaling" doc="Swapchain scaling mode."/>
-      <member type="SwapchainFlags" name="flags" doc="Swapchain flags. Describe additional options for the swapchain."/>
-      <member type="CompositeAlpha" name="composite_alpha" doc="Composite alpha mode. Describe how the alpha channel of the swapchain images is treated during compositing."/>
+      <member type="u32" name="width" doc="defines swapchain image width in pixels."/>
+      <member type="u32" name="height" doc="describes swapchain image height in pixels."/>
+      <member type="u32" name="image_count" doc="indicates number of images in the swapchain."/>
+      <member type="TextureUsageFlags" name="texture_usage_flags" doc="describes texture usage flags for the swapchain images. Describe how the swapchain images will be used."/>
+      <member type="DataFormat" name="format" doc="describes swapchain image format."/>
+      <member type="SwapchainScaling" name="scaling" doc="describes swapchain scaling mode."/>
+      <member type="SwapchainFlags" name="flags" doc="describes swapchain flags. Describe additional options for the swapchain."/>
+      <member type="CompositeAlpha" name="composite_alpha" doc="defines composite alpha mode. Describe how the alpha channel of the swapchain images is treated during compositing."/>
     </type>
 
     <type name="SwapchainUpdateDesc" category="struct" version="0.7.0" doc="Swapchain update description for {Swapchain::Update}.">
-      <member type="u32" name="width" doc="New swapchain image width in pixels."/>
-      <member type="u32" name="height" doc="New swapchain image height in pixels."/>
-      <member type="u32" name="image_count" doc="Number of images in the swapchain."/>
-      <member type="DataFormat" name="format" doc="Swapchain image format."/>
-      <member type="bool" name="vsync" doc="Vsync enabled or not. If true, the presentation is synchronized to the vertical blanking interval, which can help prevent screen tearing. If false, the presentation is not synchronized, which can result in higher frame rates but may cause screen tearing."/>
+      <member type="u32" name="width" doc="defines new swapchain image width in pixels."/>
+      <member type="u32" name="height" doc="describes new swapchain image height in pixels."/>
+      <member type="u32" name="image_count" doc="indicates number of images in the swapchain."/>
+      <member type="DataFormat" name="format" doc="describes swapchain image format."/>
+      <member type="bool" name="vsync" doc="indicates controls vsync; when true, presentation is synchronized to the vertical blanking interval to reduce tearing, whereas false can improve frame rate but can introduce tearing."/>
       <!--TODO: Colorspace-->
     </type>
 
     <type name="RenderPassRenderTargetDesc" category="struct" version="0.7.0" doc="Description for render target.">
-      <member type="u64" name="target" doc="Render target view. Must reside on {ViewHeap::}"/>
-      <member type="LoadOp" name="load_op" default="Load" doc="Load operation on beginning of render pass. Default is {LoadOp::Load}."/>
-      <member type="StoreOp" name="store_op" default="Store" doc="Store operation on end of render pass. Default is {StoreOp::Store}."/>
-      <member type="f32" name="clear_value" array="4" doc="Clear value for {LoadOp::Clear}."/>
+      <member type="u64" name="target" doc="indicates render target view; it @wis_must reside on {ViewHeap::}."/>
+      <member type="LoadOp" name="load_op" default="Load" doc="specifies load operation on beginning of render pass. Default is {LoadOp::Load}."/>
+      <member type="StoreOp" name="store_op" default="Store" doc="indicates store operation on end of render pass. Default is {StoreOp::Store}."/>
+      <member type="f32" name="clear_value" array="4" doc="indicates clear value for {LoadOp::Clear}."/>
     </type>
 
     <type name="RenderPassDepthStencilDesc" category="struct" version="0.7.0" doc="Variant of RenderPassDesc for depth stencil.">
-      <member type="u64" name="target" doc="Depth stencil view."/>
-      <member type="LoadOp" name="load_op_depth" default="Load" doc="Load operation on beginning of render pass for depth. Default is {LoadOp::Load}."/>
-      <member type="LoadOp" name="load_op_stencil" default="Load" doc="Load operation on beginning of render pass for stencil. Default is {LoadOp::Load}."/>
-      <member type="StoreOp" name="store_op_depth" default="Store" doc="Store operation on end of render pass for depth. Default is {StoreOp::Store}."/>
-      <member type="StoreOp" name="store_op_stencil" default="Store" doc="Store operation on end of render pass for stencil. Default is {StoreOp::Store}."/>
-      <member type="DepthStencilFlags" name="flags" default="None" doc="Depth stencil select."/>
-      <member type="f32" name="clear_depth" default="1.0f" doc="Clear depth value for {LoadOp::Clear}. Default is 1.0f."/>
-      <member type="u8" name="clear_stencil" default="0" doc="Clear stencil value for {LoadOp::Clear}. Default is 0."/>
+      <member type="u64" name="target" doc="indicates depth stencil view."/>
+      <member type="LoadOp" name="load_op_depth" default="Load" doc="specifies load operation on beginning of render pass for depth. Default is {LoadOp::Load}."/>
+      <member type="LoadOp" name="load_op_stencil" default="Load" doc="indicates load operation on beginning of render pass for stencil. Default is {LoadOp::Load}."/>
+      <member type="StoreOp" name="store_op_depth" default="Store" doc="indicates store operation on end of render pass for depth. Default is {StoreOp::Store}."/>
+      <member type="StoreOp" name="store_op_stencil" default="Store" doc="defines store operation on end of render pass for stencil. Default is {StoreOp::Store}."/>
+      <member type="DepthStencilFlags" name="flags" default="None" doc="describes depth stencil select."/>
+      <member type="f32" name="clear_depth" default="1.0f" doc="indicates clear depth value for {LoadOp::Clear}. Default is 1.0f."/>
+      <member type="u8" name="clear_stencil" default="0" doc="defines clear stencil value for {LoadOp::Clear}. Default is 0."/>
     </type>
 
     <type name="RenderPassDesc" category="struct" version="0.7.0" doc="Render pass description.">
-      <member type="RenderPassFlags" name="flags" doc="Render pass flags."/>
-      <member type="RenderPassRenderTargetDesc" name="render_targets" array="8" doc="Array of render target descriptions. Max size is 8."/>
-      <member type="u32" name="render_target_count" doc="Number of render targets in the render pass."/>
-      <member type="u32" name="view_mask" default="0" doc="View mask for multiview rendering. Each bit represents a view that can be rendered to with the render pass. Default is 0, meaning no multiview support."/>
-      <member type="RenderPassDepthStencilDesc" name="depth_stencil" doc="Depth stencil description. If depth stencil is not used, the target field must be set to 0."/>
+      <member type="RenderPassFlags" name="flags" doc="describes render pass flags."/>
+      <member type="RenderPassRenderTargetDesc" name="render_targets" array="8" doc="describes an array of render target descriptions. Max size is 8."/>
+      <member type="u32" name="render_target_count" doc="specifies number of render targets in the render pass."/>
+      <member type="u32" name="view_mask" default="0" doc="specifies view mask for multiview rendering. Each bit represents a view that can be rendered to with the render pass. Default is 0, meaning no multiview support."/>
+      <member type="RenderPassDepthStencilDesc" name="depth_stencil" doc="specifies depth stencil description; if depth stencil is not used, the target field @wis_must be set to 0."/>
+    </type>
+
+    <type name="BufferCopyRegion" category="struct" version="0.7.0" doc="Buffer copy region description for buffer copy operations.">
+      <member type="u64" name="src_offset" doc="specifies source buffer offset in bytes."/>
+      <member type="u64" name="dst_offset" doc="describes destination buffer offset in bytes."/>
+      <member type="u64" name="size_bytes" doc="describes size of the region to copy in bytes."/>
     </type>
 
 
     <!-- Variants -->
     <type name="DeviceRequirements" category="variant" version="0.7.0" doc="Device requirements. Used to specify required features and properties for device creation.">
-      <member type="CommandQueueDesc" name="queue_descs" mod="const,span" default="nullptr" doc="points to an array of {CommandQueueDesc::} for which queues will be created during device creation."/>
-      <member type="size" name="queue_desc_count" default="0" doc="counts the number of queue descriptions in the {AdapterQuery::CreateDevice} queue_descs array."/>
+      <member type="CommandQueueDesc" name="queue_descs" mod="const,span" default="nullptr" doc="points to an array of {CommandQueueDesc::} for which queues are created during device creation."/>
+      <member type="size" name="queue_desc_count" default="0" doc="indicates the number of the number of queue descriptions in the {AdapterQuery::CreateDevice} queue_descs array."/>
       <member type="DeviceExtensionHeader" name="extensions" mod="ptr,span" default="nullptr" doc="points to an array of extensions that are to be initialized with pointers to {DeviceExtensionHeader::}."/>
-      <member type="size" name="extension_count" default="0" doc="counts the number of extensions in the {AdapterQuery::CreateDevice} extensions array."/>
+      <member type="size" name="extension_count" default="0" doc="describes the number of the number of extensions in the {AdapterQuery::CreateDevice} extensions array."/>
     </type>
 
 
 
     <!-- Queries -->
     <type name="QueryStructHeader" category="struct" version="0.7.0" doc="Query struct header. Used as a header for all query structs.">
-      <member type="QueryPropertyType" name="property_type" doc="Defines the type of the queried property. Used to determine what struct is passed."/>
-      <member type="void" name="next_in_chain" mod="ptr" doc="Pointer to the next queried data struct."/>
+      <member type="QueryPropertyType" name="property_type" doc="specifies the type of the queried property. Used to determine what struct is passed."/>
+      <member type="void" name="next_in_chain" mod="ptr" doc="indicates pointer to the next queried data struct."/>
     </type>
 
     <type name="DeviceBindingProperties" category="struct" version="0.7.0" doc="Device binding properties. Used to query resource binding support and limits.">
-      <member type="QueryPropertyType" name="property_type" doc="Defines the type of the queried property. Used to determine what struct is passed. @wis_must be {QueryPropertyType::DeviceBindingProperties}."/>
-      <member type="void" name="next_in_chain" mod="ptr" doc="Pointer to the next queried data struct."/>
+      <member type="QueryPropertyType" name="property_type" doc="specifies the type of the queried property. Used to determine what struct is passed. @wis_must be {QueryPropertyType::DeviceBindingProperties}."/>
+      <member type="void" name="next_in_chain" mod="ptr" doc="indicates pointer to the next queried data struct."/>
       <!-- Resource Binding -->
-      <member type="u32" name="max_vertex_input_attributes" doc="Maximum number of vertex input attributes supported by the device. Used for vertex buffer bindings."/>
-      <member type="u32" name="max_vertex_input_bindings" doc="Maximum number of vertex input bindings supported by the device. Used for vertex buffer bindings."/>
-      <member type="bool" name="multiple_viewports_supported" doc="Indicates if multiple viewports are supported. If true, the device supports up to 16 viewports and scissor rectangles. If false, only one viewport and scissor rectangle is supported."/>
+      <member type="u32" name="max_vertex_input_attributes" doc="defines maximum number of vertex input attributes supported by the device. Used for vertex buffer bindings."/>
+      <member type="u32" name="max_vertex_input_bindings" doc="indicates maximum number of vertex input bindings supported by the device. Used for vertex buffer bindings."/>
+      <member type="bool" name="multiple_viewports_supported" doc="indicates if multiple viewports are supported. If true, the device supports up to 16 viewports and scissor rectangles. If false, only one viewport and scissor rectangle is supported."/>
     </type>
 
     <type name="DeviceDescriptorHeapProperties" category="struct" version="0.7.0" doc="Device descriptor heap properties. Used to query descriptor heap support and limits.">
-      <member type="QueryPropertyType" name="property_type" doc="Defines the type of the queried property. Used to determine what struct is passed. @wis_must be {QueryPropertyType::DeviceDescriptorHeapProperties}."/>
-      <member type="void" name="next_in_chain" mod="ptr" doc="Pointer to the next queried data struct."/>
+      <member type="QueryPropertyType" name="property_type" doc="specifies the type of the queried property. Used to determine what struct is passed. @wis_must be {QueryPropertyType::DeviceDescriptorHeapProperties}."/>
+      <member type="void" name="next_in_chain" mod="ptr" doc="indicates pointer to the next queried data struct."/>
 
       <!-- Descriptor Heap -->
-      <member type="u32" name="max_descriptor_heap_size" doc="Maximum number of descriptors in a single descriptor heap."/>
-      <member type="u32" name="max_sampler_heap_size" doc="Maximum number of samplers in a single descriptor heap."/>
-      <member type="u32" name="max_sampler_heap_size_with_embedded" doc="Maximum number of samplers in a single descriptor heap, if embedded samplers are used."/>
-      <member type="u32" name="descriptor_increment_size" doc="Size of a single descriptor in the descriptor heap. Used for calculating descriptor offsets."/>
-      <member type="u32" name="sampler_increment_size" doc="Size of a single sampler in the sampler heap. Used for calculating sampler offsets."/>
-      <member type="u32" name="render_target_increment_size" doc="Size of a single render target view descriptor in the descriptor heap. Used for calculating render target view descriptor offsets."/>
-      <member type="u32" name="depth_stencil_increment_size" doc="Size of a single depth stencil view descriptor in the descriptor heap. Used for calculating depth stencil view descriptor offsets."/>
+      <member type="u32" name="max_descriptor_heap_size" doc="indicates maximum number of descriptors in a single descriptor heap."/>
+      <member type="u32" name="max_sampler_heap_size" doc="defines maximum number of samplers in a single descriptor heap."/>
+      <member type="u32" name="max_sampler_heap_size_with_embedded" doc="defines maximum number of samplers in a single descriptor heap, if embedded samplers are used."/>
+      <member type="u32" name="descriptor_increment_size" doc="describes size of a single descriptor in the descriptor heap. Used for calculating descriptor offsets."/>
+      <member type="u32" name="sampler_increment_size" doc="specifies size of a single sampler in the sampler heap. Used for calculating sampler offsets."/>
+      <member type="u32" name="render_target_increment_size" doc="defines size of a single render target view descriptor in the descriptor heap. Used for calculating render target view descriptor offsets."/>
+      <member type="u32" name="depth_stencil_increment_size" doc="defines size of a single depth stencil view descriptor in the descriptor heap. Used for calculating depth stencil view descriptor offsets."/>
     </type>
 
     <type name="DeviceCommandQueueProperties" category="struct" version="0.7.0" doc="Device memory properties. Used to query memory type support and limits.">
-      <member type="QueryPropertyType" name="property_type" doc="Defines the type of the queried property. @wis_must be {QueryPropertyType::DeviceCommandQueuesProperties}.."/>
-      <member type="void" name="next_in_chain" mod="ptr" doc="Pointer to the next queried data struct."/>
+      <member type="QueryPropertyType" name="property_type" doc="specifies the type of the queried property. @wis_must be {QueryPropertyType::DeviceCommandQueuesProperties}.."/>
+      <member type="void" name="next_in_chain" mod="ptr" doc="indicates pointer to the next queried data struct."/>
 
       <!-- Command Queues -->
-      <member type="bool" name="supported_queues" array="5" doc="Array of supported queue types. If a queue type is supported, the value is `1`, otherwise `0`. Order of queue types is the same as in {CommandQueueType::} enum."/>
-      <member type="bool" name="relaxed_queue_transition" doc="Indicates if relaxed queue transition is supported. This feature allows executing command lists that contain buffers used on different queue types without explicit resource state transitions when the buffers is used on a different queue type. It is supported on Windows 10 22H2 and later with WDDM 3.0 or later. On Vulkan it requires `VK_KHR_maintenance9` extension."/>
-      <member type="CommandQueuePriority" name="max_queue_priority" array="5" doc="Array of maximum supported priorities for each queue type. If a queue type is not supported, the value is `0`. Order of queue types is the same as in {CommandQueueType::} enum."/>
+      <member type="bool" name="supported_queues" array="5" doc="describes an array of supported queue types. If a queue type is supported, the value is `1`, otherwise `0`. Order of queue types is the same as in {CommandQueueType::} enum."/>
+      <member type="bool" name="relaxed_queue_transition" doc="indicates if relaxed queue transition is supported. This feature allows executing command lists that contain buffers used on different queue types without explicit resource state transitions when the buffers is used on a different queue type. It is supported on Windows 10 22H2 and later with WDDM 3.0 or later. On Vulkan it requires `VK_KHR_maintenance9` extension."/>
+      <member type="CommandQueuePriority" name="max_queue_priority" array="5" doc="indicates an array of maximum supported priorities for each queue type. If a queue type is not supported, the value is `0`. Order of queue types is the same as in {CommandQueueType::} enum."/>
     </type>
 
     <type name="DeviceMemoryProperties" category="struct" version="0.7.0" doc="Device memory properties. Used to query memory type support and limits.">
-      <member type="QueryPropertyType" name="property_type" doc="Defines the type of the queried property. @wis_must be {QueryPropertyType::DeviceMemoryProperties}.."/>
-      <member type="void" name="next_in_chain" mod="ptr" doc="Pointer to the next queried data struct."/>
+      <member type="QueryPropertyType" name="property_type" doc="specifies the type of the queried property. @wis_must be {QueryPropertyType::DeviceMemoryProperties}.."/>
+      <member type="void" name="next_in_chain" mod="ptr" doc="indicates pointer to the next queried data struct."/>
       <!-- Memory -->
-      <member type="bool" name="gpu_upload_supported" doc="Indicates if GPU upload memory type is supported. This memory type allows mapping the memory and writing to it from CPU, while being accessible from GPU. It is usually implemented as write-combined memory on integrated GPUs and as a part of shared system memory on discrete GPUs."/>
-      <member type="bool" name="host_image_copy_supported" doc="Indicates if host image copy is supported. This feature allows copying data directly from CPU memory to optimal tiled image layout on GPU, without the need for an intermediate staging buffer. It is supported on Windows 10 22H2 and later with WDDM 3.0 or later. On Vulkan it requires `VK_EXT_host_image_copy` extension."/>
-      <member type="u32" name="supported_initial_transitions" doc="Bitfield of supported initial resource state transitions for buffers and textures. If a transition is supported, the corresponding bit is set to `1`, otherwise `0`. Bit positions are the same as in {TextureState::} enum. {TextureState::Undefined} is always supported."/>
+      <member type="bool" name="gpu_upload_supported" doc="describes if GPU upload memory type is supported. This memory type allows mapping the memory and writing to it from CPU, while being accessible from GPU. It is usually implemented as write-combined memory on integrated GPUs and as a part of shared system memory on discrete GPUs."/>
+      <member type="bool" name="host_image_copy_supported" doc="indicates if host image copy is supported. This feature allows copying data directly from CPU memory to optimal tiled image layout on GPU, without the need for an intermediate staging buffer. It is supported on Windows 10 22H2 and later with WDDM 3.0 or later. On Vulkan it requires `VK_EXT_host_image_copy` extension."/>
+      <member type="u32" name="supported_initial_transitions" doc="defines bitfield of supported initial resource state transitions for buffers and textures. If a transition is supported, the corresponding bit is set to `1`, otherwise `0`. Bit positions are the same as in {TextureState::} enum. {TextureState::Undefined} is always supported."/>
     </type>
 
     <type name="BufferBarrier" category="variant" version="0.7.0" doc="Buffer barrier with the buffer handle.">
-      <member type="BarrierSync" name="sync_before" doc="Synchronization scope before the barrier."/>
-      <member type="BarrierSync" name="sync_after" doc="Synchronization scope after the barrier."/>
-      <member type="ResourceAccess" name="access_before" doc="Access scope before the barrier."/>
-      <member type="ResourceAccess" name="access_after" doc="Access scope after the barrier."/>
-      <member type="BufferView" name="buffer" doc="Buffer view."/>
-      <member type="u64" name="offset" default="0" doc="Offset in bytes from the start of the buffer. Default is 0."/>
-      <member type="u64" name="size" default="UINT64_MAX" doc="Barrier size in bytes. Default is `UINT64_MAX`, which means the whole buffer range."/>
-      <member type="CommandQueueType" name="queue_type_before" doc="Type of the queue the barrier is executed on before the synchronization point. Used for cross-queue barriers."/>
-      <member type="CommandQueueType" name="queue_type_after" doc="Type of the queue the barrier is executed on after the synchronization point. Used for cross-queue barriers."/>
+      <member type="BarrierSync" name="sync_before" doc="indicates synchronization scope before the barrier."/>
+      <member type="BarrierSync" name="sync_after" doc="specifies synchronization scope after the barrier."/>
+      <member type="ResourceAccess" name="access_before" doc="defines access scope before the barrier."/>
+      <member type="ResourceAccess" name="access_after" doc="indicates access scope after the barrier."/>
+      <member type="BufferView" name="buffer" doc="specifies buffer view."/>
+      <member type="u64" name="offset" default="0" doc="indicates offset in bytes from the start of the buffer. Default is 0."/>
+      <member type="u64" name="size" default="UINT64_MAX" doc="indicates barrier size in bytes. Default is `UINT64_MAX`, which means the whole buffer range."/>
+      <member type="CommandQueueType" name="queue_type_before" doc="defines type of the queue the barrier is executed on before the synchronization point. Used for cross-queue barriers."/>
+      <member type="CommandQueueType" name="queue_type_after" doc="indicates type of the queue the barrier is executed on after the synchronization point. Used for cross-queue barriers."/>
     </type>
 
     <type name="GlobalBarrier" category="variant" version="0.7.0" doc="Global barrier without resource handles.">
-      <member type="BarrierSync" name="sync_before" doc="Synchronization scope before the barrier."/>
-      <member type="BarrierSync" name="sync_after" doc="Synchronization scope after the barrier."/>
-      <member type="ResourceAccess" name="access_before" doc="Access scope before the barrier."/>
-      <member type="ResourceAccess" name="access_after" doc="Access scope after the barrier."/>
+      <member type="BarrierSync" name="sync_before" doc="indicates synchronization scope before the barrier."/>
+      <member type="BarrierSync" name="sync_after" doc="specifies synchronization scope after the barrier."/>
+      <member type="ResourceAccess" name="access_before" doc="defines access scope before the barrier."/>
+      <member type="ResourceAccess" name="access_after" doc="indicates access scope after the barrier."/>
     </type>
 
     <type name="TextureBarrier" category="variant" version="0.7.0" doc="Texture barrier with the texture handle.">
-      <member type="BarrierSync" name="sync_before" doc="Synchronization scope before the barrier."/>
-      <member type="BarrierSync" name="sync_after" doc="Synchronization scope after the barrier."/>
-      <member type="ResourceAccess" name="access_before" doc="Access scope before the barrier."/>
-      <member type="ResourceAccess" name="access_after" doc="Access scope after the barrier."/>
-      <member type="TextureState" name="state_before" doc="Texture state before the barrier."/>
-      <member type="TextureState" name="state_after" doc="Texture state after the barrier."/>
-      <member type="BarrierFlags" name="flags" doc="Barrier flags. Describe additional options for the barrier."/>
-      <member type="TextureView" name="texture" doc="Texture view."/>
-      <member type="SubresourceRange" name="subresource_range" doc="Subresource range for the barrier."/>
-      <member type="CommandQueueType" name="queue_type_before" doc="Type of the queue the barrier is executed on before the synchronization point. Used for cross-queue barriers."/>
-      <member type="CommandQueueType" name="queue_type_after" doc="Type of the queue the barrier is executed on after the synchronization point. Used for cross-queue barriers."/>
+      <member type="BarrierSync" name="sync_before" doc="indicates synchronization scope before the barrier."/>
+      <member type="BarrierSync" name="sync_after" doc="specifies synchronization scope after the barrier."/>
+      <member type="ResourceAccess" name="access_before" doc="defines access scope before the barrier."/>
+      <member type="ResourceAccess" name="access_after" doc="indicates access scope after the barrier."/>
+      <member type="TextureState" name="state_before" doc="indicates texture state before the barrier."/>
+      <member type="TextureState" name="state_after" doc="specifies texture state after the barrier."/>
+      <member type="BarrierFlags" name="flags" doc="describes barrier flags. Describe additional options for the barrier."/>
+      <member type="TextureView" name="texture" doc="describes texture view."/>
+      <member type="SubresourceRange" name="subresource_range" doc="specifies subresource range for the barrier."/>
+      <member type="CommandQueueType" name="queue_type_before" doc="defines type of the queue the barrier is executed on before the synchronization point. Used for cross-queue barriers."/>
+      <member type="CommandQueueType" name="queue_type_after" doc="indicates type of the queue the barrier is executed on after the synchronization point. Used for cross-queue barriers."/>
     </type>
 
     <type name="BarrierGroup" category="variant" version="0.7.0" doc="Barrier group for multiple barriers submission.">
-      <member type="BufferBarrier" name="buffer_barriers" mod="const,span" default="nullptr" doc="Array of buffer barriers."/>
-      <member type="size" name="buffer_barrier_count" default="0" doc="Number of buffer barriers in the {BarrierGroup::buffer_barriers} array."/>
-      <member type="TextureBarrier" name="texture_barriers" mod="const,span" default="nullptr" doc="Array of texture barriers."/>
-      <member type="size" name="texture_barrier_count" default="0" doc="Number of texture barriers in the {BarrierGroup::texture_barriers} array."/>
-      <member type="GlobalBarrier" name="global_barriers" mod="const,span" default="nullptr" doc="Array of global barriers."/>
-      <member type="size" name="global_barrier_count" default="0" doc="Number of global barriers in the {BarrierGroup::global_barriers} array."/>
+      <member type="BufferBarrier" name="buffer_barriers" mod="const,span" default="nullptr" doc="points to an array of buffer barriers."/>
+      <member type="size" name="buffer_barrier_count" default="0" doc="defines number of buffer barriers in the {BarrierGroup::buffer_barriers} array."/>
+      <member type="TextureBarrier" name="texture_barriers" mod="const,span" default="nullptr" doc="points to an array of texture barriers."/>
+      <member type="size" name="texture_barrier_count" default="0" doc="indicates number of texture barriers in the {BarrierGroup::texture_barriers} array."/>
+      <member type="GlobalBarrier" name="global_barriers" mod="const,span" default="nullptr" doc="points to an array of global barriers."/>
+      <member type="size" name="global_barrier_count" default="0" doc="indicates number of global barriers in the {BarrierGroup::global_barriers} array."/>
     </type>
 
     <type name="ComputePipelineDesc" category="variant" version="0.7.0" doc="Compute pipeline description for {Pipeline::} creation.">
-      <member type="RootSignatureView" name="root_signature" doc="Root signature description for the pipeline."/>
-      <member type="ShaderView" name="compute_shader" doc="Compute shader bytecode."/>
-      <member type="PipelineCacheView" name="cache" default="0" doc="Pipeline cache data. Used to speed up pipeline creation if available."/>
-      <member type="PipelineFlags" name="flags" doc="Pipeline flags. Describe additional options for the pipeline."/>
+      <member type="RootSignatureView" name="root_signature" doc="describes root signature description for the pipeline."/>
+      <member type="ShaderView" name="compute_shader" doc="indicates compute shader bytecode."/>
+      <member type="PipelineCacheView" name="cache" default="0" doc="defines pipeline cache data. Used to speed up pipeline creation if available."/>
+      <member type="PipelineFlags" name="flags" doc="describes pipeline flags. Describe additional options for the pipeline."/>
     </type>
 
     <type name="GraphicsPipelineDesc" category="variant" version="0.7.0" doc="Graphics pipeline description for {Pipeline::} creation.">
-      <member type="RootSignatureView" name="root_signature" doc="Root signature description for the pipeline."/>
+      <member type="RootSignatureView" name="root_signature" doc="describes root signature description for the pipeline."/>
 
-      <member type="ShaderView" name="vertex_shader" doc="Vertex shader bytecode."/>
-      <member type="ShaderView" name="hull_shader" default="0" doc="Hull shader bytecode. If not set, the pipeline will be created without a hull shader."/>
-      <member type="ShaderView" name="domain_shader" default="0" doc="Domain shader bytecode. If not set, the pipeline will be created without a domain shader."/>
-      <member type="ShaderView" name="geometry_shader" default="0" doc="Geometry shader bytecode. If not set, the pipeline will be created without a geometry shader."/>
-      <member type="ShaderView" name="pixel_shader" default="0" doc="Pixel shader bytecode. If not set, the pipeline will be created without a pixel shader."/>
+      <member type="ShaderView" name="vertex_shader" doc="defines vertex shader bytecode."/>
+      <member type="ShaderView" name="hull_shader" default="0" doc="indicates hull shader bytecode. If not set, the pipeline will be created without a hull shader."/>
+      <member type="ShaderView" name="domain_shader" default="0" doc="specifies domain shader bytecode. If not set, the pipeline will be created without a domain shader."/>
+      <member type="ShaderView" name="geometry_shader" default="0" doc="specifies geometry shader bytecode. If not set, the pipeline will be created without a geometry shader."/>
+      <member type="ShaderView" name="pixel_shader" default="0" doc="defines pixel shader bytecode. If not set, the pipeline will be created without a pixel shader."/>
 
-      <member type="RenderAttachmentsDesc" name="render_attachments" doc="Render attachments description for the pipeline. Used to create the compatible render pass for the pipeline."/>
-      <member type="InputLayout" name="input_layout" default="{}" doc="Input layout description for the pipeline. If not set, the pipeline will be created without an input layout."/>
-      <member type="TopologyType" name="topology_type" default="Triangle" doc="Topology type. Default is {TopologyType::Triangle}."/>
-      <member type="RasterizerDesc" name="rasterizer_desc" mod="const,ptr" default="nullptr" doc="Rasterizer description for the pipeline. If not set, the pipeline will be created with default rasterizer state."/>
-      <member type="SampleDesc" name="sample_desc" mod="const,ptr" default="nullptr" doc="Sample description for the pipeline. If not set, the pipeline will be created with default sample state (no multisampling)."/>
-      <member type="DepthStencilDesc" name="depth_stencil_desc" mod="const,ptr" default="nullptr" doc="Depth stencil description for the pipeline. If not set, the pipeline will be created with depth testing and stencil testing disabled."/>
-      <member type="BlendStateDesc" name="blend_state_desc" mod="const,ptr" default="nullptr" doc="Blend state description for the pipeline. If not set, the pipeline will be created with blending disabled."/>
-      <member type="PipelineCacheView" name="cache" default="0" doc="Pipeline cache data. Used to speed up pipeline creation if available."/>
-      <member type="PipelineFlags" name="flags" doc="Pipeline flags. Describe additional options for the pipeline."/>
+      <member type="RenderAttachmentsDesc" name="render_attachments" doc="indicates render attachments description for the pipeline. Used to create the compatible render pass for the pipeline."/>
+      <member type="InputLayout" name="input_layout" default="{}" doc="describes input layout description for the pipeline. If not set, the pipeline will be created without an input layout."/>
+      <member type="TopologyType" name="topology_type" default="Triangle" doc="specifies topology type. Default is {TopologyType::Triangle}."/>
+      <member type="RasterizerDesc" name="rasterizer_desc" mod="const,ptr" default="nullptr" doc="describes rasterizer description for the pipeline. If not set, the pipeline will be created with default rasterizer state."/>
+      <member type="SampleDesc" name="sample_desc" mod="const,ptr" default="nullptr" doc="defines sample description for the pipeline. If not set, the pipeline will be created with default sample state (no multisampling)."/>
+      <member type="DepthStencilDesc" name="depth_stencil_desc" mod="const,ptr" default="nullptr" doc="defines depth stencil description for the pipeline. If not set, the pipeline will be created with depth testing and stencil testing disabled."/>
+      <member type="BlendStateDesc" name="blend_state_desc" mod="const,ptr" default="nullptr" doc="indicates blend state description for the pipeline. If not set, the pipeline will be created with blending disabled."/>
+      <member type="PipelineCacheView" name="cache" default="0" doc="defines pipeline cache data. Used to speed up pipeline creation if available."/>
+      <member type="PipelineFlags" name="flags" doc="describes pipeline flags. Describe additional options for the pipeline."/>
     </type>
 
   </types>

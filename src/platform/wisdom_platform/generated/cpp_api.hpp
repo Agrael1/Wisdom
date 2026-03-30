@@ -10,8 +10,7 @@
 #include "c_api.h"
 #include "wisdom_exports.h"
 
-namespace wis
-{
+namespace wis {
 
 //==============================================================
 // Structs
@@ -70,8 +69,7 @@ struct UWPWindowDesc {
 #ifdef WISDOM_DX12
 #    include <wisdom_platform/dx12/dx12_types.hpp>
 
-namespace wis
-{
+namespace wis {
 struct DX12Win32ExtensionDeleter {
     void operator()(WisDX12Win32Extension* handle) noexcept { ::wisDX12DestroyWin32Extension(handle); }
 };
@@ -173,8 +171,7 @@ public:
 #ifdef WISDOM_VULKAN
 #    include <wisdom_platform/vulkan/vk_types.hpp>
 
-namespace wis
-{
+namespace wis {
 struct VKXlibExtensionDeleter {
     void operator()(WisVKXlibExtension* handle) noexcept { ::wisVKDestroyXlibExtension(handle); }
 };

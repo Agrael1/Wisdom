@@ -9,10 +9,8 @@
 
 #include <cassert>
 
-namespace wis
-{
-namespace impl
-{
+namespace wis {
+namespace impl {
 struct DX12InstanceImpl;
 struct DX12DeviceImpl;
 } // namespace impl

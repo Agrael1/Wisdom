@@ -6,13 +6,11 @@
 #    include <wisdom/vulkan/vk_views.h>
 #endif // !WISDOM_MODULE_DECL
 
-namespace wis
-{
+namespace wis {
 WISDOM_EXPORT class VKMemory;
 
 WISDOM_EXPORT
-namespace h
-{
+namespace h {
 using VmaAllocation = wis::movable_handle<::VmaAllocation>;
 }
 

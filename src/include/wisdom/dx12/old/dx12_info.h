@@ -6,13 +6,13 @@
 #    include <wisdom/util/com_ptr.h>
 
 #    include <dxgidebug.h>
+
 #    include <semaphore>
 #    include <unordered_map>
 #    include <utility>
 #endif
 
-namespace wis
-{
+namespace wis {
 /// @brief Information queue for debug and error messages
 class DX12Info
 {

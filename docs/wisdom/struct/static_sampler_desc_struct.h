@@ -33,9 +33,9 @@
  * @section WisStaticSamplerDesc_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `sampler` Sampler description.
- * - `visibility` Shader stage visibility. Defines the stage where the sampler is used.
- * - `bind_register` Bind register number in HLSL.
+ * - `sampler` defines sampler description.
+ * - `visibility` defines shader stage visibility; it defines the stage where the sampler is used.
+ * - `bind_register` describes bind register number in HLSL.
  * \endcond
  *
  * @section WisStaticSamplerDesc_descr Description

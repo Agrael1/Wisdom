@@ -1,8 +1,7 @@
 #pragma once
 #include "wis_helper.h"
 
-namespace ex
-{
+namespace ex {
 class Swapchain
 {
 public:

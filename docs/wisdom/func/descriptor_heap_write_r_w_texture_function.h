@@ -63,8 +63,8 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisDescriptorHeap instance.
- * - `texture` points to WisTexture to write the descriptor for.
- * - `data` points to , which describes the texture view to write.
+ * - `texture` describes a pointer to WisTexture to write the descriptor for.
+ * - `data` specifies a pointer to WisTextureBinding, which describes the texture view to write.
  * - `index` defines the index in the descriptor heap to write the descriptor to.
  * 
  * - **return** denoting the outcome of operation.

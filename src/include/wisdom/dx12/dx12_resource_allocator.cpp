@@ -7,8 +7,7 @@
 #include <wisdom/generated/dx12_convert.hpp>
 #include <wisdom/util/allocation.hpp>
 
-namespace wis::detail
-{
+namespace wis::detail {
 //-----------------------------------------------------------------------------
 inline WisResult DX12CreateResource(
     const D3D12MA::ALLOCATION_DESC& all_desc,

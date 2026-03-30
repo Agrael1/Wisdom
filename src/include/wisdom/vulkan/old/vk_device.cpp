@@ -470,8 +470,7 @@ wis::VKCommandQueue wis::ImplVKDevice::CreateCommandQueue(wis::Result& result, w
     return out_queue;
 }
 
-namespace wis::detail
-{
+namespace wis::detail {
 inline void VKFillShaderStage(
     wis::detail::uniform_allocator<VkPipelineShaderStageCreateInfo, wis::max_shader_stages>& shader_stages,
     wis::VKShaderView shader,
@@ -1081,8 +1080,8 @@ wis::VKSwapChain wis::ImplVKDevice::VKCreateSwapChain(
         );
         return out_swapchain;
     }
-    auto vr = itable
-                  .vkGetPhysicalDeviceSurfaceFormatsKHR(hadapter, surface.get(), &format_count, surface_formats.get());
+    auto
+        vr = itable.vkGetPhysicalDeviceSurfaceFormatsKHR(hadapter, surface.get(), &format_count, surface_formats.get());
 
     if (!wis::detail::succeeded(vr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to get surface formats">(vr);
@@ -1094,7 +1093,9 @@ wis::VKSwapChain wis::ImplVKDevice::VKCreateSwapChain(
     });
 
     if (format == surface_formats.end() || format->format == VkFormat::VK_FORMAT_UNDEFINED) {
-        result = wis::make_result<wis::Func<wis::FuncD()>(), "Supplied format is not supported by surface">(
+        result = wis::make_result<
+            wis::Func<wis::FuncD()>(),
+            "Supplied format is not supported by surface">(
             VkResult::VK_ERROR_UNKNOWN
         ); // TODO: Make more meaningful error
         return out_swapchain;
@@ -1766,8 +1767,12 @@ wis::VKRootSignature wis::ImplVKDevice::CreateRootSignature(
             .bindingCount = push_descriptors_count,
             .pBindings = push_bindings,
         };
-        auto res = device.table()
-                       .vkCreateDescriptorSetLayout(device.get(), &push_desc_info, nullptr, &internal.vk_dsls[0]);
+        auto res = device.table().vkCreateDescriptorSetLayout(
+            device.get(),
+            &push_desc_info,
+            nullptr,
+            &internal.vk_dsls[0]
+        );
         if (!wis::detail::succeeded(res)) {
             result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create a push descriptor set layout">(res);
             return out_signature;
@@ -1802,8 +1807,12 @@ wis::VKRootSignature wis::ImplVKDevice::CreateRootSignature(
                                              ? wis::max_descriptor_storage_sampler_count
                                              : wis::max_descriptor_storage_resource_count;
 
-        auto res = device.table()
-                       .vkCreateDescriptorSetLayout(device.get(), &desc_layout_info, nullptr, &desc_layouts[i]);
+        auto res = device.table().vkCreateDescriptorSetLayout(
+            device.get(),
+            &desc_layout_info,
+            nullptr,
+            &desc_layouts[i]
+        );
         if (!wis::detail::succeeded(res)) {
             result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create a descriptor set layout">(res);
             for (uint32_t j = 0; j < i; j++) {

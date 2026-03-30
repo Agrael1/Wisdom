@@ -107,15 +107,15 @@
  * @section WisBufferBarrier_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `sync_before` Synchronization scope before the barrier.
- * - `sync_after` Synchronization scope after the barrier.
- * - `access_before` Access scope before the barrier.
- * - `access_after` Access scope after the barrier.
- * - `buffer` Buffer view.
- * - `offset` Offset in bytes from the start of the buffer. Default is 0.
- * - `size` Barrier size in bytes. Default is `UINT64_MAX`, which means the whole buffer range.
- * - `queue_type_before` Type of the queue the barrier is executed on before the synchronization point. Used for cross-queue barriers.
- * - `queue_type_after` Type of the queue the barrier is executed on after the synchronization point. Used for cross-queue barriers.
+ * - `sync_before` indicates synchronization scope before the barrier.
+ * - `sync_after` specifies synchronization scope after the barrier.
+ * - `access_before` defines access scope before the barrier.
+ * - `access_after` indicates access scope after the barrier.
+ * - `buffer` specifies buffer view.
+ * - `offset` indicates offset in bytes from the start of the buffer. Default is 0.
+ * - `size` indicates barrier size in bytes. Default is `UINT64_MAX`, which means the whole buffer range.
+ * - `queue_type_before` defines type of the queue the barrier is executed on before the synchronization point. Used for cross-queue barriers.
+ * - `queue_type_after` indicates type of the queue the barrier is executed on after the synchronization point. Used for cross-queue barriers.
  * \endcond
  *
  * @section WisBufferBarrier_descr Description

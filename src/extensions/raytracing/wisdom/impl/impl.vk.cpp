@@ -376,10 +376,8 @@ void wis::ImplVKRaytracing::BuildBottomLevelAS(
 
     const VkAccelerationStructureGeometryKHR**
         pp_geometries = reinterpret_cast<const VkAccelerationStructureGeometryKHR**>(data);
-    const VkAccelerationStructureBuildRangeInfoKHR**
-        pp_ranges = reinterpret_cast<const VkAccelerationStructureBuildRangeInfoKHR**>(
-            pp_geometries + direct * blas_desc.geometry_count
-        );
+    const VkAccelerationStructureBuildRangeInfoKHR** pp_ranges = reinterpret_cast<
+        const VkAccelerationStructureBuildRangeInfoKHR**>(pp_geometries + direct * blas_desc.geometry_count);
 
     if (direct) {
         for (size_t i = 0; i < blas_desc.geometry_count; ++i) {

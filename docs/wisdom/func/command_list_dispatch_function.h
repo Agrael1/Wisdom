@@ -63,9 +63,9 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisCommandList instance.
- * - `group_count_x` The number of groups to dispatch in X dimension.
- * - `group_count_y` The number of groups to dispatch in Y dimension. Default is 1.
- * - `group_count_z` The number of groups to dispatch in Z dimension. Default is 1.
+ * - `group_count_x` defines number of groups to dispatch in X dimension.
+ * - `group_count_y` describes number of groups to dispatch in Y dimension; default is 1.
+ * - `group_count_z` specifies number of groups to dispatch in Z dimension; default is 1.
  * \endcond
  *
  * @section wisCommandListDispatch_descr Description

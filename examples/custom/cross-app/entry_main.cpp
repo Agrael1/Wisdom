@@ -1,10 +1,11 @@
 #include <wisdom/wisdom_platform.hpp>
 
 #include <glm/vec3.hpp>
-#include <iostream>
 #include <window.h>
 #include <wis_helper.h>
 #include <wis_swapchain.h>
+
+#include <iostream>
 
 class App
 {

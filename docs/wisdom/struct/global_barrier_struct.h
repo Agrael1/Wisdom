@@ -77,10 +77,10 @@
  * @section WisGlobalBarrier_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `sync_before` Synchronization scope before the barrier.
- * - `sync_after` Synchronization scope after the barrier.
- * - `access_before` Access scope before the barrier.
- * - `access_after` Access scope after the barrier.
+ * - `sync_before` indicates synchronization scope before the barrier.
+ * - `sync_after` specifies synchronization scope after the barrier.
+ * - `access_before` defines access scope before the barrier.
+ * - `access_after` indicates access scope after the barrier.
  * \endcond
  *
  * @section WisGlobalBarrier_descr Description

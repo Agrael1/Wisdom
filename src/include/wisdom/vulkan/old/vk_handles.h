@@ -4,17 +4,17 @@
 #    include <wisdom/generated/vulkan/vk_functions.hpp>
 #    include <wisdom/global/definitions.h>
 
-#    include <memory>
-#    include <span>
-#    include <vector>
 #    include <vk_mem_alloc.h>
 #    include <wisvk/vk_managed_handles.hpp>
 #    include <wisvk/vk_movable.hpp>
+
+#    include <memory>
+#    include <span>
+#    include <vector>
 #endif // !WISDOM_MODULE_DECL
 
 WISDOM_EXPORT
-namespace wis
-{
+namespace wis {
 struct SharedDeviceHeader {
     deleter_of_t<VkDevice> deleter;
     std::unique_ptr<wis::VKMainDevice> device_table;

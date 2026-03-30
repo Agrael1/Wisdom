@@ -63,8 +63,8 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisDescriptorHeap instance.
- * - `buffer` points to WisBuffer to write the descriptor for.
- * - `data` points to WisBufferBinding, which describes the shader resource view descriptors to write.
+ * - `buffer` specifies a pointer to WisBuffer to write the descriptor for.
+ * - `data` specifies a pointer to WisBufferBinding, which describes the shader resource view descriptors to write.
  * - `index` defines the index in the descriptor heap to write the descriptors to.
  * 
  * - **return** denoting the outcome of operation.

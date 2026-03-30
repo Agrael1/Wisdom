@@ -35,10 +35,10 @@
  * @section WisPushDescriptorDataDesc_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `pipeline` defines the pipeline type to set the push descriptors for.
- * - `root_index` defines the root index in the root signature to set the push descriptors for.
+ * - `pipeline` specifies the pipeline type to set the push descriptors for.
+ * - `root_index` indicates the root index in the root signature to set the push descriptors for.
  * - `descriptor_type` defines the type of the descriptors to push.
- * - `buffer_address` defines buffer device address to push.
+ * - `buffer_address` indicates buffer device address to push.
  * \endcond
  *
  * @section WisPushDescriptorDataDesc_descr Description

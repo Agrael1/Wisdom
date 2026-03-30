@@ -57,8 +57,8 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisCommandList instance.
- * - `signature` points to WisRootSignature to set.
- * - `pipeline` defines the pipeline type to set the root signature for.
+ * - `signature` specifies a pointer to WisRootSignature to set.
+ * - `pipeline` specifies the pipeline type to set the root signature for.
  * \endcond
  *
  * @section wisCommandListSetRootSignature_descr Description

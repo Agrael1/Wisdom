@@ -4,11 +4,11 @@
 #    include <wisdom/generated/api/api.hpp>
 
 #    include <dxgi1_6.h>
+
 #    include <string>
 #endif
 
-namespace wis
-{
+namespace wis {
 inline constexpr wis::Status convert(HRESULT hr) noexcept
 {
     switch (hr) {

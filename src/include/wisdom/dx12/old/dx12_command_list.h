@@ -6,8 +6,7 @@
 #    include <wisdom/util/com_ptr.h>
 #endif // !WISDOM_MODULE_DECL
 
-namespace wis
-{
+namespace wis {
 WISDOM_EXPORT class DX12CommandList;
 WISDOM_EXPORT struct DX12BufferBarrier2;
 WISDOM_EXPORT struct DX12TextureBarrier2;

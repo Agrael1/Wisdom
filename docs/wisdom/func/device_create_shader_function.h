@@ -60,8 +60,8 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisDevice instance.
- * - `data` Shader bytecode.
- * - `size` The size of the shader data in bytes. For SPIR-V @wis_must be multiple of 4.
+ * - `data` points to an array of shader bytecode.
+ * - `size` indicates size of shader data in bytes; for SPIR-V it @wis_must be a multiple of 4.
  * - `shader` points to WisShader, which is initialized on success.
  * 
  * - **return** denoting the outcome of operation.

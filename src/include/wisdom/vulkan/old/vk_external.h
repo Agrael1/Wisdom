@@ -6,8 +6,7 @@
 #endif // !WISDOM_MODULE_DECL
 
 WISDOM_EXPORT
-namespace wis::detail
-{
+namespace wis::detail {
 constexpr inline VkExternalSemaphoreHandleTypeFlagsKHR semaphore_handle_type =
 #if defined(WIN32)
     VK_EXTERNAL_SEMAPHORE_HANDLE_TYPE_OPAQUE_WIN32_BIT

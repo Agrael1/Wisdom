@@ -8,8 +8,7 @@
 #endif
 
 WISDOM_EXPORT
-namespace wis
-{
+namespace wis {
 /// @brief Log any errors in the current context
 /// @return true if there were any errors
 inline void log_dxgi_errors() noexcept

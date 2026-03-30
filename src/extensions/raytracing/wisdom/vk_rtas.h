@@ -7,8 +7,7 @@
 #endif // !WISDOM_MODULE_DECL
 
 WISDOM_EXPORT
-namespace wis
-{
+namespace wis {
 class VKAccelerationStructure;
 
 template <>

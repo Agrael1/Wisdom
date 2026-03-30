@@ -7,8 +7,7 @@
 
 #include <bit>
 
-namespace wis::detail
-{
+namespace wis::detail {
 constexpr static uint32_t vk_max_barrier_size = std::max(
     {sizeof(VkBufferMemoryBarrier), sizeof(VkImageMemoryBarrier2), sizeof(VkMemoryBarrier2)}
 );
@@ -491,8 +490,11 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetViewports(
             .maxDepth = vp.max_depth
         };
     }
-    impl.command_list_table
-        ->vkCmdSetViewportWithCount(impl.command_buffer, static_cast<uint32_t>(max_count), vk_viewports);
+    impl.command_list_table->vkCmdSetViewportWithCount(
+        impl.command_buffer,
+        static_cast<uint32_t>(max_count),
+        vk_viewports
+    );
 }
 
 //-----------------------------------------------------------------------------
@@ -527,8 +529,12 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetDepthBias(
 )
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKCommandListImpl>(self);
-    impl.command_list_table
-        ->vkCmdSetDepthBias(impl.command_buffer, depth_bias, depth_bias_clamp, slope_scaled_depth_bias);
+    impl.command_list_table->vkCmdSetDepthBias(
+        impl.command_buffer,
+        depth_bias,
+        depth_bias_clamp,
+        slope_scaled_depth_bias
+    );
 }
 
 //-----------------------------------------------------------------------------
@@ -690,7 +696,36 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListDrawIndexed(
 )
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKCommandListImpl>(self);
-    impl.command_list_table
-        ->vkCmdDrawIndexed(impl.command_buffer, index_count, instance_count, start_index, base_vertex, start_instance);
+    impl.command_list_table->vkCmdDrawIndexed(
+        impl.command_buffer,
+        index_count,
+        instance_count,
+        start_index,
+        base_vertex,
+        start_instance
+    );
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisVKCommandListCopyBuffer(
+    const WisVKCommandList* self,
+    WisVKBufferView dst_buffer,
+    WisVKBufferView src_buffer,
+    const WisBufferCopyRegion* regions,
+    size_t region_count
+)
+{
+    static_assert(
+        sizeof(WisBufferCopyRegion) == sizeof(VkBufferCopy),
+        "WisBufferCopyRegion must be binary compatible with VkBufferCopy"
+    );
+    auto& impl = wis::from_handle_ref<const wis::impl::VKCommandListImpl>(self);
+    impl.command_list_table->vkCmdCopyBuffer(
+        impl.command_buffer,
+        std::bit_cast<VkBuffer>(src_buffer),
+        std::bit_cast<VkBuffer>(dst_buffer),
+        static_cast<uint32_t>(region_count),
+        reinterpret_cast<const VkBufferCopy*>(regions)
+    );
 }
 #endif // WIS_VK_COMMAND_LIST_CPP

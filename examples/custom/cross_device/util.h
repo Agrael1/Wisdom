@@ -6,8 +6,7 @@
 // #include <wisdom/util/exception.h>
 // #include <winrt/base.h>
 
-namespace wis
-{
+namespace wis {
 /// @brief Get the last windows error
 /// @return HRESULT of the last windows error
 HRESULT last_windows_error() noexcept;

@@ -7,8 +7,7 @@
 #    include <wisdom/vulkan/vk_extensions.hpp>
 #    include <wisdom_platform/generated/cpp_api.hpp>
 
-namespace wis::detail
-{
+namespace wis::detail {
 inline WisResult VKWin32ExtensionInit(
     VKInstanceExtensionHeader* self,
     impl::VKInstanceImpl* instance_impl,
@@ -22,8 +21,8 @@ inline WisResult VKWin32ExtensionInit(
     } else {
         // Create control block for instance
         impl.instance_control_block = instance_impl->shared_header;
-        impl.instance_control_block
-            ->AddRef(); // AddRef instance control block to ensure it lives as long as the extension
+        impl.instance_control_block->AddRef(); // AddRef instance control block to ensure it lives as long as the
+                                               // extension
 
         // Collect functions
         auto instance = instance_impl->instance;

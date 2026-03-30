@@ -71,10 +71,10 @@
  * @section WisDeviceRequirements_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `queue_descs` points to an array of WisCommandQueueDesc for which queues will be created during device creation.
- * - `queue_desc_count` counts the number of queue descriptions in the wisAdapterQueryCreateDevice queue_descs array.
+ * - `queue_descs` points to an array of WisCommandQueueDesc for which queues are created during device creation.
+ * - `queue_desc_count` indicates the number of the number of queue descriptions in the wisAdapterQueryCreateDevice queue_descs array.
  * - `extensions` points to an array of extensions that are to be initialized with pointers to WisDeviceExtensionHeader.
- * - `extension_count` counts the number of extensions in the wisAdapterQueryCreateDevice extensions array.
+ * - `extension_count` describes the number of the number of extensions in the wisAdapterQueryCreateDevice extensions array.
  * \endcond
  *
  * @section WisDeviceRequirements_descr Description

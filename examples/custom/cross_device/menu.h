@@ -1,12 +1,17 @@
 #pragma once
 #include <wil/resource.h>
 
-namespace UT
-{
+namespace UT {
 class Menu
 {
 public:
-    enum class Mode { Image, Video, Model, Game };
+    enum class Mode
+    {
+        Image,
+        Video,
+        Model,
+        Game
+    };
 
 public:
     Menu() = default;

@@ -5,8 +5,7 @@
 #    include <wisdom/dx12/detail/dx12_utils.hpp>
 #    include <wisdom_platform/generated/cpp_api.hpp>
 
-namespace wis::detail
-{
+namespace wis::detail {
 inline WisResult DX12UWPExtensionInit(
     wis::DX12InstanceExtensionHeader* self,
     const wis::impl::DX12InstanceImpl& instance

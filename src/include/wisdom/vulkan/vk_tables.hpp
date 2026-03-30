@@ -7,10 +7,8 @@
 
 #include <vulkan/vulkan.h>
 
-namespace wis
-{
-namespace impl
-{
+namespace wis {
+namespace impl {
 //-----------------------------------------------------------------------------
 struct VKMainGlobal {
     PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr;

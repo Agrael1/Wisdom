@@ -7,12 +7,18 @@
 #include "menu.h"
 #include "mouse.h"
 
-namespace ver
-{
+namespace ver {
 class FileOpenDialog;
 }
 
-enum class Event : uint8_t { Resize, Restyle, LoadAsset, Play, Count };
+enum class Event : uint8_t
+{
+    Resize,
+    Restyle,
+    LoadAsset,
+    Play,
+    Count
+};
 constexpr inline auto operator+(Event e)
 {
     return static_cast<std::underlying_type<Event>::type>(e);

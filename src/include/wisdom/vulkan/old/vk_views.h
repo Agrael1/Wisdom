@@ -9,8 +9,7 @@
 #endif // !WISDOM_MODULE_DECL
 
 WISDOM_EXPORT
-namespace wis
-{
+namespace wis {
 using VKFactoryHandle = std::tuple<wis::SharedInstance>;
 using VKDeviceHandle = std::tuple<wis::SharedDevice>;
 

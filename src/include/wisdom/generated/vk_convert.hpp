@@ -9,10 +9,8 @@
 
 #include "c_api.h"
 
-namespace wis
-{
-namespace detail
-{
+namespace wis {
+namespace detail {
 
 constexpr inline VkFormat VKConvert(WisDataFormat value) noexcept
 {

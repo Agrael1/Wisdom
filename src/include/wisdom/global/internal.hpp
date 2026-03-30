@@ -6,10 +6,8 @@
 #    include <cstdio>
 #    include <cstring>
 
-namespace wis
-{
-namespace impl
-{
+namespace wis {
+namespace impl {
 
 /// @brief Implements class for querying the internal implementation
 /// @tparam Impl Implementation class type, passed to Internal

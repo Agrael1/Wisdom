@@ -57,8 +57,8 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisCommandList instance.
- * - `pipeline` points to WisPipeline to set.
- * - `type` defines the pipeline type to set the pipeline for.
+ * - `pipeline` specifies a pointer to WisPipeline to set.
+ * - `type` specifies the pipeline type to set the pipeline for.
  * \endcond
  *
  * @section wisCommandListSetPipeline_descr Description

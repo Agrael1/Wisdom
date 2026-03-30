@@ -6,8 +6,7 @@
 #    include <wisdom/util/com_ptr.h>
 #endif
 
-namespace wis
-{
+namespace wis {
 WISDOM_EXPORT class DX12RootSignature;
 
 WISDOM_EXPORT

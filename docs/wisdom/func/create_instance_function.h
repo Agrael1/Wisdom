@@ -64,9 +64,9 @@
  * @section CreateInstance_memb Parameters
  * <hr>
  * \cond WIS_GEN_DESC
- * - `debug_desc` points to WisDebugDesc, which defines debug callback and debug layer usage. If `nullptr`, debug layer is disabled.
+ * - `debug_desc` describes a pointer to WisDebugDesc, which defines debug callback and debug layer usage. If `nullptr`, debug layer is disabled.
  * - `extensions` points to an array of extensions that are to be initialized with pointers to WisInstanceExtensionHeader.
- * - `extension_count` counts the number of extensions in the  array.
+ * - `extension_count` describes the number of the number of extensions in the  array.
  * - `instance` points to WisInstance, which is initialized on success.
  * 
  * - **return** denoting the outcome of operation.

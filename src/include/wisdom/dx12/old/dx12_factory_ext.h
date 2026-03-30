@@ -4,14 +4,12 @@
 #    include <wisdom/generated/api/api.hpp>
 #endif
 
-namespace wis
-{
+namespace wis {
 WISDOM_EXPORT class DX12Factory;
 }
 
 WISDOM_EXPORT
-namespace wis
-{
+namespace wis {
 struct DX12FactoryExtension {
     virtual ~DX12FactoryExtension() = default;
     virtual wis::Result Init(const wis::DX12Factory& instance) noexcept { return {}; }

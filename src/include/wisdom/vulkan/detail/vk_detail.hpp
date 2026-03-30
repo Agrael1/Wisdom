@@ -8,13 +8,17 @@
 #include <wisdom/generated/c_api.h>
 #include <wisdom/vulkan/vk_tables.hpp>
 
+#include <vk_mem_alloc.h>
+
 #include <array>
 #include <atomic>
 #include <semaphore>
-#include <vk_mem_alloc.h>
 
-namespace wis::detail
-{
+namespace wis::impl {
+struct VKSwapchainImpl;
+}
+
+namespace wis::detail {
 //-----------------------------------------------------------------------------
 /**
  * @brief A control block structure that manages reference counting for Vulkan objects. This template struct is designed
@@ -555,61 +559,8 @@ inline void VKReleaseSwapchain(VkSwapchainKHR swap, VKSwapchainControlBlock* hea
     }
 }
 
-//-----------------------------------------------------------------------------
-inline VkResult VKAcquireNextImage(const impl::VKSwapchainImpl& impl) noexcept
-{
-    auto& swapchain_header = impl.swapchain_header->header;
-    auto& swapchain_table = *impl.swapchain_table;
-    auto semaphores = swapchain_header.GetImageAvailableSemaphores();
+WIS_INLINE VkResult VKAcquireNextImage(const impl::VKSwapchainImpl& impl) noexcept;
 
-    // Acquire the next image index for the new swapchain to update internal state
-    auto result = impl.swapchain_table->vkAcquireNextImageKHR(
-        impl.device,
-        impl.swapchain,
-        impl.lazy_acquire ? 0 : std::numeric_limits<uint64_t>::max(),
-        semaphores[impl.acquire_index],
-        nullptr,
-        &impl.present_index
-    );
-
-    if (result != VK_SUCCESS) {
-        return result; // Caller can choose to handle timeout differently (e.g. by skipping rendering and trying again
-                       // next frame) so return a distinct result code for this case
-    }
-
-    VkPipelineStageFlags2 stage_mask = 0;
-    if (swapchain_header.create_info.imageUsage & VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT) {
-        stage_mask |= VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
-    }
-    if (swapchain_header.create_info.imageUsage & VK_IMAGE_USAGE_STORAGE_BIT) {
-        stage_mask |= VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
-    }
-    if (swapchain_header.create_info.imageUsage & VK_IMAGE_USAGE_TRANSFER_DST_BIT) {
-        stage_mask |= VK_PIPELINE_STAGE_2_TRANSFER_BIT;
-    }
-
-    if (stage_mask == 0) {
-        stage_mask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
-    }
-
-    VkSemaphoreSubmitInfo submit_info{
-        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
-        .semaphore = semaphores[impl.acquire_index],
-        .stageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT, // TODO: Fix at some point, since that can cause
-                                                           // unnecessary
-                                                           // synchronization. The stage mask should be determined based
-                                                           // on the swapchain's image usage flags, but for now we can
-                                                           // just use ALL_COMMANDS to ensure correctness.
-    };
-    VkSubmitInfo2 desc2{
-        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
-        .pNext = nullptr,
-        .waitSemaphoreInfoCount = 1,
-        .pWaitSemaphoreInfos = &submit_info,
-    };
-    impl.acquire_index = (impl.acquire_index + 1) % swapchain_header.create_info.minImageCount;
-    return swapchain_table.vkQueueSubmit2(impl.present_queue, 1, &desc2, nullptr);
-}
 } // namespace wis::detail
 
 #endif // WIS_VK_DETAIL_HPP

@@ -33,9 +33,9 @@
  * @section WisInputBindingDesc_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `slot` Input slot number. Must be unique.
- * - `stride_bytes` Stride in bytes. Size of one vertex in the slot.
- * - `input_class` Input class. Defines how the data is read (Per vertex or Per instance).
+ * - `slot` specifies input slot number; it @wis_must be unique.
+ * - `stride_bytes` describes stride in bytes. Size of one vertex in the slot.
+ * - `input_class` describes input class. Defines how the data is read (Per vertex or Per instance).
  * \endcond
  *
  * @section WisInputBindingDesc_descr Description

@@ -6,14 +6,12 @@
 #    include <wisdom/vulkan/vk_resource.h>
 #endif // !WISDOM_MODULE_DECL
 
-namespace wis
-{
+namespace wis {
 WISDOM_EXPORT class VKSwapChain;
 WISDOM_EXPORT class VKDevice;
 
 WISDOM_EXPORT
-namespace detail
-{
+namespace detail {
 struct VKSwapChainCreateInfo {
     wis::SharedSurface surface;
     wis::SharedDevice device;

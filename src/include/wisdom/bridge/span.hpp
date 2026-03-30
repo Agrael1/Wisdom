@@ -54,8 +54,7 @@ http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/n4820.pdf
 #    define WIS_UNSAFE_BUFFERS(...) __VA_ARGS__
 #endif
 
-namespace TCB_SPAN_NAMESPACE_NAME
-{
+namespace TCB_SPAN_NAMESPACE_NAME {
 
 // Establish default contract checking behavior
 #if !defined(TCB_SPAN_THROW_ON_CONTRACT_VIOLATION) && !defined(TCB_SPAN_TERMINATE_ON_CONTRACT_VIOLATION) && \
@@ -157,8 +156,7 @@ TCB_SPAN_INLINE_VAR constexpr std::size_t dynamic_extent = SIZE_MAX;
 template <typename ElementType, std::size_t Extent = dynamic_extent>
 class span;
 
-namespace detail
-{
+namespace detail {
 
 template <typename E, std::size_t S>
 struct span_storage {
@@ -599,8 +597,7 @@ constexpr auto get(span<E, S> s) -> decltype(s[N])
 
 } // namespace TCB_SPAN_NAMESPACE_NAME
 
-namespace std
-{
+namespace std {
 
 template <typename ElementType, size_t Extent>
 class tuple_size<TCB_SPAN_NAMESPACE_NAME::span<ElementType, Extent>> : public integral_constant<size_t, Extent>

@@ -57,21 +57,21 @@
  * @section WisSamplerDesc_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `min_filter` Minification filter.
- * - `mag_filter` Magnification filter.
- * - `mip_filter` Mip level filter.
- * - `reduction_mode` Reduction mode for min/mag/mip filters.
- * - `is_anisotropic` Anisotropic filtering enable.
- * - `max_anisotropy` Max anisotropy level. Min is 1, Max is 16.
- * - `address_u` Address mode for U coordinate.
- * - `address_v` Address mode for V coordinate.
- * - `address_w` Address mode for W coordinate.
- * - `min_lod` Min LOD value.
- * - `max_lod` Max LOD value.
- * - `mip_lod_bias` Mip LOD bias value.
- * - `comparison_op` Comparison operation for comparison samplers.
- * - `static_border_color` Static border color. Used if any address mode is set to WisAddressMode.
- * - `flags` Sampler flags. Used to set additional sampler options.
+ * - `min_filter` describes minification filter.
+ * - `mag_filter` specifies magnification filter.
+ * - `mip_filter` indicates mip level filter.
+ * - `reduction_mode` describes reduction mode for min/mag/mip filters.
+ * - `is_anisotropic` specifies anisotropic filtering enable.
+ * - `max_anisotropy` describes max anisotropy level. Min is 1, Max is 16.
+ * - `address_u` specifies address mode for U coordinate.
+ * - `address_v` indicates address mode for V coordinate.
+ * - `address_w` defines address mode for W coordinate.
+ * - `min_lod` specifies min LOD value.
+ * - `max_lod` defines max LOD value.
+ * - `mip_lod_bias` specifies mip LOD bias value.
+ * - `comparison_op` describes comparison operation for comparison samplers.
+ * - `static_border_color` indicates static border color. Used if any address mode is set to WisAddressMode.
+ * - `flags` describes sampler flags. Used to set additional sampler options.
  * \endcond
  *
  * @section WisSamplerDesc_descr Description

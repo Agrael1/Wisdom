@@ -57,8 +57,8 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisTexture instance.
- * - `source_data` points to the data to write to the texture.
- * - `target_region` points to WisTextureRegion, which describes the region of the texture to write to.
+ * - `source_data` specifies a pointer to the data to write to the texture.
+ * - `target_region` specifies a pointer to WisTextureRegion, which describes the region of the texture to write to.
  * 
  * - **return** denoting the outcome of operation.
  * \endcond

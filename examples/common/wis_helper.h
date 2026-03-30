@@ -7,8 +7,7 @@
 #include <filesystem>
 #include <span>
 
-namespace ex
-{
+namespace ex {
 struct Exception : public std::exception {
     Exception(std::string message)
         : message(std::move(message))

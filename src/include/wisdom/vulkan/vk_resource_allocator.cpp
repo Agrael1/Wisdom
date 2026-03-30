@@ -6,8 +6,7 @@
 #include <wisdom/vulkan/detail/vk_detail.hpp>
 #include <wisdom/vulkan/detail/vk_utils.hpp>
 
-namespace wis::detail
-{
+namespace wis::detail {
 inline VkImageCreateInfo VKFillImageDesc(const WisTextureDesc& desc) noexcept
 {
     VkImageCreateInfo info{

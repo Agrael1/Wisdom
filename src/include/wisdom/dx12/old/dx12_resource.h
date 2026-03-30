@@ -7,8 +7,7 @@
 #    include <optional>
 #endif
 
-namespace wis
-{
+namespace wis {
 WISDOM_EXPORT class DX12Buffer;
 
 WISDOM_EXPORT

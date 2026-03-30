@@ -12,7 +12,7 @@
  * // Provided by Wisdom 0.7.0. 
  * void wisCommandListSetViewports(WisCommandList* self,
  *                                 const WisViewport* viewports,
- *                                 size_t             count);
+ *                                 size_t             viewport_count);
  * ```
  * <details>
  * <summary>C Implementation Specific Version:</summary>
@@ -20,12 +20,12 @@
  * // Provided by Wisdom 0.7.0. 
  * void wisVKCommandListSetViewports(WisVKCommandList* self,
  *                                   const WisViewport* viewports,
- *                                   size_t             count);
+ *                                   size_t             viewport_count);
  * 
  * // Provided by Wisdom 0.7.0. 
  * void wisDX12CommandListSetViewports(WisDX12CommandList* self,
  *                                     const WisViewport*  viewports,
- *                                     size_t              count);
+ *                                     size_t              viewport_count);
  * ```
  * </details>
  * 
@@ -54,8 +54,8 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisCommandList instance.
- * - `viewports` The viewports to set.
- * - `count` The number of viewports to set.
+ * - `viewports` points to an array of viewports to set.
+ * - `viewport_count` defines number of viewports to set.
  * \endcond
  *
  * @section wisCommandListSetViewports_descr Description

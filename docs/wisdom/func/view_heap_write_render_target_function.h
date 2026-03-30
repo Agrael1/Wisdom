@@ -63,8 +63,8 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisViewHeap instance.
- * - `texture` points to WisTexture to write the descriptor for.
- * - `render_target` points to WisRenderTargetDesc, which describes the render target view to write.
+ * - `texture` describes a pointer to WisTexture to write the descriptor for.
+ * - `render_target` specifies a pointer to WisRenderTargetDesc, which describes the render target view to write.
  * - `index` defines the index in the view heap to write the descriptor to.
  * 
  * - **return** CPU descriptor handle for the view heap.

@@ -18,8 +18,7 @@
 
 #if defined(WISDOM_DX12) && !FORCEVK_SWITCH
 
-namespace wis
-{
+namespace wis {
 
 //==============================================================
 // Handles
@@ -32,8 +31,7 @@ using UWPExtension = wis::DX12UWPExtension;
 
 #elif defined(WISDOM_VULKAN)
 
-namespace wis
-{
+namespace wis {
 
 //==============================================================
 // Handles

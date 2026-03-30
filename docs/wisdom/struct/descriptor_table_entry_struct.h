@@ -37,11 +37,11 @@
  * @section WisDescriptorTableEntry_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `type` Descriptor type.
- * - `bind_register` Bind register number in HLSL.
- * - `bind_space` Bind space number in HLSL. `register(regN, spaceN)`
- * - `count` Descriptor count for Array descriptors. UINT32_MAX means unbounded array. 0 means single register, same as 1.
- * - `descriptor_offset` Offset in descriptors from the heap start. Used for calculating descriptor indices when binding descriptor tables.
+ * - `type` specifies descriptor type.
+ * - `bind_register` describes bind register number in HLSL.
+ * - `bind_space` defines bind space number in HLSL. `register(regN, spaceN)`
+ * - `count` describes descriptor count for Array descriptors. UINT32_MAX means unbounded array. 0 means single register, same as 1.
+ * - `descriptor_offset` describes offset in descriptors from the heap start. Used for calculating descriptor indices when binding descriptor tables.
  * \endcond
  *
  * @section WisDescriptorTableEntry_descr Description

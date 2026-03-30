@@ -3,13 +3,13 @@
 #ifndef WISDOM_MODULE_DECL
 #    include <wisdom/generated/api/api.hpp>
 
-#    include <array>
 #    include <d3d12.h>
 #    include <dxgi1_6.h>
+
+#    include <array>
 #    include <tuple>
 
-namespace D3D12MA
-{
+namespace D3D12MA {
 class Allocator;
 class Allocation;
 } // namespace D3D12MA
@@ -17,8 +17,7 @@ class Allocation;
 #endif
 
 WISDOM_EXPORT
-namespace wis
-{
+namespace wis {
 class DX12DescriptorStorage;
 using DX12FactoryHandle = std::tuple<IDXGIFactory6*>;
 

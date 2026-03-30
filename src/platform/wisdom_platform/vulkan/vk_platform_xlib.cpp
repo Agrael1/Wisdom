@@ -18,8 +18,7 @@
 #    undef None
 #    undef Always
 
-namespace wis::detail
-{
+namespace wis::detail {
 inline WisResult VKXlibExtensionInit(
     VKInstanceExtensionHeader* self,
     impl::VKInstanceImpl* instance_impl,

@@ -15,16 +15,13 @@
 #include <unordered_map>
 #include <unordered_set>
 
-namespace wis
-{
-namespace impl
-{
+namespace wis {
+namespace impl {
 struct VKInstanceImpl;
 struct VKDeviceImpl;
 } // namespace impl
 
-namespace detail
-{
+namespace detail {
 // Hash helpers
 struct CStringHash {
     std::size_t operator()(const char* s) const

@@ -33,9 +33,9 @@
  * @section WisBufferBinding_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `array_offset` defines offset in buffer in structures.
- * - `stride_bytes` defines the size of the single structure in buffer.
- * - `structure_count` defines the number of structures in the buffer region to bind.
+ * - `array_offset` describes offset in buffer in structures.
+ * - `stride_bytes` describes the size of the single structure in buffer.
+ * - `structure_count` describes the number of structures in the buffer region to bind.
  * \endcond
  *
  * @section WisBufferBinding_descr Description

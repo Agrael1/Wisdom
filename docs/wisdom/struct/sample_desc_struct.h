@@ -33,9 +33,9 @@
  * @section WisSampleDesc_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `rate` Sample rate. Default is `WisSampleCountS1`.
- * - `sample_mask` Sample mask. Default is 0xffffffff.
- * - `alpha_to_coverage_enable` Alpha to coverage enable. Default is false.
+ * - `rate` defines sample rate. Default is `WisSampleCountS1`.
+ * - `sample_mask` describes sample mask. Default is 0xffffffff.
+ * - `alpha_to_coverage_enable` describes alpha to coverage enable. Default is false.
  * \endcond
  *
  * @section WisSampleDesc_descr Description

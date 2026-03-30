@@ -11,8 +11,7 @@
 #    include <Windows.h>
 #endif     // _INC_WINDOWS
 
-namespace wis::detail
-{
+namespace wis::detail {
 static constexpr WisResult dx_success{WisStatusOk, S_OK, "Operation succeeded."};
 
 //-----------------------------------------------------------------------------

@@ -57,8 +57,8 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisCommandList instance.
- * - `resource_heap` points to WisDescriptorHeap with shader resource views, unordered access views and constant buffer views. If `nullptr`, no resource heap is bound.
- * - `sampler_heap` points to WisDescriptorHeap with samplers. If `nullptr`, no sampler heap is bound.
+ * - `resource_heap` describes a pointer to WisDescriptorHeap with shader resource views, unordered access views and constant buffer views. If `nullptr`, no resource heap is bound.
+ * - `sampler_heap` describes a pointer to WisDescriptorHeap with samplers. If `nullptr`, no sampler heap is bound.
  * \endcond
  *
  * @section wisCommandListSetDescriptorHeaps_descr Description

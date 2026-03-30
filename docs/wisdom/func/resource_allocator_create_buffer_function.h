@@ -57,7 +57,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisResourceAllocator instance.
- * - `desc` points to WisBufferDesc, which describes the buffer to create.
+ * - `desc` indicates a pointer to WisBufferDesc, which describes the buffer to create.
  * - `buffer` points to WisBuffer, which is initialized on success.
  * 
  * - **return** denoting the outcome of operation.

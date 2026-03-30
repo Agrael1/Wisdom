@@ -8,6 +8,48 @@
 
 #include <algorithm>
 
+namespace wis::detail {
+VkResult VKAcquireNextImage(const impl::VKSwapchainImpl& impl) noexcept
+{
+    auto& swapchain_header = impl.swapchain_header->header;
+    auto& swapchain_table = *impl.swapchain_table;
+    auto semaphores = swapchain_header.GetImageAvailableSemaphores();
+
+    // Acquire the next image index for the new swapchain to update internal state
+    auto result = impl.swapchain_table->vkAcquireNextImageKHR(
+        impl.device,
+        impl.swapchain,
+        impl.lazy_acquire ? 0 : std::numeric_limits<uint64_t>::max(),
+        semaphores[impl.acquire_index],
+        nullptr,
+        &impl.present_index
+    );
+
+    if (result != VK_SUCCESS) {
+        return result; // Caller can choose to handle timeout differently (e.g. by skipping rendering and trying again
+                       // next frame) so return a distinct result code for this case
+    }
+
+    VkSemaphoreSubmitInfo submit_info{
+        .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
+        .semaphore = semaphores[impl.acquire_index],
+        .stageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT, // TODO: Fix at some point, since that can cause
+                                                           // unnecessary
+                                                           // synchronization. The stage mask should be determined based
+                                                           // on the swapchain's image usage flags, but for now we can
+                                                           // just use ALL_COMMANDS to ensure correctness.
+    };
+    VkSubmitInfo2 desc2{
+        .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
+        .pNext = nullptr,
+        .waitSemaphoreInfoCount = 1,
+        .pWaitSemaphoreInfos = &submit_info,
+    };
+    impl.acquire_index = (impl.acquire_index + 1) % swapchain_header.create_info.minImageCount;
+    return swapchain_table.vkQueueSubmit2(impl.present_queue, 1, &desc2, nullptr);
+}
+} // namespace wis::detail
+
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroySwapchain(WisVKSwapchain* self)
 {
@@ -230,8 +272,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainUpdate(const WisVKSwapchain* sel
     }
 
     // Wait for the GPU to finish with the swapchain
-    vr = impl.swapchain_table
-             ->vkWaitForFences(impl.device, 1, &impl.destroy_fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
+    vr = impl.swapchain_table->vkWaitForFences(
+        impl.device,
+        1,
+        &impl.destroy_fence,
+        VK_TRUE,
+        std::numeric_limits<uint64_t>::max()
+    );
     if (!wis::detail::succeeded(vr)) {
         restore_on_failure();
         return wis::detail::make_result<wis::detail::Func(), "Failed to wait for fence during swapchain update">(vr);
@@ -273,9 +320,8 @@ wisVKSwapchainGetTextures(const WisVKSwapchain* self, WisVKTexture* buffers, siz
 
     // Cheat the allocation of the output array to avoid dynamic memory allocation in this function by treating the
     // output array as a byte array and writing the image handles directly into it
-    auto bytes = wis::as_writable_bytes(
-        wis::span{buffers, buffer_count}
-    ); // zero out the output array to ensure that any unused slots are null handles
+    auto bytes = wis::as_writable_bytes(wis::span{buffers, buffer_count}); // zero out the output array to ensure that
+                                                                           // any unused slots are null handles
     VkImage* vk_images = reinterpret_cast<VkImage*>(bytes.data());
 
     vr = impl.swapchain_table->vkGetSwapchainImagesKHR(impl.device, impl.swapchain, &actual_buffer_count, vk_images);

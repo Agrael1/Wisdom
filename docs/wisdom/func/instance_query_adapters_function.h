@@ -57,7 +57,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisInstance instance.
- * - `preference` defines the order in which adapters are listed.
+ * - `preference` indicates the order in which adapters are listed.
  * - `query` points to WisAdapterQuery, which is initialized on success.
  * 
  * - **return** denoting the outcome of operation.

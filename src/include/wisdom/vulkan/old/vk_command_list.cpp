@@ -199,8 +199,7 @@ bool wis::ImplVKCommandList::Close() noexcept
     return closed = succeeded(device.table().vkEndCommandBuffer(command_list));
 }
 
-namespace wis::detail
-{
+namespace wis::detail {
 inline VkBufferMemoryBarrier2 to_vk(wis::BufferBarrier barrier, VkBuffer buffer) noexcept
 {
     return VkBufferMemoryBarrier2{

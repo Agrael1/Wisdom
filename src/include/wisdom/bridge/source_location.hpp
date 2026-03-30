@@ -2,14 +2,12 @@
 #define WIS_BRIDGE_SOURCE_LOCATION_H
 #if __has_include(<source_location>)
 #    include <source_location>
-namespace wis
-{
+namespace wis {
 using std::source_location;
 }
 #elif __has_include(<experimental/source_location>)
 #    include <experimental/source_location>
-namespace wis
-{
+namespace wis {
 using std::experimental::source_location;
 }
 #else

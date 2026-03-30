@@ -250,8 +250,7 @@ bool wis::ImplDX12CommandList::Close() noexcept
     return closed = succeeded(list->Close());
 }
 
-namespace wis::detail
-{
+namespace wis::detail {
 inline D3D12_BUFFER_BARRIER to_dx(wis::BufferBarrier barrier, ID3D12Resource* buffer) noexcept
 {
     return D3D12_BUFFER_BARRIER{

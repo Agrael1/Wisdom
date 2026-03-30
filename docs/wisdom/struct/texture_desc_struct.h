@@ -49,17 +49,17 @@
  * @section WisTextureDesc_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `width` Texture width in pixels.
- * - `height` Texture height in pixels.
- * - `depth_or_array_size` Texture depth in pixels. Used only for 3D textures.
- * - `mip_levels` Number of mip levels in the texture.
- * - `format` Texture format.
- * - `sample_count` Number of samples per pixel. Used only for multisampled textures.
- * - `layout` Texture layout. Default is `WisTextureLayoutTexture2D`.
- * - `usage_flags` Texture usage flags. Describe how the texture will be used.
- * - `flags` Texture flags. Describe additional options for the texture.
- * - `memory_type` indicates where the texture will be allocated.
- * - `memory_flags` The flags of the memory to allocate for the texture.
+ * - `width` defines texture width in pixels.
+ * - `height` describes texture height in pixels.
+ * - `depth_or_array_size` describes texture depth in pixels. Used only for 3D textures.
+ * - `mip_levels` defines number of mip levels in the texture.
+ * - `format` describes texture format.
+ * - `sample_count` specifies number of samples per pixel. Used only for multisampled textures.
+ * - `layout` specifies texture layout. Default is `WisTextureLayoutTexture2D`.
+ * - `usage_flags` describes texture usage flags. Describe how the texture will be used.
+ * - `flags` describes texture flags. Describe additional options for the texture.
+ * - `memory_type` specifies where the texture will be allocated.
+ * - `memory_flags` describes the flags of the memory to allocate for the texture.
  * \endcond
  *
  * @section WisTextureDesc_descr Description

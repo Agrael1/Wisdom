@@ -4,19 +4,16 @@
 #    error "This header requires C++"
 #endif // __cplusplus
 
-namespace wis
-{
+namespace wis {
 //-----------------------------------------------------------------------------
-namespace detail
-{
+namespace detail {
 struct VKXlibExtensionTable;
 struct VKXCBExtensionTable;
 struct VKWaylandExtensionTable;
 struct VKWin32ExtensionTable;
 } // namespace detail
 
-namespace impl
-{
+namespace impl {
 struct VKXlibExtensionImpl {
     VKInstanceExtensionHeader header;
     detail::VKInstanceControlBlock* instance_control_block;

@@ -37,11 +37,11 @@
  * @section WisPushConstantDataDesc_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `pipeline` defines the pipeline type to set the push constants for.
- * - `root_index` defines the root index in the root signature to set the push constants for.
- * - `data` points to the data to set as push constants.
+ * - `pipeline` specifies the pipeline type to set the push constants for.
+ * - `root_index` indicates the root index in the root signature to set the push constants for.
+ * - `data` specifies a pointer to the data to set as push constants.
  * - `data_size` defines the size of the data in bytes. It @wis_must be less than or equal to the maximum push constant size defined by the device and 4-byte aligned.
- * - `push_offset` defines the offset in bytes from the start of the push constant root parameter to set the data to. It @wis_must be less than the maximum push constant size defined by the device and 4-byte aligned.
+ * - `push_offset` specifies the offset in bytes from the start of the push constant root parameter to set the data to. It @wis_must be less than the maximum push constant size defined by the device and 4-byte aligned.
  * \endcond
  *
  * @section WisPushConstantDataDesc_descr Description

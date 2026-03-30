@@ -6,8 +6,7 @@
 #include "window_event.h"
 #include "wis_helper.h"
 
-namespace ex
-{
+namespace ex {
 class Instance
 {
 public:
@@ -18,7 +17,13 @@ public:
 class PlatformExtension
 {
 public:
-    enum class Selector { None, Windows, X11, Wayland };
+    enum class Selector
+    {
+        None,
+        Windows,
+        X11,
+        Wayland
+    };
 
 public:
     PlatformExtension();

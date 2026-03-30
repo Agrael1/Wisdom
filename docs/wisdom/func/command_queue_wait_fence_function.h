@@ -57,8 +57,8 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisCommandQueue instance.
- * - `fence` The fence to wait on.
- * - `value` The value to wait the fence to reach.
+ * - `fence` describes fence to wait on.
+ * - `value` describes value that the fence is expected to reach.
  * 
  * - **return** denoting the outcome of operation.
  * \endcond

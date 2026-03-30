@@ -9,13 +9,11 @@
 
 #include <algorithm>
 
-namespace wis::impl
-{
+namespace wis::impl {
 struct VKDeviceImpl;
 }
 
-namespace wis::detail
-{
+namespace wis::detail {
 struct DeviceExtension1 : VKDeviceExtensionImpl<DeviceExtension1> {
     VKDeviceFeatures features;
 

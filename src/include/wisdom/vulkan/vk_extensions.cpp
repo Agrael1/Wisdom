@@ -6,8 +6,7 @@
 #include <wisdom/vulkan/detail/vk_utils.hpp>
 #include <wisdom/vulkan/vk_extensions.hpp>
 
-namespace wis::detail
-{
+namespace wis::detail {
 inline std::unordered_set<VkExtensionProperties, VkExtensionPropertiesHash, VkExtensionPropertiesEqual>
 GetInstanceExtensions(WisResult& result, const wis::impl::VKMainGlobal& table) noexcept
 {

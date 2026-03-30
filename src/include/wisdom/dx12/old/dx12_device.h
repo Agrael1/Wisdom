@@ -14,8 +14,7 @@
 #    include <wisdom/generated/dx12/dx12_structs.hpp>
 #endif
 
-namespace wis
-{
+namespace wis {
 WISDOM_EXPORT class DX12Device;
 
 WISDOM_EXPORT

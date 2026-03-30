@@ -57,7 +57,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisDevice instance.
- * - `desc` points to WisDescriptorHeapDesc, which describes the descriptor heap to create.
+ * - `desc` indicates a pointer to WisDescriptorHeapDesc, which describes the descriptor heap to create.
  * - `heap` points to WisDescriptorHeap, which is initialized on success.
  * 
  * - **return** denoting the outcome of operation.

@@ -5,10 +5,11 @@
 #    include <wisdom/util/misc.h>
 #    include <wisdom/util/small_allocator.h>
 
-#    include <bit>
 #    include <d3dx12/d3dx12_check_feature_support.h>
 #    include <d3dx12/d3dx12_pipeline_state_stream.h>
 #    include <d3dx12/d3dx12_root_signature.h>
+
+#    include <bit>
 #    include <numeric>
 #endif
 
@@ -149,8 +150,7 @@ wis::DX12CommandList wis::ImplDX12Device::CreateCommandList(wis::Result& result,
     return out_list;
 }
 
-namespace wis::detail
-{
+namespace wis::detail {
 template <typename Stage>
 inline void DX12FillShaderStage(wis::detail::memory_pool<1024>& pipeline_stream, wis::DX12ShaderView shader) noexcept
 {
@@ -479,8 +479,7 @@ wis::DX12RenderTarget wis::ImplDX12Device::CreateRenderTarget(
     return out_target;
 }
 
-namespace wis::detail
-{
+namespace wis::detail {
 inline constexpr D3D12_DSV_DIMENSION to_dsv(wis::TextureLayout layout) noexcept
 {
     switch (layout) {
@@ -862,8 +861,11 @@ wis::DX12DescriptorStorage wis::ImplDX12Device::CreateDescriptorStorage(
 
     if (size_samplers) {
         // create sampler heap
-        auto hr = device
-                      ->CreateDescriptorHeap(&sampler_heap_desc, internal.heaps[1].iid(), internal.heaps[1].put_void());
+        auto hr = device->CreateDescriptorHeap(
+            &sampler_heap_desc,
+            internal.heaps[1].iid(),
+            internal.heaps[1].put_void()
+        );
         if (!wis::succeeded(hr)) {
             result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create descriptor heap for samplers">(hr);
             return out_storage;
@@ -903,8 +905,7 @@ wis::DX12DescriptorStorage wis::ImplDX12Device::CreateDescriptorStorage(
     return out_storage;
 }
 
-namespace wis::detail
-{
+namespace wis::detail {
 constexpr inline D3D12_ROOT_PARAMETER_TYPE to_dx(wis::DescriptorType type) noexcept
 {
     switch (type) {

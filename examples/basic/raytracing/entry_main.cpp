@@ -1,11 +1,12 @@
 #include <wisdom/wisdom_raytracing.hpp>
 
-#include <cstring>
 #include <glm/vec3.hpp>
-#include <iostream>
 #include <window.h>
 #include <wis_helper.h>
 #include <wis_swapchain.h>
+
+#include <cstring>
+#include <iostream>
 
 // In order to render with multiview, we need to have texture with array layers.
 // In case of stereo rendering, we need to have 2 array layers.
@@ -356,8 +357,13 @@ private:
         );
         rtas_update_buffer = setup.allocator.CreateBuffer(result, as_size.update_size, wis::BufferUsage::StorageBuffer);
 
-        top_rtas = raytracing_extension
-                       .CreateAccelerationStructure(result, rtas_buffer, 0, as_size.result_size, wis::ASLevel::Top);
+        top_rtas = raytracing_extension.CreateAccelerationStructure(
+            result,
+            rtas_buffer,
+            0,
+            as_size.result_size,
+            wis::ASLevel::Top
+        );
         bottom_rtas = raytracing_extension.CreateAccelerationStructure(
             result,
             rtas_buffer,
@@ -420,8 +426,15 @@ private:
             {.binding_type = wis::DescriptorType::AccelerationStructure, .binding_space = 1, .binding_count = 1},
         };
         rt_descriptor_storage = setup.device.CreateDescriptorStorage(result, bindings, std::size(bindings));
-        rt_root_signature = setup.device
-                                .CreateRootSignature(result, nullptr, 0, nullptr, 0, bindings, std::size(bindings));
+        rt_root_signature = setup.device.CreateRootSignature(
+            result,
+            nullptr,
+            0,
+            nullptr,
+            0,
+            bindings,
+            std::size(bindings)
+        );
 
         // Create pipeline
         wis::ShaderView shaders[]{raygen_shader, raygen_shader};
