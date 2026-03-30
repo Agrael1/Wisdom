@@ -1394,10 +1394,7 @@ typedef enum WisBarrierFlags
     WisBarrierFlagsDepthResource = (1u << 1),   ///< Resource is a depth resource. This flag @wis_must be set for all
                                                 ///< depth resources to make transitions on them.
     WisBarrierFlagsStencilResource = (1u << 2), ///< Resource is a stencil resource. This flag @wis_must be set for all
-                                                ///< stencil resources to make transitions on them. If resource has
-                                                ///< format `WisDataFormatD24UnormS8Uint` both
-                                                ///< `WisBarrierFlagsDepthResource` and `WisBarrierFlagsStencilResource`
-                                                ///< @wis_must be set.
+                                                ///< stencil resources to make transitions on them.
     WisBarrierFlagsWholeRange = (1u << 3), ///< Transition whole resource. If not set, the transition is applied only to
                                            ///< the specified subresource range. If set, the subresource range is
                                            ///< ignored and the transition is applied to all subresources of the
@@ -2113,6 +2110,20 @@ typedef struct WisBufferCopyRegion {
 } WisBufferCopyRegion;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Buffer texture copy region description for buffer-texture copy operations.
+ *
+ * */
+typedef struct WisBufferTextureCopyRegion {
+    uint64_t buffer_offset;       ///< specifies buffer offset in bytes.
+    uint32_t buffer_row_length;   ///< describes buffer row length in pixels. Used for calculating the offset in the
+                                  ///< buffer for each row of the texture.
+    uint32_t buffer_image_height; ///< describes buffer image height in pixels. Used for calculating the offset in the
+                                  ///< buffer for each image of the texture.
+    WisBarrierFlags flags; ///< describes texture parameters for copy. `WisBarrierFlagsDiscardContent` is implicit.
+    WisTextureRegion texture_region; ///< describes texture region to copy.
+} WisBufferTextureCopyRegion;
+
+/**
  * @brief Provided by Wisdom 0.7.0. Query struct header. Used as a header for all query structs.
  *
  * */
@@ -2168,19 +2179,19 @@ typedef struct WisDeviceDescriptorHeapProperties {
  * */
 typedef struct WisDeviceCommandQueueProperties {
     WisQueryPropertyType
-        property_type;        ///< specifies the type of the queried property. @wis_must be WisQueryPropertyType..
-    void* next_in_chain;      ///< indicates pointer to the next queried data struct.
-    bool supported_queues[5]; ///< describes an array of supported queue types. If a queue type is supported, the value
-                              ///< is `1`, otherwise `0`. Order of queue types is the same as in WisCommandQueueType
-                              ///< enum.
+        property_type;   ///< specifies the type of the queried property. @wis_must be WisQueryPropertyType..
+    void* next_in_chain; ///< indicates pointer to the next queried data struct.
+    bool supported_queues
+        [5]; ///< describes an array of supported queue types. If a queue type is supported, the value is `1`, otherwise
+             ///< `0`. Order of queue types is the same as in WisCommandQueueType enum.
     bool relaxed_queue_transition; ///< indicates if relaxed queue transition is supported. This feature allows
                                    ///< executing command lists that contain buffers used on different queue types
                                    ///< without explicit resource state transitions when the buffers is used on a
                                    ///< different queue type. It is supported on Windows 10 22H2 and later with WDDM 3.0
                                    ///< or later. On Vulkan it requires `VK_KHR_maintenance9` extension.
-    WisCommandQueuePriority max_queue_priority[5]; ///< indicates an array of maximum supported priorities for each
-                                                   ///< queue type. If a queue type is not supported, the value is `0`.
-                                                   ///< Order of queue types is the same as in WisCommandQueueType enum.
+    WisCommandQueuePriority max_queue_priority
+        [5]; ///< indicates an array of maximum supported priorities for each queue type. If a queue type is not
+             ///< supported, the value is `0`. Order of queue types is the same as in WisCommandQueueType enum.
 } WisDeviceCommandQueueProperties;
 
 /**
@@ -3592,6 +3603,40 @@ WISDOM_API void wisDX12CommandListCopyBuffer(
 );
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Copies regions from a buffer to a texture.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param dst_texture defines a pointer to the destination texture. Texture @wis_must be in `WisTextureStateCopyDst`.
+ * @param src_buffer describes a pointer to the source buffer.
+ * @param regions points to an array of WisBufferTextureCopyRegion that defines the copy regions.
+ * @param region_count defines the count of the regions.
+ *
+ * */
+WISDOM_API void wisDX12CommandListCopyBufferToTexture(
+    const WisDX12CommandList* self,
+    WisDX12TextureView dst_texture,
+    WisDX12BufferView src_buffer,
+    const WisBufferTextureCopyRegion* regions,
+    size_t region_count
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Copies regions from a texture to a buffer.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param dst_buffer defines a pointer to the destination buffer.
+ * @param src_texture describes a pointer to the source texture. Texture @wis_must be in `WisTextureStateCopySrc`.
+ * @param regions points to an array of WisBufferTextureCopyRegion that defines the copy regions.
+ * @param region_count defines the count of the regions.
+ *
+ * */
+WISDOM_API void wisDX12CommandListCopyTextureToBuffer(
+    const WisDX12CommandList* self,
+    WisDX12BufferView dst_buffer,
+    WisDX12TextureView src_texture,
+    const WisBufferTextureCopyRegion* regions,
+    size_t region_count
+);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Gets the data from the pipeline cache.
  * @param self is a pointer to the valid WisPipelineCache instance.
  * @param data points to an array that is filled with serialized cache data on success.
@@ -4964,6 +5009,40 @@ WISDOM_API void wisVKCommandListCopyBuffer(
     WisVKBufferView dst_buffer,
     WisVKBufferView src_buffer,
     const WisBufferCopyRegion* regions,
+    size_t region_count
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Copies regions from a buffer to a texture.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param dst_texture defines a pointer to the destination texture. Texture @wis_must be in `WisTextureStateCopyDst`.
+ * @param src_buffer describes a pointer to the source buffer.
+ * @param regions points to an array of WisBufferTextureCopyRegion that defines the copy regions.
+ * @param region_count defines the count of the regions.
+ *
+ * */
+WISDOM_API void wisVKCommandListCopyBufferToTexture(
+    const WisVKCommandList* self,
+    WisVKTextureView dst_texture,
+    WisVKBufferView src_buffer,
+    const WisBufferTextureCopyRegion* regions,
+    size_t region_count
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Copies regions from a texture to a buffer.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param dst_buffer defines a pointer to the destination buffer.
+ * @param src_texture describes a pointer to the source texture. Texture @wis_must be in `WisTextureStateCopySrc`.
+ * @param regions points to an array of WisBufferTextureCopyRegion that defines the copy regions.
+ * @param region_count defines the count of the regions.
+ *
+ * */
+WISDOM_API void wisVKCommandListCopyTextureToBuffer(
+    const WisVKCommandList* self,
+    WisVKBufferView dst_buffer,
+    WisVKTextureView src_texture,
+    const WisBufferTextureCopyRegion* regions,
     size_t region_count
 );
 

@@ -1738,7 +1738,46 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateSwapchain(
         .destroy_fence = destruction_fence
     };
 
-    vr = wis::detail::VKAcquireNextImage(swap_impl);
+    vr = [](wis::impl::VKSwapchainImpl& impl) {
+        auto& swapchain_header = impl.swapchain_header->header;
+        auto& swapchain_table = *impl.swapchain_table;
+        auto semaphores = swapchain_header.GetImageAvailableSemaphores();
+
+        // Acquire the next image index for the new swapchain to update internal state
+        auto result = impl.swapchain_table->vkAcquireNextImageKHR(
+            impl.device,
+            impl.swapchain,
+            impl.lazy_acquire ? 0 : std::numeric_limits<uint64_t>::max(),
+            semaphores[impl.acquire_index],
+            nullptr,
+            &impl.present_index
+        );
+
+        if (result != VK_SUCCESS) {
+            return result; // Caller can choose to handle timeout differently (e.g. by skipping rendering and trying
+                           // again next frame) so return a distinct result code for this case
+        }
+
+        VkSemaphoreSubmitInfo submit_info{
+            .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
+            .semaphore = semaphores[impl.acquire_index],
+            .stageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT, // TODO: Fix at some point, since that can cause
+                                                               // unnecessary
+                                                               // synchronization. The stage mask should be determined
+                                                               // based on the swapchain's image usage flags, but for
+                                                               // now we can just use ALL_COMMANDS to ensure
+                                                               // correctness.
+        };
+        VkSubmitInfo2 desc2{
+            .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
+            .pNext = nullptr,
+            .waitSemaphoreInfoCount = 1,
+            .pWaitSemaphoreInfos = &submit_info,
+        };
+        impl.acquire_index = (impl.acquire_index + 1) % swapchain_header.create_info.minImageCount;
+        return swapchain_table.vkQueueSubmit2(impl.present_queue, 1, &desc2, nullptr);
+    }(swap_impl);
+
     if (!wis::detail::succeeded(vr)) {
         for (uint32_t j = 0; j < desc->image_count * 2; j++) {
             table.vkDestroySemaphore(device.device, semaphore_storage[j], nullptr);

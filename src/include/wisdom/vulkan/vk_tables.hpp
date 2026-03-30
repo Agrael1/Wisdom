@@ -106,7 +106,9 @@ public:
 //-----------------------------------------------------------------------------
 struct VKMainCommandList {
     PFN_vkCmdCopyImage2 vkCmdCopyImage2;
+    PFN_vkCmdCopyBufferToImage vkCmdCopyBufferToImage;
     PFN_vkCmdCopyBufferToImage2 vkCmdCopyBufferToImage2;
+    PFN_vkCmdCopyImageToBuffer vkCmdCopyImageToBuffer;
     PFN_vkCmdCopyImageToBuffer2 vkCmdCopyImageToBuffer2;
     PFN_vkBeginCommandBuffer vkBeginCommandBuffer;
     PFN_vkCmdSetScissorWithCount vkCmdSetScissorWithCount;
@@ -141,7 +143,9 @@ public:
     bool Init(VkDevice device, PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr) noexcept
     {
         ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, vkCmdCopyImage2, "vkCmdCopyImage2KHR");
+        ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkCmdCopyBufferToImage);
         ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, vkCmdCopyBufferToImage2, "vkCmdCopyBufferToImage2KHR");
+        ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkCmdCopyImageToBuffer);
         ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, vkCmdCopyImageToBuffer2, "vkCmdCopyImageToBuffer2KHR");
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkBeginCommandBuffer);
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkCmdSetScissorWithCount);

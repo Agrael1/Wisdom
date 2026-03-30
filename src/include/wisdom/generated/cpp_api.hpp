@@ -1391,9 +1391,7 @@ enum class BarrierFlags : uint32_t
     DepthResource = (1u << 1),  ///< Resource is a depth resource. This flag @wis_must be set for all depth resources to
                                 ///< make transitions on them.
     StencilResource = (1u << 2), ///< Resource is a stencil resource. This flag @wis_must be set for all stencil
-                                 ///< resources to make transitions on them. If resource has format
-                                 ///< `wis::DataFormat::D24UnormS8Uint` both `wis::BarrierFlags::DepthResource` and
-                                 ///< `wis::BarrierFlags::StencilResource` @wis_must be set.
+                                 ///< resources to make transitions on them.
     WholeRange = (1u << 3),  ///< Transition whole resource. If not set, the transition is applied only to the specified
                              ///< subresource range. If set, the subresource range is ignored and the transition is
                              ///< applied to all subresources of the resource.
@@ -2106,6 +2104,21 @@ struct BufferCopyRegion {
     std::uint64_t src_offset; ///< specifies source buffer offset in bytes.
     std::uint64_t dst_offset; ///< describes destination buffer offset in bytes.
     std::uint64_t size_bytes; ///< describes size of the region to copy in bytes.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Buffer texture copy region description for buffer-texture copy operations.
+ *
+ * */
+struct BufferTextureCopyRegion {
+    std::uint64_t buffer_offset;     ///< specifies buffer offset in bytes.
+    std::uint32_t buffer_row_length; ///< describes buffer row length in pixels. Used for calculating the offset in the
+                                     ///< buffer for each row of the texture.
+    std::uint32_t buffer_image_height; ///< describes buffer image height in pixels. Used for calculating the offset in
+                                       ///< the buffer for each image of the texture.
+    wis::BarrierFlags
+        flags; ///< describes texture parameters for copy. `wis::BarrierFlags::DiscardContent` is implicit.
+    wis::TextureRegion texture_region; ///< describes texture region to copy.
 };
 
 /**
@@ -3378,6 +3391,50 @@ public:
             dst_buffer,
             src_buffer,
             reinterpret_cast<const WisBufferCopyRegion*>(regions.data()),
+            regions.size()
+        );
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Copies regions from a buffer to a texture.
+     * @param dst_texture defines a pointer to the destination texture. Texture @wis_must be in
+     * `wis::TextureState::CopyDst`.
+     * @param src_buffer describes a pointer to the source buffer.
+     * @param regions points to an array of wis::BufferTextureCopyRegion that defines the copy regions.
+     *
+     * */
+    inline void CopyBufferToTexture(
+        wis::DX12TextureView dst_texture,
+        wis::DX12BufferView src_buffer,
+        wis::span<const wis::BufferTextureCopyRegion> regions
+    ) const noexcept
+    {
+        ::wisDX12CommandListCopyBufferToTexture(
+            &_impl_storage,
+            dst_texture,
+            src_buffer,
+            reinterpret_cast<const WisBufferTextureCopyRegion*>(regions.data()),
+            regions.size()
+        );
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Copies regions from a texture to a buffer.
+     * @param dst_buffer defines a pointer to the destination buffer.
+     * @param src_texture describes a pointer to the source texture. Texture @wis_must be in
+     * `wis::TextureState::CopySrc`.
+     * @param regions points to an array of wis::BufferTextureCopyRegion that defines the copy regions.
+     *
+     * */
+    inline void CopyTextureToBuffer(
+        wis::DX12BufferView dst_buffer,
+        wis::DX12TextureView src_texture,
+        wis::span<const wis::BufferTextureCopyRegion> regions
+    ) const noexcept
+    {
+        ::wisDX12CommandListCopyTextureToBuffer(
+            &_impl_storage,
+            dst_buffer,
+            src_texture,
+            reinterpret_cast<const WisBufferTextureCopyRegion*>(regions.data()),
             regions.size()
         );
     }
@@ -5150,6 +5207,50 @@ public:
             dst_buffer,
             src_buffer,
             reinterpret_cast<const WisBufferCopyRegion*>(regions.data()),
+            regions.size()
+        );
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Copies regions from a buffer to a texture.
+     * @param dst_texture defines a pointer to the destination texture. Texture @wis_must be in
+     * `wis::TextureState::CopyDst`.
+     * @param src_buffer describes a pointer to the source buffer.
+     * @param regions points to an array of wis::BufferTextureCopyRegion that defines the copy regions.
+     *
+     * */
+    inline void CopyBufferToTexture(
+        wis::VKTextureView dst_texture,
+        wis::VKBufferView src_buffer,
+        wis::span<const wis::BufferTextureCopyRegion> regions
+    ) const noexcept
+    {
+        ::wisVKCommandListCopyBufferToTexture(
+            &_impl_storage,
+            dst_texture,
+            src_buffer,
+            reinterpret_cast<const WisBufferTextureCopyRegion*>(regions.data()),
+            regions.size()
+        );
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Copies regions from a texture to a buffer.
+     * @param dst_buffer defines a pointer to the destination buffer.
+     * @param src_texture describes a pointer to the source texture. Texture @wis_must be in
+     * `wis::TextureState::CopySrc`.
+     * @param regions points to an array of wis::BufferTextureCopyRegion that defines the copy regions.
+     *
+     * */
+    inline void CopyTextureToBuffer(
+        wis::VKBufferView dst_buffer,
+        wis::VKTextureView src_texture,
+        wis::span<const wis::BufferTextureCopyRegion> regions
+    ) const noexcept
+    {
+        ::wisVKCommandListCopyTextureToBuffer(
+            &_impl_storage,
+            dst_buffer,
+            src_texture,
+            reinterpret_cast<const WisBufferTextureCopyRegion*>(regions.data()),
             regions.size()
         );
     }

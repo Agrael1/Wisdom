@@ -166,6 +166,8 @@ typedef struct WisDX12GraphicsPipelineDesc WisGraphicsPipelineDesc;
 #    define wisCommandListBeginRenderPass wisDX12CommandListBeginRenderPass
 #    define wisCommandListEndRenderPass wisDX12CommandListEndRenderPass
 #    define wisCommandListCopyBuffer wisDX12CommandListCopyBuffer
+#    define wisCommandListCopyBufferToTexture wisDX12CommandListCopyBufferToTexture
+#    define wisCommandListCopyTextureToBuffer wisDX12CommandListCopyTextureToBuffer
 #    define wisPipelineCacheSerialize wisDX12PipelineCacheSerialize
 #    define wisPipelineCacheGetSerializedSize wisDX12PipelineCacheGetSerializedSize
 #    define wisSwapchainPresent wisDX12SwapchainPresent
@@ -323,6 +325,8 @@ typedef struct WisVKGraphicsPipelineDesc WisGraphicsPipelineDesc;
 #    define wisCommandListBeginRenderPass wisVKCommandListBeginRenderPass
 #    define wisCommandListEndRenderPass wisVKCommandListEndRenderPass
 #    define wisCommandListCopyBuffer wisVKCommandListCopyBuffer
+#    define wisCommandListCopyBufferToTexture wisVKCommandListCopyBufferToTexture
+#    define wisCommandListCopyTextureToBuffer wisVKCommandListCopyTextureToBuffer
 #    define wisPipelineCacheSerialize wisVKPipelineCacheSerialize
 #    define wisPipelineCacheGetSerializedSize wisVKPipelineCacheGetSerializedSize
 #    define wisSwapchainPresent wisVKSwapchainPresent
