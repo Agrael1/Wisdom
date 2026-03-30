@@ -12,7 +12,7 @@ BreakBeforeBraces: Custom
 BraceWrapping:
   AfterClass: true
   AfterControlStatement: MultiLine
-  AfterEnum: true
+  AfterEnum: false
   AfterFunction: true
   AfterNamespace: true
   AfterStruct: false

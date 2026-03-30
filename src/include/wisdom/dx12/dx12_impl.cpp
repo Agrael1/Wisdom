@@ -1,10 +1,11 @@
 #ifndef WIS_DX12_IMPL_CPP
 #define WIS_DX12_IMPL_CPP
 
+#include <wisdom/dx12/detail/dx12_utils.hpp>
 #include <wisdom/generated/cpp_api.hpp>
 #include <wisdom/generated/dx12_convert.hpp>
-#include <wisdom/dx12/detail/dx12_utils.hpp>
 #include <wisdom/util/allocation.hpp>
+
 #include <d3dx12/d3dx12_resource_helpers.h>
 
 //-----------------------------------------------------------------------------
@@ -37,8 +38,8 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyBuffer(WisDX12Buffer* self)
 WIS_EXTERN_C WISDOM_API void* wisDX12BufferMap(const WisDX12Buffer* self)
 {
     auto& [resource, allocation, allocator] = wis::from_handle_ref<const wis::impl::DX12BufferImpl>(self);
-    void* mapped_ptr                        = nullptr;
-    auto  hr                                = resource->Map(0, nullptr, &mapped_ptr);
+    void* mapped_ptr = nullptr;
+    auto hr = resource->Map(0, nullptr, &mapped_ptr);
     (void)hr; // Ignore mapping failure, return nullptr in that case
     return mapped_ptr;
 }
@@ -71,41 +72,53 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyTexture(WisDX12Texture* self)
 }
 
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisDX12TextureWriteSubresource(const WisDX12Texture*   self,
-                                                                 const void*             source_data,
-                                                                 const WisTextureRegion* target_region)
+WIS_EXTERN_C WISDOM_API WisResult wisDX12TextureWriteSubresource(
+    const WisDX12Texture* self,
+    const void* source_data,
+    const WisTextureRegion* target_region
+)
 {
     auto& [resource, allocation, allocator] = wis::from_handle_ref<const wis::impl::DX12BufferImpl>(self);
 
-    auto desc  = resource->GetDesc();
+    auto desc = resource->GetDesc();
     bool is_3d = desc.Dimension == D3D12_RESOURCE_DIMENSION_TEXTURE3D;
 
-    UINT row_pitch   = 0;
+    UINT row_pitch = 0;
     UINT slice_pitch = 0;
-    auto hr          = D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::CalculateMinimumRowMajorRowPitch(desc.Format, target_region->box.width, row_pitch);
+    auto hr = D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::CalculateMinimumRowMajorRowPitch(
+        desc.Format,
+        target_region->box.width,
+        row_pitch
+    );
     if (!wis::detail::succeeded(hr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to calculate row pitch">(hr);
     }
 
-    hr = D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::CalculateMinimumRowMajorSlicePitch(desc.Format, row_pitch, target_region->box.height, slice_pitch);
+    hr = D3D12_PROPERTY_LAYOUT_FORMAT_TABLE::CalculateMinimumRowMajorSlicePitch(
+        desc.Format,
+        row_pitch,
+        target_region->box.height,
+        slice_pitch
+    );
     if (!wis::detail::succeeded(hr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to calculate slice pitch">(hr);
     }
 
     D3D12_BOX dst_box{
-        .left   = target_region->box.x,
-        .top    = target_region->box.y,
-        .front  = is_3d ? target_region->box.z : 0,
-        .right  = target_region->box.x + target_region->box.width,
+        .left = target_region->box.x,
+        .top = target_region->box.y,
+        .front = is_3d ? target_region->box.z : 0,
+        .right = target_region->box.x + target_region->box.width,
         .bottom = target_region->box.y + target_region->box.height,
-        .back   = is_3d ? target_region->box.z + target_region->box.depth : 1,
+        .back = is_3d ? target_region->box.z + target_region->box.depth : 1,
     };
     auto subresource = D3D12CalcSubresource(
-            target_region->target_subresource.mip_level,
-            target_region->target_subresource.array_layer,
-            target_region->target_subresource.plane_slice,
-            desc.MipLevels,
-            is_3d ? 1 : desc.DepthOrArraySize);
+        target_region->target_subresource.mip_level,
+        target_region->target_subresource.array_layer,
+        target_region->target_subresource.plane_slice,
+        desc.MipLevels,
+        is_3d ? 1 : desc.DepthOrArraySize
+    );
     hr = resource->WriteToSubresource(subresource, &dst_box, source_data, row_pitch, slice_pitch);
     if (!wis::detail::succeeded(hr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to write to subresource">(hr);
@@ -138,7 +151,8 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyPipeline(WisDX12Pipeline* self)
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroySurface(WisDX12Surface* self)
 {
-    (void)self; // No resources to release for surface, as it's just a wrapper around the HWND or CoreWindow handle, which is owned by the application
+    (void)self; // No resources to release for surface, as it's just a wrapper around the HWND or CoreWindow handle,
+                // which is owned by the application
 }
 
 #endif // WIS_DX12_IMPL_CPP

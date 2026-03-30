@@ -1,19 +1,17 @@
 #ifndef WIS_DX12_DEVICE_EXT_H
 #define WIS_DX12_DEVICE_EXT_H
 #ifndef WISDOM_MODULE_DECL
-#include <wisdom/generated/api/api.hpp>
+#    include <wisdom/generated/api/api.hpp>
 #endif
 
 WISDOM_EXPORT
-namespace wis {
+namespace wis
+{
 class DX12Device;
 
 struct DX12DeviceExtension {
     virtual ~DX12DeviceExtension() = default;
-    virtual wis::Result Init(const wis::DX12Device& instance) noexcept
-    {
-        return {};
-    }
+    virtual wis::Result Init(const wis::DX12Device& instance) noexcept { return {}; }
     virtual bool Supported() const noexcept
     {
         return true; // most of the time, it is supported and embedded in device. Needs to be queried after creation.

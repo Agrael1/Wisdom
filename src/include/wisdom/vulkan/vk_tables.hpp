@@ -1,21 +1,24 @@
 #ifndef WIS_VK_TABLES_HPP
 #define WIS_VK_TABLES_HPP
 #ifndef __cplusplus
-#error "This header requires C++"
+#    error "This header requires C++"
 #endif // __cplusplus
 #include <wisdom/vulkan/vk_loader.hpp>
+
 #include <vulkan/vulkan.h>
 
-namespace wis {
-namespace impl {
+namespace wis
+{
+namespace impl
+{
 //-----------------------------------------------------------------------------
 struct VKMainGlobal {
-    PFN_vkGetInstanceProcAddr                  vkGetInstanceProcAddr;
-    PFN_vkGetDeviceProcAddr                    vkGetDeviceProcAddr;
-    PFN_vkEnumerateInstanceLayerProperties     vkEnumerateInstanceLayerProperties;
+    PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr;
+    PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr;
+    PFN_vkEnumerateInstanceLayerProperties vkEnumerateInstanceLayerProperties;
     PFN_vkEnumerateInstanceExtensionProperties vkEnumerateInstanceExtensionProperties;
-    PFN_vkCreateInstance                       vkCreateInstance;
-    PFN_vkEnumerateInstanceVersion             vkEnumerateInstanceVersion;
+    PFN_vkCreateInstance vkCreateInstance;
+    PFN_vkEnumerateInstanceVersion vkEnumerateInstanceVersion;
 
 public:
     bool Init(void* library) noexcept
@@ -32,19 +35,19 @@ public:
 
 //-----------------------------------------------------------------------------
 struct VKMainAdapter {
-    PFN_vkGetPhysicalDeviceMemoryProperties        vkGetPhysicalDeviceMemoryProperties;
-    PFN_vkGetPhysicalDeviceProperties              vkGetPhysicalDeviceProperties;
-    PFN_vkGetPhysicalDeviceQueueFamilyProperties   vkGetPhysicalDeviceQueueFamilyProperties;
-    PFN_vkGetPhysicalDeviceQueueFamilyProperties2  vkGetPhysicalDeviceQueueFamilyProperties2;
-    PFN_vkEnumerateDeviceExtensionProperties       vkEnumerateDeviceExtensionProperties;
-    PFN_vkGetPhysicalDeviceFeatures2               vkGetPhysicalDeviceFeatures2;
-    PFN_vkGetPhysicalDeviceProperties2             vkGetPhysicalDeviceProperties2;
-    PFN_vkGetPhysicalDeviceMemoryProperties2       vkGetPhysicalDeviceMemoryProperties2;
+    PFN_vkGetPhysicalDeviceMemoryProperties vkGetPhysicalDeviceMemoryProperties;
+    PFN_vkGetPhysicalDeviceProperties vkGetPhysicalDeviceProperties;
+    PFN_vkGetPhysicalDeviceQueueFamilyProperties vkGetPhysicalDeviceQueueFamilyProperties;
+    PFN_vkGetPhysicalDeviceQueueFamilyProperties2 vkGetPhysicalDeviceQueueFamilyProperties2;
+    PFN_vkEnumerateDeviceExtensionProperties vkEnumerateDeviceExtensionProperties;
+    PFN_vkGetPhysicalDeviceFeatures2 vkGetPhysicalDeviceFeatures2;
+    PFN_vkGetPhysicalDeviceProperties2 vkGetPhysicalDeviceProperties2;
+    PFN_vkGetPhysicalDeviceMemoryProperties2 vkGetPhysicalDeviceMemoryProperties2;
     PFN_vkGetPhysicalDeviceSurfaceCapabilities2KHR vkGetPhysicalDeviceSurfaceCapabilities2KHR;
-    PFN_vkGetPhysicalDeviceSurfaceSupportKHR       vkGetPhysicalDeviceSurfaceSupportKHR;
-    PFN_vkGetPhysicalDeviceSurfaceFormatsKHR       vkGetPhysicalDeviceSurfaceFormatsKHR;
-    PFN_vkGetPhysicalDeviceSurfacePresentModesKHR  vkGetPhysicalDeviceSurfacePresentModesKHR;
-    PFN_vkCreateDevice                             vkCreateDevice;
+    PFN_vkGetPhysicalDeviceSurfaceSupportKHR vkGetPhysicalDeviceSurfaceSupportKHR;
+    PFN_vkGetPhysicalDeviceSurfaceFormatsKHR vkGetPhysicalDeviceSurfaceFormatsKHR;
+    PFN_vkGetPhysicalDeviceSurfacePresentModesKHR vkGetPhysicalDeviceSurfacePresentModesKHR;
+    PFN_vkCreateDevice vkCreateDevice;
 
 public:
     bool Init(VkInstance instance, PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr) noexcept
@@ -52,11 +55,23 @@ public:
         ASSIGN_INSTANCE_PROC_ADDR_CHECK(instance, vkGetPhysicalDeviceMemoryProperties);
         ASSIGN_INSTANCE_PROC_ADDR_CHECK(instance, vkGetPhysicalDeviceProperties);
         ASSIGN_INSTANCE_PROC_ADDR_CHECK(instance, vkGetPhysicalDeviceQueueFamilyProperties);
-        ASSIGN_INSTANCE_PROC_ADDR_CHECK_VAR(instance, vkGetPhysicalDeviceQueueFamilyProperties2, "vkGetPhysicalDeviceQueueFamilyProperties2KHR");
+        ASSIGN_INSTANCE_PROC_ADDR_CHECK_VAR(
+            instance,
+            vkGetPhysicalDeviceQueueFamilyProperties2,
+            "vkGetPhysicalDeviceQueueFamilyProperties2KHR"
+        );
         ASSIGN_INSTANCE_PROC_ADDR_CHECK(instance, vkEnumerateDeviceExtensionProperties);
         ASSIGN_INSTANCE_PROC_ADDR_CHECK_VAR(instance, vkGetPhysicalDeviceFeatures2, "vkGetPhysicalDeviceFeatures2KHR");
-        ASSIGN_INSTANCE_PROC_ADDR_CHECK_VAR(instance, vkGetPhysicalDeviceProperties2, "vkGetPhysicalDeviceProperties2KHR");
-        ASSIGN_INSTANCE_PROC_ADDR_CHECK_VAR(instance, vkGetPhysicalDeviceMemoryProperties2, "vkGetPhysicalDeviceMemoryProperties2KHR");
+        ASSIGN_INSTANCE_PROC_ADDR_CHECK_VAR(
+            instance,
+            vkGetPhysicalDeviceProperties2,
+            "vkGetPhysicalDeviceProperties2KHR"
+        );
+        ASSIGN_INSTANCE_PROC_ADDR_CHECK_VAR(
+            instance,
+            vkGetPhysicalDeviceMemoryProperties2,
+            "vkGetPhysicalDeviceMemoryProperties2KHR"
+        );
         ASSIGN_INSTANCE_PROC_ADDR_OPTIONAL(instance, vkGetPhysicalDeviceSurfaceCapabilities2KHR);
         ASSIGN_INSTANCE_PROC_ADDR_CHECK(instance, vkGetPhysicalDeviceSurfaceSupportKHR);
         ASSIGN_INSTANCE_PROC_ADDR_CHECK(instance, vkGetPhysicalDeviceSurfaceFormatsKHR);
@@ -68,14 +83,14 @@ public:
 
 //-----------------------------------------------------------------------------
 struct VKMainInstance {
-    PFN_vkDestroyInstance          vkDestroyInstance;
+    PFN_vkDestroyInstance vkDestroyInstance;
     PFN_vkEnumeratePhysicalDevices vkEnumeratePhysicalDevices;
-    PFN_vkDestroySurfaceKHR        vkDestroySurfaceKHR;
+    PFN_vkDestroySurfaceKHR vkDestroySurfaceKHR;
 
     // Debug utils functions
-    PFN_vkCreateDebugUtilsMessengerEXT  vkCreateDebugUtilsMessengerEXT;
+    PFN_vkCreateDebugUtilsMessengerEXT vkCreateDebugUtilsMessengerEXT;
     PFN_vkDestroyDebugUtilsMessengerEXT vkDestroyDebugUtilsMessengerEXT;
-    PFN_vkSetDebugUtilsObjectNameEXT    vkSetDebugUtilsObjectNameEXT;
+    PFN_vkSetDebugUtilsObjectNameEXT vkSetDebugUtilsObjectNameEXT;
 
 public:
     bool Init(VkInstance instance, PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr) noexcept
@@ -92,37 +107,37 @@ public:
 
 //-----------------------------------------------------------------------------
 struct VKMainCommandList {
-    PFN_vkCmdCopyImage2                vkCmdCopyImage2;
-    PFN_vkCmdCopyBufferToImage2        vkCmdCopyBufferToImage2;
-    PFN_vkCmdCopyImageToBuffer2        vkCmdCopyImageToBuffer2;
-    PFN_vkBeginCommandBuffer           vkBeginCommandBuffer;
+    PFN_vkCmdCopyImage2 vkCmdCopyImage2;
+    PFN_vkCmdCopyBufferToImage2 vkCmdCopyBufferToImage2;
+    PFN_vkCmdCopyImageToBuffer2 vkCmdCopyImageToBuffer2;
+    PFN_vkBeginCommandBuffer vkBeginCommandBuffer;
     PFN_vkCmdSetScissorWithCount vkCmdSetScissorWithCount;
     PFN_vkCmdSetViewportWithCount vkCmdSetViewportWithCount;
-    PFN_vkCmdBindPipeline              vkCmdBindPipeline;
-    PFN_vkCmdBindDescriptorSets        vkCmdBindDescriptorSets;
-    PFN_vkCmdDispatch                  vkCmdDispatch;
-    PFN_vkCmdDraw                      vkCmdDraw;
-    PFN_vkCmdDrawIndexed               vkCmdDrawIndexed;
-    PFN_vkResetCommandBuffer           vkResetCommandBuffer;
-    PFN_vkCmdCopyBuffer                vkCmdCopyBuffer;
-    PFN_vkCmdBindIndexBuffer           vkCmdBindIndexBuffer;
-    PFN_vkCmdPushConstants             vkCmdPushConstants;
-    PFN_vkCmdPipelineBarrier2          vkCmdPipelineBarrier2;
-    PFN_vkCmdBeginRendering            vkCmdBeginRendering;
-    PFN_vkCmdEndRendering              vkCmdEndRendering;
-    PFN_vkCmdSetPrimitiveTopology      vkCmdSetPrimitiveTopology;
-    PFN_vkCmdBindVertexBuffers2        vkCmdBindVertexBuffers2;
-    PFN_vkCmdPushDescriptorSet         vkCmdPushDescriptorSet;
-    PFN_vkCmdBindIndexBuffer2          vkCmdBindIndexBuffer2;
-    PFN_vkCmdSetDepthBias              vkCmdSetDepthBias;
+    PFN_vkCmdBindPipeline vkCmdBindPipeline;
+    PFN_vkCmdBindDescriptorSets vkCmdBindDescriptorSets;
+    PFN_vkCmdDispatch vkCmdDispatch;
+    PFN_vkCmdDraw vkCmdDraw;
+    PFN_vkCmdDrawIndexed vkCmdDrawIndexed;
+    PFN_vkResetCommandBuffer vkResetCommandBuffer;
+    PFN_vkCmdCopyBuffer vkCmdCopyBuffer;
+    PFN_vkCmdBindIndexBuffer vkCmdBindIndexBuffer;
+    PFN_vkCmdPushConstants vkCmdPushConstants;
+    PFN_vkCmdPipelineBarrier2 vkCmdPipelineBarrier2;
+    PFN_vkCmdBeginRendering vkCmdBeginRendering;
+    PFN_vkCmdEndRendering vkCmdEndRendering;
+    PFN_vkCmdSetPrimitiveTopology vkCmdSetPrimitiveTopology;
+    PFN_vkCmdBindVertexBuffers2 vkCmdBindVertexBuffers2;
+    PFN_vkCmdPushDescriptorSet vkCmdPushDescriptorSet;
+    PFN_vkCmdBindIndexBuffer2 vkCmdBindIndexBuffer2;
+    PFN_vkCmdSetDepthBias vkCmdSetDepthBias;
     PFN_vkCmdSetPrimitiveRestartEnable vkCmdSetPrimitiveRestartEnable;
-    PFN_vkEndCommandBuffer             vkEndCommandBuffer;
-    PFN_vkFreeCommandBuffers           vkFreeCommandBuffers;
+    PFN_vkEndCommandBuffer vkEndCommandBuffer;
+    PFN_vkFreeCommandBuffers vkFreeCommandBuffers;
 
     // Descriptor heap functions
     PFN_vkCmdBindResourceHeapEXT vkCmdBindResourceHeapEXT;
-    PFN_vkCmdBindSamplerHeapEXT  vkCmdBindSamplerHeapEXT;
-    PFN_vkCmdPushDataEXT         vkCmdPushDataEXT;
+    PFN_vkCmdBindSamplerHeapEXT vkCmdBindSamplerHeapEXT;
+    PFN_vkCmdPushDataEXT vkCmdPushDataEXT;
 
 public:
     bool Init(VkDevice device, PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr) noexcept
@@ -163,9 +178,9 @@ public:
 };
 
 struct VKMainCommandQueue {
-    PFN_vkQueueSubmit     vkQueueSubmit;
-    PFN_vkQueueSubmit2    vkQueueSubmit2;
-    PFN_vkQueueWaitIdle   vkQueueWaitIdle;
+    PFN_vkQueueSubmit vkQueueSubmit;
+    PFN_vkQueueSubmit2 vkQueueSubmit2;
+    PFN_vkQueueWaitIdle vkQueueWaitIdle;
     PFN_vkQueuePresentKHR vkQueuePresentKHR;
 
 public:
@@ -181,70 +196,70 @@ public:
 
 //-----------------------------------------------------------------------------
 struct VKMainDevice {
-    PFN_vkUnmapMemory                       vkUnmapMemory;
-    PFN_vkDestroyDevice                     vkDestroyDevice;
-    PFN_vkCreateSampler                     vkCreateSampler;
-    PFN_vkFlushMappedMemoryRanges           vkFlushMappedMemoryRanges;
-    PFN_vkAllocateMemory                    vkAllocateMemory;
-    PFN_vkDestroyPipeline                   vkDestroyPipeline;
-    PFN_vkCreateImage                       vkCreateImage;
-    PFN_vkCreateDescriptorSetLayout         vkCreateDescriptorSetLayout;
-    PFN_vkFreeDescriptorSets                vkFreeDescriptorSets;
-    PFN_vkFreeMemory                        vkFreeMemory;
-    PFN_vkMapMemory                         vkMapMemory;
-    PFN_vkDestroyDescriptorSetLayout        vkDestroyDescriptorSetLayout;
-    PFN_vkInvalidateMappedMemoryRanges      vkInvalidateMappedMemoryRanges;
-    PFN_vkBindBufferMemory                  vkBindBufferMemory;
-    PFN_vkBindImageMemory                   vkBindImageMemory;
-    PFN_vkGetBufferMemoryRequirements       vkGetBufferMemoryRequirements;
-    PFN_vkDestroySampler                    vkDestroySampler;
-    PFN_vkDestroyImageView                  vkDestroyImageView;
-    PFN_vkGetImageMemoryRequirements        vkGetImageMemoryRequirements;
-    PFN_vkCreateFence                       vkCreateFence;
-    PFN_vkDestroyFence                      vkDestroyFence;
-    PFN_vkCreateCommandPool                 vkCreateCommandPool;
-    PFN_vkResetCommandPool                  vkResetCommandPool;
-    PFN_vkResetFences                       vkResetFences;
-    PFN_vkWaitForFences                     vkWaitForFences;
-    PFN_vkCreateSemaphore                   vkCreateSemaphore;
-    PFN_vkDestroyBuffer                     vkDestroyBuffer;
-    PFN_vkDestroySemaphore                  vkDestroySemaphore;
-    PFN_vkCreateBuffer                      vkCreateBuffer;
-    PFN_vkDestroyImage                      vkDestroyImage;
-    PFN_vkCreatePipelineLayout              vkCreatePipelineLayout;
-    PFN_vkCreateImageView                   vkCreateImageView;
-    PFN_vkDestroyCommandPool                vkDestroyCommandPool;
-    PFN_vkCreateDescriptorPool              vkCreateDescriptorPool;
-    PFN_vkAllocateCommandBuffers            vkAllocateCommandBuffers;
-    PFN_vkDestroyPipelineLayout             vkDestroyPipelineLayout;
-    PFN_vkCreateShaderModule                vkCreateShaderModule;
-    PFN_vkDestroyShaderModule               vkDestroyShaderModule;
-    PFN_vkCreateGraphicsPipelines           vkCreateGraphicsPipelines;
-    PFN_vkCreateComputePipelines            vkCreateComputePipelines;
-    PFN_vkCreatePipelineCache               vkCreatePipelineCache;
-    PFN_vkDestroyPipelineCache              vkDestroyPipelineCache;
-    PFN_vkGetPipelineCacheData              vkGetPipelineCacheData;
-    PFN_vkDestroyDescriptorPool             vkDestroyDescriptorPool;
-    PFN_vkAllocateDescriptorSets            vkAllocateDescriptorSets;
-    PFN_vkUpdateDescriptorSets              vkUpdateDescriptorSets;
+    PFN_vkUnmapMemory vkUnmapMemory;
+    PFN_vkDestroyDevice vkDestroyDevice;
+    PFN_vkCreateSampler vkCreateSampler;
+    PFN_vkFlushMappedMemoryRanges vkFlushMappedMemoryRanges;
+    PFN_vkAllocateMemory vkAllocateMemory;
+    PFN_vkDestroyPipeline vkDestroyPipeline;
+    PFN_vkCreateImage vkCreateImage;
+    PFN_vkCreateDescriptorSetLayout vkCreateDescriptorSetLayout;
+    PFN_vkFreeDescriptorSets vkFreeDescriptorSets;
+    PFN_vkFreeMemory vkFreeMemory;
+    PFN_vkMapMemory vkMapMemory;
+    PFN_vkDestroyDescriptorSetLayout vkDestroyDescriptorSetLayout;
+    PFN_vkInvalidateMappedMemoryRanges vkInvalidateMappedMemoryRanges;
+    PFN_vkBindBufferMemory vkBindBufferMemory;
+    PFN_vkBindImageMemory vkBindImageMemory;
+    PFN_vkGetBufferMemoryRequirements vkGetBufferMemoryRequirements;
+    PFN_vkDestroySampler vkDestroySampler;
+    PFN_vkDestroyImageView vkDestroyImageView;
+    PFN_vkGetImageMemoryRequirements vkGetImageMemoryRequirements;
+    PFN_vkCreateFence vkCreateFence;
+    PFN_vkDestroyFence vkDestroyFence;
+    PFN_vkCreateCommandPool vkCreateCommandPool;
+    PFN_vkResetCommandPool vkResetCommandPool;
+    PFN_vkResetFences vkResetFences;
+    PFN_vkWaitForFences vkWaitForFences;
+    PFN_vkCreateSemaphore vkCreateSemaphore;
+    PFN_vkDestroyBuffer vkDestroyBuffer;
+    PFN_vkDestroySemaphore vkDestroySemaphore;
+    PFN_vkCreateBuffer vkCreateBuffer;
+    PFN_vkDestroyImage vkDestroyImage;
+    PFN_vkCreatePipelineLayout vkCreatePipelineLayout;
+    PFN_vkCreateImageView vkCreateImageView;
+    PFN_vkDestroyCommandPool vkDestroyCommandPool;
+    PFN_vkCreateDescriptorPool vkCreateDescriptorPool;
+    PFN_vkAllocateCommandBuffers vkAllocateCommandBuffers;
+    PFN_vkDestroyPipelineLayout vkDestroyPipelineLayout;
+    PFN_vkCreateShaderModule vkCreateShaderModule;
+    PFN_vkDestroyShaderModule vkDestroyShaderModule;
+    PFN_vkCreateGraphicsPipelines vkCreateGraphicsPipelines;
+    PFN_vkCreateComputePipelines vkCreateComputePipelines;
+    PFN_vkCreatePipelineCache vkCreatePipelineCache;
+    PFN_vkDestroyPipelineCache vkDestroyPipelineCache;
+    PFN_vkGetPipelineCacheData vkGetPipelineCacheData;
+    PFN_vkDestroyDescriptorPool vkDestroyDescriptorPool;
+    PFN_vkAllocateDescriptorSets vkAllocateDescriptorSets;
+    PFN_vkUpdateDescriptorSets vkUpdateDescriptorSets;
     PFN_vkGetDeviceBufferMemoryRequirements vkGetDeviceBufferMemoryRequirements;
-    PFN_vkGetDeviceImageMemoryRequirements  vkGetDeviceImageMemoryRequirements;
-    PFN_vkGetDeviceQueue2                   vkGetDeviceQueue2;
-    PFN_vkGetImageMemoryRequirements2       vkGetImageMemoryRequirements2;
-    PFN_vkGetBufferMemoryRequirements2      vkGetBufferMemoryRequirements2;
-    PFN_vkBindBufferMemory2                 vkBindBufferMemory2;
-    PFN_vkBindImageMemory2                  vkBindImageMemory2;
-    PFN_vkWaitSemaphores                    vkWaitSemaphores;
-    PFN_vkSignalSemaphore                   vkSignalSemaphore;
-    PFN_vkGetSemaphoreCounterValue          vkGetSemaphoreCounterValue;
-    PFN_vkGetBufferDeviceAddress            vkGetBufferDeviceAddress;
-    PFN_vkWriteResourceDescriptorsEXT       vkWriteResourceDescriptorsEXT;
-    PFN_vkWriteSamplerDescriptorsEXT        vkWriteSamplerDescriptorsEXT;
-    PFN_vkCreateSwapchainKHR                vkCreateSwapchainKHR;
+    PFN_vkGetDeviceImageMemoryRequirements vkGetDeviceImageMemoryRequirements;
+    PFN_vkGetDeviceQueue2 vkGetDeviceQueue2;
+    PFN_vkGetImageMemoryRequirements2 vkGetImageMemoryRequirements2;
+    PFN_vkGetBufferMemoryRequirements2 vkGetBufferMemoryRequirements2;
+    PFN_vkBindBufferMemory2 vkBindBufferMemory2;
+    PFN_vkBindImageMemory2 vkBindImageMemory2;
+    PFN_vkWaitSemaphores vkWaitSemaphores;
+    PFN_vkSignalSemaphore vkSignalSemaphore;
+    PFN_vkGetSemaphoreCounterValue vkGetSemaphoreCounterValue;
+    PFN_vkGetBufferDeviceAddress vkGetBufferDeviceAddress;
+    PFN_vkWriteResourceDescriptorsEXT vkWriteResourceDescriptorsEXT;
+    PFN_vkWriteSamplerDescriptorsEXT vkWriteSamplerDescriptorsEXT;
+    PFN_vkCreateSwapchainKHR vkCreateSwapchainKHR;
 
     // Host copy
     PFN_vkTransitionImageLayoutEXT vkTransitionImageLayoutEXT;
-    PFN_vkCopyMemoryToImageEXT     vkCopyMemoryToImageEXT;
+    PFN_vkCopyMemoryToImageEXT vkCopyMemoryToImageEXT;
 
 #ifdef _WIN32
     PFN_vkGetMemoryWin32HandleKHR vkGetMemoryWin32HandleKHR;
@@ -299,8 +314,16 @@ public:
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkDestroyDescriptorPool);
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkAllocateDescriptorSets);
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkUpdateDescriptorSets);
-        ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, vkGetDeviceBufferMemoryRequirements, "vkGetDeviceBufferMemoryRequirementsKHR");
-        ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, vkGetDeviceImageMemoryRequirements, "vkGetDeviceImageMemoryRequirementsKHR");
+        ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(
+            device,
+            vkGetDeviceBufferMemoryRequirements,
+            "vkGetDeviceBufferMemoryRequirementsKHR"
+        );
+        ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(
+            device,
+            vkGetDeviceImageMemoryRequirements,
+            "vkGetDeviceImageMemoryRequirementsKHR"
+        );
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkGetDeviceQueue2);
         ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, vkGetImageMemoryRequirements2, "vkGetImageMemoryRequirements2KHR");
         ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, vkGetBufferMemoryRequirements2, "vkGetBufferMemoryRequirements2KHR");
@@ -309,7 +332,12 @@ public:
         ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, vkWaitSemaphores, "vkWaitSemaphoresKHR");
         ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, vkSignalSemaphore, "vkSignalSemaphoreKHR");
         ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, vkGetSemaphoreCounterValue, "vkGetSemaphoreCounterValueKHR");
-        ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, vkGetBufferDeviceAddress, "vkGetBufferDeviceAddressKHR", "vkGetBufferDeviceAddressEXT");
+        ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(
+            device,
+            vkGetBufferDeviceAddress,
+            "vkGetBufferDeviceAddressKHR",
+            "vkGetBufferDeviceAddressEXT"
+        );
 
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkWriteResourceDescriptorsEXT);
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkWriteSamplerDescriptorsEXT);
@@ -326,13 +354,13 @@ public:
 };
 
 struct VKMainSwapchain {
-    PFN_vkAcquireNextImageKHR   vkAcquireNextImageKHR;
+    PFN_vkAcquireNextImageKHR vkAcquireNextImageKHR;
     PFN_vkGetSwapchainImagesKHR vkGetSwapchainImagesKHR;
-    PFN_vkDestroySwapchainKHR   vkDestroySwapchainKHR;
-    PFN_vkQueuePresentKHR       vkQueuePresentKHR; // technically a queue function, but for speed store here
-    PFN_vkQueueSubmit2          vkQueueSubmit2; // technically a queue function, but for speed store here
-    PFN_vkWaitForFences         vkWaitForFences; // used during swapchain destruction to synchronize with the GPU
-    PFN_vkCreateSwapchainKHR    vkCreateSwapchainKHR; // used for swapchain recreation, stored here for speed
+    PFN_vkDestroySwapchainKHR vkDestroySwapchainKHR;
+    PFN_vkQueuePresentKHR vkQueuePresentKHR;       // technically a queue function, but for speed store here
+    PFN_vkQueueSubmit2 vkQueueSubmit2;             // technically a queue function, but for speed store here
+    PFN_vkWaitForFences vkWaitForFences;           // used during swapchain destruction to synchronize with the GPU
+    PFN_vkCreateSwapchainKHR vkCreateSwapchainKHR; // used for swapchain recreation, stored here for speed
 
     bool Init(VkDevice device, PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr) noexcept
     {

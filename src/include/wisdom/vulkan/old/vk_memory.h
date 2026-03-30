@@ -1,26 +1,28 @@
 #ifndef WIS_VK_MEMORY_H
 #define WIS_VK_MEMORY_H
 #ifndef WISDOM_MODULE_DECL
-#include <wisdom/global/internal.h>
-#include <wisdom/vulkan/vk_handles.h>
-#include <wisdom/vulkan/vk_views.h>
+#    include <wisdom/global/internal.h>
+#    include <wisdom/vulkan/vk_handles.h>
+#    include <wisdom/vulkan/vk_views.h>
 #endif // !WISDOM_MODULE_DECL
 
-namespace wis {
+namespace wis
+{
 WISDOM_EXPORT class VKMemory;
 
 WISDOM_EXPORT
-namespace h {
+namespace h
+{
 using VmaAllocation = wis::movable_handle<::VmaAllocation>;
 }
 
 WISDOM_EXPORT
-template<>
+template <>
 struct Internal<VKMemory> {
     wis::shared_handle<VmaAllocator> allocator;
-    h::VmaAllocation                 allocation;
+    h::VmaAllocation allocation;
 
-    Internal() noexcept           = default;
+    Internal() noexcept = default;
     Internal(Internal&&) noexcept = default;
     Internal& operator=(Internal&& o) noexcept
     {
@@ -28,14 +30,11 @@ struct Internal<VKMemory> {
             return *this;
         }
         Destroy();
-        allocator  = std::move(o.allocator);
+        allocator = std::move(o.allocator);
         allocation = std::move(o.allocation);
         return *this;
     }
-    ~Internal() noexcept
-    {
-        Destroy();
-    }
+    ~Internal() noexcept { Destroy(); }
     void Destroy() noexcept
     {
         if (allocation) {
@@ -48,21 +47,10 @@ class ImplVKMemory : public QueryInternal<VKMemory>
 {
 public:
     ImplVKMemory() noexcept = default;
-    operator bool() const noexcept
-    {
-        return bool(allocation);
-    }
-    operator VKMemoryView() const noexcept
-    {
-        return { allocator.get(), allocation };
-    }
-    [[nodiscard]] bool
-    operator==(std::nullptr_t) const noexcept
-    {
-        return !allocation;
-    }
-    [[nodiscard]] bool
-    operator==(const ImplVKMemory& other) const noexcept
+    operator bool() const noexcept { return bool(allocation); }
+    operator VKMemoryView() const noexcept { return {allocator.get(), allocation}; }
+    [[nodiscard]] bool operator==(std::nullptr_t) const noexcept { return !allocation; }
+    [[nodiscard]] bool operator==(const ImplVKMemory& other) const noexcept
     {
         return allocator.get() == other.allocator.get() && allocation == other.allocation;
     }
@@ -86,10 +74,7 @@ public:
         vmaMapMemory(allocator.get(), allocation, &data);
         return data;
     }
-    void VKUnmap() const noexcept
-    {
-        vmaUnmapMemory(allocator.get(), allocation);
-    }
+    void VKUnmap() const noexcept { vmaUnmapMemory(allocator.get(), allocation); }
 };
 
 #pragma region VKMemory
@@ -101,9 +86,9 @@ class VKMemory : public wis::ImplVKMemory
 {
 public:
     using wis::ImplVKMemory::ImplVKMemory;
-    VKMemory(const VKMemory&)                = delete;
-    VKMemory(VKMemory&&) noexcept            = default;
-    VKMemory& operator=(const VKMemory&)     = delete;
+    VKMemory(const VKMemory&) = delete;
+    VKMemory(VKMemory&&) noexcept = default;
+    VKMemory& operator=(const VKMemory&) = delete;
     VKMemory& operator=(VKMemory&&) noexcept = default;
 
 public:
@@ -111,10 +96,7 @@ public:
      * @brief Returns the offset of the block in the global memory.
      * @return The offset of the block in the global memory.
      * */
-    inline uint64_t GetBlockOffset() const noexcept
-    {
-        return wis::ImplVKMemory::GetBlockOffset();
-    }
+    inline uint64_t GetBlockOffset() const noexcept { return wis::ImplVKMemory::GetBlockOffset(); }
 };
 #pragma endregion VKMemory
 

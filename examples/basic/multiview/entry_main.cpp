@@ -1,9 +1,8 @@
+#include <glm/vec3.hpp>
+#include <iostream>
+#include <window.h>
 #include <wis_helper.h>
 #include <wis_swapchain.h>
-#include <window.h>
-#include <iostream>
-
-#include <glm/vec3.hpp>
 
 // In order to render with multiview, we need to have texture with array layers.
 // In case of stereo rendering, we need to have 2 array layers.
@@ -20,27 +19,27 @@ class App
     ex::Window window;
     ex::ExampleSetup setup;
     ex::Swapchain swap;
-    ex::FramedCommandList cmd_list; // for first pass
+    ex::FramedCommandList cmd_list;  // for first pass
     ex::FramedCommandList cmd_list2; // for second pass
 
     // Resources
     // First pass resources
-    wis::RootSignature root; // root signature for first stage and second stage (same)
-    wis::PipelineState pipeline; // pipeline for first stage
-    wis::Shader vs; // vertex shader
-    wis::Shader ps; // pixel shader
+    wis::RootSignature root;                     // root signature for first stage and second stage (same)
+    wis::PipelineState pipeline;                 // pipeline for first stage
+    wis::Shader vs;                              // vertex shader
+    wis::Shader ps;                              // pixel shader
 
-    wis::Texture textures[ex::flight_frames]; // textures for rendering, with 2 array layers
+    wis::Texture textures[ex::flight_frames];    // textures for rendering, with 2 array layers
     wis::ShaderResource srvs[ex::flight_frames]; // shader resource view for texture
-    wis::RenderTarget rts[ex::flight_frames]; // render target for texture
+    wis::RenderTarget rts[ex::flight_frames];    // render target for texture
 
-    wis::Buffer vertex_buffer; // vertex buffer for triangle
+    wis::Buffer vertex_buffer;                   // vertex buffer for triangle
 
     // Second pass resources
     wis::PipelineState fullscreen_pipeline; // pipeline for second stage
-    wis::Shader fullscreen_vs; // vertex shader for second stage
-    wis::Shader fullscreen_ps; // pixel shader for second stage
-    wis::Sampler sampler; // sampler for texture
+    wis::Shader fullscreen_vs;              // vertex shader for second stage
+    wis::Shader fullscreen_ps;              // pixel shader for second stage
+    wis::Sampler sampler;                   // sampler for texture
 
     // Descriptor buffers
     wis::DescriptorStorage desc_storage; // descriptor storage for shader resources
@@ -58,8 +57,8 @@ public:
         cmd_list2 = setup.CreateLists();
 
         wis::DescriptorBindingDesc bindings[] = {
-            { .binding_type = wis::DescriptorType::Texture, .binding_space = 1, .binding_count = ex::flight_frames },
-            { .binding_type = wis::DescriptorType::Sampler, .binding_space = 2, .binding_count = 1 },
+            {.binding_type = wis::DescriptorType::Texture, .binding_space = 1, .binding_count = ex::flight_frames},
+            {.binding_type = wis::DescriptorType::Sampler, .binding_space = 2, .binding_count = 1},
         };
         desc_storage = setup.device.CreateDescriptorStorage(result, bindings, std::size(bindings));
     }
@@ -109,10 +108,10 @@ public:
         auto& cmd = cmd_list[frame_index];
 
         wis::RenderPassRenderTargetDesc targets[]{
-            { .target = rts[frame_index],
-              .load_op = wis::LoadOperation::Clear,
-              .store_op = wis::StoreOperation::Store,
-              .clear_value = { 0.1f, 0.1f, 0.1f, 1.0f } } // clear with gray color
+            {.target = rts[frame_index],
+             .load_op = wis::LoadOperation::Clear,
+             .store_op = wis::StoreOperation::Store,
+             .clear_value = {0.1f, 0.1f, 0.1f, 1.0f}} // clear with gray color
         };
         wis::RenderPassDesc rp1{
             .flags = wis::RenderPassFlags::None,
@@ -126,21 +125,22 @@ public:
 
         // Insert barriers for the texture
         cmd.TextureBarrier(
-                { .sync_before = wis::BarrierSync::None,
-                  .sync_after = wis::BarrierSync::Draw,
-                  .access_before = wis::ResourceAccess::NoAccess,
-                  .access_after = wis::ResourceAccess::RenderTarget,
-                  .state_before = wis::TextureState::ShaderResource,
-                  .state_after = wis::TextureState::RenderTarget },
-                textures[frame_index]);
+            {.sync_before = wis::BarrierSync::None,
+             .sync_after = wis::BarrierSync::Draw,
+             .access_before = wis::ResourceAccess::NoAccess,
+             .access_after = wis::ResourceAccess::RenderTarget,
+             .state_before = wis::TextureState::ShaderResource,
+             .state_after = wis::TextureState::RenderTarget},
+            textures[frame_index]
+        );
 
         // Record commands for the first pass
         // ...
         cmd.BeginRenderPass(rp1);
         cmd.SetRootSignature(root); // always set root signature before binding resources
         cmd.IASetPrimitiveTopology(wis::PrimitiveTopology::TriangleList);
-        cmd.RSSetViewport({ 0, 0, 800, 800, 0, 1 });
-        cmd.RSSetScissor({ 0, 0, 800, 800 });
+        cmd.RSSetViewport({0, 0, 800, 800, 0, 1});
+        cmd.RSSetScissor({0, 0, 800, 800});
 
         wis::VertexBufferBinding vertex_binding{
             .buffer = vertex_buffer,
@@ -153,13 +153,14 @@ public:
         cmd.EndRenderPass();
         // Insert barriers for the texture
         cmd.TextureBarrier(
-                { .sync_before = wis::BarrierSync::Draw,
-                  .sync_after = wis::BarrierSync::All,
-                  .access_before = wis::ResourceAccess::RenderTarget,
-                  .access_after = wis::ResourceAccess::ShaderResource,
-                  .state_before = wis::TextureState::RenderTarget,
-                  .state_after = wis::TextureState::ShaderResource },
-                textures[frame_index]);
+            {.sync_before = wis::BarrierSync::Draw,
+             .sync_after = wis::BarrierSync::All,
+             .access_before = wis::ResourceAccess::RenderTarget,
+             .access_after = wis::ResourceAccess::ShaderResource,
+             .state_before = wis::TextureState::RenderTarget,
+             .state_after = wis::TextureState::ShaderResource},
+            textures[frame_index]
+        );
 
         // End recording
         cmd.Close();
@@ -168,10 +169,10 @@ public:
         // Second pass
         auto& cmd2 = cmd_list2[frame_index];
         wis::RenderPassRenderTargetDesc targets2[]{
-            { .target = swap.GetRenderTarget(frame_index),
-              .load_op = wis::LoadOperation::Clear,
-              .store_op = wis::StoreOperation::Store,
-              .clear_value = { 0.0f, 0.5f, 0.5f, 1.0f } }
+            {.target = swap.GetRenderTarget(frame_index),
+             .load_op = wis::LoadOperation::Clear,
+             .store_op = wis::StoreOperation::Store,
+             .clear_value = {0.0f, 0.5f, 0.5f, 1.0f}}
         };
         wis::RenderPassDesc rp2{
             .flags = wis::RenderPassFlags::None,
@@ -185,13 +186,14 @@ public:
 
         // Insert barriers for the swapchain render target
         cmd2.TextureBarrier(
-                { .sync_before = wis::BarrierSync::None,
-                  .sync_after = wis::BarrierSync::Draw,
-                  .access_before = wis::ResourceAccess::NoAccess,
-                  .access_after = wis::ResourceAccess::RenderTarget,
-                  .state_before = wis::TextureState::Present,
-                  .state_after = wis::TextureState::RenderTarget },
-                swap.GetTexture(frame_index));
+            {.sync_before = wis::BarrierSync::None,
+             .sync_after = wis::BarrierSync::Draw,
+             .access_before = wis::ResourceAccess::NoAccess,
+             .access_after = wis::ResourceAccess::RenderTarget,
+             .state_before = wis::TextureState::Present,
+             .state_after = wis::TextureState::RenderTarget},
+            swap.GetTexture(frame_index)
+        );
 
         cmd2.BeginRenderPass(rp2);
         cmd2.SetRootSignature(root); // always set root signature before binding resources
@@ -201,25 +203,26 @@ public:
         cmd2.IASetPrimitiveTopology(wis::PrimitiveTopology::TriangleList);
 
         auto [w, h] = window.PixelSize();
-        cmd2.RSSetViewport({ 0, 0, float(w), float(h), 0, 1 });
-        cmd2.RSSetScissor({ 0, 0, w, h });
+        cmd2.RSSetViewport({0, 0, float(w), float(h), 0, 1});
+        cmd2.RSSetScissor({0, 0, w, h});
         cmd2.DrawInstanced(3);
         cmd2.EndRenderPass();
 
         // Insert barriers for the swapchain render target
         cmd2.TextureBarrier(
-                { .sync_before = wis::BarrierSync::Draw,
-                  .sync_after = wis::BarrierSync::Draw,
-                  .access_before = wis::ResourceAccess::RenderTarget,
-                  .access_after = wis::ResourceAccess::Common,
-                  .state_before = wis::TextureState::RenderTarget,
-                  .state_after = wis::TextureState::Present },
-                swap.GetTexture(frame_index));
+            {.sync_before = wis::BarrierSync::Draw,
+             .sync_after = wis::BarrierSync::Draw,
+             .access_before = wis::ResourceAccess::RenderTarget,
+             .access_after = wis::ResourceAccess::Common,
+             .state_before = wis::TextureState::RenderTarget,
+             .state_after = wis::TextureState::Present},
+            swap.GetTexture(frame_index)
+        );
 
         // End recording
         cmd2.Close();
 
-        wis::CommandListView lists[] = { cmd, cmd2 };
+        wis::CommandListView lists[] = {cmd, cmd2};
         setup.queue.ExecuteCommandLists(lists, std::size(lists));
         swap.Present(setup.queue);
     }
@@ -227,7 +230,7 @@ public:
     // Create resources
     void CreateFirstPassResources()
     {
-         // for flag OR operations
+        // for flag OR operations
         auto& device = setup.device;
         auto& cmd = cmd_list[0];
         ex::CheckResult(cmd.Reset());
@@ -244,7 +247,7 @@ public:
         {
             wis::TextureDesc desc{
                 .format = wis::DataFormat::BGRA8Unorm,
-                .size = { 800, 800, 2 }, // 2 array layers
+                .size = {800, 800, 2}, // 2 array layers
                 .mip_levels = 1,
                 .layout = wis::TextureLayout::Texture2DArray,
                 .usage = wis::TextureUsage::RenderTarget | wis::TextureUsage::ShaderResource
@@ -264,10 +267,10 @@ public:
                 .format = wis::DataFormat::BGRA8Unorm,
                 .view_type = wis::TextureViewType::Texture2DArray,
                 .subresource_range = {
-                        .base_mip_level = 0,
-                        .level_count = 1,
-                        .base_array_layer = 0,
-                        .layer_count = 2,
+                    .base_mip_level = 0,
+                    .level_count = 1,
+                    .base_array_layer = 0,
+                    .layer_count = 2,
                 },
             };
 
@@ -277,50 +280,59 @@ public:
                 srvs[i] = ex::Unwrap(device.CreateShaderResource(textures[i], srv_desc));
                 // Texture is in undefined state, so we need to transition it to render target state
                 cmd.TextureBarrier(
-                        { .sync_before = wis::BarrierSync::None,
-                          .sync_after = wis::BarrierSync::None,
-                          .access_before = wis::ResourceAccess::NoAccess,
-                          .access_after = wis::ResourceAccess::NoAccess,
-                          .state_before = wis::TextureState::Undefined,
-                          .state_after = wis::TextureState::ShaderResource }, // we will change this later
-                        textures[i]);
+                    {.sync_before = wis::BarrierSync::None,
+                     .sync_after = wis::BarrierSync::None,
+                     .access_before = wis::ResourceAccess::NoAccess,
+                     .access_after = wis::ResourceAccess::NoAccess,
+                     .state_before = wis::TextureState::Undefined,
+                     .state_after = wis::TextureState::ShaderResource}, // we will change this later
+                    textures[i]
+                );
             }
         }
 
         // Create root signature with
         {
             wis::Result result = wis::success;
-            wis::PushConstant root_constants[]{
-                { .stage = wis::ShaderStages::Pixel, .size_bytes = sizeof(uint32_t) }
-            };
+            wis::PushConstant root_constants[]{{.stage = wis::ShaderStages::Pixel, .size_bytes = sizeof(uint32_t)}};
             wis::DescriptorBindingDesc bindings[] = {
-                { .binding_type = wis::DescriptorType::Texture, .binding_space = 1, .binding_count = ex::flight_frames }, // space 0 is for root constants
-                { .binding_type = wis::DescriptorType::Sampler, .binding_space = 2, .binding_count = 1 },
+                {.binding_type = wis::DescriptorType::Texture,
+                 .binding_space = 1,
+                 .binding_count = ex::flight_frames}, // space 0 is for root constants
+                {.binding_type = wis::DescriptorType::Sampler, .binding_space = 2, .binding_count = 1},
             };
-            root = setup.device.CreateRootSignature(result, root_constants, 1, nullptr, 0, bindings, std::size(bindings));
+            root = setup.device
+                       .CreateRootSignature(result, root_constants, 1, nullptr, 0, bindings, std::size(bindings));
         }
 
         // Create pipeline
         {
             wis::InputSlotDesc input_slots[] = {
-                { .slot = 0, .stride_bytes = sizeof(glm::vec3), .input_class = wis::InputClass::PerVertex },
+                {.slot = 0, .stride_bytes = sizeof(glm::vec3), .input_class = wis::InputClass::PerVertex},
             };
             wis::InputAttribute input_attributes[] = {
-                { .input_slot = 0, .semantic_name = "POSITION", .semantic_index = 0, .location = 0, .format = wis::DataFormat::RGB32Float, .offset_bytes = 0 }
+                {.input_slot = 0,
+                 .semantic_name = "POSITION",
+                 .semantic_index = 0,
+                 .location = 0,
+                 .format = wis::DataFormat::RGB32Float,
+                 .offset_bytes = 0}
             };
             wis::GraphicsPipelineDesc desc{
                 .root_signature = root,
-                .input_layout = {
+                .input_layout =
+                    {
                         .slots = input_slots,
                         .slot_count = 1,
                         .attributes = input_attributes,
                         .attribute_count = 1,
-                },
-                .shaders = { .vertex = vs, .pixel = ps },
-                .attachments = {
-                        .attachment_formats = { wis::DataFormat::BGRA8Unorm },
+                    },
+                .shaders = {.vertex = vs, .pixel = ps},
+                .attachments =
+                    {
+                        .attachment_formats = {wis::DataFormat::BGRA8Unorm},
                         .attachments_count = 1,
-                },
+                    },
                 .view_mask = 0b11, // 2 array layers
             };
             pipeline = ex::Unwrap(setup.device.CreateGraphicsPipeline(desc));
@@ -328,16 +340,15 @@ public:
 
         // Create vertex buffer
         {
-            glm::vec3 triangle_vertices[] = {
-                { 0.0f, 0.5f, 0.0f },
-                { 0.5f, -0.5f, 0.0f },
-                { -0.5f, -0.5f, 0.0f }
-            };
-            vertex_buffer = setup.CreateAndUploadBuffer(std::span<glm::vec3>{ triangle_vertices }, wis::BufferUsage::VertexBuffer);
+            glm::vec3 triangle_vertices[] = {{0.0f, 0.5f, 0.0f}, {0.5f, -0.5f, 0.0f}, {-0.5f, -0.5f, 0.0f}};
+            vertex_buffer = setup.CreateAndUploadBuffer(
+                std::span<glm::vec3>{triangle_vertices},
+                wis::BufferUsage::VertexBuffer
+            );
         }
 
         cmd.Close();
-        wis::CommandListView lists[] = { cmd };
+        wis::CommandListView lists[] = {cmd};
         setup.queue.ExecuteCommandLists(lists, std::size(lists));
         setup.WaitForGPU();
     }
@@ -356,11 +367,12 @@ public:
         {
             wis::GraphicsPipelineDesc desc{
                 .root_signature = root,
-                .shaders = { .vertex = fullscreen_vs, .pixel = fullscreen_ps },
-                .attachments = {
-                        .attachment_formats = { ex::swapchain_format },
+                .shaders = {.vertex = fullscreen_vs, .pixel = fullscreen_ps},
+                .attachments =
+                    {
+                        .attachment_formats = {ex::swapchain_format},
                         .attachments_count = 1,
-                },
+                    },
                 // view mask is 0b00, because we will render to the back buffer
             };
             fullscreen_pipeline = ex::Unwrap(setup.device.CreateGraphicsPipeline(desc));

@@ -1,9 +1,9 @@
 #ifndef WIS_DX12_PIPELINE_CACHE_CPP
 #define WIS_DX12_PIPELINE_CACHE_CPP
 
-#include <wisdom/generated/c_api.h>
-#include <wisdom/dx12/dx12_types.hpp>
 #include <wisdom/dx12/detail/dx12_utils.hpp>
+#include <wisdom/dx12/dx12_types.hpp>
+#include <wisdom/generated/c_api.h>
 #include <wisdom/util/allocation.hpp>
 
 //-----------------------------------------------------------------------------
@@ -20,12 +20,11 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyPipelineCache(WisDX12PipelineCache* s
 }
 
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisDX12PipelineCacheSerialize(const WisDX12PipelineCache* self,
-                                                                uint8_t*                    data,
-                                                                size_t                      data_size)
+WIS_EXTERN_C WISDOM_API WisResult
+wisDX12PipelineCacheSerialize(const WisDX12PipelineCache* self, uint8_t* data, size_t data_size)
 {
     auto& [cache, xx] = wis::from_handle_ref<const wis::impl::DX12PipelineCacheImpl>(self);
-    auto hr           = cache->Serialize(data, data_size);
+    auto hr = cache->Serialize(data, data_size);
     if (!wis::detail::succeeded(hr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to serialize pipeline cache">(hr);
     }

@@ -1,21 +1,18 @@
 #ifndef WIS_VK_QUEUE_RESIDENCY_H
 #define WIS_VK_QUEUE_RESIDENCY_H
 #ifndef WISDOM_MODULE_DECL
-#include <atomic>
-#include <vulkan/vulkan.h>
-#include <wisdom/generated/api/api.hpp>
-#include <wisdom/util/flags.h>
-#include <wisdom/util/small_allocator.h>
+#    include <wisdom/generated/api/api.hpp>
+#    include <wisdom/util/flags.h>
+#    include <wisdom/util/small_allocator.h>
+
+#    include <atomic>
+#    include <vulkan/vulkan.h>
 #endif // !WISDOM_MODULE_DECL
 
 WISDOM_EXPORT
-namespace wis::detail {
-enum class QueueTypes : uint8_t { Graphics,
-                                  Compute,
-                                  Copy,
-                                  VideoDecode,
-                                  Count
-};
+namespace wis::detail
+{
+enum class QueueTypes : uint8_t { Graphics, Compute, Copy, VideoDecode, Count };
 struct QueueResidency {
     struct QueueInfo {
         uint32_t index;
@@ -30,7 +27,7 @@ struct QueueResidency {
             , family_index(family_index)
         {
         }
-        QueueFormat(const QueueFormat&)            = delete;
+        QueueFormat(const QueueFormat&) = delete;
         QueueFormat& operator=(const QueueFormat&) = delete;
         QueueFormat(QueueFormat&& o) noexcept
             : queue_flags(o.queue_flags)
@@ -40,25 +37,19 @@ struct QueueResidency {
         }
         QueueFormat& operator=(QueueFormat&& o) noexcept
         {
-            queue_flags  = o.queue_flags;
-            count        = o.count;
+            queue_flags = o.queue_flags;
+            count = o.count;
             family_index = o.family_index;
             return *this;
         }
 
-        uint8_t GetNextInLine() const noexcept
-        {
-            return last.exchange((last + 1) % count);
-        }
-        bool Empty() const noexcept
-        {
-            return count == 0u;
-        }
+        uint8_t GetNextInLine() const noexcept { return last.exchange((last + 1) % count); }
+        bool Empty() const noexcept { return count == 0u; }
 
-        uint16_t                     queue_flags  = 0;
-        uint8_t                      count        = 0;
-        uint8_t                      family_index = 0;
-        mutable std::atomic<uint8_t> last{ 0 };
+        uint16_t queue_flags = 0;
+        uint8_t count = 0;
+        uint8_t family_index = 0;
+        mutable std::atomic<uint8_t> last{0};
     };
     static constexpr size_t QueueIndex(QueueType type)
     {
@@ -89,8 +80,8 @@ struct QueueResidency {
         }
     }
 
-    QueueResidency() noexcept                        = default;
-    QueueResidency(const QueueResidency&)            = delete;
+    QueueResidency() noexcept = default;
+    QueueResidency(const QueueResidency&) = delete;
     QueueResidency& operator=(const QueueResidency&) = delete;
     QueueResidency(QueueResidency&& o) noexcept
         : available_queues(std::move(o.available_queues))
@@ -105,8 +96,8 @@ struct QueueResidency {
 public:
     const QueueFormat* GetOfType(QueueType type) const noexcept
     {
-        auto        idx = QueueIndex(type);
-        const auto* q   = &available_queues[idx];
+        auto idx = QueueIndex(type);
+        const auto* q = &available_queues[idx];
 
         if (q->count == 0u) {
             idx = FindResembling(QueueTypes(idx));

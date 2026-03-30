@@ -1,10 +1,9 @@
+#include <glm/vec3.hpp>
+#include <iostream>
+#include <optional>
+#include <window.h>
 #include <wis_helper.h>
 #include <wis_swapchain.h>
-#include <window.h>
-#include <iostream>
-
-#include <glm/vec3.hpp>
-#include <optional>
 
 class App
 {
@@ -32,17 +31,17 @@ class App
     // Resources
     wis::RootSignature root;
     wis::PipelineState pipeline;
-    wis::Shader vs; // vertex shader
-    wis::Shader ps; // pixel shader
+    wis::Shader vs;                                   // vertex shader
+    wis::Shader ps;                                   // pixel shader
 
-    wis::Buffer vertex_buffer; // vertex buffer for triangle
+    wis::Buffer vertex_buffer;                        // vertex buffer for triangle
     wis::Buffer constant_buffersx[ex::flight_frames]; // constant buffer for triangle
     wis::Buffer constant_buffersy[ex::flight_frames]; // constant buffer for triangle
 
-    float* constant_datax[ex::flight_frames]; // constant buffer data
-    float* constant_datay[ex::flight_frames]; // constant buffer data
-    float offsetx = 0.0f; // x offset for the triangle
-    float offsety = 0.0f; // y offset for the triangle
+    float* constant_datax[ex::flight_frames];         // constant buffer data
+    float* constant_datay[ex::flight_frames];         // constant buffer data
+    float offsetx = 0.0f;                             // x offset for the triangle
+    float offsety = 0.0f;                             // y offset for the triangle
 
     // Descriptor buffers
     wis::DescriptorStorage desc_storage;
@@ -50,7 +49,6 @@ class App
 public:
     App()
     {
-        
 
         InitWindows();
         wis::Result result = wis::success;
@@ -62,14 +60,20 @@ public:
             textures[i] = swap[i].GetBufferSpan();
 
             for (size_t j = 0; j < ex::swap_buffer_count; j++) {
-                render_targets[i][j] = setup.device.CreateRenderTarget(result, textures[i][j], { .format = ex::swapchain_format });
+                render_targets[i][j] = setup.device.CreateRenderTarget(
+                    result,
+                    textures[i][j],
+                    {.format = ex::swapchain_format}
+                );
             }
         }
         fence = setup.device.CreateFence(result);
         cmd_list = setup.CreateLists();
 
         wis::DescriptorBindingDesc bindings[] = {
-            { .binding_type = wis::DescriptorType::ConstantBuffer, .binding_space = 1, .binding_count = ex::flight_frames * 2 },
+            {.binding_type = wis::DescriptorType::ConstantBuffer,
+             .binding_space = 1,
+             .binding_count = ex::flight_frames * 2},
         };
         desc_storage = setup.device.CreateDescriptorStorage(result, bindings, std::size(bindings));
 
@@ -80,23 +84,24 @@ public:
         };
         cover_texture = setup.allocator.CreateTexture(result, cover_desc);
 
-        cover_target = setup.device.CreateRenderTarget(result, cover_texture, { .format = ex::swapchain_format });
+        cover_target = setup.device.CreateRenderTarget(result, cover_texture, {.format = ex::swapchain_format});
 
         auto& cmd = cmd_list[0];
         auto& queue = setup.queue;
 
         cmd.TextureBarrier(
-                { .sync_before = wis::BarrierSync::None,
-                  .sync_after = wis::BarrierSync::None,
-                  .access_before = wis::ResourceAccess::NoAccess,
-                  .access_after = wis::ResourceAccess::NoAccess,
-                  .state_before = wis::TextureState::Undefined,
-                  .state_after = wis::TextureState::CopySource },
-                cover_texture);
+            {.sync_before = wis::BarrierSync::None,
+             .sync_after = wis::BarrierSync::None,
+             .access_before = wis::ResourceAccess::NoAccess,
+             .access_after = wis::ResourceAccess::NoAccess,
+             .state_before = wis::TextureState::Undefined,
+             .state_after = wis::TextureState::CopySource},
+            cover_texture
+        );
 
         cmd.Close();
 
-        wis::CommandListView lists[] = { cmd };
+        wis::CommandListView lists[] = {cmd};
         queue.ExecuteCommandLists(lists, 1);
         std::ignore = queue.SignalQueue(fence, fence_value);
         std::ignore = fence.Wait(fence_value++);
@@ -163,10 +168,10 @@ public:
         // ------------------------------
         // Second pass
         wis::RenderPassRenderTargetDesc targets2[]{
-            { .target = cover_target,
-              .load_op = wis::LoadOperation::Clear,
-              .store_op = wis::StoreOperation::Store,
-              .clear_value = { 0.5f, 0.5f, 0.5f, 1.0f } }
+            {.target = cover_target,
+             .load_op = wis::LoadOperation::Clear,
+             .store_op = wis::StoreOperation::Store,
+             .clear_value = {0.5f, 0.5f, 0.5f, 1.0f}}
         };
         wis::RenderPassDesc rp2{
             .target_count = 1,
@@ -181,13 +186,14 @@ public:
 
         // Insert barriers for the swapchain render target
         cmd2.TextureBarrier(
-                { .sync_before = wis::BarrierSync::None,
-                  .sync_after = wis::BarrierSync::RenderTarget,
-                  .access_before = wis::ResourceAccess::NoAccess,
-                  .access_after = wis::ResourceAccess::RenderTarget,
-                  .state_before = wis::TextureState::CopySource,
-                  .state_after = wis::TextureState::RenderTarget },
-                cover_texture);
+            {.sync_before = wis::BarrierSync::None,
+             .sync_after = wis::BarrierSync::RenderTarget,
+             .access_before = wis::ResourceAccess::NoAccess,
+             .access_after = wis::ResourceAccess::RenderTarget,
+             .state_before = wis::TextureState::CopySource,
+             .state_after = wis::TextureState::RenderTarget},
+            cover_texture
+        );
 
         cmd2.BeginRenderPass(rp2);
         cmd2.SetRootSignature(root); // always set root signature before binding resources
@@ -195,7 +201,10 @@ public:
         // Bind descriptor storage
         cmd2.SetDescriptorStorage(desc_storage);
 
-        uint32_t root_constants[] = { 0, ex::flight_frames }; // frame index and frame count to get offset to the second cbuffer
+        uint32_t root_constants[] = {
+            0,
+            ex::flight_frames
+        }; // frame index and frame count to get offset to the second cbuffer
         cmd2.SetPushConstants(root_constants, std::size(root_constants), 0, wis::ShaderStages::All);
 
         cmd2.IASetPrimitiveTopology(wis::PrimitiveTopology::TriangleList);
@@ -207,43 +216,46 @@ public:
         cmd2.IASetVertexBuffers(&vertex_binding, 1);
 
         auto [w, h, d] = cover_size;
-        cmd2.RSSetViewport({ 0, 0, float(w), float(h), 0, 1 });
-        cmd2.RSSetScissor({ 0, 0, int(w), int(h) });
+        cmd2.RSSetViewport({0, 0, float(w), float(h), 0, 1});
+        cmd2.RSSetScissor({0, 0, int(w), int(h)});
         cmd2.DrawInstanced(3);
         cmd2.EndRenderPass();
 
         // Insert barriers for the swapchain render target
         cmd2.TextureBarrier(
-                { .sync_before = wis::BarrierSync::Draw,
-                  .sync_after = wis::BarrierSync::Copy,
-                  .access_before = wis::ResourceAccess::RenderTarget,
-                  .access_after = wis::ResourceAccess::CopySource,
-                  .state_before = wis::TextureState::RenderTarget,
-                  .state_after = wis::TextureState::CopySource },
-                cover_texture);
+            {.sync_before = wis::BarrierSync::Draw,
+             .sync_after = wis::BarrierSync::Copy,
+             .access_before = wis::ResourceAccess::RenderTarget,
+             .access_after = wis::ResourceAccess::CopySource,
+             .state_before = wis::TextureState::RenderTarget,
+             .state_after = wis::TextureState::CopySource},
+            cover_texture
+        );
 
         for (size_t i = 0; i < kMonCount; i++) {
             cmd2.TextureBarrier(
-                    { .sync_before = wis::BarrierSync::None,
-                      .sync_after = wis::BarrierSync::Copy,
-                      .access_before = wis::ResourceAccess::NoAccess,
-                      .access_after = wis::ResourceAccess::CopyDest,
-                      .state_before = wis::TextureState::Present,
-                      .state_after = wis::TextureState::CopyDest },
-                    textures[i][frame_index[i]]);
+                {.sync_before = wis::BarrierSync::None,
+                 .sync_after = wis::BarrierSync::Copy,
+                 .access_before = wis::ResourceAccess::NoAccess,
+                 .access_after = wis::ResourceAccess::CopyDest,
+                 .state_before = wis::TextureState::Present,
+                 .state_after = wis::TextureState::CopyDest},
+                textures[i][frame_index[i]]
+            );
         }
 
         // copy the cover texture to the swapchain render target
         for (size_t i = 0; i < kMonCount; i++) {
             wis::TextureCopyRegion region{
-                .src = {
+                .src =
+                    {
                         .offset = offset_swap[i],
                         .size = size_swap[i],
                         .format = ex::swapchain_format,
-                },
+                    },
                 .dst = {
-                        .size = size_swap[i],
-                        .format = ex::swapchain_format,
+                    .size = size_swap[i],
+                    .format = ex::swapchain_format,
                 },
             };
             cmd2.CopyTexture(cover_texture, textures[i][frame_index[i]], &region, 1);
@@ -251,19 +263,20 @@ public:
 
         for (size_t i = 0; i < kMonCount; i++) {
             cmd2.TextureBarrier(
-                    { .sync_before = wis::BarrierSync::Copy,
-                      .sync_after = wis::BarrierSync::Draw,
-                      .access_before = wis::ResourceAccess::CopyDest,
-                      .access_after = wis::ResourceAccess::Common,
-                      .state_before = wis::TextureState::CopyDest,
-                      .state_after = wis::TextureState::Present },
-                    textures[i][frame_index[i]]);
+                {.sync_before = wis::BarrierSync::Copy,
+                 .sync_after = wis::BarrierSync::Draw,
+                 .access_before = wis::ResourceAccess::CopyDest,
+                 .access_after = wis::ResourceAccess::Common,
+                 .state_before = wis::TextureState::CopyDest,
+                 .state_after = wis::TextureState::Present},
+                textures[i][frame_index[i]]
+            );
         }
 
         // End recording
         cmd2.Close();
 
-        wis::CommandListView lists[] = { cmd2 };
+        wis::CommandListView lists[] = {cmd2};
         setup.queue.ExecuteCommandLists(lists, std::size(lists));
         for (size_t i = 0; i < kMonCount; i++) {
             std::ignore = swap[i].Present();
@@ -284,34 +297,48 @@ public:
         ps = ex::Unwrap(setup.device.CreateShader(ps_code.data(), ps_code.size()));
 
         // Create root for storage (it is bindless, so no reason to use tables anymore)
-        wis::PushConstant root_constants[]{
-            { .stage = wis::ShaderStages::All, .size_bytes = 2 * sizeof(uint32_t) }
-        };
+        wis::PushConstant root_constants[]{{.stage = wis::ShaderStages::All, .size_bytes = 2 * sizeof(uint32_t)}};
         wis::DescriptorBindingDesc bindings[] = {
-            { .binding_type = wis::DescriptorType::ConstantBuffer, .binding_space = 1, .space_overlap_count = 2, .binding_count = ex::flight_frames * 2 },
+            {.binding_type = wis::DescriptorType::ConstantBuffer,
+             .binding_space = 1,
+             .space_overlap_count = 2,
+             .binding_count = ex::flight_frames * 2},
         };
-        root = ex::Unwrap(setup.device.CreateRootSignature(root_constants, std::size(root_constants), nullptr, 0, bindings, std::size(bindings)));
+        root = ex::Unwrap(setup.device.CreateRootSignature(
+            root_constants,
+            std::size(root_constants),
+            nullptr,
+            0,
+            bindings,
+            std::size(bindings)
+        ));
 
         // Create pipeline
         {
             wis::InputSlotDesc input_slots[] = {
-                { .slot = 0, .stride_bytes = sizeof(glm::vec3), .input_class = wis::InputClass::PerVertex },
+                {.slot = 0, .stride_bytes = sizeof(glm::vec3), .input_class = wis::InputClass::PerVertex},
             };
             wis::InputAttribute input_attributes[] = {
-                { .input_slot = 0, .semantic_name = "POSITION", .semantic_index = 0, .location = 0, .format = wis::DataFormat::RGB32Float, .offset_bytes = 0 }
+                {.input_slot = 0,
+                 .semantic_name = "POSITION",
+                 .semantic_index = 0,
+                 .location = 0,
+                 .format = wis::DataFormat::RGB32Float,
+                 .offset_bytes = 0}
             };
             wis::GraphicsPipelineDesc desc{
                 .root_signature = root,
-                .input_layout = {
+                .input_layout =
+                    {
                         .slots = input_slots,
                         .slot_count = 1,
                         .attributes = input_attributes,
                         .attribute_count = 1,
-                },
-                .shaders = { .vertex = vs, .pixel = ps },
+                    },
+                .shaders = {.vertex = vs, .pixel = ps},
                 .attachments = {
-                        .attachment_formats = { ex::swapchain_format },
-                        .attachments_count = 1,
+                    .attachment_formats = {ex::swapchain_format},
+                    .attachments_count = 1,
                 },
             };
             pipeline = ex::Unwrap(setup.device.CreateGraphicsPipeline(desc));
@@ -319,20 +346,29 @@ public:
 
         // Create vertex buffer
         {
-            glm::vec3 triangle_vertices[] = {
-                { 0.0f, 0.5f, 0.0f },
-                { 0.5f, -0.5f, 0.0f },
-                { -0.5f, -0.5f, 0.0f }
-            };
-            vertex_buffer = setup.CreateAndUploadBuffer(std::span<glm::vec3>{ triangle_vertices }, wis::BufferUsage::VertexBuffer);
+            glm::vec3 triangle_vertices[] = {{0.0f, 0.5f, 0.0f}, {0.5f, -0.5f, 0.0f}, {-0.5f, -0.5f, 0.0f}};
+            vertex_buffer = setup.CreateAndUploadBuffer(
+                std::span<glm::vec3>{triangle_vertices},
+                wis::BufferUsage::VertexBuffer
+            );
         }
 
         // Create constant buffer
         {
-            
+
             for (size_t i = 0; i < ex::flight_frames; i++) {
-                constant_buffersx[i] = ex::Unwrap(setup.allocator.CreateBuffer(sizeof(float), wis::BufferUsage::CopySrc | wis::BufferUsage::ConstantBuffer, wis::MemoryType::Upload, wis::MemoryFlags::Mapped));
-                constant_buffersy[i] = ex::Unwrap(setup.allocator.CreateBuffer(sizeof(float), wis::BufferUsage::CopySrc | wis::BufferUsage::ConstantBuffer, wis::MemoryType::Upload, wis::MemoryFlags::Mapped));
+                constant_buffersx[i] = ex::Unwrap(setup.allocator.CreateBuffer(
+                    sizeof(float),
+                    wis::BufferUsage::CopySrc | wis::BufferUsage::ConstantBuffer,
+                    wis::MemoryType::Upload,
+                    wis::MemoryFlags::Mapped
+                ));
+                constant_buffersy[i] = ex::Unwrap(setup.allocator.CreateBuffer(
+                    sizeof(float),
+                    wis::BufferUsage::CopySrc | wis::BufferUsage::ConstantBuffer,
+                    wis::MemoryType::Upload,
+                    wis::MemoryFlags::Mapped
+                ));
                 desc_storage.WriteConstantBuffer(0, i, constant_buffersx[i], sizeof(float));
                 desc_storage.WriteConstantBuffer(0, ex::flight_frames + i, constant_buffersy[i], sizeof(float));
                 constant_datax[i] = static_cast<float*>(constant_buffersx[i].Map());
@@ -354,7 +390,7 @@ private:
         for (int i = 0; i < num_displays && i < kMonCount; i++) {
             SDL_GetDisplayBounds(displays[i], &bounds[i]);
         }
-        std::span<SDL_Rect> bounds_span{ bounds.get(), size_t(num_displays) };
+        std::span<SDL_Rect> bounds_span{bounds.get(), size_t(num_displays)};
 
         // Sort bounds by x coordinate
         std::sort(bounds_span.begin(), bounds_span.end(), [](const SDL_Rect& a, const SDL_Rect& b) {
@@ -362,7 +398,14 @@ private:
         });
 
         for (size_t i = 0; i < kMonCount; i++) {
-            window[i].emplace("multimon", bounds_span[i].x, bounds_span[i].y, bounds_span[i].w, bounds_span[i].h, SDL_WINDOW_FULLSCREEN);
+            window[i].emplace(
+                "multimon",
+                bounds_span[i].x,
+                bounds_span[i].y,
+                bounds_span[i].w,
+                bounds_span[i].h,
+                SDL_WINDOW_FULLSCREEN
+            );
         }
 
         // Set cover size to the size of all displays

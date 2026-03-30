@@ -1,22 +1,24 @@
 #ifndef WIS_DX12_FENCE_H
 #define WIS_DX12_FENCE_H
 #ifndef WISDOM_MODULE_DECL
-#include <d3d12.h>
-#include <wisdom/global/internal.h>
-#include <wisdom/util/com_ptr.h>
-#include <wisdom/dx12/dx12_checks.h>
-#include <wisdom/dx12/dx12_views.h>
-#include <wisdom/dx12/dx12_unique_event.h>
+#    include <wisdom/dx12/dx12_checks.h>
+#    include <wisdom/dx12/dx12_unique_event.h>
+#    include <wisdom/dx12/dx12_views.h>
+#    include <wisdom/global/internal.h>
+#    include <wisdom/util/com_ptr.h>
+
+#    include <d3d12.h>
 #endif
 
-namespace wis {
+namespace wis
+{
 WISDOM_EXPORT class DX12Fence;
 
 WISDOM_EXPORT
-template<>
+template <>
 struct Internal<DX12Fence> {
     wis::com_ptr<ID3D12Fence1> fence;
-    wis::unique_event          fence_event = CreateEventW(nullptr, false, false, nullptr);
+    wis::unique_event fence_event = CreateEventW(nullptr, false, false, nullptr);
 };
 
 class ImplDX12Fence : public QueryInternal<DX12Fence>
@@ -24,32 +26,23 @@ class ImplDX12Fence : public QueryInternal<DX12Fence>
 public:
     ImplDX12Fence() noexcept = default;
 
-    operator DX12FenceView() const noexcept
-    {
-        return fence.get();
-    }
+    operator DX12FenceView() const noexcept { return fence.get(); }
 
-    operator bool() const noexcept
-    {
-        return bool(fence);
-    }
+    operator bool() const noexcept { return bool(fence); }
 
 public:
-    [[nodiscard]] uint64_t
-    GetCompletedValue() const noexcept
-    {
-        return fence->GetCompletedValue();
-    }
+    [[nodiscard]] uint64_t GetCompletedValue() const noexcept { return fence->GetCompletedValue(); }
 
-    [[nodiscard]] WIS_INLINE wis::Result
-                             Wait(uint64_t value,
-                                  uint64_t wait_ns = std::numeric_limits<uint64_t>::max()) const noexcept;
+    [[nodiscard]] WIS_INLINE wis::Result Wait(
+        uint64_t value,
+        uint64_t wait_ns = std::numeric_limits<uint64_t>::max()
+    ) const noexcept;
 
-    [[nodiscard]] wis::Result
-    Signal(uint64_t value) const noexcept
+    [[nodiscard]] wis::Result Signal(uint64_t value) const noexcept
     {
         HRESULT hr = fence->Signal(value);
-        return !wis::detail::succeeded(hr) ? wis::make_result<wis::Func<wis::FuncD()>(), "Failed to signal fence">(hr) : wis::success;
+        return !wis::detail::succeeded(hr) ? wis::make_result<wis::Func<wis::FuncD()>(), "Failed to signal fence">(hr)
+                                           : wis::success;
     }
 };
 
@@ -62,9 +55,9 @@ class DX12Fence : public wis::ImplDX12Fence
 {
 public:
     using wis::ImplDX12Fence::ImplDX12Fence;
-    DX12Fence(const DX12Fence&)                = delete;
-    DX12Fence(DX12Fence&&) noexcept            = default;
-    DX12Fence& operator=(const DX12Fence&)     = delete;
+    DX12Fence(const DX12Fence&) = delete;
+    DX12Fence(DX12Fence&&) noexcept = default;
+    DX12Fence& operator=(const DX12Fence&) = delete;
     DX12Fence& operator=(DX12Fence&&) noexcept = default;
 
 public:
@@ -72,10 +65,7 @@ public:
      * @brief Get the current value of the fence.
      * @return Value of the fence.
      * */
-    inline uint64_t GetCompletedValue() const noexcept
-    {
-        return wis::ImplDX12Fence::GetCompletedValue();
-    }
+    inline uint64_t GetCompletedValue() const noexcept { return wis::ImplDX12Fence::GetCompletedValue(); }
     /**
      * @brief Wait on CPU for the fence to reach a certain value.
      * @param value Value to wait for.
@@ -89,16 +79,13 @@ public:
      * @brief Signal the fence from CPU.
      * @param value Value to signal.
      * */
-    [[nodiscard]] inline wis::Result Signal(uint64_t value) const noexcept
-    {
-        return wis::ImplDX12Fence::Signal(value);
-    }
+    [[nodiscard]] inline wis::Result Signal(uint64_t value) const noexcept { return wis::ImplDX12Fence::Signal(value); }
 };
 #pragma endregion DX12Fence
 
 } // namespace wis
 
 #ifndef WISDOM_BUILD_BINARIES
-#include "impl/dx12_fence.cpp"
+#    include "impl/dx12_fence.cpp"
 #endif // !WISDOM_HEADER_ONLY
 #endif // WIS_DX12_FENCE_H

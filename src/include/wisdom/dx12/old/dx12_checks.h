@@ -1,14 +1,15 @@
 #ifndef WIS_DX12_CHECKS_H
 #define WIS_DX12_CHECKS_H
 #ifndef WISDOM_MODULE_DECL
-#include <wisdom/util/error_messages.h>
-#include <wisdom/dx12/dx12_convert.h>
-#include <wisdom/dx12/dx12_info.h>
-#include <wisdom/global/constants.h>
+#    include <wisdom/dx12/dx12_convert.h>
+#    include <wisdom/dx12/dx12_info.h>
+#    include <wisdom/global/constants.h>
+#    include <wisdom/util/error_messages.h>
 #endif
 
 WISDOM_EXPORT
-namespace wis {
+namespace wis
+{
 /// @brief Log any errors in the current context
 /// @return true if there were any errors
 inline void log_dxgi_errors() noexcept
@@ -35,11 +36,11 @@ inline void check_context() noexcept
     }
 }
 
-template<wis::fixed_string func, wis::fixed_string message>
+template <wis::fixed_string func, wis::fixed_string message>
 WIS_CONSTEXPR23 inline wis::Result wis::detail::make_result(HRESULT hr) noexcept
 {
     static WIS_CONSTEXPR23 auto str = wis::make_error_string<func, message>();
-    return wis::Result{ convert(hr), str.c_str() };
+    return wis::Result{convert(hr), str.c_str()};
 }
 
 } // namespace wis

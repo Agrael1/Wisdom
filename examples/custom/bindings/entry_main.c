@@ -1,4 +1,5 @@
 #include <wisdom.h>
+
 #include <stdio.h>
 
 void ExDebugCallback(WisSeverity sev, const char* message, void* user_data)
@@ -15,7 +16,7 @@ bool CreateApp(struct AppData* uninit_app)
 {
     WisFactory factory = NULL;
     WisFactoryExtQuery exts[] = {
-        { FactoryExtIDDebugExtension, NULL },
+        {FactoryExtIDDebugExtension, NULL},
     };
 
     WisCreateFactory(true, exts, 1, &factory);
@@ -30,7 +31,7 @@ bool CreateApp(struct AppData* uninit_app)
         WisResult result = WisFactoryGetAdapter(factory, i, AdapterPreferencePerformance, &adapter);
 
         if (result.status == StatusOk) {
-            WisAdapterDesc desc = { 0 };
+            WisAdapterDesc desc = {0};
             WisAdapterGetDesc(adapter, &desc);
             printf("Adapter: %s\n", desc.description);
 
@@ -56,7 +57,7 @@ void DestroyApp(struct AppData* app)
 
 int main()
 {
-    struct AppData app = { 0 };
+    struct AppData app = {0};
     CreateApp(&app);
     DestroyApp(&app);
     return 0;

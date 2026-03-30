@@ -2,6 +2,7 @@
 
 #include <wisdom/wisdom.hpp>
 #include <wisdom/wisdom_platform.hpp>
+
 #include <iostream>
 
 void log_callback(wis::Severity severity, const char* message, uint64_t device, void* user_data) noexcept
@@ -33,11 +34,11 @@ void log_callback(wis::Severity severity, const char* message, uint64_t device, 
 // Entry point for testing
 int main()
 {
-    wis::Result    result;
+    wis::Result result;
     wis::DebugDesc debug_desc;
     debug_desc.enable_debug_layer = true;
-    debug_desc.callback           = log_callback;
-    debug_desc.user_data          = nullptr;
+    debug_desc.callback = log_callback;
+    debug_desc.user_data = nullptr;
 
     wis::Instance instance = wis::CreateInstance(&debug_desc, {}, result);
     if (result.status != wis::Status::Ok) {
@@ -55,13 +56,12 @@ int main()
     std::cout << "Adapter count: " << adapter_count << "\n";
 
     wis::CommandQueueDesc queue_desc[] = {
-        { wis::CommandQueueType::Graphics,   wis::CommandQueuePriority::High },
-        {  wis::CommandQueueType::Compute, wis::CommandQueuePriority::Normal },
+        {wis::CommandQueueType::Graphics, wis::CommandQueuePriority::High},
+        {wis::CommandQueueType::Compute, wis::CommandQueuePriority::Normal},
     };
 
     wis::DeviceRequirements device_requirements{};
-    device_requirements.queue_descs = queue_desc,
-    device_requirements.extensions  = {};
+    device_requirements.queue_descs = queue_desc, device_requirements.extensions = {};
 
     wis::Device device;
     for (size_t i = 0; i < adapter_count; ++i) {
@@ -70,10 +70,8 @@ int main()
             std::cerr << "Failed to get adapter desc for adapter " << i << ": " << result.error << "\n";
             continue;
         }
-        std::cout << "Adapter " << i << ": Name: " << desc.description.data()
-                  << ", VendorID: " << desc.vendor_id
-                  << ", DeviceID: " << desc.device_id
-                  << ", DedicatedVideoMemory: " << desc.dedicated_video_memory
+        std::cout << "Adapter " << i << ": Name: " << desc.description.data() << ", VendorID: " << desc.vendor_id
+                  << ", DeviceID: " << desc.device_id << ", DedicatedVideoMemory: " << desc.dedicated_video_memory
                   << ", SharedSystemMemory: " << desc.shared_system_memory
                   << ", Flags: " << static_cast<uint32_t>(desc.flags) << "\n";
 
@@ -117,10 +115,10 @@ int main()
     }
 
     wis::DescriptorHeapDesc srv_heap_desc{
-        .type             = wis::DescriptorHeapType::Descriptor,
-        .memory_type      = wis::DescriptorMemoryType::ShaderVisible,
+        .type = wis::DescriptorHeapType::Descriptor,
+        .memory_type = wis::DescriptorMemoryType::ShaderVisible,
         .descriptor_count = 10,
-        .flags            = wis::DescriptorHeapFlags::None,
+        .flags = wis::DescriptorHeapFlags::None,
     };
     wis::DescriptorHeap srv_heap = device.CreateDescriptorHeap(srv_heap_desc, result);
     if (result.status != wis::Status::Ok) {
@@ -129,16 +127,16 @@ int main()
     }
 
     wis::TextureDesc texture_desc{
-        .width               = 256,
-        .height              = 256,
+        .width = 256,
+        .height = 256,
         .depth_or_array_size = 1,
-        .mip_levels          = 1,
-        .format              = wis::DataFormat::BGRA8Unorm,
-        .sample_count        = wis::SampleCount::S1,
-        .layout              = wis::TextureLayout::Texture2D,
-        .usage_flags         = wis::TextureUsageFlags::CopyDst | wis::TextureUsageFlags::ShaderResource,
-        .memory_type         = wis::MemoryType::DeviceLocal,
-        .memory_flags        = wis::MemoryFlags::None,
+        .mip_levels = 1,
+        .format = wis::DataFormat::BGRA8Unorm,
+        .sample_count = wis::SampleCount::S1,
+        .layout = wis::TextureLayout::Texture2D,
+        .usage_flags = wis::TextureUsageFlags::CopyDst | wis::TextureUsageFlags::ShaderResource,
+        .memory_type = wis::MemoryType::DeviceLocal,
+        .memory_flags = wis::MemoryFlags::None,
     };
     wis::Texture texture = resource_allocator.CreateTexture(texture_desc, result);
 

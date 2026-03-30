@@ -1,17 +1,19 @@
 #ifndef WIS_VK_FENCE_H
 #define WIS_VK_FENCE_H
 #ifndef WISDOM_MODULE_DECL
-#include <wisdom/vulkan/vk_views.h>
-#include <wisdom/vulkan/vk_checks.h>
-#include <wisdom/global/internal.h>
-#include <limits>
+#    include <wisdom/global/internal.h>
+#    include <wisdom/vulkan/vk_checks.h>
+#    include <wisdom/vulkan/vk_views.h>
+
+#    include <limits>
 #endif // !WISDOM_MODULE_DECL
 
-namespace wis {
+namespace wis
+{
 WISDOM_EXPORT class VKFence;
 
 WISDOM_EXPORT
-template<>
+template <>
 struct Internal<VKFence> {
     wis::managed_handle_ex<VkSemaphore> fence;
 };
@@ -20,14 +22,8 @@ class ImplVKFence : public QueryInternal<VKFence>
 {
 public:
     ImplVKFence() = default;
-    operator VKFenceView() const noexcept
-    {
-        return fence.get();
-    }
-    operator bool() const noexcept
-    {
-        return bool(fence);
-    }
+    operator VKFenceView() const noexcept { return fence.get(); }
+    operator bool() const noexcept { return bool(fence); }
 
 public:
     /// @brief Get the current value of the fence.
@@ -37,14 +33,14 @@ public:
     /// @brief Wait for the fence to reach a certain value.
     /// @param value Value to wait for.
     /// @return Boolean indicating whether the fence reached the value.
-    [[nodiscard]] WIS_INLINE wis::Result
-                             Wait(uint64_t value,
-                                  uint64_t wait_ns = std::numeric_limits<uint64_t>::max()) const noexcept;
+    [[nodiscard]] WIS_INLINE wis::Result Wait(
+        uint64_t value,
+        uint64_t wait_ns = std::numeric_limits<uint64_t>::max()
+    ) const noexcept;
 
     /// @brief Signal the fence from CPU.
     /// @param value Value to signal.
-    [[nodiscard]] WIS_INLINE wis::Result
-                             Signal(uint64_t value) const noexcept;
+    [[nodiscard]] WIS_INLINE wis::Result Signal(uint64_t value) const noexcept;
 };
 
 #pragma region VKFence
@@ -56,9 +52,9 @@ class VKFence : public wis::ImplVKFence
 {
 public:
     using wis::ImplVKFence::ImplVKFence;
-    VKFence(const VKFence&)                = delete;
-    VKFence(VKFence&&) noexcept            = default;
-    VKFence& operator=(const VKFence&)     = delete;
+    VKFence(const VKFence&) = delete;
+    VKFence(VKFence&&) noexcept = default;
+    VKFence& operator=(const VKFence&) = delete;
     VKFence& operator=(VKFence&&) noexcept = default;
 
 public:
@@ -66,10 +62,7 @@ public:
      * @brief Get the current value of the fence.
      * @return Value of the fence.
      * */
-    inline uint64_t GetCompletedValue() const noexcept
-    {
-        return wis::ImplVKFence::GetCompletedValue();
-    }
+    inline uint64_t GetCompletedValue() const noexcept { return wis::ImplVKFence::GetCompletedValue(); }
     /**
      * @brief Wait on CPU for the fence to reach a certain value.
      * @param value Value to wait for.
@@ -83,16 +76,13 @@ public:
      * @brief Signal the fence from CPU.
      * @param value Value to signal.
      * */
-    [[nodiscard]] inline wis::Result Signal(uint64_t value) const noexcept
-    {
-        return wis::ImplVKFence::Signal(value);
-    }
+    [[nodiscard]] inline wis::Result Signal(uint64_t value) const noexcept { return wis::ImplVKFence::Signal(value); }
 };
 #pragma endregion VKFence
 
 } // namespace wis
 
 #ifndef WISDOM_BUILD_BINARIES
-#include "impl/vk_fence.cpp"
+#    include "impl/vk_fence.cpp"
 #endif // !WISDOM_HEADER_ONLY
 #endif // VK_FENCE_H

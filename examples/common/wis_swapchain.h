@@ -1,13 +1,25 @@
 #pragma once
 #include "wis_helper.h"
 
-namespace ex {
+namespace ex
+{
 class Swapchain
 {
 public:
     Swapchain() = default;
-    Swapchain(wis::Device& device, wis::SwapChain xswap, uint32_t width, uint32_t height, wis::DataFormat format = ex::swapchain_format, bool stereo = false)
-        : swap(std::move(xswap)), width(width), height(height), stereo(stereo), format(format)
+    Swapchain(
+        wis::Device& device,
+        wis::SwapChain xswap,
+        uint32_t width,
+        uint32_t height,
+        wis::DataFormat format = ex::swapchain_format,
+        bool stereo = false
+    )
+        : swap(std::move(xswap))
+        , width(width)
+        , height(height)
+        , stereo(stereo)
+        , format(format)
     {
         fence = Unwrap(device.CreateFence(0));
         textures = swap.GetBufferSpan();
@@ -29,10 +41,7 @@ public:
     }
 
 public:
-    void Throttle() noexcept
-    {
-        CheckResult(fence.Wait(fence_values[frame_index] - 1));
-    }
+    void Throttle() noexcept { CheckResult(fence.Wait(fence_values[frame_index] - 1)); }
     bool Present(wis::CommandQueue& main_queue)
     {
         auto res = swap.Present();
@@ -64,42 +73,21 @@ public:
             render_targets[i] = Unwrap(device.CreateRenderTarget(textures[i], rt_desc));
         }
     }
-    uint32_t CurrentFrame() const
-    {
-        return swap.GetCurrentIndex();
-    }
-    const wis::SwapChain& GetSwapChain() const
-    {
-        return swap;
-    }
-    uint32_t GetWidth() const
-    {
-        return width;
-    }
-    uint32_t GetHeight() const
-    {
-        return height;
-    }
+    uint32_t CurrentFrame() const { return swap.GetCurrentIndex(); }
+    const wis::SwapChain& GetSwapChain() const { return swap; }
+    uint32_t GetWidth() const { return width; }
+    uint32_t GetHeight() const { return height; }
 
-    std::span<const wis::Texture> GetTextures() const
-    {
-        return textures;
-    }
-    const wis::Texture& GetTexture(size_t i) const
-    {
-        return textures[i];
-    }
-    const wis::RenderTarget& GetRenderTarget(size_t i) const
-    {
-        return render_targets[i];
-    }
+    std::span<const wis::Texture> GetTextures() const { return textures; }
+    const wis::Texture& GetTexture(size_t i) const { return textures[i]; }
+    const wis::RenderTarget& GetRenderTarget(size_t i) const { return render_targets[i]; }
 
 private:
     wis::SwapChain swap;
     wis::Fence fence;
     uint64_t fence_value = 1;
     uint64_t frame_index = 0;
-    std::array<uint64_t, ex::flight_frames> fence_values{ 1, 0 };
+    std::array<uint64_t, ex::flight_frames> fence_values{1, 0};
 
     std::span<const wis::Texture> textures;
     std::array<wis::RenderTarget, ex::swap_buffer_count> render_targets;

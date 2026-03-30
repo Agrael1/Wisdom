@@ -1,17 +1,20 @@
 #ifndef WIS_INTERNAL_HPP
 #define WIS_INTERNAL_HPP
 #ifdef __cplusplus
-#include <wisdom/util/allocation.hpp>
-#include <cstdio>
-#include <cstring>
+#    include <wisdom/util/allocation.hpp>
 
-namespace wis {
-namespace impl {
+#    include <cstdio>
+#    include <cstring>
+
+namespace wis
+{
+namespace impl
+{
 
 /// @brief Implements class for querying the internal implementation
 /// @tparam Impl Implementation class type, passed to Internal
 /// @tparam Storage Storage type for the internal implementation
-template<typename Impl, typename Storage, typename Deleter>
+template <typename Impl, typename Storage, typename Deleter>
 struct Implements {
     static_assert(sizeof(Storage) >= sizeof(Impl), "Storage size must be at least the size of Impl");
     static_assert(alignof(Storage) >= alignof(Impl), "Storage alignment must be at least the alignment of Impl");
@@ -26,7 +29,7 @@ public:
     }
 
     /// @brief Default constructor, zeros the storage
-    template<typename... Args>
+    template <typename... Args>
     Implements(std::in_place_t in_place, Args&&... args) noexcept
     {
         (void)in_place;
@@ -35,7 +38,7 @@ public:
     }
 
     // Disable copy
-    Implements(const Implements&)            = delete;
+    Implements(const Implements&) = delete;
     Implements& operator=(const Implements&) = delete;
 
     /// @brief Move constructor
@@ -72,10 +75,7 @@ public:
     }
 
     /// @brief Destructor, calls the Deleter on the internal implementation
-    ~Implements() noexcept
-    {
-        Deleter{}(GetStorage());
-    }
+    ~Implements() noexcept { Deleter{}(GetStorage()); }
 
 public:
     /// @brief Get the immutable internal implementation
@@ -94,10 +94,7 @@ public:
 
     /// @brief Get the storage pointer
     /// @return Pointer to the storage
-    [[nodiscard]] Storage* GetStorage() noexcept
-    {
-        return &_impl_storage;
-    }
+    [[nodiscard]] Storage* GetStorage() noexcept { return &_impl_storage; }
 
     /// @brief Check if the handle holds a valid object
     /// @return true if the first 8 bytes of storage are non-zero
@@ -108,17 +105,14 @@ public:
     }
 
     /// @brief Bool conversion, checks handle validity
-    explicit operator bool() const noexcept
-    {
-        return IsValid();
-    }
+    explicit operator bool() const noexcept { return IsValid(); }
 
 public:
     Storage _impl_storage;
 };
 } // namespace impl
 
-template<typename WisClass>
+template <typename WisClass>
 auto view_of(const WisClass& obj) -> decltype(obj.GetView())
 {
     return obj.GetView();

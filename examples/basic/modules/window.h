@@ -8,7 +8,8 @@ import wisdom.fvk;
 import wisdom;
 #endif
 
-namespace ex {
+namespace ex
+{
 static inline constexpr uint32_t swap_buffer_count = 2;
 static inline constexpr uint32_t flight_frames = 2;
 static inline constexpr wis::DataFormat swapchain_format = wis::DataFormat::RGBA8Unorm; // supported by all APIs
@@ -16,34 +17,20 @@ static inline constexpr wis::DataFormat swapchain_format = wis::DataFormat::RGBA
 class Instance
 {
 public:
-    Instance()
-    {
-        SDL_Init(SDL_INIT_VIDEO);
-    }
-    ~Instance()
-    {
-        SDL_Quit();
-    }
+    Instance() { SDL_Init(SDL_INIT_VIDEO); }
+    ~Instance() { SDL_Quit(); }
 };
 
 class PlatformExtension
 {
 public:
-    enum class Selector {
-        None,
-        Windows,
-        X11,
-        Wayland
-    };
+    enum class Selector { None, Windows, X11, Wayland };
 
 public:
     PlatformExtension();
 
 public:
-    wis::FactoryExtension* get() noexcept
-    {
-        return platform.get();
-    }
+    wis::FactoryExtension* get() noexcept { return platform.get(); }
 
 public:
     Selector current = Selector::None;
@@ -71,28 +58,26 @@ public:
         window = SDL_CreateWindowWithProperties(props);
         SDL_DestroyProperties(props);
     }
-    ~Window()
-    {
-        SDL_DestroyWindow(window);
-    }
-    SDL_Window* GetWindow() const
-    {
-        return window;
-    }
+    ~Window() { SDL_DestroyWindow(window); }
+    SDL_Window* GetWindow() const { return window; }
 
 public:
-    wis::FactoryExtension* GetPlatformExtension()
-    {
-        return _platform.get();
-    }
-    wis::SwapChain CreateSwapchain(wis::Result& result, ex::PlatformExtension& external_ext, wis::Device& device, wis::CommandQueue& queue, wis::DataFormat fmt = ex::swapchain_format, bool stereo = false);
+    wis::FactoryExtension* GetPlatformExtension() { return _platform.get(); }
+    wis::SwapChain CreateSwapchain(
+        wis::Result& result,
+        ex::PlatformExtension& external_ext,
+        wis::Device& device,
+        wis::CommandQueue& queue,
+        wis::DataFormat fmt = ex::swapchain_format,
+        bool stereo = false
+    );
 
     void PostQuit();
     std::pair<int, int> PixelSize() const noexcept
     {
         int w = 0, h = 0;
         SDL_GetWindowSizeInPixels(window, &w, &h);
-        return { w, h };
+        return {w, h};
     }
 
 private:

@@ -8,23 +8,25 @@
  *          for MinGW/Clang/GCC compilers. C++11 compatible.
  */
 
+#include <atomic>
 #include <cstdint>
 #include <utility>
-#include <atomic>
 
 // ============================================================================
 // GUID Support Detection and Traits
 // ============================================================================
 
 #if defined(_WIN32)
-#include <guiddef.h>
-#include <unknwn.h>
-namespace wis {
+#    include <guiddef.h>
+#    include <unknwn.h>
+namespace wis
+{
 using GUID = ::GUID;
 using hresult = HRESULT;
 } // namespace wis
 #else
-namespace wis {
+namespace wis
+{
 /**
  * @brief Platform-independent GUID structure.
  * @details Used on non-Windows platforms where guiddef.h is unavailable.
@@ -33,7 +35,7 @@ struct GUID {
     uint32_t Data1;
     uint16_t Data2;
     uint16_t Data3;
-    uint8_t  Data4[8];
+    uint8_t Data4[8];
 };
 } // namespace wis
 
@@ -45,10 +47,11 @@ using hresult = std::int32_t;
 
 // Define STDMETHODCALLTYPE macro for non-Windows platforms to avoid compilation errors
 #ifndef STDMETHODCALLTYPE
-#define STDMETHODCALLTYPE
+#    define STDMETHODCALLTYPE
 #endif // STDMETHODCALLTYPE
 
-namespace wis {
+namespace wis
+{
 // ============================================================================
 // GUID Support Detection and Traits
 // ============================================================================
@@ -67,12 +70,9 @@ struct has_uuidof_support_tag {
  * @tparam T The COM interface type.
  * @details On MSVC, uses the built-in __uuidof operator.
  */
-template<typename T>
+template <typename T>
 struct guid_of {
-    static constexpr GUID get()
-    {
-        return __uuidof(T);
-    }
+    static constexpr GUID get() { return __uuidof(T); }
 };
 
 /**
@@ -80,7 +80,7 @@ struct guid_of {
  * @tparam T The COM interface type.
  * @return The GUID associated with type T.
  */
-template<typename T>
+template <typename T>
 inline constexpr GUID guid_of_v()
 {
     return guid_of<T>::get();
@@ -89,7 +89,7 @@ inline constexpr GUID guid_of_v()
 /**
  * @brief Macro to define GUID for a type (no-op on MSVC).
  */
-#define WIS_DEFINE_GUID(type, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8)
+#    define WIS_DEFINE_GUID(type, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8)
 
 #else
 /**
@@ -105,7 +105,7 @@ struct has_uuidof_support_tag {
  * @tparam T The COM interface type.
  * @details Must be specialized using WIS_DEFINE_GUID macro.
  */
-template<typename T>
+template <typename T>
 struct guid_of;
 
 /**
@@ -113,7 +113,7 @@ struct guid_of;
  * @tparam T The COM interface type.
  * @return The GUID associated with type T.
  */
-template<typename T>
+template <typename T>
 inline constexpr GUID guid_of_v()
 {
     return guid_of<T>::get();
@@ -134,19 +134,14 @@ inline constexpr GUID guid_of_v()
  *                 0xbe, 0x54, 0x18, 0x21, 0x33, 0x9b, 0x85, 0xf7);
  * @endcode
  */
-#define WIS_DEFINE_GUID(type, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) \
-    template<>                                                           \
-    struct wis::guid_of<type> {                                          \
-        static constexpr wis::GUID get() noexcept                        \
-        {                                                                \
-            return wis::GUID{                                            \
-                l,                                                       \
-                w1,                                                      \
-                w2,                                                      \
-                { b1, b2, b3, b4, b5, b6, b7, b8 }                       \
-            };                                                           \
-        }                                                                \
-    };
+#    define WIS_DEFINE_GUID(type, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8)   \
+        template <>                                                            \
+        struct wis::guid_of<type> {                                            \
+            static constexpr wis::GUID get() noexcept                          \
+            {                                                                  \
+                return wis::GUID{l, w1, w2, {b1, b2, b3, b4, b5, b6, b7, b8}}; \
+            }                                                                  \
+        };
 #endif
 
 /**
@@ -160,7 +155,7 @@ struct take_ownership_t {
  * @brief Tag instance for take_ownership_t.
  * @see take_ownership_t
  */
-static constexpr take_ownership_t take_ownership = { };
+static constexpr take_ownership_t take_ownership = {};
 
 /**
  * @brief A smart pointer for COM interface reference counting.
@@ -183,10 +178,10 @@ static constexpr take_ownership_t take_ownership = { };
  * }
  * @endcode
  */
-template<class T>
+template <class T>
 class com_ptr
 {
-    template<typename U>
+    template <typename U>
     friend class com_ptr;
 
 public:
@@ -245,7 +240,7 @@ public:
      * @param other Source com_ptr to copy from.
      * @note Increments reference count.
      */
-    template<class U>
+    template <class U>
     com_ptr(const com_ptr<U>& other) noexcept
         : ptr(other.ptr)
     {
@@ -269,7 +264,7 @@ public:
      * @param other Source com_ptr to move from (will be nulled).
      * @note Does NOT increment reference count.
      */
-    template<class U>
+    template <class U>
     com_ptr(com_ptr<U>&& other) noexcept
         : ptr(other.ptr)
     {
@@ -290,10 +285,7 @@ public:
     /**
      * @brief Destructor. Releases the held pointer.
      */
-    ~com_ptr() noexcept
-    {
-        release();
-    }
+    ~com_ptr() noexcept { release(); }
 
     // ========================================================================
     // Assignment Operators
@@ -305,7 +297,7 @@ public:
      * @param other Source com_ptr to copy from.
      * @return Reference to this.
      */
-    template<class U>
+    template <class U>
     com_ptr& operator=(const com_ptr<U>& other) noexcept
     {
         copy_ref(other.ptr);
@@ -329,11 +321,11 @@ public:
      * @param other Source com_ptr to move from (will be nulled).
      * @return Reference to this.
      */
-    template<class U>
+    template <class U>
     com_ptr& operator=(com_ptr<U>&& other) noexcept
     {
         release();
-        ptr       = other.ptr;
+        ptr = other.ptr;
         other.ptr = nullptr;
         return *this;
     }
@@ -347,7 +339,7 @@ public:
     {
         if (this != &other) {
             release();
-            ptr       = other.ptr;
+            ptr = other.ptr;
             other.ptr = nullptr;
         }
         return *this;
@@ -361,28 +353,19 @@ public:
      * @brief Boolean conversion operator.
      * @return True if pointer is non-null.
      */
-    explicit operator bool() const noexcept
-    {
-        return ptr != nullptr;
-    }
+    explicit operator bool() const noexcept { return ptr != nullptr; }
 
     /**
      * @brief Member access operator.
      * @return The raw pointer.
      */
-    pointer operator->() const noexcept
-    {
-        return ptr;
-    }
+    pointer operator->() const noexcept { return ptr; }
 
     /**
      * @brief Dereference operator.
      * @return Reference to the pointed object.
      */
-    T& operator*() const noexcept
-    {
-        return *ptr;
-    }
+    T& operator*() const noexcept { return *ptr; }
 
     // ========================================================================
     // Public Methods
@@ -393,19 +376,13 @@ public:
      * @return The GUID associated with type T.
      * @note Only available when __uuidof is supported or GUID is specialized.
      */
-    static constexpr GUID iid() noexcept
-    {
-        return guid_of_v<T>();
-    }
+    static constexpr GUID iid() noexcept { return guid_of_v<T>(); }
 
     /**
      * @brief Gets the raw pointer.
      * @return The raw pointer (does not transfer ownership).
      */
-    pointer get() const noexcept
-    {
-        return ptr;
-    }
+    pointer get() const noexcept { return ptr; }
 
     /**
      * @brief Releases current pointer and returns address for output parameter.
@@ -435,10 +412,7 @@ public:
      * factory->CreateFoo(foo.iid(), foo.put_void());
      * @endcode
      */
-    void** put_void() noexcept
-    {
-        return reinterpret_cast<void**>(put());
-    }
+    void** put_void() noexcept { return reinterpret_cast<void**>(put()); }
 
     /**
      * @brief Attaches a raw pointer without incrementing reference count.
@@ -461,7 +435,7 @@ public:
     pointer detach() noexcept
     {
         pointer tmp = ptr;
-        ptr         = nullptr;
+        ptr = nullptr;
         return tmp;
     }
 
@@ -472,8 +446,8 @@ public:
     void swap(com_ptr& other) noexcept
     {
         pointer tmp = ptr;
-        ptr         = other.ptr;
-        other.ptr   = tmp;
+        ptr = other.ptr;
+        other.ptr = tmp;
     }
 
     /**
@@ -483,7 +457,7 @@ public:
      * @return HRESULT indicating success or failure.
      * @note Only available when __uuidof is supported (MSVC).
      */
-    template<typename To>
+    template <typename To>
     hresult as(com_ptr<To>* out) const noexcept
     {
         return ptr->QueryInterface(guid_of_v<To>(), out->put_void());
@@ -496,7 +470,7 @@ public:
      * @param out Output com_ptr to receive the queried interface.
      * @return HRESULT indicating success or failure.
      */
-    template<typename To>
+    template <typename To>
     hresult as(GUID guid, com_ptr<To>* out) const noexcept
     {
         return ptr->QueryInterface(guid, out->put_void());
@@ -506,10 +480,7 @@ public:
      * @brief Copies from another raw pointer (increments ref count).
      * @param other Raw pointer to copy from.
      */
-    void copy_from(T* other) noexcept
-    {
-        copy_ref(other);
-    }
+    void copy_from(T* other) noexcept { copy_ref(other); }
 
     /**
      * @brief Copies to another raw pointer location (increments ref count).
@@ -524,10 +495,7 @@ public:
     /**
      * @brief Releases the held pointer and sets to nullptr.
      */
-    void reset() noexcept
-    {
-        release();
-    }
+    void reset() noexcept { release(); }
 
     /**
      * @brief Returns void** without releasing (unchecked).
@@ -535,10 +503,7 @@ public:
      * @warning Use only when you know the pointer is already null or
      *          you're handling ownership manually.
      */
-    void** put_void_unchecked() noexcept
-    {
-        return reinterpret_cast<void**>(&ptr);
-    }
+    void** put_void_unchecked() noexcept { return reinterpret_cast<void**>(&ptr); }
 
     /**
      * @brief Returns T** without releasing (unchecked).
@@ -546,10 +511,7 @@ public:
      * @warning Use only when you know the pointer is already null or
      *          you're handling ownership manually.
      */
-    pointer* put_unchecked() noexcept
-    {
-        return &ptr;
-    }
+    pointer* put_unchecked() noexcept { return &ptr; }
 
 private:
     // ========================================================================
@@ -604,7 +566,7 @@ private:
  *          AddRef, and Release implementations. The template parameter T is used
  *          to determine the correct GUID for QueryInterface.
  */
-template<class CRTP, class T>
+template <class CRTP, class T>
 class IUnknownImpl : public T
 {
 protected:
@@ -646,7 +608,7 @@ public:
     }
 
 private:
-    std::atomic<unsigned long> ref_count{ 1 }; ///< Reference count for the COM object.
+    std::atomic<unsigned long> ref_count{1}; ///< Reference count for the COM object.
 };
 } // namespace wis
 

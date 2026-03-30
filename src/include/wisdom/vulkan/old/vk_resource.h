@@ -1,12 +1,13 @@
 #ifndef WIS_VK_RESOURCE_H
 #define WIS_VK_RESOURCE_H
 #ifndef WISDOM_MODULE_DECL
-#include <wisdom/vulkan/vk_memory.h>
-#include <wisdom/vulkan/vk_views.h>
-#include <wisdom/generated/api/api.hpp>
+#    include <wisdom/generated/api/api.hpp>
+#    include <wisdom/vulkan/vk_memory.h>
+#    include <wisdom/vulkan/vk_views.h>
 #endif // !WISDOM_MODULE_DECL
 
-namespace wis {
+namespace wis
+{
 WISDOM_EXPORT class VKBuffer;
 WISDOM_EXPORT class VKTexture;
 WISDOM_EXPORT class VKShaderResource;
@@ -14,12 +15,12 @@ WISDOM_EXPORT class VKRenderTarget;
 WISDOM_EXPORT class VKSampler;
 
 WISDOM_EXPORT
-template<>
+template <>
 struct Internal<VKBuffer> {
     wis::VKMemory memory;
-    h::VkBuffer   buffer;
+    h::VkBuffer buffer;
 
-    Internal() noexcept           = default;
+    Internal() noexcept = default;
     Internal(Internal&&) noexcept = default;
     Internal& operator=(Internal&& o) noexcept
     {
@@ -31,10 +32,7 @@ struct Internal<VKBuffer> {
         buffer = std::move(o.buffer);
         return *this;
     }
-    ~Internal() noexcept
-    {
-        Destroy();
-    }
+    ~Internal() noexcept { Destroy(); }
 
     void Destroy() noexcept
     {
@@ -49,53 +47,38 @@ class ImplVKBuffer : public QueryInternal<VKBuffer>
 {
 public:
     ImplVKBuffer() noexcept = default;
-    operator VKBufferView() const noexcept
-    {
-        return { buffer };
-    }
-    operator bool() const noexcept
-    {
-        return bool(buffer);
-    }
+    operator VKBufferView() const noexcept { return {buffer}; }
+    operator bool() const noexcept { return bool(buffer); }
 
 public:
-    template<typename T = void>
+    template <typename T = void>
     T* Map() const noexcept
     {
         return static_cast<T*>(memory.VKMap());
     }
-    void* MapRaw() const noexcept
-    {
-        return memory.VKMap();
-    }
-    void Unmap() const noexcept
-    {
-        memory.VKUnmap();
-    }
+    void* MapRaw() const noexcept { return memory.VKMap(); }
+    void Unmap() const noexcept { memory.VKUnmap(); }
 
     [[nodiscard]]
     uint64_t GetGPUAddress() const noexcept
     {
-        auto&                     device = memory.GetInternal().allocator.header();
-        VkBufferDeviceAddressInfo info{
-            .sType  = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,
-            .buffer = buffer
-        };
+        auto& device = memory.GetInternal().allocator.header();
+        VkBufferDeviceAddressInfo info{.sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO, .buffer = buffer};
         return device.table().vkGetBufferDeviceAddress(device.get(), &info);
     }
 };
 
 WISDOM_EXPORT
-template<>
+template <>
 class Internal<VKTexture>
 {
 public:
     wis::VKMemory memory;
-    h::VkImage    buffer;
-    VkFormat      format{};
-    wis::Size2D   size{};
+    h::VkImage buffer;
+    VkFormat format{};
+    wis::Size2D size{};
 
-    Internal() noexcept                 = default;
+    Internal() noexcept = default;
     Internal(Internal&& other) noexcept = default;
     Internal& operator=(Internal&& other) noexcept
     {
@@ -106,13 +89,10 @@ public:
         memory = std::move(other.memory);
         buffer = std::move(other.buffer);
         format = std::move(other.format);
-        size   = std::move(other.size);
+        size = std::move(other.size);
         return *this;
     }
-    ~Internal() noexcept
-    {
-        Destroy();
-    }
+    ~Internal() noexcept { Destroy(); }
 
     void Destroy() noexcept
     {
@@ -128,23 +108,17 @@ class VKTexture : public QueryInternal<VKTexture>
 {
 public:
     VKTexture() = default;
-    operator VKTextureView() const noexcept
-    {
-        return { buffer, format, size };
-    }
-    operator bool() const noexcept
-    {
-        return bool(buffer);
-    }
+    operator VKTextureView() const noexcept { return {buffer, format, size}; }
+    operator bool() const noexcept { return bool(buffer); }
 };
 
 // =================================================================================================
 
 WISDOM_EXPORT
-template<>
+template <>
 struct Internal<VKRenderTarget> {
     wis::managed_handle_ex<VkImageView> view;
-    wis::Size2D                         size;
+    wis::Size2D size;
 };
 
 WISDOM_EXPORT
@@ -152,18 +126,12 @@ class VKRenderTarget : public QueryInternal<VKRenderTarget>
 {
 public:
     VKRenderTarget() = default;
-    operator bool() const noexcept
-    {
-        return bool(view);
-    }
-    operator VKRenderTargetView() const noexcept
-    {
-        return { view.get(), size };
-    }
+    operator bool() const noexcept { return bool(view); }
+    operator VKRenderTargetView() const noexcept { return {view.get(), size}; }
 };
 
 WISDOM_EXPORT
-template<>
+template <>
 struct Internal<VKSampler> {
     wis::managed_handle_ex<VkSampler> sampler;
 };
@@ -173,20 +141,14 @@ class VKSampler : public QueryInternal<VKSampler>
 {
 public:
     VKSampler() noexcept = default;
-    operator bool() const noexcept
-    {
-        return bool(sampler);
-    }
-    operator VKSamplerView() const noexcept
-    {
-        return sampler.get();
-    }
+    operator bool() const noexcept { return bool(sampler); }
+    operator VKSamplerView() const noexcept { return sampler.get(); }
 };
 
 // =================================================================================================
 
 WISDOM_EXPORT
-template<>
+template <>
 struct Internal<VKShaderResource> {
     wis::managed_handle_ex<VkImageView> view;
 };
@@ -196,14 +158,8 @@ class VKShaderResource : public QueryInternal<VKShaderResource>
 {
 public:
     VKShaderResource() noexcept = default;
-    operator bool() const noexcept
-    {
-        return bool(view);
-    }
-    operator VKShaderResourceView() const noexcept
-    {
-        return view.get();
-    }
+    operator bool() const noexcept { return bool(view); }
+    operator VKShaderResourceView() const noexcept { return view.get(); }
 };
 
 WISDOM_EXPORT
@@ -218,9 +174,9 @@ class VKBuffer : public wis::ImplVKBuffer
 {
 public:
     using wis::ImplVKBuffer::ImplVKBuffer;
-    VKBuffer(const VKBuffer&)                = delete;
-    VKBuffer(VKBuffer&&) noexcept            = default;
-    VKBuffer& operator=(const VKBuffer&)     = delete;
+    VKBuffer(const VKBuffer&) = delete;
+    VKBuffer(VKBuffer&&) noexcept = default;
+    VKBuffer& operator=(const VKBuffer&) = delete;
     VKBuffer& operator=(VKBuffer&&) noexcept = default;
 
 public:
@@ -228,25 +184,16 @@ public:
      * @brief Maps the buffer memory to CPU address space.
      * @return The pointer to the mapped memory.
      * */
-    inline void* MapRaw() const noexcept
-    {
-        return wis::ImplVKBuffer::MapRaw();
-    }
+    inline void* MapRaw() const noexcept { return wis::ImplVKBuffer::MapRaw(); }
     /**
      * @brief Unmaps the buffer memory from CPU address space.
      * */
-    inline void Unmap() const noexcept
-    {
-        wis::ImplVKBuffer::Unmap();
-    }
+    inline void Unmap() const noexcept { wis::ImplVKBuffer::Unmap(); }
     /**
      * @brief Returns the address of the resource in GPU memory.
      * @return The address of the resource in GPU memory.
      * */
-    inline uint64_t GetGPUAddress() const noexcept
-    {
-        return wis::ImplVKBuffer::GetGPUAddress();
-    }
+    inline uint64_t GetGPUAddress() const noexcept { return wis::ImplVKBuffer::GetGPUAddress(); }
 };
 #pragma endregion VKBuffer
 

@@ -1,18 +1,24 @@
 #include "app.h"
-#include <wisdom/util/log_layer.h>
+
 #include <wisdom/bridge/format.h>
+#include <wisdom/util/log_layer.h>
 #include <wisdom/wisdom_debug.hpp>
+
+#include <chrono>
 #include <iostream>
 #include <stb_image_write.h>
-#include <chrono>
 
 //--------------------------------------------------------------------------------------------------
 
 struct LogProvider : public wis::LogLayer {
-    virtual void Log(wis::Severity sev, std::string message, wis::source_location sl = wis::source_location::current()) override
+    virtual void Log(
+        wis::Severity sev,
+        std::string message,
+        wis::source_location sl = wis::source_location::current()
+    ) override
     {
         std::cout << wis::format("[{}]: {}\n", wis::severity_strings[+sev], message);
-    };
+    }
 };
 
 void DebugCallback(wis::Severity severity, const char* message, void* user_data)
@@ -23,7 +29,10 @@ void DebugCallback(wis::Severity severity, const char* message, void* user_data)
 //--------------------------------------------------------------------------------------------------
 
 App::App(uint32_t width, uint32_t height)
-    : wnd(width, height, "Lut Test"), wnd2(width, height, "Lut Testx"), width(width), height(height)
+    : wnd(width, height, "Lut Test")
+    , wnd2(width, height, "Lut Testx")
+    , width(width)
+    , height(height)
 {
     wnd.ChangeToFullScreen();
     wnd2.ChangeToFullScreen();
@@ -36,7 +45,7 @@ void App::CreateDevices()
     wis::DebugExtension debug_ext;
     wis::platform::WindowsExtension windows_ext;
 
-    wis::FactoryExtension* extensions[] = { &windows_ext, &debug_ext };
+    wis::FactoryExtension* extensions[] = {&windows_ext, &debug_ext};
     auto [result, factory] = wis::CreateFactory(false, extensions, std::size(extensions));
     if (result.status != wis::Status::Ok) {
         throw std::runtime_error("Failed to create factory");
@@ -88,7 +97,7 @@ void App::CreateDevices()
 void App::CreateSwapChain(const wis::platform::WindowsExtension& platform)
 {
     wis::SwapchainDesc desc{
-        .size = { uint32_t(wnd.GetWidth()), uint32_t(wnd.GetHeight()) },
+        .size = {uint32_t(wnd.GetWidth()), uint32_t(wnd.GetHeight())},
         .format = wis::DataFormat::RGBA8Unorm,
         .buffer_count = TransferNode::kFrameCount,
         .stereo = false,
@@ -101,7 +110,7 @@ void App::CreateSwapChain(const wis::platform::WindowsExtension& platform)
         throw std::runtime_error("Failed to create swapchain");
     }
 
-    desc.size = { uint32_t(wnd2.GetWidth()), uint32_t(wnd2.GetHeight()) };
+    desc.size = {uint32_t(wnd2.GetWidth()), uint32_t(wnd2.GetHeight())};
     auto [result2, swap2] = platform.CreateSwapchain(transfer.transfer_device, transfer.queue, desc, wnd2.GetHandle());
     if (result2.status != wis::Status::Ok) {
         throw std::runtime_error("Failed to create swapchain");
@@ -109,7 +118,7 @@ void App::CreateSwapChain(const wis::platform::WindowsExtension& platform)
     transfer.InitSwapchain(std::move(swap2), std::move(swap));
 
     // Create output texture
-    wis::Size2D size = { 4096, 2048 };
+    wis::Size2D size = {4096, 2048};
     work.CreateOutputTexture(size);
     transfer.VKImportFrame(size, work.mapping);
 }

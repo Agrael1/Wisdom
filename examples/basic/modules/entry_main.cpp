@@ -1,5 +1,6 @@
 #include <exception>
 #include <iostream>
+
 #include "window.h"
 
 #ifdef WISDOM_FORCE_VULKAN
@@ -26,7 +27,7 @@ public:
         wis::Result result = wis::success;
         wis::DebugExtension debug_ext;
 
-        wis::FactoryExtension* exts[] = { &debug_ext, platform_ext.get() };
+        wis::FactoryExtension* exts[] = {&debug_ext, platform_ext.get()};
         wis::Factory factory = wis::CreateFactory(result, true, exts, std::size(exts));
         if (result.status != wis::Status::Ok) {
             throw std::runtime_error("Failed to create factory");
@@ -64,10 +65,7 @@ public:
         swapchain = window.CreateSwapchain(result, platform_ext, device, queue);
     }
 
-    int Run()
-    {
-        return 0;
-    }
+    int Run() { return 0; }
 
 private:
     ex::Window window;

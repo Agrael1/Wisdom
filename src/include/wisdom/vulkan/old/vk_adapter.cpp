@@ -2,12 +2,12 @@
 #define WIS_VK_ADAPTER_CPP
 
 #ifndef WISDOM_MODULE_DECL
-#include <wisdom/vulkan/vk_adapter.h>
-#include <wisdom/vulkan/vk_checks.h>
+#    include <wisdom/bridge/source_location.h>
+#    include <wisdom/util/flags.h>
+#    include <wisdom/vulkan/vk_adapter.h>
+#    include <wisdom/vulkan/vk_checks.h>
 
-#include <wisdom/bridge/source_location.h>
-#include <wisdom/util/flags.h>
-#include <cstring>
+#    include <cstring>
 #endif // !WISDOM_MODULE_DECL
 
 wis::Result wis::ImplVKAdapter::GetDesc(AdapterDesc* pout_desc) const noexcept
@@ -24,8 +24,8 @@ wis::Result wis::ImplVKAdapter::GetDesc(AdapterDesc* pout_desc) const noexcept
         .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_ID_PROPERTIES,
     };
     VkPhysicalDeviceProperties2 properties{
-        .sType      = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2,
-        .pNext      = &id_props,
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2,
+        .pNext = &id_props,
         .properties = {},
     };
     instance_table.vkGetPhysicalDeviceProperties2(adapter, &properties);
@@ -35,14 +35,14 @@ wis::Result wis::ImplVKAdapter::GetDesc(AdapterDesc* pout_desc) const noexcept
     VkPhysicalDeviceMemoryProperties memory_props{};
     instance_table.vkGetPhysicalDeviceMemoryProperties(adapter, &memory_props);
 
-    uint64_t  local_mem  = 0;
-    uint64_t  system_mem = 0;
-    std::span types{ memory_props.memoryTypes };
+    uint64_t local_mem = 0;
+    uint64_t system_mem = 0;
+    std::span types{memory_props.memoryTypes};
 
     for (auto& i : types) {
         if (i.propertyFlags & VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT &&
-            memory_props.memoryHeaps[i.heapIndex].flags &
-                    VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) {
+            memory_props.memoryHeaps[i.heapIndex].flags & VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
+        {
             local_mem = memory_props.memoryHeaps[i.heapIndex].size;
         }
 
@@ -67,11 +67,11 @@ wis::Result wis::ImplVKAdapter::GetDesc(AdapterDesc* pout_desc) const noexcept
 
     out_desc.device_id = desc.deviceID;
     out_desc.subsys_id = desc.apiVersion;
-    out_desc.revision  = desc.driverVersion;
+    out_desc.revision = desc.driverVersion;
 
-    out_desc.dedicated_video_memory  = local_mem;
+    out_desc.dedicated_video_memory = local_mem;
     out_desc.dedicated_system_memory = 0;
-    out_desc.shared_system_memory    = system_mem;
+    out_desc.shared_system_memory = system_mem;
 
     if (id_props.deviceLUIDValid) {
         out_desc.adapter_id = reinterpret_cast<uint64_t&>(id_props.deviceLUID);

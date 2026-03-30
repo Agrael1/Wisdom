@@ -2,6 +2,7 @@
 #ifndef WISDOM_PLATFORM_C_API_H
 #define WISDOM_PLATFORM_C_API_H
 #include <wisdom/generated/c_api.h>
+
 #include "wisdom_exports.h"
 
 #ifdef __cplusplus
@@ -13,11 +14,12 @@ extern "C" {
 //==============================================================
 
 /**
- * @brief Provided by Wisdom 0.7.0. X11 surface creation info. Uses opaque types to avoid Xlib.h inclusion in public headers.
+ * @brief Provided by Wisdom 0.7.0. X11 surface creation info. Uses opaque types to avoid Xlib.h inclusion in public
+ * headers.
  *
  * */
 typedef struct WisXlibWindowDesc {
-    void*    display; ///< Pointer to the X11 Display. Cast to Display* internally.
+    void* display;   ///< Pointer to the X11 Display. Cast to Display* internally.
     uint64_t window; ///< The X11 Window ID. Fits standard 32/64-bit window handles.
 } WisXlibWindowDesc;
 
@@ -27,11 +29,12 @@ typedef struct WisXlibWindowDesc {
  * */
 typedef struct WisWin32WindowDesc {
     void* hinstance; ///< HINSTANCE of the window. Cast to HINSTANCE internally.
-    void* hwnd; ///< HWND of the window. Cast to HWND internally.
+    void* hwnd;      ///< HWND of the window. Cast to HWND internally.
 } WisWin32WindowDesc;
 
 /**
- * @brief Provided by Wisdom 0.7.0. Wayland surface creation info. Uses opaque types to avoid Wayland headers in public headers.
+ * @brief Provided by Wisdom 0.7.0. Wayland surface creation info. Uses opaque types to avoid Wayland headers in public
+ * headers.
  *
  * */
 typedef struct WisWaylandWindowDesc {
@@ -40,16 +43,18 @@ typedef struct WisWaylandWindowDesc {
 } WisWaylandWindowDesc;
 
 /**
- * @brief Provided by Wisdom 0.7.0. X11 surface creation info for XCB. Uses opaque types to avoid XCB headers in public headers.
+ * @brief Provided by Wisdom 0.7.0. X11 surface creation info for XCB. Uses opaque types to avoid XCB headers in public
+ * headers.
  *
  * */
 typedef struct WisXCBWindowDesc {
-    void*    connection; ///< Pointer to the XCB connection. Cast to xcb_connection_t* internally.
-    uint32_t window; ///< The X11 Window ID. Fits standard 32/64-bit window handles.
+    void* connection; ///< Pointer to the XCB connection. Cast to xcb_connection_t* internally.
+    uint32_t window;  ///< The X11 Window ID. Fits standard 32/64-bit window handles.
 } WisXCBWindowDesc;
 
 /**
- * @brief Provided by Wisdom 0.7.0. UWP surface creation info. Uses opaque types to avoid Windows Runtime headers in public headers.
+ * @brief Provided by Wisdom 0.7.0. UWP surface creation info. Uses opaque types to avoid Windows Runtime headers in
+ * public headers.
  *
  * */
 typedef struct WisUWPWindowDesc {
@@ -105,9 +110,11 @@ WISDOM_PLATFORM_API void wisDX12InitUWPExtension(WisDX12UWPExtension* self);
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_PLATFORM_API WisResult wisDX12Win32ExtensionCreateSurface(WisDX12Win32Extension*    self,
-                                                                 const WisWin32WindowDesc* info,
-                                                                 WisDX12Surface*           surface);
+WISDOM_PLATFORM_API WisResult wisDX12Win32ExtensionCreateSurface(
+    WisDX12Win32Extension* self,
+    const WisWin32WindowDesc* info,
+    WisDX12Surface* surface
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a surface using UWP.
@@ -117,9 +124,8 @@ WISDOM_PLATFORM_API WisResult wisDX12Win32ExtensionCreateSurface(WisDX12Win32Ext
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_PLATFORM_API WisResult wisDX12UWPExtensionCreateSurface(WisDX12UWPExtension*    self,
-                                                               const WisUWPWindowDesc* info,
-                                                               WisDX12Surface*         surface);
+WISDOM_PLATFORM_API WisResult
+wisDX12UWPExtensionCreateSurface(WisDX12UWPExtension* self, const WisUWPWindowDesc* info, WisDX12Surface* surface);
 
 #endif // WISDOM_DX12
 
@@ -212,9 +218,8 @@ WISDOM_PLATFORM_API void wisVKInitWin32Extension(WisVKWin32Extension* self);
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_PLATFORM_API WisResult wisVKXlibExtensionCreateSurface(WisVKXlibExtension*      self,
-                                                              const WisXlibWindowDesc* info,
-                                                              WisVKSurface*            surface);
+WISDOM_PLATFORM_API WisResult
+wisVKXlibExtensionCreateSurface(WisVKXlibExtension* self, const WisXlibWindowDesc* info, WisVKSurface* surface);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a surface using Win32.
@@ -224,9 +229,8 @@ WISDOM_PLATFORM_API WisResult wisVKXlibExtensionCreateSurface(WisVKXlibExtension
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_PLATFORM_API WisResult wisVKXCBExtensionCreateSurface(WisVKXCBExtension*      self,
-                                                             const WisXCBWindowDesc* info,
-                                                             WisVKSurface*           surface);
+WISDOM_PLATFORM_API WisResult
+wisVKXCBExtensionCreateSurface(WisVKXCBExtension* self, const WisXCBWindowDesc* info, WisVKSurface* surface);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a surface using Wayland.
@@ -236,9 +240,11 @@ WISDOM_PLATFORM_API WisResult wisVKXCBExtensionCreateSurface(WisVKXCBExtension* 
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_PLATFORM_API WisResult wisVKWaylandExtensionCreateSurface(WisVKWaylandExtension*      self,
-                                                                 const WisWaylandWindowDesc* info,
-                                                                 WisVKSurface*               surface);
+WISDOM_PLATFORM_API WisResult wisVKWaylandExtensionCreateSurface(
+    WisVKWaylandExtension* self,
+    const WisWaylandWindowDesc* info,
+    WisVKSurface* surface
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a surface using Win32.
@@ -248,9 +254,8 @@ WISDOM_PLATFORM_API WisResult wisVKWaylandExtensionCreateSurface(WisVKWaylandExt
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_PLATFORM_API WisResult wisVKWin32ExtensionCreateSurface(WisVKWin32Extension*      self,
-                                                               const WisWin32WindowDesc* info,
-                                                               WisVKSurface*             surface);
+WISDOM_PLATFORM_API WisResult
+wisVKWin32ExtensionCreateSurface(WisVKWin32Extension* self, const WisWin32WindowDesc* info, WisVKSurface* surface);
 
 #endif // WISDOM_VULKAN
 

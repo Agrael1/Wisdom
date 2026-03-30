@@ -1,16 +1,18 @@
 #ifndef WIS_DX12_INFO_H
 #define WIS_DX12_INFO_H
 #ifndef WISDOM_MODULE_DECL
-#include <dxgidebug.h>
-#include <semaphore>
-#include <unordered_map>
-#include <utility>
-#include <wisdom/generated/api/api.hpp>
-#include <wisdom/global/definitions.h>
-#include <wisdom/util/com_ptr.h>
+#    include <wisdom/generated/api/api.hpp>
+#    include <wisdom/global/definitions.h>
+#    include <wisdom/util/com_ptr.h>
+
+#    include <dxgidebug.h>
+#    include <semaphore>
+#    include <unordered_map>
+#    include <utility>
 #endif
 
-namespace wis {
+namespace wis
+{
 /// @brief Information queue for debug and error messages
 class DX12Info
 {
@@ -24,8 +26,8 @@ public:
     }
 
 private:
-    DX12Info() noexcept                  = default;
-    DX12Info(const DX12Info&)            = delete;
+    DX12Info() noexcept = default;
+    DX12Info(const DX12Info&) = delete;
     DX12Info& operator=(const DX12Info&) = delete;
 
     WIS_INLINE void Uninitialize() noexcept;
@@ -39,11 +41,11 @@ public:
     WIS_INLINE static bool RebindCallback(void* factory_from, void* factory_to) noexcept;
 
 private:
-    wis::com_ptr<IDXGIInfoQueue>                                    info_queue;
-    std::binary_semaphore                                           semaphore{ 1 };
-    std::binary_semaphore                                           callback_sem{ 1 };
+    wis::com_ptr<IDXGIInfoQueue> info_queue;
+    std::binary_semaphore semaphore{1};
+    std::binary_semaphore callback_sem{1};
     std::unordered_map<void*, std::pair<wis::DebugCallback, void*>> callbacks;
-    std::atomic_size_t                                              ref_count{ 0 };
+    std::atomic_size_t ref_count{0};
 };
 
 WISDOM_EXPORT
@@ -86,10 +88,7 @@ struct DX12InfoToken {
             DX12Info::instance().Uninitialize();
         }
     }
-    operator bool() const noexcept
-    {
-        return bound;
-    }
+    operator bool() const noexcept { return bound; }
 
 private:
     bool bound = false;
@@ -97,6 +96,6 @@ private:
 } // namespace wis
 
 #ifndef WISDOM_BUILD_BINARIES
-#include "impl/dx12_info.cpp"
+#    include "impl/dx12_info.cpp"
 #endif
 #endif // WIS_DX12_INFO_H

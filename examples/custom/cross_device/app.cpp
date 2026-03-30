@@ -1,17 +1,23 @@
 #include "app.h"
-#include <wisdom/util/log_layer.h>
+
 #include <wisdom/bridge/format.h>
+#include <wisdom/util/log_layer.h>
 #include <wisdom/wisdom_debug.hpp>
+
+#include <chrono>
 #include <iostream>
 #include <stb_image_write.h>
-#include <chrono>
 //--------------------------------------------------------------------------------------------------
 
 struct LogProvider : public wis::LogLayer {
-    virtual void Log(wis::Severity sev, std::string message, wis::source_location sl = wis::source_location::current()) override
+    virtual void Log(
+        wis::Severity sev,
+        std::string message,
+        wis::source_location sl = wis::source_location::current()
+    ) override
     {
         std::cout << wis::format("[{}]: {}\n", wis::severity_strings[+sev], message);
-    };
+    }
 };
 
 void DebugCallback(wis::Severity severity, const char* message, void* user_data)
@@ -22,7 +28,9 @@ void DebugCallback(wis::Severity severity, const char* message, void* user_data)
 //--------------------------------------------------------------------------------------------------
 
 App::App(uint32_t width, uint32_t height)
-    : wnd(width, height, "Lut Test"), width(width), height(height)
+    : wnd(width, height, "Lut Test")
+    , width(width)
+    , height(height)
 {
     CreateDevices();
 }
@@ -37,7 +45,7 @@ void App::CreateDevices()
     wis::DebugExtension debug_ext;
     wis::platform::WindowsExtension windows_ext;
 
-    wis::FactoryExtension* extensions[] = { &windows_ext, &debug_ext };
+    wis::FactoryExtension* extensions[] = {&windows_ext, &debug_ext};
     auto [result, factory] = wis::CreateFactory(false, extensions, std::size(extensions));
     if (result.status != wis::Status::Ok) {
         throw std::runtime_error("Failed to create factory");
@@ -91,7 +99,7 @@ uint8_t* buffer;
 void App::CreateSwapChain(const wis::platform::WindowsExtension& platform)
 {
     wis::SwapchainDesc desc{
-        .size = { uint32_t(wnd.GetWidth()), uint32_t(wnd.GetHeight()) },
+        .size = {uint32_t(wnd.GetWidth()), uint32_t(wnd.GetHeight())},
         .format = wis::DataFormat::RGBA8Unorm,
         .buffer_count = TransferNode::kFrameCount,
         .stereo = false,
@@ -150,9 +158,9 @@ void App::OnResize(uint32_t width, uint32_t height)
     }
 
     transfer.input_buffer.Unmap();
-    work.CreateOutputTexture({ width, height });
+    work.CreateOutputTexture({width, height});
 
-    transfer.VKCreateInputBuffer({ width, height });
+    transfer.VKCreateInputBuffer({width, height});
     transfer.Resize(width, height);
 
     //_aligned_free(buffer);

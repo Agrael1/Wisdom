@@ -1,5 +1,7 @@
 #include "window.h"
+
 #include <sstream>
+
 #include "resource.h"
 #include "util.h"
 
@@ -38,7 +40,7 @@ Window::WindowClass Window::WindowClass::wndClass;
 Window::WindowClass::WindowClass() noexcept
     : hInst(GetModuleHandle(nullptr))
 {
-    WNDCLASSEXA wcWindow = { 0 };
+    WNDCLASSEXA wcWindow = {0};
     wcWindow.cbSize = sizeof(wcWindow);
     wcWindow.style = CS_OWNDC;
     wcWindow.lpfnWndProc = HandleMsgSetup;
@@ -68,7 +70,8 @@ HINSTANCE Window::WindowClass::GetInstance() noexcept
 
 // Window namespace
 Window::Window(unsigned int width, unsigned int height, const char* name)
-    : width(width), height(height)
+    : width(width)
+    , height(height)
 {
     RECT rWindow;
     rWindow.left = 100;
@@ -79,13 +82,18 @@ Window::Window(unsigned int width, unsigned int height, const char* name)
     wis::check_windows(AdjustWindowRect(&rWindow, WS_OVERLAPPEDWINDOW, TRUE));
 
     hWnd.reset(CreateWindowA(
-            WindowClass::GetName(), name,
-            WS_OVERLAPPEDWINDOW,
-            CW_USEDEFAULT, CW_USEDEFAULT,
-            rWindow.right - rWindow.left,
-            rWindow.bottom - rWindow.top,
-            nullptr, nullptr,
-            WindowClass::GetInstance(), this));
+        WindowClass::GetName(),
+        name,
+        WS_OVERLAPPEDWINDOW,
+        CW_USEDEFAULT,
+        CW_USEDEFAULT,
+        rWindow.right - rWindow.left,
+        rWindow.bottom - rWindow.top,
+        nullptr,
+        nullptr,
+        WindowClass::GetInstance(),
+        this
+    ));
 
     // Error checks
     wis::check_windows(!!hWnd);
@@ -98,7 +106,7 @@ Window::Window(unsigned int width, unsigned int height, const char* name)
 
     RAWINPUTDEVICE rid;
     rid.usUsagePage = 0x01; // mouse page
-    rid.usUsage = 0x02; // mouse usage
+    rid.usUsage = 0x02;     // mouse usage
     rid.dwFlags = 0;
     rid.hwndTarget = nullptr;
     wis::check_windows(RegisterRawInputDevices(&rid, 1, sizeof(rid)));
@@ -113,20 +121,27 @@ void Window::ChangeToFullScreen()
     SetMenu(hWnd.get(), nullptr);
     auto st = GetWindowLong(hWnd.get(), GWL_STYLE);
     auto stex = GetWindowLong(hWnd.get(), GWL_EXSTYLE);
-    SetWindowLong(hWnd.get(), GWL_STYLE,
-                  st & ~(WS_CAPTION | WS_THICKFRAME));
-    SetWindowLong(hWnd.get(), GWL_EXSTYLE,
-                  stex & ~(WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE));
+    SetWindowLong(hWnd.get(), GWL_STYLE, st & ~(WS_CAPTION | WS_THICKFRAME));
+    SetWindowLong(
+        hWnd.get(),
+        GWL_EXSTYLE,
+        stex & ~(WS_EX_DLGMODALFRAME | WS_EX_WINDOWEDGE | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE)
+    );
 
     MONITORINFO monitor_info;
     monitor_info.cbSize = sizeof(monitor_info);
-    GetMonitorInfo(MonitorFromWindow(hWnd.get(), MONITOR_DEFAULTTONEAREST),
-                   &monitor_info);
+    GetMonitorInfo(MonitorFromWindow(hWnd.get(), MONITOR_DEFAULTTONEAREST), &monitor_info);
 
     RECT window_rect(monitor_info.rcMonitor);
-    SetWindowPos(hWnd.get(), NULL, window_rect.left, window_rect.top,
-                 window_rect.right - window_rect.left, window_rect.bottom - window_rect.top,
-                 SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+    SetWindowPos(
+        hWnd.get(),
+        NULL,
+        window_rect.left,
+        window_rect.top,
+        window_rect.right - window_rect.left,
+        window_rect.bottom - window_rect.top,
+        SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED
+    );
 }
 
 void Window::SetTitle(std::string_view title)
@@ -183,8 +198,9 @@ void Window::ShowCursor() noexcept
 }
 void Window::ShowImGuiMouse() noexcept
 {
-    if (!cursorShown)
+    if (!cursorShown) {
         ShowCursor();
+    }
 }
 void Window::EnableImGuiMouse() noexcept
 {
@@ -200,9 +216,10 @@ std::optional<WPARAM> Window::ProcessMessages() const noexcept
     MSG msg;
     while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
         if (!TranslateAccelerator(
-                    hWnd.get(), // handle to receiving window
-                    Accelerator.get(), // handle to active accelerator table
-                    &msg)) // message data
+                hWnd.get(),        // handle to receiving window
+                Accelerator.get(), // handle to active accelerator table
+                &msg
+            ))                     // message data
         {
             if (msg.message == WM_QUIT) {
                 return msg.wParam;
@@ -267,8 +284,9 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
         break;
     case WM_SIZE:
-        if (!LOWORD(lParam) || !HIWORD(lParam))
+        if (!LOWORD(lParam) || !HIWORD(lParam)) {
             break;
+        }
         width = LOWORD(lParam);
         height = HIWORD(lParam);
         events.push(Event::Resize);
@@ -374,8 +392,9 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         //	ShowImGuiMouse();
         //	break;
         //}
-        if (cursorShown && !cursorActive)
+        if (cursorShown && !cursorActive) {
             HideCursor();
+        }
 
         // in client region -> log move, and log enter + capture mouse (if not previously in window)
         if (pt.x >= 0 && pt.x < width && pt.y >= 0 && pt.y < height) {
@@ -463,30 +482,28 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
         UINT size = 0;
         // first get the size of the input data
-        if (GetRawInputData(
-                    reinterpret_cast<HRAWINPUT>(lParam),
-                    RID_INPUT,
-                    nullptr,
-                    &size,
-                    sizeof(RAWINPUTHEADER)) == -1) {
+        if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, nullptr, &size, sizeof(RAWINPUTHEADER)) ==
+            -1)
+        {
             // bail msg processing if error
             break;
         }
         rawBuffer.resize(size);
         // read in the input data
         if (GetRawInputData(
-                    reinterpret_cast<HRAWINPUT>(lParam),
-                    RID_INPUT,
-                    rawBuffer.data(),
-                    &size,
-                    sizeof(RAWINPUTHEADER)) != size) {
+                reinterpret_cast<HRAWINPUT>(lParam),
+                RID_INPUT,
+                rawBuffer.data(),
+                &size,
+                sizeof(RAWINPUTHEADER)
+            ) != size)
+        {
             // bail msg processing if error
             break;
         }
         // process the raw input data
         auto& ri = reinterpret_cast<const RAWINPUT&>(*rawBuffer.data());
-        if (ri.header.dwType == RIM_TYPEMOUSE &&
-            (ri.data.mouse.lLastX != 0 || ri.data.mouse.lLastY != 0)) {
+        if (ri.header.dwType == RIM_TYPEMOUSE && (ri.data.mouse.lLastX != 0 || ri.data.mouse.lLastY != 0)) {
             mouse.OnRawDelta(ri.data.mouse.lLastX, ri.data.mouse.lLastY);
         }
         break;

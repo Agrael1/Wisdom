@@ -2,83 +2,84 @@
 #define WIS_VK_RESOURCE_ALLOCATOR_CPP
 #include <wisdom/generated/cpp_api.hpp>
 #include <wisdom/generated/vk_convert.hpp>
+#include <wisdom/util/allocation.hpp>
 #include <wisdom/vulkan/detail/vk_detail.hpp>
 #include <wisdom/vulkan/detail/vk_utils.hpp>
-#include <wisdom/util/allocation.hpp>
 
-namespace wis::detail {
+namespace wis::detail
+{
 inline VkImageCreateInfo VKFillImageDesc(const WisTextureDesc& desc) noexcept
 {
     VkImageCreateInfo info{
-        .sType         = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
-        .pNext         = nullptr,
-        .flags         = 0,
-        .format        = wis::detail::VKConvert(desc.format),
-        .samples       = VK_SAMPLE_COUNT_1_BIT,
+        .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
+        .pNext = nullptr,
+        .flags = 0,
+        .format = wis::detail::VKConvert(desc.format),
+        .samples = VK_SAMPLE_COUNT_1_BIT,
         .usage = wis::detail::VKConvert(desc.usage_flags),
-        .sharingMode   = VK_SHARING_MODE_EXCLUSIVE,
+        .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
         .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
     };
 
     switch (desc.layout) {
     case WisTextureLayoutTexture1D:
-        info.imageType   = VK_IMAGE_TYPE_1D;
-        info.extent      = { desc.width, 1, 1 };
-        info.mipLevels   = desc.mip_levels;
+        info.imageType = VK_IMAGE_TYPE_1D;
+        info.extent = {desc.width, 1, 1};
+        info.mipLevels = desc.mip_levels;
         info.arrayLayers = 1;
         break;
     case WisTextureLayoutTexture2D:
-        info.imageType   = VK_IMAGE_TYPE_2D;
-        info.extent      = { desc.width, desc.height, 1 };
-        info.mipLevels   = desc.mip_levels;
+        info.imageType = VK_IMAGE_TYPE_2D;
+        info.extent = {desc.width, desc.height, 1};
+        info.mipLevels = desc.mip_levels;
         info.arrayLayers = 1;
         break;
     case WisTextureLayoutTexture1DArray:
-        info.imageType   = VK_IMAGE_TYPE_1D;
-        info.extent      = { desc.width, 1, 1 };
-        info.mipLevels   = desc.mip_levels;
+        info.imageType = VK_IMAGE_TYPE_1D;
+        info.extent = {desc.width, 1, 1};
+        info.mipLevels = desc.mip_levels;
         info.arrayLayers = desc.depth_or_array_size;
         break;
     default:
     case WisTextureLayoutTexture2DArray:
-        info.imageType   = VK_IMAGE_TYPE_2D;
-        info.extent      = { desc.width, desc.height, 1 };
-        info.mipLevels   = desc.mip_levels;
+        info.imageType = VK_IMAGE_TYPE_2D;
+        info.extent = {desc.width, desc.height, 1};
+        info.mipLevels = desc.mip_levels;
         info.arrayLayers = desc.depth_or_array_size;
         break;
     case WisTextureLayoutTexture3D:
-        info.imageType   = VK_IMAGE_TYPE_3D;
-        info.flags       = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT | VK_IMAGE_CREATE_2D_VIEW_COMPATIBLE_BIT_EXT;
-        info.extent      = { desc.width, desc.height, desc.depth_or_array_size };
-        info.mipLevels   = desc.mip_levels;
+        info.imageType = VK_IMAGE_TYPE_3D;
+        info.flags = VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT | VK_IMAGE_CREATE_2D_VIEW_COMPATIBLE_BIT_EXT;
+        info.extent = {desc.width, desc.height, desc.depth_or_array_size};
+        info.mipLevels = desc.mip_levels;
         info.arrayLayers = 1;
         break;
     case WisTextureLayoutTexture2DMS:
-        info.imageType   = VK_IMAGE_TYPE_2D;
-        info.extent      = { desc.width, desc.height, 1 };
-        info.mipLevels   = 1;
+        info.imageType = VK_IMAGE_TYPE_2D;
+        info.extent = {desc.width, desc.height, 1};
+        info.mipLevels = 1;
         info.arrayLayers = 1;
-        info.samples     = wis::detail::VKConvert(desc.sample_count);
+        info.samples = wis::detail::VKConvert(desc.sample_count);
         break;
     case WisTextureLayoutTexture2DMSArray:
-        info.imageType   = VK_IMAGE_TYPE_2D;
-        info.extent      = { desc.width, desc.height, 1 };
-        info.mipLevels   = 1;
+        info.imageType = VK_IMAGE_TYPE_2D;
+        info.extent = {desc.width, desc.height, 1};
+        info.mipLevels = 1;
         info.arrayLayers = desc.depth_or_array_size;
-        info.samples     = wis::detail::VKConvert(desc.sample_count);
+        info.samples = wis::detail::VKConvert(desc.sample_count);
         break;
     case WisTextureLayoutTextureCube:
-        info.imageType   = VK_IMAGE_TYPE_2D;
-        info.flags       = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
-        info.extent      = { desc.width, desc.height, 1 };
-        info.mipLevels   = 1;
+        info.imageType = VK_IMAGE_TYPE_2D;
+        info.flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
+        info.extent = {desc.width, desc.height, 1};
+        info.mipLevels = 1;
         info.arrayLayers = 6;
         break;
     case WisTextureLayoutTextureCubeArray:
-        info.imageType   = VK_IMAGE_TYPE_2D;
-        info.flags       = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
-        info.extent      = { desc.width, desc.height, 1 };
-        info.mipLevels   = 1;
+        info.imageType = VK_IMAGE_TYPE_2D;
+        info.flags = VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
+        info.extent = {desc.width, desc.height, 1};
+        info.mipLevels = 1;
         info.arrayLayers = desc.depth_or_array_size / 6 + (desc.depth_or_array_size % 6 != 0);
         break;
     }
@@ -97,15 +98,14 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyResourceAllocator(WisVKResourceAllocato
 }
 
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateBuffer(const WisVKResourceAllocator* self,
-                                                                     const WisBufferDesc*          desc,
-                                                                     WisVKBuffer*                  buffer)
+WIS_EXTERN_C WISDOM_API WisResult
+wisVKResourceAllocatorCreateBuffer(const WisVKResourceAllocator* self, const WisBufferDesc* desc, WisVKBuffer* buffer)
 {
     auto& allocator = wis::from_handle_ref<const wis::impl::VKResourceAllocatorImpl>(self);
 
     VkBufferCreateInfo buffer_info{
         .sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO,
-        .size  = wis::aligned_size(desc->size_bytes, 265u), // align to uniform buffer alignment for safety
+        .size = wis::aligned_size(desc->size_bytes, 265u), // align to uniform buffer alignment for safety
         .usage = (VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | wis::detail::VKConvert(desc->usage_flags)),
     };
 
@@ -126,19 +126,20 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateBuffer(const WisVK
     }
 
     VmaAllocationCreateInfo alloc_info{
-        .flags         = flags,
-        .usage         = VmaMemoryUsage::VMA_MEMORY_USAGE_AUTO,
+        .flags = flags,
+        .usage = VmaMemoryUsage::VMA_MEMORY_USAGE_AUTO,
         .requiredFlags = wis::detail::VKConvert(desc->memory_type)
     };
-    VkBuffer      buffer_handle     = VK_NULL_HANDLE;
+    VkBuffer buffer_handle = VK_NULL_HANDLE;
     VmaAllocation allocation_handle = VK_NULL_HANDLE;
-    VkResult      vr                = vmaCreateBuffer(
-            allocator.allocator,
-            &buffer_info,
-            &alloc_info,
-            &buffer_handle,
-            &allocation_handle,
-            nullptr);
+    VkResult vr = vmaCreateBuffer(
+        allocator.allocator,
+        &buffer_info,
+        &alloc_info,
+        &buffer_handle,
+        &allocation_handle,
+        nullptr
+    );
     if (!wis::detail::succeeded(vr)) {
         return wis::detail::make_result<wis::detail::Func(), "Buffer creation failed">(vr);
     }
@@ -153,9 +154,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateBuffer(const WisVK
     }
 
     auto& impl = *new (buffer) wis::impl::VKBufferImpl{
-        .buffer        = buffer_handle,
-        .allocation    = allocation_handle,
-        .mapped_ptr    = mapped_ptr,
+        .buffer = buffer_handle,
+        .allocation = allocation_handle,
+        .mapped_ptr = mapped_ptr,
         .device_header = allocator.device_header,
     };
 
@@ -165,40 +166,39 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateBuffer(const WisVK
 }
 
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateTexture(const WisVKResourceAllocator* self,
-                                                                      const WisTextureDesc*         desc,
-                                                                      WisVKTexture*                 buffer)
+WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateTexture(
+    const WisVKResourceAllocator* self,
+    const WisTextureDesc* desc,
+    WisVKTexture* buffer
+)
 {
     auto& allocator = wis::from_handle_ref<const wis::impl::VKResourceAllocatorImpl>(self);
     // Check memory type, you can't create a texture with upload or readback memory types
     if (desc->memory_type == WisMemoryTypeUpload || desc->memory_type == WisMemoryTypeReadback) {
-        return wis::detail::make_result<wis::detail::Func(), "Invalid memory type for texture creation">(VK_ERROR_UNKNOWN);
+        return wis::detail::make_result<wis::detail::Func(), "Invalid memory type for texture creation">(
+            VK_ERROR_UNKNOWN
+        );
     }
 
     VkImageCreateInfo image_info = wis::detail::VKFillImageDesc(*desc);
 
     VmaAllocationCreateFlags flags = wis::detail::VKConvert(desc->memory_flags) & ~VMA_ALLOCATION_CREATE_MAPPED_BIT;
-    VmaAllocationCreateInfo  alloc_info{
-         .flags         = flags,
-         .usage         = VmaMemoryUsage::VMA_MEMORY_USAGE_AUTO,
-         .requiredFlags = wis::detail::VKConvert(desc->memory_type)
+    VmaAllocationCreateInfo alloc_info{
+        .flags = flags,
+        .usage = VmaMemoryUsage::VMA_MEMORY_USAGE_AUTO,
+        .requiredFlags = wis::detail::VKConvert(desc->memory_type)
     };
-    VkImage       image_handle      = VK_NULL_HANDLE;
+    VkImage image_handle = VK_NULL_HANDLE;
     VmaAllocation allocation_handle = VK_NULL_HANDLE;
-    VkResult      vr                = vmaCreateImage(
-            allocator.allocator,
-            &image_info,
-            &alloc_info,
-            &image_handle,
-            &allocation_handle,
-            nullptr);
+    VkResult
+        vr = vmaCreateImage(allocator.allocator, &image_info, &alloc_info, &image_handle, &allocation_handle, nullptr);
     if (!wis::detail::succeeded(vr)) {
         return wis::detail::make_result<wis::detail::Func(), "Buffer creation failed">(vr);
     }
 
     auto& impl = *new (buffer) wis::impl::VKTextureImpl{
-        .image         = image_handle,
-        .allocation    = allocation_handle,
+        .image = image_handle,
+        .allocation = allocation_handle,
         .device_header = allocator.device_header,
         .width = static_cast<uint16_t>(image_info.extent.width),
         .height = static_cast<uint16_t>(image_info.extent.height),

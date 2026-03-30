@@ -1,12 +1,14 @@
 #ifndef WIS_VK_CONVERT_H
 #define WIS_VK_CONVERT_H
 #ifndef WISDOM_MODULE_DECL
-#include <vulkan/vulkan.h>
-#include <wisdom/generated/api/api.hpp>
+#    include <wisdom/generated/api/api.hpp>
+
+#    include <vulkan/vulkan.h>
 #endif // !WISDOM_MODULE_DECL
 
 WISDOM_EXPORT
-namespace wis {
+namespace wis
+{
 inline constexpr wis::Status wis::detail::VKConvert(VkResult hr) noexcept
 {
     switch (hr) {

@@ -2,18 +2,21 @@
 #define WIS_VK_PLATFORM_XCB_CPP
 
 #if defined(WISDOM_VULKAN) && defined(WIS_PLATFORM_XCB_PRESENT)
-#include <wisdom_platform/generated/cpp_api.hpp>
-#include <wisdom/vulkan/detail/vk_utils.hpp>
-#include <wisdom/vulkan/detail/vk_detail.hpp>
-#include <wisdom/vulkan/vk_extensions.hpp>
+#    include <wisdom/vulkan/detail/vk_detail.hpp>
+#    include <wisdom/vulkan/detail/vk_utils.hpp>
+#    include <wisdom/vulkan/vk_extensions.hpp>
+#    include <wisdom_platform/generated/cpp_api.hpp>
 
-#include <xcb/xcb.h>
-#include <vulkan/vulkan_xcb.h>
+#    include <vulkan/vulkan_xcb.h>
+#    include <xcb/xcb.h>
 
-namespace wis::detail {
-inline WisResult VKXCBExtensionInit(VKInstanceExtensionHeader*    self,
-                                    impl::VKInstanceImpl*         instance_impl,
-                                    VKInstanceExtensionCollector* collector) noexcept
+namespace wis::detail
+{
+inline WisResult VKXCBExtensionInit(
+    VKInstanceExtensionHeader* self,
+    impl::VKInstanceImpl* instance_impl,
+    VKInstanceExtensionCollector* collector
+) noexcept
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKXCBExtensionImpl>(self);
 
@@ -23,8 +26,8 @@ inline WisResult VKXCBExtensionInit(VKInstanceExtensionHeader*    self,
         impl.instance_control_block = instance_impl->shared_header;
         impl.instance_control_block->AddRef();
 
-        auto  instance             = instance_impl->instance;
-        auto& gtable               = impl.instance_control_block->header.global_table;
+        auto instance = instance_impl->instance;
+        auto& gtable = impl.instance_control_block->header.global_table;
         impl.vkCreateXcbSurfaceKHR = gtable.vkGetInstanceProcAddr(instance, "vkCreateXcbSurfaceKHR");
     }
 
@@ -36,7 +39,7 @@ inline WisResult VKXCBExtensionInit(VKInstanceExtensionHeader*    self,
 WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKInitXCBExtension(WisVKXCBExtension* self)
 {
     new (self) wis::impl::VKXCBExtensionImpl{
-        .header                 = { &wis::detail::VKXCBExtensionInit },
+        .header = {&wis::detail::VKXCBExtensionInit},
         .instance_control_block = nullptr,
     };
 }
@@ -51,26 +54,22 @@ WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKDestroyXCBExtension(WisVKXCBExtension
 }
 
 //-----------------------------------------------------------------------------
-WISDOM_PLATFORM_API WisResult wisVKXCBExtensionCreateSurface(WisVKXCBExtension*      self,
-                                                             const WisXCBWindowDesc* info,
-                                                             WisVKSurface*           surface)
+WISDOM_PLATFORM_API WisResult
+wisVKXCBExtensionCreateSurface(WisVKXCBExtension* self, const WisXCBWindowDesc* info, WisVKSurface* surface)
 {
-    auto& impl                  = wis::from_handle_ref<wis::impl::VKXCBExtensionImpl>(self);
-    auto  vkCreateXcbSurfaceKHR = reinterpret_cast<PFN_vkCreateXcbSurfaceKHR>(impl.vkCreateXcbSurfaceKHR);
+    auto& impl = wis::from_handle_ref<wis::impl::VKXCBExtensionImpl>(self);
+    auto vkCreateXcbSurfaceKHR = reinterpret_cast<PFN_vkCreateXcbSurfaceKHR>(impl.vkCreateXcbSurfaceKHR);
 
     VkXcbSurfaceCreateInfoKHR vk_info{
-        .sType     = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR,
-        .pNext     = nullptr,
-        .flags     = 0,
+        .sType = VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR,
+        .pNext = nullptr,
+        .flags = 0,
         .hinstance = static_cast<xcb_connection_t*>(info->connection),
-        .hwnd      = static_cast<xcb_window_t>(info->window),
+        .hwnd = static_cast<xcb_window_t>(info->window),
     };
 
     VkSurfaceKHR vk_surface = VK_NULL_HANDLE;
-    auto         vr         = vkCreateXcbSurfaceKHR(impl.instance_control_block->header.instance,
-                                    &vk_info,
-                                    nullptr,
-                                    &vk_surface);
+    auto vr = vkCreateXcbSurfaceKHR(impl.instance_control_block->header.instance, &vk_info, nullptr, &vk_surface);
     if (!wis::detail::succeeded(vr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to create XCB surface">(vr);
     }
@@ -79,14 +78,15 @@ WISDOM_PLATFORM_API WisResult wisVKXCBExtensionCreateSurface(WisVKXCBExtension* 
     if (!header) {
         auto& itable = impl.instance_control_block->header.instance_table;
         itable.vkDestroySurfaceKHR(impl.instance_control_block->header.instance, vk_surface, nullptr);
-        return wis::detail::make_result<wis::detail::Func(), "Failed to allocate surface control block">(VK_ERROR_OUT_OF_HOST_MEMORY);
+        return wis::detail::make_result<wis::detail::Func(), "Failed to allocate surface control block">(
+            VK_ERROR_OUT_OF_HOST_MEMORY
+        );
     }
 
-    header->header.instance_header = impl.instance_control_block,
-    header->header.surface         = vk_surface,
+    header->header.instance_header = impl.instance_control_block, header->header.surface = vk_surface,
 
     new (surface) wis::impl::VKSurfaceImpl{
-        .surface        = vk_surface,
+        .surface = vk_surface,
         .surface_header = header,
     };
     impl.instance_control_block->AddRef(); // Surface holds a reference to the instance

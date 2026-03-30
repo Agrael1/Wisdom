@@ -1,7 +1,8 @@
 #pragma once
 #include <wisdom/wisdom.hpp>
-#include <wisdom/wisdom_extended_allocation.hpp>
 #include <wisdom/wisdom_descriptor_buffer.hpp>
+#include <wisdom/wisdom_extended_allocation.hpp>
+
 #include <expected>
 
 struct WorkNode {
@@ -62,5 +63,4 @@ public:
     void* mapping = nullptr;
 };
 
-std::expected<WorkNode, std::string_view>
-CreateWorkNode(wis::Adapter&& adapter);
+std::expected<WorkNode, std::string_view> CreateWorkNode(wis::Adapter&& adapter);

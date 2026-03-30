@@ -1,14 +1,15 @@
 #ifndef WIS_VK_COMMAND_LIST_H
 #define WIS_VK_COMMAND_LIST_H
 #ifndef WISDOM_MODULE_DECL
-#include <wisdom/generated/api/api.hpp>
-#include <wisdom/vulkan/vk_views.h>
-#include <wisdom/global/internal.h>
-#include <wisdom/util/log_layer.h>
-#include <wisdom/bridge/format.h>
+#    include <wisdom/bridge/format.h>
+#    include <wisdom/generated/api/api.hpp>
+#    include <wisdom/global/internal.h>
+#    include <wisdom/util/log_layer.h>
+#    include <wisdom/vulkan/vk_views.h>
 #endif // !WISDOM_MODULE_DECL
 
-namespace wis {
+namespace wis
+{
 WISDOM_EXPORT class VKCommandList;
 WISDOM_EXPORT struct VKBufferBarrier2;
 WISDOM_EXPORT struct VKTextureBarrier2;
@@ -16,16 +17,16 @@ WISDOM_EXPORT struct VKRenderPassDesc;
 WISDOM_EXPORT struct VKVertexBufferBinding;
 
 WISDOM_EXPORT
-template<>
+template <>
 struct Internal<VKCommandList> {
-    wis::SharedDevice  device;
-    h::VkCommandPool   allocator    = nullptr;
+    wis::SharedDevice device;
+    h::VkCommandPool allocator = nullptr;
     h::VkCommandBuffer command_list = nullptr;
 
     VkPipelineLayout pipeline_layout = nullptr;
 
 public:
-    Internal() noexcept           = default;
+    Internal() noexcept = default;
     Internal(Internal&&) noexcept = default;
     Internal& operator=(Internal&& o) noexcept
     {
@@ -34,16 +35,13 @@ public:
         }
 
         Destroy();
-        device          = std::move(o.device);
-        allocator       = std::move(o.allocator);
-        command_list    = std::move(o.command_list);
+        device = std::move(o.device);
+        allocator = std::move(o.allocator);
+        command_list = std::move(o.command_list);
         pipeline_layout = std::move(o.pipeline_layout);
         return *this;
     }
-    ~Internal() noexcept
-    {
-        Destroy();
-    }
+    ~Internal() noexcept { Destroy(); }
 
     void Destroy() noexcept
     {
@@ -58,28 +56,34 @@ class ImplVKCommandList : public QueryInternal<VKCommandList>
 {
 public:
     ImplVKCommandList() noexcept = default;
-    operator bool() const noexcept
-    {
-        return bool(command_list);
-    }
-    operator VKCommandListView() const noexcept
-    {
-        return command_list;
-    }
+    operator bool() const noexcept { return bool(command_list); }
+    operator VKCommandListView() const noexcept { return command_list; }
 
 public:
-    bool Closed() const noexcept
-    {
-        return closed;
-    }
-    WIS_INLINE bool          Close() noexcept;
+    bool Closed() const noexcept { return closed; }
+    WIS_INLINE bool Close() noexcept;
     [[nodiscard]] WIS_INLINE wis::Result Reset(wis::VKPipelineView initial_state = {}) noexcept;
-    WIS_INLINE void                      CopyBuffer(VKBufferView source, VKBufferView destination, wis::BufferRegion region) const noexcept;
-    WIS_INLINE void                      CopyBufferToTexture(VKBufferView src_buffer, VKTextureView dest_texture, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) const noexcept;
+    WIS_INLINE void CopyBuffer(VKBufferView source, VKBufferView destination, wis::BufferRegion region) const noexcept;
+    WIS_INLINE void CopyBufferToTexture(
+        VKBufferView src_buffer,
+        VKTextureView dest_texture,
+        const wis::BufferTextureCopyRegion* regions,
+        uint32_t region_count
+    ) const noexcept;
 
-    WIS_INLINE void CopyTextureToBuffer(VKTextureView src_texture, VKBufferView dest_buffer, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) const noexcept;
+    WIS_INLINE void CopyTextureToBuffer(
+        VKTextureView src_texture,
+        VKBufferView dest_buffer,
+        const wis::BufferTextureCopyRegion* regions,
+        uint32_t region_count
+    ) const noexcept;
 
-    WIS_INLINE void CopyTexture(VKTextureView src_texture, VKTextureView dst_texture, const wis::TextureCopyRegion* regions, uint32_t region_count) const noexcept;
+    WIS_INLINE void CopyTexture(
+        VKTextureView src_texture,
+        VKTextureView dst_texture,
+        const wis::TextureCopyRegion* regions,
+        uint32_t region_count
+    ) const noexcept;
 
     WIS_INLINE void BufferBarrier(wis::BufferBarrier barrier, VKBufferView buffer) noexcept;
     // 8 buffers at once max for efficiency
@@ -101,10 +105,19 @@ public:
 
     WIS_INLINE void IASetPrimitiveTopology(wis::PrimitiveTopology topology) noexcept;
 
-    WIS_INLINE void IASetVertexBuffers(const wis::VKVertexBufferBinding* resources, uint32_t count, uint32_t start_slot = 0) noexcept;
+    WIS_INLINE void IASetVertexBuffers(
+        const wis::VKVertexBufferBinding* resources,
+        uint32_t count,
+        uint32_t start_slot = 0
+    ) noexcept;
 
     WIS_INLINE void IASetIndexBuffer(wis::VKBufferView buffer, wis::IndexType type, uint64_t offset) noexcept;
-    WIS_INLINE void IASetIndexBuffer2(wis::VKBufferView buffer, wis::IndexType type, uint32_t size, uint64_t offset) noexcept;
+    WIS_INLINE void IASetIndexBuffer2(
+        wis::VKBufferView buffer,
+        wis::IndexType type,
+        uint32_t size,
+        uint64_t offset
+    ) noexcept;
 
     WIS_INLINE void RSSetViewport(wis::Viewport vp) noexcept;
 
@@ -114,30 +127,49 @@ public:
 
     WIS_INLINE void RSSetScissors(const wis::Scissor* vp, uint32_t count) noexcept;
 
-    WIS_INLINE void DrawIndexedInstanced(uint32_t vertex_count_per_instance,
-                                         uint32_t instance_count = 1,
-                                         uint32_t start_index    = 0,
-                                         uint32_t base_vertex    = 0,
-                                         uint32_t start_instance = 0) noexcept;
+    WIS_INLINE void DrawIndexedInstanced(
+        uint32_t vertex_count_per_instance,
+        uint32_t instance_count = 1,
+        uint32_t start_index = 0,
+        uint32_t base_vertex = 0,
+        uint32_t start_instance = 0
+    ) noexcept;
 
-    WIS_INLINE void DrawInstanced(uint32_t vertex_count_per_instance,
-                                  uint32_t instance_count = 1,
-                                  uint32_t start_vertex   = 0,
-                                  uint32_t start_instance = 0) noexcept;
+    WIS_INLINE void DrawInstanced(
+        uint32_t vertex_count_per_instance,
+        uint32_t instance_count = 1,
+        uint32_t start_vertex = 0,
+        uint32_t start_instance = 0
+    ) noexcept;
 
     WIS_INLINE void Dispatch(uint32_t x, uint32_t y, uint32_t z) noexcept;
 
-    WIS_INLINE void SetPushConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes, wis::ShaderStages stage) noexcept;
+    WIS_INLINE void SetPushConstants(
+        const void* data,
+        uint32_t size_4bytes,
+        uint32_t offset_4bytes,
+        wis::ShaderStages stage
+    ) noexcept;
     WIS_INLINE void SetComputePushConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes) noexcept
     {
         SetPushConstants(data, size_4bytes, offset_4bytes, wis::ShaderStages::All);
     }
 
-    void PushDescriptor(wis::DescriptorType type, uint32_t binding, wis::VKBufferView view, uint32_t offset = 0) noexcept
+    void PushDescriptor(
+        wis::DescriptorType type,
+        uint32_t binding,
+        wis::VKBufferView view,
+        uint32_t offset = 0
+    ) noexcept
     {
         VKPushDescriptor(type, binding, view, offset, VK_PIPELINE_BIND_POINT_GRAPHICS);
     }
-    void PushDescriptorCompute(wis::DescriptorType type, uint32_t binding, wis::VKBufferView view, uint32_t offset = 0) noexcept
+    void PushDescriptorCompute(
+        wis::DescriptorType type,
+        uint32_t binding,
+        wis::VKBufferView view,
+        uint32_t offset = 0
+    ) noexcept
     {
         VKPushDescriptor(type, binding, view, offset, VK_PIPELINE_BIND_POINT_COMPUTE);
     }
@@ -152,8 +184,17 @@ public:
     }
 
 public:
-    WIS_INLINE void VKPushDescriptor(wis::DescriptorType type, uint32_t binding, wis::VKBufferView view, uint32_t offset, VkPipelineBindPoint binding_point) noexcept;
-    WIS_INLINE void VKSetDescriptorStorage(VKDescriptorStorageView desc_storage, VkPipelineBindPoint binding_point) noexcept;
+    WIS_INLINE void VKPushDescriptor(
+        wis::DescriptorType type,
+        uint32_t binding,
+        wis::VKBufferView view,
+        uint32_t offset,
+        VkPipelineBindPoint binding_point
+    ) noexcept;
+    WIS_INLINE void VKSetDescriptorStorage(
+        VKDescriptorStorageView desc_storage,
+        VkPipelineBindPoint binding_point
+    ) noexcept;
 
 protected:
     bool closed = false;
@@ -168,9 +209,9 @@ class VKCommandList : public wis::ImplVKCommandList
 {
 public:
     using wis::ImplVKCommandList::ImplVKCommandList;
-    VKCommandList(const VKCommandList&)                = delete;
-    VKCommandList(VKCommandList&&) noexcept            = default;
-    VKCommandList& operator=(const VKCommandList&)     = delete;
+    VKCommandList(const VKCommandList&) = delete;
+    VKCommandList(VKCommandList&&) noexcept = default;
+    VKCommandList& operator=(const VKCommandList&) = delete;
     VKCommandList& operator=(VKCommandList&&) noexcept = default;
 
 public:
@@ -178,18 +219,12 @@ public:
      * @brief Closes the command list for recording.
      * @return true if command list is closed. false otherwise.
      * */
-    inline bool Closed() const noexcept
-    {
-        return wis::ImplVKCommandList::Closed();
-    }
+    inline bool Closed() const noexcept { return wis::ImplVKCommandList::Closed(); }
     /**
      * @brief Closes the command list for recording.
      * @return true if command list is closed. false otherwise.
      * */
-    inline bool Close() noexcept
-    {
-        return wis::ImplVKCommandList::Close();
-    }
+    inline bool Close() noexcept { return wis::ImplVKCommandList::Close(); }
     /**
      * @brief Resets the command list for recording. Can't be reset while executed!
      * @param initial_state The pipeline to use as a starting state. Default is empty pipeline.
@@ -199,7 +234,8 @@ public:
         return wis::ImplVKCommandList::Reset(std::move(initial_state));
     }
     /**
-     * @brief Switches command list to use new pipeline. All the operations will be recorded with regards to the new bound pipeline.
+     * @brief Switches command list to use new pipeline. All the operations will be recorded with regards to the new
+     * bound pipeline.
      * @param pipeline The pipeline to use with the command list with.
      * */
     inline void SetPipelineState(wis::VKPipelineView pipeline) noexcept
@@ -212,7 +248,11 @@ public:
      * @param destination The destination buffer to copy to.
      * @param region The region to copy.
      * */
-    inline void CopyBuffer(wis::VKBufferView source, wis::VKBufferView destination, const wis::BufferRegion& region) noexcept
+    inline void CopyBuffer(
+        wis::VKBufferView source,
+        wis::VKBufferView destination,
+        const wis::BufferRegion& region
+    ) noexcept
     {
         wis::ImplVKCommandList::CopyBuffer(std::move(source), std::move(destination), region);
     }
@@ -223,7 +263,12 @@ public:
      * @param regions The regions to copy.
      * @param region_count The number of regions to copy.
      * */
-    inline void CopyBufferToTexture(wis::VKBufferView source, wis::VKTextureView destination, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) noexcept
+    inline void CopyBufferToTexture(
+        wis::VKBufferView source,
+        wis::VKTextureView destination,
+        const wis::BufferTextureCopyRegion* regions,
+        uint32_t region_count
+    ) noexcept
     {
         wis::ImplVKCommandList::CopyBufferToTexture(std::move(source), std::move(destination), regions, region_count);
     }
@@ -234,7 +279,12 @@ public:
      * @param regions The regions to copy.
      * @param region_count The number of regions to copy.
      * */
-    inline void CopyTextureToBuffer(wis::VKTextureView source, wis::VKBufferView destination, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) noexcept
+    inline void CopyTextureToBuffer(
+        wis::VKTextureView source,
+        wis::VKBufferView destination,
+        const wis::BufferTextureCopyRegion* regions,
+        uint32_t region_count
+    ) noexcept
     {
         wis::ImplVKCommandList::CopyTextureToBuffer(std::move(source), std::move(destination), regions, region_count);
     }
@@ -245,7 +295,12 @@ public:
      * @param regions The regions to copy.
      * @param region_count The number of regions to copy.
      * */
-    inline void CopyTexture(wis::VKTextureView source, wis::VKTextureView destination, const wis::TextureCopyRegion* regions, uint32_t region_count) noexcept
+    inline void CopyTexture(
+        wis::VKTextureView source,
+        wis::VKTextureView destination,
+        const wis::TextureCopyRegion* regions,
+        uint32_t region_count
+    ) noexcept
     {
         wis::ImplVKCommandList::CopyTexture(std::move(source), std::move(destination), regions, region_count);
     }
@@ -296,10 +351,7 @@ public:
     /**
      * @brief Ends the render pass.
      * */
-    inline void EndRenderPass() noexcept
-    {
-        wis::ImplVKCommandList::EndRenderPass();
-    }
+    inline void EndRenderPass() noexcept { wis::ImplVKCommandList::EndRenderPass(); }
     /**
      * @brief Sets the pipeline signature object. Used to determine how to pick descriptors from descriptor buffer.
      * @param root_signature The root signature to set.
@@ -309,8 +361,8 @@ public:
         wis::ImplVKCommandList::SetRootSignature(std::move(root_signature));
     }
     /**
-     * @brief Sets the pipeline signature object to compute pipeline. Used to determine how to pick descriptors from descriptor buffer.
-     * May only work with compute pipelines.
+     * @brief Sets the pipeline signature object to compute pipeline. Used to determine how to pick descriptors from
+     * descriptor buffer. May only work with compute pipelines.
      * @param root_signature The root signature to set.
      * */
     inline void SetComputeRootSignature(wis::VKRootSignatureView root_signature) noexcept
@@ -331,7 +383,11 @@ public:
      * @param count The number of vertex buffers to set.
      * @param start_slot The start slot to set the vertex buffers to. Default is 0.
      * */
-    inline void IASetVertexBuffers(const wis::VKVertexBufferBinding* resources, uint32_t count, uint32_t start_slot = 0) noexcept
+    inline void IASetVertexBuffers(
+        const wis::VKVertexBufferBinding* resources,
+        uint32_t count,
+        uint32_t start_slot = 0
+    ) noexcept
     {
         wis::ImplVKCommandList::IASetVertexBuffers(resources, count, start_slot);
     }
@@ -354,7 +410,12 @@ public:
      * @param size The size of the index buffer in bytes.
      * @param offset The offset in the index buffer in bytes.
      * */
-    inline void IASetIndexBuffer2(wis::VKBufferView buffer, wis::IndexType type, uint32_t size, uint64_t offset) noexcept
+    inline void IASetIndexBuffer2(
+        wis::VKBufferView buffer,
+        wis::IndexType type,
+        uint32_t size,
+        uint64_t offset
+    ) noexcept
     {
         wis::ImplVKCommandList::IASetIndexBuffer2(std::move(buffer), type, size, offset);
     }
@@ -379,14 +440,11 @@ public:
      * @brief Sets the scissor rect.
      * @param scissor The scissor to set.
      * */
-    inline void RSSetScissor(const wis::Scissor& scissor) noexcept
-    {
-        wis::ImplVKCommandList::RSSetScissor(scissor);
-    }
+    inline void RSSetScissor(const wis::Scissor& scissor) noexcept { wis::ImplVKCommandList::RSSetScissor(scissor); }
     /**
      * @brief Sets multiple scissor rects.
-     * Each n-th rect corresponds to n-th Viewport set in RSSetViewports if SV_ViewportArrayIndex is used in geometry shader.
-     * Otherwise the first is chosen.
+     * Each n-th rect corresponds to n-th Viewport set in RSSetViewports if SV_ViewportArrayIndex is used in geometry
+     * shader. Otherwise the first is chosen.
      * @param scissors The scissors to set.
      * @param count The number of scissors to set.
      * */
@@ -402,9 +460,21 @@ public:
      * @param base_vertex The index of the first vertex to start drawing from. Default is 0.
      * @param start_instance The index of the first instance to draw. Default is 0.
      * */
-    inline void DrawIndexedInstanced(uint32_t vertex_count_per_instance, uint32_t instance_count = 1, uint32_t start_index = 0, uint32_t base_vertex = 0, uint32_t start_instance = 0) noexcept
+    inline void DrawIndexedInstanced(
+        uint32_t vertex_count_per_instance,
+        uint32_t instance_count = 1,
+        uint32_t start_index = 0,
+        uint32_t base_vertex = 0,
+        uint32_t start_instance = 0
+    ) noexcept
     {
-        wis::ImplVKCommandList::DrawIndexedInstanced(vertex_count_per_instance, instance_count, start_index, base_vertex, start_instance);
+        wis::ImplVKCommandList::DrawIndexedInstanced(
+            vertex_count_per_instance,
+            instance_count,
+            start_index,
+            base_vertex,
+            start_instance
+        );
     }
     /**
      * @brief Draws instanced geometry. (Without indexing)
@@ -413,7 +483,12 @@ public:
      * @param start_vertex The index of the first vertex to draw. Default is 0.
      * @param start_instance The index of the first instance to draw. Default is 0.
      * */
-    inline void DrawInstanced(uint32_t vertex_count_per_instance, uint32_t instance_count = 1, uint32_t start_vertex = 0, uint32_t start_instance = 0) noexcept
+    inline void DrawInstanced(
+        uint32_t vertex_count_per_instance,
+        uint32_t instance_count = 1,
+        uint32_t start_vertex = 0,
+        uint32_t start_instance = 0
+    ) noexcept
     {
         wis::ImplVKCommandList::DrawInstanced(vertex_count_per_instance, instance_count, start_vertex, start_instance);
     }
@@ -434,7 +509,12 @@ public:
      * @param offset_4bytes The offset in the data in 4-byte units.
      * @param stage The shader stages to set the root constants for.
      * */
-    inline void SetPushConstants(void* data, uint32_t size_4bytes, uint32_t offset_4bytes, wis::ShaderStages stage) noexcept
+    inline void SetPushConstants(
+        void* data,
+        uint32_t size_4bytes,
+        uint32_t offset_4bytes,
+        wis::ShaderStages stage
+    ) noexcept
     {
         wis::ImplVKCommandList::SetPushConstants(data, size_4bytes, offset_4bytes, stage);
     }
@@ -457,7 +537,12 @@ public:
      * @param buffer The buffer to set.
      * @param offset The offset in the descriptor table to set the descriptor to.
      * */
-    inline void PushDescriptor(wis::DescriptorType type, uint32_t root_index, wis::VKBufferView buffer, uint32_t offset) noexcept
+    inline void PushDescriptor(
+        wis::DescriptorType type,
+        uint32_t root_index,
+        wis::VKBufferView buffer,
+        uint32_t offset
+    ) noexcept
     {
         wis::ImplVKCommandList::PushDescriptor(type, root_index, std::move(buffer), offset);
     }
@@ -471,7 +556,12 @@ public:
      * @param buffer The buffer to set.
      * @param offset The offset in the descriptor table to set the descriptor to.
      * */
-    inline void PushDescriptorCompute(wis::DescriptorType type, uint32_t root_index, wis::VKBufferView buffer, uint32_t offset) noexcept
+    inline void PushDescriptorCompute(
+        wis::DescriptorType type,
+        uint32_t root_index,
+        wis::VKBufferView buffer,
+        uint32_t offset
+    ) noexcept
     {
         wis::ImplVKCommandList::PushDescriptorCompute(type, root_index, std::move(buffer), offset);
     }
@@ -497,6 +587,6 @@ public:
 } // namespace wis
 
 #ifndef WISDOM_BUILD_BINARIES
-#include "impl/vk_command_list.cpp"
+#    include "impl/vk_command_list.cpp"
 #endif // !WISDOM_HEADER_ONLY
 #endif // !VK_COMMAND_LIST_H

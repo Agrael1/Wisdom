@@ -1,8 +1,8 @@
 #include "transfer_node.h"
+
 #include <stb_image_write.h>
 
-std::expected<TransferNode, std::string_view>
-CreateTransferNode(wis::Adapter&& adapter)
+std::expected<TransferNode, std::string_view> CreateTransferNode(wis::Adapter&& adapter)
 {
     TransferNode node;
 
@@ -77,12 +77,13 @@ void TransferNode::Resize(uint32_t width, uint32_t height)
 
 void TransferNode::VKCreateInputBuffer(wis::Size2D frame)
 {
-    
 
-    auto [result, buffer] = allocator.CreateBuffer(wis::detail::aligned_size(uint64_t(frame.width * frame.height * 4), 4096ull),
-                                                   wis::BufferUsage::CopySrc,
-                                                   wis::MemoryType::Readback,
-                                                   wis::MemoryFlags::Mapped);
+    auto [result, buffer] = allocator.CreateBuffer(
+        wis::detail::aligned_size(uint64_t(frame.width * frame.height * 4), 4096ull),
+        wis::BufferUsage::CopySrc,
+        wis::MemoryType::Readback,
+        wis::MemoryFlags::Mapped
+    );
 
     if (result.status != wis::Status::Ok) {
         return;
@@ -121,7 +122,7 @@ void TransferNode::Frame()
         .access_after = wis::ResourceAccess::CopyDest,
         .state_before = wis::TextureState::Present,
         .state_after = wis::TextureState::CopyDest,
-        .subresource_range = { 0, 1, 0, 1 }
+        .subresource_range = {0, 1, 0, 1}
     };
     wis::TextureBarrier output_barrier{
         .sync_before = wis::BarrierSync::Copy,
@@ -130,7 +131,7 @@ void TransferNode::Frame()
         .access_after = wis::ResourceAccess::Common,
         .state_before = wis::TextureState::CopyDest,
         .state_after = wis::TextureState::Present,
-        .subresource_range = { 0, 1, 0, 1 }
+        .subresource_range = {0, 1, 0, 1}
     };
 
     uint32_t index = swap.GetCurrentIndex();
@@ -140,8 +141,8 @@ void TransferNode::Frame()
 
     wis::BufferTextureCopyRegion region{
         .texture = {
-                .size = { width, height, 1 },
-                .format = wis::DataFormat::RGBA8Unorm,
+            .size = {width, height, 1},
+            .format = wis::DataFormat::RGBA8Unorm,
         }
     };
     cmd_list.CopyBufferToTexture(input_buffer, back_buffers[index], &region, 1);
@@ -150,7 +151,7 @@ void TransferNode::Frame()
     cmd_list.BufferBarrier(dest_barrier, input_buffer);
     cmd_list.Close();
 
-    wis::CommandListView cmd_list_view{ cmd_list };
+    wis::CommandListView cmd_list_view{cmd_list};
     queue.ExecuteCommandLists(&cmd_list_view, 1);
 
     auto result = swap.Present();
