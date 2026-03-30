@@ -67,6 +67,19 @@ inline constexpr D3D12_BARRIER_LAYOUT DX12GetOptimalBarrierLayout(
     }
 }
 
+inline constexpr uint32_t DX12GetCopyPlaneSlice(WisBarrierFlags flags, uint16_t plane_slice) noexcept
+{
+    if (flags & WisBarrierFlagsPlanarImage) {
+        return plane_slice;
+    }
+
+    if (flags & WisBarrierFlagsStencilResource) {
+        return 1u;
+    }
+
+    return 0u;
+}
+
 inline std::array<wis::span<uint8_t>, 3> DX12AllocateBarriers(
     const wis::impl::DX12CommandListImpl& impl,
     uint8_t* local_scratch,
@@ -616,10 +629,10 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListBeginRenderPass(
         bool ignore_depth = (desc->depth_stencil.flags & WisDepthStencilFlagsIgnoreDepth);
         bool ignore_stencil = (desc->depth_stencil.flags & WisDepthStencilFlagsIgnoreStencil);
 
-        flags |= (desc->flags & WisDepthStencilFlagsReadOnlyDepth) && !ignore_depth
+        flags |= (desc->depth_stencil.flags & WisDepthStencilFlagsReadOnlyDepth) && !ignore_depth
                      ? D3D12_RENDER_PASS_FLAG_BIND_READ_ONLY_DEPTH
                      : D3D12_RENDER_PASS_FLAG_NONE;
-        flags |= (desc->flags & WisDepthStencilFlagsReadOnlyStencil) && !ignore_stencil
+        flags |= (desc->depth_stencil.flags & WisDepthStencilFlagsReadOnlyStencil) && !ignore_stencil
                      ? D3D12_RENDER_PASS_FLAG_BIND_READ_ONLY_STENCIL
                      : D3D12_RENDER_PASS_FLAG_NONE;
 
@@ -711,6 +724,149 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListCopyBuffer(
     for (size_t i = 0; i < region_count; ++i) {
         auto& region = regions[i];
         impl.list->CopyBufferRegion(dst, region.dst_offset, src, region.src_offset, region.size_bytes);
+    }
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisDX12CommandListCopyBufferToTexture(
+    const WisDX12CommandList* self,
+    WisDX12TextureView dst_texture,
+    WisDX12BufferView src_buffer,
+    const WisBufferTextureCopyRegion* regions,
+    size_t region_count
+)
+{
+    auto& impl = wis::from_handle_ref<const wis::impl::DX12CommandListImpl>(self);
+    auto* dst = std::bit_cast<ID3D12Resource*>(dst_texture);
+    auto* src = std::bit_cast<ID3D12Resource*>(src_buffer);
+
+    auto texture_desc = dst->GetDesc();
+    ID3D12Device* device = nullptr;
+    dst->GetDevice(IID_PPV_ARGS(&device));
+
+    for (size_t i = 0; i < region_count; ++i) {
+        const auto& region = regions[i];
+        const auto& texture_region = region.texture_region;
+        const auto& box = texture_region.box;
+        const auto& subresource = texture_region.target_subresource;
+
+        uint32_t plane_slice = wis::detail::DX12GetCopyPlaneSlice(region.flags, subresource.plane_slice);
+        uint32_t dst_subresource = subresource.mip_level + subresource.array_layer * texture_desc.MipLevels +
+                                   plane_slice * texture_desc.MipLevels * texture_desc.DepthOrArraySize;
+        D3D12_TEXTURE_COPY_LOCATION dst_location{
+            .pResource = dst,
+            .Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,
+            .SubresourceIndex = dst_subresource,
+        };
+
+        uint32_t footprint_width = region.buffer_row_length ? region.buffer_row_length : box.width;
+        uint32_t footprint_height = region.buffer_image_height ? region.buffer_image_height : box.height;
+        uint32_t footprint_depth = std::max(box.depth, 1u);
+
+        D3D12_RESOURCE_DESC layout_desc = texture_desc;
+        layout_desc.Width = footprint_width;
+        layout_desc.Height = footprint_height;
+        layout_desc.DepthOrArraySize = static_cast<uint16_t>(footprint_depth);
+        layout_desc.MipLevels = 1;
+
+        D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint{};
+        if (device) {
+            UINT num_rows = 0;
+            UINT64 row_size = 0;
+            UINT64 total_size = 0;
+            device->GetCopyableFootprints(&layout_desc, 0, 1, 0, &footprint, &num_rows, &row_size, &total_size);
+        }
+
+        footprint.Offset = region.buffer_offset;
+        footprint.Footprint.Format = texture_desc.Format;
+
+        D3D12_TEXTURE_COPY_LOCATION src_location{
+            .pResource = src,
+            .Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT,
+            .PlacedFootprint = footprint,
+        };
+
+        impl.list->CopyTextureRegion(&dst_location, box.x, box.y, box.z, &src_location, nullptr);
+    }
+
+    if (device) {
+        device->Release();
+    }
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisDX12CommandListCopyTextureToBuffer(
+    const WisDX12CommandList* self,
+    WisDX12BufferView dst_buffer,
+    WisDX12TextureView src_texture,
+    const WisBufferTextureCopyRegion* regions,
+    size_t region_count
+)
+{
+    auto& impl = wis::from_handle_ref<const wis::impl::DX12CommandListImpl>(self);
+    auto* dst = std::bit_cast<ID3D12Resource*>(dst_buffer);
+    auto* src = std::bit_cast<ID3D12Resource*>(src_texture);
+
+    auto texture_desc = src->GetDesc();
+    ID3D12Device* device = nullptr;
+    src->GetDevice(IID_PPV_ARGS(&device));
+
+    for (size_t i = 0; i < region_count; ++i) {
+        const auto& region = regions[i];
+        const auto& texture_region = region.texture_region;
+        const auto& box = texture_region.box;
+        const auto& subresource = texture_region.target_subresource;
+
+        uint32_t plane_slice = wis::detail::DX12GetCopyPlaneSlice(region.flags, subresource.plane_slice);
+        uint32_t src_subresource = subresource.mip_level + subresource.array_layer * texture_desc.MipLevels +
+                                   plane_slice * texture_desc.MipLevels * texture_desc.DepthOrArraySize;
+        D3D12_TEXTURE_COPY_LOCATION src_location{
+            .pResource = src,
+            .Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,
+            .SubresourceIndex = src_subresource,
+        };
+
+        uint32_t footprint_width = region.buffer_row_length ? region.buffer_row_length : box.width;
+        uint32_t footprint_height = region.buffer_image_height ? region.buffer_image_height : box.height;
+        uint32_t footprint_depth = std::max(box.depth, 1u);
+
+        D3D12_RESOURCE_DESC layout_desc = texture_desc;
+        layout_desc.Width = footprint_width;
+        layout_desc.Height = footprint_height;
+        layout_desc.DepthOrArraySize = static_cast<uint16_t>(footprint_depth);
+        layout_desc.MipLevels = 1;
+
+        D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint{};
+        if (device) {
+            UINT num_rows = 0;
+            UINT64 row_size = 0;
+            UINT64 total_size = 0;
+            device->GetCopyableFootprints(&layout_desc, 0, 1, 0, &footprint, &num_rows, &row_size, &total_size);
+        }
+
+        footprint.Offset = region.buffer_offset;
+        footprint.Footprint.Format = texture_desc.Format;
+
+        D3D12_TEXTURE_COPY_LOCATION dst_location{
+            .pResource = dst,
+            .Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT,
+            .PlacedFootprint = footprint,
+        };
+
+        D3D12_BOX src_box{
+            .left = box.x,
+            .top = box.y,
+            .front = box.z,
+            .right = box.x + box.width,
+            .bottom = box.y + box.height,
+            .back = box.z + box.depth,
+        };
+
+        impl.list->CopyTextureRegion(&dst_location, 0, 0, 0, &src_location, &src_box);
+    }
+
+    if (device) {
+        device->Release();
     }
 }
 

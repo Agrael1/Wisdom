@@ -559,8 +559,6 @@ inline void VKReleaseSwapchain(VkSwapchainKHR swap, VKSwapchainControlBlock* hea
     }
 }
 
-WIS_INLINE VkResult VKAcquireNextImage(const impl::VKSwapchainImpl& impl) noexcept;
-
 } // namespace wis::detail
 
 #endif // WIS_VK_DETAIL_HPP

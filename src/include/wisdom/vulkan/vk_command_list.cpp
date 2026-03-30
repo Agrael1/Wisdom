@@ -615,14 +615,14 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListBeginRenderPass(
             rendering_info.layerCount = desc->view_mask ? 1 : target.array_layer_count;
         }
 
-        bool depth_read = desc->flags & WisDepthStencilFlagsReadOnlyDepth;
-        bool stencil_read = desc->flags & WisDepthStencilFlagsReadOnlyStencil;
-        bool ignore_depth = desc->flags & WisDepthStencilFlagsIgnoreDepth;
-        bool ignore_stencil = desc->flags & WisDepthStencilFlagsIgnoreStencil;
+        bool depth_read = desc->depth_stencil.flags & WisDepthStencilFlagsReadOnlyDepth;
+        bool stencil_read = desc->depth_stencil.flags & WisDepthStencilFlagsReadOnlyStencil;
+        bool ignore_depth = desc->depth_stencil.flags & WisDepthStencilFlagsIgnoreDepth;
+        bool ignore_stencil = desc->depth_stencil.flags & WisDepthStencilFlagsIgnoreStencil;
 
         VkImageLayout ds_layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 
-        switch (desc->flags & (WisDepthStencilFlagsReadOnlyStencil | WisDepthStencilFlagsReadOnlyDepth)) {
+        switch (desc->depth_stencil.flags & (WisDepthStencilFlagsReadOnlyStencil | WisDepthStencilFlagsReadOnlyDepth)) {
         case WisDepthStencilFlagsReadOnlyStencil:
             ds_layout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL;
             break;
@@ -728,4 +728,148 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListCopyBuffer(
         reinterpret_cast<const VkBufferCopy*>(regions)
     );
 }
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisVKCommandListCopyBufferToTexture(
+    const WisVKCommandList* self,
+    WisVKTextureView dst_texture,
+    WisVKBufferView src_buffer,
+    const WisBufferTextureCopyRegion* regions,
+    size_t region_count
+)
+{
+    // if not enough regions provided - schedule several times with max regions until all regions are scheduled
+    VkBufferImageCopy convert_regions[wis::MaxCopyRegions];
+    size_t region_offset = 0;
+
+    while (region_offset < region_count) {
+        uint32_t current_region_count = static_cast<uint32_t>(
+            std::min(region_count - region_offset, static_cast<size_t>(wis::MaxCopyRegions))
+        );
+
+        for (size_t i = 0; i < current_region_count; ++i) {
+            const auto& region = regions[region_offset + i];
+            const auto& texture_region = region.texture_region;
+            const auto& box = texture_region.box;
+            const auto& subresource = texture_region.target_subresource;
+
+            VkImageAspectFlags aspect_mask = 0;
+            if (region.flags & WisBarrierFlagsDepthResource) {
+                aspect_mask |= VK_IMAGE_ASPECT_DEPTH_BIT;
+            }
+            if (region.flags & WisBarrierFlagsStencilResource) {
+                aspect_mask |= VK_IMAGE_ASPECT_STENCIL_BIT;
+            }
+            if (aspect_mask == 0) {
+                aspect_mask = (region.flags & WisBarrierFlagsPlanarImage)
+                                  ? (VK_IMAGE_ASPECT_PLANE_0_BIT << subresource.plane_slice)
+                                  : VK_IMAGE_ASPECT_COLOR_BIT;
+            }
+
+            convert_regions[i] = {
+                .bufferOffset = region.buffer_offset,
+                .bufferRowLength = region.buffer_row_length,
+                .bufferImageHeight = region.buffer_image_height,
+                .imageSubresource =
+                    {
+                        .aspectMask = aspect_mask,
+                        .mipLevel = subresource.mip_level,
+                        .baseArrayLayer = subresource.array_layer,
+                        .layerCount = 1,
+                    },
+                .imageOffset =
+                    {
+                        .x = static_cast<int32_t>(box.x),
+                        .y = static_cast<int32_t>(box.y),
+                        .z = static_cast<int32_t>(box.z),
+                    },
+                .imageExtent = {.width = box.width, .height = box.height, .depth = box.depth},
+            };
+        }
+
+        auto& impl = wis::from_handle_ref<const wis::impl::VKCommandListImpl>(self);
+        impl.command_list_table->vkCmdCopyBufferToImage(
+            impl.command_buffer,
+            std::bit_cast<VkBuffer>(src_buffer),
+            std::bit_cast<VkImage>(dst_texture),
+            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+            current_region_count,
+            convert_regions
+        );
+
+        region_offset += current_region_count;
+    }
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisVKCommandListCopyTextureToBuffer(
+    const WisVKCommandList* self,
+    WisVKBufferView dst_buffer,
+    WisVKTextureView src_texture,
+    const WisBufferTextureCopyRegion* regions,
+    size_t region_count
+)
+{
+    VkBufferImageCopy convert_regions[wis::MaxCopyRegions];
+    size_t region_offset = 0;
+
+    while (region_offset < region_count) {
+        uint32_t current_region_count = static_cast<uint32_t>(
+            std::min(region_count - region_offset, static_cast<size_t>(wis::MaxCopyRegions))
+        );
+
+        for (size_t i = 0; i < current_region_count; ++i) {
+            const auto& region = regions[region_offset + i];
+            const auto& texture_region = region.texture_region;
+            const auto& box = texture_region.box;
+            const auto& subresource = texture_region.target_subresource;
+
+            VkImageAspectFlags aspect_mask = 0;
+            if (region.flags & WisBarrierFlagsDepthResource) {
+                aspect_mask |= VK_IMAGE_ASPECT_DEPTH_BIT;
+            }
+            if (region.flags & WisBarrierFlagsStencilResource) {
+                aspect_mask |= VK_IMAGE_ASPECT_STENCIL_BIT;
+            }
+            if (aspect_mask == 0) {
+                aspect_mask = (region.flags & WisBarrierFlagsPlanarImage)
+                                  ? (VK_IMAGE_ASPECT_PLANE_0_BIT << subresource.plane_slice)
+                                  : VK_IMAGE_ASPECT_COLOR_BIT;
+            }
+
+            convert_regions[i] = {
+                .bufferOffset = region.buffer_offset,
+                .bufferRowLength = region.buffer_row_length,
+                .bufferImageHeight = region.buffer_image_height,
+                .imageSubresource =
+                    {
+                        .aspectMask = aspect_mask,
+                        .mipLevel = subresource.mip_level,
+                        .baseArrayLayer = subresource.array_layer,
+                        .layerCount = 1,
+                    },
+                .imageOffset =
+                    {
+                        .x = static_cast<int32_t>(box.x),
+                        .y = static_cast<int32_t>(box.y),
+                        .z = static_cast<int32_t>(box.z),
+                    },
+                .imageExtent = {.width = box.width, .height = box.height, .depth = box.depth},
+            };
+        }
+
+        auto& impl = wis::from_handle_ref<const wis::impl::VKCommandListImpl>(self);
+        impl.command_list_table->vkCmdCopyImageToBuffer(
+            impl.command_buffer,
+            std::bit_cast<VkImage>(src_texture),
+            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            std::bit_cast<VkBuffer>(dst_buffer),
+            current_region_count,
+            convert_regions
+        );
+
+        region_offset += current_region_count;
+    }
+}
+
 #endif // WIS_VK_COMMAND_LIST_CPP

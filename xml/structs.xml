@@ -385,6 +385,14 @@ Viewport is considered from Top Left corner.">
       <member type="u64" name="size_bytes" doc="describes size of the region to copy in bytes."/>
     </type>
 
+    <type name="BufferTextureCopyRegion" category="struct" version="0.7.0" doc="Buffer texture copy region description for buffer-texture copy operations.">
+      <member type="u64" name="buffer_offset" doc="specifies buffer offset in bytes."/>
+      <member type="u32" name="buffer_row_length" doc="describes buffer row length in pixels. Used for calculating the offset in the buffer for each row of the texture."/>
+      <member type="u32" name="buffer_image_height" doc="describes buffer image height in pixels. Used for calculating the offset in the buffer for each image of the texture."/>
+      <member type="BarrierFlags" name="flags" default="None" doc="describes texture parameters for copy. {BarrierFlags::DiscardContent} is implicit."/>
+      <member type="TextureRegion" name="texture_region" doc="describes texture region to copy."/>
+    </type>
+
 
     <!-- Variants -->
     <type name="DeviceRequirements" category="variant" version="0.7.0" doc="Device requirements. Used to specify required features and properties for device creation.">

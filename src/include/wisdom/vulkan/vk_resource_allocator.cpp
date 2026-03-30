@@ -195,6 +195,36 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateTexture(
         return wis::detail::make_result<wis::detail::Func(), "Buffer creation failed">(vr);
     }
 
+    // If the image is created with host copy usage, we need to transition it to general layout so that it can be mapped
+    // and accessed by the CPU.
+    if (desc->usage_flags & WisTextureUsageFlagsHostCopy) {
+        auto& header = allocator.device_header->header;
+        auto& features = header.features;
+
+        // perform transition
+        auto& table = header.device_table;
+        VkHostImageLayoutTransitionInfoEXT transition_info{
+            .sType = VK_STRUCTURE_TYPE_HOST_IMAGE_LAYOUT_TRANSITION_INFO_EXT,
+            .pNext = nullptr,
+            .image = image_handle,
+            .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+            .newLayout = VK_IMAGE_LAYOUT_GENERAL,
+            .subresourceRange = {
+                .aspectMask = wis::detail::VKAspectFlags(image_info.format),
+                .baseMipLevel = 0,
+                .levelCount = image_info.mipLevels,
+                .baseArrayLayer = 0,
+                .layerCount = image_info.arrayLayers,
+            },
+        };
+
+        vr = table.vkTransitionImageLayoutEXT(header.device, 1, &transition_info);
+        if (!wis::detail::succeeded(vr)) {
+            vmaDestroyImage(allocator.allocator, image_handle, allocation_handle);
+            return wis::detail::make_result<wis::detail::Func(), "Failed to transition image to initial layout">(vr);
+        }
+    }
+
     auto& impl = *new (buffer) wis::impl::VKTextureImpl{
         .image = image_handle,
         .allocation = allocation_handle,

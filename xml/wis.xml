@@ -421,6 +421,18 @@ Otherwise the first is chosen.">
         <arg type="BufferCopyRegion" name="regions" mod="const,span" doc="points to an array of {BufferCopyRegion::} that defines the copy regions."/>
         <arg type="size" name="region_count" doc="defines the count of the regions."/>
       </func>
+      <func for="CommandList" name="CopyBufferToTexture" version="0.7.0" mod="const" doc="Copies regions from a buffer to a texture.">
+        <arg type="TextureView" name="dst_texture" doc="defines a pointer to the destination texture. Texture @wis_must be in {TextureState::CopyDst}."/>
+        <arg type="BufferView" name="src_buffer" doc="describes a pointer to the source buffer."/>
+        <arg type="BufferTextureCopyRegion" name="regions" mod="const,span" doc="points to an array of {BufferTextureCopyRegion::} that defines the copy regions."/>
+        <arg type="size" name="region_count" doc="defines the count of the regions."/>
+      </func>
+      <func for="CommandList" name="CopyTextureToBuffer" version="0.7.0" mod="const" doc="Copies regions from a texture to a buffer.">
+        <arg type="BufferView" name="dst_buffer" doc="defines a pointer to the destination buffer."/>
+        <arg type="TextureView" name="src_texture" doc="describes a pointer to the source texture. Texture @wis_must be in {TextureState::CopySrc}."/>
+        <arg type="BufferTextureCopyRegion" name="regions" mod="const,span" doc="points to an array of {BufferTextureCopyRegion::} that defines the copy regions."/>
+        <arg type="size" name="region_count" doc="defines the count of the regions."/>
+      </func>
 
       <!-- Pipeline Cache -->
       <func for="PipelineCache" name="Serialize" version="0.7.0" mod="const" doc="Gets the data from the pipeline cache.">

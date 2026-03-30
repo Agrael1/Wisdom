@@ -9,7 +9,7 @@
 #include <algorithm>
 
 namespace wis::detail {
-VkResult VKAcquireNextImage(const impl::VKSwapchainImpl& impl) noexcept
+inline VkResult VKAcquireNextImage(const impl::VKSwapchainImpl& impl) noexcept
 {
     auto& swapchain_header = impl.swapchain_header->header;
     auto& swapchain_table = *impl.swapchain_table;

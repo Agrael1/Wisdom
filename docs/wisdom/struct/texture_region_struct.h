@@ -44,7 +44,9 @@
  * @section WisTextureRegion_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
- * @see Functions:
+ * @see Structs:
+ * WisBufferTextureCopyRegion
+ * Functions:
  * wisTextureWriteSubresource
  * \endcond
  */
