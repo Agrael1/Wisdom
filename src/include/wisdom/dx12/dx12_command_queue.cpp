@@ -1,14 +1,12 @@
 #ifndef WIS_DX12_COMMAND_QUEUE_CPP
 #define WIS_DX12_COMMAND_QUEUE_CPP
 
-#include <wisdom/generated/c_api.h>
-#include <wisdom/dx12/dx12_types.hpp>
 #include <wisdom/dx12/detail/dx12_utils.hpp>
+#include <wisdom/dx12/dx12_types.hpp>
+#include <wisdom/generated/c_api.h>
 #include <wisdom/util/allocation.hpp>
+
 #include <bit>
-
-
-
 
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyCommandQueue(WisDX12CommandQueue* self)
@@ -22,9 +20,8 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyCommandQueue(WisDX12CommandQueue* sel
 }
 
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisDX12CommandQueueSubmit(const WisDX12CommandQueue*    self,
-                                                            const WisDX12CommandListView* lists,
-                                                            size_t                        count)
+WIS_EXTERN_C WISDOM_API WisResult
+wisDX12CommandQueueSubmit(const WisDX12CommandQueue* self, const WisDX12CommandListView* lists, size_t count)
 {
     auto& [queue] = wis::from_handle_ref<const wis::impl::DX12CommandQueueImpl>(self);
     queue->ExecuteCommandLists(static_cast<UINT>(count), reinterpret_cast<ID3D12CommandList* const*>(lists));
@@ -32,12 +29,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CommandQueueSubmit(const WisDX12Command
 }
 
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisDX12CommandQueueSignalFence(const WisDX12CommandQueue* self,
-                                                                 WisDX12FenceView           fence,
-                                                                 uint64_t                   value)
+WIS_EXTERN_C WISDOM_API WisResult
+wisDX12CommandQueueSignalFence(const WisDX12CommandQueue* self, WisDX12FenceView fence, uint64_t value)
 {
     auto& [queue] = wis::from_handle_ref<const wis::impl::DX12CommandQueueImpl>(self);
-    auto hr       = queue->Signal(std::bit_cast<ID3D12Fence*>(fence), value);
+    auto hr = queue->Signal(std::bit_cast<ID3D12Fence*>(fence), value);
     if (!wis::detail::succeeded(hr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to signal fence on command queue">(hr);
     }
@@ -46,12 +42,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CommandQueueSignalFence(const WisDX12Co
 }
 
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisDX12CommandQueueWaitFence(const WisDX12CommandQueue* self,
-                                                               WisDX12FenceView           fence,
-                                                               uint64_t                   value)
+WIS_EXTERN_C WISDOM_API WisResult
+wisDX12CommandQueueWaitFence(const WisDX12CommandQueue* self, WisDX12FenceView fence, uint64_t value)
 {
     auto& [queue] = wis::from_handle_ref<const wis::impl::DX12CommandQueueImpl>(self);
-    auto hr       = queue->Wait(std::bit_cast<ID3D12Fence*>(fence), value);
+    auto hr = queue->Wait(std::bit_cast<ID3D12Fence*>(fence), value);
     if (!wis::detail::succeeded(hr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to enqueue wait on fence for command queue">(hr);
     }

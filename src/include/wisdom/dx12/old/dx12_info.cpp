@@ -1,16 +1,18 @@
 #ifndef WIS_DX12_INFO_CPP
 #define WIS_DX12_INFO_CPP
 #ifndef WISDOM_MODULE_DECL
-#include <wisdom/dx12/dx12_info.h>
-#include <wisdom/global/constants.h>
-#include <d3d12sdklayers.h>
-#include <dxgi1_6.h>
-#include <vector>
-#include <wisdom/bridge/format.h>
-#include <wisdom/global/definitions.h>
+#    include <wisdom/bridge/format.h>
+#    include <wisdom/dx12/dx12_info.h>
+#    include <wisdom/global/constants.h>
+#    include <wisdom/global/definitions.h>
+
+#    include <d3d12sdklayers.h>
+#    include <dxgi1_6.h>
+#    include <vector>
 #endif // WISDOM_MODULE_DECL
 
-namespace wis {
+namespace wis
+{
 constexpr wis::Severity Convert(DXGI_INFO_QUEUE_MESSAGE_SEVERITY sev) noexcept
 {
     using enum wis::Severity;
@@ -71,7 +73,7 @@ void DX12Info::AddCallback(void* factory, DebugCallback callback, void* user_dat
 {
     auto& inst = instance();
     inst.callback_sem.acquire();
-    inst.callbacks.emplace(factory, std::pair<wis::DebugCallback, void*>{ callback, user_data });
+    inst.callbacks.emplace(factory, std::pair<wis::DebugCallback, void*>{callback, user_data});
     inst.callback_sem.release();
 }
 void DX12Info::RemoveCallback(void* factrory) noexcept
@@ -116,12 +118,11 @@ void wis::DX12Info::Initialize() noexcept
 
         if (auto d3dinfoqueue = info_queue.as<ID3D12InfoQueue>()) {
             d3dinfoqueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true); // Corruption
-            d3dinfoqueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true); // Error
-            d3dinfoqueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true); // Warning
+            d3dinfoqueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);      // Error
+            d3dinfoqueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);    // Warning
         }
     }
-    info_queue->AddApplicationMessage(DXGI_INFO_QUEUE_MESSAGE_SEVERITY_INFO,
-                                      "Debug layer creation succeded");
+    info_queue->AddApplicationMessage(DXGI_INFO_QUEUE_MESSAGE_SEVERITY_INFO, "Debug layer creation succeded");
 }
 
 void wis::DX12Info::PollInternal() noexcept
@@ -130,8 +131,8 @@ void wis::DX12Info::PollInternal() noexcept
     message.resize(sizeof(DXGI_INFO_QUEUE_MESSAGE));
 
     for (UINT64 i = 0;; i++) {
-        SIZE_T  messageLength = 0;
-        HRESULT hr            = info_queue->GetMessage(DXGI_DEBUG_ALL, i, nullptr, &messageLength);
+        SIZE_T messageLength = 0;
+        HRESULT hr = info_queue->GetMessage(DXGI_DEBUG_ALL, i, nullptr, &messageLength);
         if (hr < 0) {
             break;
         }

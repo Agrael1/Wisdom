@@ -1,15 +1,16 @@
 #ifndef WIS_VK_PIPELINE_STATE_H
 #define WIS_VK_PIPELINE_STATE_H
 #ifndef WISDOM_MODULE_DECL
-#include <wisdom/global/internal.h>
-#include <wisdom/vulkan/vk_views.h>
+#    include <wisdom/global/internal.h>
+#    include <wisdom/vulkan/vk_views.h>
 #endif // !WISDOM_MODULE_DECL
 
-namespace wis {
+namespace wis
+{
 WISDOM_EXPORT class VKPipelineState;
 
 WISDOM_EXPORT
-template<>
+template <>
 struct Internal<VKPipelineState> {
     wis::SharedPipeline pipeline;
 };
@@ -19,14 +20,8 @@ class VKPipelineState : public QueryInternal<VKPipelineState>
 {
 public:
     VKPipelineState() = default;
-    operator VKPipelineView() const noexcept
-    {
-        return pipeline.get();
-    }
-    operator bool() const noexcept
-    {
-        return bool(pipeline);
-    }
+    operator VKPipelineView() const noexcept { return pipeline.get(); }
+    operator bool() const noexcept { return bool(pipeline); }
 };
 } // namespace wis
 

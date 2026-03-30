@@ -1,9 +1,9 @@
 #!/bin/sh
 
-FORMAT_TARGETS=("wisdom" "examples")
+FORMAT_TARGETS=("src" "examples")
 
 function format() {
-    for f in $(find $@ -name '*.h' -or -name '*.inl' -or -name '*.ixx' -or -name '*.m' -or -name '*.mm' -or -name '*.c' -or -name '*.cpp'); do 
+    for f in $(find $@ \( -name '*.h' -or -name '*.hpp' -or -name '*.ixx' -or -name '*.m' -or -name '*.mm' -or -name '*.c' -or -name '*.cpp' \) ! -name 'xxhash.h'); do 
         echo "format ${f}";
         clang-format -i ${f};
     done

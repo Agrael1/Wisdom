@@ -1,54 +1,54 @@
 #ifndef WIS_VK_SWAPCHAIN_H
 #define WIS_VK_SWAPCHAIN_H
 #ifndef WISDOM_MODULE_DECL
-#include <wisdom/global/internal.h>
-#include <wisdom/vulkan/vk_resource.h>
-#include <wisdom/vulkan/vk_command_list.h>
+#    include <wisdom/global/internal.h>
+#    include <wisdom/vulkan/vk_command_list.h>
+#    include <wisdom/vulkan/vk_resource.h>
 #endif // !WISDOM_MODULE_DECL
 
-namespace wis {
+namespace wis
+{
 WISDOM_EXPORT class VKSwapChain;
 WISDOM_EXPORT class VKDevice;
 
 WISDOM_EXPORT
-namespace detail {
+namespace detail
+{
 struct VKSwapChainCreateInfo {
     wis::SharedSurface surface;
-    wis::SharedDevice  device;
+    wis::SharedDevice device;
 
-    VkPhysicalDevice               adapter                    = nullptr;
-    h::VkSwapchainKHR              swapchain                  = nullptr;
-    h::VkCommandBuffer             initialization             = nullptr;
-    h::VkCommandPool               command_pool               = nullptr;
-    h::VkQueue                     present_queue              = nullptr;
-    h::VkQueue                     graphics_queue             = nullptr;
+    VkPhysicalDevice adapter = nullptr;
+    h::VkSwapchainKHR swapchain = nullptr;
+    h::VkCommandBuffer initialization = nullptr;
+    h::VkCommandPool command_pool = nullptr;
+    h::VkQueue present_queue = nullptr;
+    h::VkQueue graphics_queue = nullptr;
     std::unique_ptr<VkSemaphore[]> render_completed_semaphore = nullptr;
-    std::unique_ptr<VkSemaphore[]> image_ready_semaphores     = nullptr; // if signalled, it means the rendering is available
-    std::unique_ptr<VKTexture[]>   back_buffers;
-    std::array<h::VkFence, 2>      fences = {}; // only used for initialization and resizing
+    std::unique_ptr<VkSemaphore[]>
+        image_ready_semaphores = nullptr;  // if signalled, it means the rendering is available
+    std::unique_ptr<VKTexture[]> back_buffers;
+    std::array<h::VkFence, 2> fences = {}; // only used for initialization and resizing
 
     VkSurfaceFormatKHR format{};
-    uint64_t           present_id = 0;
+    uint64_t present_id = 0;
 
-    uint32_t                 back_buffer_count = 0;
+    uint32_t back_buffer_count = 0;
     VkPresentScalingFlagsEXT scaling{};
-    mutable uint32_t         present_index = 0;
-    mutable VkPresentModeKHR present_mode  = VK_PRESENT_MODE_FIFO_KHR;
+    mutable uint32_t present_index = 0;
+    mutable VkPresentModeKHR present_mode = VK_PRESENT_MODE_FIFO_KHR;
 
-    uint8_t         supported_presentations = 0;
-    bool            stereo                  = false;
-    bool            tearing                 = false;
-    bool            stereo_requested        = false;
-    mutable uint8_t acquire_index           = 0;
+    uint8_t supported_presentations = 0;
+    bool stereo = false;
+    bool tearing = false;
+    bool stereo_requested = false;
+    mutable uint8_t acquire_index = 0;
 
 public:
-    VKSwapChainCreateInfo()                                 = default;
+    VKSwapChainCreateInfo() = default;
     VKSwapChainCreateInfo(VKSwapChainCreateInfo&&) noexcept = default;
     WIS_INLINE VKSwapChainCreateInfo& operator=(VKSwapChainCreateInfo&&) noexcept;
-    ~VKSwapChainCreateInfo() noexcept
-    {
-        Destroy();
-    }
+    ~VKSwapChainCreateInfo() noexcept { Destroy(); }
 
     WIS_INLINE void Destroy() noexcept;
 
@@ -56,12 +56,12 @@ public:
     [[nodiscard]] WIS_INLINE wis::Result InitBackBuffers(VkExtent2D image_size) noexcept;
     [[nodiscard]] WIS_INLINE wis::Result AcquireNextIndex() const noexcept;
     [[nodiscard]] WIS_INLINE wis::Result AcquireNextIndexAndWait() const noexcept;
-    WIS_INLINE void                      ReleaseSemaphores() noexcept;
+    WIS_INLINE void ReleaseSemaphores() noexcept;
 };
 } // namespace detail
 
 WISDOM_EXPORT
-template<>
+template <>
 struct Internal<VKSwapChain> : detail::VKSwapChainCreateInfo {
 };
 
@@ -69,21 +69,12 @@ class ImplVKSwapChain : public QueryInternal<VKSwapChain>
 {
 public:
     ImplVKSwapChain() = default;
-    operator bool() const noexcept
-    {
-        return bool(swapchain);
-    }
+    operator bool() const noexcept { return bool(swapchain); }
 
 public:
-    [[nodiscard]] uint32_t GetCurrentIndex() const noexcept
-    {
-        return present_index;
-    }
+    [[nodiscard]] uint32_t GetCurrentIndex() const noexcept { return present_index; }
 
-    [[nodiscard]] bool StereoSupported() const noexcept
-    {
-        return stereo;
-    }
+    [[nodiscard]] bool StereoSupported() const noexcept { return stereo; }
 
     [[nodiscard]] WIS_INLINE wis::Result Resize(uint32_t width, uint32_t height) noexcept;
 
@@ -93,7 +84,7 @@ public:
 
     [[nodiscard]] std::pair<const VKTexture*, uint32_t> GetBuffers() const noexcept
     {
-        return { back_buffers.get(), back_buffer_count };
+        return {back_buffers.get(), back_buffer_count};
     }
     [[nodiscard]] const VKTexture* GetBuffers(uint32_t* out_textures_count) const noexcept
     {
@@ -102,9 +93,11 @@ public:
     }
     [[nodiscard]] std::span<const VKTexture> GetBufferSpan() const noexcept
     {
-        return { back_buffers.get(), back_buffer_count };
+        return {back_buffers.get(), back_buffer_count};
     }
-    [[nodiscard]] WIS_INLINE wis::Result WaitForPresent(uint64_t timeout_ns = std::numeric_limits<uint64_t>::max()) const noexcept;
+    [[nodiscard]] WIS_INLINE wis::Result WaitForPresent(
+        uint64_t timeout_ns = std::numeric_limits<uint64_t>::max()
+    ) const noexcept;
 
 public:
     [[nodiscard]] WIS_INLINE wis::Result VKRecreateSwapchain(uint32_t width, uint32_t height, void* pNext) noexcept;
@@ -120,9 +113,9 @@ class VKSwapChain : public wis::ImplVKSwapChain
 {
 public:
     using wis::ImplVKSwapChain::ImplVKSwapChain;
-    VKSwapChain(const VKSwapChain&)                = delete;
-    VKSwapChain(VKSwapChain&&) noexcept            = default;
-    VKSwapChain& operator=(const VKSwapChain&)     = delete;
+    VKSwapChain(const VKSwapChain&) = delete;
+    VKSwapChain(VKSwapChain&&) noexcept = default;
+    VKSwapChain& operator=(const VKSwapChain&) = delete;
     VKSwapChain& operator=(VKSwapChain&&) noexcept = default;
 
 public:
@@ -130,18 +123,12 @@ public:
      * @brief Get the current image index in the swapchain.
      * @return Index of the current image.
      * */
-    inline uint32_t GetCurrentIndex() const noexcept
-    {
-        return wis::ImplVKSwapChain::GetCurrentIndex();
-    }
+    inline uint32_t GetCurrentIndex() const noexcept { return wis::ImplVKSwapChain::GetCurrentIndex(); }
     /**
      * @brief Check if stereo is supported.
      * @return true if stereo is supported.
      * */
-    inline bool StereoSupported() const noexcept
-    {
-        return wis::ImplVKSwapChain::StereoSupported();
-    }
+    inline bool StereoSupported() const noexcept { return wis::ImplVKSwapChain::StereoSupported(); }
     /**
      * @brief Resize the swapchain.
      * Transition may be expensive.
@@ -157,10 +144,7 @@ public:
      * @brief Present the swapchain.
      * Presentation always gets queued to the queue specified upon creation.
      * */
-    [[nodiscard]] inline wis::Result Present() noexcept
-    {
-        return wis::ImplVKSwapChain::Present();
-    }
+    [[nodiscard]] inline wis::Result Present() noexcept { return wis::ImplVKSwapChain::Present(); }
     /**
      * @brief Present the swapchain with vsync option.
      * Requires wis::DeviceFeature::DynamicVSync to be supported.
@@ -185,7 +169,7 @@ public:
 } // namespace wis
 
 #ifndef WISDOM_BUILD_BINARIES
-#include "impl/vk_swapchain.cpp"
+#    include "impl/vk_swapchain.cpp"
 #endif // !WISDOM_HEADER_ONLY
 
 #endif // VK_SWAPCHAIN_H

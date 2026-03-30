@@ -1,9 +1,10 @@
 #pragma once
-#include <queue>
 #include <bitset>
 #include <optional>
+#include <queue>
 
-namespace ex {
+namespace ex
+{
 class Keyboard
 {
     friend class Window;
@@ -23,23 +24,15 @@ public:
 
     public:
         Event(Type type, unsigned char code) noexcept
-            : type(type), code(code)
+            : type(type)
+            , code(code)
         {
         }
 
     public:
-        bool IsPress() const noexcept
-        {
-            return type == Type::Press;
-        }
-        bool IsRelease() const noexcept
-        {
-            return type == Type::Release;
-        }
-        unsigned char GetCode() const noexcept
-        {
-            return code;
-        }
+        bool IsPress() const noexcept { return type == Type::Press; }
+        bool IsRelease() const noexcept { return type == Type::Release; }
+        unsigned char GetCode() const noexcept { return code; }
     };
 
 public:
@@ -68,7 +61,7 @@ public:
     void OnKeyReleased(unsigned char keycode) noexcept;
     void OnChar(char character) noexcept;
     void ClearState() noexcept;
-    template<typename T>
+    template <typename T>
     static void TrimBuffer(std::queue<T>& buffer) noexcept;
 
 private:

@@ -1,16 +1,17 @@
 #ifndef WIS_DX12_COMMAND_QUEUE_H
 #define WIS_DX12_COMMAND_QUEUE_H
 #ifndef WISDOM_MODULE_DECL
-#include <wisdom/global/internal.h>
-#include <wisdom/dx12/dx12_checks.h>
-#include <wisdom/dx12/dx12_views.h>
+#    include <wisdom/dx12/dx12_checks.h>
+#    include <wisdom/dx12/dx12_views.h>
+#    include <wisdom/global/internal.h>
 #endif
 
-namespace wis {
+namespace wis
+{
 WISDOM_EXPORT class DX12CommandQueue;
 
 WISDOM_EXPORT
-template<>
+template <>
 struct Internal<DX12CommandQueue> {
     wis::com_ptr<ID3D12CommandQueue> queue;
 };
@@ -20,14 +21,8 @@ class ImplDX12CommandQueue : public QueryInternal<DX12CommandQueue>
 {
 public:
     ImplDX12CommandQueue() = default;
-    operator bool() const noexcept
-    {
-        return bool(queue);
-    }
-    operator DX12QueueView() const noexcept
-    {
-        return queue.get();
-    }
+    operator bool() const noexcept { return bool(queue); }
+    operator DX12QueueView() const noexcept { return queue.get(); }
 
 public:
     void ExecuteCommandLists(const DX12CommandListView* lists, uint32_t count) const noexcept
@@ -40,15 +35,15 @@ public:
     {
         HRESULT hr;
         return wis::succeeded(hr = queue->Signal(std::get<0>(fence), value))
-                ? wis::success
-                : wis::make_result<wis::Func<wis::FuncD()>(), "Signal failed">(hr);
+                   ? wis::success
+                   : wis::make_result<wis::Func<wis::FuncD()>(), "Signal failed">(hr);
     }
     wis::Result WaitQueue(DX12FenceView fence, uint64_t value) const noexcept
     {
         HRESULT hr;
         return wis::succeeded(hr = queue->Wait(std::get<0>(fence), value))
-                ? wis::success
-                : wis::make_result<wis::Func<wis::FuncD()>(), "Wait failed">(hr);
+                   ? wis::success
+                   : wis::make_result<wis::Func<wis::FuncD()>(), "Wait failed">(hr);
     }
 };
 #pragma region DX12CommandQueue
@@ -60,9 +55,9 @@ class DX12CommandQueue : public wis::ImplDX12CommandQueue
 {
 public:
     using wis::ImplDX12CommandQueue::ImplDX12CommandQueue;
-    DX12CommandQueue(const DX12CommandQueue&)                = delete;
-    DX12CommandQueue(DX12CommandQueue&&) noexcept            = default;
-    DX12CommandQueue& operator=(const DX12CommandQueue&)     = delete;
+    DX12CommandQueue(const DX12CommandQueue&) = delete;
+    DX12CommandQueue(DX12CommandQueue&&) noexcept = default;
+    DX12CommandQueue& operator=(const DX12CommandQueue&) = delete;
     DX12CommandQueue& operator=(DX12CommandQueue&&) noexcept = default;
 
 public:
@@ -85,8 +80,8 @@ public:
         return wis::ImplDX12CommandQueue::SignalQueue(std::move(fence), value);
     }
     /**
-     * @brief Enqueues wait operation to the command queue. Queue then waits for the fence to be signalled from CPU or from another queue.
-     * Can still be enqueued after the signal.
+     * @brief Enqueues wait operation to the command queue. Queue then waits for the fence to be signalled from CPU or
+     * from another queue. Can still be enqueued after the signal.
      * @param fence The fence to wait on.
      * @param value The value to wait the fence to reach.
      * */

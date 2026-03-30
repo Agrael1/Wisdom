@@ -1,4 +1,5 @@
 #include "mouse.h"
+
 #include <algorithm>
 
 std::optional<ex::Mouse::RawDelta> ex::Mouse::ReadRawDelta() noexcept
@@ -52,7 +53,7 @@ void ex::Mouse::OnMouseEnter() noexcept
 
 void ex::Mouse::OnRawDelta(int dx, int dy) noexcept
 {
-    raw_delta_buffer.push({ dx, dy });
+    raw_delta_buffer.push({dx, dy});
     TrimBuffer();
 }
 

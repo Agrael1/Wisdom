@@ -1,17 +1,19 @@
 #ifndef WIS_DX12_UNIQUE_EVENT_H
 #define WIS_DX12_UNIQUE_EVENT_H
 #ifndef WISDOM_MODULE_DECL
-#include <wisdom/generated/api/api.hpp>
-#include <Windows.h>
+#    include <wisdom/generated/api/api.hpp>
+
+#    include <Windows.h>
 #endif
 
-namespace wis {
+namespace wis
+{
 struct unique_event {
     unique_event(HANDLE event = nullptr) noexcept
         : hevent(event)
     {
     }
-    unique_event(unique_event const&)            = delete;
+    unique_event(unique_event const&) = delete;
     unique_event& operator=(unique_event const&) = delete;
     unique_event(unique_event&& o) noexcept
         : hevent(std::exchange(o.hevent, nullptr))
@@ -29,14 +31,8 @@ struct unique_event {
             CloseHandle(hevent);
         }
     }
-    auto get() const noexcept
-    {
-        return hevent;
-    }
-    operator bool() const noexcept
-    {
-        return bool(hevent);
-    }
+    auto get() const noexcept { return hevent; }
+    operator bool() const noexcept { return bool(hevent); }
     wis::Status wait(uint32_t wait_ms) const noexcept
     {
         auto st = WaitForSingleObject(hevent, wait_ms);

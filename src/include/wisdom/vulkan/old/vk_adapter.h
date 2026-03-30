@@ -1,35 +1,33 @@
 #ifndef WIS_VK_ADAPTER_H
 #define WIS_VK_ADAPTER_H
 #ifndef WISDOM_MODULE_DECL
-#include <span>
-#include <wisdom/global/internal.h>
-#include <wisdom/vulkan/vk_checks.h>
-#include <wisdom/vulkan/vk_views.h>
-#include <wisdom/generated/vulkan/vk_functions.hpp>
+#    include <wisdom/generated/vulkan/vk_functions.hpp>
+#    include <wisdom/global/internal.h>
+#    include <wisdom/vulkan/vk_checks.h>
+#    include <wisdom/vulkan/vk_views.h>
+
+#    include <span>
 #endif // !WISDOM_MODULE_DECL
 
-namespace wis {
+namespace wis
+{
 WISDOM_EXPORT class VKAdapter;
 
 WISDOM_EXPORT
-template<>
+template <>
 struct Internal<VKAdapter> {
     wis::SharedInstance instance;
-    VkPhysicalDevice    adapter = VK_NULL_HANDLE;
+    VkPhysicalDevice adapter = VK_NULL_HANDLE;
 };
 
 class ImplVKAdapter : public QueryInternal<VKAdapter>
 {
 public:
     ImplVKAdapter() noexcept = default;
-    operator bool() const noexcept
-    {
-        return adapter != nullptr;
-    }
+    operator bool() const noexcept { return adapter != nullptr; }
 
 public:
-    [[nodiscard]] WIS_INLINE wis::Result
-                             GetDesc(AdapterDesc* pout_desc) const noexcept;
+    [[nodiscard]] WIS_INLINE wis::Result GetDesc(AdapterDesc* pout_desc) const noexcept;
 };
 
 #pragma region VKAdapter
@@ -58,6 +56,6 @@ public:
 } // namespace wis
 
 #ifndef WISDOM_BUILD_BINARIES
-#include "impl/vk_adapter.cpp"
+#    include "impl/vk_adapter.cpp"
 #endif // !WISDOM_HEADER_ONLY
 #endif // !VK_ADAPTER_H

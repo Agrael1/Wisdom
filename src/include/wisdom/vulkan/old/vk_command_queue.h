@@ -1,23 +1,24 @@
 #ifndef WIS_VK_COMMAND_QUEUE_H
 #define WIS_VK_COMMAND_QUEUE_H
 #ifndef WISDOM_MODULE_DECL
-#include <wisdom/global/internal.h>
-#include <wisdom/vulkan/vk_views.h>
-#include <wisdom/vulkan/vk_checks.h>
+#    include <wisdom/global/internal.h>
+#    include <wisdom/vulkan/vk_checks.h>
+#    include <wisdom/vulkan/vk_views.h>
 #endif // !WISDOM_MODULE_DECL
 
-namespace wis {
+namespace wis
+{
 WISDOM_EXPORT class VKCommandQueue;
 
 WISDOM_EXPORT
-template<>
+template <>
 struct Internal<VKCommandQueue> {
     wis::SharedDevice device;
-    h::VkQueue        queue;
+    h::VkQueue queue;
 
 public:
-    Internal() noexcept           = default;
-    ~Internal() noexcept          = default;
+    Internal() noexcept = default;
+    ~Internal() noexcept = default;
     Internal(Internal&&) noexcept = default;
     Internal& operator=(Internal&& o) noexcept
     {
@@ -26,7 +27,7 @@ public:
         }
 
         device = std::move(o.device);
-        queue  = std::move(o.queue);
+        queue = std::move(o.queue);
         return *this;
     }
 };
@@ -36,14 +37,8 @@ class ImplVKCommandQueue : public QueryInternal<VKCommandQueue>
 {
 public:
     ImplVKCommandQueue() = default;
-    operator bool() const noexcept
-    {
-        return bool(queue);
-    }
-    operator VKQueueView() const noexcept
-    {
-        return queue;
-    }
+    operator bool() const noexcept { return bool(queue); }
+    operator VKQueueView() const noexcept { return queue; }
 
 public:
     WIS_INLINE void ExecuteCommandLists(const VKCommandListView* lists, uint32_t count) const noexcept;
@@ -59,9 +54,9 @@ class VKCommandQueue : public wis::ImplVKCommandQueue
 {
 public:
     using wis::ImplVKCommandQueue::ImplVKCommandQueue;
-    VKCommandQueue(const VKCommandQueue&)                = delete;
-    VKCommandQueue(VKCommandQueue&&) noexcept            = default;
-    VKCommandQueue& operator=(const VKCommandQueue&)     = delete;
+    VKCommandQueue(const VKCommandQueue&) = delete;
+    VKCommandQueue(VKCommandQueue&&) noexcept = default;
+    VKCommandQueue& operator=(const VKCommandQueue&) = delete;
     VKCommandQueue& operator=(VKCommandQueue&&) noexcept = default;
 
 public:
@@ -84,8 +79,8 @@ public:
         return wis::ImplVKCommandQueue::SignalQueue(std::move(fence), value);
     }
     /**
-     * @brief Enqueues wait operation to the command queue. Queue then waits for the fence to be signalled from CPU or from another queue.
-     * Can still be enqueued after the signal.
+     * @brief Enqueues wait operation to the command queue. Queue then waits for the fence to be signalled from CPU or
+     * from another queue. Can still be enqueued after the signal.
      * @param fence The fence to wait on.
      * @param value The value to wait the fence to reach.
      * */
@@ -99,6 +94,6 @@ public:
 } // namespace wis
 
 #ifndef WISDOM_BUILD_BINARIES
-#include "impl/vk_command_queue.cpp"
+#    include "impl/vk_command_queue.cpp"
 #endif // !WISDOM_HEADER_ONLY
 #endif // !

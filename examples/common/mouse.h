@@ -1,8 +1,9 @@
 #pragma once
-#include <queue>
 #include <optional>
+#include <queue>
 
-namespace ex {
+namespace ex
+{
 class Mouse
 {
 public:
@@ -33,35 +34,21 @@ public:
 
     public:
         Event(Type atype, const Mouse& parent) noexcept
-            : _type(atype), left(parent.left_is_pressed), right(parent.right_is_pressed), x(parent.x), y(parent.y)
+            : _type(atype)
+            , left(parent.left_is_pressed)
+            , right(parent.right_is_pressed)
+            , x(parent.x)
+            , y(parent.y)
         {
         }
 
     public:
-        Type GetType() const noexcept
-        {
-            return _type;
-        }
-        std::pair<int, int> GetPos() const noexcept
-        {
-            return { x, y };
-        }
-        int GetPosX() const noexcept
-        {
-            return x;
-        }
-        int GetPosY() const noexcept
-        {
-            return y;
-        }
-        bool LeftPressed() const noexcept
-        {
-            return left;
-        }
-        bool RightPressed() const noexcept
-        {
-            return right;
-        }
+        Type GetType() const noexcept { return _type; }
+        std::pair<int, int> GetPos() const noexcept { return {x, y}; }
+        int GetPosX() const noexcept { return x; }
+        int GetPosY() const noexcept { return y; }
+        bool LeftPressed() const noexcept { return left; }
+        bool RightPressed() const noexcept { return right; }
     };
 
 public:
@@ -70,54 +57,21 @@ public:
     Mouse& operator=(const Mouse&) = delete;
 
 public:
-    std::pair<int, int> GetPos() const noexcept
-    {
-        return { x, y };
-    }
+    std::pair<int, int> GetPos() const noexcept { return {x, y}; }
     std::optional<RawDelta> ReadRawDelta() noexcept;
-    int GetPosX() const noexcept
-    {
-        return x;
-    }
-    int GetPosY() const noexcept
-    {
-        return y;
-    }
-    bool IsInWindow() const noexcept
-    {
-        return is_in_window;
-    }
-    bool LeftIsPressed() const noexcept
-    {
-        return left_is_pressed;
-    }
-    bool RightIsPressed() const noexcept
-    {
-        return right_is_pressed;
-    }
+    int GetPosX() const noexcept { return x; }
+    int GetPosY() const noexcept { return y; }
+    bool IsInWindow() const noexcept { return is_in_window; }
+    bool LeftIsPressed() const noexcept { return left_is_pressed; }
+    bool RightIsPressed() const noexcept { return right_is_pressed; }
     std::optional<Mouse::Event> Read() noexcept;
-    bool IsEmpty() const noexcept
-    {
-        return buffer.empty();
-    }
-    void Flush() noexcept
-    {
-        buffer = std::queue<Event>();
-    }
+    bool IsEmpty() const noexcept { return buffer.empty(); }
+    void Flush() noexcept { buffer = std::queue<Event>(); }
     void BoundCursor(int width, int height) noexcept;
 
-    void EnableRaw() noexcept
-    {
-        raw_enabled = true;
-    }
-    void DisableRaw() noexcept
-    {
-        raw_enabled = false;
-    }
-    bool RawEnabled() const noexcept
-    {
-        return raw_enabled;
-    }
+    void EnableRaw() noexcept { raw_enabled = true; }
+    void DisableRaw() noexcept { raw_enabled = false; }
+    bool RawEnabled() const noexcept { return raw_enabled; }
 
 public:
     void OnMouseMove(int x, int y) noexcept;

@@ -2,26 +2,29 @@
 #define WIS_VK_PLATFORM_XLIB_CPP
 
 #if defined(WISDOM_VULKAN) && defined(WIS_PLATFORM_XLIB_PRESENT)
-#include <wisdom_platform/generated/cpp_api.hpp>
-#include <wisdom/vulkan/detail/vk_utils.hpp>
-#include <wisdom/vulkan/detail/vk_detail.hpp>
-#include <wisdom/vulkan/vk_extensions.hpp>
+#    include <wisdom/vulkan/detail/vk_detail.hpp>
+#    include <wisdom/vulkan/detail/vk_utils.hpp>
+#    include <wisdom/vulkan/vk_extensions.hpp>
+#    include <wisdom_platform/generated/cpp_api.hpp>
 
-#include <X11/Xlib.h>
-#include <vulkan/vulkan_xlib.h>
+#    include <X11/Xlib.h>
+#    include <vulkan/vulkan_xlib.h>
 
 // Undefine common macros that may interfere with Vulkan function pointer declarations
-#undef Bool
-#undef Status
-#undef True
-#undef False
-#undef None
-#undef Always
+#    undef Bool
+#    undef Status
+#    undef True
+#    undef False
+#    undef None
+#    undef Always
 
-namespace wis::detail {
-inline WisResult VKXlibExtensionInit(VKInstanceExtensionHeader*    self,
-                                     impl::VKInstanceImpl*         instance_impl,
-                                     VKInstanceExtensionCollector* collector) noexcept
+namespace wis::detail
+{
+inline WisResult VKXlibExtensionInit(
+    VKInstanceExtensionHeader* self,
+    impl::VKInstanceImpl* instance_impl,
+    VKInstanceExtensionCollector* collector
+) noexcept
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKXlibExtensionImpl>(self);
 
@@ -31,8 +34,8 @@ inline WisResult VKXlibExtensionInit(VKInstanceExtensionHeader*    self,
         impl.instance_control_block = instance_impl->shared_header;
         impl.instance_control_block->AddRef();
 
-        auto  instance              = instance_impl->instance;
-        auto& gtable                = impl.instance_control_block->header.global_table;
+        auto instance = instance_impl->instance;
+        auto& gtable = impl.instance_control_block->header.global_table;
         impl.vkCreateXlibSurfaceKHR = gtable.vkGetInstanceProcAddr(instance, "vkCreateXlibSurfaceKHR");
     }
 
@@ -44,7 +47,7 @@ inline WisResult VKXlibExtensionInit(VKInstanceExtensionHeader*    self,
 WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKInitXlibExtension(WisVKXlibExtension* self)
 {
     new (self) wis::impl::VKXlibExtensionImpl{
-        .header                 = { &wis::detail::VKXlibExtensionInit },
+        .header = {&wis::detail::VKXlibExtensionInit},
         .instance_control_block = nullptr,
     };
 }
@@ -59,26 +62,22 @@ WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKDestroyXlibExtension(WisVKXlibExtensi
 }
 
 //-----------------------------------------------------------------------------
-WISDOM_PLATFORM_API WisResult wisVKXlibExtensionCreateSurface(WisVKXlibExtension*      self,
-                                                              const WisXlibWindowDesc* info,
-                                                              WisVKSurface*            surface)
+WISDOM_PLATFORM_API WisResult
+wisVKXlibExtensionCreateSurface(WisVKXlibExtension* self, const WisXlibWindowDesc* info, WisVKSurface* surface)
 {
-    auto& impl                   = wis::from_handle_ref<wis::impl::VKXlibExtensionImpl>(self);
-    auto  vkCreateXlibSurfaceKHR = reinterpret_cast<PFN_vkCreateXlibSurfaceKHR>(impl.vkCreateXlibSurfaceKHR);
+    auto& impl = wis::from_handle_ref<wis::impl::VKXlibExtensionImpl>(self);
+    auto vkCreateXlibSurfaceKHR = reinterpret_cast<PFN_vkCreateXlibSurfaceKHR>(impl.vkCreateXlibSurfaceKHR);
 
     VkXlibSurfaceCreateInfoKHR vk_info{
-        .sType  = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR,
-        .pNext  = nullptr,
-        .flags  = 0,
-        .dpy    = static_cast<Display*>(info->display),
+        .sType = VK_STRUCTURE_TYPE_XLIB_SURFACE_CREATE_INFO_KHR,
+        .pNext = nullptr,
+        .flags = 0,
+        .dpy = static_cast<Display*>(info->display),
         .window = static_cast<Window>(info->window),
     };
 
     VkSurfaceKHR vk_surface = VK_NULL_HANDLE;
-    auto         vr         = vkCreateXlibSurfaceKHR(impl.instance_control_block->header.instance,
-                                     &vk_info,
-                                     nullptr,
-                                     &vk_surface);
+    auto vr = vkCreateXlibSurfaceKHR(impl.instance_control_block->header.instance, &vk_info, nullptr, &vk_surface);
     if (!wis::detail::succeeded(vr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to create Xlib surface">(vr);
     }
@@ -87,14 +86,15 @@ WISDOM_PLATFORM_API WisResult wisVKXlibExtensionCreateSurface(WisVKXlibExtension
     if (!header) {
         auto& itable = impl.instance_control_block->header.instance_table;
         itable.vkDestroySurfaceKHR(impl.instance_control_block->header.instance, vk_surface, nullptr);
-        return wis::detail::make_result<wis::detail::Func(), "Failed to allocate surface control block">(VK_ERROR_OUT_OF_HOST_MEMORY);
+        return wis::detail::make_result<wis::detail::Func(), "Failed to allocate surface control block">(
+            VK_ERROR_OUT_OF_HOST_MEMORY
+        );
     }
 
-    header->header.instance_header = impl.instance_control_block,
-    header->header.surface         = vk_surface,
+    header->header.instance_header = impl.instance_control_block, header->header.surface = vk_surface,
 
     new (surface) wis::impl::VKSurfaceImpl{
-        .surface        = vk_surface,
+        .surface = vk_surface,
         .surface_header = header,
     };
     impl.instance_control_block->AddRef(); // Surface holds a reference to the instance

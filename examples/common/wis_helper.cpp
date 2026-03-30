@@ -1,8 +1,9 @@
 #include "wis_helper.h"
-#include <iostream>
-#include <fstream>
 
 #include <wisdom/bridge/format.h>
+
+#include <fstream>
+#include <iostream>
 
 void ex::ExampleSetup::DebugCallback(wis::Severity severity, const char* message, void* user_data)
 {
@@ -12,11 +13,11 @@ void ex::ExampleSetup::DebugCallback(wis::Severity severity, const char* message
 
 wis::Factory ex::ExampleSetup::InitDefaultFactory(wis::FactoryExtension* platform_ext)
 {
-    
+
     wis::DebugExtension debug_ext; // no need to store it, it will be destroyed when it goes out of scope
 
     wis::Result res;
-    wis::FactoryExtension* xfactory_exts[] = { &debug_ext, platform_ext };
+    wis::FactoryExtension* xfactory_exts[] = {&debug_ext, platform_ext};
     wis::Factory factory = wis::CreateFactory(res, true, xfactory_exts, std::size(xfactory_exts));
     info = debug_ext.CreateDebugMessenger(res, &DebugCallback, &std::cout);
     return factory;
@@ -75,7 +76,7 @@ std::string ex::LoadShader(std::filesystem::path p)
         throw Exception(wis::format("Shader file not found: {}", p.string()));
     }
 
-    std::ifstream t{ p, std::ios::binary };
+    std::ifstream t{p, std::ios::binary};
     t.seekg(0, std::ios::end);
     size_t size = t.tellg();
     std::string ret;

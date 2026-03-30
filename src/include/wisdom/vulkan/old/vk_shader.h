@@ -1,15 +1,16 @@
 #ifndef WIS_VK_SHADER_H
 #define WIS_VK_SHADER_H
 #ifndef WISDOM_MODULE_DECL
-#include <wisdom/global/internal.h>
-#include <wisdom/vulkan/vk_views.h>
+#    include <wisdom/global/internal.h>
+#    include <wisdom/vulkan/vk_views.h>
 #endif // !WISDOM_MODULE_DECL
 
-namespace wis {
+namespace wis
+{
 WISDOM_EXPORT class VKShader;
 
 WISDOM_EXPORT
-template<>
+template <>
 struct Internal<VKShader> {
     wis::managed_handle_ex<VkShaderModule> shader;
 };
@@ -19,14 +20,8 @@ class VKShader : public QueryInternal<VKShader>
 {
 public:
     VKShader() = default;
-    operator VKShaderView() const noexcept
-    {
-        return shader.get();
-    }
-    operator bool() const noexcept
-    {
-        return bool(shader);
-    }
+    operator VKShaderView() const noexcept { return shader.get(); }
+    operator bool() const noexcept { return bool(shader); }
 };
 } // namespace wis
 

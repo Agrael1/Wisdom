@@ -12,14 +12,14 @@ import wisdom.vk;
 #endif
 
 #if defined(WISDOM_DX12)
-#include <wisdom/dx12_raytracing_pipeline.h>
-#include <wisdom/impl.dx12.h>
+#    include <wisdom/dx12_raytracing_pipeline.h>
+#    include <wisdom/impl.dx12.h>
 #endif
 
 #if defined(WISDOM_VULKAN)
-#include <wisdom/vk_rtas.h>
-#include <wisdom/vk_raytracing_pipeline.h>
-#include <wisdom/impl.vk.h>
+#    include <wisdom/impl.vk.h>
+#    include <wisdom/vk_raytracing_pipeline.h>
+#    include <wisdom/vk_rtas.h>
 #endif
 
 #include <wisdom/impl.h>

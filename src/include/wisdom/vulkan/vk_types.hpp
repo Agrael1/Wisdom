@@ -167,14 +167,14 @@ struct VKSwapchainImpl {
 
 //-----------------------------------------------------------------------------
 struct VKInstanceExtensionHeader {
-    WisResult (*init_fptr) (
+    WisResult (*init_fptr)(
         VKInstanceExtensionHeader* self,
         impl::VKInstanceImpl* instance_impl,
         VKInstanceExtensionCollector* collector
     ) noexcept;
 };
 struct VKDeviceExtensionHeader {
-    WisResult (*init_fptr) (
+    WisResult (*init_fptr)(
         VKDeviceExtensionHeader* self,
         impl::VKDeviceImpl* device_impl,
         VKDeviceExtensionCollector* collector

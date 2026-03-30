@@ -1,12 +1,13 @@
 #ifndef WIS_DX12_COMMAND_LIST_H
 #define WIS_DX12_COMMAND_LIST_H
 #ifndef WISDOM_MODULE_DECL
-#include <wisdom/global/internal.h>
-#include <wisdom/dx12/dx12_views.h>
-#include <wisdom/util/com_ptr.h>
+#    include <wisdom/dx12/dx12_views.h>
+#    include <wisdom/global/internal.h>
+#    include <wisdom/util/com_ptr.h>
 #endif // !WISDOM_MODULE_DECL
 
-namespace wis {
+namespace wis
+{
 WISDOM_EXPORT class DX12CommandList;
 WISDOM_EXPORT struct DX12BufferBarrier2;
 WISDOM_EXPORT struct DX12TextureBarrier2;
@@ -14,42 +15,52 @@ WISDOM_EXPORT struct DX12RenderPassDesc;
 WISDOM_EXPORT struct DX12VertexBufferBinding;
 
 WISDOM_EXPORT
-template<>
+template <>
 struct Internal<DX12CommandList> {
-    wis::com_ptr<ID3D12CommandAllocator>                 allocator;
-    wis::com_ptr<ID3D12GraphicsCommandList9>             list;
+    wis::com_ptr<ID3D12CommandAllocator> allocator;
+    wis::com_ptr<ID3D12GraphicsCommandList9> list;
     std::array<int8_t, size_t(wis::ShaderStages::Count)> root_stage_map;
-    uint32_t                                             push_constant_count   = 0;
-    uint32_t                                             push_descriptor_count = 0;
+    uint32_t push_constant_count = 0;
+    uint32_t push_descriptor_count = 0;
 };
 
 class ImplDX12CommandList : public QueryInternal<DX12CommandList>
 {
 public:
     ImplDX12CommandList() noexcept = default;
-    operator bool() const noexcept
-    {
-        return bool(list);
-    }
-    operator DX12CommandListView() const noexcept
-    {
-        return { list.get() };
-    }
+    operator bool() const noexcept { return bool(list); }
+    operator DX12CommandListView() const noexcept { return {list.get()}; }
 
 public:
-    bool Closed() const noexcept
-    {
-        return closed;
-    }
-    WIS_INLINE bool          Close() noexcept;
+    bool Closed() const noexcept { return closed; }
+    WIS_INLINE bool Close() noexcept;
     [[nodiscard]] WIS_INLINE wis::Result Reset(wis::DX12PipelineView pipeline = {}) noexcept;
-    WIS_INLINE void                      CopyBuffer(DX12BufferView source, DX12BufferView destination, wis::BufferRegion region) const noexcept;
+    WIS_INLINE void CopyBuffer(
+        DX12BufferView source,
+        DX12BufferView destination,
+        wis::BufferRegion region
+    ) const noexcept;
 
-    WIS_INLINE void CopyBufferToTexture(DX12BufferView src_buffer, DX12TextureView dest_texture, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) const noexcept;
+    WIS_INLINE void CopyBufferToTexture(
+        DX12BufferView src_buffer,
+        DX12TextureView dest_texture,
+        const wis::BufferTextureCopyRegion* regions,
+        uint32_t region_count
+    ) const noexcept;
 
-    WIS_INLINE void CopyTextureToBuffer(DX12TextureView src_texture, DX12BufferView dest_buffer, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) const noexcept;
+    WIS_INLINE void CopyTextureToBuffer(
+        DX12TextureView src_texture,
+        DX12BufferView dest_buffer,
+        const wis::BufferTextureCopyRegion* regions,
+        uint32_t region_count
+    ) const noexcept;
 
-    WIS_INLINE void CopyTexture(DX12TextureView source, DX12TextureView destination, const wis::TextureCopyRegion* regions, uint32_t region_count) const noexcept;
+    WIS_INLINE void CopyTexture(
+        DX12TextureView source,
+        DX12TextureView destination,
+        const wis::TextureCopyRegion* regions,
+        uint32_t region_count
+    ) const noexcept;
 
     WIS_INLINE void BufferBarrier(wis::BufferBarrier barrier, DX12BufferView buffer) noexcept;
     // 8 buffers at once max for efficiency
@@ -71,10 +82,19 @@ public:
 
     WIS_INLINE void IASetPrimitiveTopology(wis::PrimitiveTopology vp) noexcept;
 
-    WIS_INLINE void IASetVertexBuffers(const wis::DX12VertexBufferBinding* resources, uint32_t count, uint32_t start_slot = 0) noexcept;
+    WIS_INLINE void IASetVertexBuffers(
+        const wis::DX12VertexBufferBinding* resources,
+        uint32_t count,
+        uint32_t start_slot = 0
+    ) noexcept;
 
     WIS_INLINE void IASetIndexBuffer(wis::DX12BufferView buffer, wis::IndexType type, uint64_t offset) noexcept;
-    WIS_INLINE void IASetIndexBuffer2(wis::DX12BufferView buffer, wis::IndexType type, uint32_t size, uint64_t offset) noexcept;
+    WIS_INLINE void IASetIndexBuffer2(
+        wis::DX12BufferView buffer,
+        wis::IndexType type,
+        uint32_t size,
+        uint64_t offset
+    ) noexcept;
 
     WIS_INLINE void RSSetViewport(wis::Viewport vp) noexcept;
 
@@ -84,24 +104,43 @@ public:
 
     WIS_INLINE void RSSetScissors(const wis::Scissor* vp, uint32_t count) noexcept;
 
-    WIS_INLINE void DrawIndexedInstanced(uint32_t vertex_count_per_instance,
-                                         uint32_t instance_count = 1,
-                                         uint32_t start_index    = 0,
-                                         uint32_t base_vertex    = 0,
-                                         uint32_t start_instance = 0) noexcept;
+    WIS_INLINE void DrawIndexedInstanced(
+        uint32_t vertex_count_per_instance,
+        uint32_t instance_count = 1,
+        uint32_t start_index = 0,
+        uint32_t base_vertex = 0,
+        uint32_t start_instance = 0
+    ) noexcept;
 
-    WIS_INLINE void DrawInstanced(uint32_t vertex_count_per_instance,
-                                  uint32_t instance_count = 1,
-                                  uint32_t start_vertex   = 0,
-                                  uint32_t start_instance = 0) noexcept;
+    WIS_INLINE void DrawInstanced(
+        uint32_t vertex_count_per_instance,
+        uint32_t instance_count = 1,
+        uint32_t start_vertex = 0,
+        uint32_t start_instance = 0
+    ) noexcept;
 
     WIS_INLINE void Dispatch(uint32_t group_count_x, uint32_t group_count_y, uint32_t group_count_z) noexcept;
 
-    WIS_INLINE void SetPushConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes, wis::ShaderStages stage) noexcept;
+    WIS_INLINE void SetPushConstants(
+        const void* data,
+        uint32_t size_4bytes,
+        uint32_t offset_4bytes,
+        wis::ShaderStages stage
+    ) noexcept;
     WIS_INLINE void SetComputePushConstants(const void* data, uint32_t size_4bytes, uint32_t offset_4bytes) noexcept;
 
-    WIS_INLINE void PushDescriptor(wis::DescriptorType type, uint32_t binding, wis::DX12BufferView view, uint32_t offset = 0) noexcept;
-    WIS_INLINE void PushDescriptorCompute(wis::DescriptorType type, uint32_t binding, wis::DX12BufferView view, uint32_t offset = 0) noexcept;
+    WIS_INLINE void PushDescriptor(
+        wis::DescriptorType type,
+        uint32_t binding,
+        wis::DX12BufferView view,
+        uint32_t offset = 0
+    ) noexcept;
+    WIS_INLINE void PushDescriptorCompute(
+        wis::DescriptorType type,
+        uint32_t binding,
+        wis::DX12BufferView view,
+        uint32_t offset = 0
+    ) noexcept;
 
     WIS_INLINE void SetDescriptorStorage(wis::DX12DescriptorStorageView desc_storage) noexcept;
 
@@ -120,9 +159,9 @@ class DX12CommandList : public wis::ImplDX12CommandList
 {
 public:
     using wis::ImplDX12CommandList::ImplDX12CommandList;
-    DX12CommandList(const DX12CommandList&)                = delete;
-    DX12CommandList(DX12CommandList&&) noexcept            = default;
-    DX12CommandList& operator=(const DX12CommandList&)     = delete;
+    DX12CommandList(const DX12CommandList&) = delete;
+    DX12CommandList(DX12CommandList&&) noexcept = default;
+    DX12CommandList& operator=(const DX12CommandList&) = delete;
     DX12CommandList& operator=(DX12CommandList&&) noexcept = default;
 
 public:
@@ -130,18 +169,12 @@ public:
      * @brief Closes the command list for recording.
      * @return true if command list is closed. false otherwise.
      * */
-    inline bool Closed() const noexcept
-    {
-        return wis::ImplDX12CommandList::Closed();
-    }
+    inline bool Closed() const noexcept { return wis::ImplDX12CommandList::Closed(); }
     /**
      * @brief Closes the command list for recording.
      * @return true if command list is closed. false otherwise.
      * */
-    inline bool Close() noexcept
-    {
-        return wis::ImplDX12CommandList::Close();
-    }
+    inline bool Close() noexcept { return wis::ImplDX12CommandList::Close(); }
     /**
      * @brief Resets the command list for recording. Can't be reset while executed!
      * @param initial_state The pipeline to use as a starting state. Default is empty pipeline.
@@ -151,7 +184,8 @@ public:
         return wis::ImplDX12CommandList::Reset(std::move(initial_state));
     }
     /**
-     * @brief Switches command list to use new pipeline. All the operations will be recorded with regards to the new bound pipeline.
+     * @brief Switches command list to use new pipeline. All the operations will be recorded with regards to the new
+     * bound pipeline.
      * @param pipeline The pipeline to use with the command list with.
      * */
     inline void SetPipelineState(wis::DX12PipelineView pipeline) noexcept
@@ -164,7 +198,11 @@ public:
      * @param destination The destination buffer to copy to.
      * @param region The region to copy.
      * */
-    inline void CopyBuffer(wis::DX12BufferView source, wis::DX12BufferView destination, const wis::BufferRegion& region) noexcept
+    inline void CopyBuffer(
+        wis::DX12BufferView source,
+        wis::DX12BufferView destination,
+        const wis::BufferRegion& region
+    ) noexcept
     {
         wis::ImplDX12CommandList::CopyBuffer(std::move(source), std::move(destination), region);
     }
@@ -175,7 +213,12 @@ public:
      * @param regions The regions to copy.
      * @param region_count The number of regions to copy.
      * */
-    inline void CopyBufferToTexture(wis::DX12BufferView source, wis::DX12TextureView destination, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) noexcept
+    inline void CopyBufferToTexture(
+        wis::DX12BufferView source,
+        wis::DX12TextureView destination,
+        const wis::BufferTextureCopyRegion* regions,
+        uint32_t region_count
+    ) noexcept
     {
         wis::ImplDX12CommandList::CopyBufferToTexture(std::move(source), std::move(destination), regions, region_count);
     }
@@ -186,7 +229,12 @@ public:
      * @param regions The regions to copy.
      * @param region_count The number of regions to copy.
      * */
-    inline void CopyTextureToBuffer(wis::DX12TextureView source, wis::DX12BufferView destination, const wis::BufferTextureCopyRegion* regions, uint32_t region_count) noexcept
+    inline void CopyTextureToBuffer(
+        wis::DX12TextureView source,
+        wis::DX12BufferView destination,
+        const wis::BufferTextureCopyRegion* regions,
+        uint32_t region_count
+    ) noexcept
     {
         wis::ImplDX12CommandList::CopyTextureToBuffer(std::move(source), std::move(destination), regions, region_count);
     }
@@ -197,7 +245,12 @@ public:
      * @param regions The regions to copy.
      * @param region_count The number of regions to copy.
      * */
-    inline void CopyTexture(wis::DX12TextureView source, wis::DX12TextureView destination, const wis::TextureCopyRegion* regions, uint32_t region_count) noexcept
+    inline void CopyTexture(
+        wis::DX12TextureView source,
+        wis::DX12TextureView destination,
+        const wis::TextureCopyRegion* regions,
+        uint32_t region_count
+    ) noexcept
     {
         wis::ImplDX12CommandList::CopyTexture(std::move(source), std::move(destination), regions, region_count);
     }
@@ -248,10 +301,7 @@ public:
     /**
      * @brief Ends the render pass.
      * */
-    inline void EndRenderPass() noexcept
-    {
-        wis::ImplDX12CommandList::EndRenderPass();
-    }
+    inline void EndRenderPass() noexcept { wis::ImplDX12CommandList::EndRenderPass(); }
     /**
      * @brief Sets the pipeline signature object. Used to determine how to pick descriptors from descriptor buffer.
      * @param root_signature The root signature to set.
@@ -261,8 +311,8 @@ public:
         wis::ImplDX12CommandList::SetRootSignature(std::move(root_signature));
     }
     /**
-     * @brief Sets the pipeline signature object to compute pipeline. Used to determine how to pick descriptors from descriptor buffer.
-     * May only work with compute pipelines.
+     * @brief Sets the pipeline signature object to compute pipeline. Used to determine how to pick descriptors from
+     * descriptor buffer. May only work with compute pipelines.
      * @param root_signature The root signature to set.
      * */
     inline void SetComputeRootSignature(wis::DX12RootSignatureView root_signature) noexcept
@@ -283,7 +333,11 @@ public:
      * @param count The number of vertex buffers to set.
      * @param start_slot The start slot to set the vertex buffers to. Default is 0.
      * */
-    inline void IASetVertexBuffers(const wis::DX12VertexBufferBinding* resources, uint32_t count, uint32_t start_slot = 0) noexcept
+    inline void IASetVertexBuffers(
+        const wis::DX12VertexBufferBinding* resources,
+        uint32_t count,
+        uint32_t start_slot = 0
+    ) noexcept
     {
         wis::ImplDX12CommandList::IASetVertexBuffers(resources, count, start_slot);
     }
@@ -306,7 +360,12 @@ public:
      * @param size The size of the index buffer in bytes.
      * @param offset The offset in the index buffer in bytes.
      * */
-    inline void IASetIndexBuffer2(wis::DX12BufferView buffer, wis::IndexType type, uint32_t size, uint64_t offset) noexcept
+    inline void IASetIndexBuffer2(
+        wis::DX12BufferView buffer,
+        wis::IndexType type,
+        uint32_t size,
+        uint64_t offset
+    ) noexcept
     {
         wis::ImplDX12CommandList::IASetIndexBuffer2(std::move(buffer), type, size, offset);
     }
@@ -331,14 +390,11 @@ public:
      * @brief Sets the scissor rect.
      * @param scissor The scissor to set.
      * */
-    inline void RSSetScissor(const wis::Scissor& scissor) noexcept
-    {
-        wis::ImplDX12CommandList::RSSetScissor(scissor);
-    }
+    inline void RSSetScissor(const wis::Scissor& scissor) noexcept { wis::ImplDX12CommandList::RSSetScissor(scissor); }
     /**
      * @brief Sets multiple scissor rects.
-     * Each n-th rect corresponds to n-th Viewport set in RSSetViewports if SV_ViewportArrayIndex is used in geometry shader.
-     * Otherwise the first is chosen.
+     * Each n-th rect corresponds to n-th Viewport set in RSSetViewports if SV_ViewportArrayIndex is used in geometry
+     * shader. Otherwise the first is chosen.
      * @param scissors The scissors to set.
      * @param count The number of scissors to set.
      * */
@@ -354,9 +410,21 @@ public:
      * @param base_vertex The index of the first vertex to start drawing from. Default is 0.
      * @param start_instance The index of the first instance to draw. Default is 0.
      * */
-    inline void DrawIndexedInstanced(uint32_t vertex_count_per_instance, uint32_t instance_count = 1, uint32_t start_index = 0, uint32_t base_vertex = 0, uint32_t start_instance = 0) noexcept
+    inline void DrawIndexedInstanced(
+        uint32_t vertex_count_per_instance,
+        uint32_t instance_count = 1,
+        uint32_t start_index = 0,
+        uint32_t base_vertex = 0,
+        uint32_t start_instance = 0
+    ) noexcept
     {
-        wis::ImplDX12CommandList::DrawIndexedInstanced(vertex_count_per_instance, instance_count, start_index, base_vertex, start_instance);
+        wis::ImplDX12CommandList::DrawIndexedInstanced(
+            vertex_count_per_instance,
+            instance_count,
+            start_index,
+            base_vertex,
+            start_instance
+        );
     }
     /**
      * @brief Draws instanced geometry. (Without indexing)
@@ -365,9 +433,19 @@ public:
      * @param start_vertex The index of the first vertex to draw. Default is 0.
      * @param start_instance The index of the first instance to draw. Default is 0.
      * */
-    inline void DrawInstanced(uint32_t vertex_count_per_instance, uint32_t instance_count = 1, uint32_t start_vertex = 0, uint32_t start_instance = 0) noexcept
+    inline void DrawInstanced(
+        uint32_t vertex_count_per_instance,
+        uint32_t instance_count = 1,
+        uint32_t start_vertex = 0,
+        uint32_t start_instance = 0
+    ) noexcept
     {
-        wis::ImplDX12CommandList::DrawInstanced(vertex_count_per_instance, instance_count, start_vertex, start_instance);
+        wis::ImplDX12CommandList::DrawInstanced(
+            vertex_count_per_instance,
+            instance_count,
+            start_vertex,
+            start_instance
+        );
     }
     /**
      * @brief Dispatches compute shader.
@@ -386,7 +464,12 @@ public:
      * @param offset_4bytes The offset in the data in 4-byte units.
      * @param stage The shader stages to set the root constants for.
      * */
-    inline void SetPushConstants(void* data, uint32_t size_4bytes, uint32_t offset_4bytes, wis::ShaderStages stage) noexcept
+    inline void SetPushConstants(
+        void* data,
+        uint32_t size_4bytes,
+        uint32_t offset_4bytes,
+        wis::ShaderStages stage
+    ) noexcept
     {
         wis::ImplDX12CommandList::SetPushConstants(data, size_4bytes, offset_4bytes, stage);
     }
@@ -409,7 +492,12 @@ public:
      * @param buffer The buffer to set.
      * @param offset The offset in the descriptor table to set the descriptor to.
      * */
-    inline void PushDescriptor(wis::DescriptorType type, uint32_t root_index, wis::DX12BufferView buffer, uint32_t offset) noexcept
+    inline void PushDescriptor(
+        wis::DescriptorType type,
+        uint32_t root_index,
+        wis::DX12BufferView buffer,
+        uint32_t offset
+    ) noexcept
     {
         wis::ImplDX12CommandList::PushDescriptor(type, root_index, std::move(buffer), offset);
     }
@@ -423,7 +511,12 @@ public:
      * @param buffer The buffer to set.
      * @param offset The offset in the descriptor table to set the descriptor to.
      * */
-    inline void PushDescriptorCompute(wis::DescriptorType type, uint32_t root_index, wis::DX12BufferView buffer, uint32_t offset) noexcept
+    inline void PushDescriptorCompute(
+        wis::DescriptorType type,
+        uint32_t root_index,
+        wis::DX12BufferView buffer,
+        uint32_t offset
+    ) noexcept
     {
         wis::ImplDX12CommandList::PushDescriptorCompute(type, root_index, std::move(buffer), offset);
     }
@@ -449,6 +542,6 @@ public:
 } // namespace wis
 
 #ifndef WISDOM_BUILD_BINARIES
-#include "impl/dx12_command_list.cpp"
+#    include "impl/dx12_command_list.cpp"
 #endif // !WISDOM_HEADER_ONLY
 #endif // !WIS_DX12_COMMAND_LIST_H

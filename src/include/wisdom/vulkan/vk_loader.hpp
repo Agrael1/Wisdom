@@ -3,14 +3,16 @@
 #include <memory>
 
 #ifdef _WIN32
-#include <Windows.h>
+#    include <Windows.h>
 #else
-#include <dlfcn.h>
+#    include <dlfcn.h>
 #endif
 
-namespace wis {
+namespace wis
+{
 
-namespace detail {
+namespace detail
+{
 inline void* InitializeVulkanLibrary() noexcept
 {
 #if defined(_WIN32)
@@ -43,7 +45,7 @@ inline void UninitializeVulkanLibrary(void* library) noexcept
 #endif
 }
 
-template<typename PFN>
+template <typename PFN>
 PFN GetProcAddress(void* library, const char* fname) noexcept
 {
 #if defined(__unix__) || defined(__APPLE__) || defined(__QNXNTO__) || defined(__Fuchsia__)
@@ -51,21 +53,18 @@ PFN GetProcAddress(void* library, const char* fname) noexcept
 #elif defined(_WIN32)
     return reinterpret_cast<PFN>(::GetProcAddress(static_cast<HMODULE>(library), fname));
 #else
-#error unsupported platform
+#    error unsupported platform
 #endif
 }
 
 struct LibraryDeleter {
-    void operator()(void* library) const noexcept
-    {
-        UninitializeVulkanLibrary(library);
-    }
+    void operator()(void* library) const noexcept { UninitializeVulkanLibrary(library); }
 };
 using unique_library = std::unique_ptr<void, LibraryDeleter>;
 } // namespace detail
 } // namespace wis
 
-#define GET_PROC_ADDRESS(library, name)             wis::detail::GetProcAddress<decltype(name)>(library, #name)
+#define GET_PROC_ADDRESS(library, name) wis::detail::GetProcAddress<decltype(name)>(library, #name)
 #define ASSIGN_PROC_ADDRESS_OPTIONAL(library, name) name = GET_PROC_ADDRESS(library, name)
 #define ASSIGN_PROC_ADDRESS_CHECK(library, name) \
     do {                                         \
@@ -85,7 +84,7 @@ using unique_library = std::unique_ptr<void, LibraryDeleter>;
     } while (0)
 #define ASSIGN_INSTANCE_PROC_ADDR_CHECK_VAR(instance, name, ...)                                         \
     do {                                                                                                 \
-        constexpr static const char* name##_strings[]{ #name, __VA_ARGS__ };                             \
+        constexpr static const char* name##_strings[]{#name, __VA_ARGS__};                               \
         for (auto name##_it : name##_strings) {                                                          \
             if ((name = reinterpret_cast<decltype(name)>(vkGetInstanceProcAddr(instance, name##_it)))) { \
                 break;                                                                                   \
@@ -106,7 +105,7 @@ using unique_library = std::unique_ptr<void, LibraryDeleter>;
     } while (0)
 #define ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, name, ...)                                         \
     do {                                                                                             \
-        constexpr static const char* name##_strings[]{ #name, __VA_ARGS__ };                         \
+        constexpr static const char* name##_strings[]{#name, __VA_ARGS__};                           \
         for (auto name##_it : name##_strings) {                                                      \
             if ((name = reinterpret_cast<decltype(name)>(vkGetDeviceProcAddr(device, name##_it)))) { \
                 break;                                                                               \

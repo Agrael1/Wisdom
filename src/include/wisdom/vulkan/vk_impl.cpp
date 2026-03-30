@@ -2,8 +2,8 @@
 #define WIS_VK_IMPL_CPP
 #include <wisdom/generated/cpp_api.hpp>
 #include <wisdom/generated/vk_convert.hpp>
-#include <wisdom/vulkan/detail/vk_ext1.hpp>
 #include <wisdom/util/allocation.hpp>
+#include <wisdom/vulkan/detail/vk_ext1.hpp>
 
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyBuffer(WisVKBuffer* self)
@@ -35,17 +35,17 @@ WIS_EXTERN_C WISDOM_API void* wisVKBufferMap(const WisVKBuffer* self)
 //-----------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API uint64_t wisVKBufferGetGPUAddress(const WisVKBuffer* self)
 {
-    auto& impl   = wis::from_handle_ref<const wis::impl::VKBufferImpl>(self);
+    auto& impl = wis::from_handle_ref<const wis::impl::VKBufferImpl>(self);
     auto& header = impl.device_header->header;
-    auto& table  = header.device_table;
+    auto& table = header.device_table;
 
-    VmaAllocator     allocator = impl.device_header->header.allocator;
+    VmaAllocator allocator = impl.device_header->header.allocator;
     VmaAllocatorInfo allocator_info{};
     vmaGetAllocatorInfo(allocator, &allocator_info);
 
     VkBufferDeviceAddressInfo address_info{
-        .sType  = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,
-        .pNext  = nullptr,
+        .sType = VK_STRUCTURE_TYPE_BUFFER_DEVICE_ADDRESS_INFO,
+        .pNext = nullptr,
         .buffer = impl.buffer
     };
     return table.vkGetBufferDeviceAddress(allocator_info.device, &address_info);
@@ -57,7 +57,8 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyTexture(WisVKTexture* self)
     auto& impl = wis::from_handle_ref<wis::impl::VKTextureImpl>(self);
     if (impl.image != VK_NULL_HANDLE) {
         if (impl.owned_by_swapchain) {
-            // If the image is owned by the swapchain, we should not destroy it directly, as it will be destroyed when the swapchain is destroyed.
+            // If the image is owned by the swapchain, we should not destroy it directly, as it will be destroyed when
+            // the swapchain is destroyed.
             impl.image = VK_NULL_HANDLE;
             return;
         }
@@ -74,14 +75,13 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyTexture(WisVKTexture* self)
 }
 
 //-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisVKTextureWriteSubresource(const WisVKTexture*     self,
-                                                               const void*             source_data,
-                                                               const WisTextureRegion* target_region)
+WIS_EXTERN_C WISDOM_API WisResult
+wisVKTextureWriteSubresource(const WisVKTexture* self, const void* source_data, const WisTextureRegion* target_region)
 {
-    auto& impl   = wis::from_handle_ref<const wis::impl::VKTextureImpl>(self);
+    auto& impl = wis::from_handle_ref<const wis::impl::VKTextureImpl>(self);
     auto& header = impl.device_header->header;
-    auto  device = header.device;
-    auto& table  = header.device_table;
+    auto device = header.device;
+    auto& table = header.device_table;
 
     static auto plane_to_aspect_mask = [](uint16_t plane) -> VkImageAspectFlags {
         switch (plane) {
@@ -96,25 +96,28 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKTextureWriteSubresource(const WisVKTextur
     };
 
     VkMemoryToImageCopy region{
-        .sType             = VK_STRUCTURE_TYPE_MEMORY_TO_IMAGE_COPY,
-        .pNext             = nullptr,
-        .pHostPointer      = source_data,
-        .memoryRowLength   = 0,
+        .sType = VK_STRUCTURE_TYPE_MEMORY_TO_IMAGE_COPY,
+        .pNext = nullptr,
+        .pHostPointer = source_data,
+        .memoryRowLength = 0,
         .memoryImageHeight = 0,
-        .imageSubresource  = {
-                              .aspectMask     = plane_to_aspect_mask(target_region->target_subresource.plane_slice),
-                              .mipLevel       = target_region->target_subresource.mip_level,
-                              .baseArrayLayer = target_region->target_subresource.array_layer,
-                              .layerCount     = 1 },
-        .imageOffset = { static_cast<int32_t>(target_region->box.x), static_cast<int32_t>(target_region->box.y), static_cast<int32_t>(target_region->box.z) },
-        .imageExtent{ target_region->box.width, target_region->box.height, target_region->box.depth },
+        .imageSubresource =
+            {.aspectMask = plane_to_aspect_mask(target_region->target_subresource.plane_slice),
+             .mipLevel = target_region->target_subresource.mip_level,
+             .baseArrayLayer = target_region->target_subresource.array_layer,
+             .layerCount = 1},
+        .imageOffset =
+            {static_cast<int32_t>(target_region->box.x),
+             static_cast<int32_t>(target_region->box.y),
+             static_cast<int32_t>(target_region->box.z)},
+        .imageExtent{target_region->box.width, target_region->box.height, target_region->box.depth},
     };
 
     VkCopyMemoryToImageInfoEXT copy_info{
-        .sType          = VK_STRUCTURE_TYPE_COPY_MEMORY_TO_IMAGE_INFO_EXT,
-        .pNext          = nullptr,
-        .flags          = 0,
-        .dstImage       = impl.image,
+        .sType = VK_STRUCTURE_TYPE_COPY_MEMORY_TO_IMAGE_INFO_EXT,
+        .pNext = nullptr,
+        .flags = 0,
+        .dstImage = impl.image,
         .dstImageLayout = VK_IMAGE_LAYOUT_GENERAL,
     };
     auto vr = table.vkCopyMemoryToImageEXT(device, &copy_info);
@@ -140,7 +143,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyShader(WisVKShader* self)
     auto& impl = wis::from_handle_ref<wis::impl::VKShaderImpl>(self);
     if (impl.shader_module != VK_NULL_HANDLE) {
         auto& header = impl.device_header->header;
-        auto& table  = header.device_table;
+        auto& table = header.device_table;
         table.vkDestroyShaderModule(header.device, impl.shader_module, nullptr);
         impl.shader_module = VK_NULL_HANDLE;
         wis::detail::VKReleaseDevice(impl.device_header);
@@ -154,7 +157,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyPipeline(WisVKPipeline* self)
     auto& impl = wis::from_handle_ref<wis::impl::VKPipelineImpl>(self);
     if (impl.pipeline != VK_NULL_HANDLE) {
         auto& header = impl.device_header->header;
-        auto& table  = header.device_table;
+        auto& table = header.device_table;
         table.vkDestroyPipeline(header.device, impl.pipeline, nullptr);
         impl.pipeline = VK_NULL_HANDLE;
 
@@ -169,7 +172,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroySurface(WisVKSurface* self)
     auto& impl = wis::from_handle_ref<wis::impl::VKSurfaceImpl>(self);
     if (impl.surface != VK_NULL_HANDLE) {
         wis::detail::VKReleaseSurface(impl.surface_header);
-        impl.surface        = VK_NULL_HANDLE;
+        impl.surface = VK_NULL_HANDLE;
         impl.surface_header = nullptr;
     }
 }

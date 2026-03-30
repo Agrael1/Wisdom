@@ -1,10 +1,10 @@
-#include <wis_helper.h>
-#include <wis_swapchain.h>
-#include <window.h>
-#include <iostream>
+#include <wisdom/wisdom_platform.hpp>
 
 #include <glm/vec3.hpp>
-#include <wisdom/wisdom_platform.hpp>
+#include <iostream>
+#include <window.h>
+#include <wis_helper.h>
+#include <wis_swapchain.h>
 
 class App
 {
@@ -18,17 +18,17 @@ class App
     // Resources
     wis::RootSignature root;
     wis::PipelineState pipeline;
-    wis::Shader vs; // vertex shader
-    wis::Shader ps; // pixel shader
+    wis::Shader vs;                                   // vertex shader
+    wis::Shader ps;                                   // pixel shader
 
-    wis::Buffer vertex_buffer; // vertex buffer for triangle
+    wis::Buffer vertex_buffer;                        // vertex buffer for triangle
     wis::Buffer constant_buffersx[ex::flight_frames]; // constant buffer for triangle
     wis::Buffer constant_buffersy[ex::flight_frames]; // constant buffer for triangle
 
-    float* constant_datax[ex::flight_frames]; // constant buffer data
-    float* constant_datay[ex::flight_frames]; // constant buffer data
-    float offsetx = 0.0f; // x offset for the triangle
-    float offsety = 0.0f; // y offset for the triangle
+    float* constant_datax[ex::flight_frames];         // constant buffer data
+    float* constant_datay[ex::flight_frames];         // constant buffer data
+    float offsetx = 0.0f;                             // x offset for the triangle
+    float offsety = 0.0f;                             // y offset for the triangle
 
     // Descriptor buffers
     wis::DescriptorStorage desc_storage;
@@ -45,14 +45,14 @@ public:
         GetClientRect(window, &rect);
         int w = rect.right - rect.left;
         int h = rect.bottom - rect.top;
-        window_size = { uint32_t(w), uint32_t(h) };
+        window_size = {uint32_t(w), uint32_t(h)};
 
         // Hook resize from HWND
 
         setup.InitDefault(&platform);
 
         wis::SwapchainDesc desc{
-            .size = { uint32_t(w), uint32_t(h) },
+            .size = {uint32_t(w), uint32_t(h)},
             .format = wis::DataFormat::RGBA8Unorm,
             .buffer_count = ex::swap_buffer_count,
             .stereo = false,
@@ -64,7 +64,9 @@ public:
         cmd_list = setup.CreateLists();
 
         wis::DescriptorBindingDesc bindings[] = {
-            { .binding_type = wis::DescriptorType::ConstantBuffer, .binding_space = 1, .binding_count = ex::flight_frames * 2 },
+            {.binding_type = wis::DescriptorType::ConstantBuffer,
+             .binding_space = 1,
+             .binding_count = ex::flight_frames * 2},
         };
         desc_storage = setup.device.CreateDescriptorStorage(result, bindings, std::size(bindings));
     }
@@ -129,10 +131,10 @@ public:
         // Second pass
         auto& cmd2 = cmd_list[frame_index];
         wis::RenderPassRenderTargetDesc targets2[]{
-            { .target = swap.GetRenderTarget(frame_index),
-              .load_op = wis::LoadOperation::Clear,
-              .store_op = wis::StoreOperation::Store,
-              .clear_value = { 0.5f, 0.5f, 0.5f, 1.0f } }
+            {.target = swap.GetRenderTarget(frame_index),
+             .load_op = wis::LoadOperation::Clear,
+             .store_op = wis::StoreOperation::Store,
+             .clear_value = {0.5f, 0.5f, 0.5f, 1.0f}}
         };
         wis::RenderPassDesc rp2{
             .flags = wis::RenderPassFlags::None,
@@ -148,13 +150,14 @@ public:
 
         // Insert barriers for the swapchain render target
         cmd2.TextureBarrier(
-                { .sync_before = wis::BarrierSync::None,
-                  .sync_after = wis::BarrierSync::Draw,
-                  .access_before = wis::ResourceAccess::NoAccess,
-                  .access_after = wis::ResourceAccess::RenderTarget,
-                  .state_before = wis::TextureState::Present,
-                  .state_after = wis::TextureState::RenderTarget },
-                swap.GetTexture(frame_index));
+            {.sync_before = wis::BarrierSync::None,
+             .sync_after = wis::BarrierSync::Draw,
+             .access_before = wis::ResourceAccess::NoAccess,
+             .access_after = wis::ResourceAccess::RenderTarget,
+             .state_before = wis::TextureState::Present,
+             .state_after = wis::TextureState::RenderTarget},
+            swap.GetTexture(frame_index)
+        );
 
         cmd2.BeginRenderPass(rp2);
         cmd2.SetRootSignature(root); // always set root signature before binding resources
@@ -162,7 +165,10 @@ public:
         // Bind descriptor storage
         cmd2.SetDescriptorStorage(desc_storage);
 
-        uint32_t root_constants[] = { frame_index, ex::flight_frames }; // frame index and frame count to get offset to the second cbuffer
+        uint32_t root_constants[] = {
+            frame_index,
+            ex::flight_frames
+        }; // frame index and frame count to get offset to the second cbuffer
         cmd2.SetPushConstants(root_constants, std::size(root_constants), 0, wis::ShaderStages::All);
 
         cmd2.IASetPrimitiveTopology(wis::PrimitiveTopology::TriangleList);
@@ -174,25 +180,26 @@ public:
         cmd2.IASetVertexBuffers(&vertex_binding, 1);
 
         auto [w, h] = window_size;
-        cmd2.RSSetViewport({ 0, 0, float(w), float(h), 0, 1 });
-        cmd2.RSSetScissor({ 0, 0, int(w), int(h) });
+        cmd2.RSSetViewport({0, 0, float(w), float(h), 0, 1});
+        cmd2.RSSetScissor({0, 0, int(w), int(h)});
         cmd2.DrawInstanced(3);
         cmd2.EndRenderPass();
 
         // Insert barriers for the swapchain render target
         cmd2.TextureBarrier(
-                { .sync_before = wis::BarrierSync::Draw,
-                  .sync_after = wis::BarrierSync::Draw,
-                  .access_before = wis::ResourceAccess::RenderTarget,
-                  .access_after = wis::ResourceAccess::Common,
-                  .state_before = wis::TextureState::RenderTarget,
-                  .state_after = wis::TextureState::Present },
-                swap.GetTexture(frame_index));
+            {.sync_before = wis::BarrierSync::Draw,
+             .sync_after = wis::BarrierSync::Draw,
+             .access_before = wis::ResourceAccess::RenderTarget,
+             .access_after = wis::ResourceAccess::Common,
+             .state_before = wis::TextureState::RenderTarget,
+             .state_after = wis::TextureState::Present},
+            swap.GetTexture(frame_index)
+        );
 
         // End recording
         cmd2.Close();
 
-        wis::CommandListView lists[] = { cmd2 };
+        wis::CommandListView lists[] = {cmd2};
         setup.queue.ExecuteCommandLists(lists, std::size(lists));
         swap.Present(setup.queue);
     }
@@ -205,34 +212,48 @@ public:
         ps = ex::Unwrap(setup.device.CreateShader(ps_code.data(), ps_code.size()));
 
         // Create root for storage (it is bindless, so no reason to use tables anymore)
-        wis::PushConstant root_constants[]{
-            { .stage = wis::ShaderStages::All, .size_bytes = 2 * sizeof(uint32_t) }
-        };
+        wis::PushConstant root_constants[]{{.stage = wis::ShaderStages::All, .size_bytes = 2 * sizeof(uint32_t)}};
         wis::DescriptorBindingDesc bindings[] = {
-            { .binding_type = wis::DescriptorType::ConstantBuffer, .binding_space = 1, .space_overlap_count = 2, .binding_count = ex::flight_frames * 2 },
+            {.binding_type = wis::DescriptorType::ConstantBuffer,
+             .binding_space = 1,
+             .space_overlap_count = 2,
+             .binding_count = ex::flight_frames * 2},
         };
-        root = ex::Unwrap(setup.device.CreateRootSignature(root_constants, std::size(root_constants), nullptr, 0, bindings, std::size(bindings)));
+        root = ex::Unwrap(setup.device.CreateRootSignature(
+            root_constants,
+            std::size(root_constants),
+            nullptr,
+            0,
+            bindings,
+            std::size(bindings)
+        ));
 
         // Create pipeline
         {
             wis::InputSlotDesc input_slots[] = {
-                { .slot = 0, .stride_bytes = sizeof(glm::vec3), .input_class = wis::InputClass::PerVertex },
+                {.slot = 0, .stride_bytes = sizeof(glm::vec3), .input_class = wis::InputClass::PerVertex},
             };
             wis::InputAttribute input_attributes[] = {
-                { .input_slot = 0, .semantic_name = "POSITION", .semantic_index = 0, .location = 0, .format = wis::DataFormat::RGB32Float, .offset_bytes = 0 }
+                {.input_slot = 0,
+                 .semantic_name = "POSITION",
+                 .semantic_index = 0,
+                 .location = 0,
+                 .format = wis::DataFormat::RGB32Float,
+                 .offset_bytes = 0}
             };
             wis::GraphicsPipelineDesc desc{
                 .root_signature = root,
-                .input_layout = {
+                .input_layout =
+                    {
                         .slots = input_slots,
                         .slot_count = 1,
                         .attributes = input_attributes,
                         .attribute_count = 1,
-                },
-                .shaders = { .vertex = vs, .pixel = ps },
+                    },
+                .shaders = {.vertex = vs, .pixel = ps},
                 .attachments = {
-                        .attachment_formats = { ex::swapchain_format },
-                        .attachments_count = 1,
+                    .attachment_formats = {ex::swapchain_format},
+                    .attachments_count = 1,
                 },
             };
             pipeline = ex::Unwrap(setup.device.CreateGraphicsPipeline(desc));
@@ -240,20 +261,29 @@ public:
 
         // Create vertex buffer
         {
-            glm::vec3 triangle_vertices[] = {
-                { 0.0f, 0.5f, 0.0f },
-                { 0.5f, -0.5f, 0.0f },
-                { -0.5f, -0.5f, 0.0f }
-            };
-            vertex_buffer = setup.CreateAndUploadBuffer(std::span<glm::vec3>{ triangle_vertices }, wis::BufferUsage::VertexBuffer);
+            glm::vec3 triangle_vertices[] = {{0.0f, 0.5f, 0.0f}, {0.5f, -0.5f, 0.0f}, {-0.5f, -0.5f, 0.0f}};
+            vertex_buffer = setup.CreateAndUploadBuffer(
+                std::span<glm::vec3>{triangle_vertices},
+                wis::BufferUsage::VertexBuffer
+            );
         }
 
         // Create constant buffer
         {
-            
+
             for (size_t i = 0; i < ex::flight_frames; i++) {
-                constant_buffersx[i] = ex::Unwrap(setup.allocator.CreateBuffer(sizeof(float), wis::BufferUsage::CopySrc | wis::BufferUsage::ConstantBuffer, wis::MemoryType::Upload, wis::MemoryFlags::Mapped));
-                constant_buffersy[i] = ex::Unwrap(setup.allocator.CreateBuffer(sizeof(float), wis::BufferUsage::CopySrc | wis::BufferUsage::ConstantBuffer, wis::MemoryType::Upload, wis::MemoryFlags::Mapped));
+                constant_buffersx[i] = ex::Unwrap(setup.allocator.CreateBuffer(
+                    sizeof(float),
+                    wis::BufferUsage::CopySrc | wis::BufferUsage::ConstantBuffer,
+                    wis::MemoryType::Upload,
+                    wis::MemoryFlags::Mapped
+                ));
+                constant_buffersy[i] = ex::Unwrap(setup.allocator.CreateBuffer(
+                    sizeof(float),
+                    wis::BufferUsage::CopySrc | wis::BufferUsage::ConstantBuffer,
+                    wis::MemoryType::Upload,
+                    wis::MemoryFlags::Mapped
+                ));
                 desc_storage.WriteConstantBuffer(0, i, constant_buffersx[i], sizeof(float));
                 desc_storage.WriteConstantBuffer(0, ex::flight_frames + i, constant_buffersy[i], sizeof(float));
                 constant_datax[i] = static_cast<float*>(constant_buffersx[i].Map());
@@ -271,12 +301,12 @@ int main(int argc, char** argv)
     try {
         auto file = fopen(argv[1], "rb");
 
-        HWND wnd = { 0 };
+        HWND wnd = {0};
         fread(&wnd, sizeof(HWND), 1, file);
         fclose(file);
 
         // Clean up
-        App{ wnd }.Run();
+        App{wnd}.Run();
     } catch (const std::exception& e) {
         std::cerr << e.what() << std::endl;
         return 1;

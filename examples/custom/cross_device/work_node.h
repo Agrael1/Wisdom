@@ -1,17 +1,22 @@
 #pragma once
 #include <wisdom/wisdom.hpp>
-#include <wisdom/wisdom_extended_allocation.hpp>
 #include <wisdom/wisdom_descriptor_buffer.hpp>
+#include <wisdom/wisdom_extended_allocation.hpp>
+
 #include <expected>
 
 struct ExternalBuffer {
     ExternalBuffer() = default;
     ExternalBuffer(wis::SharedDevice device, VkBuffer buffer, VkDeviceMemory memory)
-        : device(std::move(device)), buffer(buffer), memory(memory)
+        : device(std::move(device))
+        , buffer(buffer)
+        , memory(memory)
     {
     }
     ExternalBuffer(ExternalBuffer&& other) noexcept
-        : device(std::move(other.device)), buffer(std::move(other.buffer)), memory(std::move(other.memory))
+        : device(std::move(other.device))
+        , buffer(std::move(other.buffer))
+        , memory(std::move(other.memory))
     {
     }
     ExternalBuffer& operator=(ExternalBuffer&& other) noexcept
@@ -35,16 +40,10 @@ struct ExternalBuffer {
             device.table().vkFreeMemory(device.get(), memory, nullptr);
         }
     }
-    ~ExternalBuffer()
-    {
-        Destroy();
-    }
+    ~ExternalBuffer() { Destroy(); }
 
 public:
-    operator wis::VKBufferView() const noexcept
-    {
-        return wis::VKBufferView{ buffer };
-    }
+    operator wis::VKBufferView() const noexcept { return wis::VKBufferView{buffer}; }
 
     wis::SharedDevice device;
     wis::h::VkBuffer buffer;
@@ -57,41 +56,52 @@ struct ExtMemoryHost : public wis::DeviceExtension {
     uint64_t size_alignment = 0;
 
 protected:
-    virtual WIS_INLINE bool
-    GetExtensionInfo(const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash, std::equal_to<>>& available_extensions,
-                     std::unordered_set<std::string_view>& ext_name_set,
-                     std::unordered_map<VkStructureType, uintptr_t>& structure_map,
-                     std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept override
+    virtual WIS_INLINE bool GetExtensionInfo(
+        const std::unordered_map<std::string, VkExtensionProperties, wis::string_hash, std::equal_to<>>&
+            available_extensions,
+        std::unordered_set<std::string_view>& ext_name_set,
+        std::unordered_map<VkStructureType, uintptr_t>& structure_map,
+        std::unordered_map<VkStructureType, uintptr_t>& property_map
+    ) noexcept override
     {
         if (available_extensions.find(VK_EXT_EXTERNAL_MEMORY_HOST_EXTENSION_NAME) == available_extensions.end()) {
             return false;
         }
 
         ext_name_set.insert(VK_EXT_EXTERNAL_MEMORY_HOST_EXTENSION_NAME);
-        property_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_MEMORY_HOST_PROPERTIES_EXT] = sizeof(VkPhysicalDeviceExternalMemoryHostPropertiesEXT);
+        property_map[VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_MEMORY_HOST_PROPERTIES_EXT] = sizeof(
+            VkPhysicalDeviceExternalMemoryHostPropertiesEXT
+        );
         return true;
     }
 
-    virtual WIS_INLINE wis::Result
-    Init(const wis::VKDevice& instance,
-         const std::unordered_map<VkStructureType, uintptr_t>& structure_map,
-         const std::unordered_map<VkStructureType, uintptr_t>& property_map) noexcept override
+    virtual WIS_INLINE wis::Result Init(
+        const wis::VKDevice& instance,
+        const std::unordered_map<VkStructureType, uintptr_t>& structure_map,
+        const std::unordered_map<VkStructureType, uintptr_t>& property_map
+    ) noexcept override
     {
         shared_device = instance.GetInternal().device;
-        vkGetMemoryHostPointerPropertiesEXT = shared_device.GetDeviceProcAddr<PFN_vkGetMemoryHostPointerPropertiesEXT>("vkGetMemoryHostPointerPropertiesEXT");
+        vkGetMemoryHostPointerPropertiesEXT = shared_device.GetDeviceProcAddr<PFN_vkGetMemoryHostPointerPropertiesEXT>(
+            "vkGetMemoryHostPointerPropertiesEXT"
+        );
 
-        auto& props = *(VkPhysicalDeviceExternalMemoryHostPropertiesEXT*)(property_map.at(VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_MEMORY_HOST_PROPERTIES_EXT));
+        auto& props = *(VkPhysicalDeviceExternalMemoryHostPropertiesEXT*)(property_map.at(
+            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_EXTERNAL_MEMORY_HOST_PROPERTIES_EXT
+        ));
         size_alignment = props.minImportedHostPointerAlignment;
         return {};
     }
 
 public:
-    virtual bool Supported() const noexcept override
-    {
-        return vkGetMemoryHostPointerPropertiesEXT;
-    }
+    virtual bool Supported() const noexcept override { return vkGetMemoryHostPointerPropertiesEXT; }
 
-    ExternalBuffer CreateExternalBuffer(wis::Result& result, wis::ResourceAllocator& allocator, void* mapping, uint64_t size) const noexcept
+    ExternalBuffer CreateExternalBuffer(
+        wis::Result& result,
+        wis::ResourceAllocator& allocator,
+        void* mapping,
+        uint64_t size
+    ) const noexcept
     {
         ExternalBuffer buffer;
 
@@ -99,10 +109,12 @@ public:
         VkMemoryHostPointerPropertiesEXT props{
             .sType = VK_STRUCTURE_TYPE_MEMORY_HOST_POINTER_PROPERTIES_EXT,
         };
-        auto res = vkGetMemoryHostPointerPropertiesEXT(shared_device.get(),
-                                                       VK_EXTERNAL_MEMORY_HANDLE_TYPE_HOST_ALLOCATION_BIT_EXT,
-                                                       mapping,
-                                                       &props);
+        auto res = vkGetMemoryHostPointerPropertiesEXT(
+            shared_device.get(),
+            VK_EXTERNAL_MEMORY_HANDLE_TYPE_HOST_ALLOCATION_BIT_EXT,
+            mapping,
+            &props
+        );
         if (res != wis::detail::vk_success) {
             result = wis::make_result<wis::Func<wis::FuncD()>(), "vkGetMemoryHostPointerPropertiesEXT failed: ">(res);
             return buffer;
@@ -216,5 +228,4 @@ public:
     uint64_t fence_value = 1;
 };
 
-std::expected<WorkNode, std::string_view>
-CreateWorkNode(wis::Adapter&& adapter);
+std::expected<WorkNode, std::string_view> CreateWorkNode(wis::Adapter&& adapter);

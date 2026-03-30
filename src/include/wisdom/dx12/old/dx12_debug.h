@@ -1,16 +1,18 @@
 #ifndef WIS_DX12_DEBUG_H
 #define WIS_DX12_DEBUG_H
 #ifndef WISDOM_MODULE_DECL
-#include <wisdom/global/internal.h>
-#include <wisdom/dx12/dx12_info.h>
-#include <memory>
+#    include <wisdom/dx12/dx12_info.h>
+#    include <wisdom/global/internal.h>
+
+#    include <memory>
 #endif
 
 WISDOM_EXPORT
-namespace wis {
+namespace wis
+{
 class DX12DebugMessenger;
 
-template<>
+template <>
 struct Internal<DX12DebugMessenger> {
     DX12InfoToken info;
 };
@@ -39,15 +41,9 @@ public:
         QueryInternal::operator=(std::move(other));
         return *this;
     }
-    ~DX12DebugMessenger() noexcept
-    {
-        DX12Info::RemoveCallback(this);
-    }
+    ~DX12DebugMessenger() noexcept { DX12Info::RemoveCallback(this); }
 
-    operator bool() const noexcept
-    {
-        return info;
-    }
+    operator bool() const noexcept { return info; }
 };
 } // namespace wis
 

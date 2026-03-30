@@ -1,11 +1,12 @@
 #pragma once
 #include <wisdom/wisdom.hpp>
-#include <wisdom/wisdom_extended_allocation.hpp>
 #include <wisdom/wisdom_descriptor_buffer.hpp>
-#include <span>
+#include <wisdom/wisdom_extended_allocation.hpp>
+
 #include <array>
-#include <string_view>
 #include <expected>
+#include <span>
+#include <string_view>
 
 struct TransferNode {
     static constexpr uint32_t kFrameCount = 2;
@@ -35,5 +36,4 @@ public:
     uint64_t fence_value = 1;
 };
 
-std::expected<TransferNode, std::string_view>
-CreateTransferNode(wis::Adapter&& adapter);
+std::expected<TransferNode, std::string_view> CreateTransferNode(wis::Adapter&& adapter);

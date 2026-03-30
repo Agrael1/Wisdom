@@ -5,14 +5,15 @@
 #include <wisdom/util/error_messages.hpp>
 
 #ifndef _INC_WINDOWS
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif // WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-#endif // _INC_WINDOWS
+#    ifndef WIN32_LEAN_AND_MEAN
+#        define WIN32_LEAN_AND_MEAN
+#    endif // WIN32_LEAN_AND_MEAN
+#    include <Windows.h>
+#endif     // _INC_WINDOWS
 
-namespace wis::detail {
-static constexpr WisResult dx_success { WisStatusOk, S_OK, "Operation succeeded." };
+namespace wis::detail
+{
+static constexpr WisResult dx_success{WisStatusOk, S_OK, "Operation succeeded."};
 
 //-----------------------------------------------------------------------------
 /**
@@ -57,11 +58,13 @@ constexpr WisStatus DX12Convert(const HRESULT hr) noexcept
  * that includes both the function name and the custom message.
  */
 template <func_pair func, wis::fixed_string message>
-WIS_CONSTEXPR23 inline WisResult
-make_result(HRESULT hr, std::source_location sl = std::source_location::current()) noexcept
+WIS_CONSTEXPR23 inline WisResult make_result(
+    HRESULT hr,
+    std::source_location sl = std::source_location::current()
+) noexcept
 {
     static const auto str = wis::detail::make_error_string<message, func>(sl);
-    return { wis::detail::DX12Convert(hr), hr, str.c_str() };
+    return {wis::detail::DX12Convert(hr), hr, str.c_str()};
 }
 
 //-----------------------------------------------------------------------------
@@ -83,11 +86,14 @@ make_result(HRESULT hr, std::source_location sl = std::source_location::current(
  * that includes both the function name and the custom message.
  */
 template <func_pair func, wis::fixed_string message>
-WIS_CONSTEXPR23 inline WisResult
-make_result(WisStatus status, HRESULT hr, std::source_location sl = std::source_location::current()) noexcept
+WIS_CONSTEXPR23 inline WisResult make_result(
+    WisStatus status,
+    HRESULT hr,
+    std::source_location sl = std::source_location::current()
+) noexcept
 {
     static const auto str = wis::detail::make_error_string<message, func>(sl);
-    return { status, hr, str.c_str() };
+    return {status, hr, str.c_str()};
 }
 
 //-----------------------------------------------------------------------------
@@ -96,7 +102,10 @@ make_result(WisStatus status, HRESULT hr, std::source_location sl = std::source_
  * @param hr The HRESULT value to check for success.
  * @return True if the HRESULT indicates success (non-negative), false otherwise.
  */
-constexpr bool succeeded(HRESULT hr) noexcept { return SUCCEEDED(hr); }
+constexpr bool succeeded(HRESULT hr) noexcept
+{
+    return SUCCEEDED(hr);
+}
 } // namespace wis::detail
 
 #endif // WIS_DX12_UTILS_HPP

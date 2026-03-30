@@ -1,13 +1,16 @@
 #include "lut_loader.h"
-#include <fstream>
+
 #include <charconv>
+#include <fstream>
 
 std::string_view TrimWhitespace(std::string_view str)
 {
-    while (!str.empty() && std::isspace(str.front()))
+    while (!str.empty() && std::isspace(str.front())) {
         str.remove_prefix(1);
-    while (!str.empty() && std::isspace(str.back()))
+    }
+    while (!str.empty() && std::isspace(str.back())) {
         str.remove_suffix(1);
+    }
     return str;
 }
 
@@ -18,10 +21,11 @@ std::pair<LutData, size_t> ParseHeader(std::string_view text)
     size_t offset = 0;
     while (offset < text.size() && !terminated) {
         auto newline = text.find('\n', offset);
-        if (newline == std::string::npos)
-            return { std::move(data), offset };
+        if (newline == std::string::npos) {
+            return {std::move(data), offset};
+        }
 
-        std::string_view line{ text.data() + offset, newline - offset };
+        std::string_view line{text.data() + offset, newline - offset};
         line = TrimWhitespace(line);
 
         if (line.starts_with("LUT_1D_SIZE")) {
@@ -34,8 +38,9 @@ std::pair<LutData, size_t> ParseHeader(std::string_view text)
             uint32_t count;
             auto err = std::from_chars(xline.data(), xline.data() + xline.size(), count);
 
-            if (err.ec != std::errc())
-                return { std::move(data), offset };
+            if (err.ec != std::errc()) {
+                return {std::move(data), offset};
+            }
 
             data.stride = count;
             data.type = LutType::Lut1D;
@@ -49,8 +54,9 @@ std::pair<LutData, size_t> ParseHeader(std::string_view text)
             uint32_t count;
             auto err = std::from_chars(xline.data(), xline.data() + xline.size(), count);
 
-            if (err.ec != std::errc())
-                return { std::move(data), offset };
+            if (err.ec != std::errc()) {
+                return {std::move(data), offset};
+            }
 
             data.stride = count;
             data.type = LutType::Lut3D;
@@ -58,12 +64,13 @@ std::pair<LutData, size_t> ParseHeader(std::string_view text)
             terminated = true;
         }
 
-        if (!line.empty() && isdigit(line[0]))
-            return { std::move(data), offset };
+        if (!line.empty() && isdigit(line[0])) {
+            return {std::move(data), offset};
+        }
 
         offset = newline + 1;
     }
-    return { std::move(data), offset };
+    return {std::move(data), offset};
 }
 
 std::unique_ptr<float[]> ParseLutData(std::string_view text, size_t count)
@@ -92,13 +99,15 @@ std::unique_ptr<float[]> ParseLutData(std::string_view text, size_t count)
 
 LutData LutLoader::LoadLut(std::filesystem::path path)
 {
-    if (!std::filesystem::exists(path))
+    if (!std::filesystem::exists(path)) {
         return {};
+    }
 
     // regular text file
     std::ifstream file(path);
-    if (!file.is_open())
+    if (!file.is_open()) {
         return {};
+    }
 
     // load entire file into memory
     std::string text;
@@ -112,8 +121,10 @@ LutData LutLoader::LoadLut(std::filesystem::path path)
     // parse the file using string_view by line
     auto [data, offset] = ParseHeader(text);
 
-    data.data = ParseLutData(std::string_view(text.data() + offset, text.size() - offset),
-                             data.type == LutType::Lut1D ? data.stride : data.stride * data.stride * data.stride);
+    data.data = ParseLutData(
+        std::string_view(text.data() + offset, text.size() - offset),
+        data.type == LutType::Lut1D ? data.stride : data.stride * data.stride * data.stride
+    );
 
     return std::move(data);
 }

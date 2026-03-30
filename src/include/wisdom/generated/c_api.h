@@ -20,8 +20,7 @@ extern "C" {
  * @brief Provided by Wisdom 0.7.0. Defines common return status codes. Compare against `WisStatusOk` for success.
  *
  * */
-typedef enum WisStatus
-{
+typedef enum WisStatus {
     WisStatusOk = 0,                 ///< Operation succeeded.
     WisStatusTimeout = 1,            ///< Operation timed out.
     WisStatusPartial = 2,            ///< Operation partially succeeded.
@@ -46,8 +45,7 @@ typedef enum WisStatus
  * - Depth stencil data format
  *
  * */
-typedef enum WisDataFormat
-{
+typedef enum WisDataFormat {
     WisDataFormatUnknown = 0, ///< Unknown format.
                               /**
                                * @brief
@@ -622,8 +620,7 @@ typedef enum WisDataFormat
  * @brief Provided by Wisdom 0.7.0. Sample rate for multisampling.
  *
  * */
-typedef enum WisSampleCount
-{
+typedef enum WisSampleCount {
     WisSampleCountS1 = 1,   ///< 1 sample per pixel.
     WisSampleCountS2 = 2,   ///< 2 samples per pixel.
     WisSampleCountS4 = 4,   ///< 4 samples per pixel.
@@ -635,8 +632,7 @@ typedef enum WisSampleCount
  * @brief Provided by Wisdom 0.7.0. Texture layout. Determines how texture will be accessed.
  *
  * */
-typedef enum WisTextureLayout
-{
+typedef enum WisTextureLayout {
     WisTextureLayoutTexture1D = 2,        ///< Texture is 1D array of data. Behaves similarly to Buffer.
     WisTextureLayoutTexture1DArray = 3,   ///< Texture is an array of 1D data.
     WisTextureLayoutTexture2D = 4,        ///< Texture is 2D image, default texture type.
@@ -655,8 +651,7 @@ typedef enum WisTextureLayout
  * `VkPhysicalDeviceType` heuristics.
  *
  * */
-typedef enum WisAdapterPreference
-{
+typedef enum WisAdapterPreference {
     WisAdapterPreferenceNone = 0,           ///< No particular preference, list adapters in system devised order.
     WisAdapterPreferenceMinConsumption = 1, ///< List the adapters from low power consumption to high. DirectX 12:
                                             ///< Integrated, Discrete, External, Software. Vulkan: Integrated GPU,
@@ -670,8 +665,7 @@ typedef enum WisAdapterPreference
  * @brief Provided by Wisdom 0.7.0. Defines severity levels for logging and debugging messages.
  *
  * */
-typedef enum WisSeverity
-{
+typedef enum WisSeverity {
     WisSeverityVerbose = 0, ///< Verbose level messages, typically used for detailed debugging information.
     WisSeverityInfo = 1,    ///< Informational messages that highlight the progress of the application.
     WisSeverityWarning = 2, ///< Potentially harmful situations that warrant attention but do not prevent normal
@@ -685,8 +679,7 @@ typedef enum WisSeverity
  * corresponds to a specific kind of workload that the GPU can handle.
  *
  * */
-typedef enum WisCommandQueueType
-{
+typedef enum WisCommandQueueType {
     WisCommandQueueTypeGraphics = 0, ///< Command queue for graphics operations, including rendering and compute tasks.
     WisCommandQueueTypeCompute = 1,  ///< Command queue dedicated to compute operations, optimized for parallel
                                      ///< processing tasks.
@@ -702,8 +695,7 @@ typedef enum WisCommandQueueType
  * performance issues if overused.
  *
  * */
-typedef enum WisCommandQueuePriority
-{
+typedef enum WisCommandQueuePriority {
     WisCommandQueuePriorityNormal = 0,   ///< Normal queue priority.
     WisCommandQueuePriorityHigh = 1,     ///< High queue priority.
     WisCommandQueuePriorityRealtime = 2, ///< Global realtime queue priority. Requires special GPU support and @wis_may
@@ -715,8 +707,7 @@ typedef enum WisCommandQueuePriority
  * to a specific kind of workload that the GPU can handle.
  *
  * */
-typedef enum WisPipelineType
-{
+typedef enum WisPipelineType {
     WisPipelineTypeGraphics = 0, ///< Pipeline for graphics operations, including rendering tasks.
     WisPipelineTypeCompute = 1,  ///< Pipeline dedicated to compute operations, optimized for parallel processing tasks.
     WisPipelineTypeRayTracing = 2, ///< Pipeline for ray tracing operations, optimized for ray tracing workloads.
@@ -727,8 +718,7 @@ typedef enum WisPipelineType
  * descriptor management. Stages have no granularity, either all or one can be selected.
  *
  * */
-typedef enum WisShaderVisibility
-{
+typedef enum WisShaderVisibility {
     WisShaderVisibilityAll = 0,           ///< All shader stages.
     WisShaderVisibilityVertex = 1,        ///< Vertex shader stage.
     WisShaderVisibilityHull = 2,          ///< Hull/Tessellation control shader stage.
@@ -744,8 +734,7 @@ typedef enum WisShaderVisibility
  * @brief Provided by Wisdom 0.7.0. Type of the descriptor in the descriptor table.
  *
  * */
-typedef enum WisDescriptorType
-{
+typedef enum WisDescriptorType {
     WisDescriptorTypeSampler = 0,               ///< Descriptor is a sampler.
     WisDescriptorTypeConstantBuffer = 1,        ///< Descriptor is a constant buffer.
     WisDescriptorTypeTexture = 2,               ///< Descriptor is a texture.
@@ -760,8 +749,7 @@ typedef enum WisDescriptorType
  * @brief Provided by Wisdom 0.7.0. Comparison function for depth and stencil operations.
  *
  * */
-typedef enum WisCompareOp
-{
+typedef enum WisCompareOp {
     WisCompareOpNone = 0,         ///< No comparison.
     WisCompareOpNever = 1,        ///< Always fail the comparison.
     WisCompareOpLess = 2,         ///< Pass the comparison if the source value is less than the destination value.
@@ -779,8 +767,7 @@ typedef enum WisCompareOp
  * @brief Provided by Wisdom 0.7.0. Address mode for texture sampling.
  *
  * */
-typedef enum WisAddressMode
-{
+typedef enum WisAddressMode {
     WisAddressModeRepeat = 0,            ///< Repeat the texture.
     WisAddressModeMirroredRepeat = 1,    ///< Repeat the texture with mirroring.
     WisAddressModeClampToEdge = 2,       ///< Clamp the texture to the edge.
@@ -792,8 +779,7 @@ typedef enum WisAddressMode
  * @brief Provided by Wisdom 0.7.0. Filtering mode for texture sampling.
  *
  * */
-typedef enum WisFilter
-{
+typedef enum WisFilter {
     WisFilterPoint = 0,  ///< Nearest neighbor filtering.
     WisFilterLinear = 1, ///< Linear filtering.
 } WisFilter;
@@ -802,8 +788,7 @@ typedef enum WisFilter
  * @brief Provided by Wisdom 0.7.0. Reduction mode for texture sampling when min and mag filters are different.
  *
  * */
-typedef enum WisReductionMode
-{
+typedef enum WisReductionMode {
     WisReductionModeStandard = 0, ///< Standard filtering behavior.
     WisReductionModeMin = 1,      ///< Use the minimum value of the samples for filtering.
     WisReductionModeMax = 2,      ///< Use the maximum value of the samples for filtering.
@@ -814,8 +799,7 @@ typedef enum WisReductionMode
  * Border.
  *
  * */
-typedef enum WisStaticBorder
-{
+typedef enum WisStaticBorder {
     WisStaticBorderTransparentBlack = 0, ///< Transparent black border color.
     WisStaticBorderOpaqueBlack = 1,      ///< Opaque black border color.
     WisStaticBorderOpaqueWhite = 2,      ///< Opaque white border color.
@@ -825,8 +809,7 @@ typedef enum WisStaticBorder
  * @brief Provided by Wisdom 0.7.0. Descriptor heap type.
  *
  * */
-typedef enum WisDescriptorHeapType
-{
+typedef enum WisDescriptorHeapType {
     WisDescriptorHeapTypeDescriptor = 0, ///< Descriptor heap type. Used for all descriptor types, except for samplers.
     WisDescriptorHeapTypeSampler = 1,    ///< Sampler heap type. Used for sampler descriptors.
 } WisDescriptorHeapType;
@@ -835,8 +818,7 @@ typedef enum WisDescriptorHeapType
  * @brief Provided by Wisdom 0.7.0. Descriptor memory type. Decides if descriptors are visible and can be bound to GPU.
  *
  * */
-typedef enum WisDescriptorMemoryType
-{
+typedef enum WisDescriptorMemoryType {
     WisDescriptorMemoryTypeCpuOnly = 0, ///< Descriptors are only visible to CPU. May be used for copying descriptors to
                                         ///< the GPU visible pool.
     WisDescriptorMemoryTypeShaderVisible = 1, ///< Descriptors are visible to GPU. Descriptors can be bound to the GPU
@@ -847,8 +829,7 @@ typedef enum WisDescriptorMemoryType
  * @brief Provided by Wisdom 0.7.0. Component swizzle for texture sampling.
  *
  * */
-typedef enum WisComponentSwizzle
-{
+typedef enum WisComponentSwizzle {
     WisComponentSwizzleIdentity = 0, ///< Use the component as is for sampling.
     WisComponentSwizzleRed = 1,      ///< Use the red component for sampling.
     WisComponentSwizzleGreen = 2,    ///< Use the green component for sampling.
@@ -862,8 +843,7 @@ typedef enum WisComponentSwizzle
  * @brief Provided by Wisdom 0.7.0. Determines the behavior when wait for multiple fences is issued.
  *
  * */
-typedef enum WisMutiWaitType
-{
+typedef enum WisMutiWaitType {
     WisMutiWaitTypeAll = 0, ///< All the fences in the batch are triggered.
     WisMutiWaitTypeAny = 1, ///< At least one of the fences from the batch is triggered.
 } WisMutiWaitType;
@@ -872,8 +852,7 @@ typedef enum WisMutiWaitType
  * @brief Provided by Wisdom 0.7.0. Input classification for vertex buffer data.
  *
  * */
-typedef enum WisInputClass
-{
+typedef enum WisInputClass {
     WisInputClassPerVertex = 0,   ///< Vertex buffer data is vertex data.
     WisInputClassPerInstance = 1, ///< Vertex buffer data is per instance data.
 } WisInputClass;
@@ -882,8 +861,7 @@ typedef enum WisInputClass
  * @brief Provided by Wisdom 0.7.0. Query type for GPU queries.
  *
  * */
-typedef enum WisQueryPropertyType
-{
+typedef enum WisQueryPropertyType {
     WisQueryPropertyTypeDeviceCommandQueueProperties = 0,   ///< Properties of the device command queues. Expects a
                                                             ///< WisDeviceCommandQueueProperties struct.
     WisQueryPropertyTypeDeviceDescriptorHeapProperties = 1, ///< Properties of the device descriptor heap. Expects a
@@ -898,8 +876,7 @@ typedef enum WisQueryPropertyType
  * @brief Provided by Wisdom 0.7.0. Memory type for resource allocation.
  *
  * */
-typedef enum WisMemoryType
-{
+typedef enum WisMemoryType {
     WisMemoryTypeDefault = 0, ///< Default memory type. Alias for `WisMemoryTypeDeviceLocal`
                               /**
                                * @brief
@@ -932,8 +909,7 @@ typedef enum WisMemoryType
  * @brief Provided by Wisdom 0.7.0. Texture state for resource transitions.
  *
  * */
-typedef enum WisTextureState
-{
+typedef enum WisTextureState {
     WisTextureStateUndefined = -1,            ///< Undefined state.
     WisTextureStateCommon = 0,                ///< Common state.
     WisTextureStateRead = 1,                  ///< General Read state.
@@ -956,8 +932,7 @@ typedef enum WisTextureState
  * @brief Provided by Wisdom 0.7.0. Intermediate shader representation.
  *
  * */
-typedef enum WisShaderIntermediate
-{
+typedef enum WisShaderIntermediate {
     WisShaderIntermediateDXIL = 0,  ///< DirectX Intermediate Language.
     WisShaderIntermediateSPIRV = 1, ///< Standard Portable Intermediate Representation for Vulkan.
 } WisShaderIntermediate;
@@ -966,8 +941,7 @@ typedef enum WisShaderIntermediate
  * @brief Provided by Wisdom 0.7.0. Stencil operation for depth and stencil operations.
  *
  * */
-typedef enum WisStencilOp
-{
+typedef enum WisStencilOp {
     WisStencilOpKeep = 1,     ///< Keep the current value.
     WisStencilOpZero = 2,     ///< Set the value to zero.
     WisStencilOpReplace = 3,  ///< Replace the value with the reference value.
@@ -982,8 +956,7 @@ typedef enum WisStencilOp
  * @brief Provided by Wisdom 0.7.0. Primitive topology type for WisGraphicsPipelineDesc.
  *
  * */
-typedef enum WisTopologyType
-{
+typedef enum WisTopologyType {
     WisTopologyTypePoint = 1,    ///< Render points for each vertex.
     WisTopologyTypeLine = 2,     ///< Render lines between vertices.
     WisTopologyTypeTriangle = 3, ///< Render triangles between vertices.
@@ -994,8 +967,7 @@ typedef enum WisTopologyType
  * @brief Provided by Wisdom 0.7.0. Fill mode for rasterizer.
  *
  * */
-typedef enum WisFillMode
-{
+typedef enum WisFillMode {
     WisFillModeLines = 2, ///< Draw lines between vertices. Wireframe rendering.
     WisFillModeSolid = 3, ///< Fill the area between vertices forming polygons.
 } WisFillMode;
@@ -1005,8 +977,7 @@ typedef enum WisFillMode
  * Triangle culling depends on WisWindingOrder option.
  *
  * */
-typedef enum WisCullMode
-{
+typedef enum WisCullMode {
     WisCullModeNone = 1,  ///< No culling.
     WisCullModeFront = 2, ///< Cull front-facing triangles.
     WisCullModeBack = 3,  ///< Cull back-facing triangles.
@@ -1016,8 +987,7 @@ typedef enum WisCullMode
  * @brief Provided by Wisdom 0.7.0. Winding order for front-facing triangles.
  *
  * */
-typedef enum WisWindingOrder
-{
+typedef enum WisWindingOrder {
     WisWindingOrderClockwise = 0,        ///< Front-facing triangles have clockwise winding order.
     WisWindingOrderCounterClockwise = 1, ///< Front-facing triangles have counter-clockwise winding order.
 } WisWindingOrder;
@@ -1026,8 +996,7 @@ typedef enum WisWindingOrder
  * @brief Provided by Wisdom 0.7.0. Conservative rasterization mode.
  *
  * */
-typedef enum WisConservativeRasterization
-{
+typedef enum WisConservativeRasterization {
     WisConservativeRasterizationOff = 0,          ///< Conservative rasterization is disabled.
     WisConservativeRasterizationOverestimate = 1, ///< Conservative rasterization is enabled.
 } WisConservativeRasterization;
@@ -1036,8 +1005,7 @@ typedef enum WisConservativeRasterization
  * @brief Provided by Wisdom 0.7.0. Line rasterization mode.
  *
  * */
-typedef enum WisLineRasterization
-{
+typedef enum WisLineRasterization {
     WisLineRasterizationDefault = 0,          ///< Line rasterization is disabled. Lines are not rendered.
     WisLineRasterizationRectangular = 1,      ///< Lines are rasterized as rectangles.
     WisLineRasterizationAlphaAntialiased = 2, ///< Lines are rasterized as rectangles with anti-aliasing.
@@ -1047,8 +1015,7 @@ typedef enum WisLineRasterization
  * @brief Provided by Wisdom 0.7.0. Blend factor for color blending operations.
  *
  * */
-typedef enum WisBlendFactor
-{
+typedef enum WisBlendFactor {
     WisBlendFactorZero = 1,            ///< Use zero for blending.
     WisBlendFactorOne = 2,             ///< Use one for blending.
     WisBlendFactorSrcColor = 3,        ///< Use the source color for blending.
@@ -1072,8 +1039,7 @@ typedef enum WisBlendFactor
  * @brief Provided by Wisdom 0.7.0. Blend operation for color blending operations.
  *
  * */
-typedef enum WisBlendOp
-{
+typedef enum WisBlendOp {
     WisBlendOpAdd = 1,         ///< Add the source and destination colors.
     WisBlendOpSubtract = 2,    ///< Subtract the source color from the destination color.
     WisBlendOpRevSubtract = 3, ///< Subtract the destination color from the source color.
@@ -1085,8 +1051,7 @@ typedef enum WisBlendOp
  * @brief Provided by Wisdom 0.7.0. Logic operation for color blending operations.
  *
  * */
-typedef enum WisLogicOp
-{
+typedef enum WisLogicOp {
     WisLogicOpClear = 0,        ///< Clear the destination value.
     WisLogicOpSet = 1,          ///< Set the destination value.
     WisLogicOpCopy = 2,         ///< Copy the source value to the destination.
@@ -1111,8 +1076,7 @@ typedef enum WisLogicOp
  * [here](https://learn.microsoft.com/en-us/windows/win32/direct3d11/d3d10-graphics-programming-guide-primitive-topologies).
  *
  * */
-typedef enum WisPrimitiveTopology
-{
+typedef enum WisPrimitiveTopology {
     WisPrimitiveTopologyPointList = 1,         ///< Render points for each vertex.
     WisPrimitiveTopologyLineList = 2,          ///< Render lines between vertices.
     WisPrimitiveTopologyLineStrip = 3,         ///< Render lines between vertices in a strip.
@@ -1129,8 +1093,7 @@ typedef enum WisPrimitiveTopology
  * @brief Provided by Wisdom 0.7.0. Primitive restart value for indexed drawing with primitive restart enabled.
  *
  * */
-typedef enum WisPrimitiveRestartValue
-{
+typedef enum WisPrimitiveRestartValue {
     WisPrimitiveRestartValueNone = 0,          ///< Primitive restart is disabled. No primitive restart value is used.
     WisPrimitiveRestartValueUInt16Max = 65535, ///< Use the maximum value of uint16_t as the primitive restart value.
     WisPrimitiveRestartValueUInt32Max = -1,    ///< Use the maximum value of uint32_t as the primitive restart value.
@@ -1140,8 +1103,7 @@ typedef enum WisPrimitiveRestartValue
  * @brief Provided by Wisdom 0.7.0. Type of the view descriptor heap.
  *
  * */
-typedef enum WisViewHeapType
-{
+typedef enum WisViewHeapType {
     WisViewHeapTypeRenderTarget = 0, ///< Descriptor heap for render target views.
     WisViewHeapTypeDepthStencil = 1, ///< Descriptor heap for depth stencil views.
 } WisViewHeapType;
@@ -1150,8 +1112,7 @@ typedef enum WisViewHeapType
  * @brief Provided by Wisdom 0.7.0. Swapchain scaling mode.
  *
  * */
-typedef enum WisSwapchainScaling
-{
+typedef enum WisSwapchainScaling {
     WisSwapchainScalingNone = 0,    ///< No scaling. The swapchain size is equal to the window size.
     WisSwapchainScalingStretch = 1, ///< Stretch scaling. The swapchain size is stretched to the window size.
     WisSwapchainScalingAspect = 2,  ///< Aspect scaling. The swapchain size is scaled to the window size with aspect
@@ -1162,8 +1123,7 @@ typedef enum WisSwapchainScaling
  * @brief Provided by Wisdom 0.7.0. Composite alpha flags for swapchain creation.
  *
  * */
-typedef enum WisCompositeAlpha
-{
+typedef enum WisCompositeAlpha {
     WisCompositeAlphaOpaque = 0, ///< The alpha channel, if it exists, is ignored. The image is treated as opaque.
     WisCompositeAlphaPreMultiplied = 1,  ///< The alpha channel, if it exists, is respected and used in compositing. The
                                          ///< premultiplied alpha format is expected.
@@ -1177,8 +1137,7 @@ typedef enum WisCompositeAlpha
  * @brief Provided by Wisdom 0.7.0. Attachment load operation for render pass.
  *
  * */
-typedef enum WisLoadOp
-{
+typedef enum WisLoadOp {
     WisLoadOpLoad = 0,     ///< Load the attachment contents.
     WisLoadOpClear = 1,    ///< Clear the attachment contents.
     WisLoadOpDontCare = 2, ///< Do not care about the attachment contents.
@@ -1188,8 +1147,7 @@ typedef enum WisLoadOp
  * @brief Provided by Wisdom 0.7.0. Attachment store operation for render pass.
  *
  * */
-typedef enum WisStoreOp
-{
+typedef enum WisStoreOp {
     WisStoreOpStore = 0,    ///< Store the attachment contents.
     WisStoreOpDontCare = 1, ///< Do not care about the attachment contents.
 } WisStoreOp;
@@ -1198,8 +1156,7 @@ typedef enum WisStoreOp
  * @brief Provided by Wisdom 0.7.0. Flags that describe adapter.
  *
  * */
-typedef enum WisAdapterFlags
-{
+typedef enum WisAdapterFlags {
     WisAdapterFlagsNone = 0,             ///< No flags set. Adapter @wis_may be discrete or embedded.
     WisAdapterFlagsRemote = (1u << 0),   ///< Adapter is remote. Used for remote rendering.
     WisAdapterFlagsSoftware = (1u << 1), ///< Adapter is software. Uses CPU for software rendering.
@@ -1209,8 +1166,7 @@ typedef enum WisAdapterFlags
  * @brief Provided by Wisdom 0.7.0. Flags for descriptor heap creation.
  *
  * */
-typedef enum WisDescriptorHeapFlags
-{
+typedef enum WisDescriptorHeapFlags {
     WisDescriptorHeapFlagsNone = 0,                             ///< No flags set.
     WisDescriptorHeapFlagsDisallowEmbeddedSamplers = (1u << 1), ///< Heap is used in full for dynamic samplers. There
                                                                 ///< @wis_must_not be any shader that use embedded
@@ -1223,8 +1179,7 @@ typedef enum WisDescriptorHeapFlags
  * @brief Provided by Wisdom 0.7.0. Flags for sampler creation.
  *
  * */
-typedef enum WisSamplerFlags
-{
+typedef enum WisSamplerFlags {
     WisSamplerFlagsNone = 0,                             ///< No flags set.
     WisSamplerFlagsNonNormalizedCoordinates = (1u << 0), ///< Use non-normalized texture coordinates.
 } WisSamplerFlags;
@@ -1234,8 +1189,7 @@ typedef enum WisSamplerFlags
  * Determine how the buffer can be used throughout its lifetime.
  *
  * */
-typedef enum WisBufferUsageFlags
-{
+typedef enum WisBufferUsageFlags {
     WisBufferUsageFlagsNone = 0,                   ///< No flags set. Buffer is not used.
     WisBufferUsageFlagsCopySrc = (1u << 0),        ///< Buffer is used as a source for copy operations.
     WisBufferUsageFlagsCopyDst = (1u << 1),        ///< Buffer is used as a destination for copy operations.
@@ -1255,8 +1209,7 @@ typedef enum WisBufferUsageFlags
  * Determine how the texture can be used throughout its lifetime.
  *
  * */
-typedef enum WisTextureUsageFlags
-{
+typedef enum WisTextureUsageFlags {
     WisTextureUsageFlagsNone = 0,                    ///< No flags set. Texture is not used.
     WisTextureUsageFlagsRenderTarget = (1u << 0),    ///< Texture is used as a render target.
     WisTextureUsageFlagsDepthStencil = (1u << 1),    ///< Texture is used as a depth stencil buffer.
@@ -1272,8 +1225,7 @@ typedef enum WisTextureUsageFlags
  * Determine optional properties of the memory allocation.
  *
  * */
-typedef enum WisMemoryFlags
-{
+typedef enum WisMemoryFlags {
     WisMemoryFlagsNone = 0, ///< No flags set. Memory is regular.
                             /**
                              * @brief
@@ -1303,8 +1255,7 @@ typedef enum WisMemoryFlags
  * @brief Provided by Wisdom 0.7.0. Texture creation flags. Reserved for future features.
  *
  * */
-typedef enum WisTextureFlags
-{
+typedef enum WisTextureFlags {
     WisTextureFlagsNone = 0, ///< No flags set. Texture is regular.
 } WisTextureFlags;
 
@@ -1312,8 +1263,7 @@ typedef enum WisTextureFlags
  * @brief Provided by Wisdom 0.7.0. Texture binding flags, used for extra options.
  *
  * */
-typedef enum WisTextureBindingFlags
-{
+typedef enum WisTextureBindingFlags {
     WisTextureBindingFlagsNone = 0,              ///< No flags set. Texture view is regular. Implies color read.
     WisTextureBindingFlagsDepthView = (1u << 0), ///< Texture view is used to read depth. Used for special formats that
                                                  ///< feature depth and stencil. The bound texture @wis_must be in TODO:
@@ -1328,8 +1278,7 @@ typedef enum WisTextureBindingFlags
  * @brief Provided by Wisdom 0.7.0. Barrier synchronization flags for resource barriers.
  *
  * */
-typedef enum WisBarrierSync
-{
+typedef enum WisBarrierSync {
     WisBarrierSyncNone = 0,                     ///< No synchronization is performed.
     WisBarrierSyncAll = (1u << 0),              ///< Synchronize all commands.
     WisBarrierSyncDraw = (1u << 1),             ///< Synchronize draw commands.
@@ -1356,8 +1305,7 @@ typedef enum WisBarrierSync
  * @brief Provided by Wisdom 0.7.0. Resource access flags for resource barriers.
  *
  * */
-typedef enum WisResourceAccess
-{
+typedef enum WisResourceAccess {
     WisResourceAccessCommon = 0,                        ///< Common access.
     WisResourceAccessVertexBuffer = (1u << 0),          ///< Vertex buffer access. Applies only to buffers.
     WisResourceAccessConstantBuffer = (1u << 1),        ///< Constant buffer access. Applies only to buffers.
@@ -1386,8 +1334,7 @@ typedef enum WisResourceAccess
  * @brief Provided by Wisdom 0.7.0. Barrier flags for resource barriers.
  *
  * */
-typedef enum WisBarrierFlags
-{
+typedef enum WisBarrierFlags {
     WisBarrierFlagsNone = 0,                    ///< No flags set. Barrier is regular.
     WisBarrierFlagsDiscardContent = (1u << 0),  ///< Discard resource content. The content of the resource before the
                                                 ///< barrier is treated as if resource was not initialized.
@@ -1410,8 +1357,7 @@ typedef enum WisBarrierFlags
  * @brief Provided by Wisdom 0.7.0. Pipeline creation flags.
  *
  * */
-typedef enum WisPipelineFlags
-{
+typedef enum WisPipelineFlags {
     WisPipelineFlagsNone = 0,                    ///< No flags set. Pipeline is regular.
     WisPipelineFlagsFailOnCacheMiss = (1u << 0), ///< Fail pipeline creation if the pipeline cache is missing or
                                                  ///< incompatible. If not set, the implementation @wis_may choose to
@@ -1430,8 +1376,7 @@ typedef enum WisPipelineFlags
  * Used for color blending operations.
  *
  * */
-typedef enum WisColorComponents
-{
+typedef enum WisColorComponents {
     WisColorComponentsNone = 0,      ///< No flags set. Color blending is not used.
     WisColorComponentsR = (1u << 0), ///< Use red component for blending.
     WisColorComponentsG = (1u << 1), ///< Use green component for blending.
@@ -1444,8 +1389,7 @@ typedef enum WisColorComponents
  * @brief Provided by Wisdom 0.7.0. Swapchain creation flags.
  *
  * */
-typedef enum WisSwapchainFlags
-{
+typedef enum WisSwapchainFlags {
     WisSwapchainFlagsNone = 0,                 ///< No flags set. Swapchain is regular.
     WisSwapchainFlagsAllowTearing = (1u << 0), ///< Allow tearing.
     WisSwapchainFlagsVSync = (1u << 1),        ///< Present with vertical sync. If set, the swapchain is presented with
@@ -1458,8 +1402,7 @@ typedef enum WisSwapchainFlags
  * @brief Provided by Wisdom 0.7.0. Swapchain creation flags.
  *
  * */
-typedef enum WisPresentFlags
-{
+typedef enum WisPresentFlags {
     WisPresentFlagsNone = 0,                   ///< No flags set. Swapchain is regular.
     WisPresentFlagsTimeoutOnBlock = (1u << 0), ///< Fail present if the presentation engine is busy. If not set, the
                                                ///< implementation @wis_may choose to block until the presentation
@@ -1472,8 +1415,7 @@ typedef enum WisPresentFlags
  * [here](https://learn.microsoft.com/en-us/windows/win32/direct3d12/direct3d-12-render-passes).
  *
  * */
-typedef enum WisRenderPassFlags
-{
+typedef enum WisRenderPassFlags {
     WisRenderPassFlagsNone = 0,                   ///< No flags set. Render pass is regular.
     WisRenderPassFlagsSuspending = (1u << 1),     ///< Render pass is suspending.
     WisRenderPassFlagsResuming = (1u << 2),       ///< Render pass is resuming.
@@ -1487,8 +1429,7 @@ typedef enum WisRenderPassFlags
  * Affect which part of the depth stencil buffer is used.
  *
  * */
-typedef enum WisDepthStencilFlags
-{
+typedef enum WisDepthStencilFlags {
     WisDepthStencilFlagsNone = 0,                    ///< No flags set. Both attachments are write.
     WisDepthStencilFlagsIgnoreDepth = (1u << 0),     ///< Don't use depth part of the depth stencil buffer.
     WisDepthStencilFlagsIgnoreStencil = (1u << 1),   ///< Don't use stencil part of the depth stencil buffer.

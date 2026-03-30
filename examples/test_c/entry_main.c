@@ -951,43 +951,57 @@ void Render(BasicRenderer* renderer, const ResourceContainer* resources, const B
     };
 
     WisTextureBarrier swapchain_barriers[] = {
-        {.sync_before = WisBarrierSyncNone,
-         .sync_after = WisBarrierSyncRenderTarget,
-         .access_before = WisResourceAccessNone,
-         .access_after = WisResourceAccessRenderTarget,
-         .state_before = WisTextureStateUndefined,
-         .state_after = WisTextureStateRenderTarget,
-         .texture = wisGetTextureView(swap_texture),
-         .subresource_range = {0, 1, 0, 1, 0, 1},
-         .queue_type_before = WisCommandQueueTypeGraphics,
-         .queue_type_after = WisCommandQueueTypeGraphics,
-         .flags = WisBarrierFlagsDiscardContent},
-        {.sync_before = WisBarrierSyncRenderTarget,
-         .sync_after = WisBarrierSyncNone,
-         .access_before = WisResourceAccessRenderTarget,
-         .access_after = WisResourceAccessNone,
-         .state_before = WisTextureStateRenderTarget,
-         .state_after = WisTextureStatePresent,
-         .texture = wisGetTextureView(swap_texture),
-         .subresource_range = {0, 1, 0, 1, 0, 1},
-         .queue_type_before = WisCommandQueueTypeGraphics,
-         .queue_type_after = WisCommandQueueTypeGraphics}
+        {
+            .sync_before = WisBarrierSyncNone,
+            .sync_after = WisBarrierSyncRenderTarget,
+            .access_before = WisResourceAccessNone,
+            .access_after = WisResourceAccessRenderTarget,
+            .state_before = WisTextureStateUndefined,
+            .state_after = WisTextureStateRenderTarget,
+            .texture = wisGetTextureView(swap_texture),
+            .subresource_range = {0, 1, 0, 1, 0, 1},
+            .queue_type_before = WisCommandQueueTypeGraphics,
+            .queue_type_after = WisCommandQueueTypeGraphics,
+            .flags = WisBarrierFlagsDiscardContent,
+        },
+        {
+            .sync_before = WisBarrierSyncRenderTarget,
+            .sync_after = WisBarrierSyncNone,
+            .access_before = WisResourceAccessRenderTarget,
+            .access_after = WisResourceAccessNone,
+            .state_before = WisTextureStateRenderTarget,
+            .state_after = WisTextureStatePresent,
+            .texture = wisGetTextureView(swap_texture),
+            .subresource_range = {0, 1, 0, 1, 0, 1},
+            .queue_type_before = WisCommandQueueTypeGraphics,
+            .queue_type_after = WisCommandQueueTypeGraphics,
+        }
     };
     WisBarrierGroup barrier_groups[2] = {
-        {.buffer_barriers = &particle_barrier,
-         .buffer_barrier_count = 1,
-         .texture_barriers = swapchain_barriers,
-         .texture_barrier_count = 1},
-        {.texture_barriers = swapchain_barriers + 1, .texture_barrier_count = 1},
+        {
+            .buffer_barriers = &particle_barrier,
+            .buffer_barrier_count = 1,
+            .texture_barriers = swapchain_barriers,
+            .texture_barrier_count = 1,
+        },
+        {
+            .texture_barriers = swapchain_barriers + 1,
+            .texture_barrier_count = 1,
+        },
     };
 
     WisViewport viewport = {
         .width = (float)renderer->width,
         .height = (float)renderer->height,
         .min_depth = 0.0f,
-        .max_depth = 1.0f
+        .max_depth = 1.0f,
     };
-    WisRect scissor = {.x = 0, .y = 0, .width = (int32_t)renderer->width, .height = (int32_t)renderer->height};
+    WisRect scissor = {
+        .x = 0,
+        .y = 0,
+        .width = (int32_t)renderer->width,
+        .height = (int32_t)renderer->height,
+    };
 
     WisRenderPassDesc render_pass_desc = {
         .flags = 0,
