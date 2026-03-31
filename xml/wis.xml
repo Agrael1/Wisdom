@@ -251,10 +251,10 @@ Can still be enqueued after the signal.">
       </func>
 
       <!-- Texture Functions -->
-      <func for="Texture" name="WriteSubresource" version="0.7.0" mod="const" doc="Writes data directly to the texture subresource. Texture @wis_must be in {TextureState::Common} and @wis_must_not be a depth texture.">
+      <func for="Texture" name="WriteSubresource" version="0.7.0" mod="const" doc="Writes data directly to the texture subresource. Texture @wis_must be in {TextureState::Common} and @wis_must_not be a depth or planar texture.">
         <ret type="Result" name="result" doc="Result of operation."/>
         <arg type="void" name="source_data" mod="const,ptr" doc="specifies a pointer to the data to write to the texture."/>
-        <arg type="TextureRegion" name="target_region" mod="const,ref" doc="specifies a pointer to {TextureRegion::}, which describes the region of the texture to write to."/>
+        <arg type="TextureRegion" name="target_region" mod="const,ref" doc="specifies a pointer to {TextureRegion::}, which describes the region of the texture to write to. The `flags` parameter of the region is ignored, as depth/stencil/planar is not supported."/>
       </func>
 
       <!-- Descriptor Heap -->
@@ -376,11 +376,10 @@ Can still be enqueued after the signal.">
         <arg type="Viewport" name="viewports" mod="const,span" doc="points to an array of viewports to set."/>
         <arg type="size" name="viewport_count" doc="defines number of viewports to set."/>
       </func>
-      <func for="CommandList" name="SetScissors" version="0.7.0" doc="Sets multiple scissor rects.
-Each n-th rect corresponds to n-th Viewport set in RSSetViewports if SV_ViewportArrayIndex is used in geometry shader.
-Otherwise the first is chosen.">
-        <arg type="Rect" name="scissor_rects" mod="const,span" doc="points to an array of scissor rectangles to set."/>
-        <arg type="size" name="rect_count" doc="specifies number of scissor rectangles to set."/>
+      <func for="CommandList" name="SetScissor" version="0.7.0" doc="Sets a scissor rect.
+Only the region, which is in the scissor rect is updated.
+If multiple viewports are used, SV_ViewportArrayIndex in geometry shader selects the viewport and associated scissor rect.">
+        <arg type="Rect" name="scissor_rect" mod="const,ref" doc="points to a scissor rectangle to set."/>
       </func>
       <func for="CommandList" name="SetPrimitiveTopology" version="0.7.0" doc="Sets the primitive topology. Determines how vertices shall be processed.">
         <arg type="PrimitiveTopology" name="topology" doc="describes primitive topology to set."/>
@@ -431,6 +430,12 @@ Otherwise the first is chosen.">
         <arg type="BufferView" name="dst_buffer" doc="defines a pointer to the destination buffer."/>
         <arg type="TextureView" name="src_texture" doc="describes a pointer to the source texture. Texture @wis_must be in {TextureState::CopySrc}."/>
         <arg type="BufferTextureCopyRegion" name="regions" mod="const,span" doc="points to an array of {BufferTextureCopyRegion::} that defines the copy regions."/>
+        <arg type="size" name="region_count" doc="defines the count of the regions."/>
+      </func>
+      <func for="CommandList" name="CopyTexture" version="0.7.0" mod="const" doc="Copies regions from one texture to another.">
+        <arg type="TextureView" name="dst_texture" doc="defines a pointer to the destination texture. Texture @wis_must be in {TextureState::CopyDst}."/>
+        <arg type="TextureView" name="src_texture" doc="describes a pointer to the source texture. Texture @wis_must be in {TextureState::CopySrc}."/>
+        <arg type="TextureCopyRegion" name="regions" mod="const,span" doc="points to an array of {TextureCopyRegion::} that defines the copy regions."/>
         <arg type="size" name="region_count" doc="defines the count of the regions."/>
       </func>
 

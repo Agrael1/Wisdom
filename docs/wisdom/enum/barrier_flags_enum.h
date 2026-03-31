@@ -54,6 +54,6 @@
  *
  * \cond WIS_GEN_REFS
  * @see Structs:
- * WisBufferTextureCopyRegion, WisTextureBarrier
+ * WisTextureRegion, WisTextureBarrier
  * \endcond
  */
