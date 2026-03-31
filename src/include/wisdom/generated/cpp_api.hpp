@@ -1985,7 +1985,9 @@ struct TargetSubresource {
  *
  * */
 struct TextureRegion {
-    wis::Box box;                              ///< describes box defining the region to copy.
+    wis::BarrierFlags
+        flags;    ///< describes texture parameters for copy. `wis::BarrierFlags::DiscardContent` is implicit.
+    wis::Box box; ///< describes box defining the region to copy.
     wis::TargetSubresource target_subresource; ///< defines target subresource description for the region.
 };
 
@@ -2116,9 +2118,16 @@ struct BufferTextureCopyRegion {
                                      ///< buffer for each row of the texture.
     std::uint32_t buffer_image_height; ///< describes buffer image height in pixels. Used for calculating the offset in
                                        ///< the buffer for each image of the texture.
-    wis::BarrierFlags
-        flags; ///< describes texture parameters for copy. `wis::BarrierFlags::DiscardContent` is implicit.
     wis::TextureRegion texture_region; ///< describes texture region to copy.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Texture copy region description for texture copy operations.
+ *
+ * */
+struct TextureCopyRegion {
+    wis::TextureRegion src_region; ///< describes source texture region to copy.
+    wis::TextureRegion dst_region; ///< describes destination texture region to copy.
 };
 
 /**
@@ -3435,6 +3444,29 @@ public:
             dst_buffer,
             src_texture,
             reinterpret_cast<const WisBufferTextureCopyRegion*>(regions.data()),
+            regions.size()
+        );
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Copies regions from one texture to another.
+     * @param dst_texture defines a pointer to the destination texture. Texture @wis_must be in
+     * `wis::TextureState::CopyDst`.
+     * @param src_texture describes a pointer to the source texture. Texture @wis_must be in
+     * `wis::TextureState::CopySrc`.
+     * @param regions points to an array of wis::TextureCopyRegion that defines the copy regions.
+     *
+     * */
+    inline void CopyTexture(
+        wis::DX12TextureView dst_texture,
+        wis::DX12TextureView src_texture,
+        wis::span<const wis::TextureCopyRegion> regions
+    ) const noexcept
+    {
+        ::wisDX12CommandListCopyTexture(
+            &_impl_storage,
+            dst_texture,
+            src_texture,
+            reinterpret_cast<const WisTextureCopyRegion*>(regions.data()),
             regions.size()
         );
     }
@@ -5251,6 +5283,29 @@ public:
             dst_buffer,
             src_texture,
             reinterpret_cast<const WisBufferTextureCopyRegion*>(regions.data()),
+            regions.size()
+        );
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Copies regions from one texture to another.
+     * @param dst_texture defines a pointer to the destination texture. Texture @wis_must be in
+     * `wis::TextureState::CopyDst`.
+     * @param src_texture describes a pointer to the source texture. Texture @wis_must be in
+     * `wis::TextureState::CopySrc`.
+     * @param regions points to an array of wis::TextureCopyRegion that defines the copy regions.
+     *
+     * */
+    inline void CopyTexture(
+        wis::VKTextureView dst_texture,
+        wis::VKTextureView src_texture,
+        wis::span<const wis::TextureCopyRegion> regions
+    ) const noexcept
+    {
+        ::wisVKCommandListCopyTexture(
+            &_impl_storage,
+            dst_texture,
+            src_texture,
+            reinterpret_cast<const WisTextureCopyRegion*>(regions.data()),
             regions.size()
         );
     }

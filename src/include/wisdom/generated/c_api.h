@@ -1988,7 +1988,8 @@ typedef struct WisTargetSubresource {
  *
  * */
 typedef struct WisTextureRegion {
-    WisBox box;                              ///< describes box defining the region to copy.
+    WisBarrierFlags flags; ///< describes texture parameters for copy. `WisBarrierFlagsDiscardContent` is implicit.
+    WisBox box;            ///< describes box defining the region to copy.
     WisTargetSubresource target_subresource; ///< defines target subresource description for the region.
 } WisTextureRegion;
 
@@ -2119,9 +2120,17 @@ typedef struct WisBufferTextureCopyRegion {
                                   ///< buffer for each row of the texture.
     uint32_t buffer_image_height; ///< describes buffer image height in pixels. Used for calculating the offset in the
                                   ///< buffer for each image of the texture.
-    WisBarrierFlags flags; ///< describes texture parameters for copy. `WisBarrierFlagsDiscardContent` is implicit.
     WisTextureRegion texture_region; ///< describes texture region to copy.
 } WisBufferTextureCopyRegion;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Texture copy region description for texture copy operations.
+ *
+ * */
+typedef struct WisTextureCopyRegion {
+    WisTextureRegion src_region; ///< describes source texture region to copy.
+    WisTextureRegion dst_region; ///< describes destination texture region to copy.
+} WisTextureCopyRegion;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Query struct header. Used as a header for all query structs.
@@ -3637,6 +3646,23 @@ WISDOM_API void wisDX12CommandListCopyTextureToBuffer(
 );
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Copies regions from one texture to another.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param dst_texture defines a pointer to the destination texture. Texture @wis_must be in `WisTextureStateCopyDst`.
+ * @param src_texture describes a pointer to the source texture. Texture @wis_must be in `WisTextureStateCopySrc`.
+ * @param regions points to an array of WisTextureCopyRegion that defines the copy regions.
+ * @param region_count defines the count of the regions.
+ *
+ * */
+WISDOM_API void wisDX12CommandListCopyTexture(
+    const WisDX12CommandList* self,
+    WisDX12TextureView dst_texture,
+    WisDX12TextureView src_texture,
+    const WisTextureCopyRegion* regions,
+    size_t region_count
+);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Gets the data from the pipeline cache.
  * @param self is a pointer to the valid WisPipelineCache instance.
  * @param data points to an array that is filled with serialized cache data on success.
@@ -5043,6 +5069,23 @@ WISDOM_API void wisVKCommandListCopyTextureToBuffer(
     WisVKBufferView dst_buffer,
     WisVKTextureView src_texture,
     const WisBufferTextureCopyRegion* regions,
+    size_t region_count
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Copies regions from one texture to another.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param dst_texture defines a pointer to the destination texture. Texture @wis_must be in `WisTextureStateCopyDst`.
+ * @param src_texture describes a pointer to the source texture. Texture @wis_must be in `WisTextureStateCopySrc`.
+ * @param regions points to an array of WisTextureCopyRegion that defines the copy regions.
+ * @param region_count defines the count of the regions.
+ *
+ * */
+WISDOM_API void wisVKCommandListCopyTexture(
+    const WisVKCommandList* self,
+    WisVKTextureView dst_texture,
+    WisVKTextureView src_texture,
+    const WisTextureCopyRegion* regions,
     size_t region_count
 );
 

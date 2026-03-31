@@ -754,14 +754,14 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListCopyBufferToTexture(
             const auto& subresource = texture_region.target_subresource;
 
             VkImageAspectFlags aspect_mask = 0;
-            if (region.flags & WisBarrierFlagsDepthResource) {
+            if (region.texture_region.flags & WisBarrierFlagsDepthResource) {
                 aspect_mask |= VK_IMAGE_ASPECT_DEPTH_BIT;
             }
-            if (region.flags & WisBarrierFlagsStencilResource) {
+            if (region.texture_region.flags & WisBarrierFlagsStencilResource) {
                 aspect_mask |= VK_IMAGE_ASPECT_STENCIL_BIT;
             }
             if (aspect_mask == 0) {
-                aspect_mask = (region.flags & WisBarrierFlagsPlanarImage)
+                aspect_mask = (region.texture_region.flags & WisBarrierFlagsPlanarImage)
                                   ? (VK_IMAGE_ASPECT_PLANE_0_BIT << subresource.plane_slice)
                                   : VK_IMAGE_ASPECT_COLOR_BIT;
             }
@@ -825,14 +825,14 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListCopyTextureToBuffer(
             const auto& subresource = texture_region.target_subresource;
 
             VkImageAspectFlags aspect_mask = 0;
-            if (region.flags & WisBarrierFlagsDepthResource) {
+            if (region.texture_region.flags & WisBarrierFlagsDepthResource) {
                 aspect_mask |= VK_IMAGE_ASPECT_DEPTH_BIT;
             }
-            if (region.flags & WisBarrierFlagsStencilResource) {
+            if (region.texture_region.flags & WisBarrierFlagsStencilResource) {
                 aspect_mask |= VK_IMAGE_ASPECT_STENCIL_BIT;
             }
             if (aspect_mask == 0) {
-                aspect_mask = (region.flags & WisBarrierFlagsPlanarImage)
+                aspect_mask = (region.texture_region.flags & WisBarrierFlagsPlanarImage)
                                   ? (VK_IMAGE_ASPECT_PLANE_0_BIT << subresource.plane_slice)
                                   : VK_IMAGE_ASPECT_COLOR_BIT;
             }
@@ -864,6 +864,102 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListCopyTextureToBuffer(
             std::bit_cast<VkImage>(src_texture),
             VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
             std::bit_cast<VkBuffer>(dst_buffer),
+            current_region_count,
+            convert_regions
+        );
+
+        region_offset += current_region_count;
+    }
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisVKCommandListCopyTexture(
+    const WisVKCommandList* self,
+    WisVKTextureView dst_texture,
+    WisVKTextureView src_texture,
+    const WisTextureCopyRegion* regions,
+    size_t region_count
+)
+{
+    VkImageCopy convert_regions[wis::MaxCopyRegions];
+    size_t region_offset = 0;
+
+    while (region_offset < region_count) {
+        uint32_t current_region_count = static_cast<uint32_t>(
+            std::min(region_count - region_offset, static_cast<size_t>(wis::MaxCopyRegions))
+        );
+
+        for (size_t i = 0; i < current_region_count; ++i) {
+            const auto& region = regions[region_offset + i];
+            const auto& src_box = region.src_region.box;
+            const auto& dst_box = region.dst_region.box;
+            const auto& src_subresource = region.src_region.target_subresource;
+            const auto& dst_subresource = region.dst_region.target_subresource;
+
+            VkImageAspectFlags src_aspect_mask = 0;
+            if (region.src_region.flags & WisBarrierFlagsDepthResource) {
+                src_aspect_mask |= VK_IMAGE_ASPECT_DEPTH_BIT;
+            }
+            if (region.src_region.flags & WisBarrierFlagsStencilResource) {
+                src_aspect_mask |= VK_IMAGE_ASPECT_STENCIL_BIT;
+            }
+            if (src_aspect_mask == 0) {
+                src_aspect_mask = (region.src_region.flags & WisBarrierFlagsPlanarImage)
+                                      ? (VK_IMAGE_ASPECT_PLANE_0_BIT << src_subresource.plane_slice)
+                                      : VK_IMAGE_ASPECT_COLOR_BIT;
+            }
+
+            VkImageAspectFlags dst_aspect_mask = 0;
+            if (region.dst_region.flags & WisBarrierFlagsDepthResource) {
+                dst_aspect_mask |= VK_IMAGE_ASPECT_DEPTH_BIT;
+            }
+            if (region.dst_region.flags & WisBarrierFlagsStencilResource) {
+                dst_aspect_mask |= VK_IMAGE_ASPECT_STENCIL_BIT;
+            }
+            if (dst_aspect_mask == 0) {
+                dst_aspect_mask = (region.dst_region.flags & WisBarrierFlagsPlanarImage)
+                                      ? (VK_IMAGE_ASPECT_PLANE_0_BIT << dst_subresource.plane_slice)
+                                      : VK_IMAGE_ASPECT_COLOR_BIT;
+            }
+
+            convert_regions[i] = {
+                .srcSubresource =
+                    {
+                        .aspectMask = src_aspect_mask,
+                        .mipLevel = src_subresource.mip_level,
+                        .baseArrayLayer = src_subresource.array_layer,
+                        .layerCount = 1,
+                    },
+                .srcOffset =
+                    {
+                        .x = static_cast<int32_t>(src_box.x),
+                        .y = static_cast<int32_t>(src_box.y),
+                        .z = static_cast<int32_t>(src_box.z),
+                    },
+                .dstSubresource =
+                    {
+                        .aspectMask = dst_aspect_mask,
+                        .mipLevel = dst_subresource.mip_level,
+                        .baseArrayLayer = dst_subresource.array_layer,
+                        .layerCount = 1,
+                    },
+                .dstOffset =
+                    {
+                        .x = static_cast<int32_t>(dst_box.x),
+                        .y = static_cast<int32_t>(dst_box.y),
+                        .z = static_cast<int32_t>(dst_box.z),
+                    },
+                .extent = {.width = src_box.width, .height = src_box.height, .depth = src_box.depth},
+            };
+        }
+
+        auto& impl = wis::from_handle_ref<const wis::impl::VKCommandListImpl>(self);
+        impl.command_list_table->vkCmdCopyImage(
+            impl.command_buffer,
+            std::bit_cast<VkImage>(src_texture),
+            VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+            std::bit_cast<VkImage>(dst_texture),
+            VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
             current_region_count,
             convert_regions
         );

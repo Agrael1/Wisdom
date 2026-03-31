@@ -750,7 +750,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListCopyBufferToTexture(
         const auto& box = texture_region.box;
         const auto& subresource = texture_region.target_subresource;
 
-        uint32_t plane_slice = wis::detail::DX12GetCopyPlaneSlice(region.flags, subresource.plane_slice);
+        uint32_t plane_slice = wis::detail::DX12GetCopyPlaneSlice(region.texture_region.flags, subresource.plane_slice);
         uint32_t dst_subresource = subresource.mip_level + subresource.array_layer * texture_desc.MipLevels +
                                    plane_slice * texture_desc.MipLevels * texture_desc.DepthOrArraySize;
         D3D12_TEXTURE_COPY_LOCATION dst_location{
@@ -817,7 +817,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListCopyTextureToBuffer(
         const auto& box = texture_region.box;
         const auto& subresource = texture_region.target_subresource;
 
-        uint32_t plane_slice = wis::detail::DX12GetCopyPlaneSlice(region.flags, subresource.plane_slice);
+        uint32_t plane_slice = wis::detail::DX12GetCopyPlaneSlice(region.texture_region.flags, subresource.plane_slice);
         uint32_t src_subresource = subresource.mip_level + subresource.array_layer * texture_desc.MipLevels +
                                    plane_slice * texture_desc.MipLevels * texture_desc.DepthOrArraySize;
         D3D12_TEXTURE_COPY_LOCATION src_location{
@@ -867,6 +867,71 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListCopyTextureToBuffer(
 
     if (device) {
         device->Release();
+    }
+}
+
+//-----------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisDX12CommandListCopyTexture(
+    const WisDX12CommandList* self,
+    WisDX12TextureView dst_texture,
+    WisDX12TextureView src_texture,
+    const WisTextureCopyRegion* regions,
+    size_t region_count
+)
+{
+    auto& impl = wis::from_handle_ref<const wis::impl::DX12CommandListImpl>(self);
+    auto* dst = std::bit_cast<ID3D12Resource*>(dst_texture);
+    auto* src = std::bit_cast<ID3D12Resource*>(src_texture);
+
+    auto src_desc = src->GetDesc();
+    auto dst_desc = dst->GetDesc();
+
+    for (size_t i = 0; i < region_count; ++i) {
+        const auto& region = regions[i];
+        const auto& src_box = region.src_region.box;
+        const auto& dst_box = region.dst_region.box;
+        const auto& src_subresource = region.src_region.target_subresource;
+        const auto& dst_subresource = region.dst_region.target_subresource;
+
+        uint32_t src_plane_slice = wis::detail::DX12GetCopyPlaneSlice(region.src_region.flags, src_subresource.plane_slice);
+        uint32_t src_subresource_index = src_subresource.mip_level + 
+                                         src_subresource.array_layer * src_desc.MipLevels +
+                                         src_plane_slice * src_desc.MipLevels * src_desc.DepthOrArraySize;
+
+        uint32_t dst_plane_slice = wis::detail::DX12GetCopyPlaneSlice(region.dst_region.flags, dst_subresource.plane_slice);
+        uint32_t dst_subresource_index = dst_subresource.mip_level + 
+                                         dst_subresource.array_layer * dst_desc.MipLevels +
+                                         dst_plane_slice * dst_desc.MipLevels * dst_desc.DepthOrArraySize;
+
+        D3D12_TEXTURE_COPY_LOCATION dst_location{
+            .pResource = dst,
+            .Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,
+            .SubresourceIndex = dst_subresource_index,
+        };
+
+        D3D12_TEXTURE_COPY_LOCATION src_location{
+            .pResource = src,
+            .Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,
+            .SubresourceIndex = src_subresource_index,
+        };
+
+        D3D12_BOX src_d3d_box{
+            .left = src_box.x,
+            .top = src_box.y,
+            .front = src_box.z,
+            .right = src_box.x + src_box.width,
+            .bottom = src_box.y + src_box.height,
+            .back = src_box.z + src_box.depth,
+        };
+
+        impl.list->CopyTextureRegion(
+            &dst_location,
+            dst_box.x,
+            dst_box.y,
+            dst_box.z,
+            &src_location,
+            &src_d3d_box
+        );
     }
 }
 
