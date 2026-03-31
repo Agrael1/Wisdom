@@ -56,9 +56,9 @@ inline std::array<wis::span<uint8_t>, 3> VKAllocateBarriers(
 )
 {
     std::array<wis::span<uint8_t>, 3> spans;
-    std::size_t needed_size = barriers.buffer_barrier_count * sizeof(VkBufferMemoryBarrier2) +
-                              barriers.texture_barrier_count * sizeof(VkImageMemoryBarrier2) +
-                              barriers.global_barrier_count * sizeof(VkMemoryBarrier2);
+    std::size_t needed_size = barriers.buffer_barrier_count * sizeof(VkBufferMemoryBarrier2)
+                            + barriers.texture_barrier_count * sizeof(VkImageMemoryBarrier2)
+                            + barriers.global_barrier_count * sizeof(VkMemoryBarrier2);
 
     if (needed_size <= vk_static_size) {
         spans[0] = {local_scratch, barriers.buffer_barrier_count * sizeof(VkBufferMemoryBarrier2)};
@@ -147,7 +147,7 @@ inline std::array<wis::span<uint8_t>, 3> VKAllocateBarriers(
 }
 } // namespace wis::detail
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyCommandList(WisVKCommandList* self)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKCommandListImpl>(self);
@@ -161,7 +161,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyCommandList(WisVKCommandList* self)
     }
 }
 
-//-----------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisVKCommandListBegin(const WisVKCommandList* self)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKCommandListImpl>(self);
@@ -179,7 +179,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCommandListBegin(const WisVKCommandList* 
     return wis::detail::vk_success;
 }
 
-//-----------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisVKCommandListEnd(const WisVKCommandList* self)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKCommandListImpl>(self);
@@ -190,7 +190,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCommandListEnd(const WisVKCommandList* se
     return wis::detail::vk_success;
 }
 
-//-----------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKCommandListSetDescriptorHeaps(
     const WisVKCommandList* self,
     const WisVKDescriptorHeap* resource_heap,
@@ -201,11 +201,10 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetDescriptorHeaps(
 
     if (resource_heap) {
         auto& res_heap = wis::from_handle_ref<const wis::impl::VKDescriptorHeapImpl>(resource_heap);
-        VkDeviceSize reserved_resource_descriptor_size = static_cast<std::size_t>(res_heap.reserved_size) *
-                                                         res_heap.descriptor_size;
-        VkDeviceSize total_resource_heap_size = static_cast<std::size_t>(res_heap.heap_size) *
-                                                    res_heap.descriptor_size +
-                                                reserved_resource_descriptor_size;
+        VkDeviceSize reserved_resource_descriptor_size = static_cast<std::size_t>(res_heap.reserved_size)
+                                                       * res_heap.descriptor_size;
+        VkDeviceSize total_resource_heap_size = static_cast<std::size_t>(res_heap.heap_size) * res_heap.descriptor_size
+                                              + reserved_resource_descriptor_size;
         VkBindHeapInfoEXT bind_resource_info{
             .sType = VK_STRUCTURE_TYPE_BIND_HEAP_INFO_EXT,
             .pNext = nullptr,
@@ -218,11 +217,10 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetDescriptorHeaps(
 
     if (sampler_heap) {
         auto& samp_heap = wis::from_handle_ref<const wis::impl::VKDescriptorHeapImpl>(sampler_heap);
-        VkDeviceSize reserved_sampler_descriptor_size = static_cast<std::size_t>(samp_heap.reserved_size) *
-                                                        samp_heap.descriptor_size;
-        VkDeviceSize total_sampler_heap_size = static_cast<std::size_t>(samp_heap.heap_size) *
-                                                   samp_heap.descriptor_size +
-                                               reserved_sampler_descriptor_size;
+        VkDeviceSize reserved_sampler_descriptor_size = static_cast<std::size_t>(samp_heap.reserved_size)
+                                                      * samp_heap.descriptor_size;
+        VkDeviceSize total_sampler_heap_size = static_cast<std::size_t>(samp_heap.heap_size) * samp_heap.descriptor_size
+                                             + reserved_sampler_descriptor_size;
         VkBindHeapInfoEXT bind_sampler_info{
             .sType = VK_STRUCTURE_TYPE_BIND_HEAP_INFO_EXT,
             .pNext = nullptr,
@@ -234,7 +232,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetDescriptorHeaps(
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKCommandListSetRootSignature(
     const WisVKCommandList* self,
     WisVKRootSignatureView signature,
@@ -246,7 +244,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetRootSignature(
     impl.root_signature_header = sig;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKCommandListSetPushConstants(
     const WisVKCommandList* self,
     const WisPushConstantDataDesc* data
@@ -265,7 +263,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetPushConstants(
     impl.command_list_table->vkCmdPushDataEXT(impl.command_buffer, &push_data_info);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKCommandListSetPushDescriptor(
     const WisVKCommandList* self,
     const WisPushDescriptorDataDesc* data
@@ -284,7 +282,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetPushDescriptor(
     impl.command_list_table->vkCmdPushDataEXT(impl.command_buffer, &push_data_info);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKCommandListSetDescriptorTable(
     const WisVKCommandList* self,
     const WisDescriptorTableDataDesc* data
@@ -303,7 +301,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetDescriptorTable(
     impl.command_list_table->vkCmdPushDataEXT(impl.command_buffer, &push_data_info);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKCommandListInsertBarriers(
     const WisVKCommandList* self,
     const WisVKBarrierGroup* barriers
@@ -374,9 +372,9 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListInsertBarriers(
         if (src.queue_type_before != src.queue_type_after) {
             // skip barriers that only perform queue ownership transfer or relaxed transitions if maintenance9 is
             // supported
-            if (impl.maintenance9 && (impl.queue_indices[src.queue_type_before].compatible_to_families &
-                                      (1 << impl.queue_indices[src.queue_type_after].family_index)))
-            {
+            if (impl.maintenance9
+                && (impl.queue_indices[src.queue_type_before].compatible_to_families
+                    & (1 << impl.queue_indices[src.queue_type_after].family_index))) {
                 // Skip only release barriers
                 // Acquire barriers will just perform relaxed transitions.
                 if (src.queue_type_before == impl.queue_type) {
@@ -456,7 +454,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListInsertBarriers(
     impl.command_list_table->vkCmdPipelineBarrier2(impl.command_buffer, &dependency_info);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKCommandListSetPipeline(
     const WisVKCommandList* self,
     WisVKPipelineView pipeline,
@@ -468,7 +466,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetPipeline(
     impl.command_list_table->vkCmdBindPipeline(impl.command_buffer, wis::detail::VKConvert(type), vk_pipeline);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKCommandListSetViewports(
     WisVKCommandList* self,
     const WisViewport* viewports,
@@ -490,14 +488,11 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetViewports(
             .maxDepth = vp.max_depth
         };
     }
-    impl.command_list_table->vkCmdSetViewportWithCount(
-        impl.command_buffer,
-        static_cast<uint32_t>(max_count),
-        vk_viewports
-    );
+    impl.command_list_table
+        ->vkCmdSetViewportWithCount(impl.command_buffer, static_cast<uint32_t>(max_count), vk_viewports);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKCommandListSetScissors(WisVKCommandList* self, const WisRect* scissors, size_t count)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKCommandListImpl>(self);
@@ -506,21 +501,21 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetScissors(WisVKCommandList* self,
     for (size_t i = 0; i < max_count; i++) {
         auto& vp = scissors[i];
         vk_rects[i] = {
-            .offset = {vp.x, vp.y},
+            .offset = {              vp.x,                vp.y},
             .extent = {uint32_t(vp.width), uint32_t(vp.height)},
         };
     }
     impl.command_list_table->vkCmdSetScissorWithCount(impl.command_buffer, max_count, vk_rects);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKCommandListSetPrimitiveTopology(WisVKCommandList* self, WisPrimitiveTopology topology)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKCommandListImpl>(self);
     impl.command_list_table->vkCmdSetPrimitiveTopology(impl.command_buffer, wis::detail::VKConvert(topology));
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKCommandListSetDepthBias(
     WisVKCommandList* self,
     float depth_bias,
@@ -529,15 +524,11 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetDepthBias(
 )
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKCommandListImpl>(self);
-    impl.command_list_table->vkCmdSetDepthBias(
-        impl.command_buffer,
-        depth_bias,
-        depth_bias_clamp,
-        slope_scaled_depth_bias
-    );
+    impl.command_list_table
+        ->vkCmdSetDepthBias(impl.command_buffer, depth_bias, depth_bias_clamp, slope_scaled_depth_bias);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKCommandListSetPrimitiveRestartValue(
     WisVKCommandList* self,
     WisPrimitiveRestartValue restart_value
@@ -547,7 +538,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetPrimitiveRestartValue(
     impl.command_list_table->vkCmdSetPrimitiveRestartEnable(impl.command_buffer, restart_value != 0);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKCommandListDispatch(
     const WisVKCommandList* self,
     uint32_t group_count_x,
@@ -559,7 +550,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListDispatch(
     impl.command_list_table->vkCmdDispatch(impl.command_buffer, group_count_x, group_count_y, group_count_z);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKCommandListBeginRenderPass(
     const WisVKCommandList* self,
     const WisRenderPassDesc* desc
@@ -583,7 +574,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListBeginRenderPass(
     if (render_target_count > 0) {
         auto& target = *reinterpret_cast<wis::detail::VKRenderTargetView*>(desc->render_targets[0].target);
         rendering_info.renderArea = {
-            .offset = {0, 0},
+            .offset = {           0,             0},
             .extent = {target.width, target.height},
         };
         rendering_info.layerCount = desc->view_mask ? 1 : target.array_layer_count;
@@ -609,7 +600,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListBeginRenderPass(
         auto& target = *reinterpret_cast<wis::detail::VKRenderTargetView*>(desc->depth_stencil.target);
         if (!rendering_info.renderArea.extent.width) {
             rendering_info.renderArea = {
-                .offset = {0, 0},
+                .offset = {           0,             0},
                 .extent = {target.width, target.height},
             };
             rendering_info.layerCount = desc->view_mask ? 1 : target.array_layer_count;
@@ -665,14 +656,14 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListBeginRenderPass(
     impl.command_list_table->vkCmdBeginRendering(impl.command_buffer, &rendering_info);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKCommandListEndRenderPass(const WisVKCommandList* self)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKCommandListImpl>(self);
     impl.command_list_table->vkCmdEndRendering(impl.command_buffer);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKCommandListDraw(
     const WisVKCommandList* self,
     uint32_t vertex_count,
@@ -685,7 +676,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListDraw(
     impl.command_list_table->vkCmdDraw(impl.command_buffer, vertex_count, instance_count, start_vertex, start_instance);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKCommandListDrawIndexed(
     const WisVKCommandList* self,
     uint32_t index_count,
@@ -696,17 +687,11 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListDrawIndexed(
 )
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKCommandListImpl>(self);
-    impl.command_list_table->vkCmdDrawIndexed(
-        impl.command_buffer,
-        index_count,
-        instance_count,
-        start_index,
-        base_vertex,
-        start_instance
-    );
+    impl.command_list_table
+        ->vkCmdDrawIndexed(impl.command_buffer, index_count, instance_count, start_index, base_vertex, start_instance);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKCommandListCopyBuffer(
     const WisVKCommandList* self,
     WisVKBufferView dst_buffer,
@@ -729,7 +714,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListCopyBuffer(
     );
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKCommandListCopyBufferToTexture(
     const WisVKCommandList* self,
     WisVKTextureView dst_texture,
@@ -762,8 +747,8 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListCopyBufferToTexture(
             }
             if (aspect_mask == 0) {
                 aspect_mask = (region.texture_region.flags & WisBarrierFlagsPlanarImage)
-                                  ? (VK_IMAGE_ASPECT_PLANE_0_BIT << subresource.plane_slice)
-                                  : VK_IMAGE_ASPECT_COLOR_BIT;
+                                ? (VK_IMAGE_ASPECT_PLANE_0_BIT << subresource.plane_slice)
+                                : VK_IMAGE_ASPECT_COLOR_BIT;
             }
 
             convert_regions[i] = {
@@ -772,17 +757,17 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListCopyBufferToTexture(
                 .bufferImageHeight = region.buffer_image_height,
                 .imageSubresource =
                     {
-                        .aspectMask = aspect_mask,
-                        .mipLevel = subresource.mip_level,
-                        .baseArrayLayer = subresource.array_layer,
-                        .layerCount = 1,
-                    },
+                                       .aspectMask = aspect_mask,
+                                       .mipLevel = subresource.mip_level,
+                                       .baseArrayLayer = subresource.array_layer,
+                                       .layerCount = 1,
+                                       },
                 .imageOffset =
                     {
-                        .x = static_cast<int32_t>(box.x),
-                        .y = static_cast<int32_t>(box.y),
-                        .z = static_cast<int32_t>(box.z),
-                    },
+                                       .x = static_cast<int32_t>(box.x),
+                                       .y = static_cast<int32_t>(box.y),
+                                       .z = static_cast<int32_t>(box.z),
+                                       },
                 .imageExtent = {.width = box.width, .height = box.height, .depth = box.depth},
             };
         }
@@ -801,7 +786,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListCopyBufferToTexture(
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKCommandListCopyTextureToBuffer(
     const WisVKCommandList* self,
     WisVKBufferView dst_buffer,
@@ -833,8 +818,8 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListCopyTextureToBuffer(
             }
             if (aspect_mask == 0) {
                 aspect_mask = (region.texture_region.flags & WisBarrierFlagsPlanarImage)
-                                  ? (VK_IMAGE_ASPECT_PLANE_0_BIT << subresource.plane_slice)
-                                  : VK_IMAGE_ASPECT_COLOR_BIT;
+                                ? (VK_IMAGE_ASPECT_PLANE_0_BIT << subresource.plane_slice)
+                                : VK_IMAGE_ASPECT_COLOR_BIT;
             }
 
             convert_regions[i] = {
@@ -843,17 +828,17 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListCopyTextureToBuffer(
                 .bufferImageHeight = region.buffer_image_height,
                 .imageSubresource =
                     {
-                        .aspectMask = aspect_mask,
-                        .mipLevel = subresource.mip_level,
-                        .baseArrayLayer = subresource.array_layer,
-                        .layerCount = 1,
-                    },
+                                       .aspectMask = aspect_mask,
+                                       .mipLevel = subresource.mip_level,
+                                       .baseArrayLayer = subresource.array_layer,
+                                       .layerCount = 1,
+                                       },
                 .imageOffset =
                     {
-                        .x = static_cast<int32_t>(box.x),
-                        .y = static_cast<int32_t>(box.y),
-                        .z = static_cast<int32_t>(box.z),
-                    },
+                                       .x = static_cast<int32_t>(box.x),
+                                       .y = static_cast<int32_t>(box.y),
+                                       .z = static_cast<int32_t>(box.z),
+                                       },
                 .imageExtent = {.width = box.width, .height = box.height, .depth = box.depth},
             };
         }
@@ -872,7 +857,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListCopyTextureToBuffer(
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKCommandListCopyTexture(
     const WisVKCommandList* self,
     WisVKTextureView dst_texture,
@@ -905,8 +890,8 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListCopyTexture(
             }
             if (src_aspect_mask == 0) {
                 src_aspect_mask = (region.src_region.flags & WisBarrierFlagsPlanarImage)
-                                      ? (VK_IMAGE_ASPECT_PLANE_0_BIT << src_subresource.plane_slice)
-                                      : VK_IMAGE_ASPECT_COLOR_BIT;
+                                    ? (VK_IMAGE_ASPECT_PLANE_0_BIT << src_subresource.plane_slice)
+                                    : VK_IMAGE_ASPECT_COLOR_BIT;
             }
 
             VkImageAspectFlags dst_aspect_mask = 0;
@@ -918,37 +903,37 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListCopyTexture(
             }
             if (dst_aspect_mask == 0) {
                 dst_aspect_mask = (region.dst_region.flags & WisBarrierFlagsPlanarImage)
-                                      ? (VK_IMAGE_ASPECT_PLANE_0_BIT << dst_subresource.plane_slice)
-                                      : VK_IMAGE_ASPECT_COLOR_BIT;
+                                    ? (VK_IMAGE_ASPECT_PLANE_0_BIT << dst_subresource.plane_slice)
+                                    : VK_IMAGE_ASPECT_COLOR_BIT;
             }
 
             convert_regions[i] = {
                 .srcSubresource =
                     {
-                        .aspectMask = src_aspect_mask,
-                        .mipLevel = src_subresource.mip_level,
-                        .baseArrayLayer = src_subresource.array_layer,
-                        .layerCount = 1,
-                    },
+                                     .aspectMask = src_aspect_mask,
+                                     .mipLevel = src_subresource.mip_level,
+                                     .baseArrayLayer = src_subresource.array_layer,
+                                     .layerCount = 1,
+                                     },
                 .srcOffset =
                     {
-                        .x = static_cast<int32_t>(src_box.x),
-                        .y = static_cast<int32_t>(src_box.y),
-                        .z = static_cast<int32_t>(src_box.z),
-                    },
+                                     .x = static_cast<int32_t>(src_box.x),
+                                     .y = static_cast<int32_t>(src_box.y),
+                                     .z = static_cast<int32_t>(src_box.z),
+                                     },
                 .dstSubresource =
                     {
-                        .aspectMask = dst_aspect_mask,
-                        .mipLevel = dst_subresource.mip_level,
-                        .baseArrayLayer = dst_subresource.array_layer,
-                        .layerCount = 1,
-                    },
+                                     .aspectMask = dst_aspect_mask,
+                                     .mipLevel = dst_subresource.mip_level,
+                                     .baseArrayLayer = dst_subresource.array_layer,
+                                     .layerCount = 1,
+                                     },
                 .dstOffset =
                     {
-                        .x = static_cast<int32_t>(dst_box.x),
-                        .y = static_cast<int32_t>(dst_box.y),
-                        .z = static_cast<int32_t>(dst_box.z),
-                    },
+                                     .x = static_cast<int32_t>(dst_box.x),
+                                     .y = static_cast<int32_t>(dst_box.y),
+                                     .z = static_cast<int32_t>(dst_box.z),
+                                     },
                 .extent = {.width = src_box.width, .height = src_box.height, .depth = src_box.depth},
             };
         }

@@ -1,6 +1,6 @@
 #include "generator.hpp"
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 static inline constexpr char template_bitmask[] =
         R"(/**
  * @struct {0} {0}
@@ -28,7 +28,7 @@ static inline constexpr char template_bitmask[] =
  * \endcond
  */)";
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Generator::ParseBitmask(tinyxml2::XMLElement* type)
 {
     auto  name = type->FindAttribute("name")->Value();
@@ -102,7 +102,7 @@ void Generator::ParseBitmask(tinyxml2::XMLElement* type)
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeCBitmask(const WisBitmask& s, DocKind kind)
 {
     auto        full_name = GetCFullTypename(s.name, Backend::Any);
@@ -125,7 +125,7 @@ std::string Generator::MakeCBitmask(const WisBitmask& s, DocKind kind)
     return st_decl;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeCPPBitmask(const WisBitmask& s, DocKind kind)
 {
     std::string st_decl = wis::format("enum class {} : uint32_t {{\n", s.name);
@@ -149,7 +149,7 @@ std::string Generator::MakeCPPBitmask(const WisBitmask& s, DocKind kind)
     return st_decl;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeBitmaskDescription(const WisBitmask& s)
 {
     std::string description;
@@ -188,7 +188,7 @@ std::string Generator::MakeBitmaskDescription(const WisBitmask& s)
     return description;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeBitmaskConverter(const WisBitmask& s, Backend backend)
 {
     std::string converters;
@@ -279,7 +279,7 @@ std::string Generator::MakeBitmaskConverter(const WisBitmask& s, Backend backend
     return converters;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Generator::WriteBitmaskDocumentation(std::filesystem::path enum_output_path)
 {
     std::filesystem::create_directories(enum_output_path);

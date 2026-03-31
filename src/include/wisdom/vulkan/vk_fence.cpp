@@ -6,7 +6,7 @@
 #include <wisdom/vulkan/detail/vk_detail.hpp>
 #include <wisdom/vulkan/detail/vk_utils.hpp>
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyFence(WisVKFence* self)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKFenceImpl>(self);
@@ -20,7 +20,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyFence(WisVKFence* self)
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API uint64_t wisVKFenceGetCompletedValue(const WisVKFence* self)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKFenceImpl>(self);
@@ -33,13 +33,13 @@ WIS_EXTERN_C WISDOM_API uint64_t wisVKFenceGetCompletedValue(const WisVKFence* s
     return value;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisVKFenceWait(const WisVKFence* self, uint64_t value, uint64_t wait_ns)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKFenceImpl>(self);
     uint64_t timeout = wait_ns == UINT64_MAX
-                           ? UINT64_MAX
-                           : wait_ns / 1'000'000; // convert to ms, with special handling for infinite timeout
+                         ? UINT64_MAX
+                         : wait_ns / 1'000'000; // convert to ms, with special handling for infinite timeout
 
     VkSemaphoreWaitInfo wait_info{
         .sType = VK_STRUCTURE_TYPE_SEMAPHORE_WAIT_INFO,
@@ -59,7 +59,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKFenceWait(const WisVKFence* self, uint64_
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisVKFenceSignal(const WisVKFence* self, uint64_t value)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKFenceImpl>(self);

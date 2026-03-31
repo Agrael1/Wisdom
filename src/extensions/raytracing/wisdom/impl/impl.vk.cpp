@@ -121,8 +121,8 @@ wis::ASAllocationInfo wis::ImplVKRaytracing::GetBottomLevelASSize(
 {
     // one is ppGeometries, the other is maxPrimitiveCount
     uint32_t direct = bool(blas_desc.geometry_array);
-    size_t num_bytes = blas_desc.geometry_count *
-                       (sizeof(uint32_t) + direct * sizeof(VkAccelerationStructureGeometryKHR*));
+    size_t num_bytes = blas_desc.geometry_count
+                     * (sizeof(uint32_t) + direct * sizeof(VkAccelerationStructureGeometryKHR*));
 
     constexpr size_t initial_geometry_guess = 64;
     wis::detail::limited_allocator<
@@ -194,11 +194,11 @@ wis::VKRaytracingPipeline wis::ImplVKRaytracing::CreateRaytracingPipeline(
 
     // initialize shader stages
     std::unique_ptr<uint8_t[]> stages = wis::detail::make_unique_for_overwrite<uint8_t[]>(
-        rt_pipeline_desc.export_count * sizeof(VkPipelineShaderStageCreateInfo) +
-        raygen_count * sizeof(VkRayTracingShaderGroupCreateInfoKHR) +
-        miss_count * sizeof(VkRayTracingShaderGroupCreateInfoKHR) +
-        rt_pipeline_desc.hit_group_count * sizeof(VkRayTracingShaderGroupCreateInfoKHR) +
-        callable_count * sizeof(VkRayTracingShaderGroupCreateInfoKHR)
+        rt_pipeline_desc.export_count * sizeof(VkPipelineShaderStageCreateInfo)
+        + raygen_count * sizeof(VkRayTracingShaderGroupCreateInfoKHR)
+        + miss_count * sizeof(VkRayTracingShaderGroupCreateInfoKHR)
+        + rt_pipeline_desc.hit_group_count * sizeof(VkRayTracingShaderGroupCreateInfoKHR)
+        + callable_count * sizeof(VkRayTracingShaderGroupCreateInfoKHR)
     );
     if (!stages) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to allocate memory for shader stages">(
@@ -363,21 +363,24 @@ void wis::ImplVKRaytracing::BuildBottomLevelAS(
 {
     // one is ppGeometries, the other is maxPrimitiveCount
     uint32_t direct = bool(blas_desc.geometry_array);
-    size_t num_bytes = blas_desc.geometry_count * (sizeof(VkAccelerationStructureBuildRangeInfoKHR*) +
-                                                   direct * sizeof(VkAccelerationStructureGeometryKHR*));
+    size_t num_bytes = blas_desc.geometry_count
+                     * (sizeof(VkAccelerationStructureBuildRangeInfoKHR*)
+                        + direct * sizeof(VkAccelerationStructureGeometryKHR*));
 
     constexpr size_t initial_geometry_guess = 64;
     wis::detail::limited_allocator<
         uint8_t,
-        initial_geometry_guess *
-            (sizeof(VkAccelerationStructureBuildRangeInfoKHR*) + sizeof(VkAccelerationStructureGeometryKHR*))>
+        initial_geometry_guess
+            * (sizeof(VkAccelerationStructureBuildRangeInfoKHR*) + sizeof(VkAccelerationStructureGeometryKHR*))>
         allocator{uint32_t(num_bytes), true};
     auto* data = allocator.data();
 
     const VkAccelerationStructureGeometryKHR**
         pp_geometries = reinterpret_cast<const VkAccelerationStructureGeometryKHR**>(data);
-    const VkAccelerationStructureBuildRangeInfoKHR** pp_ranges = reinterpret_cast<
-        const VkAccelerationStructureBuildRangeInfoKHR**>(pp_geometries + direct * blas_desc.geometry_count);
+    const VkAccelerationStructureBuildRangeInfoKHR**
+        pp_ranges = reinterpret_cast<const VkAccelerationStructureBuildRangeInfoKHR**>(
+            pp_geometries + direct * blas_desc.geometry_count
+        );
 
     if (direct) {
         for (size_t i = 0; i < blas_desc.geometry_count; ++i) {

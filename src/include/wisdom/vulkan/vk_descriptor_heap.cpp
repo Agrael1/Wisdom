@@ -11,15 +11,13 @@
 namespace wis::detail {
 inline VkImageAspectFlags VKGetAspectFlags(const WisTextureBinding& binding) noexcept
 {
-    if ((binding.flags & WisTextureBindingFlagsStencilView) &&
-        (binding.format == WisDataFormatD24UnormS8Uint || binding.format == WisDataFormatD32FloatS8Uint))
-    {
+    if ((binding.flags & WisTextureBindingFlagsStencilView)
+        && (binding.format == WisDataFormatD24UnormS8Uint || binding.format == WisDataFormatD32FloatS8Uint)) {
         return VK_IMAGE_ASPECT_STENCIL_BIT;
     }
-    if ((binding.flags & WisTextureBindingFlagsDepthView) &&
-            (binding.format == WisDataFormatD32FloatS8Uint || binding.format == WisDataFormatD24UnormS8Uint) ||
-        (binding.format == WisDataFormatD16Unorm || binding.format == WisDataFormatD32Float))
-    {
+    if ((binding.flags & WisTextureBindingFlagsDepthView)
+            && (binding.format == WisDataFormatD32FloatS8Uint || binding.format == WisDataFormatD24UnormS8Uint)
+        || (binding.format == WisDataFormatD16Unorm || binding.format == WisDataFormatD32Float)) {
         return VK_IMAGE_ASPECT_DEPTH_BIT;
     }
     if (binding.range.plane_slice) {
@@ -36,11 +34,11 @@ inline VkImageViewCreateInfo VKGetSRVDesc(const WisTextureBinding& binding) noex
         .flags = 0,
         .format = wis::detail::VKConvert(binding.format),
         .components = {
-            .r = wis::detail::VKConvert(binding.component_mapping.r),
-            .g = wis::detail::VKConvert(binding.component_mapping.g),
-            .b = wis::detail::VKConvert(binding.component_mapping.b),
-            .a = wis::detail::VKConvert(binding.component_mapping.a),
-        },
+                       .r = wis::detail::VKConvert(binding.component_mapping.r),
+                       .g = wis::detail::VKConvert(binding.component_mapping.g),
+                       .b = wis::detail::VKConvert(binding.component_mapping.b),
+                       .a = wis::detail::VKConvert(binding.component_mapping.a),
+                       },
     };
     auto aspect_flags = VKGetAspectFlags(binding);
 
@@ -223,7 +221,7 @@ inline VkImageViewCreateInfo VKGetUAVDesc(const WisTextureBinding& binding) noex
 }
 } // namespace wis::detail
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyDescriptorHeap(WisVKDescriptorHeap* self)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKDescriptorHeapImpl>(self);
@@ -240,18 +238,15 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyDescriptorHeap(WisVKDescriptorHeap* sel
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyViewHeap(WisVKViewHeap* self)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKViewHeapImpl>(self);
     if (impl.view_heap) {
         for (uint32_t i = 0; i < impl.capacity; ++i) {
             if (impl.view_heap[i].view != VK_NULL_HANDLE) {
-                impl.device_header->header.device_table.vkDestroyImageView(
-                    impl.device_header->header.device,
-                    impl.view_heap[i].view,
-                    nullptr
-                );
+                impl.device_header->header.device_table
+                    .vkDestroyImageView(impl.device_header->header.device, impl.view_heap[i].view, nullptr);
             }
         }
 
@@ -262,14 +257,14 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyViewHeap(WisVKViewHeap* self)
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void* wisVKDescriptorHeapGetCPUHandle(const WisVKDescriptorHeap* self)
 {
     auto& heap = wis::from_handle_ref<const wis::impl::VKDescriptorHeapImpl>(self);
     return heap.mapped_ptr;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisVKDescriptorHeapWriteConstantBuffer(
     const WisVKDescriptorHeap* self,
     const WisConstantBufferBinding* data,
@@ -301,7 +296,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDescriptorHeapWriteConstantBuffer(
     return wis::detail::vk_success;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisVKDescriptorHeapWriteStructuredBuffer(
     const WisVKDescriptorHeap* self,
     WisVKBufferView buffer,
@@ -343,7 +338,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDescriptorHeapWriteStructuredBuffer(
     return wis::detail::vk_success;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisVKDescriptorHeapWriteRWStructuredBuffer(
     const WisVKDescriptorHeap* self,
     WisVKBufferView buffer,
@@ -355,9 +350,12 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDescriptorHeapWriteRWStructuredBuffer(
     return wisVKDescriptorHeapWriteStructuredBuffer(self, buffer, data, index);
 }
 
-//-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisVKDescriptorHeapWriteSampler(const WisVKDescriptorHeap* self, const WisSamplerDesc* sampler, uint32_t index)
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisVKDescriptorHeapWriteSampler(
+    const WisVKDescriptorHeap* self,
+    const WisSamplerDesc* sampler,
+    uint32_t index
+)
 {
     auto& heap = wis::from_handle_ref<const wis::impl::VKDescriptorHeapImpl>(self);
     auto& table = heap.device_header->header.device_table;
@@ -402,7 +400,7 @@ wisVKDescriptorHeapWriteSampler(const WisVKDescriptorHeap* self, const WisSample
     return wis::detail::vk_success;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WISDOM_API WisResult wisVKDescriptorHeapWriteTexture(
     const WisVKDescriptorHeap* self,
     WisVKTextureView view,
@@ -441,7 +439,7 @@ WISDOM_API WisResult wisVKDescriptorHeapWriteTexture(
     return wis::detail::vk_success;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WISDOM_API WisResult wisVKDescriptorHeapWriteRWTexture(
     const WisVKDescriptorHeap* self,
     WisVKTextureView view,
@@ -480,9 +478,12 @@ WISDOM_API WisResult wisVKDescriptorHeapWriteRWTexture(
     return wis::detail::vk_success;
 }
 
-//-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisVKDescriptorHeapWriteAccelerationStructure(const WisVKDescriptorHeap* self, uint64_t address, uint32_t index)
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisVKDescriptorHeapWriteAccelerationStructure(
+    const WisVKDescriptorHeap* self,
+    uint64_t address,
+    uint32_t index
+)
 {
     auto& heap = wis::from_handle_ref<const wis::impl::VKDescriptorHeapImpl>(self);
     auto& table = heap.device_header->header.device_table;
@@ -509,7 +510,7 @@ wisVKDescriptorHeapWriteAccelerationStructure(const WisVKDescriptorHeap* self, u
     return wis::detail::vk_success;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDescriptorHeapCopyDescriptors(
     const WisVKDescriptorHeap* self,
     uint32_t dst_index,
@@ -526,7 +527,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDescriptorHeapCopyDescriptors(
     );
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API uint64_t wisVKViewHeapWriteRenderTarget(
     const WisVKViewHeap* self,
     const WisVKTexture* texture,
@@ -622,7 +623,7 @@ WIS_EXTERN_C WISDOM_API uint64_t wisVKViewHeapWriteRenderTarget(
     return std::bit_cast<uint64_t>(&out_render_target);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API uint64_t wisVKViewHeapWriteDepthStencil(
     const WisVKViewHeap* self,
     const WisVKTexture* texture,
@@ -635,7 +636,7 @@ WIS_EXTERN_C WISDOM_API uint64_t wisVKViewHeapWriteDepthStencil(
     return wisVKViewHeapWriteRenderTarget(self, texture, render_target, index);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API uint64_t wisVKViewHeapGetViewAddress(const WisVKViewHeap* self, uint32_t index)
 {
     auto& heap = wis::from_handle_ref<const wis::impl::VKViewHeapImpl>(self);
@@ -645,7 +646,7 @@ WIS_EXTERN_C WISDOM_API uint64_t wisVKViewHeapGetViewAddress(const WisVKViewHeap
     return std::bit_cast<uint64_t>(&heap.view_heap[index]);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKViewHeapCopyViews(
     const WisVKViewHeap* self,
     uint32_t dst_index,
@@ -658,23 +659,20 @@ WIS_EXTERN_C WISDOM_API void wisVKViewHeapCopyViews(
     if (dst_index + count > heap.capacity) {
         return; // Invalid range, do nothing
     }
-    auto* src_views = reinterpret_cast<const wis::detail::VKRenderTargetView*>(std::bit_cast<const void*>(src_ptr)) +
-                      src_index;
+    auto* src_views = reinterpret_cast<const wis::detail::VKRenderTargetView*>(std::bit_cast<const void*>(src_ptr))
+                    + src_index;
     auto* dst_views = heap.view_heap + dst_index;
     for (uint32_t i = 0; i < count; ++i) {
         // Destroy existing view at destination if it's not null
         if (dst_views[i].view != VK_NULL_HANDLE) {
-            heap.device_header->header.device_table.vkDestroyImageView(
-                heap.device_header->header.device,
-                dst_views[i].view,
-                nullptr
-            );
+            heap.device_header->header.device_table
+                .vkDestroyImageView(heap.device_header->header.device, dst_views[i].view, nullptr);
         }
         dst_views[i] = src_views[i];
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API uint64_t wisVKViewHeapGetCPUHandle(const WisVKViewHeap* self)
 {
     auto& heap = wis::from_handle_ref<const wis::impl::VKViewHeapImpl>(self);

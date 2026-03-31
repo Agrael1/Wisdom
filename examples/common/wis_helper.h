@@ -11,8 +11,7 @@ namespace ex {
 struct Exception : public std::exception {
     Exception(std::string message)
         : message(std::move(message))
-    {
-    }
+    {}
 
     const char* what() const noexcept override { return message.c_str(); }
 

@@ -86,7 +86,7 @@ inline VkImageCreateInfo VKFillImageDesc(const WisTextureDesc& desc) noexcept
 }
 } // namespace wis::detail
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyResourceAllocator(WisVKResourceAllocator* self)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKResourceAllocatorImpl>(self);
@@ -96,9 +96,12 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyResourceAllocator(WisVKResourceAllocato
     }
 }
 
-//-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisVKResourceAllocatorCreateBuffer(const WisVKResourceAllocator* self, const WisBufferDesc* desc, WisVKBuffer* buffer)
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateBuffer(
+    const WisVKResourceAllocator* self,
+    const WisBufferDesc* desc,
+    WisVKBuffer* buffer
+)
 {
     auto& allocator = wis::from_handle_ref<const wis::impl::VKResourceAllocatorImpl>(self);
 
@@ -164,7 +167,7 @@ wisVKResourceAllocatorCreateBuffer(const WisVKResourceAllocator* self, const Wis
     return wis::detail::vk_success;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateTexture(
     const WisVKResourceAllocator* self,
     const WisTextureDesc* desc,
@@ -210,12 +213,12 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateTexture(
             .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
             .newLayout = VK_IMAGE_LAYOUT_GENERAL,
             .subresourceRange = {
-                .aspectMask = wis::detail::VKAspectFlags(image_info.format),
-                .baseMipLevel = 0,
-                .levelCount = image_info.mipLevels,
-                .baseArrayLayer = 0,
-                .layerCount = image_info.arrayLayers,
-            },
+                                 .aspectMask = wis::detail::VKAspectFlags(image_info.format),
+                                 .baseMipLevel = 0,
+                                 .levelCount = image_info.mipLevels,
+                                 .baseArrayLayer = 0,
+                                 .layerCount = image_info.arrayLayers,
+                                 },
         };
 
         vr = table.vkTransitionImageLayoutEXT(header.device, 1, &transition_info);
@@ -232,8 +235,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateTexture(
         .width = static_cast<uint16_t>(image_info.extent.width),
         .height = static_cast<uint16_t>(image_info.extent.height),
         .depth_or_array_size = desc->layout == WisTextureLayoutTexture3D
-                                   ? static_cast<uint16_t>(image_info.extent.depth)
-                                   : static_cast<uint16_t>(image_info.arrayLayers),
+                                 ? static_cast<uint16_t>(image_info.extent.depth)
+                                 : static_cast<uint16_t>(image_info.arrayLayers),
     };
     impl.device_header->AddRef();
 

@@ -6,7 +6,7 @@
 
 #define FRAMES_IN_FLIGHT 2
 #define SWAPCHAIN_FRAMES 3
-#define PARTICLE_COUNT 256
+#define PARTICLE_COUNT   256
 
 #define SILENCE_VERBOSE_LOGS 1
 
@@ -48,7 +48,7 @@ void LogCallback(WisSeverity severity, const char* message, uint64_t device, voi
     printf("[%s] %s\n", severity_str, message);
 }
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------
 WisShader CreateShader(const WisDevice* device, const char* filename)
 {
     WisShader shader = {0};
@@ -111,7 +111,7 @@ WisShader CreateShader(const WisDevice* device, const char* filename)
     return shader;
 }
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------
 WisPipelineCache CreatePipelineCache(const WisDevice* device, const char* filename)
 {
     WisPipelineCache pipeline_cache = {0};
@@ -165,7 +165,7 @@ WisPipelineCache CreatePipelineCache(const WisDevice* device, const char* filena
     return pipeline_cache;
 }
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------
 void SavePipelineCache(const WisPipelineCache* cache, const char* filename)
 {
     // Store pipeline cache in the file
@@ -240,7 +240,7 @@ typedef struct ResourceContainer {
     WisBuffer frame_constants;
 } ResourceContainer;
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------
 void ResizeDepth(BasicRenderer* renderer, uint32_t width, uint32_t height)
 {
     WisTextureBarrier barriers[FRAMES_IN_FLIGHT];
@@ -263,8 +263,11 @@ void ResizeDepth(BasicRenderer* renderer, uint32_t width, uint32_t height)
             .memory_type = WisMemoryTypeDeviceLocal,
             .memory_flags = WisMemoryFlagsNone,
         };
-        WisResult
-            result = wisResourceAllocatorCreateTexture(&renderer->allocator, &depth_desc, &renderer->depth_texture[i]);
+        WisResult result = wisResourceAllocatorCreateTexture(
+            &renderer->allocator,
+            &depth_desc,
+            &renderer->depth_texture[i]
+        );
         printf(
             "CreateDepthTexture[%u] result: %d, platform_code: %d, error: %s\n",
             i,
@@ -311,7 +314,7 @@ void ResizeDepth(BasicRenderer* renderer, uint32_t width, uint32_t height)
     result = wisFenceWait(&renderer->aux_fence, renderer->aux_fence_value, UINT64_MAX);
 }
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------
 WisDevice CreateDevice(SDL_Window* window, const WisInstance* instance, WisSurfaceView surface)
 {
     WisAdapterQuery adapter_query = {0};
@@ -324,8 +327,8 @@ WisDevice CreateDevice(SDL_Window* window, const WisInstance* instance, WisSurfa
     );
 
     WisCommandQueueDesc queue_descs[] = {
-        {WisCommandQueueTypeGraphics, WisCommandQueuePriorityHigh},
-        {WisCommandQueueTypeCompute, WisCommandQueuePriorityNormal},
+        {WisCommandQueueTypeGraphics,   WisCommandQueuePriorityHigh},
+        { WisCommandQueueTypeCompute, WisCommandQueuePriorityNormal},
     };
 
     WisDeviceRequirements device_requirements = {
@@ -384,7 +387,7 @@ WisDevice CreateDevice(SDL_Window* window, const WisInstance* instance, WisSurfa
     return device;
 }
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------
 void InitRenderer(BasicRenderer* renderer, SDL_Window* window)
 {
     WisDebugDesc debug_desc = {0};
@@ -566,7 +569,7 @@ void InitRenderer(BasicRenderer* renderer, SDL_Window* window)
     ResizeDepth(renderer, 800, 600);
 }
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------
 void DestoyRenderer(BasicRenderer* renderer)
 {
     if (renderer->next_fence_value > 0) {
@@ -615,7 +618,7 @@ void DestoyRenderer(BasicRenderer* renderer)
     wisDestroyFence(&renderer->aux_fence);
 }
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------
 void WaitForFinish(BasicRenderer* renderer)
 {
     WisResult result = wisCommandQueueSignalFence(
@@ -638,7 +641,7 @@ void WaitForFinish(BasicRenderer* renderer)
     );
 }
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------
 void InitRenderTask(BasicRenderTask* task, BasicRenderer* renderer)
 {
     WisPushConstant compute_push_constant = {
@@ -772,7 +775,7 @@ void InitRenderTask(BasicRenderTask* task, BasicRenderer* renderer)
     wisDestroyShader(&compute_shader);
 }
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------
 void DestroyRenderTask(BasicRenderTask* task)
 {
     wisDestroyRootSignature(&task->root_signature);
@@ -781,7 +784,7 @@ void DestroyRenderTask(BasicRenderTask* task)
     wisDestroyPipeline(&task->graphics_pipeline);
 }
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------
 void InitResourceContainer(ResourceContainer* container, BasicRenderer* renderer)
 {
     WisBufferDesc particle_buffer_desc = {
@@ -816,14 +819,14 @@ void InitResourceContainer(ResourceContainer* container, BasicRenderer* renderer
     );
 }
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------
 void DestroyResourceContainer(ResourceContainer* container)
 {
     wisDestroyBuffer(&container->particle_buffer);
     wisDestroyBuffer(&container->frame_constants);
 }
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------
 void GetDeviceProperties(const WisDevice* device)
 {
     // Query important device features
@@ -860,14 +863,14 @@ void GetDeviceProperties(const WisDevice* device)
     printf("- Host image copy supported: %s\n", memory_properties.host_image_copy_supported ? "Yes" : "No");
 }
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------
 void BindResources(const BasicRenderer* renderer, const ResourceContainer* resources)
 {
     (void)renderer;
     (void)resources;
 }
 
-//------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------------------------------------------
 void Render(BasicRenderer* renderer, const ResourceContainer* resources, const BasicRenderTask* task)
 {
     FrameContext* frame = &renderer->frames[renderer->frame_index];
@@ -949,42 +952,42 @@ void Render(BasicRenderer* renderer, const ResourceContainer* resources, const B
 
     WisTextureBarrier swapchain_barriers[] = {
         {
-            .sync_before = WisBarrierSyncNone,
-            .sync_after = WisBarrierSyncRenderTarget,
-            .access_before = WisResourceAccessNone,
-            .access_after = WisResourceAccessRenderTarget,
-            .state_before = WisTextureStateUndefined,
-            .state_after = WisTextureStateRenderTarget,
-            .texture = wisGetTextureView(swap_texture),
-            .subresource_range = {0, 1, 0, 1, 0, 1},
-            .queue_type_before = WisCommandQueueTypeGraphics,
-            .queue_type_after = WisCommandQueueTypeGraphics,
-            .flags = WisBarrierFlagsDiscardContent,
-        },
+         .sync_before = WisBarrierSyncNone,
+         .sync_after = WisBarrierSyncRenderTarget,
+         .access_before = WisResourceAccessNone,
+         .access_after = WisResourceAccessRenderTarget,
+         .state_before = WisTextureStateUndefined,
+         .state_after = WisTextureStateRenderTarget,
+         .texture = wisGetTextureView(swap_texture),
+         .subresource_range = {0, 1, 0, 1, 0, 1},
+         .queue_type_before = WisCommandQueueTypeGraphics,
+         .queue_type_after = WisCommandQueueTypeGraphics,
+         .flags = WisBarrierFlagsDiscardContent,
+         },
         {
-            .sync_before = WisBarrierSyncRenderTarget,
-            .sync_after = WisBarrierSyncNone,
-            .access_before = WisResourceAccessRenderTarget,
-            .access_after = WisResourceAccessNone,
-            .state_before = WisTextureStateRenderTarget,
-            .state_after = WisTextureStatePresent,
-            .texture = wisGetTextureView(swap_texture),
-            .subresource_range = {0, 1, 0, 1, 0, 1},
-            .queue_type_before = WisCommandQueueTypeGraphics,
-            .queue_type_after = WisCommandQueueTypeGraphics,
-        }
+         .sync_before = WisBarrierSyncRenderTarget,
+         .sync_after = WisBarrierSyncNone,
+         .access_before = WisResourceAccessRenderTarget,
+         .access_after = WisResourceAccessNone,
+         .state_before = WisTextureStateRenderTarget,
+         .state_after = WisTextureStatePresent,
+         .texture = wisGetTextureView(swap_texture),
+         .subresource_range = {0, 1, 0, 1, 0, 1},
+         .queue_type_before = WisCommandQueueTypeGraphics,
+         .queue_type_after = WisCommandQueueTypeGraphics,
+         }
     };
     WisBarrierGroup barrier_groups[2] = {
         {
-            .buffer_barriers = &particle_barrier,
-            .buffer_barrier_count = 1,
-            .texture_barriers = swapchain_barriers,
-            .texture_barrier_count = 1,
-        },
+         .buffer_barriers = &particle_barrier,
+         .buffer_barrier_count = 1,
+         .texture_barriers = swapchain_barriers,
+         .texture_barrier_count = 1,
+         },
         {
-            .texture_barriers = swapchain_barriers + 1,
-            .texture_barrier_count = 1,
-        },
+         .texture_barriers = swapchain_barriers + 1,
+         .texture_barrier_count = 1,
+         },
     };
 
     WisViewport viewport = {
@@ -1009,13 +1012,13 @@ void Render(BasicRenderer* renderer, const ResourceContainer* resources, const B
               .clear_value = {0.5f, 1.0f, 1.0f, 1.0f}}},
         .render_target_count = 1,
         .depth_stencil = {
-            .target = wisViewHeapGetViewAddress(&renderer->dsv_heap, renderer->frame_index),
-            .load_op_depth = WisLoadOpClear,
-            .load_op_stencil = WisLoadOpDontCare,
-            .store_op_depth = WisStoreOpStore,
-            .store_op_stencil = WisStoreOpDontCare,
-            .flags = WisDepthStencilFlagsIgnoreStencil,
-            .clear_depth = 1.0f
+                             .target = wisViewHeapGetViewAddress(&renderer->dsv_heap, renderer->frame_index),
+                             .load_op_depth = WisLoadOpClear,
+                             .load_op_stencil = WisLoadOpDontCare,
+                             .store_op_depth = WisStoreOpStore,
+                             .store_op_stencil = WisStoreOpDontCare,
+                             .flags = WisDepthStencilFlagsIgnoreStencil,
+                             .clear_depth = 1.0f
         },
     };
 

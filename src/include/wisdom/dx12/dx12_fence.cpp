@@ -6,7 +6,7 @@
 #include <wisdom/generated/c_api.h>
 #include <wisdom/util/allocation.hpp>
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyFence(WisDX12Fence* self)
 {
     auto& [fence, event] = wis::from_handle_ref<wis::impl::DX12FenceImpl>(self);
@@ -19,14 +19,14 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyFence(WisDX12Fence* self)
     fence = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API uint64_t wisDX12FenceGetCompletedValue(const WisDX12Fence* self)
 {
     auto& [fence, event] = wis::from_handle_ref<const wis::impl::DX12FenceImpl>(self);
     return fence->GetCompletedValue();
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisDX12FenceWait(const WisDX12Fence* self, uint64_t value, uint64_t wait_ns)
 {
     auto& [fence, event] = wis::from_handle_ref<const wis::impl::DX12FenceImpl>(self);
@@ -47,7 +47,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12FenceWait(const WisDX12Fence* self, uin
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisDX12FenceSignal(const WisDX12Fence* self, uint64_t value)
 {
     auto& [fence, event] = wis::from_handle_ref<const wis::impl::DX12FenceImpl>(self);

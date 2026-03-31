@@ -23,8 +23,7 @@ public:
     /// @brief Default constructor, zeros the storage
     Implements() noexcept
         : _impl_storage()
-    {
-    }
+    {}
 
     /// @brief Default constructor, zeros the storage
     template <typename... Args>

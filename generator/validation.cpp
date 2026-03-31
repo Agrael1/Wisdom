@@ -1,6 +1,6 @@
 #include "generator.hpp"
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Generator::ParseValidations(tinyxml2::XMLElement* validations)
 {
     for (auto* validation = validations->FirstChildElement("validation"); validation;
@@ -40,7 +40,7 @@ void Generator::ParseValidations(tinyxml2::XMLElement* validations)
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeValidationDescription(const Validation& v)
 {
     auto doc = FinalizeCDocumentation(std::string(v.message), v.type_name);
@@ -50,7 +50,7 @@ std::string Generator::MakeValidationDescription(const Validation& v)
                        doc);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeValidationForType(std::string_view type_name)
 {
     std::string vuids;

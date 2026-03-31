@@ -1,7 +1,7 @@
 #include "generator.hpp"
 #include <fstream>
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 static inline constexpr char template_enum[] =
         R"(/**
  * @struct {0} {0}
@@ -29,7 +29,7 @@ static inline constexpr char template_enum[] =
  * \endcond
  */)";
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Generator::ParseEnum(tinyxml2::XMLElement* type)
 {
     auto name = type->FindAttribute("name")->Value();
@@ -97,7 +97,7 @@ void Generator::ParseEnum(tinyxml2::XMLElement* type)
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeCEnum(const WisEnum& s, DocKind kind)
 {
     auto        full_name = GetCFullTypename(s.name, Backend::Any);
@@ -116,7 +116,7 @@ std::string Generator::MakeCEnum(const WisEnum& s, DocKind kind)
     return st_decl;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeCPPEnum(const WisEnum& s, DocKind kind)
 {
     std::string st_decl = wis::format("enum class {} {{\n", s.name);
@@ -134,7 +134,7 @@ std::string Generator::MakeCPPEnum(const WisEnum& s, DocKind kind)
     return st_decl;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Generator::WriteEnumDocumentation(std::filesystem::path enum_output_path)
 {
     std::filesystem::create_directories(enum_output_path);
@@ -166,7 +166,7 @@ void Generator::WriteEnumDocumentation(std::filesystem::path enum_output_path)
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeEnumDescription(const WisEnum& s)
 {
     std::string description;

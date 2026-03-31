@@ -2,7 +2,6 @@
 #ifndef WISDOM_CORE_C_API_H
 #define WISDOM_CORE_C_API_H
 #include <wisdom/global/definitions.h>
-
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -20,20 +19,21 @@ extern "C" {
  * @brief Provided by Wisdom 0.7.0. Defines common return status codes. Compare against `WisStatusOk` for success.
  *
  * */
-typedef enum WisStatus
-{
-    WisStatusOk = 0,                 ///< Operation succeeded.
-    WisStatusTimeout = 1,            ///< Operation timed out.
-    WisStatusPartial = 2,            ///< Operation partially succeeded.
-    WisStatusInvalidArgument = -1,   ///< One or more arguments, or parts of arguments passed to the function were
-                                     ///< incorrect.
-    WisStatusOutOfHostMemory = -2,   ///< There is no more host memory available.
+typedef enum WisStatus {
+    WisStatusOk = 0, ///< Operation succeeded.
+    WisStatusTimeout = 1, ///< Operation timed out.
+    WisStatusPartial = 2, ///< Operation partially succeeded.
+    /**
+     * @brief One or more arguments, or parts of arguments passed to the function were incorrect.
+     * */
+    WisStatusInvalidArgument = -1,
+    WisStatusOutOfHostMemory = -2, ///< There is no more host memory available.
     WisStatusOutOfDeviceMemory = -3, ///< There is no more device memory available.
-    WisStatusDeviceLost = -4,        ///< Device driver was forcefully stopped.
-    WisStatusOccluded = -5,          ///< Swap chain presentation was not visible to the user. Rendering is too fast.
-    WisStatusValidationFailed = -6,  ///< A validation layer found an error.
-    WisStatusFail = -7,              ///< Operation expectedly failed.
-    WisStatusError = -10000,         ///< Operation failed.
+    WisStatusDeviceLost = -4, ///< Device driver was forcefully stopped.
+    WisStatusOccluded = -5, ///< Swap chain presentation was not visible to the user. Rendering is too fast.
+    WisStatusValidationFailed = -6, ///< A validation layer found an error.
+    WisStatusFail = -7, ///< Operation expectedly failed.
+    WisStatusError = -10000, ///< Operation failed.
 } WisStatus;
 
 /**
@@ -46,18 +46,17 @@ typedef enum WisStatus
  * - Depth stencil data format
  *
  * */
-typedef enum WisDataFormat
-{
+typedef enum WisDataFormat {
     WisDataFormatUnknown = 0, ///< Unknown format.
-                              /**
-                               * @brief
-                               * 32 bit per channel RGBA format.
-                               * A four-component, 128-bit signed floating-point format that has
-                               * a 32-bit R component in bytes 0..3,
-                               * a 32-bit G component in bytes 4..7,
-                               * a 32-bit B component in bytes 8..11,
-                               * a 32-bit A component in bytes 12..15.
-                               * */
+    /**
+     * @brief
+     * 32 bit per channel RGBA format.
+     * A four-component, 128-bit signed floating-point format that has
+     * a 32-bit R component in bytes 0..3,
+     * a 32-bit G component in bytes 4..7,
+     * a 32-bit B component in bytes 8..11,
+     * a 32-bit A component in bytes 12..15.
+     * */
     WisDataFormatRGBA32Float = 2,
     /**
      * @brief
@@ -622,12 +621,11 @@ typedef enum WisDataFormat
  * @brief Provided by Wisdom 0.7.0. Sample rate for multisampling.
  *
  * */
-typedef enum WisSampleCount
-{
-    WisSampleCountS1 = 1,   ///< 1 sample per pixel.
-    WisSampleCountS2 = 2,   ///< 2 samples per pixel.
-    WisSampleCountS4 = 4,   ///< 4 samples per pixel.
-    WisSampleCountS8 = 8,   ///< 8 samples per pixel.
+typedef enum WisSampleCount {
+    WisSampleCountS1 = 1, ///< 1 sample per pixel.
+    WisSampleCountS2 = 2, ///< 2 samples per pixel.
+    WisSampleCountS4 = 4, ///< 4 samples per pixel.
+    WisSampleCountS8 = 8, ///< 8 samples per pixel.
     WisSampleCountS16 = 16, ///< 16 samples per pixel.
 } WisSampleCount;
 
@@ -635,18 +633,19 @@ typedef enum WisSampleCount
  * @brief Provided by Wisdom 0.7.0. Texture layout. Determines how texture will be accessed.
  *
  * */
-typedef enum WisTextureLayout
-{
-    WisTextureLayoutTexture1D = 2,        ///< Texture is 1D array of data. Behaves similarly to Buffer.
-    WisTextureLayoutTexture1DArray = 3,   ///< Texture is an array of 1D data.
-    WisTextureLayoutTexture2D = 4,        ///< Texture is 2D image, default texture type.
-    WisTextureLayoutTexture2DArray = 5,   ///< Texture is an array of 2D images. Can also be used for Cube maps.
-    WisTextureLayoutTexture2DMS = 6,      ///< Texture is 2D multisampled image.
+typedef enum WisTextureLayout {
+    WisTextureLayoutTexture1D = 2, ///< Texture is 1D array of data. Behaves similarly to Buffer.
+    WisTextureLayoutTexture1DArray = 3, ///< Texture is an array of 1D data.
+    WisTextureLayoutTexture2D = 4, ///< Texture is 2D image, default texture type.
+    WisTextureLayoutTexture2DArray = 5, ///< Texture is an array of 2D images. Can also be used for Cube maps.
+    WisTextureLayoutTexture2DMS = 6, ///< Texture is 2D multisampled image.
     WisTextureLayoutTexture2DMSArray = 7, ///< Texture is an array of 2D multisampled images.
-    WisTextureLayoutTexture3D = 8,        ///< Texture is 3D volume.
-    WisTextureLayoutTextureCube = 9,      ///< Texture is a cube map. Behaves similarly to Texture2DArray with 6 layers.
-    WisTextureLayoutTextureCubeArray = 10, ///< Texture is an array of cube maps. Behaves similarly to Texture2DArray
-                                           ///< with 6 layers per cube map.
+    WisTextureLayoutTexture3D = 8, ///< Texture is 3D volume.
+    WisTextureLayoutTextureCube = 9, ///< Texture is a cube map. Behaves similarly to Texture2DArray with 6 layers.
+    /**
+     * @brief Texture is an array of cube maps. Behaves similarly to Texture2DArray with 6 layers per cube map.
+     * */
+    WisTextureLayoutTextureCubeArray = 10,
 } WisTextureLayout;
 
 /**
@@ -655,29 +654,33 @@ typedef enum WisTextureLayout
  * `VkPhysicalDeviceType` heuristics.
  *
  * */
-typedef enum WisAdapterPreference
-{
-    WisAdapterPreferenceNone = 0,           ///< No particular preference, list adapters in system devised order.
-    WisAdapterPreferenceMinConsumption = 1, ///< List the adapters from low power consumption to high. DirectX 12:
-                                            ///< Integrated, Discrete, External, Software. Vulkan: Integrated GPU,
-                                            ///< Discrete GPU, Virtual GPU, CPU.
-    WisAdapterPreferencePerformance = 2,    ///< List the adapters from high performance to low. DirectX 12: External,
-                                            ///< Discrete, Integrated, Software. Vulkan: Discrete GPU, Integrated GPU,
-                                            ///< Virtual GPU, CPU.
+typedef enum WisAdapterPreference {
+    WisAdapterPreferenceNone = 0, ///< No particular preference, list adapters in system devised order.
+    /**
+     * @brief List the adapters from low power consumption to high. DirectX 12: Integrated, Discrete, External,
+     * Software. Vulkan: Integrated GPU, Discrete GPU, Virtual GPU, CPU.
+     * */
+    WisAdapterPreferenceMinConsumption = 1,
+    /**
+     * @brief List the adapters from high performance to low. DirectX 12: External, Discrete, Integrated, Software.
+     * Vulkan: Discrete GPU, Integrated GPU, Virtual GPU, CPU.
+     * */
+    WisAdapterPreferencePerformance = 2,
 } WisAdapterPreference;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Defines severity levels for logging and debugging messages.
  *
  * */
-typedef enum WisSeverity
-{
+typedef enum WisSeverity {
     WisSeverityVerbose = 0, ///< Verbose level messages, typically used for detailed debugging information.
-    WisSeverityInfo = 1,    ///< Informational messages that highlight the progress of the application.
-    WisSeverityWarning = 2, ///< Potentially harmful situations that warrant attention but do not prevent normal
-                            ///< operation.
-    WisSeverityError = 3,   ///< Error events that might still allow the application to continue running.
-    WisSeverityFatal = 4,   ///< Severe error events that will presumably lead the application to abort.
+    WisSeverityInfo = 1, ///< Informational messages that highlight the progress of the application.
+    /**
+     * @brief Potentially harmful situations that warrant attention but do not prevent normal operation.
+     * */
+    WisSeverityWarning = 2,
+    WisSeverityError = 3, ///< Error events that might still allow the application to continue running.
+    WisSeverityFatal = 4, ///< Severe error events that will presumably lead the application to abort.
 } WisSeverity;
 
 /**
@@ -685,16 +688,19 @@ typedef enum WisSeverity
  * corresponds to a specific kind of workload that the GPU can handle.
  *
  * */
-typedef enum WisCommandQueueType
-{
+typedef enum WisCommandQueueType {
     WisCommandQueueTypeGraphics = 0, ///< Command queue for graphics operations, including rendering and compute tasks.
-    WisCommandQueueTypeCompute = 1,  ///< Command queue dedicated to compute operations, optimized for parallel
-                                     ///< processing tasks.
-    WisCommandQueueTypeTransfer = 2, ///< Command queue for data transfer operations, such as copying resources between
-                                     ///< buffers and images.
+    /**
+     * @brief Command queue dedicated to compute operations, optimized for parallel processing tasks.
+     * */
+    WisCommandQueueTypeCompute = 1,
+    /**
+     * @brief Command queue for data transfer operations, such as copying resources between buffers and images.
+     * */
+    WisCommandQueueTypeTransfer = 2,
     WisCommandQueueTypeVideoDecode = 3, ///< Command queue for video decoding operations.
     WisCommandQueueTypeVideoEncode = 4, ///< Command queue for video encoding operations.
-    WisCommandQueueTypeCount = 5,       ///< Number of command queue types available.
+    WisCommandQueueTypeCount = 5, ///< Number of command queue types available.
 } WisCommandQueueType;
 
 /**
@@ -702,12 +708,14 @@ typedef enum WisCommandQueueType
  * performance issues if overused.
  *
  * */
-typedef enum WisCommandQueuePriority
-{
-    WisCommandQueuePriorityNormal = 0,   ///< Normal queue priority.
-    WisCommandQueuePriorityHigh = 1,     ///< High queue priority.
-    WisCommandQueuePriorityRealtime = 2, ///< Global realtime queue priority. Requires special GPU support and @wis_may
-                                         ///< cause performance issues if used on unsupported hardware.
+typedef enum WisCommandQueuePriority {
+    WisCommandQueuePriorityNormal = 0, ///< Normal queue priority.
+    WisCommandQueuePriorityHigh = 1, ///< High queue priority.
+    /**
+     * @brief Global realtime queue priority. Requires special GPU support and @wis_may cause performance issues if used
+     * on unsupported hardware.
+     * */
+    WisCommandQueuePriorityRealtime = 2,
 } WisCommandQueuePriority;
 
 /**
@@ -715,10 +723,9 @@ typedef enum WisCommandQueuePriority
  * to a specific kind of workload that the GPU can handle.
  *
  * */
-typedef enum WisPipelineType
-{
+typedef enum WisPipelineType {
     WisPipelineTypeGraphics = 0, ///< Pipeline for graphics operations, including rendering tasks.
-    WisPipelineTypeCompute = 1,  ///< Pipeline dedicated to compute operations, optimized for parallel processing tasks.
+    WisPipelineTypeCompute = 1, ///< Pipeline dedicated to compute operations, optimized for parallel processing tasks.
     WisPipelineTypeRayTracing = 2, ///< Pipeline for ray tracing operations, optimized for ray tracing workloads.
 } WisPipelineType;
 
@@ -727,64 +734,64 @@ typedef enum WisPipelineType
  * descriptor management. Stages have no granularity, either all or one can be selected.
  *
  * */
-typedef enum WisShaderVisibility
-{
-    WisShaderVisibilityAll = 0,           ///< All shader stages.
-    WisShaderVisibilityVertex = 1,        ///< Vertex shader stage.
-    WisShaderVisibilityHull = 2,          ///< Hull/Tessellation control shader stage.
-    WisShaderVisibilityDomain = 3,        ///< Domain/Tessellation evaluation shader stage.
-    WisShaderVisibilityGeometry = 4,      ///< Geometry shader stage.
-    WisShaderVisibilityPixel = 5,         ///< Pixel/Fragment shader stage.
+typedef enum WisShaderVisibility {
+    WisShaderVisibilityAll = 0, ///< All shader stages.
+    WisShaderVisibilityVertex = 1, ///< Vertex shader stage.
+    WisShaderVisibilityHull = 2, ///< Hull/Tessellation control shader stage.
+    WisShaderVisibilityDomain = 3, ///< Domain/Tessellation evaluation shader stage.
+    WisShaderVisibilityGeometry = 4, ///< Geometry shader stage.
+    WisShaderVisibilityPixel = 5, ///< Pixel/Fragment shader stage.
     WisShaderVisibilityAmplification = 6, ///< Amplification shader stage.
-    WisShaderVisibilityMesh = 7,          ///< Mesh shader stage.
-    WisShaderVisibilityCount = 8,         ///< Number of stages.
+    WisShaderVisibilityMesh = 7, ///< Mesh shader stage.
+    WisShaderVisibilityCount = 8, ///< Number of stages.
 } WisShaderVisibility;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Type of the descriptor in the descriptor table.
  *
  * */
-typedef enum WisDescriptorType
-{
-    WisDescriptorTypeSampler = 0,               ///< Descriptor is a sampler.
-    WisDescriptorTypeConstantBuffer = 1,        ///< Descriptor is a constant buffer.
-    WisDescriptorTypeTexture = 2,               ///< Descriptor is a texture.
-    WisDescriptorTypeRWTexture = 3,             ///< Descriptor is an unordered access read-write texture.
-    WisDescriptorTypeRWBuffer = 4,              ///< Descriptor is an unordered access read-write buffer.
-    WisDescriptorTypeBuffer = 5,                ///< Descriptor is a shader resource buffer.
+typedef enum WisDescriptorType {
+    WisDescriptorTypeSampler = 0, ///< Descriptor is a sampler.
+    WisDescriptorTypeConstantBuffer = 1, ///< Descriptor is a constant buffer.
+    WisDescriptorTypeTexture = 2, ///< Descriptor is a texture.
+    WisDescriptorTypeRWTexture = 3, ///< Descriptor is an unordered access read-write texture.
+    WisDescriptorTypeRWBuffer = 4, ///< Descriptor is an unordered access read-write buffer.
+    WisDescriptorTypeBuffer = 5, ///< Descriptor is a shader resource buffer.
     WisDescriptorTypeAccelerationStructure = 6, ///< Descriptor is an acceleration structure.
-    WisDescriptorTypeCount = 7,                 ///< Descriptor is a mutable type.
+    WisDescriptorTypeCount = 7, ///< Descriptor is a mutable type.
 } WisDescriptorType;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Comparison function for depth and stencil operations.
  *
  * */
-typedef enum WisCompareOp
-{
-    WisCompareOpNone = 0,         ///< No comparison.
-    WisCompareOpNever = 1,        ///< Always fail the comparison.
-    WisCompareOpLess = 2,         ///< Pass the comparison if the source value is less than the destination value.
-    WisCompareOpEqual = 3,        ///< Pass the comparison if the source value is equal to the destination value.
-    WisCompareOpLessEqual = 4,    ///< Pass the comparison if the source value is less than or equal to the destination
-                                  ///< value.
-    WisCompareOpGreater = 5,      ///< Pass the comparison if the source value is greater than the destination value.
-    WisCompareOpNotEqual = 6,     ///< Pass the comparison if the source value is not equal to the destination value.
-    WisCompareOpGreaterEqual = 7, ///< Pass the comparison if the source value is greater than or equal to the
-                                  ///< destination value.
-    WisCompareOpAlways = 8,       ///< Always pass the comparison.
+typedef enum WisCompareOp {
+    WisCompareOpNone = 0, ///< No comparison.
+    WisCompareOpNever = 1, ///< Always fail the comparison.
+    WisCompareOpLess = 2, ///< Pass the comparison if the source value is less than the destination value.
+    WisCompareOpEqual = 3, ///< Pass the comparison if the source value is equal to the destination value.
+    /**
+     * @brief Pass the comparison if the source value is less than or equal to the destination value.
+     * */
+    WisCompareOpLessEqual = 4,
+    WisCompareOpGreater = 5, ///< Pass the comparison if the source value is greater than the destination value.
+    WisCompareOpNotEqual = 6, ///< Pass the comparison if the source value is not equal to the destination value.
+    /**
+     * @brief Pass the comparison if the source value is greater than or equal to the destination value.
+     * */
+    WisCompareOpGreaterEqual = 7,
+    WisCompareOpAlways = 8, ///< Always pass the comparison.
 } WisCompareOp;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Address mode for texture sampling.
  *
  * */
-typedef enum WisAddressMode
-{
-    WisAddressModeRepeat = 0,            ///< Repeat the texture.
-    WisAddressModeMirroredRepeat = 1,    ///< Repeat the texture with mirroring.
-    WisAddressModeClampToEdge = 2,       ///< Clamp the texture to the edge.
-    WisAddressModeClampToBorder = 3,     ///< Clamp the texture to the border.
+typedef enum WisAddressMode {
+    WisAddressModeRepeat = 0, ///< Repeat the texture.
+    WisAddressModeMirroredRepeat = 1, ///< Repeat the texture with mirroring.
+    WisAddressModeClampToEdge = 2, ///< Clamp the texture to the edge.
+    WisAddressModeClampToBorder = 3, ///< Clamp the texture to the border.
     WisAddressModeMirrorClampToEdge = 4, ///< Mirror and clamp the texture to the edge.
 } WisAddressMode;
 
@@ -792,9 +799,8 @@ typedef enum WisAddressMode
  * @brief Provided by Wisdom 0.7.0. Filtering mode for texture sampling.
  *
  * */
-typedef enum WisFilter
-{
-    WisFilterPoint = 0,  ///< Nearest neighbor filtering.
+typedef enum WisFilter {
+    WisFilterPoint = 0, ///< Nearest neighbor filtering.
     WisFilterLinear = 1, ///< Linear filtering.
 } WisFilter;
 
@@ -802,11 +808,10 @@ typedef enum WisFilter
  * @brief Provided by Wisdom 0.7.0. Reduction mode for texture sampling when min and mag filters are different.
  *
  * */
-typedef enum WisReductionMode
-{
+typedef enum WisReductionMode {
     WisReductionModeStandard = 0, ///< Standard filtering behavior.
-    WisReductionModeMin = 1,      ///< Use the minimum value of the samples for filtering.
-    WisReductionModeMax = 2,      ///< Use the maximum value of the samples for filtering.
+    WisReductionModeMin = 1, ///< Use the minimum value of the samples for filtering.
+    WisReductionModeMax = 2, ///< Use the maximum value of the samples for filtering.
 } WisReductionMode;
 
 /**
@@ -814,56 +819,56 @@ typedef enum WisReductionMode
  * Border.
  *
  * */
-typedef enum WisStaticBorder
-{
+typedef enum WisStaticBorder {
     WisStaticBorderTransparentBlack = 0, ///< Transparent black border color.
-    WisStaticBorderOpaqueBlack = 1,      ///< Opaque black border color.
-    WisStaticBorderOpaqueWhite = 2,      ///< Opaque white border color.
+    WisStaticBorderOpaqueBlack = 1, ///< Opaque black border color.
+    WisStaticBorderOpaqueWhite = 2, ///< Opaque white border color.
 } WisStaticBorder;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Descriptor heap type.
  *
  * */
-typedef enum WisDescriptorHeapType
-{
+typedef enum WisDescriptorHeapType {
     WisDescriptorHeapTypeDescriptor = 0, ///< Descriptor heap type. Used for all descriptor types, except for samplers.
-    WisDescriptorHeapTypeSampler = 1,    ///< Sampler heap type. Used for sampler descriptors.
+    WisDescriptorHeapTypeSampler = 1, ///< Sampler heap type. Used for sampler descriptors.
 } WisDescriptorHeapType;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Descriptor memory type. Decides if descriptors are visible and can be bound to GPU.
  *
  * */
-typedef enum WisDescriptorMemoryType
-{
-    WisDescriptorMemoryTypeCpuOnly = 0, ///< Descriptors are only visible to CPU. May be used for copying descriptors to
-                                        ///< the GPU visible pool.
-    WisDescriptorMemoryTypeShaderVisible = 1, ///< Descriptors are visible to GPU. Descriptors can be bound to the GPU
-                                              ///< pipeline directly, but can't be copied from.
+typedef enum WisDescriptorMemoryType {
+    /**
+     * @brief Descriptors are only visible to CPU. May be used for copying descriptors to the GPU visible pool.
+     * */
+    WisDescriptorMemoryTypeCpuOnly = 0,
+    /**
+     * @brief Descriptors are visible to GPU. Descriptors can be bound to the GPU pipeline directly, but can't be copied
+     * from.
+     * */
+    WisDescriptorMemoryTypeShaderVisible = 1,
 } WisDescriptorMemoryType;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Component swizzle for texture sampling.
  *
  * */
-typedef enum WisComponentSwizzle
-{
+typedef enum WisComponentSwizzle {
     WisComponentSwizzleIdentity = 0, ///< Use the component as is for sampling.
-    WisComponentSwizzleRed = 1,      ///< Use the red component for sampling.
-    WisComponentSwizzleGreen = 2,    ///< Use the green component for sampling.
-    WisComponentSwizzleBlue = 3,     ///< Use the blue component for sampling.
-    WisComponentSwizzleAlpha = 4,    ///< Use the alpha component for sampling.
-    WisComponentSwizzleZero = 5,     ///< Use zero for sampling.
-    WisComponentSwizzleOne = 6,      ///< Use one for sampling.
+    WisComponentSwizzleRed = 1, ///< Use the red component for sampling.
+    WisComponentSwizzleGreen = 2, ///< Use the green component for sampling.
+    WisComponentSwizzleBlue = 3, ///< Use the blue component for sampling.
+    WisComponentSwizzleAlpha = 4, ///< Use the alpha component for sampling.
+    WisComponentSwizzleZero = 5, ///< Use zero for sampling.
+    WisComponentSwizzleOne = 6, ///< Use one for sampling.
 } WisComponentSwizzle;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Determines the behavior when waiting for multiple fences.
  *
  * */
-typedef enum WisMultiWaitType
-{
+typedef enum WisMultiWaitType {
     WisMultiWaitTypeAll = 0, ///< All the fences in the batch are triggered.
     WisMultiWaitTypeAny = 1, ///< At least one of the fences from the batch is triggered.
 } WisMultiWaitType;
@@ -872,9 +877,8 @@ typedef enum WisMultiWaitType
  * @brief Provided by Wisdom 0.7.0. Input classification for vertex buffer data.
  *
  * */
-typedef enum WisInputClass
-{
-    WisInputClassPerVertex = 0,   ///< Vertex buffer data is vertex data.
+typedef enum WisInputClass {
+    WisInputClassPerVertex = 0, ///< Vertex buffer data is vertex data.
     WisInputClassPerInstance = 1, ///< Vertex buffer data is per instance data.
 } WisInputClass;
 
@@ -882,30 +886,36 @@ typedef enum WisInputClass
  * @brief Provided by Wisdom 0.7.0. Query type for GPU queries.
  *
  * */
-typedef enum WisQueryPropertyType
-{
-    WisQueryPropertyTypeDeviceCommandQueueProperties = 0,   ///< Properties of the device command queues. Expects a
-                                                            ///< WisDeviceCommandQueueProperties struct.
-    WisQueryPropertyTypeDeviceDescriptorHeapProperties = 1, ///< Properties of the device descriptor heap. Expects a
-                                                            ///< WisDeviceDescriptorHeapProperties struct.
-    WisQueryPropertyTypeDeviceMemoryProperties = 2,         ///< Properties of the device descriptor heap. Expects a
-                                                            ///< WisDeviceMemoryProperties struct.
-    WisQueryPropertyTypeDeviceBindingProperties = 3,        ///< Properties of the device resource binding. Expects a
-                                                            ///< WisDeviceBindingProperties struct.
+typedef enum WisQueryPropertyType {
+    /**
+     * @brief Properties of the device command queues. Expects a WisDeviceCommandQueueProperties struct.
+     * */
+    WisQueryPropertyTypeDeviceCommandQueueProperties = 0,
+    /**
+     * @brief Properties of the device descriptor heap. Expects a WisDeviceDescriptorHeapProperties struct.
+     * */
+    WisQueryPropertyTypeDeviceDescriptorHeapProperties = 1,
+    /**
+     * @brief Properties of the device descriptor heap. Expects a WisDeviceMemoryProperties struct.
+     * */
+    WisQueryPropertyTypeDeviceMemoryProperties = 2,
+    /**
+     * @brief Properties of the device resource binding. Expects a WisDeviceBindingProperties struct.
+     * */
+    WisQueryPropertyTypeDeviceBindingProperties = 3,
 } WisQueryPropertyType;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Memory type for resource allocation.
  *
  * */
-typedef enum WisMemoryType
-{
+typedef enum WisMemoryType {
     WisMemoryTypeDefault = 0, ///< Default memory type. Alias for `WisMemoryTypeDeviceLocal`
-                              /**
-                               * @brief
-                               * Default memory type.
-                               * Local device memory, most efficient for rendering.
-                               * */
+    /**
+     * @brief
+     * Default memory type.
+     * Local device memory, most efficient for rendering.
+     * */
     WisMemoryTypeDeviceLocal = 0,
     /**
      * @brief
@@ -932,33 +942,31 @@ typedef enum WisMemoryType
  * @brief Provided by Wisdom 0.7.0. Texture state for resource transitions.
  *
  * */
-typedef enum WisTextureState
-{
-    WisTextureStateUndefined = -1,            ///< Undefined state.
-    WisTextureStateCommon = 0,                ///< Common state.
-    WisTextureStateRead = 1,                  ///< General Read state.
-    WisTextureStateRenderTarget = 2,          ///< Render Target state.
-    WisTextureStateUnorderedAccess = 3,       ///< Unordered Access state.
-    WisTextureStateDepthStencilWrite = 4,     ///< Depth Stencil Write state.
-    WisTextureStateDepthStencilRead = 5,      ///< Depth Stencil Read state.
+typedef enum WisTextureState {
+    WisTextureStateUndefined = -1, ///< Undefined state.
+    WisTextureStateCommon = 0, ///< Common state.
+    WisTextureStateRead = 1, ///< General Read state.
+    WisTextureStateRenderTarget = 2, ///< Render Target state.
+    WisTextureStateUnorderedAccess = 3, ///< Unordered Access state.
+    WisTextureStateDepthStencilWrite = 4, ///< Depth Stencil Write state.
+    WisTextureStateDepthStencilRead = 5, ///< Depth Stencil Read state.
     WisTextureStateDepthWriteStencilRead = 6, ///< Depth Write Stencil Read state.
     WisTextureStateStencilWriteDepthRead = 7, ///< Stencil Write Depth Read state.
-    WisTextureStateShaderResource = 8,        ///< Shader Resource state.
-    WisTextureStateCopySrc = 9,               ///< Copy Source state.
-    WisTextureStateCopyDst = 10,              ///< Copy Destination state.
-    WisTextureStatePresent = 11,              ///< Present swapchain state.
-    WisTextureStateShadingRate = 12,          ///< Shading Rate state. Used for Variable Shading Rate.
-    WisTextureStateVideoDecodeRead = 13,      ///< Video Decode Read state.
-    WisTextureStateVideoDecodeWrite = 14,     ///< Video Decode Write state.
+    WisTextureStateShaderResource = 8, ///< Shader Resource state.
+    WisTextureStateCopySrc = 9, ///< Copy Source state.
+    WisTextureStateCopyDst = 10, ///< Copy Destination state.
+    WisTextureStatePresent = 11, ///< Present swapchain state.
+    WisTextureStateShadingRate = 12, ///< Shading Rate state. Used for Variable Shading Rate.
+    WisTextureStateVideoDecodeRead = 13, ///< Video Decode Read state.
+    WisTextureStateVideoDecodeWrite = 14, ///< Video Decode Write state.
 } WisTextureState;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Intermediate shader representation.
  *
  * */
-typedef enum WisShaderIntermediate
-{
-    WisShaderIntermediateDXIL = 0,  ///< DirectX Intermediate Language.
+typedef enum WisShaderIntermediate {
+    WisShaderIntermediateDXIL = 0, ///< DirectX Intermediate Language.
     WisShaderIntermediateSPIRV = 1, ///< Standard Portable Intermediate Representation for Vulkan.
 } WisShaderIntermediate;
 
@@ -966,36 +974,33 @@ typedef enum WisShaderIntermediate
  * @brief Provided by Wisdom 0.7.0. Stencil operation for depth and stencil operations.
  *
  * */
-typedef enum WisStencilOp
-{
-    WisStencilOpKeep = 1,     ///< Keep the current value.
-    WisStencilOpZero = 2,     ///< Set the value to zero.
-    WisStencilOpReplace = 3,  ///< Replace the value with the reference value.
+typedef enum WisStencilOp {
+    WisStencilOpKeep = 1, ///< Keep the current value.
+    WisStencilOpZero = 2, ///< Set the value to zero.
+    WisStencilOpReplace = 3, ///< Replace the value with the reference value.
     WisStencilOpIncClamp = 4, ///< Increment the value and clamp to the maximum value.
     WisStencilOpDecClamp = 5, ///< Decrement the value and clamp to the minimum value.
-    WisStencilOpInvert = 6,   ///< Invert the value.
-    WisStencilOpIncWrap = 7,  ///< Increment the value and wrap to zero when the maximum value is exceeded.
-    WisStencilOpDecWrap = 8,  ///< Decrement the value and wrap to the maximum value when the minimum value is exceeded.
+    WisStencilOpInvert = 6, ///< Invert the value.
+    WisStencilOpIncWrap = 7, ///< Increment the value and wrap to zero when the maximum value is exceeded.
+    WisStencilOpDecWrap = 8, ///< Decrement the value and wrap to the maximum value when the minimum value is exceeded.
 } WisStencilOp;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Primitive topology type for WisGraphicsPipelineDesc.
  *
  * */
-typedef enum WisTopologyType
-{
-    WisTopologyTypePoint = 1,    ///< Render points for each vertex.
-    WisTopologyTypeLine = 2,     ///< Render lines between vertices.
+typedef enum WisTopologyType {
+    WisTopologyTypePoint = 1, ///< Render points for each vertex.
+    WisTopologyTypeLine = 2, ///< Render lines between vertices.
     WisTopologyTypeTriangle = 3, ///< Render triangles between vertices.
-    WisTopologyTypePatch = 4,    ///< Vertices are interpret as patch list. Used in tesselation process.
+    WisTopologyTypePatch = 4, ///< Vertices are interpret as patch list. Used in tesselation process.
 } WisTopologyType;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Fill mode for rasterizer.
  *
  * */
-typedef enum WisFillMode
-{
+typedef enum WisFillMode {
     WisFillModeLines = 2, ///< Draw lines between vertices. Wireframe rendering.
     WisFillModeSolid = 3, ///< Fill the area between vertices forming polygons.
 } WisFillMode;
@@ -1005,20 +1010,18 @@ typedef enum WisFillMode
  * Triangle culling depends on WisWindingOrder option.
  *
  * */
-typedef enum WisCullMode
-{
-    WisCullModeNone = 1,  ///< No culling.
+typedef enum WisCullMode {
+    WisCullModeNone = 1, ///< No culling.
     WisCullModeFront = 2, ///< Cull front-facing triangles.
-    WisCullModeBack = 3,  ///< Cull back-facing triangles.
+    WisCullModeBack = 3, ///< Cull back-facing triangles.
 } WisCullMode;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Winding order for front-facing triangles.
  *
  * */
-typedef enum WisWindingOrder
-{
-    WisWindingOrderClockwise = 0,        ///< Front-facing triangles have clockwise winding order.
+typedef enum WisWindingOrder {
+    WisWindingOrderClockwise = 0, ///< Front-facing triangles have clockwise winding order.
     WisWindingOrderCounterClockwise = 1, ///< Front-facing triangles have counter-clockwise winding order.
 } WisWindingOrder;
 
@@ -1026,9 +1029,8 @@ typedef enum WisWindingOrder
  * @brief Provided by Wisdom 0.7.0. Conservative rasterization mode.
  *
  * */
-typedef enum WisConservativeRasterization
-{
-    WisConservativeRasterizationOff = 0,          ///< Conservative rasterization is disabled.
+typedef enum WisConservativeRasterization {
+    WisConservativeRasterizationOff = 0, ///< Conservative rasterization is disabled.
     WisConservativeRasterizationOverestimate = 1, ///< Conservative rasterization is enabled.
 } WisConservativeRasterization;
 
@@ -1036,10 +1038,9 @@ typedef enum WisConservativeRasterization
  * @brief Provided by Wisdom 0.7.0. Line rasterization mode.
  *
  * */
-typedef enum WisLineRasterization
-{
-    WisLineRasterizationDefault = 0,          ///< Line rasterization is disabled. Lines are not rendered.
-    WisLineRasterizationRectangular = 1,      ///< Lines are rasterized as rectangles.
+typedef enum WisLineRasterization {
+    WisLineRasterizationDefault = 0, ///< Line rasterization is disabled. Lines are not rendered.
+    WisLineRasterizationRectangular = 1, ///< Lines are rasterized as rectangles.
     WisLineRasterizationAlphaAntialiased = 2, ///< Lines are rasterized as rectangles with anti-aliasing.
 } WisLineRasterization;
 
@@ -1047,62 +1048,59 @@ typedef enum WisLineRasterization
  * @brief Provided by Wisdom 0.7.0. Blend factor for color blending operations.
  *
  * */
-typedef enum WisBlendFactor
-{
-    WisBlendFactorZero = 1,            ///< Use zero for blending.
-    WisBlendFactorOne = 2,             ///< Use one for blending.
-    WisBlendFactorSrcColor = 3,        ///< Use the source color for blending.
-    WisBlendFactorInvSrcColor = 4,     ///< Use the inverse source color for blending.
-    WisBlendFactorSrcAlpha = 5,        ///< Use the source alpha for blending.
-    WisBlendFactorInvSrcAlpha = 6,     ///< Use the inverse source alpha for blending.
-    WisBlendFactorDestAlpha = 7,       ///< Use the destination alpha for blending.
-    WisBlendFactorInvDestAlpha = 8,    ///< Use the inverse destination alpha for blending.
-    WisBlendFactorDestColor = 9,       ///< Use the destination color for blending.
-    WisBlendFactorInvDestColor = 10,   ///< Use the inverse destination color for blending.
-    WisBlendFactorSrcAlphaSat = 11,    ///< Use the source alpha saturated for blending.
-    WisBlendFactorConstantColor = 14,  ///< Use a constant blend factor for blending.
+typedef enum WisBlendFactor {
+    WisBlendFactorZero = 1, ///< Use zero for blending.
+    WisBlendFactorOne = 2, ///< Use one for blending.
+    WisBlendFactorSrcColor = 3, ///< Use the source color for blending.
+    WisBlendFactorInvSrcColor = 4, ///< Use the inverse source color for blending.
+    WisBlendFactorSrcAlpha = 5, ///< Use the source alpha for blending.
+    WisBlendFactorInvSrcAlpha = 6, ///< Use the inverse source alpha for blending.
+    WisBlendFactorDestAlpha = 7, ///< Use the destination alpha for blending.
+    WisBlendFactorInvDestAlpha = 8, ///< Use the inverse destination alpha for blending.
+    WisBlendFactorDestColor = 9, ///< Use the destination color for blending.
+    WisBlendFactorInvDestColor = 10, ///< Use the inverse destination color for blending.
+    WisBlendFactorSrcAlphaSat = 11, ///< Use the source alpha saturated for blending.
+    WisBlendFactorConstantColor = 14, ///< Use a constant blend factor for blending.
     WisBlendFactorInvBlendFactor = 15, ///< Use the inverse constant blend factor for blending.
-    WisBlendFactorSrc1Color = 16,      ///< Use the source color for blending. Dual source blending mode.
-    WisBlendFactorInvSrc1Color = 17,   ///< Use the inverse source color for blending. Dual source blending mode.
-    WisBlendFactorSrc1Alpha = 18,      ///< Use the source alpha for blending. Dual source blending mode.
-    WisBlendFactorInvSrc1Alpha = 19,   ///< Use the inverse source alpha for blending. Dual source blending mode.
+    WisBlendFactorSrc1Color = 16, ///< Use the source color for blending. Dual source blending mode.
+    WisBlendFactorInvSrc1Color = 17, ///< Use the inverse source color for blending. Dual source blending mode.
+    WisBlendFactorSrc1Alpha = 18, ///< Use the source alpha for blending. Dual source blending mode.
+    WisBlendFactorInvSrc1Alpha = 19, ///< Use the inverse source alpha for blending. Dual source blending mode.
 } WisBlendFactor;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Blend operation for color blending operations.
  *
  * */
-typedef enum WisBlendOp
-{
-    WisBlendOpAdd = 1,         ///< Add the source and destination colors.
-    WisBlendOpSubtract = 2,    ///< Subtract the source color from the destination color.
+typedef enum WisBlendOp {
+    WisBlendOpAdd = 1, ///< Add the source and destination colors.
+    WisBlendOpSubtract = 2, ///< Subtract the source color from the destination color.
     WisBlendOpRevSubtract = 3, ///< Subtract the destination color from the source color.
-    WisBlendOpMin = 4,         ///< Use the minimum of the source and destination colors.
-    WisBlendOpMax = 5,         ///< Use the maximum of the source and destination colors.
+    WisBlendOpMin = 4, ///< Use the minimum of the source and destination colors.
+    WisBlendOpMax = 5, ///< Use the maximum of the source and destination colors.
 } WisBlendOp;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Logic operation for color blending operations.
  *
  * */
-typedef enum WisLogicOp
-{
-    WisLogicOpClear = 0,        ///< Clear the destination value.
-    WisLogicOpSet = 1,          ///< Set the destination value.
-    WisLogicOpCopy = 2,         ///< Copy the source value to the destination.
+typedef enum WisLogicOp {
+    WisLogicOpClear = 0, ///< Clear the destination value.
+    WisLogicOpSet = 1, ///< Set the destination value.
+    WisLogicOpCopy = 2, ///< Copy the source value to the destination.
     WisLogicOpCopyInverted = 3, ///< Copy the inverted source value to the destination.
-    WisLogicOpNoop = 4,         ///< Do not modify the destination value.
-    WisLogicOpInvert = 5,       ///< Invert the destination value.
-    WisLogicOpAnd = 6,          ///< Perform a bitwise AND operation on the source and destination values.
-    WisLogicOpNand = 7,         ///< Perform a bitwise NAND operation on the source and destination values.
-    WisLogicOpOr = 8,           ///< Perform a bitwise OR operation on the source and destination values.
-    WisLogicOpNor = 9,          ///< Perform a bitwise NOR operation on the source and destination values.
-    WisLogicOpXor = 10,         ///< Perform a bitwise XOR operation on the source and destination values.
-    WisLogicOpEquiv = 11,       ///< Perform a bitwise equivalent operation on the source and destination values.
-    WisLogicOpAndReverse = 12,  ///< Perform a bitwise AND operation on the source and inverted destination values.
+    WisLogicOpNoop = 4, ///< Do not modify the destination value.
+    WisLogicOpInvert = 5, ///< Invert the destination value.
+    WisLogicOpAnd = 6, ///< Perform a bitwise AND operation on the source and destination values.
+    WisLogicOpNand = 7, ///< Perform a bitwise NAND operation on the source and destination values.
+    WisLogicOpOr = 8, ///< Perform a bitwise OR operation on the source and destination values.
+    WisLogicOpNor = 9, ///< Perform a bitwise NOR operation on the source and destination values.
+    WisLogicOpXor = 10, ///< Perform a bitwise XOR operation on the source and destination values.
+    WisLogicOpEquiv = 11, ///< Perform a bitwise equivalent operation on the source and destination values.
+    WisLogicOpAndReverse = 12, ///< Perform a bitwise AND operation on the source and inverted destination values.
     WisLogicOpAndInverted = 13, ///< Perform a bitwise AND operation on the inverted source and destination values.
-    WisLogicOpOrReverse = 14,   ///< Perform a bitwise OR operation on the source and inverted destination values.
-    WisLogicOpOrInverted = 15,  ///< Perform a bitwise OR operation on the inverted source and destination values.
+    WisLogicOpOrReverse = 14, ///< Perform a bitwise OR operation on the source and inverted destination values.
+    WisLogicOpOrInverted = 15, ///< Perform a bitwise OR operation on the inverted source and destination values.
 } WisLogicOp;
 
 /**
@@ -1111,17 +1109,16 @@ typedef enum WisLogicOp
  * [here](https://learn.microsoft.com/en-us/windows/win32/direct3d11/d3d10-graphics-programming-guide-primitive-topologies).
  *
  * */
-typedef enum WisPrimitiveTopology
-{
-    WisPrimitiveTopologyPointList = 1,         ///< Render points for each vertex.
-    WisPrimitiveTopologyLineList = 2,          ///< Render lines between vertices.
-    WisPrimitiveTopologyLineStrip = 3,         ///< Render lines between vertices in a strip.
-    WisPrimitiveTopologyTriangleList = 4,      ///< Render triangles between vertices.
-    WisPrimitiveTopologyTriangleStrip = 5,     ///< Render triangles between vertices in a strip.
-    WisPrimitiveTopologyTriangleFan = 6,       ///< Interpret vertex data to form a fan of triangles.
-    WisPrimitiveTopologyLineListAdj = 10,      ///< Render lines between vertices with adjacency.
-    WisPrimitiveTopologyLineStripAdj = 11,     ///< Render lines between vertices in a strip with adjacency.
-    WisPrimitiveTopologyTriangleListAdj = 12,  ///< Render triangles between vertices with adjacency.
+typedef enum WisPrimitiveTopology {
+    WisPrimitiveTopologyPointList = 1, ///< Render points for each vertex.
+    WisPrimitiveTopologyLineList = 2, ///< Render lines between vertices.
+    WisPrimitiveTopologyLineStrip = 3, ///< Render lines between vertices in a strip.
+    WisPrimitiveTopologyTriangleList = 4, ///< Render triangles between vertices.
+    WisPrimitiveTopologyTriangleStrip = 5, ///< Render triangles between vertices in a strip.
+    WisPrimitiveTopologyTriangleFan = 6, ///< Interpret vertex data to form a fan of triangles.
+    WisPrimitiveTopologyLineListAdj = 10, ///< Render lines between vertices with adjacency.
+    WisPrimitiveTopologyLineStripAdj = 11, ///< Render lines between vertices in a strip with adjacency.
+    WisPrimitiveTopologyTriangleListAdj = 12, ///< Render triangles between vertices with adjacency.
     WisPrimitiveTopologyTriangleStripAdj = 13, ///< Render triangles between vertices in a strip with adjacency.
 } WisPrimitiveTopology;
 
@@ -1129,19 +1126,17 @@ typedef enum WisPrimitiveTopology
  * @brief Provided by Wisdom 0.7.0. Primitive restart value for indexed drawing with primitive restart enabled.
  *
  * */
-typedef enum WisPrimitiveRestartValue
-{
-    WisPrimitiveRestartValueNone = 0,          ///< Primitive restart is disabled. No primitive restart value is used.
+typedef enum WisPrimitiveRestartValue {
+    WisPrimitiveRestartValueNone = 0, ///< Primitive restart is disabled. No primitive restart value is used.
     WisPrimitiveRestartValueUInt16Max = 65535, ///< Use the maximum value of uint16_t as the primitive restart value.
-    WisPrimitiveRestartValueUInt32Max = -1,    ///< Use the maximum value of uint32_t as the primitive restart value.
+    WisPrimitiveRestartValueUInt32Max = -1, ///< Use the maximum value of uint32_t as the primitive restart value.
 } WisPrimitiveRestartValue;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Type of the view descriptor heap.
  *
  * */
-typedef enum WisViewHeapType
-{
+typedef enum WisViewHeapType {
     WisViewHeapTypeRenderTarget = 0, ///< Descriptor heap for render target views.
     WisViewHeapTypeDepthStencil = 1, ///< Descriptor heap for depth stencil views.
 } WisViewHeapType;
@@ -1150,37 +1145,45 @@ typedef enum WisViewHeapType
  * @brief Provided by Wisdom 0.7.0. Swapchain scaling mode.
  *
  * */
-typedef enum WisSwapchainScaling
-{
-    WisSwapchainScalingNone = 0,    ///< No scaling. The swapchain size is equal to the window size.
+typedef enum WisSwapchainScaling {
+    WisSwapchainScalingNone = 0, ///< No scaling. The swapchain size is equal to the window size.
     WisSwapchainScalingStretch = 1, ///< Stretch scaling. The swapchain size is stretched to the window size.
-    WisSwapchainScalingAspect = 2,  ///< Aspect scaling. The swapchain size is scaled to the window size with aspect
-                                    ///< ratio preserved.
+    /**
+     * @brief Aspect scaling. The swapchain size is scaled to the window size with aspect ratio preserved.
+     * */
+    WisSwapchainScalingAspect = 2,
 } WisSwapchainScaling;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Composite alpha flags for swapchain creation.
  *
  * */
-typedef enum WisCompositeAlpha
-{
+typedef enum WisCompositeAlpha {
     WisCompositeAlphaOpaque = 0, ///< The alpha channel, if it exists, is ignored. The image is treated as opaque.
-    WisCompositeAlphaPreMultiplied = 1,  ///< The alpha channel, if it exists, is respected and used in compositing. The
-                                         ///< premultiplied alpha format is expected.
-    WisCompositeAlphaPostMultiplied = 2, ///< The alpha channel, if it exists, is respected and used in compositing. The
-                                         ///< postmultiplied alpha format is expected.
-    WisCompositeAlphaInherit = 3, ///< The alpha channel, if it exists, is respected and used in compositing based on
-                                  ///< the platform's default behavior.
+    /**
+     * @brief The alpha channel, if it exists, is respected and used in compositing. The premultiplied alpha format is
+     * expected.
+     * */
+    WisCompositeAlphaPreMultiplied = 1,
+    /**
+     * @brief The alpha channel, if it exists, is respected and used in compositing. The postmultiplied alpha format is
+     * expected.
+     * */
+    WisCompositeAlphaPostMultiplied = 2,
+    /**
+     * @brief The alpha channel, if it exists, is respected and used in compositing based on the platform's default
+     * behavior.
+     * */
+    WisCompositeAlphaInherit = 3,
 } WisCompositeAlpha;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Attachment load operation for render pass.
  *
  * */
-typedef enum WisLoadOp
-{
-    WisLoadOpLoad = 0,     ///< Load the attachment contents.
-    WisLoadOpClear = 1,    ///< Clear the attachment contents.
+typedef enum WisLoadOp {
+    WisLoadOpLoad = 0, ///< Load the attachment contents.
+    WisLoadOpClear = 1, ///< Clear the attachment contents.
     WisLoadOpDontCare = 2, ///< Do not care about the attachment contents.
 } WisLoadOp;
 
@@ -1188,9 +1191,8 @@ typedef enum WisLoadOp
  * @brief Provided by Wisdom 0.7.0. Attachment store operation for render pass.
  *
  * */
-typedef enum WisStoreOp
-{
-    WisStoreOpStore = 0,    ///< Store the attachment contents.
+typedef enum WisStoreOp {
+    WisStoreOpStore = 0, ///< Store the attachment contents.
     WisStoreOpDontCare = 1, ///< Do not care about the attachment contents.
 } WisStoreOp;
 
@@ -1198,10 +1200,9 @@ typedef enum WisStoreOp
  * @brief Provided by Wisdom 0.7.0. Flags that describe adapter.
  *
  * */
-typedef enum WisAdapterFlags
-{
-    WisAdapterFlagsNone = 0,             ///< No flags set. Adapter @wis_may be discrete or embedded.
-    WisAdapterFlagsRemote = (1u << 0),   ///< Adapter is remote. Used for remote rendering.
+typedef enum WisAdapterFlags {
+    WisAdapterFlagsNone = 0, ///< No flags set. Adapter @wis_may be discrete or embedded.
+    WisAdapterFlagsRemote = (1u << 0), ///< Adapter is remote. Used for remote rendering.
     WisAdapterFlagsSoftware = (1u << 1), ///< Adapter is software. Uses CPU for software rendering.
 } WisAdapterFlags;
 
@@ -1209,23 +1210,21 @@ typedef enum WisAdapterFlags
  * @brief Provided by Wisdom 0.7.0. Flags for descriptor heap creation.
  *
  * */
-typedef enum WisDescriptorHeapFlags
-{
-    WisDescriptorHeapFlagsNone = 0,                             ///< No flags set.
-    WisDescriptorHeapFlagsDisallowEmbeddedSamplers = (1u << 1), ///< Heap is used in full for dynamic samplers. There
-                                                                ///< @wis_must_not be any shader that use embedded
-                                                                ///< samplers that uses that heap. User @wis_may
-                                                                ///< allocate more samplers in the heap than it would
-                                                                ///< normally be.
+typedef enum WisDescriptorHeapFlags {
+    WisDescriptorHeapFlagsNone = 0, ///< No flags set.
+    /**
+     * @brief Heap is used in full for dynamic samplers. There @wis_must_not be any shader that use embedded samplers
+     * that uses that heap. User @wis_may allocate more samplers in the heap than it would normally be.
+     * */
+    WisDescriptorHeapFlagsDisallowEmbeddedSamplers = (1u << 1),
 } WisDescriptorHeapFlags;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Flags for sampler creation.
  *
  * */
-typedef enum WisSamplerFlags
-{
-    WisSamplerFlagsNone = 0,                             ///< No flags set.
+typedef enum WisSamplerFlags {
+    WisSamplerFlagsNone = 0, ///< No flags set.
     WisSamplerFlagsNonNormalizedCoordinates = (1u << 0), ///< Use non-normalized texture coordinates.
 } WisSamplerFlags;
 
@@ -1234,20 +1233,21 @@ typedef enum WisSamplerFlags
  * Determine how the buffer can be used throughout its lifetime.
  *
  * */
-typedef enum WisBufferUsageFlags
-{
-    WisBufferUsageFlagsNone = 0,                   ///< No flags set. Buffer is not used.
-    WisBufferUsageFlagsCopySrc = (1u << 0),        ///< Buffer is used as a source for copy operations.
-    WisBufferUsageFlagsCopyDst = (1u << 1),        ///< Buffer is used as a destination for copy operations.
+typedef enum WisBufferUsageFlags {
+    WisBufferUsageFlagsNone = 0, ///< No flags set. Buffer is not used.
+    WisBufferUsageFlagsCopySrc = (1u << 0), ///< Buffer is used as a source for copy operations.
+    WisBufferUsageFlagsCopyDst = (1u << 1), ///< Buffer is used as a destination for copy operations.
     WisBufferUsageFlagsConstantBuffer = (1u << 2), ///< Buffer is used as a constant buffer.
-    WisBufferUsageFlagsIndexBuffer = (1u << 3),    ///< Buffer is used as an index buffer.
-    WisBufferUsageFlagsVertexBuffer = (1u << 4),   ///< Buffer is used as a vertex buffer or an instance buffer.
+    WisBufferUsageFlagsIndexBuffer = (1u << 3), ///< Buffer is used as an index buffer.
+    WisBufferUsageFlagsVertexBuffer = (1u << 4), ///< Buffer is used as a vertex buffer or an instance buffer.
     WisBufferUsageFlagsIndirectBuffer = (1u << 5), ///< Buffer is used as an indirect buffer.
-    WisBufferUsageFlagsStorageBuffer = (1u << 6),  ///< Buffer is used as a storage unordered access buffer.
+    WisBufferUsageFlagsStorageBuffer = (1u << 6), ///< Buffer is used as a storage unordered access buffer.
     WisBufferUsageFlagsAccelerationStructureBuffer = (1u << 7), ///< Buffer is used as an acceleration structure buffer.
-    WisBufferUsageFlagsAccelerationStructureInput = (1u << 8),  ///< Buffer is used as a read only acceleration instance
-                                                                ///< input buffer.
-    WisBufferUsageFlagsShaderBindingTable = (1u << 9),          ///< Buffer is used as a shader binding table buffer.
+    /**
+     * @brief Buffer is used as a read only acceleration instance input buffer.
+     * */
+    WisBufferUsageFlagsAccelerationStructureInput = (1u << 8),
+    WisBufferUsageFlagsShaderBindingTable = (1u << 9), ///< Buffer is used as a shader binding table buffer.
 } WisBufferUsageFlags;
 
 /**
@@ -1255,14 +1255,13 @@ typedef enum WisBufferUsageFlags
  * Determine how the texture can be used throughout its lifetime.
  *
  * */
-typedef enum WisTextureUsageFlags
-{
-    WisTextureUsageFlagsNone = 0,                    ///< No flags set. Texture is not used.
-    WisTextureUsageFlagsRenderTarget = (1u << 0),    ///< Texture is used as a render target.
-    WisTextureUsageFlagsDepthStencil = (1u << 1),    ///< Texture is used as a depth stencil buffer.
-    WisTextureUsageFlagsCopySrc = (1u << 2),         ///< Texture is used as a source for copy operations.
-    WisTextureUsageFlagsCopyDst = (1u << 3),         ///< Texture is used as a destination for copy operations.
-    WisTextureUsageFlagsShaderResource = (1u << 4),  ///< Texture is used as a shader resource.
+typedef enum WisTextureUsageFlags {
+    WisTextureUsageFlagsNone = 0, ///< No flags set. Texture is not used.
+    WisTextureUsageFlagsRenderTarget = (1u << 0), ///< Texture is used as a render target.
+    WisTextureUsageFlagsDepthStencil = (1u << 1), ///< Texture is used as a depth stencil buffer.
+    WisTextureUsageFlagsCopySrc = (1u << 2), ///< Texture is used as a source for copy operations.
+    WisTextureUsageFlagsCopyDst = (1u << 3), ///< Texture is used as a destination for copy operations.
+    WisTextureUsageFlagsShaderResource = (1u << 4), ///< Texture is used as a shader resource.
     WisTextureUsageFlagsUnorderedAccess = (1u << 5), ///< Texture is used as an unordered access resource.
     WisTextureUsageFlagsHostCopy = (1u << 7), ///< Texture is used for host copy operations. Works with GPUUpload heap.
 } WisTextureUsageFlags;
@@ -1272,16 +1271,15 @@ typedef enum WisTextureUsageFlags
  * Determine optional properties of the memory allocation.
  *
  * */
-typedef enum WisMemoryFlags
-{
+typedef enum WisMemoryFlags {
     WisMemoryFlagsNone = 0, ///< No flags set. Memory is regular.
-                            /**
-                             * @brief
-                             * Memory is dedicated.
-                             * Used for resources that require dedicated memory.
-                             * Useful for big resources that are not shared with other resources.
-                             * E.g. fullscreen textures, big buffers, etc.
-                             * */
+    /**
+     * @brief
+     * Memory is dedicated.
+     * Used for resources that require dedicated memory.
+     * Useful for big resources that are not shared with other resources.
+     * E.g. fullscreen textures, big buffers, etc.
+     * */
     WisMemoryFlagsDedicatedAllocation = (1u << 0),
     /**
      * @brief
@@ -1303,8 +1301,7 @@ typedef enum WisMemoryFlags
  * @brief Provided by Wisdom 0.7.0. Texture creation flags. Reserved for future features.
  *
  * */
-typedef enum WisTextureFlags
-{
+typedef enum WisTextureFlags {
     WisTextureFlagsNone = 0, ///< No flags set. Texture is regular.
 } WisTextureFlags;
 
@@ -1312,73 +1309,74 @@ typedef enum WisTextureFlags
  * @brief Provided by Wisdom 0.7.0. Texture binding flags, used for extra options.
  *
  * */
-typedef enum WisTextureBindingFlags
-{
-    WisTextureBindingFlagsNone = 0,              ///< No flags set. Texture view is regular. Implies color read.
-    WisTextureBindingFlagsDepthView = (1u << 0), ///< Texture view is used to read depth. Used for special formats that
-                                                 ///< feature depth and stencil. The bound texture @wis_must be in TODO:
-                                                 ///< specific layout before being used by shader.
-    WisTextureBindingFlagsStencilView = (1u << 1), ///< Texture view is used to read stencil. Used for special formats
-                                                   ///< that feature depth and stencil. The bound texture @wis_must be
-                                                   ///< in TODO: specific layout before being used by shader. Cannot be
-                                                   ///< combined with `WisTextureBindingFlagsDepthView`.
+typedef enum WisTextureBindingFlags {
+    WisTextureBindingFlagsNone = 0, ///< No flags set. Texture view is regular. Implies color read.
+    /**
+     * @brief Texture view is used to read depth. Used for special formats that feature depth and stencil. The bound
+     * texture @wis_must be in TODO: specific layout before being used by shader.
+     * */
+    WisTextureBindingFlagsDepthView = (1u << 0),
+    /**
+     * @brief Texture view is used to read stencil. Used for special formats that feature depth and stencil. The bound
+     * texture @wis_must be in TODO: specific layout before being used by shader. Cannot be combined with
+     * `WisTextureBindingFlagsDepthView`.
+     * */
+    WisTextureBindingFlagsStencilView = (1u << 1),
 } WisTextureBindingFlags;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Barrier synchronization flags for resource barriers.
  *
  * */
-typedef enum WisBarrierSync
-{
-    WisBarrierSyncNone = 0,                     ///< No synchronization is performed.
-    WisBarrierSyncAll = (1u << 0),              ///< Synchronize all commands.
-    WisBarrierSyncDraw = (1u << 1),             ///< Synchronize draw commands.
-    WisBarrierSyncIndexInput = (1u << 2),       ///< Synchronize index input commands.
-    WisBarrierSyncVertexShading = (1u << 3),    ///< Synchronize vertex shading commands.
-    WisBarrierSyncPixelShading = (1u << 4),     ///< Synchronize pixel shading commands.
-    WisBarrierSyncDepthStencil = (1u << 5),     ///< Synchronize depth-stencil commands.
-    WisBarrierSyncRenderTarget = (1u << 6),     ///< Synchronize render target commands.
-    WisBarrierSyncCompute = (1u << 7),          ///< Synchronize compute commands.
-    WisBarrierSyncRaytracing = (1u << 8),       ///< Synchronize ray tracing commands.
-    WisBarrierSyncCopy = (1u << 9),             ///< Synchronize copy commands.
-    WisBarrierSyncResolve = (1u << 10),         ///< Synchronize resolve commands.
+typedef enum WisBarrierSync {
+    WisBarrierSyncNone = 0, ///< No synchronization is performed.
+    WisBarrierSyncAll = (1u << 0), ///< Synchronize all commands.
+    WisBarrierSyncDraw = (1u << 1), ///< Synchronize draw commands.
+    WisBarrierSyncIndexInput = (1u << 2), ///< Synchronize index input commands.
+    WisBarrierSyncVertexShading = (1u << 3), ///< Synchronize vertex shading commands.
+    WisBarrierSyncPixelShading = (1u << 4), ///< Synchronize pixel shading commands.
+    WisBarrierSyncDepthStencil = (1u << 5), ///< Synchronize depth-stencil commands.
+    WisBarrierSyncRenderTarget = (1u << 6), ///< Synchronize render target commands.
+    WisBarrierSyncCompute = (1u << 7), ///< Synchronize compute commands.
+    WisBarrierSyncRaytracing = (1u << 8), ///< Synchronize ray tracing commands.
+    WisBarrierSyncCopy = (1u << 9), ///< Synchronize copy commands.
+    WisBarrierSyncResolve = (1u << 10), ///< Synchronize resolve commands.
     WisBarrierSyncExecuteIndirect = (1u << 11), ///< Synchronize execute indirect commands.
-    WisBarrierSyncAllShading = (1u << 12),      ///< Synchronize all shading commands.
+    WisBarrierSyncAllShading = (1u << 12), ///< Synchronize all shading commands.
     WisBarrierSyncNonPixelShading = (1u << 13), ///< Synchronize non-pixel shading commands.
-    WisBarrierSyncClearUAV = (1u << 14),        ///< Synchronize UAV clear commands.
-    WisBarrierSyncVideoDecode = (1u << 15),     ///< Synchronize video decode commands.
-    WisBarrierSyncVideoEncode = (1u << 16),     ///< Synchronize video encode commands.
-    WisBarrierSyncBuildRTAS = (1u << 17),       ///< Synchronize ray tracing acceleration structure build commands.
-    WisBarrierSyncCopyRTAS = (1u << 18),        ///< Synchronize ray tracing acceleration structure copy commands.
+    WisBarrierSyncClearUAV = (1u << 14), ///< Synchronize UAV clear commands.
+    WisBarrierSyncVideoDecode = (1u << 15), ///< Synchronize video decode commands.
+    WisBarrierSyncVideoEncode = (1u << 16), ///< Synchronize video encode commands.
+    WisBarrierSyncBuildRTAS = (1u << 17), ///< Synchronize ray tracing acceleration structure build commands.
+    WisBarrierSyncCopyRTAS = (1u << 18), ///< Synchronize ray tracing acceleration structure copy commands.
 } WisBarrierSync;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Resource access flags for resource barriers.
  *
  * */
-typedef enum WisResourceAccess
-{
-    WisResourceAccessCommon = 0,                        ///< Common access.
-    WisResourceAccessVertexBuffer = (1u << 0),          ///< Vertex buffer access. Applies only to buffers.
-    WisResourceAccessConstantBuffer = (1u << 1),        ///< Constant buffer access. Applies only to buffers.
-    WisResourceAccessIndexBuffer = (1u << 2),           ///< Index buffer access. Applies only to buffers.
-    WisResourceAccessRenderTarget = (1u << 3),          ///< Render target access. Applies only to textures.
-    WisResourceAccessUnorderedAccess = (1u << 4),       ///< Unordered access.
-    WisResourceAccessDepthWrite = (1u << 5),            ///< Depth write access. Applies only to depth-stencil textures.
-    WisResourceAccessDepthRead = (1u << 6),             ///< Depth read access. Applies only to depth-stencil textures.
-    WisResourceAccessShaderResource = (1u << 7),        ///< Shader resource access.
-    WisResourceAccessStreamOutput = (1u << 8),          ///< Stream output access. Applies only to buffers.
-    WisResourceAccessIndirectArgument = (1u << 9),      ///< Indirect argument access.
-    WisResourceAccessCopyDst = (1u << 10),              ///< Copy destination access.
-    WisResourceAccessCopySrc = (1u << 11),              ///< Copy source access.
+typedef enum WisResourceAccess {
+    WisResourceAccessCommon = 0, ///< Common access.
+    WisResourceAccessVertexBuffer = (1u << 0), ///< Vertex buffer access. Applies only to buffers.
+    WisResourceAccessConstantBuffer = (1u << 1), ///< Constant buffer access. Applies only to buffers.
+    WisResourceAccessIndexBuffer = (1u << 2), ///< Index buffer access. Applies only to buffers.
+    WisResourceAccessRenderTarget = (1u << 3), ///< Render target access. Applies only to textures.
+    WisResourceAccessUnorderedAccess = (1u << 4), ///< Unordered access.
+    WisResourceAccessDepthWrite = (1u << 5), ///< Depth write access. Applies only to depth-stencil textures.
+    WisResourceAccessDepthRead = (1u << 6), ///< Depth read access. Applies only to depth-stencil textures.
+    WisResourceAccessShaderResource = (1u << 7), ///< Shader resource access.
+    WisResourceAccessStreamOutput = (1u << 8), ///< Stream output access. Applies only to buffers.
+    WisResourceAccessIndirectArgument = (1u << 9), ///< Indirect argument access.
+    WisResourceAccessCopyDst = (1u << 10), ///< Copy destination access.
+    WisResourceAccessCopySrc = (1u << 11), ///< Copy source access.
     WisResourceAccessConditionalRendering = (1u << 12), ///< Conditional rendering access.
-    WisResourceAccessAccelerationStructureRead = (1u << 13),  ///< Acceleration structure read access.
+    WisResourceAccessAccelerationStructureRead = (1u << 13), ///< Acceleration structure read access.
     WisResourceAccessAccelerationStructureWrite = (1u << 14), ///< Acceleration structure write access.
-    WisResourceAccessShadingRate = (1u << 15),                ///< Shading rate access.
-    WisResourceAccessVideoDecodeRead = (1u << 16),            ///< Video decode read access.
-    WisResourceAccessVideoDecodeWrite = (1u << 17),           ///< Video decode write access.
-    WisResourceAccessResolveDst = (1u << 18),                 ///< Resolve destination access.
-    WisResourceAccessResolveSrc = (1u << 19),                 ///< Resolve source access.
+    WisResourceAccessShadingRate = (1u << 15), ///< Shading rate access.
+    WisResourceAccessVideoDecodeRead = (1u << 16), ///< Video decode read access.
+    WisResourceAccessVideoDecodeWrite = (1u << 17), ///< Video decode write access.
+    WisResourceAccessResolveDst = (1u << 18), ///< Resolve destination access.
+    WisResourceAccessResolveSrc = (1u << 19), ///< Resolve source access.
     WisResourceAccessNone = (1u << 31), ///< No access. Used to indicate no access throughout the pipeline.
 } WisResourceAccess;
 
@@ -1386,40 +1384,55 @@ typedef enum WisResourceAccess
  * @brief Provided by Wisdom 0.7.0. Barrier flags for resource barriers.
  *
  * */
-typedef enum WisBarrierFlags
-{
-    WisBarrierFlagsNone = 0,                    ///< No flags set. Barrier is regular.
-    WisBarrierFlagsDiscardContent = (1u << 0),  ///< Discard resource content. The content of the resource before the
-                                                ///< barrier is treated as if resource was not initialized.
-    WisBarrierFlagsDepthResource = (1u << 1),   ///< Resource is a depth resource. This flag @wis_must be set for all
-                                                ///< depth resources to make transitions on them.
-    WisBarrierFlagsStencilResource = (1u << 2), ///< Resource is a stencil resource. This flag @wis_must be set for all
-                                                ///< stencil resources to make transitions on them.
-    WisBarrierFlagsWholeRange = (1u << 3), ///< Transition whole resource. If not set, the transition is applied only to
-                                           ///< the specified subresource range. If set, the subresource range is
-                                           ///< ignored and the transition is applied to all subresources of the
-                                           ///< resource.
-    WisBarrierFlagsPlanarImage = (1u << 4), ///< Resource is a planar image. If the flag is not set, plane slices in
-                                            ///< WisSubresourceRange are ignored.
+typedef enum WisBarrierFlags {
+    WisBarrierFlagsNone = 0, ///< No flags set. Barrier is regular.
+    /**
+     * @brief Discard resource content. The content of the resource before the barrier is treated as if resource was not
+     * initialized.
+     * */
+    WisBarrierFlagsDiscardContent = (1u << 0),
+    /**
+     * @brief Resource is a depth resource. This flag @wis_must be set for all depth resources to make transitions on
+     * them.
+     * */
+    WisBarrierFlagsDepthResource = (1u << 1),
+    /**
+     * @brief Resource is a stencil resource. This flag @wis_must be set for all stencil resources to make transitions
+     * on them.
+     * */
+    WisBarrierFlagsStencilResource = (1u << 2),
+    /**
+     * @brief Transition whole resource. If not set, the transition is applied only to the specified subresource range.
+     * If set, the subresource range is ignored and the transition is applied to all subresources of the resource.
+     * */
+    WisBarrierFlagsWholeRange = (1u << 3),
+    /**
+     * @brief Resource is a planar image. If the flag is not set, plane slices in WisSubresourceRange are ignored.
+     * */
+    WisBarrierFlagsPlanarImage = (1u << 4),
 } WisBarrierFlags;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Pipeline creation flags.
  *
  * */
-typedef enum WisPipelineFlags
-{
-    WisPipelineFlagsNone = 0,                    ///< No flags set. Pipeline is regular.
-    WisPipelineFlagsFailOnCacheMiss = (1u << 0), ///< Fail pipeline creation if the pipeline cache is missing or
-                                                 ///< incompatible. If not set, the implementation @wis_may choose to
-                                                 ///< create the pipeline without using the cache, which @wis_may result
-                                                 ///< in longer creation time.
-    WisPipelineFlagsEnablePrimitiveRestart = (1u << 1), ///< Enable primitive restart for graphics pipelines. If not
-                                                        ///< set, primitive restart is disabled and the implementation
-                                                        ///< @wis_may choose to ignore restart indices in draw calls.
-    WisPipelineFlagsDynamicDepthBias = (1u << 2), ///< Enable dynamic depth bias for graphics pipelines. If not set,
-                                                  ///< depth bias is static and @wis_must be specified at pipeline
-                                                  ///< creation time.
+typedef enum WisPipelineFlags {
+    WisPipelineFlagsNone = 0, ///< No flags set. Pipeline is regular.
+    /**
+     * @brief Fail pipeline creation if the pipeline cache is missing or incompatible. If not set, the implementation
+     * @wis_may choose to create the pipeline without using the cache, which @wis_may result in longer creation time.
+     * */
+    WisPipelineFlagsFailOnCacheMiss = (1u << 0),
+    /**
+     * @brief Enable primitive restart for graphics pipelines. If not set, primitive restart is disabled and the
+     * implementation @wis_may choose to ignore restart indices in draw calls.
+     * */
+    WisPipelineFlagsEnablePrimitiveRestart = (1u << 1),
+    /**
+     * @brief Enable dynamic depth bias for graphics pipelines. If not set, depth bias is static and @wis_must be
+     * specified at pipeline creation time.
+     * */
+    WisPipelineFlagsDynamicDepthBias = (1u << 2),
 } WisPipelineFlags;
 
 /**
@@ -1427,40 +1440,44 @@ typedef enum WisPipelineFlags
  * Used for color blending operations.
  *
  * */
-typedef enum WisColorComponents
-{
-    WisColorComponentsNone = 0,      ///< No flags set. Color blending is not used.
+typedef enum WisColorComponents {
+    WisColorComponentsNone = 0, ///< No flags set. Color blending is not used.
     WisColorComponentsR = (1u << 0), ///< Use red component for blending.
     WisColorComponentsG = (1u << 1), ///< Use green component for blending.
     WisColorComponentsB = (1u << 2), ///< Use blue component for blending.
     WisColorComponentsA = (1u << 3), ///< Use alpha component for blending.
-    WisColorComponentsAll = 15,      ///< Use all color components for blending.
+    WisColorComponentsAll = 15, ///< Use all color components for blending.
 } WisColorComponents;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Swapchain creation flags.
  *
  * */
-typedef enum WisSwapchainFlags
-{
-    WisSwapchainFlagsNone = 0,                 ///< No flags set. Swapchain is regular.
+typedef enum WisSwapchainFlags {
+    WisSwapchainFlagsNone = 0, ///< No flags set. Swapchain is regular.
     WisSwapchainFlagsAllowTearing = (1u << 0), ///< Allow tearing.
-    WisSwapchainFlagsVSync = (1u << 1),        ///< Present with vertical sync. If set, the swapchain is presented with
-                                               ///< vertical sync pulse.
-    WisSwapchainFlagsStereo = (1u << 2), ///< Stereo swapchain. If set, the swapchain is created for stereo rendering.
-                                         ///< If not set, the swapchain is created for mono rendering.
+    /**
+     * @brief Present with vertical sync. If set, the swapchain is presented with vertical sync pulse.
+     * */
+    WisSwapchainFlagsVSync = (1u << 1),
+    /**
+     * @brief Stereo swapchain. If set, the swapchain is created for stereo rendering. If not set, the swapchain is
+     * created for mono rendering.
+     * */
+    WisSwapchainFlagsStereo = (1u << 2),
 } WisSwapchainFlags;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Swapchain creation flags.
  *
  * */
-typedef enum WisPresentFlags
-{
-    WisPresentFlagsNone = 0,                   ///< No flags set. Swapchain is regular.
-    WisPresentFlagsTimeoutOnBlock = (1u << 0), ///< Fail present if the presentation engine is busy. If not set, the
-                                               ///< implementation @wis_may choose to block until the presentation
-                                               ///< engine is available.
+typedef enum WisPresentFlags {
+    WisPresentFlagsNone = 0, ///< No flags set. Swapchain is regular.
+    /**
+     * @brief Fail present if the presentation engine is busy. If not set, the implementation @wis_may choose to block
+     * until the presentation engine is available.
+     * */
+    WisPresentFlagsTimeoutOnBlock = (1u << 0),
 } WisPresentFlags;
 
 /**
@@ -1469,14 +1486,15 @@ typedef enum WisPresentFlags
  * [here](https://learn.microsoft.com/en-us/windows/win32/direct3d12/direct3d-12-render-passes).
  *
  * */
-typedef enum WisRenderPassFlags
-{
-    WisRenderPassFlagsNone = 0,                   ///< No flags set. Render pass is regular.
-    WisRenderPassFlagsSuspending = (1u << 1),     ///< Render pass is suspending.
-    WisRenderPassFlagsResuming = (1u << 2),       ///< Render pass is resuming.
-    WisRenderPassFlagsAllowUAVWrites = (1u << 3), ///< Allow UAV writes. If set, unordered access view (UAV) writes are
-                                                  ///< allowed during the render pass. If not set, UAV writes are not
-                                                  ///< allowed and @wis_may result in undefined behavior if attempted.
+typedef enum WisRenderPassFlags {
+    WisRenderPassFlagsNone = 0, ///< No flags set. Render pass is regular.
+    WisRenderPassFlagsSuspending = (1u << 1), ///< Render pass is suspending.
+    WisRenderPassFlagsResuming = (1u << 2), ///< Render pass is resuming.
+    /**
+     * @brief Allow UAV writes. If set, unordered access view (UAV) writes are allowed during the render pass. If not
+     * set, UAV writes are not allowed and @wis_may result in undefined behavior if attempted.
+     * */
+    WisRenderPassFlagsAllowUAVWrites = (1u << 3),
 } WisRenderPassFlags;
 
 /**
@@ -1484,15 +1502,18 @@ typedef enum WisRenderPassFlags
  * Affect which part of the depth stencil buffer is used.
  *
  * */
-typedef enum WisDepthStencilFlags
-{
-    WisDepthStencilFlagsNone = 0,                    ///< No flags set. Both attachments are write.
-    WisDepthStencilFlagsIgnoreDepth = (1u << 0),     ///< Don't use depth part of the depth stencil buffer.
-    WisDepthStencilFlagsIgnoreStencil = (1u << 1),   ///< Don't use stencil part of the depth stencil buffer.
-    WisDepthStencilFlagsReadOnlyDepth = (1u << 2),   ///< Depth part is read only. Texture @wis_must be in either read
-                                                     ///< state, depending on the format.
-    WisDepthStencilFlagsReadOnlyStencil = (1u << 3), ///< Stencil part is read only. Texture @wis_must be in either read
-                                                     ///< state, depending on the format.
+typedef enum WisDepthStencilFlags {
+    WisDepthStencilFlagsNone = 0, ///< No flags set. Both attachments are write.
+    WisDepthStencilFlagsIgnoreDepth = (1u << 0), ///< Don't use depth part of the depth stencil buffer.
+    WisDepthStencilFlagsIgnoreStencil = (1u << 1), ///< Don't use stencil part of the depth stencil buffer.
+    /**
+     * @brief Depth part is read only. Texture @wis_must be in either read state, depending on the format.
+     * */
+    WisDepthStencilFlagsReadOnlyDepth = (1u << 2),
+    /**
+     * @brief Stencil part is read only. Texture @wis_must be in either read state, depending on the format.
+     * */
+    WisDepthStencilFlagsReadOnlyStencil = (1u << 3),
 } WisDepthStencilFlags;
 
 //==============================================================
@@ -1519,10 +1540,13 @@ typedef void (*WisDebugCallback)(WisSeverity severity, const char* message, uint
  *
  * */
 typedef struct WIS_NODISCARD WisResult {
-    WisStatus status;      ///< defines operation status. Compare with `WisStatusOk`.
-    int32_t platform_code; ///< indicates platform code from underlying implementation. Is an `HRESULT` for DX12 and a
-                           ///< `VkResult` for Vulkan.
-    const char* error;     ///< specifies contains a human readable error message.
+    WisStatus status; ///< defines operation status. Compare with `WisStatusOk`.
+    /**
+     * @brief indicates platform code from underlying implementation. Is an `HRESULT` for DX12 and a `VkResult` for
+     * Vulkan.
+     * */
+    int32_t platform_code;
+    const char* error; ///< specifies contains a human readable error message.
 } WisResult;
 
 /**
@@ -1532,16 +1556,27 @@ typedef struct WIS_NODISCARD WisResult {
  * */
 typedef struct WisAdapterDesc {
     char description[256]; ///< defines adapter description. Contains name of the graphics adapter.
-    uint32_t vendor_id;    ///< specifies denotes Vendor ID. Can be used to find the correct adapter.
-    uint32_t device_id;    ///< defines denotes Device ID. Together with `WisAdapterDesc::vendor_id` uniquely identifies
-                           ///< the device.
-    uint64_t dedicated_video_memory; ///< describes measures dedicated video memory in bytes. Used for device local
-                                     ///< memory type.
-    uint64_t shared_system_memory; ///< indicates measures memory that is shared with CPU in bytes. Used for upload and
-                                   ///< readback.
-    uint64_t adapter_id;   ///< describes denotes adapter unique ID (LUID). Can be used to find the correct adapter.
-    uint8_t
-        adapter_uuid[16];  ///< indicates stores UUID of the adapter, used only with Vulkan API on systems with no LUID.
+    uint32_t vendor_id; ///< specifies denotes Vendor ID. Can be used to find the correct adapter.
+    /**
+     * @brief defines denotes Device ID. Together with `WisAdapterDesc::vendor_id` uniquely identifies the device.
+     * */
+    uint32_t device_id;
+    /**
+     * @brief describes measures dedicated video memory in bytes. Used for device local memory type.
+     * */
+    uint64_t dedicated_video_memory;
+    /**
+     * @brief indicates measures memory that is shared with CPU in bytes. Used for upload and readback.
+     * */
+    uint64_t shared_system_memory;
+    /**
+     * @brief describes denotes adapter unique ID (LUID). Can be used to find the correct adapter.
+     * */
+    uint64_t adapter_id;
+    /**
+     * @brief indicates stores UUID of the adapter, used only with Vulkan API on systems with no LUID.
+     * */
+    uint8_t adapter_uuid[16];
     WisAdapterFlags flags; ///< describes adapter flags. Describe the adapter kind.
 } WisAdapterDesc;
 
@@ -1550,9 +1585,9 @@ typedef struct WisAdapterDesc {
  *
  * */
 typedef struct WisDebugDesc {
-    bool enable_debug_layer;   ///< describes enables or disables debug layer on both DX12 and VK backends.
+    bool enable_debug_layer; ///< describes enables or disables debug layer on both DX12 and VK backends.
     WisDebugCallback callback; ///< describes the debug callback function.
-    void* user_data;           ///< defines user defined data pointer passed to the callback.
+    void* user_data; ///< defines user defined data pointer passed to the callback.
 } WisDebugDesc;
 
 /**
@@ -1561,8 +1596,10 @@ typedef struct WisDebugDesc {
  * */
 typedef struct WisCommandQueueDesc {
     WisCommandQueueType type; ///< specifies the type of the command queue.
-    WisCommandQueuePriority
-        priority; ///< specifies command queue priority. Used to set priority of the command queues of the type.
+    /**
+     * @brief specifies command queue priority. Used to set priority of the command queues of the type.
+     * */
+    WisCommandQueuePriority priority;
 } WisCommandQueueDesc;
 
 /**
@@ -1570,22 +1607,24 @@ typedef struct WisCommandQueueDesc {
  *
  * */
 typedef struct WisSamplerDesc {
-    WisFilter min_filter;            ///< describes minification filter.
-    WisFilter mag_filter;            ///< specifies magnification filter.
-    WisFilter mip_filter;            ///< indicates mip level filter.
+    WisFilter min_filter; ///< describes minification filter.
+    WisFilter mag_filter; ///< specifies magnification filter.
+    WisFilter mip_filter; ///< indicates mip level filter.
     WisReductionMode reduction_mode; ///< describes reduction mode for min/mag/mip filters.
-    bool is_anisotropic;             ///< specifies anisotropic filtering enable.
-    uint32_t max_anisotropy;         ///< describes max anisotropy level. Min is 1, Max is 16.
-    WisAddressMode address_u;        ///< specifies address mode for U coordinate.
-    WisAddressMode address_v;        ///< indicates address mode for V coordinate.
-    WisAddressMode address_w;        ///< defines address mode for W coordinate.
-    float min_lod;                   ///< specifies min LOD value.
-    float max_lod;                   ///< defines max LOD value.
-    float mip_lod_bias;              ///< specifies mip LOD bias value.
-    WisCompareOp comparison_op;      ///< describes comparison operation for comparison samplers.
-    WisStaticBorder
-        static_border_color; ///< indicates static border color. Used if any address mode is set to WisAddressMode.
-    WisSamplerFlags flags;   ///< describes sampler flags. Used to set additional sampler options.
+    bool is_anisotropic; ///< specifies anisotropic filtering enable.
+    uint32_t max_anisotropy; ///< describes max anisotropy level. Min is 1, Max is 16.
+    WisAddressMode address_u; ///< specifies address mode for U coordinate.
+    WisAddressMode address_v; ///< indicates address mode for V coordinate.
+    WisAddressMode address_w; ///< defines address mode for W coordinate.
+    float min_lod; ///< specifies min LOD value.
+    float max_lod; ///< defines max LOD value.
+    float mip_lod_bias; ///< specifies mip LOD bias value.
+    WisCompareOp comparison_op; ///< describes comparison operation for comparison samplers.
+    /**
+     * @brief indicates static border color. Used if any address mode is set to WisAddressMode.
+     * */
+    WisStaticBorder static_border_color;
+    WisSamplerFlags flags; ///< describes sampler flags. Used to set additional sampler options.
 } WisSamplerDesc;
 
 /**
@@ -1594,8 +1633,10 @@ typedef struct WisSamplerDesc {
  * */
 typedef struct WisStaticSamplerDesc {
     WisSamplerDesc sampler; ///< defines sampler description.
-    WisShaderVisibility
-        visibility;         ///< defines shader stage visibility; it defines the stage where the sampler is used.
+    /**
+     * @brief defines shader stage visibility; it defines the stage where the sampler is used.
+     * */
+    WisShaderVisibility visibility;
     uint32_t bind_register; ///< describes bind register number in HLSL.
 } WisStaticSamplerDesc;
 
@@ -1605,9 +1646,9 @@ typedef struct WisStaticSamplerDesc {
  * */
 typedef struct WisPushConstant {
     WisShaderVisibility visibility; ///< defines shader stage visibility for the push constant.
-    uint32_t size_bytes;            ///< describes size of the constant in bytes; it @wis_must be divisible by 4.
-    uint32_t bind_register;         ///< describes bind register number in HLSL.
-    uint32_t bind_space;            ///< defines bind space number in HLSL as `register(regN, spaceN)`.
+    uint32_t size_bytes; ///< describes size of the constant in bytes; it @wis_must be divisible by 4.
+    uint32_t bind_register; ///< describes bind register number in HLSL.
+    uint32_t bind_space; ///< defines bind space number in HLSL as `register(regN, spaceN)`.
 } WisPushConstant;
 
 /**
@@ -1616,9 +1657,9 @@ typedef struct WisPushConstant {
  * */
 typedef struct WisPushDescriptor {
     WisShaderVisibility visibility; ///< defines shader stage visibility for the push descriptor.
-    WisDescriptorType type;         ///< specifies descriptor type. Works only with buffer bindings.
-    uint32_t bind_register;         ///< describes bind register number in HLSL.
-    uint32_t bind_space;            ///< defines bind space number in HLSL. `register(regN, spaceN)`
+    WisDescriptorType type; ///< specifies descriptor type. Works only with buffer bindings.
+    uint32_t bind_register; ///< describes bind register number in HLSL.
+    uint32_t bind_space; ///< defines bind space number in HLSL. `register(regN, spaceN)`
 } WisPushDescriptor;
 
 /**
@@ -1628,11 +1669,17 @@ typedef struct WisPushDescriptor {
 typedef struct WisDescriptorTableEntry {
     WisDescriptorType type; ///< specifies descriptor type.
     uint32_t bind_register; ///< describes bind register number in HLSL.
-    uint32_t bind_space;    ///< defines bind space number in HLSL. `register(regN, spaceN)`
-    uint32_t count; ///< describes descriptor count for Array descriptors. UINT32_MAX means unbounded array. 0 means
-                    ///< single register, same as 1.
-    uint32_t descriptor_offset; ///< describes offset in descriptors from the heap start. Used for calculating
-                                ///< descriptor indices when binding descriptor tables.
+    uint32_t bind_space; ///< defines bind space number in HLSL. `register(regN, spaceN)`
+    /**
+     * @brief describes descriptor count for Array descriptors. UINT32_MAX means unbounded array. 0 means single
+     * register, same as 1.
+     * */
+    uint32_t count;
+    /**
+     * @brief describes offset in descriptors from the heap start. Used for calculating descriptor indices when binding
+     * descriptor tables.
+     * */
+    uint32_t descriptor_offset;
 } WisDescriptorTableEntry;
 
 /**
@@ -1640,9 +1687,9 @@ typedef struct WisDescriptorTableEntry {
  *
  * */
 typedef struct WisDescriptorTable {
-    WisShaderVisibility visibility;         ///< defines shader stage. Defines the stage where the table is used.
+    WisShaderVisibility visibility; ///< defines shader stage. Defines the stage where the table is used.
     const WisDescriptorTableEntry* entries; ///< points to an array of descriptor table entries.
-    size_t entry_count;                     ///< specifies descriptor table entries count.
+    size_t entry_count; ///< specifies descriptor table entries count.
 } WisDescriptorTable;
 
 /**
@@ -1650,16 +1697,26 @@ typedef struct WisDescriptorTable {
  *
  * */
 typedef struct WisRootSignatureDesc {
-    const WisPushConstant*
-        push_constants;         ///< points to an array of push constants that defines global shader push data.
-    size_t push_constant_count; ///< describes the number of the number of push constants in the
-                                ///< `WisRootSignatureDesc::push_constants` array.
-    const WisPushDescriptor* push_descriptors;   ///< points to an array of WisPushDescriptor.
-    size_t push_descriptor_count;                ///< specifies the number of the number of push descriptors in the
-                                                 ///< `WisRootSignatureDesc::push_descriptors` array.
+    /**
+     * @brief points to an array of push constants that defines global shader push data.
+     * */
+    const WisPushConstant* push_constants;
+    /**
+     * @brief describes the number of the number of push constants in the `WisRootSignatureDesc::push_constants` array.
+     * */
+    size_t push_constant_count;
+    const WisPushDescriptor* push_descriptors; ///< points to an array of WisPushDescriptor.
+    /**
+     * @brief specifies the number of the number of push descriptors in the `WisRootSignatureDesc::push_descriptors`
+     * array.
+     * */
+    size_t push_descriptor_count;
     const WisDescriptorTable* descriptor_tables; ///< points to an array of WisDescriptorTable.
-    size_t descriptor_table_count;               ///< specifies the number of the number of descriptor tables in the
-                                                 ///< `WisRootSignatureDesc::descriptor_tables` array.
+    /**
+     * @brief specifies the number of the number of descriptor tables in the `WisRootSignatureDesc::descriptor_tables`
+     * array.
+     * */
+    size_t descriptor_table_count;
 } WisRootSignatureDesc;
 
 /**
@@ -1667,10 +1724,10 @@ typedef struct WisRootSignatureDesc {
  *
  * */
 typedef struct WisDescriptorHeapDesc {
-    WisDescriptorHeapType type;          ///< specifies the type of descriptor heap to create (sampler or descriptor).
+    WisDescriptorHeapType type; ///< specifies the type of descriptor heap to create (sampler or descriptor).
     WisDescriptorMemoryType memory_type; ///< specifies where the descriptor heap will be allocated.
-    uint32_t descriptor_count;           ///< indicates the amount of descriptors, present in the heap.
-    WisDescriptorHeapFlags flags;        ///< describes describe additional options for the descriptor heap.
+    uint32_t descriptor_count; ///< indicates the amount of descriptors, present in the heap.
+    WisDescriptorHeapFlags flags; ///< describes describe additional options for the descriptor heap.
 } WisDescriptorHeapDesc;
 
 /**
@@ -1689,15 +1746,22 @@ typedef struct WisComponentMapping {
  *
  * */
 typedef struct WisSubresourceRange {
-    uint16_t base_mip_level;  ///< indicates mipmap level of the subresource.
+    uint16_t base_mip_level; ///< indicates mipmap level of the subresource.
     uint16_t mip_level_count; ///< describes number of mip levels in the subresource.
-    uint16_t
-        base_array_layer; ///< describes array layer of the subresource. For 3D textures, this defines the depth slice.
-    uint16_t array_layer_count; ///< indicates number of array layers in the subresource. For 3D textures, this defines
-                                ///< the number of depth slices.
-    uint16_t plane_slice;       ///< indicates base depth slice of the subresource. Used only for 2D textures (YUV).
-    uint16_t plane_slice_count; ///< indicates number of depth slices in the subresource. Used only for 2D textures
-                                ///< (YUV). Max value is 3.
+    /**
+     * @brief describes array layer of the subresource. For 3D textures, this defines the depth slice.
+     * */
+    uint16_t base_array_layer;
+    /**
+     * @brief indicates number of array layers in the subresource. For 3D textures, this defines the number of depth
+     * slices.
+     * */
+    uint16_t array_layer_count;
+    uint16_t plane_slice; ///< indicates base depth slice of the subresource. Used only for 2D textures (YUV).
+    /**
+     * @brief indicates number of depth slices in the subresource. Used only for 2D textures (YUV). Max value is 3.
+     * */
+    uint16_t plane_slice_count;
 } WisSubresourceRange;
 
 /**
@@ -1705,10 +1769,10 @@ typedef struct WisSubresourceRange {
  *
  * */
 typedef struct WisBufferDesc {
-    uint64_t size_bytes;             ///< describes size of the buffer in bytes.
+    uint64_t size_bytes; ///< describes size of the buffer in bytes.
     WisBufferUsageFlags usage_flags; ///< describes buffer usage flags. Describe how the buffer will be used.
-    WisMemoryType memory_type;       ///< specifies where the buffer will be allocated.
-    WisMemoryFlags memory_flags;     ///< describes the flags of the memory to allocate for the buffer.
+    WisMemoryType memory_type; ///< specifies where the buffer will be allocated.
+    WisMemoryFlags memory_flags; ///< describes the flags of the memory to allocate for the buffer.
 } WisBufferDesc;
 
 /**
@@ -1716,17 +1780,17 @@ typedef struct WisBufferDesc {
  *
  * */
 typedef struct WisTextureDesc {
-    uint32_t width;                   ///< defines texture width in pixels.
-    uint32_t height;                  ///< describes texture height in pixels.
-    uint16_t depth_or_array_size;     ///< describes texture depth in pixels. Used only for 3D textures.
-    uint16_t mip_levels;              ///< defines number of mip levels in the texture.
-    WisDataFormat format;             ///< describes texture format.
-    WisSampleCount sample_count;      ///< specifies number of samples per pixel. Used only for multisampled textures.
-    WisTextureLayout layout;          ///< specifies texture layout. Default is `WisTextureLayoutTexture2D`.
+    uint32_t width; ///< defines texture width in pixels.
+    uint32_t height; ///< describes texture height in pixels.
+    uint16_t depth_or_array_size; ///< describes texture depth in pixels. Used only for 3D textures.
+    uint16_t mip_levels; ///< defines number of mip levels in the texture.
+    WisDataFormat format; ///< describes texture format.
+    WisSampleCount sample_count; ///< specifies number of samples per pixel. Used only for multisampled textures.
+    WisTextureLayout layout; ///< specifies texture layout. Default is `WisTextureLayoutTexture2D`.
     WisTextureUsageFlags usage_flags; ///< describes texture usage flags. Describe how the texture will be used.
-    WisTextureFlags flags;            ///< describes texture flags. Describe additional options for the texture.
-    WisMemoryType memory_type;        ///< specifies where the texture will be allocated.
-    WisMemoryFlags memory_flags;      ///< describes the flags of the memory to allocate for the texture.
+    WisTextureFlags flags; ///< describes texture flags. Describe additional options for the texture.
+    WisMemoryType memory_type; ///< specifies where the texture will be allocated.
+    WisMemoryFlags memory_flags; ///< describes the flags of the memory to allocate for the texture.
 } WisTextureDesc;
 
 /**
@@ -1735,13 +1799,18 @@ typedef struct WisTextureDesc {
  * */
 typedef struct WisPushConstantDataDesc {
     WisPipelineType pipeline; ///< specifies the pipeline type to set the push constants for.
-    uint32_t root_index;      ///< indicates the root index in the root signature to set the push constants for.
-    const void* data;         ///< specifies a pointer to the data to set as push constants.
-    uint32_t data_size;   ///< defines the size of the data in bytes. It @wis_must be less than or equal to the maximum
-                          ///< push constant size defined by the device and 4-byte aligned.
-    uint32_t push_offset; ///< specifies the offset in bytes from the start of the push constant root parameter to set
-                          ///< the data to. It @wis_must be less than the maximum push constant size defined by the
-                          ///< device and 4-byte aligned.
+    uint32_t root_index; ///< indicates the root index in the root signature to set the push constants for.
+    const void* data; ///< specifies a pointer to the data to set as push constants.
+    /**
+     * @brief defines the size of the data in bytes. It @wis_must be less than or equal to the maximum push constant
+     * size defined by the device and 4-byte aligned.
+     * */
+    uint32_t data_size;
+    /**
+     * @brief specifies the offset in bytes from the start of the push constant root parameter to set the data to. It
+     * @wis_must be less than the maximum push constant size defined by the device and 4-byte aligned.
+     * */
+    uint32_t push_offset;
 } WisPushConstantDataDesc;
 
 /**
@@ -1750,9 +1819,9 @@ typedef struct WisPushConstantDataDesc {
  * */
 typedef struct WisPushDescriptorDataDesc {
     WisPipelineType pipeline; ///< specifies the pipeline type to set the push descriptors for.
-    uint32_t root_index;      ///< indicates the root index in the root signature to set the push descriptors for.
+    uint32_t root_index; ///< indicates the root index in the root signature to set the push descriptors for.
     WisDescriptorType descriptor_type; ///< defines the type of the descriptors to push.
-    uint64_t buffer_address;           ///< indicates buffer device address to push.
+    uint64_t buffer_address; ///< indicates buffer device address to push.
 } WisPushDescriptorDataDesc;
 
 /**
@@ -1761,10 +1830,16 @@ typedef struct WisPushDescriptorDataDesc {
  * */
 typedef struct WisDescriptorTableDataDesc {
     WisPipelineType pipeline; ///< specifies the pipeline type to set the push descriptors for.
-    uint32_t root_index;      ///< indicates the root index in the root signature to set the push descriptors for.
+    /**
+     * @brief indicates the root index in the root signature to set the push descriptors for.
+     * */
+    uint32_t root_index;
     WisDescriptorHeapType heap_type; ///< indicates the type of the descriptor heap to bind.
-    uint32_t heap_offset; ///< defines the offset in descriptors from the start of the heap to set the descriptor table
-                          ///< to. Used for calculating descriptor indices when binding descriptor tables.
+    /**
+     * @brief defines the offset in descriptors from the start of the heap to set the descriptor table to. Used for
+     * calculating descriptor indices when binding descriptor tables.
+     * */
+    uint32_t heap_offset;
 } WisDescriptorTableDataDesc;
 
 /**
@@ -1773,7 +1848,7 @@ typedef struct WisDescriptorTableDataDesc {
  * */
 typedef struct WisConstantBufferBinding {
     uint64_t buffer_address; ///< indicates buffer device address to bind.
-    uint32_t size_bytes;     ///< describes the size of the buffer region to bind in bytes.
+    uint32_t size_bytes; ///< describes the size of the buffer region to bind in bytes.
 } WisConstantBufferBinding;
 
 /**
@@ -1781,8 +1856,8 @@ typedef struct WisConstantBufferBinding {
  *
  * */
 typedef struct WisBufferBinding {
-    uint64_t array_offset;    ///< describes offset in buffer in structures.
-    uint32_t stride_bytes;    ///< describes the size of the single structure in buffer.
+    uint64_t array_offset; ///< describes offset in buffer in structures.
+    uint32_t stride_bytes; ///< describes the size of the single structure in buffer.
     uint32_t structure_count; ///< describes the number of structures in the buffer region to bind.
 } WisBufferBinding;
 
@@ -1792,12 +1867,14 @@ typedef struct WisBufferBinding {
  *
  * */
 typedef struct WisTextureBinding {
-    WisDataFormat format;    ///< describes the format of the view.
+    WisDataFormat format; ///< describes the format of the view.
     WisTextureLayout layout; ///< specifies the layout of the texture. Default is `WisTextureLayoutTexture2D`.
-    WisTextureBindingFlags
-        flags;               ///< describes texture binding flags. Describe additional options for the texture binding.
+    /**
+     * @brief describes texture binding flags. Describe additional options for the texture binding.
+     * */
+    WisTextureBindingFlags flags;
     WisComponentMapping component_mapping; ///< specifies component mapping for the texture view.
-    WisSubresourceRange range;             ///< describes subresource description for the texture view.
+    WisSubresourceRange range; ///< describes subresource description for the texture view.
 } WisTextureBinding;
 
 /**
@@ -1806,12 +1883,15 @@ typedef struct WisTextureBinding {
  * */
 typedef struct WisStencilDesc {
     WisStencilOp fail_op; ///< specifies stencil operation if the stencil test fails. Default is `WisStencilOpKeep`.
-    WisStencilOp depth_fail_op; ///< specifies stencil operation if the stencil test passes and the depth test fails.
-                                ///< Default is `WisStencilOpKeep`.
+    /**
+     * @brief specifies stencil operation if the stencil test passes and the depth test fails. Default is
+     * `WisStencilOpKeep`.
+     * */
+    WisStencilOp depth_fail_op;
     WisStencilOp pass_op; ///< describes stencil operation if the stencil test passes. Default is `WisStencilOpKeep`.
     WisCompareOp stencil_comp; ///< defines stencil comparison function. Default is .
-    uint8_t read_mask;         ///< indicates stencil read mask. Default is 0xff.
-    uint8_t write_mask;        ///< specifies stencil write mask. Default is 0xff.
+    uint8_t read_mask; ///< indicates stencil read mask. Default is 0xff.
+    uint8_t write_mask; ///< specifies stencil write mask. Default is 0xff.
 } WisStencilDesc;
 
 /**
@@ -1819,13 +1899,13 @@ typedef struct WisStencilDesc {
  *
  * */
 typedef struct WisDepthStencilDesc {
-    bool depth_enable;            ///< indicates depth test enable. Default is false.
-    bool depth_write_enable;      ///< describes depth write enable. Default is false.
-    WisCompareOp depth_comp;      ///< indicates depth comparison function. Default is .
-    bool stencil_enable;          ///< defines stencil test enable. Default is false.
+    bool depth_enable; ///< indicates depth test enable. Default is false.
+    bool depth_write_enable; ///< describes depth write enable. Default is false.
+    WisCompareOp depth_comp; ///< indicates depth comparison function. Default is .
+    bool stencil_enable; ///< defines stencil test enable. Default is false.
     WisStencilDesc stencil_front; ///< specifies stencil description for front faces.
-    WisStencilDesc stencil_back;  ///< specifies stencil description for back faces.
-    bool depth_bound_test;        ///< indicates depth bound test enable. Default is false.
+    WisStencilDesc stencil_back; ///< specifies stencil description for back faces.
+    bool depth_bound_test; ///< indicates depth bound test enable. Default is false.
 } WisDepthStencilDesc;
 
 /**
@@ -1833,8 +1913,8 @@ typedef struct WisDepthStencilDesc {
  *
  * */
 typedef struct WisInputBindingDesc {
-    uint32_t slot;             ///< specifies input slot number; it @wis_must be unique.
-    uint32_t stride_bytes;     ///< describes stride in bytes. Size of one vertex in the slot.
+    uint32_t slot; ///< specifies input slot number; it @wis_must be unique.
+    uint32_t stride_bytes; ///< describes stride in bytes. Size of one vertex in the slot.
     WisInputClass input_class; ///< describes input class. Defines how the data is read (Per vertex or Per instance).
 } WisInputBindingDesc;
 
@@ -1844,12 +1924,14 @@ typedef struct WisInputBindingDesc {
  * */
 typedef struct WisInputAttributeDesc {
     uint32_t binding_index; ///< specifies index into an array of bindings that the attribute is tied to.
-    const char*
-        semantic_name; ///< defines semantic name of the attribute in HLSL; it @wis_must be unique and null-terminated.
+    /**
+     * @brief defines semantic name of the attribute in HLSL; it @wis_must be unique and null-terminated.
+     * */
+    const char* semantic_name;
     uint32_t semantic_index; ///< indicates semantic index of the attribute in HLSL; it @wis_must be unique.
-    uint32_t location;       ///< describes location of the attribute in HLSL; it @wis_must be unique.
-    WisDataFormat format;    ///< describes data format of the attribute.
-    uint32_t offset_bytes;   ///< describes offset in bytes from the beginning of the vertex.
+    uint32_t location; ///< describes location of the attribute in HLSL; it @wis_must be unique.
+    WisDataFormat format; ///< describes data format of the attribute.
+    uint32_t offset_bytes; ///< describes offset in bytes from the beginning of the vertex.
 } WisInputAttributeDesc;
 
 /**
@@ -1857,12 +1939,16 @@ typedef struct WisInputAttributeDesc {
  *
  * */
 typedef struct WisInputLayout {
-    const WisInputBindingDesc*
-        bindings;         ///< points to an array of input slots used to pick data from multiple vertex arrays.
+    /**
+     * @brief points to an array of input slots used to pick data from multiple vertex arrays.
+     * */
+    const WisInputBindingDesc* bindings;
     size_t binding_count; ///< indicates input slots count. Max number is 16.
-    const WisInputAttributeDesc* attributes; ///< points to an array of input attributes that describes how vertex data
-                                             ///< is read by the HLSL shader.
-    size_t attribute_count;                  ///< defines input attributes count.
+    /**
+     * @brief points to an array of input attributes that describes how vertex data is read by the HLSL shader.
+     * */
+    const WisInputAttributeDesc* attributes;
+    size_t attribute_count; ///< defines input attributes count.
 } WisInputLayout;
 
 /**
@@ -1870,19 +1956,28 @@ typedef struct WisInputLayout {
  *
  * */
 typedef struct WisRasterizerDesc {
-    WisFillMode fill_mode;         ///< indicates fill mode. Solid or Wireframe. Default is `WisFillModeSolid`.
-    WisCullMode cull_mode;         ///< defines cull mode. None, Front, Back. Default is `WisCullModeBack`.
-    WisWindingOrder front_face;    ///< indicates front face winding order. Clockwise or CounterClockwise. Default is
-                                   ///< `WisWindingOrderClockwise`.
-    bool depth_bias_enable;        ///< describes depth bias enable. Default is false.
-    float depth_bias;              ///< indicates depth bias. Default is 0.0f.
-    float depth_bias_clamp;        ///< indicates depth bias clamp. Default is 0.0f.
-    float depth_bias_slope_factor; ///< indicates depth bias slope factor e.g. for shadows. Default is 0.0f.
-    bool depth_clip_enable;        ///< specifies depth clip enable. Default is true.
-    WisLineRasterization
-        line_rasterization;        ///< specifies line rasterization mode. Default is `WisLineRasterizationDefault`.
-    WisConservativeRasterization conservative_rasterization; ///< indicates conservative rasterization mode. Default is
-                                                             ///< `WisConservativeRasterizationOff`.
+    WisFillMode fill_mode; ///< indicates fill mode. Solid or Wireframe. Default is `WisFillModeSolid`.
+    WisCullMode cull_mode; ///< defines cull mode. None, Front, Back. Default is `WisCullModeBack`.
+    /**
+     * @brief indicates front face winding order. Clockwise or CounterClockwise. Default is `WisWindingOrderClockwise`.
+     * */
+    WisWindingOrder front_face;
+    bool depth_bias_enable; ///< describes depth bias enable. Default is false.
+    float depth_bias; ///< indicates depth bias. Default is 0.0f.
+    float depth_bias_clamp; ///< indicates depth bias clamp. Default is 0.0f.
+    /**
+     * @brief indicates depth bias slope factor e.g. for shadows. Default is 0.0f.
+     * */
+    float depth_bias_slope_factor;
+    bool depth_clip_enable; ///< specifies depth clip enable. Default is true.
+    /**
+     * @brief specifies line rasterization mode. Default is `WisLineRasterizationDefault`.
+     * */
+    WisLineRasterization line_rasterization;
+    /**
+     * @brief indicates conservative rasterization mode. Default is `WisConservativeRasterizationOff`.
+     * */
+    WisConservativeRasterization conservative_rasterization;
 } WisRasterizerDesc;
 
 /**
@@ -1890,8 +1985,8 @@ typedef struct WisRasterizerDesc {
  *
  * */
 typedef struct WisSampleDesc {
-    WisSampleCount rate;           ///< defines sample rate. Default is `WisSampleCountS1`.
-    uint32_t sample_mask;          ///< describes sample mask. Default is 0xffffffff.
+    WisSampleCount rate; ///< defines sample rate. Default is `WisSampleCountS1`.
+    uint32_t sample_mask; ///< describes sample mask. Default is 0xffffffff.
     bool alpha_to_coverage_enable; ///< describes alpha to coverage enable. Default is false.
 } WisSampleDesc;
 
@@ -1900,12 +1995,17 @@ typedef struct WisSampleDesc {
  *
  * */
 typedef struct WisRenderAttachmentsDesc {
-    WisDataFormat
-        attachment_formats[8];      ///< defines attachment formats array. Describes the format of the render target.
-    uint32_t attachments_count;     ///< defines attachment formats count. Max is 8.
+    /**
+     * @brief defines attachment formats array. Describes the format of the render target.
+     * */
+    WisDataFormat attachment_formats[8];
+    uint32_t attachments_count; ///< defines attachment formats count. Max is 8.
     WisDataFormat depth_attachment; ///< describes depth attachment format. Describes the format of the depth buffer.
-    uint32_t view_mask; ///< specifies view mask for multiview rendering. Each bit represents a view that can be
-                        ///< rendered to with the pipeline. Default is 0, meaning no multiview support.
+    /**
+     * @brief specifies view mask for multiview rendering. Each bit represents a view that can be rendered to with the
+     * pipeline. Default is 0, meaning no multiview support.
+     * */
+    uint32_t view_mask;
 } WisRenderAttachmentsDesc;
 
 /**
@@ -1913,13 +2013,13 @@ typedef struct WisRenderAttachmentsDesc {
  *
  * */
 typedef struct WisBlendAttachmentDesc {
-    bool blend_enable;                   ///< indicates blend enable. Default is false.
-    WisBlendFactor src_color_blend;      ///< specifies source color blend factor. Default is `WisBlendFactorOne`.
-    WisBlendFactor dst_color_blend;      ///< describes destination color blend factor. Default is `WisBlendFactorZero`.
-    WisBlendOp color_blend_op;           ///< describes color blend operation. Default is `WisBlendOpAdd`.
-    WisBlendFactor src_alpha_blend;      ///< describes source alpha blend factor. Default is `WisBlendFactorOne`.
-    WisBlendFactor dst_alpha_blend;      ///< defines destination alpha blend factor. Default is `WisBlendFactorZero`.
-    WisBlendOp alpha_blend_op;           ///< defines alpha blend operation. Default is `WisBlendOpAdd`.
+    bool blend_enable; ///< indicates blend enable. Default is false.
+    WisBlendFactor src_color_blend; ///< specifies source color blend factor. Default is `WisBlendFactorOne`.
+    WisBlendFactor dst_color_blend; ///< describes destination color blend factor. Default is `WisBlendFactorZero`.
+    WisBlendOp color_blend_op; ///< describes color blend operation. Default is `WisBlendOpAdd`.
+    WisBlendFactor src_alpha_blend; ///< describes source alpha blend factor. Default is `WisBlendFactorOne`.
+    WisBlendFactor dst_alpha_blend; ///< defines destination alpha blend factor. Default is `WisBlendFactorZero`.
+    WisBlendOp alpha_blend_op; ///< defines alpha blend operation. Default is `WisBlendOpAdd`.
     WisColorComponents color_write_mask; ///< defines color write mask. Default is `WisColorComponentsAll`.
 } WisBlendAttachmentDesc;
 
@@ -1929,10 +2029,10 @@ typedef struct WisBlendAttachmentDesc {
  *
  * */
 typedef struct WisViewport {
-    float x;         ///< defines top left corner x coordinate.
-    float y;         ///< describes top left corner y coordinate.
-    float width;     ///< defines viewport width.
-    float height;    ///< describes viewport height.
+    float x; ///< defines top left corner x coordinate.
+    float y; ///< describes top left corner y coordinate.
+    float width; ///< defines viewport width.
+    float height; ///< describes viewport height.
     float min_depth; ///< defines minimum depth of the viewport.
     float max_depth; ///< specifies maximum depth of the viewport.
 } WisViewport;
@@ -1942,9 +2042,9 @@ typedef struct WisViewport {
  *
  * */
 typedef struct WisRect {
-    int32_t x;       ///< defines left corner x coordinate.
-    int32_t y;       ///< describes top corner y coordinate.
-    uint32_t width;  ///< defines width of the rect.
+    int32_t x; ///< defines left corner x coordinate.
+    int32_t y; ///< describes top corner y coordinate.
+    uint32_t width; ///< defines width of the rect.
     uint32_t height; ///< describes height of the rect.
 } WisRect;
 
@@ -1953,11 +2053,13 @@ typedef struct WisRect {
  *
  * */
 typedef struct WisBlendStateDesc {
-    bool logic_op_enable;                  ///< specifies logic operation enable. Default is false.
-    WisLogicOp logic_op;                   ///< defines logic operation. Default is `WisLogicOpNoop`.
+    bool logic_op_enable; ///< specifies logic operation enable. Default is false.
+    WisLogicOp logic_op; ///< defines logic operation. Default is `WisLogicOpNoop`.
     WisBlendAttachmentDesc attachments[8]; ///< defines blend attachment descriptions. Max Array size is 8.
-    uint32_t
-        attachment_count; ///< describes blend attachment count. If set as 0 - broadcast to all attachments. Max is 8.
+    /**
+     * @brief describes blend attachment count. If set as 0 - broadcast to all attachments. Max is 8.
+     * */
+    uint32_t attachment_count;
 } WisBlendStateDesc;
 
 /**
@@ -1965,12 +2067,12 @@ typedef struct WisBlendStateDesc {
  *
  * */
 typedef struct WisBox {
-    uint32_t x;      ///< defines left corner x coordinate.
-    uint32_t y;      ///< describes top corner y coordinate.
-    uint32_t z;      ///< specifies front corner z coordinate. Used only for 3D textures.
-    uint32_t width;  ///< defines width of the box.
+    uint32_t x; ///< defines left corner x coordinate.
+    uint32_t y; ///< describes top corner y coordinate.
+    uint32_t z; ///< specifies front corner z coordinate. Used only for 3D textures.
+    uint32_t width; ///< defines width of the box.
     uint32_t height; ///< describes height of the box.
-    uint32_t depth;  ///< describes depth of the box. Used only for 3D textures.
+    uint32_t depth; ///< describes depth of the box. Used only for 3D textures.
 } WisBox;
 
 /**
@@ -1978,7 +2080,7 @@ typedef struct WisBox {
  *
  * */
 typedef struct WisTargetSubresource {
-    uint16_t mip_level;   ///< describes mipmap level of the target subresource.
+    uint16_t mip_level; ///< describes mipmap level of the target subresource.
     uint16_t array_layer; ///< indicates array layer of the target subresource; for 3D textures it @wis_must be 0.
     uint16_t plane_slice; ///< indicates depth slice of the target subresource. Used only for 2D textures (YUV).
 } WisTargetSubresource;
@@ -1989,7 +2091,7 @@ typedef struct WisTargetSubresource {
  * */
 typedef struct WisTextureRegion {
     WisBarrierFlags flags; ///< describes texture parameters for copy. `WisBarrierFlagsDiscardContent` is implicit.
-    WisBox box;            ///< describes box defining the region to copy.
+    WisBox box; ///< describes box defining the region to copy.
     WisTargetSubresource target_subresource; ///< defines target subresource description for the region.
 } WisTextureRegion;
 
@@ -1999,14 +2101,19 @@ typedef struct WisTextureRegion {
  *
  * */
 typedef struct WisRenderTargetDesc {
-    WisDataFormat format;       ///< describes render target format.
-    WisTextureLayout layout;    ///< specifies render target layout. Default is `WisTextureLayoutTexture2D`.
-    uint16_t mip_level;         ///< describes mipmap level of the target subresource.
-    uint16_t base_array_layer;  ///< describes array layer of the target subresource. For 3D textures, this defines the
-                                ///< base depth slice.
-    uint16_t array_layer_count; ///< indicates number of array layers in the target subresource. For 3D textures, this
-                                ///< defines the number of depth slices.
-    uint16_t plane_slice;       ///< indicates depth slice of the target subresource. Used only for 2D textures (YUV).
+    WisDataFormat format; ///< describes render target format.
+    WisTextureLayout layout; ///< specifies render target layout. Default is `WisTextureLayoutTexture2D`.
+    uint16_t mip_level; ///< describes mipmap level of the target subresource.
+    /**
+     * @brief describes array layer of the target subresource. For 3D textures, this defines the base depth slice.
+     * */
+    uint16_t base_array_layer;
+    /**
+     * @brief indicates number of array layers in the target subresource. For 3D textures, this defines the number of
+     * depth slices.
+     * */
+    uint16_t array_layer_count;
+    uint16_t plane_slice; ///< indicates depth slice of the target subresource. Used only for 2D textures (YUV).
 } WisRenderTargetDesc;
 
 /**
@@ -2016,13 +2123,20 @@ typedef struct WisRenderTargetDesc {
 typedef struct WisSurfaceParameters {
     uint32_t min_swapchain_images; ///< specifies minimum number of images in the swapchain.
     uint32_t max_swapchain_images; ///< defines maximum number of images in the swapchain.
-    uint32_t
-        alpha_modes_supported; ///< specifies bitmask of supported alpha modes for the swapchain. Each bit represents a
-                               ///< different alpha mode. Used to determine the supported alpha modes for the swapchain.
-    WisTextureUsageFlags
-        texture_usage_flags_supported; ///< specifies bitmask of supported texture usage flags for the swapchain images.
-    bool stereo_supported; ///< indicates if stereo rendering is supported. If true, the surface can be used to create a
-                           ///< swapchain with stereo support.
+    /**
+     * @brief specifies bitmask of supported alpha modes for the swapchain. Each bit represents a different alpha mode.
+     * Used to determine the supported alpha modes for the swapchain.
+     * */
+    uint32_t alpha_modes_supported;
+    /**
+     * @brief specifies bitmask of supported texture usage flags for the swapchain images.
+     * */
+    WisTextureUsageFlags texture_usage_flags_supported;
+    /**
+     * @brief indicates if stereo rendering is supported. If true, the surface can be used to create a swapchain with
+     * stereo support.
+     * */
+    bool stereo_supported;
 } WisSurfaceParameters;
 
 /**
@@ -2030,16 +2144,21 @@ typedef struct WisSurfaceParameters {
  *
  * */
 typedef struct WisSwapchainDesc {
-    uint32_t width;                           ///< defines swapchain image width in pixels.
-    uint32_t height;                          ///< describes swapchain image height in pixels.
-    uint32_t image_count;                     ///< indicates number of images in the swapchain.
-    WisTextureUsageFlags texture_usage_flags; ///< describes texture usage flags for the swapchain images. Describe how
-                                              ///< the swapchain images will be used.
-    WisDataFormat format;                     ///< describes swapchain image format.
-    WisSwapchainScaling scaling;              ///< describes swapchain scaling mode.
-    WisSwapchainFlags flags;           ///< describes swapchain flags. Describe additional options for the swapchain.
-    WisCompositeAlpha composite_alpha; ///< defines composite alpha mode. Describe how the alpha channel of the
-                                       ///< swapchain images is treated during compositing.
+    uint32_t width; ///< defines swapchain image width in pixels.
+    uint32_t height; ///< describes swapchain image height in pixels.
+    uint32_t image_count; ///< indicates number of images in the swapchain.
+    /**
+     * @brief describes texture usage flags for the swapchain images. Describe how the swapchain images will be used.
+     * */
+    WisTextureUsageFlags texture_usage_flags;
+    WisDataFormat format; ///< describes swapchain image format.
+    WisSwapchainScaling scaling; ///< describes swapchain scaling mode.
+    WisSwapchainFlags flags; ///< describes swapchain flags. Describe additional options for the swapchain.
+    /**
+     * @brief defines composite alpha mode. Describe how the alpha channel of the swapchain images is treated during
+     * compositing.
+     * */
+    WisCompositeAlpha composite_alpha;
 } WisSwapchainDesc;
 
 /**
@@ -2047,12 +2166,15 @@ typedef struct WisSwapchainDesc {
  *
  * */
 typedef struct WisSwapchainUpdateDesc {
-    uint32_t width;       ///< defines new swapchain image width in pixels.
-    uint32_t height;      ///< describes new swapchain image height in pixels.
+    uint32_t width; ///< defines new swapchain image width in pixels.
+    uint32_t height; ///< describes new swapchain image height in pixels.
     uint32_t image_count; ///< indicates number of images in the swapchain.
     WisDataFormat format; ///< describes swapchain image format.
-    bool vsync; ///< indicates controls vsync; when true, presentation is synchronized to the vertical blanking interval
-                ///< to reduce tearing, whereas false can improve frame rate but can introduce tearing.
+    /**
+     * @brief indicates controls vsync; when true, presentation is synchronized to the vertical blanking interval to
+     * reduce tearing, whereas false can improve frame rate but can introduce tearing.
+     * */
+    bool vsync;
 } WisSwapchainUpdateDesc;
 
 /**
@@ -2060,9 +2182,9 @@ typedef struct WisSwapchainUpdateDesc {
  *
  * */
 typedef struct WisRenderPassRenderTargetDesc {
-    uint64_t target;      ///< indicates render target view; it @wis_must reside on WisViewHeap.
-    WisLoadOp load_op;    ///< specifies load operation on beginning of render pass. Default is `WisLoadOpLoad`.
-    WisStoreOp store_op;  ///< indicates store operation on end of render pass. Default is `WisStoreOpStore`.
+    uint64_t target; ///< indicates render target view; it @wis_must reside on WisViewHeap.
+    WisLoadOp load_op; ///< specifies load operation on beginning of render pass. Default is `WisLoadOpLoad`.
+    WisStoreOp store_op; ///< indicates store operation on end of render pass. Default is `WisStoreOpStore`.
     float clear_value[4]; ///< indicates clear value for `WisLoadOpClear`.
 } WisRenderPassRenderTargetDesc;
 
@@ -2071,18 +2193,26 @@ typedef struct WisRenderPassRenderTargetDesc {
  *
  * */
 typedef struct WisRenderPassDepthStencilDesc {
-    uint64_t target;   ///< indicates depth stencil view.
-    WisLoadOp
-        load_op_depth; ///< specifies load operation on beginning of render pass for depth. Default is `WisLoadOpLoad`.
-    WisLoadOp load_op_stencil; ///< indicates load operation on beginning of render pass for stencil. Default is
-                               ///< `WisLoadOpLoad`.
-    WisStoreOp
-        store_op_depth;   ///< indicates store operation on end of render pass for depth. Default is `WisStoreOpStore`.
-    WisStoreOp
-        store_op_stencil; ///< defines store operation on end of render pass for stencil. Default is `WisStoreOpStore`.
+    uint64_t target; ///< indicates depth stencil view.
+    /**
+     * @brief specifies load operation on beginning of render pass for depth. Default is `WisLoadOpLoad`.
+     * */
+    WisLoadOp load_op_depth;
+    /**
+     * @brief indicates load operation on beginning of render pass for stencil. Default is `WisLoadOpLoad`.
+     * */
+    WisLoadOp load_op_stencil;
+    /**
+     * @brief indicates store operation on end of render pass for depth. Default is `WisStoreOpStore`.
+     * */
+    WisStoreOp store_op_depth;
+    /**
+     * @brief defines store operation on end of render pass for stencil. Default is `WisStoreOpStore`.
+     * */
+    WisStoreOp store_op_stencil;
     WisDepthStencilFlags flags; ///< describes depth stencil select.
-    float clear_depth;          ///< indicates clear depth value for `WisLoadOpClear`. Default is 1.0f.
-    uint8_t clear_stencil;      ///< defines clear stencil value for `WisLoadOpClear`. Default is 0.
+    float clear_depth; ///< indicates clear depth value for `WisLoadOpClear`. Default is 1.0f.
+    uint8_t clear_stencil; ///< defines clear stencil value for `WisLoadOpClear`. Default is 0.
 } WisRenderPassDepthStencilDesc;
 
 /**
@@ -2090,14 +2220,21 @@ typedef struct WisRenderPassDepthStencilDesc {
  *
  * */
 typedef struct WisRenderPassDesc {
-    WisRenderPassFlags flags;     ///< describes render pass flags.
-    WisRenderPassRenderTargetDesc
-        render_targets[8];        ///< describes an array of render target descriptions. Max size is 8.
+    WisRenderPassFlags flags; ///< describes render pass flags.
+    /**
+     * @brief describes an array of render target descriptions. Max size is 8.
+     * */
+    WisRenderPassRenderTargetDesc render_targets[8];
     uint32_t render_target_count; ///< specifies number of render targets in the render pass.
-    uint32_t view_mask; ///< specifies view mask for multiview rendering. Each bit represents a view that can be
-                        ///< rendered to with the render pass. Default is 0, meaning no multiview support.
-    WisRenderPassDepthStencilDesc depth_stencil; ///< specifies depth stencil description; if depth stencil is not used,
-                                                 ///< the target field @wis_must be set to 0.
+    /**
+     * @brief specifies view mask for multiview rendering. Each bit represents a view that can be rendered to with the
+     * render pass. Default is 0, meaning no multiview support.
+     * */
+    uint32_t view_mask;
+    /**
+     * @brief specifies depth stencil description; if depth stencil is not used, the target field @wis_must be set to 0.
+     * */
+    WisRenderPassDepthStencilDesc depth_stencil;
 } WisRenderPassDesc;
 
 /**
@@ -2115,11 +2252,17 @@ typedef struct WisBufferCopyRegion {
  *
  * */
 typedef struct WisBufferTextureCopyRegion {
-    uint64_t buffer_offset;       ///< specifies buffer offset in bytes.
-    uint32_t buffer_row_length;   ///< describes buffer row length in pixels. Used for calculating the offset in the
-                                  ///< buffer for each row of the texture.
-    uint32_t buffer_image_height; ///< describes buffer image height in pixels. Used for calculating the offset in the
-                                  ///< buffer for each image of the texture.
+    uint64_t buffer_offset; ///< specifies buffer offset in bytes.
+    /**
+     * @brief describes buffer row length in pixels. Used for calculating the offset in the buffer for each row of the
+     * texture.
+     * */
+    uint32_t buffer_row_length;
+    /**
+     * @brief describes buffer image height in pixels. Used for calculating the offset in the buffer for each image of
+     * the texture.
+     * */
+    uint32_t buffer_image_height;
     WisTextureRegion texture_region; ///< describes texture region to copy.
 } WisBufferTextureCopyRegion;
 
@@ -2137,8 +2280,10 @@ typedef struct WisTextureCopyRegion {
  *
  * */
 typedef struct WisQueryStructHeader {
-    WisQueryPropertyType
-        property_type;   ///< specifies the type of the queried property. Used to determine what struct is passed.
+    /**
+     * @brief specifies the type of the queried property. Used to determine what struct is passed.
+     * */
+    WisQueryPropertyType property_type;
     void* next_in_chain; ///< indicates pointer to the next queried data struct.
 } WisQueryStructHeader;
 
@@ -2147,16 +2292,27 @@ typedef struct WisQueryStructHeader {
  *
  * */
 typedef struct WisDeviceBindingProperties {
-    WisQueryPropertyType property_type;   ///< specifies the type of the queried property. Used to determine what struct
-                                          ///< is passed. @wis_must be `WisQueryPropertyTypeDeviceBindingProperties`.
-    void* next_in_chain;                  ///< indicates pointer to the next queried data struct.
-    uint32_t max_vertex_input_attributes; ///< defines maximum number of vertex input attributes supported by the
-                                          ///< device. Used for vertex buffer bindings.
-    uint32_t max_vertex_input_bindings; ///< indicates maximum number of vertex input bindings supported by the device.
-                                        ///< Used for vertex buffer bindings.
-    bool multiple_viewports_supported;  ///< indicates if multiple viewports are supported. If true, the device supports
-                                        ///< up to 16 viewports and scissor rectangles. If false, only one viewport and
-                                        ///< scissor rectangle is supported.
+    /**
+     * @brief specifies the type of the queried property. Used to determine what struct is passed. @wis_must be
+     * `WisQueryPropertyTypeDeviceBindingProperties`.
+     * */
+    WisQueryPropertyType property_type;
+    void* next_in_chain; ///< indicates pointer to the next queried data struct.
+    /**
+     * @brief defines maximum number of vertex input attributes supported by the device. Used for vertex buffer
+     * bindings.
+     * */
+    uint32_t max_vertex_input_attributes;
+    /**
+     * @brief indicates maximum number of vertex input bindings supported by the device. Used for vertex buffer
+     * bindings.
+     * */
+    uint32_t max_vertex_input_bindings;
+    /**
+     * @brief indicates if multiple viewports are supported. If true, the device supports up to 16 viewports and scissor
+     * rectangles. If false, only one viewport and scissor rectangle is supported.
+     * */
+    bool multiple_viewports_supported;
 } WisDeviceBindingProperties;
 
 /**
@@ -2164,22 +2320,39 @@ typedef struct WisDeviceBindingProperties {
  *
  * */
 typedef struct WisDeviceDescriptorHeapProperties {
-    WisQueryPropertyType
-        property_type;   ///< specifies the type of the queried property. Used to determine what struct is passed.
-                         ///< @wis_must be `WisQueryPropertyTypeDeviceDescriptorHeapProperties`.
+    /**
+     * @brief specifies the type of the queried property. Used to determine what struct is passed. @wis_must be
+     * `WisQueryPropertyTypeDeviceDescriptorHeapProperties`.
+     * */
+    WisQueryPropertyType property_type;
     void* next_in_chain; ///< indicates pointer to the next queried data struct.
-    uint32_t max_descriptor_heap_size; ///< indicates maximum number of descriptors in a single descriptor heap.
-    uint32_t max_sampler_heap_size;    ///< defines maximum number of samplers in a single descriptor heap.
-    uint32_t max_sampler_heap_size_with_embedded; ///< defines maximum number of samplers in a single descriptor heap,
-                                                  ///< if embedded samplers are used.
-    uint32_t descriptor_increment_size; ///< describes size of a single descriptor in the descriptor heap. Used for
-                                        ///< calculating descriptor offsets.
-    uint32_t sampler_increment_size; ///< specifies size of a single sampler in the sampler heap. Used for calculating
-                                     ///< sampler offsets.
-    uint32_t render_target_increment_size; ///< defines size of a single render target view descriptor in the descriptor
-                                           ///< heap. Used for calculating render target view descriptor offsets.
-    uint32_t depth_stencil_increment_size; ///< defines size of a single depth stencil view descriptor in the descriptor
-                                           ///< heap. Used for calculating depth stencil view descriptor offsets.
+    /**
+     * @brief indicates maximum number of descriptors in a single descriptor heap.
+     * */
+    uint32_t max_descriptor_heap_size;
+    uint32_t max_sampler_heap_size; ///< defines maximum number of samplers in a single descriptor heap.
+    /**
+     * @brief defines maximum number of samplers in a single descriptor heap, if embedded samplers are used.
+     * */
+    uint32_t max_sampler_heap_size_with_embedded;
+    /**
+     * @brief describes size of a single descriptor in the descriptor heap. Used for calculating descriptor offsets.
+     * */
+    uint32_t descriptor_increment_size;
+    /**
+     * @brief specifies size of a single sampler in the sampler heap. Used for calculating sampler offsets.
+     * */
+    uint32_t sampler_increment_size;
+    /**
+     * @brief defines size of a single render target view descriptor in the descriptor heap. Used for calculating render
+     * target view descriptor offsets.
+     * */
+    uint32_t render_target_increment_size;
+    /**
+     * @brief defines size of a single depth stencil view descriptor in the descriptor heap. Used for calculating depth
+     * stencil view descriptor offsets.
+     * */
+    uint32_t depth_stencil_increment_size;
 } WisDeviceDescriptorHeapProperties;
 
 /**
@@ -2187,20 +2360,28 @@ typedef struct WisDeviceDescriptorHeapProperties {
  *
  * */
 typedef struct WisDeviceCommandQueueProperties {
-    WisQueryPropertyType
-        property_type;   ///< specifies the type of the queried property. @wis_must be WisQueryPropertyType..
+    /**
+     * @brief specifies the type of the queried property. @wis_must be WisQueryPropertyType..
+     * */
+    WisQueryPropertyType property_type;
     void* next_in_chain; ///< indicates pointer to the next queried data struct.
-    bool supported_queues
-        [5]; ///< describes an array of supported queue types. If a queue type is supported, the value is `1`, otherwise
-             ///< `0`. Order of queue types is the same as in WisCommandQueueType enum.
-    bool relaxed_queue_transition; ///< indicates if relaxed queue transition is supported. This feature allows
-                                   ///< executing command lists that contain buffers used on different queue types
-                                   ///< without explicit resource state transitions when the buffers is used on a
-                                   ///< different queue type. It is supported on Windows 10 22H2 and later with WDDM 3.0
-                                   ///< or later. On Vulkan it requires `VK_KHR_maintenance9` extension.
-    WisCommandQueuePriority max_queue_priority
-        [5]; ///< indicates an array of maximum supported priorities for each queue type. If a queue type is not
-             ///< supported, the value is `0`. Order of queue types is the same as in WisCommandQueueType enum.
+    /**
+     * @brief describes an array of supported queue types. If a queue type is supported, the value is `1`, otherwise
+     * `0`. Order of queue types is the same as in WisCommandQueueType enum.
+     * */
+    bool supported_queues[5];
+    /**
+     * @brief indicates if relaxed queue transition is supported. This feature allows executing command lists that
+     * contain buffers used on different queue types without explicit resource state transitions when the buffers is
+     * used on a different queue type. It is supported on Windows 10 22H2 and later with WDDM 3.0 or later. On Vulkan it
+     * requires `VK_KHR_maintenance9` extension.
+     * */
+    bool relaxed_queue_transition;
+    /**
+     * @brief indicates an array of maximum supported priorities for each queue type. If a queue type is not supported,
+     * the value is `0`. Order of queue types is the same as in WisCommandQueueType enum.
+     * */
+    WisCommandQueuePriority max_queue_priority[5];
 } WisDeviceCommandQueueProperties;
 
 /**
@@ -2208,22 +2389,29 @@ typedef struct WisDeviceCommandQueueProperties {
  *
  * */
 typedef struct WisDeviceMemoryProperties {
-    WisQueryPropertyType property_type; ///< specifies the type of the queried property. @wis_must be
-                                        ///< `WisQueryPropertyTypeDeviceMemoryProperties`..
-    void* next_in_chain;                ///< indicates pointer to the next queried data struct.
-    bool gpu_upload_supported; ///< describes if GPU upload memory type is supported. This memory type allows mapping
-                               ///< the memory and writing to it from CPU, while being accessible from GPU. It is
-                               ///< usually implemented as write-combined memory on integrated GPUs and as a part of
-                               ///< shared system memory on discrete GPUs.
-    bool host_image_copy_supported; ///< indicates if host image copy is supported. This feature allows copying data
-                                    ///< directly from CPU memory to optimal tiled image layout on GPU, without the need
-                                    ///< for an intermediate staging buffer. It is supported on Windows 10 22H2 and
-                                    ///< later with WDDM 3.0 or later. On Vulkan it requires `VK_EXT_host_image_copy`
-                                    ///< extension.
-    uint32_t supported_initial_transitions; ///< defines bitfield of supported initial resource state transitions for
-                                            ///< buffers and textures. If a transition is supported, the corresponding
-                                            ///< bit is set to `1`, otherwise `0`. Bit positions are the same as in
-                                            ///< WisTextureState enum. `WisTextureStateUndefined` is always supported.
+    /**
+     * @brief specifies the type of the queried property. @wis_must be `WisQueryPropertyTypeDeviceMemoryProperties`..
+     * */
+    WisQueryPropertyType property_type;
+    void* next_in_chain; ///< indicates pointer to the next queried data struct.
+    /**
+     * @brief describes if GPU upload memory type is supported. This memory type allows mapping the memory and writing
+     * to it from CPU, while being accessible from GPU. It is usually implemented as write-combined memory on integrated
+     * GPUs and as a part of shared system memory on discrete GPUs.
+     * */
+    bool gpu_upload_supported;
+    /**
+     * @brief indicates if host image copy is supported. This feature allows copying data directly from CPU memory to
+     * optimal tiled image layout on GPU, without the need for an intermediate staging buffer. It is supported on
+     * Windows 10 22H2 and later with WDDM 3.0 or later. On Vulkan it requires `VK_EXT_host_image_copy` extension.
+     * */
+    bool host_image_copy_supported;
+    /**
+     * @brief defines bitfield of supported initial resource state transitions for buffers and textures. If a transition
+     * is supported, the corresponding bit is set to `1`, otherwise `0`. Bit positions are the same as in
+     * WisTextureState enum. `WisTextureStateUndefined` is always supported.
+     * */
+    uint32_t supported_initial_transitions;
 } WisDeviceMemoryProperties;
 
 //==============================================================
@@ -2466,8 +2654,10 @@ WIS_DEFINE_HANDLE(WisDX12Instance, 2);
  *
  * */
 typedef struct WisDX12DeviceExtensionHeader {
-    const void*
-        opaque; ///< indicates opaque member; it @wis_must_not be changed directly outside extension development.
+    /**
+     * @brief indicates opaque member; it @wis_must_not be changed directly outside extension development.
+     * */
+    const void* opaque;
 } WisDX12DeviceExtensionHeader;
 
 /**
@@ -2476,8 +2666,10 @@ typedef struct WisDX12DeviceExtensionHeader {
  *
  * */
 typedef struct WisDX12InstanceExtensionHeader {
-    const void*
-        opaque; ///< indicates opaque member; it @wis_must_not be changed directly outside extension development.
+    /**
+     * @brief indicates opaque member; it @wis_must_not be changed directly outside extension development.
+     * */
+    const void* opaque;
 } WisDX12InstanceExtensionHeader;
 
 /**
@@ -2486,14 +2678,23 @@ typedef struct WisDX12InstanceExtensionHeader {
  *
  * */
 typedef struct WisDX12DeviceRequirements {
-    const WisCommandQueueDesc*
-        queue_descs; ///< points to an array of WisCommandQueueDesc for which queues are created during device creation.
-    size_t queue_desc_count;                   ///< indicates the number of the number of queue descriptions in the
-                                               ///< wisAdapterQueryCreateDevice queue_descs array.
-    WisDX12DeviceExtensionHeader** extensions; ///< points to an array of extensions that are to be initialized with
-                                               ///< pointers to WisDeviceExtensionHeader.
-    size_t extension_count; ///< describes the number of the number of extensions in the wisAdapterQueryCreateDevice
-                            ///< extensions array.
+    /**
+     * @brief points to an array of WisCommandQueueDesc for which queues are created during device creation.
+     * */
+    const WisCommandQueueDesc* queue_descs;
+    /**
+     * @brief indicates the number of the number of queue descriptions in the wisAdapterQueryCreateDevice queue_descs
+     * array.
+     * */
+    size_t queue_desc_count;
+    /**
+     * @brief points to an array of extensions that are to be initialized with pointers to WisDeviceExtensionHeader.
+     * */
+    WisDX12DeviceExtensionHeader** extensions;
+    /**
+     * @brief describes the number of the number of extensions in the wisAdapterQueryCreateDevice extensions array.
+     * */
+    size_t extension_count;
 } WisDX12DeviceRequirements;
 
 /**
@@ -2501,17 +2702,26 @@ typedef struct WisDX12DeviceRequirements {
  *
  * */
 typedef struct WisDX12BufferBarrier {
-    WisBarrierSync sync_before;      ///< indicates synchronization scope before the barrier.
-    WisBarrierSync sync_after;       ///< specifies synchronization scope after the barrier.
+    WisBarrierSync sync_before; ///< indicates synchronization scope before the barrier.
+    WisBarrierSync sync_after; ///< specifies synchronization scope after the barrier.
     WisResourceAccess access_before; ///< defines access scope before the barrier.
-    WisResourceAccess access_after;  ///< indicates access scope after the barrier.
-    WisDX12BufferView buffer;        ///< specifies buffer view.
-    uint64_t offset;                 ///< indicates offset in bytes from the start of the buffer. Default is 0.
-    uint64_t size; ///< indicates barrier size in bytes. Default is `UINT64_MAX`, which means the whole buffer range.
-    WisCommandQueueType queue_type_before; ///< defines type of the queue the barrier is executed on before the
-                                           ///< synchronization point. Used for cross-queue barriers.
-    WisCommandQueueType queue_type_after;  ///< indicates type of the queue the barrier is executed on after the
-                                           ///< synchronization point. Used for cross-queue barriers.
+    WisResourceAccess access_after; ///< indicates access scope after the barrier.
+    WisDX12BufferView buffer; ///< specifies buffer view.
+    uint64_t offset; ///< indicates offset in bytes from the start of the buffer. Default is 0.
+    /**
+     * @brief indicates barrier size in bytes. Default is `UINT64_MAX`, which means the whole buffer range.
+     * */
+    uint64_t size;
+    /**
+     * @brief defines type of the queue the barrier is executed on before the synchronization point. Used for
+     * cross-queue barriers.
+     * */
+    WisCommandQueueType queue_type_before;
+    /**
+     * @brief indicates type of the queue the barrier is executed on after the synchronization point. Used for
+     * cross-queue barriers.
+     * */
+    WisCommandQueueType queue_type_after;
 } WisDX12BufferBarrier;
 
 /**
@@ -2519,10 +2729,10 @@ typedef struct WisDX12BufferBarrier {
  *
  * */
 typedef struct WisDX12GlobalBarrier {
-    WisBarrierSync sync_before;      ///< indicates synchronization scope before the barrier.
-    WisBarrierSync sync_after;       ///< specifies synchronization scope after the barrier.
+    WisBarrierSync sync_before; ///< indicates synchronization scope before the barrier.
+    WisBarrierSync sync_after; ///< specifies synchronization scope after the barrier.
     WisResourceAccess access_before; ///< defines access scope before the barrier.
-    WisResourceAccess access_after;  ///< indicates access scope after the barrier.
+    WisResourceAccess access_after; ///< indicates access scope after the barrier.
 } WisDX12GlobalBarrier;
 
 /**
@@ -2530,19 +2740,25 @@ typedef struct WisDX12GlobalBarrier {
  *
  * */
 typedef struct WisDX12TextureBarrier {
-    WisBarrierSync sync_before;            ///< indicates synchronization scope before the barrier.
-    WisBarrierSync sync_after;             ///< specifies synchronization scope after the barrier.
-    WisResourceAccess access_before;       ///< defines access scope before the barrier.
-    WisResourceAccess access_after;        ///< indicates access scope after the barrier.
-    WisTextureState state_before;          ///< indicates texture state before the barrier.
-    WisTextureState state_after;           ///< specifies texture state after the barrier.
-    WisBarrierFlags flags;                 ///< describes barrier flags. Describe additional options for the barrier.
-    WisDX12TextureView texture;            ///< describes texture view.
+    WisBarrierSync sync_before; ///< indicates synchronization scope before the barrier.
+    WisBarrierSync sync_after; ///< specifies synchronization scope after the barrier.
+    WisResourceAccess access_before; ///< defines access scope before the barrier.
+    WisResourceAccess access_after; ///< indicates access scope after the barrier.
+    WisTextureState state_before; ///< indicates texture state before the barrier.
+    WisTextureState state_after; ///< specifies texture state after the barrier.
+    WisBarrierFlags flags; ///< describes barrier flags. Describe additional options for the barrier.
+    WisDX12TextureView texture; ///< describes texture view.
     WisSubresourceRange subresource_range; ///< specifies subresource range for the barrier.
-    WisCommandQueueType queue_type_before; ///< defines type of the queue the barrier is executed on before the
-                                           ///< synchronization point. Used for cross-queue barriers.
-    WisCommandQueueType queue_type_after;  ///< indicates type of the queue the barrier is executed on after the
-                                           ///< synchronization point. Used for cross-queue barriers.
+    /**
+     * @brief defines type of the queue the barrier is executed on before the synchronization point. Used for
+     * cross-queue barriers.
+     * */
+    WisCommandQueueType queue_type_before;
+    /**
+     * @brief indicates type of the queue the barrier is executed on after the synchronization point. Used for
+     * cross-queue barriers.
+     * */
+    WisCommandQueueType queue_type_after;
 } WisDX12TextureBarrier;
 
 /**
@@ -2551,13 +2767,20 @@ typedef struct WisDX12TextureBarrier {
  * */
 typedef struct WisDX12BarrierGroup {
     const WisDX12BufferBarrier* buffer_barriers; ///< points to an array of buffer barriers.
-    size_t buffer_barrier_count; ///< defines number of buffer barriers in the `WisBarrierGroup::buffer_barriers` array.
+    /**
+     * @brief defines number of buffer barriers in the `WisBarrierGroup::buffer_barriers` array.
+     * */
+    size_t buffer_barrier_count;
     const WisDX12TextureBarrier* texture_barriers; ///< points to an array of texture barriers.
-    size_t texture_barrier_count; ///< indicates number of texture barriers in the `WisBarrierGroup::texture_barriers`
-                                  ///< array.
+    /**
+     * @brief indicates number of texture barriers in the `WisBarrierGroup::texture_barriers` array.
+     * */
+    size_t texture_barrier_count;
     const WisDX12GlobalBarrier* global_barriers; ///< points to an array of global barriers.
-    size_t
-        global_barrier_count; ///< indicates number of global barriers in the `WisBarrierGroup::global_barriers` array.
+    /**
+     * @brief indicates number of global barriers in the `WisBarrierGroup::global_barriers` array.
+     * */
+    size_t global_barrier_count;
 } WisDX12BarrierGroup;
 
 /**
@@ -2566,9 +2789,9 @@ typedef struct WisDX12BarrierGroup {
  * */
 typedef struct WisDX12ComputePipelineDesc {
     WisDX12RootSignatureView root_signature; ///< describes root signature description for the pipeline.
-    WisDX12ShaderView compute_shader;        ///< indicates compute shader bytecode.
+    WisDX12ShaderView compute_shader; ///< indicates compute shader bytecode.
     WisDX12PipelineCacheView cache; ///< defines pipeline cache data. Used to speed up pipeline creation if available.
-    WisPipelineFlags flags;         ///< describes pipeline flags. Describe additional options for the pipeline.
+    WisPipelineFlags flags; ///< describes pipeline flags. Describe additional options for the pipeline.
 } WisDX12ComputePipelineDesc;
 
 /**
@@ -2577,31 +2800,56 @@ typedef struct WisDX12ComputePipelineDesc {
  * */
 typedef struct WisDX12GraphicsPipelineDesc {
     WisDX12RootSignatureView root_signature; ///< describes root signature description for the pipeline.
-    WisDX12ShaderView vertex_shader;         ///< defines vertex shader bytecode.
-    WisDX12ShaderView hull_shader; ///< indicates hull shader bytecode. If not set, the pipeline will be created without
-                                   ///< a hull shader.
-    WisDX12ShaderView domain_shader;   ///< specifies domain shader bytecode. If not set, the pipeline will be created
-                                       ///< without a domain shader.
-    WisDX12ShaderView geometry_shader; ///< specifies geometry shader bytecode. If not set, the pipeline will be created
-                                       ///< without a geometry shader.
-    WisDX12ShaderView pixel_shader; ///< defines pixel shader bytecode. If not set, the pipeline will be created without
-                                    ///< a pixel shader.
-    WisRenderAttachmentsDesc render_attachments; ///< indicates render attachments description for the pipeline. Used to
-                                                 ///< create the compatible render pass for the pipeline.
-    WisInputLayout input_layout; ///< describes input layout description for the pipeline. If not set, the pipeline will
-                                 ///< be created without an input layout.
-    WisTopologyType topology_type;            ///< specifies topology type. Default is `WisTopologyTypeTriangle`.
-    const WisRasterizerDesc* rasterizer_desc; ///< describes rasterizer description for the pipeline. If not set, the
-                                              ///< pipeline will be created with default rasterizer state.
-    const WisSampleDesc* sample_desc; ///< defines sample description for the pipeline. If not set, the pipeline will be
-                                      ///< created with default sample state (no multisampling).
-    const WisDepthStencilDesc*
-        depth_stencil_desc; ///< defines depth stencil description for the pipeline. If not set, the pipeline will be
-                            ///< created with depth testing and stencil testing disabled.
-    const WisBlendStateDesc* blend_state_desc; ///< indicates blend state description for the pipeline. If not set, the
-                                               ///< pipeline will be created with blending disabled.
+    WisDX12ShaderView vertex_shader; ///< defines vertex shader bytecode.
+    /**
+     * @brief indicates hull shader bytecode. If not set, the pipeline will be created without a hull shader.
+     * */
+    WisDX12ShaderView hull_shader;
+    /**
+     * @brief specifies domain shader bytecode. If not set, the pipeline will be created without a domain shader.
+     * */
+    WisDX12ShaderView domain_shader;
+    /**
+     * @brief specifies geometry shader bytecode. If not set, the pipeline will be created without a geometry shader.
+     * */
+    WisDX12ShaderView geometry_shader;
+    /**
+     * @brief defines pixel shader bytecode. If not set, the pipeline will be created without a pixel shader.
+     * */
+    WisDX12ShaderView pixel_shader;
+    /**
+     * @brief indicates render attachments description for the pipeline. Used to create the compatible render pass for
+     * the pipeline.
+     * */
+    WisRenderAttachmentsDesc render_attachments;
+    /**
+     * @brief describes input layout description for the pipeline. If not set, the pipeline will be created without an
+     * input layout.
+     * */
+    WisInputLayout input_layout;
+    WisTopologyType topology_type; ///< specifies topology type. Default is `WisTopologyTypeTriangle`.
+    /**
+     * @brief describes rasterizer description for the pipeline. If not set, the pipeline will be created with default
+     * rasterizer state.
+     * */
+    const WisRasterizerDesc* rasterizer_desc;
+    /**
+     * @brief defines sample description for the pipeline. If not set, the pipeline will be created with default sample
+     * state (no multisampling).
+     * */
+    const WisSampleDesc* sample_desc;
+    /**
+     * @brief defines depth stencil description for the pipeline. If not set, the pipeline will be created with depth
+     * testing and stencil testing disabled.
+     * */
+    const WisDepthStencilDesc* depth_stencil_desc;
+    /**
+     * @brief indicates blend state description for the pipeline. If not set, the pipeline will be created with blending
+     * disabled.
+     * */
+    const WisBlendStateDesc* blend_state_desc;
     WisDX12PipelineCacheView cache; ///< defines pipeline cache data. Used to speed up pipeline creation if available.
-    WisPipelineFlags flags;         ///< describes pipeline flags. Describe additional options for the pipeline.
+    WisPipelineFlags flags; ///< describes pipeline flags. Describe additional options for the pipeline.
 } WisDX12GraphicsPipelineDesc;
 
 /**
@@ -2759,8 +3007,11 @@ WISDOM_API WisResult wisDX12CreateInstance(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisDX12InstanceQueryAdapters(const WisDX12Instance* self, WisAdapterPreference preference, WisDX12AdapterQuery* query);
+WISDOM_API WisResult wisDX12InstanceQueryAdapters(
+    const WisDX12Instance* self,
+    WisAdapterPreference preference,
+    WisDX12AdapterQuery* query
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Returns the number of adapters present on the system at the time of the query.
@@ -2779,8 +3030,11 @@ WISDOM_API size_t wisDX12AdapterQueryGetAdapterCount(const WisDX12AdapterQuery* 
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisDX12AdapterQueryGetAdapterDesc(const WisDX12AdapterQuery* self, size_t index, WisAdapterDesc* desc);
+WISDOM_API WisResult wisDX12AdapterQueryGetAdapterDesc(
+    const WisDX12AdapterQuery* self,
+    size_t index,
+    WisAdapterDesc* desc
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Checks if the adapter at given index supports presentation to given surface.
@@ -2823,8 +3077,11 @@ WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisDX12DeviceCreateCommandQueue(const WisDX12Device* self, WisCommandQueueType type, WisDX12CommandQueue* queue);
+WISDOM_API WisResult wisDX12DeviceCreateCommandQueue(
+    const WisDX12Device* self,
+    WisCommandQueueType type,
+    WisDX12CommandQueue* queue
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a command allocator to allocate command lists with.
@@ -2896,8 +3153,12 @@ WISDOM_API WisResult wisDX12DeviceCreateDescriptorHeap(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisDX12DeviceCreateViewHeap(const WisDX12Device* self, WisViewHeapType type, uint32_t capacity, WisDX12ViewHeap* heap);
+WISDOM_API WisResult wisDX12DeviceCreateViewHeap(
+    const WisDX12Device* self,
+    WisViewHeapType type,
+    uint32_t capacity,
+    WisDX12ViewHeap* heap
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Queries the properties of the device.
@@ -2955,8 +3216,12 @@ WISDOM_API WisResult wisDX12DeviceCreatePipelineCache(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisDX12DeviceCreateShader(const WisDX12Device* self, const uint8_t* data, size_t size, WisDX12Shader* shader);
+WISDOM_API WisResult wisDX12DeviceCreateShader(
+    const WisDX12Device* self,
+    const uint8_t* data,
+    size_t size,
+    WisDX12Shader* shader
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a compute pipeline state object with given descriptor.
@@ -3009,8 +3274,11 @@ WISDOM_API bool wisDX12DeviceGetFormatPresentationSupport(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisDX12DeviceGetSurfaceParameters(const WisDX12Device* self, WisDX12SurfaceView surface, WisSurfaceParameters* params);
+WISDOM_API WisResult wisDX12DeviceGetSurfaceParameters(
+    const WisDX12Device* self,
+    WisDX12SurfaceView surface,
+    WisSurfaceParameters* params
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a swapchain for given surface with given descriptor.
@@ -3066,8 +3334,11 @@ WISDOM_API WisResult wisDX12FenceSignal(const WisDX12Fence* self, uint64_t value
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisDX12CommandQueueSubmit(const WisDX12CommandQueue* self, const WisDX12CommandListView* lists, size_t list_count);
+WISDOM_API WisResult wisDX12CommandQueueSubmit(
+    const WisDX12CommandQueue* self,
+    const WisDX12CommandListView* lists,
+    size_t list_count
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Enqueue the signal to the queue, that gets executed after all the work has been
@@ -3078,8 +3349,11 @@ wisDX12CommandQueueSubmit(const WisDX12CommandQueue* self, const WisDX12CommandL
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisDX12CommandQueueSignalFence(const WisDX12CommandQueue* self, WisDX12FenceView fence, uint64_t value);
+WISDOM_API WisResult wisDX12CommandQueueSignalFence(
+    const WisDX12CommandQueue* self,
+    WisDX12FenceView fence,
+    uint64_t value
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Enqueues wait operation to the command queue. Queue then waits for the fence to be
@@ -3090,8 +3364,11 @@ wisDX12CommandQueueSignalFence(const WisDX12CommandQueue* self, WisDX12FenceView
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisDX12CommandQueueWaitFence(const WisDX12CommandQueue* self, WisDX12FenceView fence, uint64_t value);
+WISDOM_API WisResult wisDX12CommandQueueWaitFence(
+    const WisDX12CommandQueue* self,
+    WisDX12FenceView fence,
+    uint64_t value
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a buffer with given descriptor.
@@ -3139,10 +3416,11 @@ WISDOM_API uint64_t wisDX12BufferGetGPUAddress(const WisDX12Buffer* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Writes data directly to the texture subresource. Texture @wis_must be in
- * `WisTextureStateCommon` and @wis_must_not be a depth texture.
+ * `WisTextureStateCommon` and @wis_must_not be a depth or planar texture.
  * @param self is a pointer to the valid WisTexture instance.
  * @param source_data specifies a pointer to the data to write to the texture.
  * @param target_region specifies a pointer to WisTextureRegion, which describes the region of the texture to write to.
+ * The `flags` parameter of the region is ignored, as depth/stencil/planar is not supported.
  * @return Result denoting the outcome of operation.
  *
  * */
@@ -3215,8 +3493,11 @@ WISDOM_API WisResult wisDX12DescriptorHeapWriteRWStructuredBuffer(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisDX12DescriptorHeapWriteSampler(const WisDX12DescriptorHeap* self, const WisSamplerDesc* sampler, uint32_t index);
+WISDOM_API WisResult wisDX12DescriptorHeapWriteSampler(
+    const WisDX12DescriptorHeap* self,
+    const WisSamplerDesc* sampler,
+    uint32_t index
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Writes a descriptor to the descriptor heap.
@@ -3258,8 +3539,11 @@ WISDOM_API WisResult wisDX12DescriptorHeapWriteRWTexture(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisDX12DescriptorHeapWriteAccelerationStructure(const WisDX12DescriptorHeap* self, uint64_t address, uint32_t index);
+WISDOM_API WisResult wisDX12DescriptorHeapWriteAccelerationStructure(
+    const WisDX12DescriptorHeap* self,
+    uint64_t address,
+    uint32_t index
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Copies descriptors from one heap to another.
@@ -3362,8 +3646,10 @@ WISDOM_API WisResult wisDX12CommandAllocatorReset(const WisDX12CommandAllocator*
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisDX12CommandAllocatorCreateCommandList(const WisDX12CommandAllocator* self, WisDX12CommandList* list);
+WISDOM_API WisResult wisDX12CommandAllocatorCreateCommandList(
+    const WisDX12CommandAllocator* self,
+    WisDX12CommandList* list
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Opens the command list, so commands can be recorded to it.
@@ -3479,19 +3765,16 @@ WISDOM_API void wisDX12CommandListSetViewports(
 );
 
 /**
- * @brief Provided by Wisdom 0.7.0. Sets multiple scissor rects.
- * Each n-th rect corresponds to n-th Viewport set in RSSetViewports if SV_ViewportArrayIndex is used in geometry
- * shader. Otherwise the first is chosen.
+ * @brief Provided by Wisdom 0.7.0. Sets a scissor rect.
+ * Only the region, which is in the scissor rect is updated.
+ * If multiple viewports are used, SV_ViewportArrayIndex in geometry shader selects the viewport and associated scissor
+ * rect.
  * @param self is a pointer to the valid WisCommandList instance.
- * @param scissor_rects points to an array of scissor rectangles to set.
- * @param rect_count specifies number of scissor rectangles to set.
+ * @param scissor_rect points to an array of scissor rectangles to set.
+ * @param rect_count defines number of scissor rectangles to set.
  *
  * */
-WISDOM_API void wisDX12CommandListSetScissors(
-    WisDX12CommandList* self,
-    const WisRect* scissor_rects,
-    size_t rect_count
-);
+WISDOM_API void wisDX12CommandListSetScissors(WisDX12CommandList* self, const WisRect* scissor_rect, size_t rect_count);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Sets the primitive topology. Determines how vertices shall be processed.
@@ -3690,8 +3973,12 @@ WISDOM_API size_t wisDX12PipelineCacheGetSerializedSize(const WisDX12PipelineCac
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisDX12SwapchainPresent(const WisDX12Swapchain* self, WisPresentFlags flags, const WisRect* rects, size_t rect_count);
+WISDOM_API WisResult wisDX12SwapchainPresent(
+    const WisDX12Swapchain* self,
+    WisPresentFlags flags,
+    const WisRect* rects,
+    size_t rect_count
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Gets the index of the current backbuffer. In case of lazy indexing it @wis_may wait
@@ -3722,8 +4009,11 @@ WISDOM_API WisResult wisDX12SwapchainUpdate(const WisDX12Swapchain* self, const 
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisDX12SwapchainGetTextures(const WisDX12Swapchain* self, WisDX12Texture* buffers, size_t buffer_count);
+WISDOM_API WisResult wisDX12SwapchainGetTextures(
+    const WisDX12Swapchain* self,
+    WisDX12Texture* buffers,
+    size_t buffer_count
+);
 
 #endif // WISDOM_DX12
 
@@ -3919,8 +4209,10 @@ WIS_DEFINE_HANDLE(WisVKInstance, 3);
  *
  * */
 typedef struct WisVKDeviceExtensionHeader {
-    const void*
-        opaque; ///< indicates opaque member; it @wis_must_not be changed directly outside extension development.
+    /**
+     * @brief indicates opaque member; it @wis_must_not be changed directly outside extension development.
+     * */
+    const void* opaque;
 } WisVKDeviceExtensionHeader;
 
 /**
@@ -3929,8 +4221,10 @@ typedef struct WisVKDeviceExtensionHeader {
  *
  * */
 typedef struct WisVKInstanceExtensionHeader {
-    const void*
-        opaque; ///< indicates opaque member; it @wis_must_not be changed directly outside extension development.
+    /**
+     * @brief indicates opaque member; it @wis_must_not be changed directly outside extension development.
+     * */
+    const void* opaque;
 } WisVKInstanceExtensionHeader;
 
 /**
@@ -3939,14 +4233,23 @@ typedef struct WisVKInstanceExtensionHeader {
  *
  * */
 typedef struct WisVKDeviceRequirements {
-    const WisCommandQueueDesc*
-        queue_descs; ///< points to an array of WisCommandQueueDesc for which queues are created during device creation.
-    size_t queue_desc_count;                 ///< indicates the number of the number of queue descriptions in the
-                                             ///< wisAdapterQueryCreateDevice queue_descs array.
-    WisVKDeviceExtensionHeader** extensions; ///< points to an array of extensions that are to be initialized with
-                                             ///< pointers to WisDeviceExtensionHeader.
-    size_t extension_count; ///< describes the number of the number of extensions in the wisAdapterQueryCreateDevice
-                            ///< extensions array.
+    /**
+     * @brief points to an array of WisCommandQueueDesc for which queues are created during device creation.
+     * */
+    const WisCommandQueueDesc* queue_descs;
+    /**
+     * @brief indicates the number of the number of queue descriptions in the wisAdapterQueryCreateDevice queue_descs
+     * array.
+     * */
+    size_t queue_desc_count;
+    /**
+     * @brief points to an array of extensions that are to be initialized with pointers to WisDeviceExtensionHeader.
+     * */
+    WisVKDeviceExtensionHeader** extensions;
+    /**
+     * @brief describes the number of the number of extensions in the wisAdapterQueryCreateDevice extensions array.
+     * */
+    size_t extension_count;
 } WisVKDeviceRequirements;
 
 /**
@@ -3954,17 +4257,26 @@ typedef struct WisVKDeviceRequirements {
  *
  * */
 typedef struct WisVKBufferBarrier {
-    WisBarrierSync sync_before;      ///< indicates synchronization scope before the barrier.
-    WisBarrierSync sync_after;       ///< specifies synchronization scope after the barrier.
+    WisBarrierSync sync_before; ///< indicates synchronization scope before the barrier.
+    WisBarrierSync sync_after; ///< specifies synchronization scope after the barrier.
     WisResourceAccess access_before; ///< defines access scope before the barrier.
-    WisResourceAccess access_after;  ///< indicates access scope after the barrier.
-    WisVKBufferView buffer;          ///< specifies buffer view.
-    uint64_t offset;                 ///< indicates offset in bytes from the start of the buffer. Default is 0.
-    uint64_t size; ///< indicates barrier size in bytes. Default is `UINT64_MAX`, which means the whole buffer range.
-    WisCommandQueueType queue_type_before; ///< defines type of the queue the barrier is executed on before the
-                                           ///< synchronization point. Used for cross-queue barriers.
-    WisCommandQueueType queue_type_after;  ///< indicates type of the queue the barrier is executed on after the
-                                           ///< synchronization point. Used for cross-queue barriers.
+    WisResourceAccess access_after; ///< indicates access scope after the barrier.
+    WisVKBufferView buffer; ///< specifies buffer view.
+    uint64_t offset; ///< indicates offset in bytes from the start of the buffer. Default is 0.
+    /**
+     * @brief indicates barrier size in bytes. Default is `UINT64_MAX`, which means the whole buffer range.
+     * */
+    uint64_t size;
+    /**
+     * @brief defines type of the queue the barrier is executed on before the synchronization point. Used for
+     * cross-queue barriers.
+     * */
+    WisCommandQueueType queue_type_before;
+    /**
+     * @brief indicates type of the queue the barrier is executed on after the synchronization point. Used for
+     * cross-queue barriers.
+     * */
+    WisCommandQueueType queue_type_after;
 } WisVKBufferBarrier;
 
 /**
@@ -3972,10 +4284,10 @@ typedef struct WisVKBufferBarrier {
  *
  * */
 typedef struct WisVKGlobalBarrier {
-    WisBarrierSync sync_before;      ///< indicates synchronization scope before the barrier.
-    WisBarrierSync sync_after;       ///< specifies synchronization scope after the barrier.
+    WisBarrierSync sync_before; ///< indicates synchronization scope before the barrier.
+    WisBarrierSync sync_after; ///< specifies synchronization scope after the barrier.
     WisResourceAccess access_before; ///< defines access scope before the barrier.
-    WisResourceAccess access_after;  ///< indicates access scope after the barrier.
+    WisResourceAccess access_after; ///< indicates access scope after the barrier.
 } WisVKGlobalBarrier;
 
 /**
@@ -3983,19 +4295,25 @@ typedef struct WisVKGlobalBarrier {
  *
  * */
 typedef struct WisVKTextureBarrier {
-    WisBarrierSync sync_before;            ///< indicates synchronization scope before the barrier.
-    WisBarrierSync sync_after;             ///< specifies synchronization scope after the barrier.
-    WisResourceAccess access_before;       ///< defines access scope before the barrier.
-    WisResourceAccess access_after;        ///< indicates access scope after the barrier.
-    WisTextureState state_before;          ///< indicates texture state before the barrier.
-    WisTextureState state_after;           ///< specifies texture state after the barrier.
-    WisBarrierFlags flags;                 ///< describes barrier flags. Describe additional options for the barrier.
-    WisVKTextureView texture;              ///< describes texture view.
+    WisBarrierSync sync_before; ///< indicates synchronization scope before the barrier.
+    WisBarrierSync sync_after; ///< specifies synchronization scope after the barrier.
+    WisResourceAccess access_before; ///< defines access scope before the barrier.
+    WisResourceAccess access_after; ///< indicates access scope after the barrier.
+    WisTextureState state_before; ///< indicates texture state before the barrier.
+    WisTextureState state_after; ///< specifies texture state after the barrier.
+    WisBarrierFlags flags; ///< describes barrier flags. Describe additional options for the barrier.
+    WisVKTextureView texture; ///< describes texture view.
     WisSubresourceRange subresource_range; ///< specifies subresource range for the barrier.
-    WisCommandQueueType queue_type_before; ///< defines type of the queue the barrier is executed on before the
-                                           ///< synchronization point. Used for cross-queue barriers.
-    WisCommandQueueType queue_type_after;  ///< indicates type of the queue the barrier is executed on after the
-                                           ///< synchronization point. Used for cross-queue barriers.
+    /**
+     * @brief defines type of the queue the barrier is executed on before the synchronization point. Used for
+     * cross-queue barriers.
+     * */
+    WisCommandQueueType queue_type_before;
+    /**
+     * @brief indicates type of the queue the barrier is executed on after the synchronization point. Used for
+     * cross-queue barriers.
+     * */
+    WisCommandQueueType queue_type_after;
 } WisVKTextureBarrier;
 
 /**
@@ -4004,13 +4322,20 @@ typedef struct WisVKTextureBarrier {
  * */
 typedef struct WisVKBarrierGroup {
     const WisVKBufferBarrier* buffer_barriers; ///< points to an array of buffer barriers.
-    size_t buffer_barrier_count; ///< defines number of buffer barriers in the `WisBarrierGroup::buffer_barriers` array.
+    /**
+     * @brief defines number of buffer barriers in the `WisBarrierGroup::buffer_barriers` array.
+     * */
+    size_t buffer_barrier_count;
     const WisVKTextureBarrier* texture_barriers; ///< points to an array of texture barriers.
-    size_t texture_barrier_count; ///< indicates number of texture barriers in the `WisBarrierGroup::texture_barriers`
-                                  ///< array.
+    /**
+     * @brief indicates number of texture barriers in the `WisBarrierGroup::texture_barriers` array.
+     * */
+    size_t texture_barrier_count;
     const WisVKGlobalBarrier* global_barriers; ///< points to an array of global barriers.
-    size_t
-        global_barrier_count; ///< indicates number of global barriers in the `WisBarrierGroup::global_barriers` array.
+    /**
+     * @brief indicates number of global barriers in the `WisBarrierGroup::global_barriers` array.
+     * */
+    size_t global_barrier_count;
 } WisVKBarrierGroup;
 
 /**
@@ -4019,9 +4344,9 @@ typedef struct WisVKBarrierGroup {
  * */
 typedef struct WisVKComputePipelineDesc {
     WisVKRootSignatureView root_signature; ///< describes root signature description for the pipeline.
-    WisVKShaderView compute_shader;        ///< indicates compute shader bytecode.
+    WisVKShaderView compute_shader; ///< indicates compute shader bytecode.
     WisVKPipelineCacheView cache; ///< defines pipeline cache data. Used to speed up pipeline creation if available.
-    WisPipelineFlags flags;       ///< describes pipeline flags. Describe additional options for the pipeline.
+    WisPipelineFlags flags; ///< describes pipeline flags. Describe additional options for the pipeline.
 } WisVKComputePipelineDesc;
 
 /**
@@ -4030,31 +4355,56 @@ typedef struct WisVKComputePipelineDesc {
  * */
 typedef struct WisVKGraphicsPipelineDesc {
     WisVKRootSignatureView root_signature; ///< describes root signature description for the pipeline.
-    WisVKShaderView vertex_shader;         ///< defines vertex shader bytecode.
-    WisVKShaderView hull_shader; ///< indicates hull shader bytecode. If not set, the pipeline will be created without a
-                                 ///< hull shader.
-    WisVKShaderView domain_shader;   ///< specifies domain shader bytecode. If not set, the pipeline will be created
-                                     ///< without a domain shader.
-    WisVKShaderView geometry_shader; ///< specifies geometry shader bytecode. If not set, the pipeline will be created
-                                     ///< without a geometry shader.
-    WisVKShaderView pixel_shader; ///< defines pixel shader bytecode. If not set, the pipeline will be created without a
-                                  ///< pixel shader.
-    WisRenderAttachmentsDesc render_attachments; ///< indicates render attachments description for the pipeline. Used to
-                                                 ///< create the compatible render pass for the pipeline.
-    WisInputLayout input_layout; ///< describes input layout description for the pipeline. If not set, the pipeline will
-                                 ///< be created without an input layout.
-    WisTopologyType topology_type;            ///< specifies topology type. Default is `WisTopologyTypeTriangle`.
-    const WisRasterizerDesc* rasterizer_desc; ///< describes rasterizer description for the pipeline. If not set, the
-                                              ///< pipeline will be created with default rasterizer state.
-    const WisSampleDesc* sample_desc; ///< defines sample description for the pipeline. If not set, the pipeline will be
-                                      ///< created with default sample state (no multisampling).
-    const WisDepthStencilDesc*
-        depth_stencil_desc; ///< defines depth stencil description for the pipeline. If not set, the pipeline will be
-                            ///< created with depth testing and stencil testing disabled.
-    const WisBlendStateDesc* blend_state_desc; ///< indicates blend state description for the pipeline. If not set, the
-                                               ///< pipeline will be created with blending disabled.
+    WisVKShaderView vertex_shader; ///< defines vertex shader bytecode.
+    /**
+     * @brief indicates hull shader bytecode. If not set, the pipeline will be created without a hull shader.
+     * */
+    WisVKShaderView hull_shader;
+    /**
+     * @brief specifies domain shader bytecode. If not set, the pipeline will be created without a domain shader.
+     * */
+    WisVKShaderView domain_shader;
+    /**
+     * @brief specifies geometry shader bytecode. If not set, the pipeline will be created without a geometry shader.
+     * */
+    WisVKShaderView geometry_shader;
+    /**
+     * @brief defines pixel shader bytecode. If not set, the pipeline will be created without a pixel shader.
+     * */
+    WisVKShaderView pixel_shader;
+    /**
+     * @brief indicates render attachments description for the pipeline. Used to create the compatible render pass for
+     * the pipeline.
+     * */
+    WisRenderAttachmentsDesc render_attachments;
+    /**
+     * @brief describes input layout description for the pipeline. If not set, the pipeline will be created without an
+     * input layout.
+     * */
+    WisInputLayout input_layout;
+    WisTopologyType topology_type; ///< specifies topology type. Default is `WisTopologyTypeTriangle`.
+    /**
+     * @brief describes rasterizer description for the pipeline. If not set, the pipeline will be created with default
+     * rasterizer state.
+     * */
+    const WisRasterizerDesc* rasterizer_desc;
+    /**
+     * @brief defines sample description for the pipeline. If not set, the pipeline will be created with default sample
+     * state (no multisampling).
+     * */
+    const WisSampleDesc* sample_desc;
+    /**
+     * @brief defines depth stencil description for the pipeline. If not set, the pipeline will be created with depth
+     * testing and stencil testing disabled.
+     * */
+    const WisDepthStencilDesc* depth_stencil_desc;
+    /**
+     * @brief indicates blend state description for the pipeline. If not set, the pipeline will be created with blending
+     * disabled.
+     * */
+    const WisBlendStateDesc* blend_state_desc;
     WisVKPipelineCacheView cache; ///< defines pipeline cache data. Used to speed up pipeline creation if available.
-    WisPipelineFlags flags;       ///< describes pipeline flags. Describe additional options for the pipeline.
+    WisPipelineFlags flags; ///< describes pipeline flags. Describe additional options for the pipeline.
 } WisVKGraphicsPipelineDesc;
 
 /**
@@ -4212,8 +4562,11 @@ WISDOM_API WisResult wisVKCreateInstance(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisVKInstanceQueryAdapters(const WisVKInstance* self, WisAdapterPreference preference, WisVKAdapterQuery* query);
+WISDOM_API WisResult wisVKInstanceQueryAdapters(
+    const WisVKInstance* self,
+    WisAdapterPreference preference,
+    WisVKAdapterQuery* query
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Returns the number of adapters present on the system at the time of the query.
@@ -4275,8 +4628,11 @@ WISDOM_API WisResult wisVKAdapterQueryCreateDevice(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisVKDeviceCreateCommandQueue(const WisVKDevice* self, WisCommandQueueType type, WisVKCommandQueue* queue);
+WISDOM_API WisResult wisVKDeviceCreateCommandQueue(
+    const WisVKDevice* self,
+    WisCommandQueueType type,
+    WisVKCommandQueue* queue
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a command allocator to allocate command lists with.
@@ -4286,8 +4642,11 @@ wisVKDeviceCreateCommandQueue(const WisVKDevice* self, WisCommandQueueType type,
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisVKDeviceCreateCommandAllocator(const WisVKDevice* self, WisCommandQueueType type, WisVKCommandAllocator* allocator);
+WISDOM_API WisResult wisVKDeviceCreateCommandAllocator(
+    const WisVKDevice* self,
+    WisCommandQueueType type,
+    WisVKCommandAllocator* allocator
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a fence for GPU-CPU and GPU-GPU synchronization.
@@ -4316,8 +4675,11 @@ WISDOM_API WisResult wisVKDeviceGetResourceAllocator(const WisVKDevice* self, Wi
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisVKDeviceCreateRootSignature(const WisVKDevice* self, const WisRootSignatureDesc* desc, WisVKRootSignature* layout);
+WISDOM_API WisResult wisVKDeviceCreateRootSignature(
+    const WisVKDevice* self,
+    const WisRootSignatureDesc* desc,
+    WisVKRootSignature* layout
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a descriptor storage with given description.
@@ -4327,8 +4689,11 @@ wisVKDeviceCreateRootSignature(const WisVKDevice* self, const WisRootSignatureDe
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisVKDeviceCreateDescriptorHeap(const WisVKDevice* self, const WisDescriptorHeapDesc* desc, WisVKDescriptorHeap* heap);
+WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(
+    const WisVKDevice* self,
+    const WisDescriptorHeapDesc* desc,
+    WisVKDescriptorHeap* heap
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a view storage with given descriptor.
@@ -4339,8 +4704,12 @@ wisVKDeviceCreateDescriptorHeap(const WisVKDevice* self, const WisDescriptorHeap
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisVKDeviceCreateViewHeap(const WisVKDevice* self, WisViewHeapType type, uint32_t capacity, WisVKViewHeap* heap);
+WISDOM_API WisResult wisVKDeviceCreateViewHeap(
+    const WisVKDevice* self,
+    WisViewHeapType type,
+    uint32_t capacity,
+    WisVKViewHeap* heap
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Queries the properties of the device.
@@ -4398,8 +4767,12 @@ WISDOM_API WisResult wisVKDeviceCreatePipelineCache(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisVKDeviceCreateShader(const WisVKDevice* self, const uint8_t* data, size_t size, WisVKShader* shader);
+WISDOM_API WisResult wisVKDeviceCreateShader(
+    const WisVKDevice* self,
+    const uint8_t* data,
+    size_t size,
+    WisVKShader* shader
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a compute pipeline state object with given descriptor.
@@ -4452,8 +4825,11 @@ WISDOM_API bool wisVKDeviceGetFormatPresentationSupport(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisVKDeviceGetSurfaceParameters(const WisVKDevice* self, WisVKSurfaceView surface, WisSurfaceParameters* params);
+WISDOM_API WisResult wisVKDeviceGetSurfaceParameters(
+    const WisVKDevice* self,
+    WisVKSurfaceView surface,
+    WisSurfaceParameters* params
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a swapchain for given surface with given descriptor.
@@ -4509,8 +4885,11 @@ WISDOM_API WisResult wisVKFenceSignal(const WisVKFence* self, uint64_t value);
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisVKCommandQueueSubmit(const WisVKCommandQueue* self, const WisVKCommandListView* lists, size_t list_count);
+WISDOM_API WisResult wisVKCommandQueueSubmit(
+    const WisVKCommandQueue* self,
+    const WisVKCommandListView* lists,
+    size_t list_count
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Enqueue the signal to the queue, that gets executed after all the work has been
@@ -4542,8 +4921,11 @@ WISDOM_API WisResult wisVKCommandQueueWaitFence(const WisVKCommandQueue* self, W
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisVKResourceAllocatorCreateBuffer(const WisVKResourceAllocator* self, const WisBufferDesc* desc, WisVKBuffer* buffer);
+WISDOM_API WisResult wisVKResourceAllocatorCreateBuffer(
+    const WisVKResourceAllocator* self,
+    const WisBufferDesc* desc,
+    WisVKBuffer* buffer
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a texture with given descriptor.
@@ -4577,15 +4959,19 @@ WISDOM_API uint64_t wisVKBufferGetGPUAddress(const WisVKBuffer* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Writes data directly to the texture subresource. Texture @wis_must be in
- * `WisTextureStateCommon` and @wis_must_not be a depth texture.
+ * `WisTextureStateCommon` and @wis_must_not be a depth or planar texture.
  * @param self is a pointer to the valid WisTexture instance.
  * @param source_data specifies a pointer to the data to write to the texture.
  * @param target_region specifies a pointer to WisTextureRegion, which describes the region of the texture to write to.
+ * The `flags` parameter of the region is ignored, as depth/stencil/planar is not supported.
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisVKTextureWriteSubresource(const WisVKTexture* self, const void* source_data, const WisTextureRegion* target_region);
+WISDOM_API WisResult wisVKTextureWriteSubresource(
+    const WisVKTexture* self,
+    const void* source_data,
+    const WisTextureRegion* target_region
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Returns the CPU descriptor handle for the descriptor heap.
@@ -4650,8 +5036,11 @@ WISDOM_API WisResult wisVKDescriptorHeapWriteRWStructuredBuffer(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisVKDescriptorHeapWriteSampler(const WisVKDescriptorHeap* self, const WisSamplerDesc* sampler, uint32_t index);
+WISDOM_API WisResult wisVKDescriptorHeapWriteSampler(
+    const WisVKDescriptorHeap* self,
+    const WisSamplerDesc* sampler,
+    uint32_t index
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Writes a descriptor to the descriptor heap.
@@ -4693,8 +5082,11 @@ WISDOM_API WisResult wisVKDescriptorHeapWriteRWTexture(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisVKDescriptorHeapWriteAccelerationStructure(const WisVKDescriptorHeap* self, uint64_t address, uint32_t index);
+WISDOM_API WisResult wisVKDescriptorHeapWriteAccelerationStructure(
+    const WisVKDescriptorHeap* self,
+    uint64_t address,
+    uint32_t index
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Copies descriptors from one heap to another.
@@ -4910,15 +5302,16 @@ WISDOM_API void wisVKCommandListSetViewports(
 );
 
 /**
- * @brief Provided by Wisdom 0.7.0. Sets multiple scissor rects.
- * Each n-th rect corresponds to n-th Viewport set in RSSetViewports if SV_ViewportArrayIndex is used in geometry
- * shader. Otherwise the first is chosen.
+ * @brief Provided by Wisdom 0.7.0. Sets a scissor rect.
+ * Only the region, which is in the scissor rect is updated.
+ * If multiple viewports are used, SV_ViewportArrayIndex in geometry shader selects the viewport and associated scissor
+ * rect.
  * @param self is a pointer to the valid WisCommandList instance.
- * @param scissor_rects points to an array of scissor rectangles to set.
- * @param rect_count specifies number of scissor rectangles to set.
+ * @param scissor_rect points to an array of scissor rectangles to set.
+ * @param rect_count defines number of scissor rectangles to set.
  *
  * */
-WISDOM_API void wisVKCommandListSetScissors(WisVKCommandList* self, const WisRect* scissor_rects, size_t rect_count);
+WISDOM_API void wisVKCommandListSetScissors(WisVKCommandList* self, const WisRect* scissor_rect, size_t rect_count);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Sets the primitive topology. Determines how vertices shall be processed.
@@ -5117,8 +5510,12 @@ WISDOM_API size_t wisVKPipelineCacheGetSerializedSize(const WisVKPipelineCache* 
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisVKSwapchainPresent(const WisVKSwapchain* self, WisPresentFlags flags, const WisRect* rects, size_t rect_count);
+WISDOM_API WisResult wisVKSwapchainPresent(
+    const WisVKSwapchain* self,
+    WisPresentFlags flags,
+    const WisRect* rects,
+    size_t rect_count
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Gets the index of the current backbuffer. In case of lazy indexing it @wis_may wait

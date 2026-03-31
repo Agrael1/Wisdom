@@ -48,22 +48,22 @@ class App
 
     // Resources
     // First pass resources
-    wis::RootSignature root;     // root signature for first stage
+    wis::RootSignature root; // root signature for first stage
     wis::PipelineState pipeline; // pipeline for first stage
-    wis::Shader vs;              // vertex shader
-    wis::Shader ps;              // pixel shader
+    wis::Shader vs; // vertex shader
+    wis::Shader ps; // pixel shader
 
-    wis::Texture texture;        // texture for rendering
-    wis::Texture texture_lut;    // 3D texture for LUT (Look-Up Table)
-    wis::ShaderResource srv;     // shader resource view for texture
+    wis::Texture texture; // texture for rendering
+    wis::Texture texture_lut; // 3D texture for LUT (Look-Up Table)
+    wis::ShaderResource srv; // shader resource view for texture
     wis::ShaderResource srv_lut; // shader resource view for LUT
-    wis::Sampler sampler;        // sampler for texture (linear)
-    wis::Sampler sampler_lut;    // sampler for LUT (point)
+    wis::Sampler sampler; // sampler for texture (linear)
+    wis::Sampler sampler_lut; // sampler for LUT (point)
 
     // Descriptor buffers
     wis::DescriptorBufferExtension desc_ext; // descriptor buffer extension for shader resources
-    wis::DescriptorBuffer desc_buffer;       // descriptor buffer for shader resources
-    wis::DescriptorBuffer sampler_buffer;    // descriptor buffer for samplers
+    wis::DescriptorBuffer desc_buffer; // descriptor buffer for shader resources
+    wis::DescriptorBuffer sampler_buffer; // descriptor buffer for samplers
 
 public:
     App()
@@ -222,19 +222,19 @@ public:
         {
             wis::DescriptorTableEntry entries[]{
                 {.type = wis::DescriptorType::Texture, // LUT texture (3D cube)
-                 .bind_register = 0,
+ .bind_register = 0,
                  .binding = 0,
                  .count = 1},
                 {.type = wis::DescriptorType::Texture, // Image texture (2D)
-                 .bind_register = 1,
+ .bind_register = 1,
                  .binding = 1,
                  .count = 1},
                 {.type = wis::DescriptorType::Sampler, // LUT sampler (point)
-                 .bind_register = 0,
+ .bind_register = 0,
                  .binding = 0,
                  .count = 1},
                 {.type = wis::DescriptorType::Sampler, // image sampler (linear)
-                 .bind_register = 1,
+ .bind_register = 1,
                  .binding = 1,
                  .count = 1}
             };
@@ -242,11 +242,11 @@ public:
             wis::DescriptorTable tables[]{
                 {.type = wis::DescriptorHeapType::Descriptor,
                  .entries = entries, // first entries
-                 .entry_count = 2,
+ .entry_count = 2,
                  .stage = wis::ShaderStages::Pixel},
-                {.type = wis::DescriptorHeapType::Sampler,
+                {   .type = wis::DescriptorHeapType::Sampler,
                  .entries = entries + 2, // skip first 2 entries
-                 .entry_count = 2,
+ .entry_count = 2,
                  .stage = wis::ShaderStages::Pixel}
             };
             root = ex::Unwrap(desc_ext.CreateRootSignature(nullptr, 0, nullptr, 0, tables, std::size(tables)));
@@ -259,9 +259,9 @@ public:
                 .shaders = {.vertex = vs, .pixel = ps},
                 .attachments =
                     {
-                        .attachment_formats = {ex::swapchain_format},
-                        .attachments_count = 1,
-                    },
+                            .attachment_formats = {ex::swapchain_format},
+                            .attachments_count = 1,
+                            },
                 .flags = wis::PipelineFlags::DescriptorBuffer, // use descriptor buffer for root signature
             };
             pipeline = ex::Unwrap(setup.device.CreateGraphicsPipeline(desc));
@@ -297,9 +297,9 @@ public:
             // Copy LUT data to the texture
             wis::BufferTextureCopyRegion region{
                 .texture = {
-                    .size = {(uint32_t)lut_data.stride, (uint32_t)lut_data.stride, (uint32_t)lut_data.stride},
-                    .format = wis::DataFormat::RGBA32Float,
-                }
+                            .size = {(uint32_t)lut_data.stride, (uint32_t)lut_data.stride, (uint32_t)lut_data.stride},
+                            .format = wis::DataFormat::RGBA32Float,
+                            }
             };
             // Insert barrier for the LUT texture
             cmd.TextureBarrier(
@@ -328,8 +328,8 @@ public:
                 .format = wis::DataFormat::RGBA32Float,
                 .view_type = wis::TextureViewType::Texture3D,
                 .subresource_range = {
-                    .base_mip_level = 0,
-                    .level_count = 1, // no need to specify array layers. It's a 3D texture
+                                      .base_mip_level = 0,
+                                      .level_count = 1, // no need to specify array layers. It's a 3D texture
                 },
             };
             srv_lut = ex::Unwrap(device.CreateShaderResource(texture_lut, srv_desc));
@@ -379,9 +379,9 @@ public:
             // Copy image data to the texture
             wis::BufferTextureCopyRegion region{
                 .texture = {
-                    .size = {png_data.width, png_data.height, 1},
-                    .format = wis::DataFormat::RGBA8Unorm,
-                }
+                            .size = {png_data.width, png_data.height, 1},
+                            .format = wis::DataFormat::RGBA8Unorm,
+                            }
             };
             // Insert barrier for the image texture
             cmd.TextureBarrier(
@@ -410,8 +410,8 @@ public:
                 .format = wis::DataFormat::RGBA8Unorm,
                 .view_type = wis::TextureViewType::Texture2D,
                 .subresource_range = {
-                    .base_mip_level = 0,
-                    .level_count = 1, // no need to specify array layers. It's a 2D texture without array layers
+                                      .base_mip_level = 0,
+                                      .level_count = 1, // no need to specify array layers. It's a 2D texture without array layers
                 },
             };
             srv = ex::Unwrap(device.CreateShaderResource(texture, srv_desc));

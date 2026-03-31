@@ -12,8 +12,7 @@ public:
     class Event
     {
     public:
-        enum class Type
-        {
+        enum class Type {
             LPress,
             LRelease,
             RPress,
@@ -39,8 +38,7 @@ public:
             , right(parent.right_is_pressed)
             , x(parent.x)
             , y(parent.y)
-        {
-        }
+        {}
 
     public:
         Type GetType() const noexcept { return _type; }

@@ -131,13 +131,18 @@ inline constexpr GUID guid_of_v()
  *                 0xbe, 0x54, 0x18, 0x21, 0x33, 0x9b, 0x85, 0xf7);
  * @endcode
  */
-#    define WIS_DEFINE_GUID(type, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8)   \
-        template <>                                                            \
-        struct wis::guid_of<type> {                                            \
-            static constexpr wis::GUID get() noexcept                          \
-            {                                                                  \
-                return wis::GUID{l, w1, w2, {b1, b2, b3, b4, b5, b6, b7, b8}}; \
-            }                                                                  \
+#    define WIS_DEFINE_GUID(type, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) \
+        template <>                                                          \
+        struct wis::guid_of<type> {                                          \
+            static constexpr wis::GUID get() noexcept                        \
+            {                                                                \
+                return wis::GUID{                                            \
+                    l,                                                       \
+                    w1,                                                      \
+                    w2,                                                      \
+                    {b1, b2, b3, b4, b5, b6, b7, b8}                         \
+                };                                                           \
+            }                                                                \
         };
 #endif
 
@@ -145,8 +150,7 @@ inline constexpr GUID guid_of_v()
  * @brief Tag type for taking ownership of a raw pointer.
  * @details Used to construct com_ptr without incrementing reference count.
  */
-struct take_ownership_t {
-};
+struct take_ownership_t {};
 
 /**
  * @brief Tag instance for take_ownership_t.
@@ -197,8 +201,7 @@ public:
      */
     com_ptr() noexcept
         : ptr(nullptr)
-    {
-    }
+    {}
 
     /**
      * @brief Nullptr constructor. Initializes to nullptr.
@@ -206,8 +209,7 @@ public:
      */
     com_ptr(std::nullptr_t) noexcept
         : ptr(nullptr)
-    {
-    }
+    {}
 
     /**
      * @brief Constructs from a raw pointer and increments reference count.
@@ -228,8 +230,7 @@ public:
      */
     com_ptr(void* p, take_ownership_t) noexcept
         : ptr(static_cast<pointer>(p))
-    {
-    }
+    {}
 
     /**
      * @brief Converting copy constructor from compatible com_ptr.

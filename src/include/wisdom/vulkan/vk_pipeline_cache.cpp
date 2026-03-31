@@ -6,7 +6,7 @@
 #include <wisdom/vulkan/detail/vk_detail.hpp>
 #include <wisdom/vulkan/detail/vk_utils.hpp>
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyPipelineCache(WisVKPipelineCache* self)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKPipelineCacheImpl>(self);
@@ -22,9 +22,12 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyPipelineCache(WisVKPipelineCache* self)
     }
 }
 
-//-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisVKPipelineCacheSerialize(const WisVKPipelineCache* self, uint8_t* data, size_t data_size)
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisVKPipelineCacheSerialize(
+    const WisVKPipelineCache* self,
+    uint8_t* data,
+    size_t data_size
+)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKPipelineCacheImpl>(self);
     auto& table = impl.device_header->header.device_table;
@@ -35,7 +38,7 @@ wisVKPipelineCacheSerialize(const WisVKPipelineCache* self, uint8_t* data, size_
     return wis::detail::vk_success;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API size_t wisVKPipelineCacheGetSerializedSize(const WisVKPipelineCache* self)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKPipelineCacheImpl>(self);

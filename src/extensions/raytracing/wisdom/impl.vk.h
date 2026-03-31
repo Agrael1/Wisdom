@@ -125,11 +125,8 @@ public:
 
     void SetPipelineState(wis::VKCommandListView cmd_list, wis::VKRaytracingPipelineView pipeline) const noexcept
     {
-        device.table().vkCmdBindPipeline(
-            std::get<0>(cmd_list),
-            VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR,
-            std::get<0>(pipeline)
-        );
+        device.table()
+            .vkCmdBindPipeline(std::get<0>(cmd_list), VK_PIPELINE_BIND_POINT_RAY_TRACING_KHR, std::get<0>(pipeline));
     }
     void SetDescriptorStorage(wis::VKCommandList& cmd_list, wis::VKDescriptorStorageView desc_storage) const noexcept
     {
@@ -219,5 +216,5 @@ public:
 #    ifdef WISDOM_HEADER_ONLY
 #        include "impl/impl.vk.cpp"
 #    endif // WISDOM_HEADER_ONLY
-#endif     // WISDOM_VULKAN
-#endif     // !WISDOM_RAYTRACING_HPP
+#endif // WISDOM_VULKAN
+#endif // !WISDOM_RAYTRACING_HPP

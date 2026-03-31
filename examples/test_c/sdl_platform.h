@@ -3,8 +3,7 @@
 
 #include <SDL3/SDL.h>
 
-typedef enum SDLPlatformExtension
-{
+typedef enum SDLPlatformExtension {
     SDL_PLATFORM_EXTENSION_NONE = 0,
     SDL_PLATFORM_EXTENSION_WIN32 = 1,
     SDL_PLATFORM_EXTENSION_X11 = 2,

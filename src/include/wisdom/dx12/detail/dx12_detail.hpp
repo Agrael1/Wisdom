@@ -126,16 +126,21 @@ private:
     WisDebugCallback callback;
 };
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct DX12RootSignatureKey {
-    static constexpr GUID guid{0xf062fe85, 0x857f, 0x43a9, {0xa2, 0x66, 0x75, 0x59, 0xb8, 0x10, 0x10, 0x01}};
+    static constexpr GUID guid{
+        0xf062fe85,
+        0x857f,
+        0x43a9,
+        {0xa2, 0x66, 0x75, 0x59, 0xb8, 0x10, 0x10, 0x01}
+    };
     std::array<uint64_t, 2>
         hash{}; // Hash of the root signature description, used for caching and identification purposes.
 };
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct DX12ShaderHeader {
-    uint64_t hash[2]{};   // Hash of the shader bytecode, used for caching and identification purposes.
+    uint64_t hash[2]{}; // Hash of the shader bytecode, used for caching and identification purposes.
     std::size_t size = 0; // Size of the shader bytecode in bytes.
 
     // bytecode follows immediately after the header in memory.
@@ -150,7 +155,7 @@ struct DX12ShaderHeader {
     }
 };
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 /**
  * @brief Internal helper function to convert a WisDescriptorType to a D3D12_ROOT_PARAMETER_TYPE.
  * This function is used internally to determine the appropriate root parameter type for a given descriptor type when
@@ -175,7 +180,7 @@ constexpr D3D12_ROOT_PARAMETER_TYPE dx12_root_parameter_type(const WisDescriptor
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 /**
  * @brief Internal helper function to determine if a given WisDescriptorType can be used as a push descriptor in
  * DirectX 12. This function checks the type of the descriptor and returns true if it is one of the types that can be

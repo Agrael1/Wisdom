@@ -1,6 +1,6 @@
 #include "generator.hpp"
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 static inline constexpr char template_handle[] =
         R"(/**
  * @struct {0}
@@ -20,7 +20,7 @@ static inline constexpr char template_handle[] =
  * \endcond
  */)";
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Generator::ParseHandles(tinyxml2::XMLElement* types)
 {
     for (auto* type = types->FirstChildElement("handle"); type;
@@ -129,7 +129,7 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeCHandle(const WisHandle& s, Backend backend, DocKind kind)
 {
     auto impl_string = GetBackendSuffix(backend);
@@ -163,7 +163,7 @@ std::string Generator::MakeCHandle(const WisHandle& s, Backend backend, DocKind 
     return st_decl;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeCPPHandle(const WisHandle& s, Backend backend, DocKind kind)
 {
     auto impl_string = GetBackendSuffix(backend);
@@ -270,7 +270,7 @@ std::string Generator::MakeCPPView(const WisHandle& s, Backend backend, DocKind 
     return view_decl;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Generator::WriteHandleDocumentation(std::filesystem::path handle_output_path)
 {
     auto& handle_names = module_map.at(active_module_name).handles_in_order;

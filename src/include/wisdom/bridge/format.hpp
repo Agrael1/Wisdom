@@ -3,10 +3,10 @@
 #if defined(WISDOM_USE_FMT)
 #    include <fmt/xchar.h>
 namespace wis {
-using fmt::format;           // NOLINT
-using fmt::format_to;        // NOLINT
+using fmt::format; // NOLINT
+using fmt::format_to; // NOLINT
 using fmt::make_format_args; // NOLINT
-using fmt::vformat;          // NOLINT
+using fmt::vformat; // NOLINT
 } // namespace wis
 #elif __has_include(<format>)
 #    include <format>

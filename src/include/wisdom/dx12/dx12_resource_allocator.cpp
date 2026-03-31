@@ -8,7 +8,7 @@
 #include <wisdom/util/allocation.hpp>
 
 namespace wis::detail {
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 inline WisResult DX12CreateResource(
     const D3D12MA::ALLOCATION_DESC& all_desc,
     const D3D12_RESOURCE_DESC1& res_desc,
@@ -50,7 +50,7 @@ inline WisResult DX12CreateResource(
     return wis::detail::dx_success;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 inline D3D12_RESOURCE_DESC1 DX12FillTextureDesc(const WisTextureDesc& desc) noexcept
 {
     D3D12_RESOURCE_DESC1 out{
@@ -110,7 +110,7 @@ inline D3D12_RESOURCE_DESC1 DX12FillTextureDesc(const WisTextureDesc& desc) noex
 }
 } // namespace wis::detail
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyResourceAllocator(WisDX12ResourceAllocator* self)
 {
     auto& [allocator] = wis::from_handle_ref<wis::impl::DX12ResourceAllocatorImpl>(self);
@@ -122,7 +122,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyResourceAllocator(WisDX12ResourceAllo
     allocator = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisDX12ResourceAllocatorCreateBuffer(
     const WisDX12ResourceAllocator* self,
     const WisBufferDesc* desc,
@@ -155,7 +155,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12ResourceAllocatorCreateBuffer(
     return wis::detail::DX12CreateResource(all_desc, buffer_desc, D3D12_BARRIER_LAYOUT_UNDEFINED, allocator, buffer);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisDX12ResourceAllocatorCreateTexture(
     const WisDX12ResourceAllocator* self,
     const WisTextureDesc* desc,

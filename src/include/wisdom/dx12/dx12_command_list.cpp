@@ -87,9 +87,9 @@ inline std::array<wis::span<uint8_t>, 3> DX12AllocateBarriers(
 )
 {
     std::array<wis::span<uint8_t>, 3> spans;
-    std::size_t needed_size = barriers.buffer_barrier_count * sizeof(D3D12_BUFFER_BARRIER) +
-                              barriers.texture_barrier_count * sizeof(D3D12_TEXTURE_BARRIER) +
-                              barriers.global_barrier_count * sizeof(D3D12_GLOBAL_BARRIER);
+    std::size_t needed_size = barriers.buffer_barrier_count * sizeof(D3D12_BUFFER_BARRIER)
+                            + barriers.texture_barrier_count * sizeof(D3D12_TEXTURE_BARRIER)
+                            + barriers.global_barrier_count * sizeof(D3D12_GLOBAL_BARRIER);
 
     if (needed_size <= dx12_static_size) {
         spans[0] = {local_scratch, barriers.buffer_barrier_count * sizeof(D3D12_BUFFER_BARRIER)};
@@ -178,7 +178,7 @@ inline std::array<wis::span<uint8_t>, 3> DX12AllocateBarriers(
 }
 } // namespace wis::detail
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyCommandList(WisDX12CommandList* self)
 {
     auto& impl = wis::from_handle_ref<wis::impl::DX12CommandListImpl>(self);
@@ -192,7 +192,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyCommandList(WisDX12CommandList* self)
     impl.list = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisDX12CommandListBegin(const WisDX12CommandList* self)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::DX12CommandListImpl>(self);
@@ -204,7 +204,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CommandListBegin(const WisDX12CommandLi
     return wis::detail::dx_success;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisDX12CommandListEnd(const WisDX12CommandList* self)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::DX12CommandListImpl>(self);
@@ -216,7 +216,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CommandListEnd(const WisDX12CommandList
     return wis::detail::dx_success;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetDescriptorHeaps(
     const WisDX12CommandList* self,
     const WisDX12DescriptorHeap* resource_heap,
@@ -235,18 +235,18 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetDescriptorHeaps(
     };
 
     impl.descriptor_handle = resource_heap
-                                 ? wis::from_handle<const wis::impl::DX12DescriptorHeapImpl>(resource_heap)->gpu_handle
-                                 : D3D12_GPU_DESCRIPTOR_HANDLE{0};
+                               ? wis::from_handle<const wis::impl::DX12DescriptorHeapImpl>(resource_heap)->gpu_handle
+                               : D3D12_GPU_DESCRIPTOR_HANDLE{0};
     impl.sampler_handle = sampler_heap
-                              ? wis::from_handle<const wis::impl::DX12DescriptorHeapImpl>(sampler_heap)->gpu_handle
-                              : D3D12_GPU_DESCRIPTOR_HANDLE{0};
+                            ? wis::from_handle<const wis::impl::DX12DescriptorHeapImpl>(sampler_heap)->gpu_handle
+                            : D3D12_GPU_DESCRIPTOR_HANDLE{0};
 
     if (heap_count > 0) {
         impl.list->SetDescriptorHeaps(heap_count, heaps + heap_offset);
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetRootSignature(
     const WisDX12CommandList* self,
     WisDX12RootSignatureView signature,
@@ -268,7 +268,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetRootSignature(
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetPushConstants(
     const WisDX12CommandList* self,
     const WisPushConstantDataDesc* data
@@ -278,25 +278,17 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetPushConstants(
     switch (data->pipeline) {
     default:
     case WisPipelineTypeGraphics:
-        impl.list->SetGraphicsRoot32BitConstants(
-            data->root_index,
-            data->data_size / 4,
-            data->data,
-            data->push_offset / 4
-        );
+        impl.list
+            ->SetGraphicsRoot32BitConstants(data->root_index, data->data_size / 4, data->data, data->push_offset / 4);
         break;
     case WisPipelineTypeRayTracing:
     case WisPipelineTypeCompute:
-        impl.list->SetComputeRoot32BitConstants(
-            data->root_index,
-            data->data_size / 4,
-            data->data,
-            data->push_offset / 4
-        );
+        impl.list
+            ->SetComputeRoot32BitConstants(data->root_index, data->data_size / 4, data->data, data->push_offset / 4);
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetPushDescriptor(
     const WisDX12CommandList* self,
     const WisPushDescriptorDataDesc* data
@@ -345,7 +337,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetPushDescriptor(
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetDescriptorTable(
     const WisDX12CommandList* self,
     const WisDescriptorTableDataDesc* data
@@ -365,7 +357,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetDescriptorTable(
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12CommandListInsertBarriers(
     const WisDX12CommandList* self,
     const WisDX12BarrierGroup* barriers
@@ -427,11 +419,11 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListInsertBarriers(
         bool release_barrier = qfot_barrier && src.queue_type_before == impl.queue_type;
 
         auto layout_before = src.flags & WisBarrierFlagsDiscardContent
-                                 ? D3D12_BARRIER_LAYOUT_UNDEFINED
-                                 : wis::detail::DX12GetOptimalBarrierLayout(
-                                       impl.queue_type,
-                                       acquire_barrier ? WisTextureStateCommon : src.state_before
-                                   );
+                               ? D3D12_BARRIER_LAYOUT_UNDEFINED
+                               : wis::detail::DX12GetOptimalBarrierLayout(
+                                     impl.queue_type,
+                                     acquire_barrier ? WisTextureStateCommon : src.state_before
+                                 );
         auto layout_after = wis::detail::DX12GetOptimalBarrierLayout(
             impl.queue_type,
             release_barrier ? WisTextureStateCommon : src.state_after
@@ -447,13 +439,13 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListInsertBarriers(
             .pResource = std::bit_cast<ID3D12Resource*>(src.texture),
             .Subresources =
                 {
-                    .IndexOrFirstMipLevel = src.subresource_range.base_mip_level,
-                    .NumMipLevels = src.subresource_range.mip_level_count,
-                    .FirstArraySlice = src.subresource_range.base_array_layer,
-                    .NumArraySlices = src.subresource_range.array_layer_count,
-                    .FirstPlane = src.flags & WisBarrierFlagsPlanarImage ? src.subresource_range.plane_slice : 0u,
-                    .NumPlanes = src.flags & WisBarrierFlagsPlanarImage ? src.subresource_range.plane_slice_count : 1u,
-                },
+                               .IndexOrFirstMipLevel = src.subresource_range.base_mip_level,
+                               .NumMipLevels = src.subresource_range.mip_level_count,
+                               .FirstArraySlice = src.subresource_range.base_array_layer,
+                               .NumArraySlices = src.subresource_range.array_layer_count,
+                               .FirstPlane = src.flags & WisBarrierFlagsPlanarImage ? src.subresource_range.plane_slice : 0u,
+                               .NumPlanes = src.flags & WisBarrierFlagsPlanarImage ? src.subresource_range.plane_slice_count : 1u,
+                               },
             .Flags = src.flags & WisBarrierFlagsDiscardContent ? D3D12_TEXTURE_BARRIER_FLAG_DISCARD
                                                                : D3D12_TEXTURE_BARRIER_FLAG_NONE,
         };
@@ -475,20 +467,20 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListInsertBarriers(
     }
 
     D3D12_BARRIER_GROUP groups[]{
-        {.Type = D3D12_BARRIER_TYPE_BUFFER,
+        { .Type = D3D12_BARRIER_TYPE_BUFFER,
          .NumBarriers = real_buffer_barrier_count,
-         .pBufferBarriers = buffer_barriers_span.data()},
+         .pBufferBarriers = buffer_barriers_span.data()  },
         {.Type = D3D12_BARRIER_TYPE_TEXTURE,
          .NumBarriers = static_cast<uint32_t>(barriers->texture_barrier_count),
          .pTextureBarriers = texture_barriers_span.data()},
-        {.Type = D3D12_BARRIER_TYPE_GLOBAL,
+        { .Type = D3D12_BARRIER_TYPE_GLOBAL,
          .NumBarriers = static_cast<uint32_t>(barriers->global_barrier_count),
-         .pGlobalBarriers = global_barriers_span.data()}
+         .pGlobalBarriers = global_barriers_span.data()  }
     };
     impl.list->Barrier(std::size(groups), groups);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetPipeline(
     const WisDX12CommandList* self,
     WisDX12PipelineView pipeline,
@@ -523,7 +515,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetViewports(
     impl.list->RSSetViewports(static_cast<UINT>(count), dx_viewports);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetScissors(
     WisDX12CommandList* self,
     const WisRect* scissors,
@@ -545,7 +537,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetScissors(
     impl.list->RSSetScissorRects(static_cast<UINT>(count), dx_scissors);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetPrimitiveTopology(
     WisDX12CommandList* self,
     WisPrimitiveTopology topology
@@ -555,7 +547,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetPrimitiveTopology(
     impl.list->IASetPrimitiveTopology(wis::detail::DX12Convert(topology));
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetDepthBias(
     WisDX12CommandList* self,
     float depth_bias,
@@ -567,7 +559,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetDepthBias(
     impl.list->RSSetDepthBias(depth_bias, depth_bias_clamp, slope_scaled_depth_bias);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetPrimitiveRestartValue(
     WisDX12CommandList* self,
     WisPrimitiveRestartValue value
@@ -577,7 +569,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetPrimitiveRestartValue(
     impl.list->IASetIndexBufferStripCutValue(wis::detail::DX12Convert(value));
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12CommandListDispatch(
     const WisDX12CommandList* self,
     uint32_t group_count_x,
@@ -589,7 +581,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListDispatch(
     impl.list->Dispatch(group_count_x, group_count_y, group_count_z);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12CommandListBeginRenderPass(
     const WisDX12CommandList* self,
     const WisRenderPassDesc* desc
@@ -610,11 +602,11 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListBeginRenderPass(
                 .cpuDescriptor = {src.target},
                 .BeginningAccess =
                     {
-                        .Type = wis::detail::DX12Convert(src.load_op),
-                    },
+                                  .Type = wis::detail::DX12Convert(src.load_op),
+                                  },
                 .EndingAccess = {
-                    .Type = wis::detail::DX12Convert(src.store_op),
-                },
+                                  .Type = wis::detail::DX12Convert(src.store_op),
+                                  },
             };
             if (src.load_op == WisLoadOpClear) {
                 render_targets[i].BeginningAccess.Clear.ClearValue = {
@@ -630,34 +622,34 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListBeginRenderPass(
         bool ignore_stencil = (desc->depth_stencil.flags & WisDepthStencilFlagsIgnoreStencil);
 
         flags |= (desc->depth_stencil.flags & WisDepthStencilFlagsReadOnlyDepth) && !ignore_depth
-                     ? D3D12_RENDER_PASS_FLAG_BIND_READ_ONLY_DEPTH
-                     : D3D12_RENDER_PASS_FLAG_NONE;
+                   ? D3D12_RENDER_PASS_FLAG_BIND_READ_ONLY_DEPTH
+                   : D3D12_RENDER_PASS_FLAG_NONE;
         flags |= (desc->depth_stencil.flags & WisDepthStencilFlagsReadOnlyStencil) && !ignore_stencil
-                     ? D3D12_RENDER_PASS_FLAG_BIND_READ_ONLY_STENCIL
-                     : D3D12_RENDER_PASS_FLAG_NONE;
+                   ? D3D12_RENDER_PASS_FLAG_BIND_READ_ONLY_STENCIL
+                   : D3D12_RENDER_PASS_FLAG_NONE;
 
         auto& src = desc->depth_stencil;
         depth_stencil = {
             .cpuDescriptor = {src.target},
             .DepthBeginningAccess =
                 {
-                    .Type = ignore_depth ? D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_NO_ACCESS
+                              .Type = ignore_depth ? D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_NO_ACCESS
                                          : wis::detail::DX12Convert(src.load_op_depth),
-                },
+                              },
             .StencilBeginningAccess =
                 {
-                    .Type = ignore_stencil ? D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_NO_ACCESS
+                              .Type = ignore_stencil ? D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_NO_ACCESS
                                            : wis::detail::DX12Convert(src.load_op_stencil),
-                },
+                              },
             .DepthEndingAccess =
                 {
-                    .Type = ignore_depth ? D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS
+                              .Type = ignore_depth ? D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS
                                          : wis::detail::DX12Convert(src.store_op_depth),
-                },
+                              },
             .StencilEndingAccess = {
-                .Type = ignore_stencil ? D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS
+                              .Type = ignore_stencil ? D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS
                                        : wis::detail::DX12Convert(src.store_op_stencil),
-            },
+                              },
         };
     }
 
@@ -674,14 +666,14 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListBeginRenderPass(
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12CommandListEndRenderPass(const WisDX12CommandList* self)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::DX12CommandListImpl>(self);
     impl.list->EndRenderPass();
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12CommandListDraw(
     const WisDX12CommandList* self,
     uint32_t vertex_count,
@@ -694,7 +686,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListDraw(
     impl.list->DrawInstanced(vertex_count, instance_count, start_vertex, start_instance);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12CommandListDrawIndexed(
     const WisDX12CommandList* self,
     uint32_t index_count,
@@ -708,7 +700,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListDrawIndexed(
     impl.list->DrawIndexedInstanced(index_count, instance_count, start_index, base_vertex, start_instance);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12CommandListCopyBuffer(
     const WisDX12CommandList* self,
     WisDX12BufferView dst_buffer,
@@ -727,7 +719,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListCopyBuffer(
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12CommandListCopyBufferToTexture(
     const WisDX12CommandList* self,
     WisDX12TextureView dst_texture,
@@ -751,8 +743,8 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListCopyBufferToTexture(
         const auto& subresource = texture_region.target_subresource;
 
         uint32_t plane_slice = wis::detail::DX12GetCopyPlaneSlice(region.texture_region.flags, subresource.plane_slice);
-        uint32_t dst_subresource = subresource.mip_level + subresource.array_layer * texture_desc.MipLevels +
-                                   plane_slice * texture_desc.MipLevels * texture_desc.DepthOrArraySize;
+        uint32_t dst_subresource = subresource.mip_level + subresource.array_layer * texture_desc.MipLevels
+                                 + plane_slice * texture_desc.MipLevels * texture_desc.DepthOrArraySize;
         D3D12_TEXTURE_COPY_LOCATION dst_location{
             .pResource = dst,
             .Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,
@@ -794,7 +786,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListCopyBufferToTexture(
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12CommandListCopyTextureToBuffer(
     const WisDX12CommandList* self,
     WisDX12BufferView dst_buffer,
@@ -818,8 +810,8 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListCopyTextureToBuffer(
         const auto& subresource = texture_region.target_subresource;
 
         uint32_t plane_slice = wis::detail::DX12GetCopyPlaneSlice(region.texture_region.flags, subresource.plane_slice);
-        uint32_t src_subresource = subresource.mip_level + subresource.array_layer * texture_desc.MipLevels +
-                                   plane_slice * texture_desc.MipLevels * texture_desc.DepthOrArraySize;
+        uint32_t src_subresource = subresource.mip_level + subresource.array_layer * texture_desc.MipLevels
+                                 + plane_slice * texture_desc.MipLevels * texture_desc.DepthOrArraySize;
         D3D12_TEXTURE_COPY_LOCATION src_location{
             .pResource = src,
             .Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX,
@@ -870,7 +862,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListCopyTextureToBuffer(
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12CommandListCopyTexture(
     const WisDX12CommandList* self,
     WisDX12TextureView dst_texture,
@@ -893,15 +885,19 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListCopyTexture(
         const auto& src_subresource = region.src_region.target_subresource;
         const auto& dst_subresource = region.dst_region.target_subresource;
 
-        uint32_t src_plane_slice = wis::detail::DX12GetCopyPlaneSlice(region.src_region.flags, src_subresource.plane_slice);
-        uint32_t src_subresource_index = src_subresource.mip_level + 
-                                         src_subresource.array_layer * src_desc.MipLevels +
-                                         src_plane_slice * src_desc.MipLevels * src_desc.DepthOrArraySize;
+        uint32_t src_plane_slice = wis::detail::DX12GetCopyPlaneSlice(
+            region.src_region.flags,
+            src_subresource.plane_slice
+        );
+        uint32_t src_subresource_index = src_subresource.mip_level + src_subresource.array_layer * src_desc.MipLevels
+                                       + src_plane_slice * src_desc.MipLevels * src_desc.DepthOrArraySize;
 
-        uint32_t dst_plane_slice = wis::detail::DX12GetCopyPlaneSlice(region.dst_region.flags, dst_subresource.plane_slice);
-        uint32_t dst_subresource_index = dst_subresource.mip_level + 
-                                         dst_subresource.array_layer * dst_desc.MipLevels +
-                                         dst_plane_slice * dst_desc.MipLevels * dst_desc.DepthOrArraySize;
+        uint32_t dst_plane_slice = wis::detail::DX12GetCopyPlaneSlice(
+            region.dst_region.flags,
+            dst_subresource.plane_slice
+        );
+        uint32_t dst_subresource_index = dst_subresource.mip_level + dst_subresource.array_layer * dst_desc.MipLevels
+                                       + dst_plane_slice * dst_desc.MipLevels * dst_desc.DepthOrArraySize;
 
         D3D12_TEXTURE_COPY_LOCATION dst_location{
             .pResource = dst,
@@ -924,14 +920,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListCopyTexture(
             .back = src_box.z + src_box.depth,
         };
 
-        impl.list->CopyTextureRegion(
-            &dst_location,
-            dst_box.x,
-            dst_box.y,
-            dst_box.z,
-            &src_location,
-            &src_d3d_box
-        );
+        impl.list->CopyTextureRegion(&dst_location, dst_box.x, dst_box.y, dst_box.z, &src_location, &src_d3d_box);
     }
 }
 

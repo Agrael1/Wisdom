@@ -72,8 +72,7 @@ public:
         };
         for (auto vkGetRayTracingShaderGroupHandlesKHR_it : vkGetRayTracingShaderGroupHandlesKHR_strings) {
             if ((vkGetRayTracingShaderGroupHandlesKHR = (PFN_vkGetRayTracingShaderGroupHandlesKHR)
-                     vkGetDeviceProcAddr(device, vkGetRayTracingShaderGroupHandlesKHR_it)))
-            {
+                     vkGetDeviceProcAddr(device, vkGetRayTracingShaderGroupHandlesKHR_it))) {
                 break;
             }
         }

@@ -11,7 +11,7 @@
  * ```c
  * // Provided by Wisdom 0.7.0. 
  * void wisCommandListSetScissors(WisCommandList* self,
- *                                const WisRect*  scissor_rects,
+ *                                const WisRect*  scissor_rect,
  *                                size_t          rect_count);
  * ```
  * <details>
@@ -19,12 +19,12 @@
  * ```c
  * // Provided by Wisdom 0.7.0. 
  * void wisVKCommandListSetScissors(WisVKCommandList* self,
- *                                  const WisRect*    scissor_rects,
+ *                                  const WisRect*    scissor_rect,
  *                                  size_t            rect_count);
  * 
  * // Provided by Wisdom 0.7.0. 
  * void wisDX12CommandListSetScissors(WisDX12CommandList* self,
- *                                    const WisRect*      scissor_rects,
+ *                                    const WisRect*      scissor_rect,
  *                                    size_t              rect_count);
  * ```
  * </details>
@@ -33,7 +33,7 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
- * void CommandList::SetScissors(wis::span<const wis::Rect> scissor_rects) noexcept;
+ * void CommandList::SetScissors(wis::span<const wis::Rect> scissor_rect) noexcept;
  * }
  * ```
  * <details>
@@ -41,10 +41,10 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
- * void VKCommandList::SetScissors(wis::span<const wis::Rect> scissor_rects) noexcept;
+ * void VKCommandList::SetScissors(wis::span<const wis::Rect> scissor_rect) noexcept;
  * 
  * // Provided by Wisdom 0.7.0. 
- * void DX12CommandList::SetScissors(wis::span<const wis::Rect> scissor_rects) noexcept;
+ * void DX12CommandList::SetScissors(wis::span<const wis::Rect> scissor_rect) noexcept;
  * }
  * ```
  * </details>
@@ -54,8 +54,8 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisCommandList instance.
- * - `scissor_rects` points to an array of scissor rectangles to set.
- * - `rect_count` specifies number of scissor rectangles to set.
+ * - `scissor_rect` points to an array of scissor rectangles to set.
+ * - `rect_count` defines number of scissor rectangles to set.
  * \endcond
  *
  * @section wisCommandListSetScissors_descr Description

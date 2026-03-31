@@ -2,10 +2,7 @@
 
 #include <stdio.h>
 
-void ExDebugCallback(WisSeverity sev, const char* message, void* user_data)
-{
-    printf("Debug: %s\n", message);
-}
+void ExDebugCallback(WisSeverity sev, const char* message, void* user_data) { printf("Debug: %s\n", message); }
 
 struct AppData {
     WisDevice device;

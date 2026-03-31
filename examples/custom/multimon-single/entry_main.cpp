@@ -32,17 +32,17 @@ class App
     // Resources
     wis::RootSignature root;
     wis::PipelineState pipeline;
-    wis::Shader vs;                                   // vertex shader
-    wis::Shader ps;                                   // pixel shader
+    wis::Shader vs; // vertex shader
+    wis::Shader ps; // pixel shader
 
-    wis::Buffer vertex_buffer;                        // vertex buffer for triangle
+    wis::Buffer vertex_buffer; // vertex buffer for triangle
     wis::Buffer constant_buffersx[ex::flight_frames]; // constant buffer for triangle
     wis::Buffer constant_buffersy[ex::flight_frames]; // constant buffer for triangle
 
-    float* constant_datax[ex::flight_frames];         // constant buffer data
-    float* constant_datay[ex::flight_frames];         // constant buffer data
-    float offsetx = 0.0f;                             // x offset for the triangle
-    float offsety = 0.0f;                             // y offset for the triangle
+    float* constant_datax[ex::flight_frames]; // constant buffer data
+    float* constant_datay[ex::flight_frames]; // constant buffer data
+    float offsetx = 0.0f; // x offset for the triangle
+    float offsety = 0.0f; // y offset for the triangle
 
     // Descriptor buffers
     wis::DescriptorStorage desc_storage;
@@ -250,14 +250,14 @@ public:
             wis::TextureCopyRegion region{
                 .src =
                     {
-                        .offset = offset_swap[i],
-                        .size = size_swap[i],
-                        .format = ex::swapchain_format,
-                    },
+                          .offset = offset_swap[i],
+                          .size = size_swap[i],
+                          .format = ex::swapchain_format,
+                          },
                 .dst = {
-                    .size = size_swap[i],
-                    .format = ex::swapchain_format,
-                },
+                          .size = size_swap[i],
+                          .format = ex::swapchain_format,
+                          },
             };
             cmd2.CopyTexture(cover_texture, textures[i][frame_index[i]], &region, 1);
         }
@@ -298,7 +298,9 @@ public:
         ps = ex::Unwrap(setup.device.CreateShader(ps_code.data(), ps_code.size()));
 
         // Create root for storage (it is bindless, so no reason to use tables anymore)
-        wis::PushConstant root_constants[]{{.stage = wis::ShaderStages::All, .size_bytes = 2 * sizeof(uint32_t)}};
+        wis::PushConstant root_constants[]{
+            {.stage = wis::ShaderStages::All, .size_bytes = 2 * sizeof(uint32_t)}
+        };
         wis::DescriptorBindingDesc bindings[] = {
             {.binding_type = wis::DescriptorType::ConstantBuffer,
              .binding_space = 1,
@@ -331,23 +333,27 @@ public:
                 .root_signature = root,
                 .input_layout =
                     {
-                        .slots = input_slots,
-                        .slot_count = 1,
-                        .attributes = input_attributes,
-                        .attribute_count = 1,
-                    },
+                                   .slots = input_slots,
+                                   .slot_count = 1,
+                                   .attributes = input_attributes,
+                                   .attribute_count = 1,
+                                   },
                 .shaders = {.vertex = vs, .pixel = ps},
                 .attachments = {
-                    .attachment_formats = {ex::swapchain_format},
-                    .attachments_count = 1,
-                },
+                                   .attachment_formats = {ex::swapchain_format},
+                                   .attachments_count = 1,
+                                   },
             };
             pipeline = ex::Unwrap(setup.device.CreateGraphicsPipeline(desc));
         }
 
         // Create vertex buffer
         {
-            glm::vec3 triangle_vertices[] = {{0.0f, 0.5f, 0.0f}, {0.5f, -0.5f, 0.0f}, {-0.5f, -0.5f, 0.0f}};
+            glm::vec3 triangle_vertices[] = {
+                { 0.0f,  0.5f, 0.0f},
+                { 0.5f, -0.5f, 0.0f},
+                {-0.5f, -0.5f, 0.0f}
+            };
             vertex_buffer = setup.CreateAndUploadBuffer(
                 std::span<glm::vec3>{triangle_vertices},
                 wis::BufferUsage::VertexBuffer

@@ -5,24 +5,17 @@
 #    error "This is a C++ only header"
 #endif // __cplusplus
 
-#include <D3D12MemAlloc.h>
 #include <d3d12.h>
+#include <D3D12MemAlloc.h>
 #include <dxgi1_6.h>
-
 #include "c_api.h"
 
 namespace wis {
 namespace detail {
 
-constexpr inline DXGI_FORMAT DX12Convert(WisDataFormat value) noexcept
-{
-    return static_cast<DXGI_FORMAT>(value);
-}
+constexpr inline DXGI_FORMAT DX12Convert(WisDataFormat value) noexcept { return static_cast<DXGI_FORMAT>(value); }
 
-constexpr inline uint32_t DX12Convert(WisSampleCount value) noexcept
-{
-    return static_cast<uint32_t>(value);
-}
+constexpr inline uint32_t DX12Convert(WisSampleCount value) noexcept { return static_cast<uint32_t>(value); }
 
 constexpr inline DXGI_GPU_PREFERENCE DX12Convert(WisAdapterPreference value) noexcept
 {
@@ -258,20 +251,11 @@ constexpr inline D3D12_PRIMITIVE_TOPOLOGY_TYPE DX12Convert(WisTopologyType value
     }
 }
 
-constexpr inline D3D12_FILL_MODE DX12Convert(WisFillMode value) noexcept
-{
-    return static_cast<D3D12_FILL_MODE>(value);
-}
+constexpr inline D3D12_FILL_MODE DX12Convert(WisFillMode value) noexcept { return static_cast<D3D12_FILL_MODE>(value); }
 
-constexpr inline D3D12_CULL_MODE DX12Convert(WisCullMode value) noexcept
-{
-    return static_cast<D3D12_CULL_MODE>(value);
-}
+constexpr inline D3D12_CULL_MODE DX12Convert(WisCullMode value) noexcept { return static_cast<D3D12_CULL_MODE>(value); }
 
-constexpr inline BOOL DX12Convert(WisWindingOrder value) noexcept
-{
-    return static_cast<BOOL>(value);
-}
+constexpr inline BOOL DX12Convert(WisWindingOrder value) noexcept { return static_cast<BOOL>(value); }
 
 constexpr inline D3D12_CONSERVATIVE_RASTERIZATION_MODE DX12Convert(WisConservativeRasterization value) noexcept
 {
@@ -283,20 +267,11 @@ constexpr inline D3D12_LINE_RASTERIZATION_MODE DX12Convert(WisLineRasterization 
     return static_cast<D3D12_LINE_RASTERIZATION_MODE>(value);
 }
 
-constexpr inline D3D12_BLEND DX12Convert(WisBlendFactor value) noexcept
-{
-    return static_cast<D3D12_BLEND>(value);
-}
+constexpr inline D3D12_BLEND DX12Convert(WisBlendFactor value) noexcept { return static_cast<D3D12_BLEND>(value); }
 
-constexpr inline D3D12_BLEND_OP DX12Convert(WisBlendOp value) noexcept
-{
-    return static_cast<D3D12_BLEND_OP>(value);
-}
+constexpr inline D3D12_BLEND_OP DX12Convert(WisBlendOp value) noexcept { return static_cast<D3D12_BLEND_OP>(value); }
 
-constexpr inline D3D12_LOGIC_OP DX12Convert(WisLogicOp value) noexcept
-{
-    return static_cast<D3D12_LOGIC_OP>(value);
-}
+constexpr inline D3D12_LOGIC_OP DX12Convert(WisLogicOp value) noexcept { return static_cast<D3D12_LOGIC_OP>(value); }
 
 constexpr inline D3D_PRIMITIVE_TOPOLOGY DX12Convert(WisPrimitiveTopology value) noexcept
 {

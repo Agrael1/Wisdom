@@ -18,7 +18,7 @@ inline WisResult DX12Win32ExtensionInit(
 }
 } // namespace wis::detail
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_PLATFORM_API void wisDX12InitWin32Extension(WisDX12Win32Extension* self)
 {
     new (self) wis::impl::DX12Win32ExtensionImpl{
@@ -27,7 +27,7 @@ WIS_EXTERN_C WISDOM_PLATFORM_API void wisDX12InitWin32Extension(WisDX12Win32Exte
     };
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_PLATFORM_API void wisDX12DestroyWin32Extension(WisDX12Win32Extension* self)
 {
     auto& impl = wis::from_handle_ref<wis::impl::DX12Win32ExtensionImpl>(self);
@@ -37,9 +37,12 @@ WIS_EXTERN_C WISDOM_PLATFORM_API void wisDX12DestroyWin32Extension(WisDX12Win32E
     }
 }
 
-//-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_PLATFORM_API WisResult
-wisDX12Win32ExtensionCreateSurface(WisDX12Win32Extension* self, const WisWin32WindowDesc* info, WisDX12Surface* surface)
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_PLATFORM_API WisResult wisDX12Win32ExtensionCreateSurface(
+    WisDX12Win32Extension* self,
+    const WisWin32WindowDesc* info,
+    WisDX12Surface* surface
+)
 {
     new (surface) wis::impl::DX12SurfaceImpl{
         .surface = info->hwnd,

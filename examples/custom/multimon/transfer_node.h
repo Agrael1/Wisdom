@@ -15,14 +15,12 @@ struct ExternalBuffer {
         : device(std::move(device))
         , buffer(buffer)
         , memory(memory)
-    {
-    }
+    {}
     ExternalBuffer(ExternalBuffer&& other) noexcept
         : device(std::move(other.device))
         , buffer(std::move(other.buffer))
         , memory(std::move(other.memory))
-    {
-    }
+    {}
     ExternalBuffer& operator=(ExternalBuffer&& other) noexcept
     {
         if (this == &other) {

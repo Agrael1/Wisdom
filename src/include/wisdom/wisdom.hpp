@@ -12,7 +12,7 @@
 #    else
 #        define FORCEVK_SWITCH 0
 #    endif // WISDOM_VULKAN_FOUND
-#endif     // FORCEVK_SWITCH
+#endif // FORCEVK_SWITCH
 
 #include "generated/cpp_api.hpp"
 

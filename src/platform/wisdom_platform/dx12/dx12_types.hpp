@@ -5,10 +5,8 @@
 #endif // __cplusplus
 
 namespace wis {
-//-----------------------------------------------------------------------------
-namespace detail {
-
-} // namespace detail
+//----------------------------------------------------------------------------------------------------------------------
+namespace detail {} // namespace detail
 
 namespace impl {
 struct DX12Win32ExtensionImpl {

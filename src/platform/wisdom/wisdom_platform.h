@@ -12,7 +12,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 #    else
 #        define FORCEVK_SWITCH 0
 #    endif // WISDOM_VULKAN_FOUND
-#endif     // FORCEVK_SWITCH
+#endif // FORCEVK_SWITCH
 
 #include "../wisdom_platform/generated/c_api.h"
 
@@ -29,12 +29,12 @@ typedef struct WisDX12UWPExtension WisUWPExtension;
 // Functions
 //==============================================================
 
-#    define wisDestroyWin32Extension wisDX12DestroyWin32Extension
-#    define wisInitWin32Extension wisDX12InitWin32Extension
-#    define wisDestroyUWPExtension wisDX12DestroyUWPExtension
-#    define wisInitUWPExtension wisDX12InitUWPExtension
+#    define wisDestroyWin32Extension       wisDX12DestroyWin32Extension
+#    define wisInitWin32Extension          wisDX12InitWin32Extension
+#    define wisDestroyUWPExtension         wisDX12DestroyUWPExtension
+#    define wisInitUWPExtension            wisDX12InitUWPExtension
 #    define wisWin32ExtensionCreateSurface wisDX12Win32ExtensionCreateSurface
-#    define wisUWPExtensionCreateSurface wisDX12UWPExtensionCreateSurface
+#    define wisUWPExtensionCreateSurface   wisDX12UWPExtensionCreateSurface
 
 #elif defined(WISDOM_VULKAN)
 
@@ -51,18 +51,18 @@ typedef struct WisVKWin32Extension WisWin32Extension;
 // Functions
 //==============================================================
 
-#    define wisDestroyXlibExtension wisVKDestroyXlibExtension
-#    define wisInitXlibExtension wisVKInitXlibExtension
-#    define wisDestroyXCBExtension wisVKDestroyXCBExtension
-#    define wisInitXCBExtension wisVKInitXCBExtension
-#    define wisDestroyWaylandExtension wisVKDestroyWaylandExtension
-#    define wisInitWaylandExtension wisVKInitWaylandExtension
-#    define wisDestroyWin32Extension wisVKDestroyWin32Extension
-#    define wisInitWin32Extension wisVKInitWin32Extension
-#    define wisXlibExtensionCreateSurface wisVKXlibExtensionCreateSurface
-#    define wisXCBExtensionCreateSurface wisVKXCBExtensionCreateSurface
+#    define wisDestroyXlibExtension          wisVKDestroyXlibExtension
+#    define wisInitXlibExtension             wisVKInitXlibExtension
+#    define wisDestroyXCBExtension           wisVKDestroyXCBExtension
+#    define wisInitXCBExtension              wisVKInitXCBExtension
+#    define wisDestroyWaylandExtension       wisVKDestroyWaylandExtension
+#    define wisInitWaylandExtension          wisVKInitWaylandExtension
+#    define wisDestroyWin32Extension         wisVKDestroyWin32Extension
+#    define wisInitWin32Extension            wisVKInitWin32Extension
+#    define wisXlibExtensionCreateSurface    wisVKXlibExtensionCreateSurface
+#    define wisXCBExtensionCreateSurface     wisVKXCBExtensionCreateSurface
 #    define wisWaylandExtensionCreateSurface wisVKWaylandExtensionCreateSurface
-#    define wisWin32ExtensionCreateSurface wisVKWin32ExtensionCreateSurface
+#    define wisWin32ExtensionCreateSurface   wisVKWin32ExtensionCreateSurface
 
 #else
 #    error "No API selected for Wisdom. Define WISDOM_DX12 or WISDOM_VULKAN."

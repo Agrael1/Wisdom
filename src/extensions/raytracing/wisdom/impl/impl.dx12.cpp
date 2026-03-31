@@ -80,24 +80,26 @@ wis::DX12RaytracingPipeline wis::ImplDX12Raytracing::CreateRaytracingPipeline(
     }
 
     uint32_t num_subobjects = desc.shader_count + desc.hit_group_count + 3; // root signature and max recursion depth
-    size_t string_offset = num_subobjects * sizeof(D3D12_STATE_SUBOBJECT) +
-                           desc.shader_count * sizeof(D3D12_DXIL_LIBRARY_DESC) +
-                           desc.export_count * sizeof(D3D12_EXPORT_DESC) +
-                           desc.hit_group_count * sizeof(D3D12_HIT_GROUP_DESC) +
-                           (num_callable + num_miss + num_raygen) * sizeof(wchar_t*);
+    size_t string_offset = num_subobjects * sizeof(D3D12_STATE_SUBOBJECT)
+                         + desc.shader_count * sizeof(D3D12_DXIL_LIBRARY_DESC)
+                         + desc.export_count * sizeof(D3D12_EXPORT_DESC)
+                         + desc.hit_group_count * sizeof(D3D12_HIT_GROUP_DESC)
+                         + (num_callable + num_miss + num_raygen) * sizeof(wchar_t*);
 
-    size_t allocation_size = string_offset +                            // callable, miss, raygen
-                                                                        // string names
-                             wchspace * sizeof(wchar_t) * 2u +          // entry points
+    size_t allocation_size = string_offset + // callable, miss, raygen
+                                             // string names
+                             wchspace * sizeof(wchar_t) * 2u + // entry points
                              desc.export_count * sizeof(wchar_t) * 9u + // unique names + entry points
-                             desc.hit_group_count * sizeof(wchar_t) *
-                                 (hit_group_exa.size() + 1u)            // hit group names format: H|A|C|I|00000000
+                             desc.hit_group_count * sizeof(wchar_t)
+                                 * (hit_group_exa.size() + 1u) // hit group names format: H|A|C|I|00000000
         ;
     std::unique_ptr<uint8_t[]> subobjects = wis::detail::make_unique_for_overwrite<uint8_t[]>(allocation_size);
 
     // burn shader bytecodes
-    std::span<D3D12_STATE_SUBOBJECT>
-        subobjects_span(reinterpret_cast<D3D12_STATE_SUBOBJECT*>(subobjects.get()), num_subobjects);
+    std::span<D3D12_STATE_SUBOBJECT> subobjects_span(
+        reinterpret_cast<D3D12_STATE_SUBOBJECT*>(subobjects.get()),
+        num_subobjects
+    );
     std::span<D3D12_DXIL_LIBRARY_DESC> dxil_library_span(
         reinterpret_cast<D3D12_DXIL_LIBRARY_DESC*>(subobjects_span.data() + num_subobjects),
         desc.shader_count
@@ -115,8 +117,8 @@ wis::DX12RaytracingPipeline wis::ImplDX12Raytracing::CreateRaytracingPipeline(
     for (uint32_t i = 0; i < desc.shader_count; ++i) {
         dxil_library_span[i] = {
             .DXILLibrary = {
-                .pShaderBytecode = std::get<0>(desc.shaders[i]),
-                .BytecodeLength = std::get<1>(desc.shaders[i])
+                            .pShaderBytecode = std::get<0>(desc.shaders[i]),
+                            .BytecodeLength = std::get<1>(desc.shaders[i])
             }
         };
         subobjects_span[i] = {.Type = D3D12_STATE_SUBOBJECT_TYPE_DXIL_LIBRARY, .pDesc = &dxil_library_span[i]};
@@ -178,11 +180,11 @@ wis::DX12RaytracingPipeline wis::ImplDX12Raytracing::CreateRaytracingPipeline(
             .AnyHitShaderImport = hg.any_hit_export_index == UINT32_MAX ? nullptr
                                                                         : export_span[hg.any_hit_export_index].Name,
             .ClosestHitShaderImport = hg.closest_hit_export_index == UINT32_MAX
-                                          ? nullptr
-                                          : export_span[hg.closest_hit_export_index].Name,
+                                        ? nullptr
+                                        : export_span[hg.closest_hit_export_index].Name,
             .IntersectionShaderImport = hg.intersection_export_index == UINT32_MAX
-                                            ? nullptr
-                                            : export_span[hg.intersection_export_index].Name
+                                          ? nullptr
+                                          : export_span[hg.intersection_export_index].Name
         };
         name_hit_group(hit_group_span[i], &renames, i);
         subobjects_span[desc.shader_count + i] = {
@@ -235,11 +237,8 @@ wis::DX12RaytracingPipeline wis::ImplDX12Raytracing::CreateRaytracingPipeline(
         return out_pipeline;
     }
 
-    auto hr = shared_device->CreateStateObject(
-        &pipeline_desc,
-        pipe_i.state_object.iid(),
-        pipe_i.state_object.put_void()
-    );
+    auto hr = shared_device
+                  ->CreateStateObject(&pipeline_desc, pipe_i.state_object.iid(), pipe_i.state_object.put_void());
     if (!wis::succeeded(hr)) {
         result = wis::make_result<wis::Func<wis::FuncD()>(), "Failed to create raytracing pipeline">(hr);
         return out_pipeline;
