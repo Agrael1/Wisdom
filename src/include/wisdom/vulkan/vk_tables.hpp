@@ -9,7 +9,7 @@
 
 namespace wis {
 namespace impl {
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct VKMainGlobal {
     PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr;
     PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr;
@@ -31,7 +31,7 @@ public:
     }
 };
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct VKMainAdapter {
     PFN_vkGetPhysicalDeviceMemoryProperties vkGetPhysicalDeviceMemoryProperties;
     PFN_vkGetPhysicalDeviceProperties vkGetPhysicalDeviceProperties;
@@ -79,7 +79,7 @@ public:
     }
 };
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct VKMainInstance {
     PFN_vkDestroyInstance vkDestroyInstance;
     PFN_vkEnumeratePhysicalDevices vkEnumeratePhysicalDevices;
@@ -103,7 +103,7 @@ public:
     }
 };
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct VKMainCommandList {
     PFN_vkCmdCopyImage vkCmdCopyImage;
     PFN_vkCmdCopyBufferToImage vkCmdCopyBufferToImage;
@@ -194,7 +194,7 @@ public:
     }
 };
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct VKMainDevice {
     PFN_vkUnmapMemory vkUnmapMemory;
     PFN_vkDestroyDevice vkDestroyDevice;
@@ -357,9 +357,9 @@ struct VKMainSwapchain {
     PFN_vkAcquireNextImageKHR vkAcquireNextImageKHR;
     PFN_vkGetSwapchainImagesKHR vkGetSwapchainImagesKHR;
     PFN_vkDestroySwapchainKHR vkDestroySwapchainKHR;
-    PFN_vkQueuePresentKHR vkQueuePresentKHR;       // technically a queue function, but for speed store here
-    PFN_vkQueueSubmit2 vkQueueSubmit2;             // technically a queue function, but for speed store here
-    PFN_vkWaitForFences vkWaitForFences;           // used during swapchain destruction to synchronize with the GPU
+    PFN_vkQueuePresentKHR vkQueuePresentKHR; // technically a queue function, but for speed store here
+    PFN_vkQueueSubmit2 vkQueueSubmit2; // technically a queue function, but for speed store here
+    PFN_vkWaitForFences vkWaitForFences; // used during swapchain destruction to synchronize with the GPU
     PFN_vkCreateSwapchainKHR vkCreateSwapchainKHR; // used for swapchain recreation, stored here for speed
 
     bool Init(VkDevice device, PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr) noexcept

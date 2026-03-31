@@ -6,12 +6,12 @@
 
 #include <wisdom/util/com_ptr.hpp>
 
-#include <D3D12MemAlloc.h>
 #include <d3d12.h>
+#include <D3D12MemAlloc.h>
 #include <dxgi1_6.h>
 
 namespace wis {
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 namespace detail {
 struct DX12DebugLayer;
 struct DX12ShaderHeader;
@@ -38,7 +38,7 @@ struct DX12DeviceImpl {
     D3D12MA::Allocator* allocator;
 
     uint8_t queue_priorities[WisCommandQueueTypeCount]; // store priorities for queues to be created with the device,
-                                                        // indexed by WisCommandQueueType
+    // indexed by WisCommandQueueType
 };
 
 struct DX12CommandQueueImpl {
@@ -80,10 +80,10 @@ struct DX12DescriptorHeapImpl {
     ID3D12DescriptorHeap* descriptor_heap;
     ID3D12Device10* device;
     D3D12_GPU_DESCRIPTOR_HANDLE gpu_handle; // store GPU handle for heap start to avoid calling
-                                            // GetGPUDescriptorHandleForHeapStart every time we need it
+    // GetGPUDescriptorHandleForHeapStart every time we need it
     D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle;
     uint32_t descriptor_size; // store descriptor size for heap type to avoid calling GetDescriptorHandleIncrementSize
-                              // every time we need it
+    // every time we need it
     D3D12_DESCRIPTOR_HEAP_TYPE type;
 };
 
@@ -92,14 +92,14 @@ struct DX12ViewHeapImpl {
     ID3D12Device10* device;
     D3D12_CPU_DESCRIPTOR_HANDLE cpu_handle;
     uint32_t descriptor_size; // store descriptor size for heap type to avoid calling GetDescriptorHandleIncrementSize
-                              // every time we need it
+    // every time we need it
     D3D12_DESCRIPTOR_HEAP_TYPE type;
 };
 
 struct DX12BufferImpl {
     ID3D12Resource* resource;
     D3D12MA::Allocation* allocation; // Pointer to the allocation object that manages the memory for this resource
-    D3D12MA::Allocator* allocator;   // Pretty dumb, but we need this to correctly ensure release order of allocator
+    D3D12MA::Allocator* allocator; // Pretty dumb, but we need this to correctly ensure release order of allocator
 };
 
 using DX12TextureImpl = DX12BufferImpl; // Textures are also resources, so we can reuse the same implementation
@@ -107,8 +107,8 @@ using DX12TextureImpl = DX12BufferImpl; // Textures are also resources, so we ca
 struct DX12PipelineCacheImpl {
     ID3D12PipelineLibrary1* library;
     uint8_t* data; // Pointer to the pipeline data, unfortunately D3D12 is a bit awkward in this regard and doesn't
-                   // provide a way to directly use the library without copying the data out of it, so we have to store
-                   // it here to ensure it lives as long as the library.
+    // provide a way to directly use the library without copying the data out of it, so we have to store
+    // it here to ensure it lives as long as the library.
 };
 
 struct DX12ShaderImpl {
@@ -121,7 +121,7 @@ struct DX12PipelineImpl {
 
 struct DX12SurfaceImpl {
     void* surface; // Store the surface as a void pointer to avoid including Windows headers in this file, it will be
-                   // cast to the appropriate type in the implementation file
+    // cast to the appropriate type in the implementation file
     bool uwp; // Whether the surface is a UWP CoreWindow, which requires special handling when creating the swapchain
 };
 

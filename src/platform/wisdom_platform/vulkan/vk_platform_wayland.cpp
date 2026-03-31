@@ -33,7 +33,7 @@ inline WisResult VKWaylandExtensionInit(
 }
 } // namespace wis::detail
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKInitWaylandExtension(WisVKWaylandExtension* self)
 {
     new (self) wis::impl::VKWaylandExtensionImpl{
@@ -42,7 +42,7 @@ WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKInitWaylandExtension(WisVKWaylandExte
     };
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKDestroyWaylandExtension(WisVKWaylandExtension* self)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKWaylandExtensionImpl>(self);
@@ -51,9 +51,12 @@ WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKDestroyWaylandExtension(WisVKWaylandE
     }
 }
 
-//-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_PLATFORM_API WisResult
-wisVKWaylandExtensionCreateSurface(WisVKWaylandExtension* self, const WisWaylandWindowDesc* info, WisVKSurface* surface)
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_PLATFORM_API WisResult wisVKWaylandExtensionCreateSurface(
+    WisVKWaylandExtension* self,
+    const WisWaylandWindowDesc* info,
+    WisVKSurface* surface
+)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKWaylandExtensionImpl>(self);
     auto vkCreateWaylandSurfaceKHR = reinterpret_cast<PFN_vkCreateWaylandSurfaceKHR>(impl.vkCreateWaylandSurfaceKHR);

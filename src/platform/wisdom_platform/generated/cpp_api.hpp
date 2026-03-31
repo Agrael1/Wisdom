@@ -6,7 +6,6 @@
 #endif // __cplusplus
 
 #include <wisdom/generated/cpp_api.hpp>
-
 #include "c_api.h"
 #include "wisdom_exports.h"
 
@@ -22,7 +21,7 @@ namespace wis {
  *
  * */
 struct XlibWindowDesc {
-    void* display;        ///< Pointer to the X11 Display. Cast to Display* internally.
+    void* display; ///< Pointer to the X11 Display. Cast to Display* internally.
     std::uint64_t window; ///< The X11 Window ID. Fits standard 32/64-bit window handles.
 };
 
@@ -32,7 +31,7 @@ struct XlibWindowDesc {
  * */
 struct Win32WindowDesc {
     void* hinstance; ///< HINSTANCE of the window. Cast to HINSTANCE internally.
-    void* hwnd;      ///< HWND of the window. Cast to HWND internally.
+    void* hwnd; ///< HWND of the window. Cast to HWND internally.
 };
 
 /**
@@ -51,7 +50,7 @@ struct WaylandWindowDesc {
  *
  * */
 struct XCBWindowDesc {
-    void* connection;     ///< Pointer to the XCB connection. Cast to xcb_connection_t* internally.
+    void* connection; ///< Pointer to the XCB connection. Cast to xcb_connection_t* internally.
     std::uint32_t window; ///< The X11 Window ID. Fits standard 32/64-bit window handles.
 };
 

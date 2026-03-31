@@ -1,6 +1,6 @@
 #include "generator.hpp"
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 static inline constexpr char template_struct[] =
         R"(/**
  * @struct {0}
@@ -32,7 +32,7 @@ static inline constexpr char template_struct[] =
  * \endcond
  */)";
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Generator::ParseVariant(tinyxml2::XMLElement* type)
 {
     auto  name = type->FindAttribute("name")->Value();
@@ -86,7 +86,7 @@ void Generator::ParseVariant(tinyxml2::XMLElement* type)
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeCVariant(const WisStruct& s, Backend backend, DocKind kind)
 {
     auto    impl_suffix = GetBackendSuffix(backend);
@@ -111,7 +111,7 @@ std::string Generator::MakeCVariant(const WisStruct& s, Backend backend, DocKind
     return st_decl;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeCPPVariant(const WisStruct& s, Backend backend, DocKind kind)
 {
     if (s.modifier & Modifier::COnly) {
@@ -158,7 +158,7 @@ std::string Generator::MakeVariantDescription(const WisStruct& s)
     return description;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Generator::WriteVariantDocumentation(std::filesystem::path struct_output_path)
 {
     std::filesystem::create_directories(struct_output_path);

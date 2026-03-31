@@ -35,7 +35,7 @@ struct CStringHash {
         return hash;
     }
 };
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 // hash for VkExtensionProperties
 struct VkExtensionPropertiesHash {
     using is_transparent = void;
@@ -43,7 +43,7 @@ struct VkExtensionPropertiesHash {
     std::size_t operator()(const char* name) const noexcept { return CStringHash{}(name); }
 };
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct VkLayerPropertiesHash {
     using is_transparent = void;
     std::size_t operator()(const VkLayerProperties& layer) const noexcept { return CStringHash{}(layer.layerName); }
@@ -51,12 +51,12 @@ struct VkLayerPropertiesHash {
 };
 
 // Equality helpers
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct CStringEqual {
     bool operator()(const char* a, const char* b) const { return std::strncmp(a, b, VK_MAX_EXTENSION_NAME_SIZE) == 0; }
 };
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct VkExtensionPropertiesEqual {
     using is_transparent = void;
     bool operator()(const VkExtensionProperties& ext, const char* name) const noexcept
@@ -73,7 +73,7 @@ struct VkExtensionPropertiesEqual {
     }
 };
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct VkLayerPropertiesEqual {
     using is_transparent = void;
     bool operator()(const VkLayerProperties& layer, const char* name) const noexcept
@@ -96,7 +96,7 @@ using VkExtensionPropertiesSet = std::
 using VkLayerPropertiesSet = std::unordered_set<VkLayerProperties, VkLayerPropertiesHash, VkLayerPropertiesEqual>;
 } // namespace detail
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct WISDOM_API VKInstanceExtensionCollector {
     constexpr static const char* instance_extensions[]{
         VK_KHR_SURFACE_EXTENSION_NAME,
@@ -151,7 +151,7 @@ private:
     detail::VkLayerPropertiesSet available_layers_set;
 };
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct WISDOM_API VKDeviceExtensionCollector {
     struct ExtensionInfo {
         const char* name;
@@ -229,8 +229,8 @@ struct VKInstanceExtensionImpl : public VKInstanceExtensionHeader {
         : VKInstanceExtensionHeader{&VKInstanceExtensionImpl<T>::InitThunk}
     {
         assert(
-            std::uintptr_t(static_cast<T*>(this)) == std::uintptr_t(static_cast<VKInstanceExtensionHeader*>(this)) &&
-            "VKInstanceExtensionImpl must be the first base class!"
+            std::uintptr_t(static_cast<T*>(this)) == std::uintptr_t(static_cast<VKInstanceExtensionHeader*>(this))
+            && "VKInstanceExtensionImpl must be the first base class!"
         );
     }
 
@@ -270,8 +270,8 @@ struct VKDeviceExtensionImpl : public VKDeviceExtensionHeader {
         : VKDeviceExtensionHeader{&VKDeviceExtensionImpl<T>::InitThunk}
     {
         assert(
-            std::uintptr_t(static_cast<T*>(this)) == std::uintptr_t(static_cast<VKDeviceExtensionHeader*>(this)) &&
-            "VKDeviceExtensionImpl must be the first base class!"
+            std::uintptr_t(static_cast<T*>(this)) == std::uintptr_t(static_cast<VKDeviceExtensionHeader*>(this))
+            && "VKDeviceExtensionImpl must be the first base class!"
         );
     }
 

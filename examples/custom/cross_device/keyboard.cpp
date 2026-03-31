@@ -1,9 +1,6 @@
 #include "keyboard.h"
 
-bool Keyboard::KeyIsPressed(unsigned char keycode) const noexcept
-{
-    return keystates[keycode];
-}
+bool Keyboard::KeyIsPressed(unsigned char keycode) const noexcept { return keystates[keycode]; }
 
 std::optional<Keyboard::Event> Keyboard::ReadKey() noexcept
 {
@@ -15,10 +12,7 @@ std::optional<Keyboard::Event> Keyboard::ReadKey() noexcept
     return {};
 }
 
-bool Keyboard::KeyIsEmpty() const noexcept
-{
-    return keybuffer.empty();
-}
+bool Keyboard::KeyIsEmpty() const noexcept { return keybuffer.empty(); }
 
 std::optional<char> Keyboard::ReadChar() noexcept
 {
@@ -30,20 +24,11 @@ std::optional<char> Keyboard::ReadChar() noexcept
     return {};
 }
 
-bool Keyboard::CharIsEmpty() const noexcept
-{
-    return charbuffer.empty();
-}
+bool Keyboard::CharIsEmpty() const noexcept { return charbuffer.empty(); }
 
-void Keyboard::FlushKey() noexcept
-{
-    keybuffer = std::queue<Event>();
-}
+void Keyboard::FlushKey() noexcept { keybuffer = std::queue<Event>(); }
 
-void Keyboard::FlushChar() noexcept
-{
-    charbuffer = std::queue<char>();
-}
+void Keyboard::FlushChar() noexcept { charbuffer = std::queue<char>(); }
 
 void Keyboard::Flush() noexcept
 {
@@ -51,20 +36,11 @@ void Keyboard::Flush() noexcept
     FlushChar();
 }
 
-void Keyboard::EnableAutorepeat() noexcept
-{
-    autorepeatEnabled = true;
-}
+void Keyboard::EnableAutorepeat() noexcept { autorepeatEnabled = true; }
 
-void Keyboard::DisableAutorepeat() noexcept
-{
-    autorepeatEnabled = false;
-}
+void Keyboard::DisableAutorepeat() noexcept { autorepeatEnabled = false; }
 
-bool Keyboard::AutorepeatIsEnabled() const noexcept
-{
-    return autorepeatEnabled;
-}
+bool Keyboard::AutorepeatIsEnabled() const noexcept { return autorepeatEnabled; }
 
 void Keyboard::OnKeyPressed(unsigned char keycode) noexcept
 {
@@ -86,10 +62,7 @@ void Keyboard::OnChar(char character) noexcept
     TrimBuffer(charbuffer);
 }
 
-void Keyboard::ClearState() noexcept
-{
-    keystates.reset();
-}
+void Keyboard::ClearState() noexcept { keystates.reset(); }
 
 template <typename T>
 void Keyboard::TrimBuffer(std::queue<T>& buffer) noexcept

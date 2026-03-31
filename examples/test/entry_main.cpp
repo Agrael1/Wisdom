@@ -56,8 +56,8 @@ int main()
     std::cout << "Adapter count: " << adapter_count << "\n";
 
     wis::CommandQueueDesc queue_desc[] = {
-        {wis::CommandQueueType::Graphics, wis::CommandQueuePriority::High},
-        {wis::CommandQueueType::Compute, wis::CommandQueuePriority::Normal},
+        {wis::CommandQueueType::Graphics,   wis::CommandQueuePriority::High},
+        { wis::CommandQueueType::Compute, wis::CommandQueuePriority::Normal},
     };
 
     wis::DeviceRequirements device_requirements{};

@@ -10,7 +10,7 @@
 namespace wis::detail {
 static constexpr WisResult vk_success{WisStatusOk, VK_SUCCESS, "Operation succeeded."};
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 /**
  * @brief Converts a Vulkan VkResult to a WisStatus. This function maps specific Vulkan result codes to corresponding
  * WisStatus values, allowing for consistent error handling across the Wisdom library when dealing with Vulkan API
@@ -43,7 +43,7 @@ constexpr WisStatus VKConvert(const VkResult hr) noexcept
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 /**
  * @brief Creates a WisResult from a Vulkan VkResult, including an error message that incorporates the function name and
  * a custom message. This function uses compile-time string manipulation to generate a descriptive error message based
@@ -65,7 +65,7 @@ WIS_CONSTEXPR23 WisResult make_result(VkResult hr, wis::source_location sl = wis
     return {wis::detail::VKConvert(hr), hr, str.c_str()};
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 /**
  * @brief Creates a WisResult from a Vulkan VkResult, including an error message that incorporates the function name and
  * a custom message. This function uses compile-time string manipulation to generate a descriptive error message based
@@ -91,16 +91,13 @@ make_result(WisStatus status, VkResult hr, wis::source_location sl = wis::source
     return {status, hr, str.c_str()};
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 /**
  * @brief Check if the given VkResult indicates a successful operation.
  * @param hr The VkResult value to check for success.
  * @return True if the VkResult indicates success (non-negative), false otherwise.
  */
-constexpr bool succeeded(const VkResult hr) noexcept
-{
-    return hr >= 0;
-}
+constexpr bool succeeded(const VkResult hr) noexcept { return hr >= 0; }
 } // namespace wis::detail
 
 #endif // WIS_VK_UTILS_HPP

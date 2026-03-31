@@ -19,7 +19,7 @@ struct VKSwapchainImpl;
 }
 
 namespace wis::detail {
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 /**
  * @brief A control block structure that manages reference counting for Vulkan objects. This template struct is designed
  * to be used as a base for various Vulkan object headers, providing a common mechanism for reference counting and
@@ -48,7 +48,7 @@ public:
     HeaderType header;
 };
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 /**
  * @brief A structure that serves as a thunk for Vulkan debug callbacks. This structure provides a static callback
  * function that can be registered with Vulkan's debug utilities, and it forwards the callback to a user-defined
@@ -109,8 +109,7 @@ public:
         // Get device handle if possible
         uint64_t device = 0;
         for (auto&& obj :
-             wis::span<const VkDebugUtilsObjectNameInfoEXT>{pCallbackData->pObjects, pCallbackData->objectCount})
-        {
+             wis::span<const VkDebugUtilsObjectNameInfoEXT>{pCallbackData->pObjects, pCallbackData->objectCount}) {
             if (obj.objectType == VK_OBJECT_TYPE_DEVICE) {
                 device = obj.objectHandle;
                 break;
@@ -125,7 +124,7 @@ public:
     void* user_data = nullptr;
 };
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct VKInstanceHeader {
     impl::VKMainGlobal global_table;
     impl::VKMainInstance instance_table;
@@ -138,27 +137,26 @@ struct VKInstanceHeader {
     std::unique_ptr<VKDebugCallbackThunk> debug_callback_thunk;
 };
 
-//-----------------------------------------------------------------------------
-struct VKInstanceControlBlock : public VKControlBlock<VKInstanceHeader> {
-};
+//----------------------------------------------------------------------------------------------------------------------
+struct VKInstanceControlBlock : public VKControlBlock<VKInstanceHeader> {};
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct VKDeviceFeatures {
-    uint32_t multiple_viewports : 1 = false;
+    uint32_t multiple_viewports                : 1 = false;
     uint32_t dynamic_render_unused_attachments : 1 = false;
-    uint32_t index_buffer_range : 1 = false;
-    uint32_t descriptor_heap : 1 = false;
-    uint32_t global_priority : 1 = false;
-    uint32_t host_image_copy : 1 = false;
-    uint32_t maintenance9 : 1 = false; // nop QFOT barriers and empty device
-    uint32_t line_rasterization : 1 = false;
-    uint32_t conservative_rasterization : 1 = false;
-    uint32_t memory_priority : 1 = false;
-    uint32_t dynamic_memory_priority : 1 = false;
+    uint32_t index_buffer_range                : 1 = false;
+    uint32_t descriptor_heap                   : 1 = false;
+    uint32_t global_priority                   : 1 = false;
+    uint32_t host_image_copy                   : 1 = false;
+    uint32_t maintenance9                      : 1 = false; // nop QFOT barriers and empty device
+    uint32_t line_rasterization                : 1 = false;
+    uint32_t conservative_rasterization        : 1 = false;
+    uint32_t memory_priority                   : 1 = false;
+    uint32_t dynamic_memory_priority           : 1 = false;
 
     // Swapchain
     uint32_t swapchain_maintenance : 1 = false;
-    uint32_t incremental_present : 1 = false;
+    uint32_t incremental_present   : 1 = false;
 
     // Properties
     uint8_t max_vertex_attributes = 0; // rarely greater than 32, so 8 bits is sufficient
@@ -178,7 +176,7 @@ struct VKDeviceFeatures {
     uint64_t max_sampler_heap_size = 0;
 };
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct VKQueueFamilyProperties {
     static constexpr uint8_t invalid_family_index = 0xFF;
     uint8_t family_index = invalid_family_index;
@@ -196,7 +194,7 @@ public:
     }
 };
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct VKQueueFamilyExtras {
     static constexpr uint8_t invalid_family_index = 0xFF;
     uint8_t family_index = invalid_family_index;
@@ -204,7 +202,7 @@ struct VKQueueFamilyExtras {
                                          // family index. A bit value of 1 indicates compatibility.
 };
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct VKDeviceHeader {
     impl::VKMainDevice device_table;
     impl::VKMainCommandQueue command_queue_table;
@@ -257,14 +255,13 @@ public:
         if (family_index == VKQueueFamilyProperties::invalid_family_index) {
             return nullptr; // No valid family index for this queue type
         }
-        return reinterpret_cast<std::binary_semaphore*>(reinterpret_cast<uint8_t*>(this) + sizeof(*this)) +
-               queue_families[type].semaphore_offset + queue_index;
+        return reinterpret_cast<std::binary_semaphore*>(reinterpret_cast<uint8_t*>(this) + sizeof(*this))
+             + queue_families[type].semaphore_offset + queue_index;
     }
 };
 
-//-----------------------------------------------------------------------------
-struct VKDeviceControlBlock : public VKControlBlock<VKDeviceHeader> {
-};
+//----------------------------------------------------------------------------------------------------------------------
+struct VKDeviceControlBlock : public VKControlBlock<VKDeviceHeader> {};
 
 struct VKCommandPoolHeader {
     VkDevice device;
@@ -272,26 +269,24 @@ struct VKCommandPoolHeader {
     VkCommandPool command_pool;
 };
 
-//-----------------------------------------------------------------------------
-struct VKCommandPoolControlBlock : public VKControlBlock<VKCommandPoolHeader> {
-};
+//----------------------------------------------------------------------------------------------------------------------
+struct VKCommandPoolControlBlock : public VKControlBlock<VKCommandPoolHeader> {};
 
 struct VKSurfaceHeader {
     VKInstanceControlBlock* instance_header;
     VkSurfaceKHR surface;
 };
 
-//-----------------------------------------------------------------------------
-struct VKSurfaceControlBlock : public VKControlBlock<VKSurfaceHeader> {
-};
+//----------------------------------------------------------------------------------------------------------------------
+struct VKSurfaceControlBlock : public VKControlBlock<VKSurfaceHeader> {};
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct VKSwapchainHeader {
     static constexpr uint32_t reasonable_mode_count = 16;
 
     VKSurfaceControlBlock* surface_header; // hold reference to surface control block to ensure surface lifetime
-    VKDeviceControlBlock* device_header;   // hold reference to device control block to ensure device lifetime
-    VkSurfaceKHR surface;             // store surface handle for later use in presentation and swapchain recreation
+    VKDeviceControlBlock* device_header; // hold reference to device control block to ensure device lifetime
+    VkSurfaceKHR surface; // store surface handle for later use in presentation and swapchain recreation
     VkPhysicalDevice physical_device; // store physical device for later use in swapchain recreation
     PFN_vkGetPhysicalDeviceSurfaceCapabilities2KHR
         vkGetPhysicalDeviceSurfaceCapabilities2KHR; // store function pointer for later use in swapchain recreation
@@ -336,11 +331,10 @@ struct VKSwapchainHeader {
     }
 };
 
-//-----------------------------------------------------------------------------
-struct VKSwapchainControlBlock : public VKControlBlock<VKSwapchainHeader> {
-};
+//----------------------------------------------------------------------------------------------------------------------
+struct VKSwapchainControlBlock : public VKControlBlock<VKSwapchainHeader> {};
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct alignas(void*) VKRootSignatureControlBlock {
     static constexpr uint32_t invalid_index = std::numeric_limits<uint32_t>::max();
 
@@ -391,14 +385,14 @@ struct alignas(void*) VKRootSignatureControlBlock {
     }
 };
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct VKRenderTargetView {
     VkImageView view = VK_NULL_HANDLE;
     uint16_t width = 0, height = 0;
     uint16_t array_layer_count = 0;
 };
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 inline constexpr WisTextureState VKConvertToTextureState(VkImageLayout layout) noexcept
 {
     switch (layout) {
@@ -434,7 +428,7 @@ inline constexpr WisTextureState VKConvertToTextureState(VkImageLayout layout) n
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 inline constexpr VkImageAspectFlags VKAspectFlags(VkFormat format) noexcept
 {
     switch (format) {
@@ -453,7 +447,7 @@ inline constexpr VkImageAspectFlags VKAspectFlags(VkFormat format) noexcept
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 /**
  * @brief Releases a Vulkan instance, destroying it if this is the last reference. Also destroys the debug messenger if
  * it exists.
@@ -477,7 +471,7 @@ inline void VKReleaseInstance(VKInstanceControlBlock* header) noexcept
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 /**
  * @brief Releases a Vulkan device, destroying it if this is the last reference. Also releases the associated instance.
  * @param device The Vulkan device to release
@@ -502,7 +496,7 @@ inline void VKReleaseDevice(VKDeviceControlBlock* header) noexcept
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 /**
  * @brief Releases a Vulkan command pool, destroying it if this is the last reference. Also releases the associated
  * device.
@@ -524,7 +518,7 @@ inline void VKReleaseCommandPool(VKCommandPoolControlBlock* header) noexcept
         delete[] header;
     }
 }
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 /**
  * @brief Releases a Vulkan command pool, destroying it if this is the last reference. Also releases the associated
  * device.
@@ -547,7 +541,7 @@ inline void VKReleaseSurface(VKSurfaceControlBlock* header) noexcept
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 inline void VKReleaseSwapchain(VkSwapchainKHR swap, VKSwapchainControlBlock* header) noexcept
 {
     if (header && header->Release() == 1) {

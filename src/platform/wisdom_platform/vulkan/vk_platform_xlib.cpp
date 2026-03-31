@@ -7,8 +7,10 @@
 #    include <wisdom/vulkan/vk_extensions.hpp>
 #    include <wisdom_platform/generated/cpp_api.hpp>
 
+// clang-format off
 #    include <X11/Xlib.h>
 #    include <vulkan/vulkan_xlib.h>
+// clang-format on
 
 // Undefine common macros that may interfere with Vulkan function pointer declarations
 #    undef Bool
@@ -42,7 +44,7 @@ inline WisResult VKXlibExtensionInit(
 }
 } // namespace wis::detail
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKInitXlibExtension(WisVKXlibExtension* self)
 {
     new (self) wis::impl::VKXlibExtensionImpl{
@@ -51,7 +53,7 @@ WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKInitXlibExtension(WisVKXlibExtension*
     };
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKDestroyXlibExtension(WisVKXlibExtension* self)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKXlibExtensionImpl>(self);
@@ -60,9 +62,12 @@ WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKDestroyXlibExtension(WisVKXlibExtensi
     }
 }
 
-//-----------------------------------------------------------------------------
-WISDOM_PLATFORM_API WisResult
-wisVKXlibExtensionCreateSurface(WisVKXlibExtension* self, const WisXlibWindowDesc* info, WisVKSurface* surface)
+//----------------------------------------------------------------------------------------------------------------------
+WISDOM_PLATFORM_API WisResult wisVKXlibExtensionCreateSurface(
+    WisVKXlibExtension* self,
+    const WisXlibWindowDesc* info,
+    WisVKSurface* surface
+)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKXlibExtensionImpl>(self);
     auto vkCreateXlibSurfaceKHR = reinterpret_cast<PFN_vkCreateXlibSurfaceKHR>(impl.vkCreateXlibSurfaceKHR);

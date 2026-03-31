@@ -15,7 +15,7 @@
 namespace wis {
 struct VKInstanceExtensionCollector;
 struct VKDeviceExtensionCollector;
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 namespace detail {
 struct VKInstanceControlBlock;
 struct VKDeviceControlBlock;
@@ -29,7 +29,7 @@ struct VKRenderTargetView;
 } // namespace detail
 
 namespace impl {
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct VKInstanceImpl {
     VkInstance instance;
     detail::VKInstanceControlBlock* shared_header;
@@ -68,7 +68,7 @@ struct VKCommandListImpl {
     detail::VKCommandPoolControlBlock* command_pool_header;
 
     detail::VKQueueFamilyExtras* queue_indices;
-    uint32_t maintenance9 : 1;
+    uint32_t maintenance9          : 1;
     WisCommandQueueType queue_type : 31;
 
     mutable uint32_t scratch_memory_size; // Size of the scratch memory in bytes.
@@ -100,7 +100,7 @@ struct VKDescriptorHeapImpl {
     VkDeviceAddress gpu_address;
     uint16_t descriptor_size;
     uint16_t reserved_size; // in descriptor sizes
-    uint32_t heap_size;     // in descriptor sizes
+    uint32_t heap_size; // in descriptor sizes
     VkDevice device;
     detail::VKDeviceControlBlock* device_header;
 };
@@ -163,7 +163,7 @@ struct VKSwapchainImpl {
 
 } // namespace impl
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 struct VKInstanceExtensionHeader {
     WisResult (*init_fptr)(
         VKInstanceExtensionHeader* self,

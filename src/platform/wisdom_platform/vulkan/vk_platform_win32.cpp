@@ -34,7 +34,7 @@ inline WisResult VKWin32ExtensionInit(
 }
 } // namespace wis::detail
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKInitWin32Extension(WisVKWin32Extension* self)
 {
     new (self) wis::impl::VKWin32ExtensionImpl{
@@ -43,7 +43,7 @@ WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKInitWin32Extension(WisVKWin32Extensio
     };
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKDestroyWin32Extension(WisVKWin32Extension* self)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKWin32ExtensionImpl>(self);
@@ -52,9 +52,12 @@ WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKDestroyWin32Extension(WisVKWin32Exten
     }
 }
 
-//-----------------------------------------------------------------------------
-WISDOM_PLATFORM_API WisResult
-wisVKWin32ExtensionCreateSurface(WisVKWin32Extension* self, const WisWin32WindowDesc* info, WisVKSurface* surface)
+//----------------------------------------------------------------------------------------------------------------------
+WISDOM_PLATFORM_API WisResult wisVKWin32ExtensionCreateSurface(
+    WisVKWin32Extension* self,
+    const WisWin32WindowDesc* info,
+    WisVKSurface* surface
+)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKWin32ExtensionImpl>(self);
     auto vkCreateWin32SurfaceKHR = reinterpret_cast<PFN_vkCreateWin32SurfaceKHR>(impl.vkCreateWin32SurfaceKHR);

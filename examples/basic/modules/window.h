@@ -24,13 +24,7 @@ public:
 class PlatformExtension
 {
 public:
-    enum class Selector
-    {
-        None,
-        Windows,
-        X11,
-        Wayland
-    };
+    enum class Selector { None, Windows, X11, Wayland };
 
 public:
     PlatformExtension();

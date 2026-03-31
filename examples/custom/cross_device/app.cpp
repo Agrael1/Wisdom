@@ -8,7 +8,7 @@
 
 #include <chrono>
 #include <iostream>
-//--------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------------
 
 struct LogProvider : public wis::LogLayer {
     virtual void Log(
@@ -21,12 +21,9 @@ struct LogProvider : public wis::LogLayer {
     }
 };
 
-void DebugCallback(wis::Severity severity, const char* message, void* user_data)
-{
-    std::cout << message << "\n";
-}
+void DebugCallback(wis::Severity severity, const char* message, void* user_data) { std::cout << message << "\n"; }
 
-//--------------------------------------------------------------------------------------------------
+//-------------------------------------------------------------------------------------------------------------------------------------------
 
 App::App(uint32_t width, uint32_t height)
     : wnd(width, height, "Lut Test")
@@ -35,10 +32,7 @@ App::App(uint32_t width, uint32_t height)
 {
     CreateDevices();
 }
-App::~App()
-{
-    transfer.input_buffer.Unmap();
-}
+App::~App() { transfer.input_buffer.Unmap(); }
 
 void App::CreateDevices()
 {

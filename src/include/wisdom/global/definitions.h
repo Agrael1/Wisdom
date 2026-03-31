@@ -36,48 +36,36 @@
 
 #    define WIS_EXTERN_C extern "C"
 
-#    define WISDOM_DEFINE_ENUM_OPERATORS(T)                                                                   \
-        inline T operator|(T a, T b) noexcept                                                                 \
-        {                                                                                                     \
-            return static_cast<T>(                                                                            \
-                static_cast<std::underlying_type<T>::type>(a) | static_cast<std::underlying_type<T>::type>(b) \
-            );                                                                                                \
-        }                                                                                                     \
-        inline T operator&(T a, T b) noexcept                                                                 \
-        {                                                                                                     \
-            return static_cast<T>(                                                                            \
-                static_cast<std::underlying_type<T>::type>(a) & static_cast<std::underlying_type<T>::type>(b) \
-            );                                                                                                \
-        }                                                                                                     \
-        inline T operator^(T a, T b) noexcept                                                                 \
-        {                                                                                                     \
-            return static_cast<T>(                                                                            \
-                static_cast<std::underlying_type<T>::type>(a) ^ static_cast<std::underlying_type<T>::type>(b) \
-            );                                                                                                \
-        }                                                                                                     \
-        inline T operator~(T a) noexcept                                                                      \
-        {                                                                                                     \
-            return static_cast<T>(~static_cast<std::underlying_type<T>::type>(a));                            \
-        }                                                                                                     \
-        inline T& operator|=(T& a, T b) noexcept                                                              \
-        {                                                                                                     \
-            return a = a | b;                                                                                 \
-        }                                                                                                     \
-        inline T& operator&=(T& a, T b) noexcept                                                              \
-        {                                                                                                     \
-            return a = a & b;                                                                                 \
-        }                                                                                                     \
-        inline T& operator^=(T& a, T b) noexcept                                                              \
-        {                                                                                                     \
-            return a = a ^ b;                                                                                 \
-        }                                                                                                     \
-        inline std::underlying_type_t<T> to_underlying(T value) noexcept                                      \
-        {                                                                                                     \
-            return static_cast<std::underlying_type_t<T>>(value);                                             \
-        }                                                                                                     \
-        inline std::underlying_type_t<T> operator+(T value) noexcept                                          \
-        {                                                                                                     \
-            return static_cast<std::underlying_type_t<T>>(value);                                             \
+#    define WISDOM_DEFINE_ENUM_OPERATORS(T)                                                                         \
+        inline T operator|(T a, T b) noexcept                                                                       \
+        {                                                                                                           \
+            return static_cast<T>(                                                                                  \
+                static_cast<std::underlying_type<T>::type>(a) | static_cast<std::underlying_type<T>::type>(b)       \
+            );                                                                                                      \
+        }                                                                                                           \
+        inline T operator&(T a, T b) noexcept                                                                       \
+        {                                                                                                           \
+            return static_cast<T>(                                                                                  \
+                static_cast<std::underlying_type<T>::type>(a) & static_cast<std::underlying_type<T>::type>(b)       \
+            );                                                                                                      \
+        }                                                                                                           \
+        inline T operator^(T a, T b) noexcept                                                                       \
+        {                                                                                                           \
+            return static_cast<T>(                                                                                  \
+                static_cast<std::underlying_type<T>::type>(a) ^ static_cast<std::underlying_type<T>::type>(b)       \
+            );                                                                                                      \
+        }                                                                                                           \
+        inline T operator~(T a) noexcept { return static_cast<T>(~static_cast<std::underlying_type<T>::type>(a)); } \
+        inline T& operator|=(T& a, T b) noexcept { return a = a | b; }                                              \
+        inline T& operator&=(T& a, T b) noexcept { return a = a & b; }                                              \
+        inline T& operator^=(T& a, T b) noexcept { return a = a ^ b; }                                              \
+        inline std::underlying_type_t<T> to_underlying(T value) noexcept                                            \
+        {                                                                                                           \
+            return static_cast<std::underlying_type_t<T>>(value);                                                   \
+        }                                                                                                           \
+        inline std::underlying_type_t<T> operator+(T value) noexcept                                                \
+        {                                                                                                           \
+            return static_cast<std::underlying_type_t<T>>(value);                                                   \
         }
 
 #else
@@ -101,11 +89,11 @@
 // C++17 or later
 #        if __has_cpp_attribute(nodiscard) >= 201603L // C++17 or later
 #            define WIS_NODISCARD [[nodiscard]]
-#        else                                         // Older C++, use compiler-specific attributes
+#        else // Older C++, use compiler-specific attributes
 #            define WIS_NODISCARD NODISCARD_ATTRIBUTE
-#        endif                                        // __has_cpp_attribute(nodiscard) >= 201603L
+#        endif // __has_cpp_attribute(nodiscard) >= 201603L
 
-#    elif defined(__has_c_attribute)                  // Try C23
+#    elif defined(__has_c_attribute) // Try C23
 // C23 or later
 #        if __has_c_attribute(nodiscard)
 #            define WIS_NODISCARD [[nodiscard]]
@@ -113,10 +101,10 @@
 #            define WIS_NODISCARD NODISCARD_ATTRIBUTE
 #        endif
 
-#    else  // Fallback
+#    else // Fallback
 #        define WIS_NODISCARD NODISCARD_ATTRIBUTE
 #    endif // __has_cpp_attribute
-#endif     // WIS_NODISCARD
+#endif // WIS_NODISCARD
 
 #define WIS_DEFINE_HANDLE(name, size) \
     typedef struct name {             \
@@ -176,18 +164,18 @@
 
 #        ifndef WISDOM_DX12
 #            define WISDOM_DX12 1
-#        endif            // !WISDOM_DX12
+#        endif // !WISDOM_DX12
 
 #        ifdef _WINRT_DLL // UWP
 #            define WISDOM_UWP 1
-#        else             // _WINRT_DLL
+#        else // _WINRT_DLL
 #            define WISDOM_WINDOWS 1
-#        endif            // _WINRT_DLL
+#        endif // _WINRT_DLL
 #    elif defined(__linux__)
 #        define WISDOM_LINUX 1
 #    else
 #        error "Platform not supported"
 #    endif // _WIN32
-#endif     // !WISDOM_UWP && !WISDOM_WINDOWS && !WISDOM_LINUX
+#endif // !WISDOM_UWP && !WISDOM_WINDOWS && !WISDOM_LINUX
 
-#endif     // !WIS_GLOBAL_DEFINITIONS_H
+#endif // !WIS_GLOBAL_DEFINITIONS_H

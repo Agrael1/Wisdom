@@ -7,8 +7,10 @@
 #    include <wisdom/vulkan/vk_extensions.hpp>
 #    include <wisdom_platform/generated/cpp_api.hpp>
 
-#    include <vulkan/vulkan_xcb.h>
+// clang-format off
 #    include <xcb/xcb.h>
+#    include <vulkan/vulkan_xcb.h>
+// clang-format on
 
 namespace wis::detail {
 inline WisResult VKXCBExtensionInit(
@@ -34,7 +36,7 @@ inline WisResult VKXCBExtensionInit(
 }
 } // namespace wis::detail
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKInitXCBExtension(WisVKXCBExtension* self)
 {
     new (self) wis::impl::VKXCBExtensionImpl{
@@ -43,7 +45,7 @@ WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKInitXCBExtension(WisVKXCBExtension* s
     };
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKDestroyXCBExtension(WisVKXCBExtension* self)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKXCBExtensionImpl>(self);
@@ -52,9 +54,12 @@ WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKDestroyXCBExtension(WisVKXCBExtension
     }
 }
 
-//-----------------------------------------------------------------------------
-WISDOM_PLATFORM_API WisResult
-wisVKXCBExtensionCreateSurface(WisVKXCBExtension* self, const WisXCBWindowDesc* info, WisVKSurface* surface)
+//----------------------------------------------------------------------------------------------------------------------
+WISDOM_PLATFORM_API WisResult wisVKXCBExtensionCreateSurface(
+    WisVKXCBExtension* self,
+    const WisXCBWindowDesc* info,
+    WisVKSurface* surface
+)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKXCBExtensionImpl>(self);
     auto vkCreateXcbSurfaceKHR = reinterpret_cast<PFN_vkCreateXcbSurfaceKHR>(impl.vkCreateXcbSurfaceKHR);

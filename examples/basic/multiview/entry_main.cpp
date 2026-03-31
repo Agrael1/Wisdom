@@ -20,27 +20,27 @@ class App
     ex::Window window;
     ex::ExampleSetup setup;
     ex::Swapchain swap;
-    ex::FramedCommandList cmd_list;  // for first pass
+    ex::FramedCommandList cmd_list; // for first pass
     ex::FramedCommandList cmd_list2; // for second pass
 
     // Resources
     // First pass resources
-    wis::RootSignature root;                     // root signature for first stage and second stage (same)
-    wis::PipelineState pipeline;                 // pipeline for first stage
-    wis::Shader vs;                              // vertex shader
-    wis::Shader ps;                              // pixel shader
+    wis::RootSignature root; // root signature for first stage and second stage (same)
+    wis::PipelineState pipeline; // pipeline for first stage
+    wis::Shader vs; // vertex shader
+    wis::Shader ps; // pixel shader
 
-    wis::Texture textures[ex::flight_frames];    // textures for rendering, with 2 array layers
+    wis::Texture textures[ex::flight_frames]; // textures for rendering, with 2 array layers
     wis::ShaderResource srvs[ex::flight_frames]; // shader resource view for texture
-    wis::RenderTarget rts[ex::flight_frames];    // render target for texture
+    wis::RenderTarget rts[ex::flight_frames]; // render target for texture
 
-    wis::Buffer vertex_buffer;                   // vertex buffer for triangle
+    wis::Buffer vertex_buffer; // vertex buffer for triangle
 
     // Second pass resources
     wis::PipelineState fullscreen_pipeline; // pipeline for second stage
-    wis::Shader fullscreen_vs;              // vertex shader for second stage
-    wis::Shader fullscreen_ps;              // pixel shader for second stage
-    wis::Sampler sampler;                   // sampler for texture
+    wis::Shader fullscreen_vs; // vertex shader for second stage
+    wis::Shader fullscreen_ps; // pixel shader for second stage
+    wis::Sampler sampler; // sampler for texture
 
     // Descriptor buffers
     wis::DescriptorStorage desc_storage; // descriptor storage for shader resources
@@ -59,7 +59,7 @@ public:
 
         wis::DescriptorBindingDesc bindings[] = {
             {.binding_type = wis::DescriptorType::Texture, .binding_space = 1, .binding_count = ex::flight_frames},
-            {.binding_type = wis::DescriptorType::Sampler, .binding_space = 2, .binding_count = 1},
+            {.binding_type = wis::DescriptorType::Sampler, .binding_space = 2,                 .binding_count = 1},
         };
         desc_storage = setup.device.CreateDescriptorStorage(result, bindings, std::size(bindings));
     }
@@ -112,7 +112,7 @@ public:
             {.target = rts[frame_index],
              .load_op = wis::LoadOperation::Clear,
              .store_op = wis::StoreOperation::Store,
-             .clear_value = {0.1f, 0.1f, 0.1f, 1.0f}} // clear with gray color
+             .clear_value = {0.1f, 0.1f, 0.1f, 1.0f}}  // clear with gray color
         };
         wis::RenderPassDesc rp1{
             .flags = wis::RenderPassFlags::None,
@@ -268,11 +268,11 @@ public:
                 .format = wis::DataFormat::BGRA8Unorm,
                 .view_type = wis::TextureViewType::Texture2DArray,
                 .subresource_range = {
-                    .base_mip_level = 0,
-                    .level_count = 1,
-                    .base_array_layer = 0,
-                    .layer_count = 2,
-                },
+                                      .base_mip_level = 0,
+                                      .level_count = 1,
+                                      .base_array_layer = 0,
+                                      .layer_count = 2,
+                                      },
             };
 
             for (size_t i = 0; i < ex::flight_frames; i++) {
@@ -295,22 +295,17 @@ public:
         // Create root signature with
         {
             wis::Result result = wis::success;
-            wis::PushConstant root_constants[]{{.stage = wis::ShaderStages::Pixel, .size_bytes = sizeof(uint32_t)}};
+            wis::PushConstant root_constants[]{
+                {.stage = wis::ShaderStages::Pixel, .size_bytes = sizeof(uint32_t)}
+            };
             wis::DescriptorBindingDesc bindings[] = {
                 {.binding_type = wis::DescriptorType::Texture,
                  .binding_space = 1,
-                 .binding_count = ex::flight_frames}, // space 0 is for root constants
+                 .binding_count = ex::flight_frames                                                  }, // space 0 is for root constants
                 {.binding_type = wis::DescriptorType::Sampler, .binding_space = 2, .binding_count = 1},
             };
-            root = setup.device.CreateRootSignature(
-                result,
-                root_constants,
-                1,
-                nullptr,
-                0,
-                bindings,
-                std::size(bindings)
-            );
+            root = setup.device
+                       .CreateRootSignature(result, root_constants, 1, nullptr, 0, bindings, std::size(bindings));
         }
 
         // Create pipeline
@@ -330,17 +325,17 @@ public:
                 .root_signature = root,
                 .input_layout =
                     {
-                        .slots = input_slots,
-                        .slot_count = 1,
-                        .attributes = input_attributes,
-                        .attribute_count = 1,
-                    },
+                                   .slots = input_slots,
+                                   .slot_count = 1,
+                                   .attributes = input_attributes,
+                                   .attribute_count = 1,
+                                   },
                 .shaders = {.vertex = vs, .pixel = ps},
                 .attachments =
                     {
-                        .attachment_formats = {wis::DataFormat::BGRA8Unorm},
-                        .attachments_count = 1,
-                    },
+                                   .attachment_formats = {wis::DataFormat::BGRA8Unorm},
+                                   .attachments_count = 1,
+                                   },
                 .view_mask = 0b11, // 2 array layers
             };
             pipeline = ex::Unwrap(setup.device.CreateGraphicsPipeline(desc));
@@ -348,7 +343,11 @@ public:
 
         // Create vertex buffer
         {
-            glm::vec3 triangle_vertices[] = {{0.0f, 0.5f, 0.0f}, {0.5f, -0.5f, 0.0f}, {-0.5f, -0.5f, 0.0f}};
+            glm::vec3 triangle_vertices[] = {
+                { 0.0f,  0.5f, 0.0f},
+                { 0.5f, -0.5f, 0.0f},
+                {-0.5f, -0.5f, 0.0f}
+            };
             vertex_buffer = setup.CreateAndUploadBuffer(
                 std::span<glm::vec3>{triangle_vertices},
                 wis::BufferUsage::VertexBuffer
@@ -378,9 +377,9 @@ public:
                 .shaders = {.vertex = fullscreen_vs, .pixel = fullscreen_ps},
                 .attachments =
                     {
-                        .attachment_formats = {ex::swapchain_format},
-                        .attachments_count = 1,
-                    },
+                            .attachment_formats = {ex::swapchain_format},
+                            .attachments_count = 1,
+                            },
                 // view mask is 0b00, because we will render to the back buffer
             };
             fullscreen_pipeline = ex::Unwrap(setup.device.CreateGraphicsPipeline(desc));

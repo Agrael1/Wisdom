@@ -9,12 +9,12 @@
 #        define WIN32_LEAN_AND_MEAN
 #    endif // WIN32_LEAN_AND_MEAN
 #    include <Windows.h>
-#endif     // _INC_WINDOWS
+#endif // _INC_WINDOWS
 
 namespace wis::detail {
 static constexpr WisResult dx_success{WisStatusOk, S_OK, "Operation succeeded."};
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 /**
  * @brief Converts a DirectX 12 HRESULT into a WisStatus. This function maps common HRESULT values to their
  * corresponding WisStatus codes, allowing for consistent error handling across the Wisdom library when interfacing with
@@ -41,7 +41,7 @@ constexpr WisStatus DX12Convert(const HRESULT hr) noexcept
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 /**
  * @brief Creates a WisResult from a DirectX 12 HRESULT, including an error message that incorporates the function name
  * and a custom message. This function uses compile-time string manipulation to generate a descriptive error message
@@ -66,7 +66,7 @@ WIS_CONSTEXPR23 inline WisResult make_result(
     return {wis::detail::DX12Convert(hr), hr, str.c_str()};
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 /**
  * @brief Creates a WisResult from a DirectX 12 HRESULT, including an error message that incorporates the function name
  * and a custom message. This function uses compile-time string manipulation to generate a descriptive error message
@@ -95,16 +95,13 @@ WIS_CONSTEXPR23 inline WisResult make_result(
     return {status, hr, str.c_str()};
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 /**
  * @brief Check if the given HRESULT indicates a successful operation.
  * @param hr The HRESULT value to check for success.
  * @return True if the HRESULT indicates success (non-negative), false otherwise.
  */
-constexpr bool succeeded(HRESULT hr) noexcept
-{
-    return SUCCEEDED(hr);
-}
+constexpr bool succeeded(HRESULT hr) noexcept { return SUCCEEDED(hr); }
 } // namespace wis::detail
 
 #endif // WIS_DX12_UTILS_HPP

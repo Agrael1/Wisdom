@@ -376,10 +376,11 @@ Can still be enqueued after the signal.">
         <arg type="Viewport" name="viewports" mod="const,span" doc="points to an array of viewports to set."/>
         <arg type="size" name="viewport_count" doc="defines number of viewports to set."/>
       </func>
-      <func for="CommandList" name="SetScissor" version="0.7.0" doc="Sets a scissor rect.
+      <func for="CommandList" name="SetScissors" version="0.7.0" doc="Sets a scissor rect.
 Only the region, which is in the scissor rect is updated.
 If multiple viewports are used, SV_ViewportArrayIndex in geometry shader selects the viewport and associated scissor rect.">
-        <arg type="Rect" name="scissor_rect" mod="const,ref" doc="points to a scissor rectangle to set."/>
+        <arg type="Rect" name="scissor_rect" mod="const,span" doc="points to an array of scissor rectangles to set."/>
+        <arg type="size" name="rect_count" doc="defines number of scissor rectangles to set."/>
       </func>
       <func for="CommandList" name="SetPrimitiveTopology" version="0.7.0" doc="Sets the primitive topology. Determines how vertices shall be processed.">
         <arg type="PrimitiveTopology" name="topology" doc="describes primitive topology to set."/>

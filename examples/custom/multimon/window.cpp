@@ -7,8 +7,7 @@
 
 // extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-enum class MenuItems : UINT_PTR
-{
+enum class MenuItems : UINT_PTR {
     Load = ID_FILE_LOADMODEL,
     Exit = ID_FILE_EXIT,
     ShowGrid = ID_OPTIONS_DRAWGRID,
@@ -56,18 +55,9 @@ Window::WindowClass::WindowClass() noexcept
     wcWindow.lpszClassName = GetName();
     RegisterClassExA(&wcWindow);
 }
-Window::WindowClass::~WindowClass()
-{
-    UnregisterClassA(wndClassName, GetInstance());
-}
-const char* Window::WindowClass::GetName() noexcept
-{
-    return wndClassName;
-}
-HINSTANCE Window::WindowClass::GetInstance() noexcept
-{
-    return wndClass.hInst;
-}
+Window::WindowClass::~WindowClass() { UnregisterClassA(wndClassName, GetInstance()); }
+const char* Window::WindowClass::GetName() noexcept { return wndClassName; }
+HINSTANCE Window::WindowClass::GetInstance() noexcept { return wndClass.hInst; }
 
 // Window namespace
 Window::Window(unsigned int width, unsigned int height, const char* name)
@@ -142,7 +132,7 @@ Window::Window(unsigned int width, unsigned int height, const char* name)
 
     RAWINPUTDEVICE rid;
     rid.usUsagePage = 0x01; // mouse page
-    rid.usUsage = 0x02;     // mouse usage
+    rid.usUsage = 0x02; // mouse usage
     rid.dwFlags = 0;
     rid.hwndTarget = nullptr;
     wis::check_windows(RegisterRawInputDevices(&rid, 1, sizeof(rid)));
@@ -180,15 +170,9 @@ void Window::ChangeToFullScreen()
     );
 }
 
-void Window::SetTitle(std::string_view title)
-{
-    wis::check_windows(SetWindowTextA(hWnd.get(), title.data()));
-}
+void Window::SetTitle(std::string_view title) { wis::check_windows(SetWindowTextA(hWnd.get(), title.data())); }
 
-void Window::EnableLoading()
-{
-    menu.EnableLoading();
-}
+void Window::EnableLoading() { menu.EnableLoading(); }
 
 void Window::EnableCursor() noexcept
 {
@@ -204,10 +188,7 @@ void Window::DisableCursor() noexcept
     DisableImGuiMouse();
     ConfineCursor();
 }
-bool Window::CursorEnabled() const noexcept
-{
-    return cursorEnabled;
-}
+bool Window::CursorEnabled() const noexcept { return cursorEnabled; }
 
 void Window::ConfineCursor() noexcept
 {
@@ -216,10 +197,7 @@ void Window::ConfineCursor() noexcept
     MapWindowPoints(hWnd.get(), nullptr, reinterpret_cast<POINT*>(&rect), 2);
     ClipCursor(&rect);
 }
-void Window::FreeCursor() noexcept
-{
-    ClipCursor(nullptr);
-}
+void Window::FreeCursor() noexcept { ClipCursor(nullptr); }
 void Window::HideCursor() noexcept
 {
     while (::ShowCursor(FALSE) >= 0)
@@ -252,10 +230,10 @@ std::optional<WPARAM> Window::ProcessMessages() const noexcept
     MSG msg;
     while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
         if (!TranslateAccelerator(
-                hWnd.get(),        // handle to receiving window
+                hWnd.get(), // handle to receiving window
                 Accelerator.get(), // handle to active accelerator table
                 &msg
-            ))                     // message data
+            )) // message data
         {
             if (msg.message == WM_QUIT) {
                 return msg.wParam;
@@ -518,9 +496,8 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
         }
         UINT size = 0;
         // first get the size of the input data
-        if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, nullptr, &size, sizeof(RAWINPUTHEADER)) ==
-            -1)
-        {
+        if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, nullptr, &size, sizeof(RAWINPUTHEADER))
+            == -1) {
             // bail msg processing if error
             break;
         }
@@ -532,8 +509,8 @@ LRESULT Window::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
                 rawBuffer.data(),
                 &size,
                 sizeof(RAWINPUTHEADER)
-            ) != size)
-        {
+            )
+            != size) {
             // bail msg processing if error
             break;
         }

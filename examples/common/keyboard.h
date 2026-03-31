@@ -12,8 +12,7 @@ public:
     class Event
     {
     public:
-        enum class Type
-        {
+        enum class Type {
             Press,
             Release,
         };
@@ -26,8 +25,7 @@ public:
         Event(Type type, unsigned char code) noexcept
             : type(type)
             , code(code)
-        {
-        }
+        {}
 
     public:
         bool IsPress() const noexcept { return type == Type::Press; }

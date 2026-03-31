@@ -25,11 +25,11 @@ constexpr auto make_error_string(std::source_location sl = std::source_location:
 #    pragma clang diagnostic push
 #    pragma clang diagnostic ignored "-Wunsafe-buffer-usage"
 #endif
-    return wis::fixed_string{"Error in "} +
-           wis::fixed_string<func_pair.second - func_pair.first + 1>{
-               std::string_view{sl.function_name() + func_pair.first}
-           } +
-           wis::fixed_string{": "} + message;
+    return wis::fixed_string{"Error in "}
+         + wis::fixed_string<func_pair.second - func_pair.first + 1>{std::string_view{
+             sl.function_name() + func_pair.first
+         }}
+         + wis::fixed_string{": "} + message;
 #if defined(__clang__)
 #    pragma clang diagnostic pop
 #endif

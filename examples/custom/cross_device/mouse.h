@@ -14,8 +14,7 @@ public:
     class Event
     {
     public:
-        enum class Type
-        {
+        enum class Type {
             LPress,
             LRelease,
             RPress,
@@ -41,8 +40,7 @@ public:
             , rightIsPressed(parent.rightIsPressed)
             , x(parent.x)
             , y(parent.y)
-        {
-        }
+        {}
         Type GetType() const noexcept { return type; }
         std::pair<int, int> GetPos() const noexcept { return {x, y}; }
         int GetPosX() const noexcept { return x; }

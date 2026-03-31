@@ -37,28 +37,28 @@ public:
     }
 };
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 // For simplicity, we assign the same global priority to all queues.
 // In a real implementation, you might want to differentiate based on queue type.
 static constexpr VkDeviceQueueGlobalPriorityCreateInfo vk_global_priorities[]{
     {
-        .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO,
-        .pNext = nullptr,
-        .globalPriority = VK_QUEUE_GLOBAL_PRIORITY_MEDIUM_KHR, // Default priority
+     .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO,
+     .pNext = nullptr,
+     .globalPriority = VK_QUEUE_GLOBAL_PRIORITY_MEDIUM_KHR, // Default priority
     },
     {
-        .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO,
-        .pNext = nullptr,
-        .globalPriority = VK_QUEUE_GLOBAL_PRIORITY_HIGH_KHR,
-    },
+     .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO,
+     .pNext = nullptr,
+     .globalPriority = VK_QUEUE_GLOBAL_PRIORITY_HIGH_KHR,
+     },
     {
-        .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO,
-        .pNext = nullptr,
-        .globalPriority = VK_QUEUE_GLOBAL_PRIORITY_REALTIME_KHR,
-    },
+     .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO,
+     .pNext = nullptr,
+     .globalPriority = VK_QUEUE_GLOBAL_PRIORITY_REALTIME_KHR,
+     },
 };
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 constexpr const VkDeviceQueueGlobalPriorityCreateInfo* VKGetGlobalPriorityInfo(WisCommandQueuePriority type) noexcept
 {
     switch (type) {
@@ -72,7 +72,7 @@ constexpr const VkDeviceQueueGlobalPriorityCreateInfo* VKGetGlobalPriorityInfo(W
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 constexpr const VkDeviceQueueGlobalPriorityCreateInfo* VKGetGlobalPriorityInfo(VkQueueGlobalPriority type) noexcept
 {
     switch (type) {
@@ -86,7 +86,7 @@ constexpr const VkDeviceQueueGlobalPriorityCreateInfo* VKGetGlobalPriorityInfo(V
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 constexpr WisCommandQueuePriority VKConvertGlobalPriority(VkQueueGlobalPriority vk_priority) noexcept
 {
     switch (vk_priority) {
@@ -100,7 +100,7 @@ constexpr WisCommandQueuePriority VKConvertGlobalPriority(VkQueueGlobalPriority 
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 inline std::array<uint32_t, WisCommandQueueTypeCount> VKGetSortedQueueFamilies(
     wis::span<VkQueueFamilyProperties2> props_span
 ) noexcept
@@ -132,17 +132,15 @@ inline std::array<uint32_t, WisCommandQueueTypeCount> VKGetSortedQueueFamilies(
 
             // Scenario B: We found a shared G+C queue, but now we found a DISTINCT Compute queue.
             // Overwrite the previous choice! This is how you get Async Compute.
-            else if ((props_span[current].queueFamilyProperties.queueFlags & VK_QUEUE_GRAPHICS_BIT) &&
-                     !(flags & VK_QUEUE_GRAPHICS_BIT))
-            {
+            else if ((props_span[current].queueFamilyProperties.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+                     && !(flags & VK_QUEUE_GRAPHICS_BIT)) {
                 qcom[WisCommandQueueTypeCompute] = i;
             }
 
             // Scenario C: We have found another G+C, but it is different from WisCommandQueueTypeGraphics (probably
             // impossible)
-            else if ((props_span[current].queueFamilyProperties.queueFlags & VK_QUEUE_GRAPHICS_BIT) &&
-                     qcom[WisCommandQueueTypeGraphics] != i)
-            {
+            else if ((props_span[current].queueFamilyProperties.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+                     && qcom[WisCommandQueueTypeGraphics] != i) {
                 qcom[WisCommandQueueTypeCompute] = i;
             }
         }
@@ -156,8 +154,8 @@ inline std::array<uint32_t, WisCommandQueueTypeCount> VKGetSortedQueueFamilies(
             qcom[WisCommandQueueTypeVideoEncode] = i;
         }
 
-        constexpr static VkQueueFlags transfer_safe_mask = VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT |
-                                                           VK_QUEUE_TRANSFER_BIT | VK_QUEUE_SPARSE_BINDING_BIT;
+        constexpr static VkQueueFlags transfer_safe_mask = VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_COMPUTE_BIT
+                                                         | VK_QUEUE_TRANSFER_BIT | VK_QUEUE_SPARSE_BINDING_BIT;
 
         // --- TRANSFER SELECTION ---
         // Goal: Dedicated Transfer > Compute (Async) > Graphics (Fallback).
@@ -209,7 +207,7 @@ inline std::array<uint32_t, WisCommandQueueTypeCount> VKGetSortedQueueFamilies(
     return qcom;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 inline VKQueueResidencyInfo VKGetQueueResidencyInfo(
     const wis::impl::VKMainAdapter& adapter_table,
     VkPhysicalDevice adapter,
@@ -335,10 +333,10 @@ inline VKQueueResidencyInfo VKGetQueueResidencyInfo(
             continue; // This family has already been allocated
         }
 
-        info.residency
-            [desc.type] = family_props.queueFlags = allocated_queue_count; // Store where the family is allocated in
-                                                                           // the residency field (abusing queueFlags
-                                                                           // for this purpose)
+        info.residency[desc.type] = family_props
+                                        .queueFlags = allocated_queue_count; // Store where the family is allocated in
+                                                                             // the residency field (abusing queueFlags
+                                                                             // for this purpose)
 
         info.data[allocated_queue_count++] = {
             .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
@@ -443,7 +441,7 @@ inline WisResult VKInitResourceAllocator(
 }
 } // namespace wis::detail
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyAdapterQuery(WisVKAdapterQuery* self)
 {
     auto& impl = *wis::from_handle<wis::impl::VKAdapterQueryImpl>(self);
@@ -453,15 +451,18 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyAdapterQuery(WisVKAdapterQuery* self)
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API size_t wisVKAdapterQueryGetAdapterCount(const WisVKAdapterQuery* self)
 {
     return wis::from_handle<const wis::impl::VKAdapterQueryImpl>(self)->adapter_count;
 }
 
-//-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisVKAdapterQueryGetAdapterDesc(const WisVKAdapterQuery* self, size_t index, WisAdapterDesc* desc)
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryGetAdapterDesc(
+    const WisVKAdapterQuery* self,
+    size_t index,
+    WisAdapterDesc* desc
+)
 {
     const auto& impl = *wis::from_handle<const wis::impl::VKAdapterQueryImpl>(self);
     if (index >= impl.adapter_count) {
@@ -488,14 +489,12 @@ wisVKAdapterQueryGetAdapterDesc(const WisVKAdapterQuery* self, size_t index, Wis
 
     // Get flags
     WisAdapterFlags flag{};
-    if ((got_desc.deviceType & VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU) ==
-        VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU)
-    {
+    if ((got_desc.deviceType & VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU)
+        == VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU) {
         flag = static_cast<WisAdapterFlags>(flag | WisAdapterFlags::WisAdapterFlagsRemote);
     }
-    if ((got_desc.deviceType & VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_CPU) ==
-        VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_CPU)
-    {
+    if ((got_desc.deviceType & VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_CPU)
+        == VkPhysicalDeviceType::VK_PHYSICAL_DEVICE_TYPE_CPU) {
         flag = static_cast<WisAdapterFlags>(flag | WisAdapterFlags::WisAdapterFlagsSoftware);
     }
 
@@ -504,9 +503,9 @@ wisVKAdapterQueryGetAdapterDesc(const WisVKAdapterQuery* self, size_t index, Wis
 
     wis::span types{memory_props.memoryTypes};
     for (auto& i : types) {
-        if (i.propertyFlags & VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT &&
-            memory_props.memoryHeaps[i.heapIndex].flags & VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)
-        {
+        if (i.propertyFlags & VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT
+            && memory_props.memoryHeaps[i.heapIndex].flags
+                   & VkMemoryPropertyFlagBits::VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) {
             dedicated_video_memory = memory_props.memoryHeaps[i.heapIndex].size;
         }
 
@@ -536,7 +535,7 @@ wisVKAdapterQueryGetAdapterDesc(const WisVKAdapterQuery* self, size_t index, Wis
     return wis::detail::vk_success;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API bool wisVKAdapterQueryGetSurfaceSupport(
     const WisVKAdapterQuery* self,
     size_t index,
@@ -573,7 +572,7 @@ WIS_EXTERN_C WISDOM_API bool wisVKAdapterQueryGetSurfaceSupport(
     return false;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(
     const WisVKAdapterQuery* self,
     size_t index,
@@ -601,8 +600,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(
     if (requirements) {
         for (size_t i = 0; i < requirements->extension_count; ++i) {
             if (auto* ext_header = wis::from_handle<wis::VKDeviceExtensionHeader>(requirements->extensions[i]);
-                ext_header && ext_header->init_fptr)
-            {
+                ext_header && ext_header->init_fptr) {
                 auto res2 = ext_header->init_fptr(ext_header, nullptr, &collector);
                 // Non-fatal, allow to silently fail
                 (void)res2;
@@ -682,7 +680,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(
         .flags = 0,
         .queueCreateInfoCount = queue_info.queue_type_count,
         .pQueueCreateInfos = queue_info.data.data(),
-        .enabledLayerCount = 0,         // deprecated
+        .enabledLayerCount = 0, // deprecated
         .ppEnabledLayerNames = nullptr, // deprecated
         .enabledExtensionCount = static_cast<uint32_t>(ext_count),
         .ppEnabledExtensionNames = ext_strings,
@@ -815,7 +813,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(
     };
 
     auto& device_header = device_impl.device_header->header;
-    device_header.device = device_handle;  // Duplicate for infrequent access
+    device_header.device = device_handle; // Duplicate for infrequent access
     device_header.shared_header = impl.shared_header;
     device_header.shared_header->AddRef(); // hold reference to instance header
 
@@ -829,13 +827,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(
     // Initialize device extensions
     if (requirements) {
         for (auto* ext :
-             wis::span<WisVKDeviceExtensionHeader*>{requirements->extensions, requirements->extension_count})
-        {
+             wis::span<WisVKDeviceExtensionHeader*>{requirements->extensions, requirements->extension_count}) {
             if (auto* ext_header = wis::from_handle<wis::VKDeviceExtensionHeader>(ext);
-                ext_header && ext_header->init_fptr)
-            {
-                if (auto yres = ext_header->init_fptr(ext_header, &device_impl, &collector); yres.status != WisStatusOk)
-                {
+                ext_header && ext_header->init_fptr) {
+                if (auto yres = ext_header->init_fptr(ext_header, &device_impl, &collector);
+                    yres.status != WisStatusOk) {
                     res.status = WisStatusPartial; // mark as partial success if any extension fails
                     res.error = yres.error;
                     res.platform_code = yres.platform_code;

@@ -8,7 +8,7 @@
 #include <wisdom/util/allocation.hpp>
 #include <wisdom/util/com_ptr.hpp>
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyAdapterQuery(WisDX12AdapterQuery* self)
 {
     auto& [physical_devices, adapter_count, factory, debug_layer] = wis::from_handle_ref<
@@ -32,15 +32,18 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyAdapterQuery(WisDX12AdapterQuery* sel
     factory->Release();
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API size_t wisDX12AdapterQueryGetAdapterCount(const WisDX12AdapterQuery* self)
 {
     return wis::from_handle<const wis::impl::DX12AdapterQueryImpl>(self)->adapter_count;
 }
 
-//-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisDX12AdapterQueryGetAdapterDesc(const WisDX12AdapterQuery* self, size_t index, WisAdapterDesc* desc)
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryGetAdapterDesc(
+    const WisDX12AdapterQuery* self,
+    size_t index,
+    WisAdapterDesc* desc
+)
 {
     WisResult res = wis::detail::dx_success;
     auto& impl = wis::from_handle_ref<const wis::impl::DX12AdapterQueryImpl>(self);
@@ -81,7 +84,7 @@ wisDX12AdapterQueryGetAdapterDesc(const WisDX12AdapterQuery* self, size_t index,
     return res;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API bool wisDX12AdapterQueryGetSurfaceSupport(
     const WisDX12AdapterQuery* self,
     size_t index,
@@ -94,7 +97,7 @@ WIS_EXTERN_C WISDOM_API bool wisDX12AdapterQueryGetSurfaceSupport(
     return true; // D3D12 supports presentation on all adapters
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(
     const WisDX12AdapterQuery* self,
     size_t index,
@@ -122,8 +125,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(
     bool EnhancedBarriersSupported = false;
     if (wis::detail::succeeded(
             device_ref->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS12, &options12, sizeof(options12))
-        ))
-    {
+        )) {
         EnhancedBarriersSupported = options12.EnhancedBarriersSupported;
     }
     if (!EnhancedBarriersSupported) {
@@ -137,8 +139,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(
                 IID_ID3D12InfoQueue1,
                 reinterpret_cast<void**>(info_queue.put_void_unchecked())
             );
-            wis::detail::succeeded(hr2))
-        {
+            wis::detail::succeeded(hr2)) {
             const wis::com_ptr<wis::detail::DX12DebugLayerThunk> thunk{
                 new wis::detail::DX12DebugLayerThunk(
                     info_queue.get(),
@@ -197,21 +198,18 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(
                 .CommandListType = wis::detail::DX12Convert(desc.type),
                 .Priority = static_cast<UINT>(wis::detail::DX12Convert(desc.priority)),
             };
-            device_impl.device->CheckFeatureSupport(
-                D3D12_FEATURE_COMMAND_QUEUE_PRIORITY,
-                &queue_priority,
-                sizeof(queue_priority)
-            );
+            device_impl.device
+                ->CheckFeatureSupport(D3D12_FEATURE_COMMAND_QUEUE_PRIORITY, &queue_priority, sizeof(queue_priority));
             device_impl.queue_priorities[desc.type] = queue_priority.PriorityForTypeIsSupported
-                                                          ? desc.priority
-                                                          : WisCommandQueuePriorityNormal;
+                                                        ? desc.priority
+                                                        : WisCommandQueuePriorityNormal;
         }
 
         device_impl.queue_priorities[desc.type] |= 1 << 7; // set support bit for this queue type
     }
 
-    for (auto* ext : wis::span<WisDX12DeviceExtensionHeader*>{requirements->extensions, requirements->extension_count})
-    {
+    for (auto* ext :
+         wis::span<WisDX12DeviceExtensionHeader*>{requirements->extensions, requirements->extension_count}) {
         if (auto* table = wis::from_handle<wis::DX12DeviceExtensionHeader>(ext); table && table->init_fptr) {
             if (const auto xres = table->init_fptr(table, device_impl); xres.status != WisStatusOk) {
                 res.status = WisStatusPartial; // mark as partial success if any extension fails

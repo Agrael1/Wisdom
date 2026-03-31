@@ -5,7 +5,7 @@
 #include <wisdom/util/allocation.hpp>
 #include <wisdom/vulkan/detail/vk_ext1.hpp>
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyBuffer(WisVKBuffer* self)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKBufferImpl>(self);
@@ -25,14 +25,14 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyBuffer(WisVKBuffer* self)
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void* wisVKBufferMap(const WisVKBuffer* self)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKBufferImpl>(self);
     return impl.mapped_ptr;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API uint64_t wisVKBufferGetGPUAddress(const WisVKBuffer* self)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKBufferImpl>(self);
@@ -51,7 +51,7 @@ WIS_EXTERN_C WISDOM_API uint64_t wisVKBufferGetGPUAddress(const WisVKBuffer* sel
     return table.vkGetBufferDeviceAddress(allocator_info.device, &address_info);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyTexture(WisVKTexture* self)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKTextureImpl>(self);
@@ -74,9 +74,12 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyTexture(WisVKTexture* self)
     }
 }
 
-//-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisVKTextureWriteSubresource(const WisVKTexture* self, const void* source_data, const WisTextureRegion* target_region)
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisVKTextureWriteSubresource(
+    const WisVKTexture* self,
+    const void* source_data,
+    const WisTextureRegion* target_region
+)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKTextureImpl>(self);
     auto& header = impl.device_header->header;
@@ -103,13 +106,13 @@ wisVKTextureWriteSubresource(const WisVKTexture* self, const void* source_data, 
         .memoryImageHeight = 0,
         .imageSubresource =
             {.aspectMask = plane_to_aspect_mask(target_region->target_subresource.plane_slice),
-             .mipLevel = target_region->target_subresource.mip_level,
-             .baseArrayLayer = target_region->target_subresource.array_layer,
-             .layerCount = 1},
+                               .mipLevel = target_region->target_subresource.mip_level,
+                               .baseArrayLayer = target_region->target_subresource.array_layer,
+                               .layerCount = 1},
         .imageOffset =
             {static_cast<int32_t>(target_region->box.x),
-             static_cast<int32_t>(target_region->box.y),
-             static_cast<int32_t>(target_region->box.z)},
+                               static_cast<int32_t>(target_region->box.y),
+                               static_cast<int32_t>(target_region->box.z)},
         .imageExtent{target_region->box.width, target_region->box.height, target_region->box.depth},
     };
 
@@ -127,7 +130,7 @@ wisVKTextureWriteSubresource(const WisVKTexture* self, const void* source_data, 
     return wis::detail::vk_success;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyRootSignature(WisVKRootSignature* self)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKRootSignatureImpl>(self);
@@ -137,7 +140,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyRootSignature(WisVKRootSignature* self)
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyShader(WisVKShader* self)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKShaderImpl>(self);
@@ -151,7 +154,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyShader(WisVKShader* self)
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyPipeline(WisVKPipeline* self)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKPipelineImpl>(self);
@@ -166,7 +169,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyPipeline(WisVKPipeline* self)
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroySurface(WisVKSurface* self)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKSurfaceImpl>(self);

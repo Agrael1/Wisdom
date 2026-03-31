@@ -1,52 +1,75 @@
 ---
-Language: Cpp
-Standard: c++20
-IndentWidth: 4
-ContinuationIndentWidth: 4
-TabWidth: 4
-UseTab: Never
 ColumnLimit: 120
-NamespaceIndentation: None
+BracedInitializerIndentWidth: 4
 AccessModifierOffset: -4
+AlignAfterOpenBracket: BlockIndent
+AlignArrayOfStructures: Right
+AlignConsecutiveAssignments:
+  Enabled: false
+AlignConsecutiveBitFields:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
+AlignConsecutiveDeclarations:
+  Enabled: false
+AlignConsecutiveMacros:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
+AlignConsecutiveShortCaseStatements:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
+AlignEscapedNewlines: LeftWithLastLine
+AlignOperands: AlignAfterOperator
+AlignTrailingComments:
+  Kind: Never
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowBreakBeforeNoexceptSpecifier: Never
+AllowShortBlocksOnASingleLine: Empty
+BinPackArguments: false
+BinPackParameters: false
+BitFieldColonSpacing: Both
 BreakBeforeBraces: Custom
 BraceWrapping:
+  AfterCaseLabel: false
   AfterClass: true
-  AfterControlStatement: MultiLine
-  AfterEnum: true
+  AfterControlStatement: Never
+  AfterEnum: false
   AfterFunction: true
   AfterNamespace: false
   AfterStruct: false
   AfterUnion: false
+  AfterExternBlock: false
   BeforeCatch: false
   BeforeElse: false
-  SplitEmptyFunction: true
-  SplitEmptyRecord: true
-PenaltyBreakAssignment: 100000
-PenaltyBreakBeforeFirstCallParameter: 0
-PenaltyReturnTypeOnItsOwnLine: 1000000
-IndentCaseLabels: false
-BreakInheritanceList: BeforeComma
-BreakConstructorInitializers: BeforeComma
-ConstructorInitializerIndentWidth: 4
-PackConstructorInitializers: Never
-BreakBeforeBinaryOperators: None
+  BeforeLambdaBody: false
+  BeforeWhile: false
+  IndentBraces: false
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
+InsertTrailingCommas: Wrapped
+InsertBraces: true
+InsertNewlineAtEOF: true
+IndentWidth: 4
+BreakAdjacentStringLiterals: true
+BreakBeforeBinaryOperators: NonAssignment
 BreakBeforeTernaryOperators: true
+BreakConstructorInitializers: BeforeComma
+BreakFunctionDefinitionParameters: false
 BreakTemplateDeclarations: Yes
-AlignOperands: Align
-AlwaysBreakAfterDefinitionReturnType: None
-BinPackArguments: false
-BinPackParameters: false
-AllowAllArgumentsOnNextLine: false
-AllowAllParametersOfDeclarationOnNextLine: false
-AlignAfterOpenBracket: BlockIndent
-SpaceBeforeAssignmentOperators: true
-AlignTrailingComments:
-  Kind: Always
-  OverEmptyLines: 1
-PointerAlignment: Left
+IndentPPDirectives: AfterHash
+FixNamespaceComments: true
 Cpp11BracedListStyle: true
-IncludeBlocks: Regroup
-SortIncludes: true
+ContinuationIndentWidth: 4
+AlwaysBreakAfterDefinitionReturnType: None
+Standard: Latest
+TabWidth: 4
+UseTab: Never
+SpacesInParens: Never
+SortIncludes: CaseInsensitive
 IncludeCategories:
   - Regex: ^<(wisdom.*)$
     Priority: 1
@@ -57,16 +80,18 @@ IncludeCategories:
     Priority: 3
   - Regex: ^".*"$
     Priority: 4
-AllowShortFunctionsOnASingleLine: InlineOnly
-InsertBraces: true
-AllowShortBlocksOnASingleLine: false
-AllowShortIfStatementsOnASingleLine: Never
 RemoveSemicolon: true
-FixNamespaceComments: true
-AlignEscapedNewlines: Left
-AlignArrayOfStructures: None
-IndentPPDirectives: AfterHash
-PenaltyBreakComment: 1000
-PenaltyBreakOpenParenthesis: 101
-PenaltyBreakBeforeMemberAccess: 1000
-BreakAfterReturnType: None
+PointerAlignment: Left
+QualifierAlignment: Left
+ReferenceAlignment: Pointer
+ReflowComments: true
+PenaltyReturnTypeOnItsOwnLine: 100000
+PackConstructorInitializers: Never
+PenaltyBreakAssignment: 1000
+PenaltyBreakBeforeFirstCallParameter: 0
+PenaltyBreakOpenParenthesis: 0
+AllowShortLoopsOnASingleLine: false
+StatementAttributeLikeMacros:
+  - WISDOM_API
+  - WIS_EXTERN_C
+  - WISDOM_PLATFORM_API

@@ -1,7 +1,7 @@
 #include "generator.hpp"
 #include <fstream>
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 static inline constexpr char template_constant[] =
         R"(/**
  * @page {0}
@@ -21,7 +21,7 @@ static inline constexpr char template_constant[] =
  * \endcond
  */)";
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Generator::ParseConstants(tinyxml2::XMLElement* constants)
 {
     for (auto* val = constants->FirstChildElement("value"); val;
@@ -46,7 +46,7 @@ void Generator::ParseConstants(tinyxml2::XMLElement* constants)
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeCConstant(const WisConstant& c, DocKind kind)
 {
     std::string type_str = GetCFullTypename(c.type, Backend::Any);
@@ -70,7 +70,7 @@ std::string Generator::MakeCConstant(const WisConstant& c, DocKind kind)
     return st_decl;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeCPPConstant(const WisConstant& c, DocKind kind)
 {
     std::string type_str = GetCPPFullTypename(c.type, Backend::Any);
@@ -93,7 +93,7 @@ std::string Generator::MakeCPPConstant(const WisConstant& c, DocKind kind)
     return st_decl;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeConstantDescription(const WisConstant& c)
 {
     std::string description;
@@ -107,7 +107,7 @@ std::string Generator::MakeConstantDescription(const WisConstant& c)
     return description;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeUpperSnakeCase(std::string_view str)
 {
     std::string result;
@@ -122,7 +122,7 @@ std::string Generator::MakeUpperSnakeCase(std::string_view str)
     return result;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Generator::WriteConstantDocumentation(std::filesystem::path const_output_path)
 {
     std::filesystem::create_directories(const_output_path);

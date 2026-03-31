@@ -1,9 +1,6 @@
 #include "util.h"
 
-HRESULT wis::last_windows_error() noexcept
-{
-    return GetLastError();
-}
+HRESULT wis::last_windows_error() noexcept { return GetLastError(); }
 
 //// Window Exception
 // wis::hr_exception::hr_exception(winrt::hresult hr, wis::source_location sl)

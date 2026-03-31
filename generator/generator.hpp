@@ -174,6 +174,8 @@ public:
     template<Lang lang = Lang::C, typename T, typename V>
     std::string MakeValueDocumentation(const T& type, const V& value, std::string_view value_decl, DocKind kind)
     {
+        static constexpr size_t value_comment_column_limit = 120;
+
         std::string version_info;
         if constexpr (requires { value.version; }) {
             version_info = MakeVersionString(value.version);
@@ -195,17 +197,28 @@ public:
         std::string documentation;
         bool        pre_doc = false;
         if (!doc.empty()) {
+            auto finalize_doc = [&](std::string text) {
+                if constexpr (lang == Lang::CPP) {
+                    return FinalizeCPPDocumentation(std::move(text), type_name);
+                } else {
+                    return FinalizeCDocumentation(std::move(text), type_name);
+                }
+            };
+
             if (doc.find('\n') != std::string_view::npos) {
-                pre_doc       = true;
+                pre_doc = true;
                 documentation = wis::format("/**\n@brief {}\n{}\n*/", version_info, doc);
                 ReplaceAll(documentation, "\n", "\n * ");
             } else {
                 documentation = wis::format(" ///< {}{}", version_info, doc);
             }
-            if constexpr (lang == Lang::CPP) {
-                documentation = FinalizeCPPDocumentation(documentation, type_name);
-            } else {
-                documentation = FinalizeCDocumentation(documentation, type_name);
+            documentation = finalize_doc(std::move(documentation));
+
+            if (!pre_doc && value_decl.length() + documentation.length() > value_comment_column_limit) {
+                pre_doc       = true;
+                documentation = wis::format("/**\n@brief {}{}\n*/", version_info, doc);
+                ReplaceAll(documentation, "\n", "\n * ");
+                documentation = finalize_doc(std::move(documentation));
             }
         }
         return pre_doc

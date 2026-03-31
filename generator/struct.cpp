@@ -1,6 +1,6 @@
 #include "generator.hpp"
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 static inline constexpr char template_struct[] =
         R"(/**
  * @struct {0}
@@ -32,7 +32,7 @@ static inline constexpr char template_struct[] =
  * \endcond
  */)";
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Generator::ParseStruct(tinyxml2::XMLElement* type)
 {
     auto  name = type->FindAttribute("name")->Value();
@@ -84,7 +84,7 @@ void Generator::ParseStruct(tinyxml2::XMLElement* type)
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeCStruct(const WisStruct& s, DocKind kind)
 {
     auto        full_name = GetCFullTypename(s.name, Backend::Any);
@@ -108,7 +108,7 @@ std::string Generator::MakeCStruct(const WisStruct& s, DocKind kind)
     return st_decl;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeCPPStruct(const WisStruct& s, DocKind kind)
 {
     std::string st_decl = wis::format("struct {} {} {{\n", s.modifier & Modifier::Nodiscard ? "WIS_NODISCARD" : "", s.name);
@@ -138,7 +138,7 @@ std::string Generator::MakeCPPStruct(const WisStruct& s, DocKind kind)
     return st_decl;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeCMemberDeclaration(const WisStructMember& member, size_t align_width, Backend backend)
 {
     std::string type_string = GetMemberTypeString(member, backend);
@@ -155,7 +155,7 @@ std::string Generator::MakeCMemberDeclaration(const WisStructMember& member, siz
     return std::format("    {} {}{};", padded_type, member.name, array_modifier);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeCPPMemberDeclaration(const WisStructMember& member, size_t align_width, Backend backend)
 {
     std::string type_string = GetMemberTypeString<Lang::CPP>(member, backend);
@@ -171,7 +171,7 @@ std::string Generator::MakeCPPMemberDeclaration(const WisStructMember& member, s
     return std::format("    {} {};", padded_type, member.name);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeStructDescription(const WisStruct& s)
 {
     std::string description;
@@ -181,7 +181,7 @@ std::string Generator::MakeStructDescription(const WisStruct& s)
     return description;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Generator::WriteStructDocumentation(std::filesystem::path struct_output_path)
 {
     std::filesystem::create_directories(struct_output_path);

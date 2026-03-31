@@ -11,18 +11,8 @@ namespace ver {
 class FileOpenDialog;
 }
 
-enum class Event : uint8_t
-{
-    Resize,
-    Restyle,
-    LoadAsset,
-    Play,
-    Count
-};
-constexpr inline auto operator+(Event e)
-{
-    return static_cast<std::underlying_type<Event>::type>(e);
-}
+enum class Event : uint8_t { Resize, Restyle, LoadAsset, Play, Count };
+constexpr inline auto operator+(Event e) { return static_cast<std::underlying_type<Event>::type>(e); }
 
 struct EventSet {
     void push(Event e)
@@ -54,8 +44,7 @@ public:
     public:
         EventQueue(EventSet& events)
             : events(events)
-        {
-        }
+        {}
         ~EventQueue() { events.clear(); }
 
     public:

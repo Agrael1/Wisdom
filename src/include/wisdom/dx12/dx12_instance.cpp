@@ -8,7 +8,7 @@
 #include <wisdom/util/allocation.hpp>
 #include <wisdom/util/com_ptr.hpp>
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisDX12CreateInstance(
     const WisDebugDesc* debug_desc,
     WisDX12InstanceExtensionHeader** extensions,
@@ -63,7 +63,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CreateInstance(
     return res;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyInstance(WisDX12Instance* self)
 {
     auto& [factory, debug_layer] = wis::from_handle_ref<wis::impl::DX12InstanceImpl>(self);
@@ -79,9 +79,12 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyInstance(WisDX12Instance* self)
     factory = nullptr;
 }
 
-//-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisDX12InstanceQueryAdapters(const WisDX12Instance* self, WisAdapterPreference preference, WisDX12AdapterQuery* query)
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisDX12InstanceQueryAdapters(
+    const WisDX12Instance* self,
+    WisAdapterPreference preference,
+    WisDX12AdapterQuery* query
+)
 {
     const auto& instance_impl = wis::from_handle_ref<const wis::impl::DX12InstanceImpl>(self);
     wis::com_ptr<IDXGIFactory6> factory_ref{instance_impl.factory}; // hold a reference

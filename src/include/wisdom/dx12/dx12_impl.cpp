@@ -8,7 +8,7 @@
 
 #include <d3dx12/d3dx12_resource_helpers.h>
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyRootSignature(WisDX12RootSignature* self)
 {
     auto& [root_signature] = wis::from_handle_ref<wis::impl::DX12RootSignatureImpl>(self);
@@ -20,7 +20,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyRootSignature(WisDX12RootSignature* s
     root_signature = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyBuffer(WisDX12Buffer* self)
 {
     auto& [resource, allocation, allocator] = wis::from_handle_ref<wis::impl::DX12BufferImpl>(self);
@@ -34,7 +34,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyBuffer(WisDX12Buffer* self)
     resource = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void* wisDX12BufferMap(const WisDX12Buffer* self)
 {
     auto& [resource, allocation, allocator] = wis::from_handle_ref<const wis::impl::DX12BufferImpl>(self);
@@ -44,14 +44,14 @@ WIS_EXTERN_C WISDOM_API void* wisDX12BufferMap(const WisDX12Buffer* self)
     return mapped_ptr;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API uint64_t wisDX12BufferGetGPUAddress(const WisDX12Buffer* self)
 {
     auto& [resource, allocation, allocator] = wis::from_handle_ref<const wis::impl::DX12BufferImpl>(self);
     return resource->GetGPUVirtualAddress();
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyTexture(WisDX12Texture* self)
 {
     auto& [resource, allocation, allocator] = wis::from_handle_ref<wis::impl::DX12BufferImpl>(self);
@@ -71,7 +71,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyTexture(WisDX12Texture* self)
     allocator->Release();
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisDX12TextureWriteSubresource(
     const WisDX12Texture* self,
     const void* source_data,
@@ -126,7 +126,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12TextureWriteSubresource(
     return wis::detail::dx_success;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyShader(WisDX12Shader* self)
 {
     auto& [shader] = wis::from_handle_ref<wis::impl::DX12ShaderImpl>(self);
@@ -137,7 +137,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyShader(WisDX12Shader* self)
     shader = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroyPipeline(WisDX12Pipeline* self)
 {
     auto& [pipeline] = wis::from_handle_ref<wis::impl::DX12PipelineImpl>(self);
@@ -148,7 +148,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyPipeline(WisDX12Pipeline* self)
     pipeline = nullptr;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisDX12DestroySurface(WisDX12Surface* self)
 {
     (void)self; // No resources to release for surface, as it's just a wrapper around the HWND or CoreWindow handle,

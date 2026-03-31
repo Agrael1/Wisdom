@@ -1,6 +1,6 @@
 #include "generator.hpp"
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 static inline constexpr char function_doc_template[] =
         R"(/**
  * @struct {0}
@@ -32,7 +32,7 @@ static inline constexpr char function_doc_template[] =
  * \endcond
  */)";
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Generator::ParseFunctions(tinyxml2::XMLElement* type)
 {
     for (auto* func = type->FirstChildElement("func"); func;
@@ -129,7 +129,7 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Generator::ParseDelegate(tinyxml2::XMLElement* func)
 {
     auto  name = func->FindAttribute("name")->Value();
@@ -177,7 +177,7 @@ void Generator::ParseDelegate(tinyxml2::XMLElement* func)
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeCFunctionProto(const WisFunction& func, Backend backend, std::string_view pre_decl, DocKind kind)
 {
     auto re_impl = GetBackendSuffix(backend);
@@ -271,7 +271,7 @@ std::string Generator::MakeCFunctionProto(const WisFunction& func, Backend backe
                        post_return);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeCPPFunctionProto(const WisFunction& func, Backend backend, std::string_view pre_decl, DocKind kind, ProtoType type)
 {
     // Inverted situation for C++
@@ -388,7 +388,7 @@ std::string Generator::MakeCPPFunctionProto(const WisFunction& func, Backend bac
                        func.modifier & Modifier::Const ? " const" : "");
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeCFunctionDecl(const WisFunction& func, Backend backend, std::string_view pre_decl, DocKind kind)
 {
     std::string func_decl = MakeCFunctionProto(func, backend, pre_decl, kind);
@@ -399,7 +399,7 @@ std::string Generator::MakeCFunctionDecl(const WisFunction& func, Backend backen
     return func_decl;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeCDelegate(const WisFunction& func, DocKind kind)
 {
     std::string params;
@@ -421,7 +421,7 @@ std::string Generator::MakeCDelegate(const WisFunction& func, DocKind kind)
     return delegate_decl;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, Backend backend, std::string_view pre_decl, DocKind kind, ProtoType type)
 {
     std::string add_decl;
@@ -588,7 +588,7 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, Backend back
     return func_decl;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeCPPDelegate(const WisFunction& func, DocKind kind)
 {
     std::string params;
@@ -610,7 +610,7 @@ std::string Generator::MakeCPPDelegate(const WisFunction& func, DocKind kind)
     return delegate_decl;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeFunctionDescription(const WisFunction& s)
 {
     std::string description = " * ";
@@ -647,7 +647,7 @@ std::string Generator::MakeFunctionDescription(const WisFunction& s)
     return description;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeDelegateDescription(const WisFunction& s)
 {
     std::string description = " * ";
@@ -657,7 +657,7 @@ std::string Generator::MakeDelegateDescription(const WisFunction& s)
     return description;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Generator::WriteFunctionDocumentation(std::filesystem::path func_output_path)
 {
     std::filesystem::create_directories(func_output_path);

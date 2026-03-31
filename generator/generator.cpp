@@ -2,7 +2,7 @@
 #include <fstream>
 #include <ranges>
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void Generator::ParseFile(std::filesystem::path file)
 {
@@ -107,7 +107,7 @@ void Generator::WriteModuleAPIDoc(std::string_view module_name)
     active_module_name = previous_module;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Generator::ParseRegistrySections(tinyxml2::XMLElement* root)
 {
     if (auto* include = root->FirstChildElement("includes")) {
@@ -177,7 +177,7 @@ void Generator::ParseTypes(tinyxml2::XMLElement* types)
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 void Generator::WriteCAPI(std::filesystem::path dir)
 {
@@ -576,7 +576,7 @@ namespace wis {{
     // clang-format on
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 
 
 void Generator::WriteCIndependentAPI(std::filesystem::path dir)
@@ -829,7 +829,7 @@ static inline bool wisHandleValid(const void* handle) {
     file_w << wis::format("#endif // {}\n", header_guard);
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 void Generator::WriteCPPIndependentAPI(std::filesystem::path dir)
 {
     auto& module = module_map.at(active_module_name);

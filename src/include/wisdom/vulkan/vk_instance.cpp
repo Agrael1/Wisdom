@@ -10,7 +10,7 @@
 #include <algorithm>
 
 namespace wis::detail {
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 /**
  * @brief Orders Vulkan physical device types by their expected performance, with discrete GPUs being the highest and
  * CPUs being the lowest.
@@ -32,7 +32,7 @@ constexpr uint32_t order_performance(const VkPhysicalDeviceType t)
     }
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 /**
  * @brief Orders Vulkan physical device types by their expected power efficiency, with integrated GPUs being the most
  * power efficient and discrete GPUs being the least.
@@ -55,7 +55,7 @@ constexpr uint32_t order_power(VkPhysicalDeviceType t)
 }
 } // namespace wis::detail
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisVKCreateInstance(
     const WisDebugDesc* debug_desc,
     WisVKInstanceExtensionHeader** extensions,
@@ -151,12 +151,12 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCreateInstance(
         .sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
         .pNext = nullptr,
         .flags = 0,
-        .messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT |
-                           VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT |
-                           VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT |
-                           VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
-        .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT |
-                       VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
+        .messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT
+                         | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT
+                         | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT
+                         | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
+        .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT
+                     | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
         .pfnUserCallback = wis::detail::VKDebugCallbackThunk::DebugUtilsMessengerCallbackThunk,
         .pUserData = debug_layer_thunk.get(),
     };
@@ -230,7 +230,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCreateInstance(
     return res;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroyInstance(WisVKInstance* self)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKInstanceImpl>(self);
@@ -243,9 +243,12 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyInstance(WisVKInstance* self)
     impl.instance = VK_NULL_HANDLE;
 }
 
-//-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisVKInstanceQueryAdapters(const WisVKInstance* self, WisAdapterPreference preference, WisVKAdapterQuery* query)
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisVKInstanceQueryAdapters(
+    const WisVKInstance* self,
+    WisAdapterPreference preference,
+    WisVKAdapterQuery* query
+)
 {
     // Query can come as partially constructed from C side
     auto& instance_impl = wis::from_handle_ref<const wis::impl::VKInstanceImpl>(self);
@@ -296,8 +299,8 @@ wisVKInstanceQueryAdapters(const WisVKInstance* self, WisAdapterPreference prefe
 
     // Sort devices based on preference
     constexpr static std::size_t max_align = std::max(alignof(VkPhysicalDeviceProperties), alignof(std::uintptr_t));
-    std::size_t total_aux_size = sizeof(VkPhysicalDeviceProperties) * device_count +
-                                 device_count * sizeof(std::uintptr_t);
+    std::size_t total_aux_size = sizeof(VkPhysicalDeviceProperties) * device_count
+                               + device_count * sizeof(std::uintptr_t);
 
     aux_pool = wis::make_unique<std::byte[]>(total_aux_size + max_align - 1);
     if (!aux_pool) {

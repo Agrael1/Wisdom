@@ -50,7 +50,7 @@ inline VkResult VKAcquireNextImage(const impl::VKSwapchainImpl& impl) noexcept
 }
 } // namespace wis::detail
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API void wisVKDestroySwapchain(WisVKSwapchain* self)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKSwapchainImpl>(self);
@@ -78,9 +78,13 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroySwapchain(WisVKSwapchain* self)
     }
 }
 
-//-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisVKSwapchainPresent(const WisVKSwapchain* self, WisPresentFlags flags, const WisRect* rects, size_t rect_count)
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainPresent(
+    const WisVKSwapchain* self,
+    WisPresentFlags flags,
+    const WisRect* rects,
+    size_t rect_count
+)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKSwapchainImpl>(self);
 
@@ -133,7 +137,7 @@ wisVKSwapchainPresent(const WisVKSwapchain* self, WisPresentFlags flags, const W
     return wis::detail::vk_success;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainGetCurrentIndex(const WisVKSwapchain* self, uint32_t* index)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKSwapchainImpl>(self);
@@ -149,7 +153,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainGetCurrentIndex(const WisVKSwapc
     return wis::detail::vk_success;
 }
 
-//-----------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainUpdate(const WisVKSwapchain* self, const WisSwapchainUpdateDesc* desc)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKSwapchainImpl>(self);
@@ -157,9 +161,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainUpdate(const WisVKSwapchain* sel
     auto& create_info = header.create_info;
 
     VkFormat new_format = wis::detail::VKConvert(desc->format);
-    bool size_changed = desc->width != 0 && desc->height != 0 &&
-                        (desc->width != create_info.imageExtent.width ||
-                         desc->height != create_info.imageExtent.height);
+    bool size_changed = desc->width != 0 && desc->height != 0
+                     && (desc->width != create_info.imageExtent.width
+                         || desc->height != create_info.imageExtent.height);
     bool format_changed = desc->format != WisDataFormatUnknown && new_format != create_info.imageFormat;
     bool count_changed = desc->image_count != 0 && desc->image_count != create_info.minImageCount;
     bool vsync_changed = desc->vsync != (create_info.presentMode == VK_PRESENT_MODE_FIFO_KHR);
@@ -173,9 +177,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainUpdate(const WisVKSwapchain* sel
             } else if (std::ranges::find(modes, VK_PRESENT_MODE_FIFO_RELAXED_KHR) != std::end(modes)) {
                 present_mode = VK_PRESENT_MODE_FIFO_RELAXED_KHR;
             }
-        } else if (std::ranges::find(modes, VK_PRESENT_MODE_MAILBOX_KHR) != std::end(modes) &&
-                   (create_info.imageArrayLayers == 1))
-        {
+        } else if (std::ranges::find(modes, VK_PRESENT_MODE_MAILBOX_KHR) != std::end(modes)
+                   && (create_info.imageArrayLayers == 1)) {
             present_mode = VK_PRESENT_MODE_MAILBOX_KHR;
         }
     }
@@ -190,8 +193,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainUpdate(const WisVKSwapchain* sel
         if (std::ranges::find_if(
                 formats,
                 [new_format](const VkSurfaceFormatKHR& fmt) { return fmt.format == new_format; }
-            ) == std::end(formats))
-        {
+            )
+            == std::end(formats)) {
             return wis::detail::make_result<wis::detail::Func(), "Requested format is not supported for presentation">(
                 VK_ERROR_FORMAT_NOT_SUPPORTED
             );
@@ -213,13 +216,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainUpdate(const WisVKSwapchain* sel
         header.vkGetPhysicalDeviceSurfaceCapabilities2KHR(header.physical_device, &surface_info, &capabilities);
 
         capabilities.surfaceCapabilities.maxImageCount = capabilities.surfaceCapabilities.maxImageCount == 0
-                                                             ? wis::AbsoluteMaxSwapchainImages
-                                                             : capabilities.surfaceCapabilities.maxImageCount;
+                                                           ? wis::AbsoluteMaxSwapchainImages
+                                                           : capabilities.surfaceCapabilities.maxImageCount;
     }
 
-    if (count_changed && (desc->image_count < capabilities.surfaceCapabilities.minImageCount ||
-                          desc->image_count > capabilities.surfaceCapabilities.maxImageCount))
-    {
+    if (count_changed
+        && (desc->image_count < capabilities.surfaceCapabilities.minImageCount
+            || desc->image_count > capabilities.surfaceCapabilities.maxImageCount)) {
         return wis::detail::make_result<
             wis::detail::Func(),
             "Requested swapchain image count is out of bounds for the given surface">(VK_ERROR_INITIALIZATION_FAILED);
@@ -272,13 +275,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainUpdate(const WisVKSwapchain* sel
     }
 
     // Wait for the GPU to finish with the swapchain
-    vr = impl.swapchain_table->vkWaitForFences(
-        impl.device,
-        1,
-        &impl.destroy_fence,
-        VK_TRUE,
-        std::numeric_limits<uint64_t>::max()
-    );
+    vr = impl.swapchain_table
+             ->vkWaitForFences(impl.device, 1, &impl.destroy_fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
     if (!wis::detail::succeeded(vr)) {
         restore_on_failure();
         return wis::detail::make_result<wis::detail::Func(), "Failed to wait for fence during swapchain update">(vr);
@@ -300,9 +298,12 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainUpdate(const WisVKSwapchain* sel
     return wis::detail::vk_success;
 }
 
-//-----------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisVKSwapchainGetTextures(const WisVKSwapchain* self, WisVKTexture* buffers, size_t buffer_count)
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainGetTextures(
+    const WisVKSwapchain* self,
+    WisVKTexture* buffers,
+    size_t buffer_count
+)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKSwapchainImpl>(self);
 
