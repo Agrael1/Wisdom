@@ -16,6 +16,7 @@
  *     uint32_t             max_vertex_input_attributes;
  *     uint32_t             max_vertex_input_bindings;
  *     bool                 multiple_viewports_supported;
+ *     bool                 address_commands_supported;
  * } WisDeviceBindingProperties;
  * 
  * ```
@@ -29,6 +30,7 @@
  *     std::uint32_t          max_vertex_input_attributes;
  *     std::uint32_t          max_vertex_input_bindings;
  *     bool                   multiple_viewports_supported;
+ *     bool                   address_commands_supported;
  * };
  * }
  * ```
@@ -42,6 +44,7 @@
  * - `max_vertex_input_attributes` defines maximum number of vertex input attributes supported by the device. Used for vertex buffer bindings.
  * - `max_vertex_input_bindings` indicates maximum number of vertex input bindings supported by the device. Used for vertex buffer bindings.
  * - `multiple_viewports_supported` indicates if multiple viewports are supported. If true, the device supports up to 16 viewports and scissor rectangles. If false, only one viewport and scissor rectangle is supported.
+ * - `address_commands_supported` indicates if commands with buffer addresses are supported. If true, the device supports commands that take buffer addresses directly, such as wisCommandListSetVertexBuffers2.
  * \endcond
  *
  * @section WisDeviceBindingProperties_descr Description

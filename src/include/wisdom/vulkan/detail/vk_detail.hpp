@@ -153,6 +153,7 @@ struct VKDeviceFeatures {
     uint32_t conservative_rasterization        : 1 = false;
     uint32_t memory_priority                   : 1 = false;
     uint32_t dynamic_memory_priority           : 1 = false;
+    uint32_t address_commands                  : 1 = false;
 
     // Swapchain
     uint32_t swapchain_maintenance : 1 = false;

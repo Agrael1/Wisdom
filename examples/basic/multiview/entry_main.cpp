@@ -59,7 +59,7 @@ public:
 
         wis::DescriptorBindingDesc bindings[] = {
             {.binding_type = wis::DescriptorType::Texture, .binding_space = 1, .binding_count = ex::flight_frames},
-            {.binding_type = wis::DescriptorType::Sampler, .binding_space = 2,                 .binding_count = 1},
+            {.binding_type = wis::DescriptorType::Sampler, .binding_space = 2, .binding_count = 1},
         };
         desc_storage = setup.device.CreateDescriptorStorage(result, bindings, std::size(bindings));
     }
@@ -112,7 +112,7 @@ public:
             {.target = rts[frame_index],
              .load_op = wis::LoadOperation::Clear,
              .store_op = wis::StoreOperation::Store,
-             .clear_value = {0.1f, 0.1f, 0.1f, 1.0f}}  // clear with gray color
+             .clear_value = {0.1f, 0.1f, 0.1f, 1.0f}} // clear with gray color
         };
         wis::RenderPassDesc rp1{
             .flags = wis::RenderPassFlags::None,
@@ -268,11 +268,11 @@ public:
                 .format = wis::DataFormat::BGRA8Unorm,
                 .view_type = wis::TextureViewType::Texture2DArray,
                 .subresource_range = {
-                                      .base_mip_level = 0,
-                                      .level_count = 1,
-                                      .base_array_layer = 0,
-                                      .layer_count = 2,
-                                      },
+                    .base_mip_level = 0,
+                    .level_count = 1,
+                    .base_array_layer = 0,
+                    .layer_count = 2,
+                },
             };
 
             for (size_t i = 0; i < ex::flight_frames; i++) {
@@ -295,13 +295,11 @@ public:
         // Create root signature with
         {
             wis::Result result = wis::success;
-            wis::PushConstant root_constants[]{
-                {.stage = wis::ShaderStages::Pixel, .size_bytes = sizeof(uint32_t)}
-            };
+            wis::PushConstant root_constants[]{{.stage = wis::ShaderStages::Pixel, .size_bytes = sizeof(uint32_t)}};
             wis::DescriptorBindingDesc bindings[] = {
                 {.binding_type = wis::DescriptorType::Texture,
                  .binding_space = 1,
-                 .binding_count = ex::flight_frames                                                  }, // space 0 is for root constants
+                 .binding_count = ex::flight_frames}, // space 0 is for root constants
                 {.binding_type = wis::DescriptorType::Sampler, .binding_space = 2, .binding_count = 1},
             };
             root = setup.device
@@ -325,17 +323,17 @@ public:
                 .root_signature = root,
                 .input_layout =
                     {
-                                   .slots = input_slots,
-                                   .slot_count = 1,
-                                   .attributes = input_attributes,
-                                   .attribute_count = 1,
-                                   },
+                        .slots = input_slots,
+                        .slot_count = 1,
+                        .attributes = input_attributes,
+                        .attribute_count = 1,
+                    },
                 .shaders = {.vertex = vs, .pixel = ps},
                 .attachments =
                     {
-                                   .attachment_formats = {wis::DataFormat::BGRA8Unorm},
-                                   .attachments_count = 1,
-                                   },
+                        .attachment_formats = {wis::DataFormat::BGRA8Unorm},
+                        .attachments_count = 1,
+                    },
                 .view_mask = 0b11, // 2 array layers
             };
             pipeline = ex::Unwrap(setup.device.CreateGraphicsPipeline(desc));
@@ -343,11 +341,7 @@ public:
 
         // Create vertex buffer
         {
-            glm::vec3 triangle_vertices[] = {
-                { 0.0f,  0.5f, 0.0f},
-                { 0.5f, -0.5f, 0.0f},
-                {-0.5f, -0.5f, 0.0f}
-            };
+            glm::vec3 triangle_vertices[] = {{0.0f, 0.5f, 0.0f}, {0.5f, -0.5f, 0.0f}, {-0.5f, -0.5f, 0.0f}};
             vertex_buffer = setup.CreateAndUploadBuffer(
                 std::span<glm::vec3>{triangle_vertices},
                 wis::BufferUsage::VertexBuffer
@@ -377,9 +371,9 @@ public:
                 .shaders = {.vertex = fullscreen_vs, .pixel = fullscreen_ps},
                 .attachments =
                     {
-                            .attachment_formats = {ex::swapchain_format},
-                            .attachments_count = 1,
-                            },
+                        .attachment_formats = {ex::swapchain_format},
+                        .attachments_count = 1,
+                    },
                 // view mask is 0b00, because we will render to the back buffer
             };
             fullscreen_pipeline = ex::Unwrap(setup.device.CreateGraphicsPipeline(desc));

@@ -117,8 +117,8 @@ wis::DX12RaytracingPipeline wis::ImplDX12Raytracing::CreateRaytracingPipeline(
     for (uint32_t i = 0; i < desc.shader_count; ++i) {
         dxil_library_span[i] = {
             .DXILLibrary = {
-                            .pShaderBytecode = std::get<0>(desc.shaders[i]),
-                            .BytecodeLength = std::get<1>(desc.shaders[i])
+                .pShaderBytecode = std::get<0>(desc.shaders[i]),
+                .BytecodeLength = std::get<1>(desc.shaders[i])
             }
         };
         subobjects_span[i] = {.Type = D3D12_STATE_SUBOBJECT_TYPE_DXIL_LIBRARY, .pDesc = &dxil_library_span[i]};

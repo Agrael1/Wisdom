@@ -141,9 +141,9 @@ void TransferNode::Frame()
 
     wis::BufferTextureCopyRegion region{
         .texture = {
-                    .size = {width, height, 1},
-                    .format = wis::DataFormat::RGBA8Unorm,
-                    }
+            .size = {width, height, 1},
+            .format = wis::DataFormat::RGBA8Unorm,
+        }
     };
     cmd_list.CopyBufferToTexture(input_buffer, back_buffers[index], &region, 1);
 

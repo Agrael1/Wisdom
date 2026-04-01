@@ -747,6 +747,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDeviceQueryProperties(const WisVKDevice* self,
             props->max_vertex_input_bindings = header.features.max_vertex_bindings;
             props->max_vertex_input_attributes = header.features.max_vertex_attributes;
             props->multiple_viewports_supported = header.features.multiple_viewports;
+            props->address_commands_supported = header.features.address_commands;
         } break;
         default:
             break;
@@ -914,12 +915,12 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateComputePipeline(
         .flags = 0,
         .stage =
             {.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-                    .pNext = &mapping,
-                    .flags = 0,
-                    .stage = VK_SHADER_STAGE_COMPUTE_BIT,
-                    .module = shader,
-                    .pName = "main",
-                    .pSpecializationInfo = nullptr},
+             .pNext = &mapping,
+             .flags = 0,
+             .stage = VK_SHADER_STAGE_COMPUTE_BIT,
+             .module = shader,
+             .pName = "main",
+             .pSpecializationInfo = nullptr},
         .layout = nullptr
     };
 
@@ -1220,24 +1221,24 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(
             .stencilTestEnable = ds.stencil_enable,
             .front =
                 VkStencilOpState{
-                                 .failOp = wis::detail::VKConvert(ds.stencil_front.fail_op),
-                                 .passOp = wis::detail::VKConvert(ds.stencil_front.pass_op),
-                                 .depthFailOp = wis::detail::VKConvert(ds.stencil_front.depth_fail_op),
-                                 .compareOp = wis::detail::VKConvert(ds.stencil_front.stencil_comp),
-                                 .compareMask = ds.stencil_front.read_mask,
-                                 .writeMask = ds.stencil_front.write_mask,
-                                 .reference = 0,
-                                 },
+                    .failOp = wis::detail::VKConvert(ds.stencil_front.fail_op),
+                    .passOp = wis::detail::VKConvert(ds.stencil_front.pass_op),
+                    .depthFailOp = wis::detail::VKConvert(ds.stencil_front.depth_fail_op),
+                    .compareOp = wis::detail::VKConvert(ds.stencil_front.stencil_comp),
+                    .compareMask = ds.stencil_front.read_mask,
+                    .writeMask = ds.stencil_front.write_mask,
+                    .reference = 0,
+                },
             .back =
                 VkStencilOpState{
-                                 .failOp = wis::detail::VKConvert(ds.stencil_back.fail_op),
-                                 .passOp = wis::detail::VKConvert(ds.stencil_back.pass_op),
-                                 .depthFailOp = wis::detail::VKConvert(ds.stencil_back.depth_fail_op),
-                                 .compareOp = wis::detail::VKConvert(ds.stencil_back.stencil_comp),
-                                 .compareMask = ds.stencil_back.read_mask,
-                                 .writeMask = ds.stencil_back.write_mask,
-                                 .reference = 0,
-                                 },
+                    .failOp = wis::detail::VKConvert(ds.stencil_back.fail_op),
+                    .passOp = wis::detail::VKConvert(ds.stencil_back.pass_op),
+                    .depthFailOp = wis::detail::VKConvert(ds.stencil_back.depth_fail_op),
+                    .compareOp = wis::detail::VKConvert(ds.stencil_back.stencil_comp),
+                    .compareMask = ds.stencil_back.read_mask,
+                    .writeMask = ds.stencil_back.write_mask,
+                    .reference = 0,
+                },
             .minDepthBounds = 0.0f,
             .maxDepthBounds = 1.0f,
         };
@@ -1677,15 +1678,17 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateSwapchain(
         .imageColorSpace = format_it->colorSpace,
         .imageExtent =
             {
-                          .width = std::clamp(
+                .width = std::clamp(
                     desc->width,
-                          capabilities.surfaceCapabilities.minImageExtent.width,
-                          capabilities.surfaceCapabilities.maxImageExtent.width
-                ), .height = std::clamp(
+                    capabilities.surfaceCapabilities.minImageExtent.width,
+                    capabilities.surfaceCapabilities.maxImageExtent.width
+                ),
+                .height = std::clamp(
                     desc->height,
-                          capabilities.surfaceCapabilities.minImageExtent.height,
-                          capabilities.surfaceCapabilities.maxImageExtent.height
-                ), },
+                    capabilities.surfaceCapabilities.minImageExtent.height,
+                    capabilities.surfaceCapabilities.maxImageExtent.height
+                ),
+            },
         .imageArrayLayers = array_layer_count,
         .imageUsage = wis::detail::VKConvert(desc->texture_usage_flags),
         .imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,

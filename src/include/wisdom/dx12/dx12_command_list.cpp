@@ -439,13 +439,13 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListInsertBarriers(
             .pResource = std::bit_cast<ID3D12Resource*>(src.texture),
             .Subresources =
                 {
-                               .IndexOrFirstMipLevel = src.subresource_range.base_mip_level,
-                               .NumMipLevels = src.subresource_range.mip_level_count,
-                               .FirstArraySlice = src.subresource_range.base_array_layer,
-                               .NumArraySlices = src.subresource_range.array_layer_count,
-                               .FirstPlane = src.flags & WisBarrierFlagsPlanarImage ? src.subresource_range.plane_slice : 0u,
-                               .NumPlanes = src.flags & WisBarrierFlagsPlanarImage ? src.subresource_range.plane_slice_count : 1u,
-                               },
+                    .IndexOrFirstMipLevel = src.subresource_range.base_mip_level,
+                    .NumMipLevels = src.subresource_range.mip_level_count,
+                    .FirstArraySlice = src.subresource_range.base_array_layer,
+                    .NumArraySlices = src.subresource_range.array_layer_count,
+                    .FirstPlane = src.flags & WisBarrierFlagsPlanarImage ? src.subresource_range.plane_slice : 0u,
+                    .NumPlanes = src.flags & WisBarrierFlagsPlanarImage ? src.subresource_range.plane_slice_count : 1u,
+                },
             .Flags = src.flags & WisBarrierFlagsDiscardContent ? D3D12_TEXTURE_BARRIER_FLAG_DISCARD
                                                                : D3D12_TEXTURE_BARRIER_FLAG_NONE,
         };
@@ -467,15 +467,15 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListInsertBarriers(
     }
 
     D3D12_BARRIER_GROUP groups[]{
-        { .Type = D3D12_BARRIER_TYPE_BUFFER,
+        {.Type = D3D12_BARRIER_TYPE_BUFFER,
          .NumBarriers = real_buffer_barrier_count,
-         .pBufferBarriers = buffer_barriers_span.data()  },
+         .pBufferBarriers = buffer_barriers_span.data()},
         {.Type = D3D12_BARRIER_TYPE_TEXTURE,
          .NumBarriers = static_cast<uint32_t>(barriers->texture_barrier_count),
          .pTextureBarriers = texture_barriers_span.data()},
-        { .Type = D3D12_BARRIER_TYPE_GLOBAL,
+        {.Type = D3D12_BARRIER_TYPE_GLOBAL,
          .NumBarriers = static_cast<uint32_t>(barriers->global_barrier_count),
-         .pGlobalBarriers = global_barriers_span.data()  }
+         .pGlobalBarriers = global_barriers_span.data()}
     };
     impl.list->Barrier(std::size(groups), groups);
 }
@@ -602,11 +602,11 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListBeginRenderPass(
                 .cpuDescriptor = {src.target},
                 .BeginningAccess =
                     {
-                                  .Type = wis::detail::DX12Convert(src.load_op),
-                                  },
+                        .Type = wis::detail::DX12Convert(src.load_op),
+                    },
                 .EndingAccess = {
-                                  .Type = wis::detail::DX12Convert(src.store_op),
-                                  },
+                    .Type = wis::detail::DX12Convert(src.store_op),
+                },
             };
             if (src.load_op == WisLoadOpClear) {
                 render_targets[i].BeginningAccess.Clear.ClearValue = {
@@ -633,23 +633,23 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListBeginRenderPass(
             .cpuDescriptor = {src.target},
             .DepthBeginningAccess =
                 {
-                              .Type = ignore_depth ? D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_NO_ACCESS
+                    .Type = ignore_depth ? D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_NO_ACCESS
                                          : wis::detail::DX12Convert(src.load_op_depth),
-                              },
+                },
             .StencilBeginningAccess =
                 {
-                              .Type = ignore_stencil ? D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_NO_ACCESS
+                    .Type = ignore_stencil ? D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_NO_ACCESS
                                            : wis::detail::DX12Convert(src.load_op_stencil),
-                              },
+                },
             .DepthEndingAccess =
                 {
-                              .Type = ignore_depth ? D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS
+                    .Type = ignore_depth ? D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS
                                          : wis::detail::DX12Convert(src.store_op_depth),
-                              },
+                },
             .StencilEndingAccess = {
-                              .Type = ignore_stencil ? D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS
+                .Type = ignore_stencil ? D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS
                                        : wis::detail::DX12Convert(src.store_op_stencil),
-                              },
+            },
         };
     }
 
@@ -922,6 +922,88 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListCopyTexture(
 
         impl.list->CopyTextureRegion(&dst_location, dst_box.x, dst_box.y, dst_box.z, &src_location, &src_d3d_box);
     }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetVertexBuffers(
+    WisDX12CommandList* self,
+    const WisDX12VertexBufferDesc* buffers,
+    size_t buffer_count,
+    uint32_t start_slot
+)
+{
+    auto& impl = wis::from_handle_ref<wis::impl::DX12CommandListImpl>(self);
+    D3D12_VERTEX_BUFFER_VIEW views[D3D12_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT];
+    std::size_t max_count = std::min(buffer_count, static_cast<size_t>(D3D12_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT));
+
+    for (size_t i = 0; i < max_count; ++i) {
+        const auto& src = buffers[i];
+        views[i] = {
+            .BufferLocation = std::bit_cast<ID3D12Resource*>(src.buffer)->GetGPUVirtualAddress(),
+            .SizeInBytes = src.size,
+            .StrideInBytes = src.stride,
+        };
+    }
+
+    impl.list->IASetVertexBuffers(start_slot, static_cast<UINT>(buffer_count), buffer_count ? views : nullptr);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetVertexBuffers2(
+    WisDX12CommandList* self,
+    const WisVertexBufferAddressDesc* buffers,
+    size_t buffer_count,
+    uint32_t start_slot
+)
+{
+    auto& impl = wis::from_handle_ref<wis::impl::DX12CommandListImpl>(self);
+    D3D12_VERTEX_BUFFER_VIEW views[D3D12_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT];
+    std::size_t max_count = std::min(buffer_count, static_cast<size_t>(D3D12_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT));
+
+    for (size_t i = 0; i < max_count; ++i) {
+        const auto& src = buffers[i];
+        views[i] = {
+            .BufferLocation = src.buffer,
+            .SizeInBytes = src.size,
+            .StrideInBytes = src.stride,
+        };
+    }
+
+    impl.list->IASetVertexBuffers(start_slot, static_cast<UINT>(buffer_count), buffer_count ? views : nullptr);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetIndexBuffer(
+    WisDX12CommandList* self,
+    const WisDX12IndexBufferDesc* buffer,
+    WisIndexType index_type
+)
+{
+    auto& impl = wis::from_handle_ref<wis::impl::DX12CommandListImpl>(self);
+    D3D12_INDEX_BUFFER_VIEW view{
+        .BufferLocation = std::bit_cast<ID3D12Resource*>(buffer->buffer)->GetGPUVirtualAddress() + buffer->offset,
+        .SizeInBytes = buffer->size,
+        .Format = wis::detail::DX12Convert(index_type),
+    };
+
+    impl.list->IASetIndexBuffer(&view);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetIndexBuffer2(
+    WisDX12CommandList* self,
+    const WisIndexBufferAddressDesc* buffer,
+    WisIndexType index_type
+)
+{
+    auto& impl = wis::from_handle_ref<wis::impl::DX12CommandListImpl>(self);
+    D3D12_INDEX_BUFFER_VIEW view{
+        .BufferLocation = buffer->buffer,
+        .SizeInBytes = buffer->size,
+        .Format = wis::detail::DX12Convert(index_type),
+    };
+
+    impl.list->IASetIndexBuffer(&view);
 }
 
 #endif // WIS_DX12_COMMAND_LIST_CPP

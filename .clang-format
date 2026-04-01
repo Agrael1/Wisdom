@@ -3,7 +3,7 @@ ColumnLimit: 120
 BracedInitializerIndentWidth: 4
 AccessModifierOffset: -4
 AlignAfterOpenBracket: BlockIndent
-AlignArrayOfStructures: Right
+AlignArrayOfStructures: None
 AlignConsecutiveAssignments:
   Enabled: false
 AlignConsecutiveBitFields:

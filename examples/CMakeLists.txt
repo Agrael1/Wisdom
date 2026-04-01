@@ -47,5 +47,5 @@ add_custom_target(
 include(cmake/deps.cmake)
 
 add_example_suite(test)
-add_example_suite(test_c)
+add_example_suite(compute_particles_c)
 

@@ -327,8 +327,8 @@ WisDevice CreateDevice(SDL_Window* window, const WisInstance* instance, WisSurfa
     );
 
     WisCommandQueueDesc queue_descs[] = {
-        {WisCommandQueueTypeGraphics,   WisCommandQueuePriorityHigh},
-        { WisCommandQueueTypeCompute, WisCommandQueuePriorityNormal},
+        {WisCommandQueueTypeGraphics, WisCommandQueuePriorityHigh},
+        {WisCommandQueueTypeCompute, WisCommandQueuePriorityNormal},
     };
 
     WisDeviceRequirements device_requirements = {
@@ -952,42 +952,42 @@ void Render(BasicRenderer* renderer, const ResourceContainer* resources, const B
 
     WisTextureBarrier swapchain_barriers[] = {
         {
-         .sync_before = WisBarrierSyncNone,
-         .sync_after = WisBarrierSyncRenderTarget,
-         .access_before = WisResourceAccessNone,
-         .access_after = WisResourceAccessRenderTarget,
-         .state_before = WisTextureStateUndefined,
-         .state_after = WisTextureStateRenderTarget,
-         .texture = wisGetTextureView(swap_texture),
-         .subresource_range = {0, 1, 0, 1, 0, 1},
-         .queue_type_before = WisCommandQueueTypeGraphics,
-         .queue_type_after = WisCommandQueueTypeGraphics,
-         .flags = WisBarrierFlagsDiscardContent,
-         },
+            .sync_before = WisBarrierSyncNone,
+            .sync_after = WisBarrierSyncRenderTarget,
+            .access_before = WisResourceAccessNone,
+            .access_after = WisResourceAccessRenderTarget,
+            .state_before = WisTextureStateUndefined,
+            .state_after = WisTextureStateRenderTarget,
+            .texture = wisGetTextureView(swap_texture),
+            .subresource_range = {0, 1, 0, 1, 0, 1},
+            .queue_type_before = WisCommandQueueTypeGraphics,
+            .queue_type_after = WisCommandQueueTypeGraphics,
+            .flags = WisBarrierFlagsDiscardContent,
+        },
         {
-         .sync_before = WisBarrierSyncRenderTarget,
-         .sync_after = WisBarrierSyncNone,
-         .access_before = WisResourceAccessRenderTarget,
-         .access_after = WisResourceAccessNone,
-         .state_before = WisTextureStateRenderTarget,
-         .state_after = WisTextureStatePresent,
-         .texture = wisGetTextureView(swap_texture),
-         .subresource_range = {0, 1, 0, 1, 0, 1},
-         .queue_type_before = WisCommandQueueTypeGraphics,
-         .queue_type_after = WisCommandQueueTypeGraphics,
-         }
+            .sync_before = WisBarrierSyncRenderTarget,
+            .sync_after = WisBarrierSyncNone,
+            .access_before = WisResourceAccessRenderTarget,
+            .access_after = WisResourceAccessNone,
+            .state_before = WisTextureStateRenderTarget,
+            .state_after = WisTextureStatePresent,
+            .texture = wisGetTextureView(swap_texture),
+            .subresource_range = {0, 1, 0, 1, 0, 1},
+            .queue_type_before = WisCommandQueueTypeGraphics,
+            .queue_type_after = WisCommandQueueTypeGraphics,
+        }
     };
     WisBarrierGroup barrier_groups[2] = {
         {
-         .buffer_barriers = &particle_barrier,
-         .buffer_barrier_count = 1,
-         .texture_barriers = swapchain_barriers,
-         .texture_barrier_count = 1,
-         },
+            .buffer_barriers = &particle_barrier,
+            .buffer_barrier_count = 1,
+            .texture_barriers = swapchain_barriers,
+            .texture_barrier_count = 1,
+        },
         {
-         .texture_barriers = swapchain_barriers + 1,
-         .texture_barrier_count = 1,
-         },
+            .texture_barriers = swapchain_barriers + 1,
+            .texture_barrier_count = 1,
+        },
     };
 
     WisViewport viewport = {
@@ -1012,13 +1012,13 @@ void Render(BasicRenderer* renderer, const ResourceContainer* resources, const B
               .clear_value = {0.5f, 1.0f, 1.0f, 1.0f}}},
         .render_target_count = 1,
         .depth_stencil = {
-                             .target = wisViewHeapGetViewAddress(&renderer->dsv_heap, renderer->frame_index),
-                             .load_op_depth = WisLoadOpClear,
-                             .load_op_stencil = WisLoadOpDontCare,
-                             .store_op_depth = WisStoreOpStore,
-                             .store_op_stencil = WisStoreOpDontCare,
-                             .flags = WisDepthStencilFlagsIgnoreStencil,
-                             .clear_depth = 1.0f
+            .target = wisViewHeapGetViewAddress(&renderer->dsv_heap, renderer->frame_index),
+            .load_op_depth = WisLoadOpClear,
+            .load_op_stencil = WisLoadOpDontCare,
+            .store_op_depth = WisStoreOpStore,
+            .store_op_stencil = WisStoreOpDontCare,
+            .flags = WisDepthStencilFlagsIgnoreStencil,
+            .clear_depth = 1.0f
         },
     };
 

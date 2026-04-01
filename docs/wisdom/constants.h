@@ -21,6 +21,7 @@
  * #define WIS_MAX_VIEWPORTS ((uint32_t)16)
  * #define WIS_MAX_COPY_REGIONS ((uint32_t)16)
  * #define WIS_ABSOLUTE_MAX_SWAPCHAIN_IMAGES ((uint32_t)16)
+ * #define WIS_ABSOLUTE_MAX_INPUT_BINDINGS ((uint32_t)32)
  * #define WIS_WHOLE_SIZE ((uint64_t)0xffffffffffffffff)
  * ```
  * 
@@ -39,6 +40,7 @@
  * static constexpr std::uint32_t MaxViewports = 16;
  * static constexpr std::uint32_t MaxCopyRegions = 16;
  * static constexpr std::uint32_t AbsoluteMaxSwapchainImages = 16;
+ * static constexpr std::uint32_t AbsoluteMaxInputBindings = 32;
  * static constexpr std::uint64_t WholeSize = 0xffffffffffffffff;
  * }
  * ```

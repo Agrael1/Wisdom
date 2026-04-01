@@ -1174,6 +1174,16 @@ enum class StoreOp {
 };
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Index type for index buffer.
+ * Enum values resemble the byte stride of the format.
+ *
+ * */
+enum class IndexType {
+    UInt16 = 2, ///< 16-bit unsigned integer index type.
+    UInt32 = 4, ///< 32-bit unsigned integer index type.
+};
+
+/**
  * @brief Provided by Wisdom 0.7.0. Flags that describe adapter.
  *
  * */
@@ -2293,6 +2303,25 @@ struct TextureCopyRegion {
 };
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Vertex buffer binding description for wis::CommandList::SetVertexBuffers2.
+ *
+ * */
+struct VertexBufferAddressDesc {
+    std::uint64_t buffer; ///< Buffer address.
+    std::uint32_t size; ///< Size of the buffer in bytes.
+    std::uint32_t stride; ///< Stride of the buffer in bytes.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Vertex buffer binding description for wis::CommandList::SetVertexBuffers2.
+ *
+ * */
+struct IndexBufferAddressDesc {
+    std::uint64_t buffer; ///< Buffer address.
+    std::uint32_t size; ///< Size of the buffer in bytes.
+};
+
+/**
  * @brief Provided by Wisdom 0.7.0. Query struct header. Used as a header for all query structs.
  *
  * */
@@ -2330,6 +2359,11 @@ struct DeviceBindingProperties {
      * rectangles. If false, only one viewport and scissor rectangle is supported.
      * */
     bool multiple_viewports_supported;
+    /**
+     * @brief indicates if commands with buffer addresses are supported. If true, the device supports commands that take
+     * buffer addresses directly, such as wis::CommandList::SetVertexBuffers2.
+     * */
+    bool address_commands_supported;
 };
 
 /**
@@ -2476,6 +2510,10 @@ static constexpr std::uint32_t MaxCopyRegions = 16;
 /// @brief Provided by Wisdom 0.7.0. [internal] Defines the maximum amount of images that can be present in a swapchain
 /// within any implementation.
 static constexpr std::uint32_t AbsoluteMaxSwapchainImages = 16;
+
+/// @brief Provided by Wisdom 0.7.0. [internal] Defines the maximum amount of vertex input bindings that can be present
+/// in a single draw call within any implementation.
+static constexpr std::uint32_t AbsoluteMaxInputBindings = 32;
 
 /// @brief Provided by Wisdom 0.7.0. Select whole size of a resource.
 static constexpr std::uint64_t WholeSize = 0xffffffffffffffff;
@@ -2664,6 +2702,33 @@ struct DX12GraphicsPipelineDesc {
      * */
     wis::DX12PipelineCacheView cache;
     wis::PipelineFlags flags; ///< describes pipeline flags. Describe additional options for the pipeline.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Struct for vertex buffer binding.
+ *
+ * */
+struct DX12VertexBufferDesc {
+    /**
+     * @brief Vertex Buffer to bind. The buffer view @wis_must have been created with  usage flag.
+     * */
+    wis::DX12BufferView buffer;
+    std::uint32_t size; ///< Size of the buffer in bytes.
+    std::uint32_t stride; ///< Stride of the buffer in bytes.
+    std::uint32_t offset; ///< Offset in buffer in bytes. Default is 0.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Struct for index buffer binding.
+ *
+ * */
+struct DX12IndexBufferDesc {
+    /**
+     * @brief Vertex Buffer to bind. The buffer view @wis_must have been created with  usage flag.
+     * */
+    wis::DX12BufferView buffer;
+    std::uint32_t size; ///< Size of the buffer in bytes.
+    std::uint32_t offset; ///< Offset in buffer in bytes. Default is 0.
 };
 
 struct DX12TextureDeleter {
@@ -3722,6 +3787,76 @@ public:
             regions.size()
         );
     }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Sets the vertex buffers.
+     * @param buffers The vertex buffers to set.
+     * @param buffer_count The number of vertex buffers to set.
+     * @param start_slot The start slot to set the vertex buffers to. Default is 0.
+     *
+     * */
+    inline void SetVertexBuffers(
+        const wis::DX12VertexBufferDesc* buffers,
+        std::size_t buffer_count,
+        std::uint32_t start_slot
+    ) noexcept
+    {
+        ::wisDX12CommandListSetVertexBuffers(
+            &_impl_storage,
+            reinterpret_cast<const WisDX12VertexBufferDesc*>(buffers),
+            buffer_count,
+            start_slot
+        );
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Sets the vertex buffers. Support @wis_must be queried from
+     * `wis::DeviceBindingProperties::address_commands_supported` in order to be used. Always supported for DX12.
+     * @param buffers The vertex buffers to set.
+     * @param start_slot The start slot to set the vertex buffers to. Default is 0.
+     *
+     * */
+    inline void SetVertexBuffers2(
+        wis::span<const wis::VertexBufferAddressDesc> buffers,
+        std::uint32_t start_slot
+    ) noexcept
+    {
+        ::wisDX12CommandListSetVertexBuffers2(
+            &_impl_storage,
+            reinterpret_cast<const WisVertexBufferAddressDesc*>(buffers.data()),
+            buffers.size(),
+            start_slot
+        );
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Sets the index buffer.
+     * @param buffer The index buffer to set.
+     * @param index_type Defines index type. Used to determine the size of each index in the buffer. Must be either
+     * `wis::IndexType::UInt16` or `wis::IndexType::UInt32`.
+     *
+     * */
+    inline void SetIndexBuffer(const wis::DX12IndexBufferDesc* buffer, wis::IndexType index_type) noexcept
+    {
+        ::wisDX12CommandListSetIndexBuffer(
+            &_impl_storage,
+            reinterpret_cast<const WisDX12IndexBufferDesc*>(buffer),
+            static_cast<WisIndexType>(index_type)
+        );
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Sets the index buffer. Support @wis_must be queried from
+     * `wis::DeviceBindingProperties::address_commands_supported` in order to be used. Always supported for DX12.
+     * @param buffer The index buffer to set.
+     * @param index_type Defines index type. Used to determine the size of each index in the buffer. Must be either
+     * `wis::IndexType::UInt16` or `wis::IndexType::UInt32`.
+     *
+     * */
+    inline void SetIndexBuffer2(const wis::IndexBufferAddressDesc* buffer, wis::IndexType index_type) noexcept
+    {
+        ::wisDX12CommandListSetIndexBuffer2(
+            &_impl_storage,
+            reinterpret_cast<const WisIndexBufferAddressDesc*>(buffer),
+            static_cast<WisIndexType>(index_type)
+        );
+    }
 };
 
 struct DX12CommandAllocatorDeleter {
@@ -4566,6 +4701,27 @@ struct VKGraphicsPipelineDesc {
      * */
     wis::VKPipelineCacheView cache;
     wis::PipelineFlags flags; ///< describes pipeline flags. Describe additional options for the pipeline.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Struct for vertex buffer binding.
+ *
+ * */
+struct VKVertexBufferDesc {
+    wis::VKBufferView buffer; ///< Vertex Buffer to bind. The buffer view @wis_must have been created with  usage flag.
+    std::uint32_t size; ///< Size of the buffer in bytes.
+    std::uint32_t stride; ///< Stride of the buffer in bytes.
+    std::uint32_t offset; ///< Offset in buffer in bytes. Default is 0.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Struct for index buffer binding.
+ *
+ * */
+struct VKIndexBufferDesc {
+    wis::VKBufferView buffer; ///< Vertex Buffer to bind. The buffer view @wis_must have been created with  usage flag.
+    std::uint32_t size; ///< Size of the buffer in bytes.
+    std::uint32_t offset; ///< Offset in buffer in bytes. Default is 0.
 };
 
 struct VKTextureDeleter {
@@ -5610,6 +5766,76 @@ public:
             src_texture,
             reinterpret_cast<const WisTextureCopyRegion*>(regions.data()),
             regions.size()
+        );
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Sets the vertex buffers.
+     * @param buffers The vertex buffers to set.
+     * @param buffer_count The number of vertex buffers to set.
+     * @param start_slot The start slot to set the vertex buffers to. Default is 0.
+     *
+     * */
+    inline void SetVertexBuffers(
+        const wis::VKVertexBufferDesc* buffers,
+        std::size_t buffer_count,
+        std::uint32_t start_slot
+    ) noexcept
+    {
+        ::wisVKCommandListSetVertexBuffers(
+            &_impl_storage,
+            reinterpret_cast<const WisVKVertexBufferDesc*>(buffers),
+            buffer_count,
+            start_slot
+        );
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Sets the vertex buffers. Support @wis_must be queried from
+     * `wis::DeviceBindingProperties::address_commands_supported` in order to be used. Always supported for DX12.
+     * @param buffers The vertex buffers to set.
+     * @param start_slot The start slot to set the vertex buffers to. Default is 0.
+     *
+     * */
+    inline void SetVertexBuffers2(
+        wis::span<const wis::VertexBufferAddressDesc> buffers,
+        std::uint32_t start_slot
+    ) noexcept
+    {
+        ::wisVKCommandListSetVertexBuffers2(
+            &_impl_storage,
+            reinterpret_cast<const WisVertexBufferAddressDesc*>(buffers.data()),
+            buffers.size(),
+            start_slot
+        );
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Sets the index buffer.
+     * @param buffer The index buffer to set.
+     * @param index_type Defines index type. Used to determine the size of each index in the buffer. Must be either
+     * `wis::IndexType::UInt16` or `wis::IndexType::UInt32`.
+     *
+     * */
+    inline void SetIndexBuffer(const wis::VKIndexBufferDesc* buffer, wis::IndexType index_type) noexcept
+    {
+        ::wisVKCommandListSetIndexBuffer(
+            &_impl_storage,
+            reinterpret_cast<const WisVKIndexBufferDesc*>(buffer),
+            static_cast<WisIndexType>(index_type)
+        );
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Sets the index buffer. Support @wis_must be queried from
+     * `wis::DeviceBindingProperties::address_commands_supported` in order to be used. Always supported for DX12.
+     * @param buffer The index buffer to set.
+     * @param index_type Defines index type. Used to determine the size of each index in the buffer. Must be either
+     * `wis::IndexType::UInt16` or `wis::IndexType::UInt32`.
+     *
+     * */
+    inline void SetIndexBuffer2(const wis::IndexBufferAddressDesc* buffer, wis::IndexType index_type) noexcept
+    {
+        ::wisVKCommandListSetIndexBuffer2(
+            &_impl_storage,
+            reinterpret_cast<const WisIndexBufferAddressDesc*>(buffer),
+            static_cast<WisIndexType>(index_type)
         );
     }
 };

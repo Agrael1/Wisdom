@@ -148,6 +148,16 @@ public:
             });
         }
 
+        // Device address commands
+        if (collector.IsExtensionPresent(VK_KHR_DEVICE_ADDRESS_COMMANDS_EXTENSION_NAME)) {
+            features.address_commands = true;
+            collector.EnableExtension({
+                .name = VK_KHR_DEVICE_ADDRESS_COMMANDS_EXTENSION_NAME,
+                .feature_struct = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_ADDRESS_COMMANDS_FEATURES_KHR,
+                .feature_struct_size = sizeof(VkPhysicalDeviceDeviceAddressCommandsFeaturesKHR),
+            });
+        }
+
         return wis::detail::vk_success;
     }
     ::WisResult Init(const impl::VKDeviceImpl& device_impl, const VKDeviceExtensionCollector& collector) noexcept

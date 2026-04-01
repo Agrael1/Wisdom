@@ -34,11 +34,11 @@ inline VkImageViewCreateInfo VKGetSRVDesc(const WisTextureBinding& binding) noex
         .flags = 0,
         .format = wis::detail::VKConvert(binding.format),
         .components = {
-                       .r = wis::detail::VKConvert(binding.component_mapping.r),
-                       .g = wis::detail::VKConvert(binding.component_mapping.g),
-                       .b = wis::detail::VKConvert(binding.component_mapping.b),
-                       .a = wis::detail::VKConvert(binding.component_mapping.a),
-                       },
+            .r = wis::detail::VKConvert(binding.component_mapping.r),
+            .g = wis::detail::VKConvert(binding.component_mapping.g),
+            .b = wis::detail::VKConvert(binding.component_mapping.b),
+            .a = wis::detail::VKConvert(binding.component_mapping.a),
+        },
     };
     auto aspect_flags = VKGetAspectFlags(binding);
 

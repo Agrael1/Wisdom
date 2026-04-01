@@ -131,18 +131,13 @@ inline constexpr GUID guid_of_v()
  *                 0xbe, 0x54, 0x18, 0x21, 0x33, 0x9b, 0x85, 0xf7);
  * @endcode
  */
-#    define WIS_DEFINE_GUID(type, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) \
-        template <>                                                          \
-        struct wis::guid_of<type> {                                          \
-            static constexpr wis::GUID get() noexcept                        \
-            {                                                                \
-                return wis::GUID{                                            \
-                    l,                                                       \
-                    w1,                                                      \
-                    w2,                                                      \
-                    {b1, b2, b3, b4, b5, b6, b7, b8}                         \
-                };                                                           \
-            }                                                                \
+#    define WIS_DEFINE_GUID(type, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8)   \
+        template <>                                                            \
+        struct wis::guid_of<type> {                                            \
+            static constexpr wis::GUID get() noexcept                          \
+            {                                                                  \
+                return wis::GUID{l, w1, w2, {b1, b2, b3, b4, b5, b6, b7, b8}}; \
+            }                                                                  \
         };
 #endif
 

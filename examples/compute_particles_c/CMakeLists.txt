@@ -1,4 +1,4 @@
-project(test_c-${POSTFIX})
+project(compute_particles_c-${POSTFIX})
 
 set(HEADERS sdl_platform.h)
 set(SOURCES entry_main.c sdl_platform.c)

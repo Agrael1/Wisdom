@@ -128,12 +128,7 @@ private:
 
 //----------------------------------------------------------------------------------------------------------------------
 struct DX12RootSignatureKey {
-    static constexpr GUID guid{
-        0xf062fe85,
-        0x857f,
-        0x43a9,
-        {0xa2, 0x66, 0x75, 0x59, 0xb8, 0x10, 0x10, 0x01}
-    };
+    static constexpr GUID guid{0xf062fe85, 0x857f, 0x43a9, {0xa2, 0x66, 0x75, 0x59, 0xb8, 0x10, 0x10, 0x01}};
     std::array<uint64_t, 2>
         hash{}; // Hash of the root signature description, used for caching and identification purposes.
 };

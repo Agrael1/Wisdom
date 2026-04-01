@@ -265,11 +265,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DescriptorHeapWriteStructuredBuffer(
         .ViewDimension = D3D12_SRV_DIMENSION_BUFFER,
         .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
         .Buffer = {
-                   .FirstElement = data->array_offset,
-                   .NumElements = data->structure_count,
-                   .StructureByteStride = data->stride_bytes,
-                   .Flags = D3D12_BUFFER_SRV_FLAG_NONE,
-                   },
+            .FirstElement = data->array_offset,
+            .NumElements = data->structure_count,
+            .StructureByteStride = data->stride_bytes,
+            .Flags = D3D12_BUFFER_SRV_FLAG_NONE,
+        },
     };
     heap.device->CreateShaderResourceView(
         resource,
@@ -294,11 +294,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DescriptorHeapWriteRWStructuredBuffer(
         .Format = DXGI_FORMAT_UNKNOWN, // must be UNKNOWN for structured buffers
         .ViewDimension = D3D12_UAV_DIMENSION_BUFFER,
         .Buffer = {
-                   .FirstElement = data->array_offset,
-                   .NumElements = data->structure_count,
-                   .StructureByteStride = data->stride_bytes,
-                   .Flags = D3D12_BUFFER_UAV_FLAG_NONE,
-                   },
+            .FirstElement = data->array_offset,
+            .NumElements = data->structure_count,
+            .StructureByteStride = data->stride_bytes,
+            .Flags = D3D12_BUFFER_UAV_FLAG_NONE,
+        },
     };
     heap.device->CreateUnorderedAccessView(
         resource,
