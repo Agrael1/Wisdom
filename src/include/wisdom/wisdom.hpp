@@ -66,6 +66,8 @@ using TextureBarrier = wis::DX12TextureBarrier;
 using BarrierGroup = wis::DX12BarrierGroup;
 using ComputePipelineDesc = wis::DX12ComputePipelineDesc;
 using GraphicsPipelineDesc = wis::DX12GraphicsPipelineDesc;
+using VertexBufferDesc = wis::DX12VertexBufferDesc;
+using IndexBufferDesc = wis::DX12IndexBufferDesc;
 
 //==============================================================
 // Functions
@@ -150,6 +152,8 @@ using TextureBarrier = wis::VKTextureBarrier;
 using BarrierGroup = wis::VKBarrierGroup;
 using ComputePipelineDesc = wis::VKComputePipelineDesc;
 using GraphicsPipelineDesc = wis::VKGraphicsPipelineDesc;
+using VertexBufferDesc = wis::VKVertexBufferDesc;
+using IndexBufferDesc = wis::VKIndexBufferDesc;
 
 //==============================================================
 // Functions

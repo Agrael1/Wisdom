@@ -42,20 +42,20 @@ public:
 // In a real implementation, you might want to differentiate based on queue type.
 static constexpr VkDeviceQueueGlobalPriorityCreateInfo vk_global_priorities[]{
     {
-     .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO,
-     .pNext = nullptr,
-     .globalPriority = VK_QUEUE_GLOBAL_PRIORITY_MEDIUM_KHR, // Default priority
+        .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO,
+        .pNext = nullptr,
+        .globalPriority = VK_QUEUE_GLOBAL_PRIORITY_MEDIUM_KHR, // Default priority
     },
     {
-     .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO,
-     .pNext = nullptr,
-     .globalPriority = VK_QUEUE_GLOBAL_PRIORITY_HIGH_KHR,
-     },
+        .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO,
+        .pNext = nullptr,
+        .globalPriority = VK_QUEUE_GLOBAL_PRIORITY_HIGH_KHR,
+    },
     {
-     .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO,
-     .pNext = nullptr,
-     .globalPriority = VK_QUEUE_GLOBAL_PRIORITY_REALTIME_KHR,
-     },
+        .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_GLOBAL_PRIORITY_CREATE_INFO,
+        .pNext = nullptr,
+        .globalPriority = VK_QUEUE_GLOBAL_PRIORITY_REALTIME_KHR,
+    },
 };
 
 //----------------------------------------------------------------------------------------------------------------------

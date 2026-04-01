@@ -106,13 +106,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKTextureWriteSubresource(
         .memoryImageHeight = 0,
         .imageSubresource =
             {.aspectMask = plane_to_aspect_mask(target_region->target_subresource.plane_slice),
-                               .mipLevel = target_region->target_subresource.mip_level,
-                               .baseArrayLayer = target_region->target_subresource.array_layer,
-                               .layerCount = 1},
+             .mipLevel = target_region->target_subresource.mip_level,
+             .baseArrayLayer = target_region->target_subresource.array_layer,
+             .layerCount = 1},
         .imageOffset =
             {static_cast<int32_t>(target_region->box.x),
-                               static_cast<int32_t>(target_region->box.y),
-                               static_cast<int32_t>(target_region->box.z)},
+             static_cast<int32_t>(target_region->box.y),
+             static_cast<int32_t>(target_region->box.z)},
         .imageExtent{target_region->box.width, target_region->box.height, target_region->box.depth},
     };
 

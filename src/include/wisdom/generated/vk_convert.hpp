@@ -680,6 +680,18 @@ constexpr inline VkAttachmentStoreOp VKConvert(WisStoreOp value) noexcept
     }
 }
 
+constexpr inline VkIndexType VKConvert(WisIndexType value) noexcept
+{
+    switch (value) {
+    case WisIndexTypeUInt16:
+        return VK_INDEX_TYPE_UINT16;
+    case WisIndexTypeUInt32:
+        return VK_INDEX_TYPE_UINT32;
+    default:
+        return static_cast<VkIndexType>(0);
+    }
+}
+
 constexpr inline VkBufferUsageFlags VKConvert(WisBufferUsageFlags value) noexcept
 {
     VkBufferUsageFlags result = static_cast<VkBufferUsageFlags>(0);

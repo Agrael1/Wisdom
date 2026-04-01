@@ -213,12 +213,12 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateTexture(
             .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
             .newLayout = VK_IMAGE_LAYOUT_GENERAL,
             .subresourceRange = {
-                                 .aspectMask = wis::detail::VKAspectFlags(image_info.format),
-                                 .baseMipLevel = 0,
-                                 .levelCount = image_info.mipLevels,
-                                 .baseArrayLayer = 0,
-                                 .layerCount = image_info.arrayLayers,
-                                 },
+                .aspectMask = wis::detail::VKAspectFlags(image_info.format),
+                .baseMipLevel = 0,
+                .levelCount = image_info.mipLevels,
+                .baseArrayLayer = 0,
+                .layerCount = image_info.arrayLayers,
+            },
         };
 
         vr = table.vkTransitionImageLayoutEXT(header.device, 1, &transition_info);

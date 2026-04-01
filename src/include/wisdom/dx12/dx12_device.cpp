@@ -257,10 +257,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(
             .ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS,
             .Constants =
                 {
-                            .ShaderRegister = static_cast<UINT>(src.bind_register),
-                            .RegisterSpace = static_cast<UINT>(src.bind_space),
-                            .Num32BitValues = static_cast<UINT>(src.size_bytes / 4),
-                            },
+                    .ShaderRegister = static_cast<UINT>(src.bind_register),
+                    .RegisterSpace = static_cast<UINT>(src.bind_space),
+                    .Num32BitValues = static_cast<UINT>(src.size_bytes / 4),
+                },
             .ShaderVisibility = wis::detail::DX12Convert(src.visibility),
         };
     }
@@ -280,10 +280,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(
             .ParameterType = wis::detail::dx12_root_parameter_type(src.type),
             .Descriptor =
                 {
-                             .ShaderRegister = src.bind_register,
-                             .RegisterSpace = src.bind_space,
-                             .Flags = D3D12_ROOT_DESCRIPTOR_FLAG_NONE,
-                             },
+                    .ShaderRegister = src.bind_register,
+                    .RegisterSpace = src.bind_space,
+                    .Flags = D3D12_ROOT_DESCRIPTOR_FLAG_NONE,
+                },
             .ShaderVisibility = wis::detail::DX12Convert(src.visibility),
         };
     }
@@ -330,9 +330,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(
                 .ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE,
                 .DescriptorTable =
                     {
-                                      .NumDescriptorRanges = static_cast<uint32_t>(table.entry_count),
-                                      .pDescriptorRanges = ranges.get() + range_offset,
-                                      },
+                        .NumDescriptorRanges = static_cast<uint32_t>(table.entry_count),
+                        .pDescriptorRanges = ranges.get() + range_offset,
+                    },
                 .ShaderVisibility = wis::detail::DX12Convert(table.visibility),
             };
             range_offset += table.entry_count;
@@ -342,12 +342,12 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(
     D3D12_VERSIONED_ROOT_SIGNATURE_DESC rsig_desc{
         .Version = D3D_ROOT_SIGNATURE_VERSION_1_2,
         .Desc_1_2 = {
-                     .NumParameters = static_cast<UINT>(num_root_parameters),
-                     .pParameters = root_parameters,
-                     .NumStaticSamplers = 0,
-                     .pStaticSamplers = nullptr,
-                     .Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT,
-                     },
+            .NumParameters = static_cast<UINT>(num_root_parameters),
+            .pParameters = root_parameters,
+            .NumStaticSamplers = 0,
+            .pStaticSamplers = nullptr,
+            .Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT,
+        },
     };
 
     wis::com_ptr<ID3DBlob> signature;
@@ -393,9 +393,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(
 
     // Compute hash of root signature description for caching purposes
     XXH128_hash_t hash = XXH3_128bits(signature->GetBufferPointer(), signature->GetBufferSize());
-    wis::detail::DX12RootSignatureKey key{
-        .hash{hash.low64, hash.high64}
-    };
+    wis::detail::DX12RootSignatureKey key{.hash{hash.low64, hash.high64}};
     root_signature
         ->SetPrivateData(wis::detail::DX12RootSignatureKey::guid, sizeof(wis::detail::DX12RootSignatureKey), &key);
 
@@ -464,6 +462,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DeviceQueryProperties(const WisDX12Device* s
             props->max_vertex_input_bindings = D3D12_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT;
             props->max_vertex_input_attributes = D3D12_IA_VERTEX_INPUT_STRUCTURE_ELEMENT_COUNT;
             props->multiple_viewports_supported = true; // D3D12 supports up to 16 viewports and scissor rectangles
+            props->address_commands_supported = true; // D3D12 supports buffer address commands
         } break;
         default:
             break;
@@ -754,36 +753,26 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(
     //--Shader stages
     if (auto vs = shader_headers[0]) {
         auto bytecode = vs->GetBytecode();
-        stream.vertex_shader = {
-            {bytecode.data(), bytecode.size()}
-        };
+        stream.vertex_shader = {{bytecode.data(), bytecode.size()}};
     } else {
         return wis::detail::
             make_result<wis::detail::Func(), "Vertex shader is required for graphics pipeline creation">(E_INVALIDARG);
     }
     if (auto ps = shader_headers[1]) {
         auto bytecode = ps->GetBytecode();
-        stream.pixel_shader = {
-            {bytecode.data(), bytecode.size()}
-        };
+        stream.pixel_shader = {{bytecode.data(), bytecode.size()}};
     }
     if (auto gs = shader_headers[2]) {
         auto bytecode = gs->GetBytecode();
-        stream.geometry_shader = {
-            {bytecode.data(), bytecode.size()}
-        };
+        stream.geometry_shader = {{bytecode.data(), bytecode.size()}};
     }
     if (auto hs = shader_headers[3]) {
         auto bytecode = hs->GetBytecode();
-        stream.hull_shader = {
-            {bytecode.data(), bytecode.size()}
-        };
+        stream.hull_shader = {{bytecode.data(), bytecode.size()}};
     }
     if (auto ds = shader_headers[4]) {
         auto bytecode = ds->GetBytecode();
-        stream.domain_shader = {
-            {bytecode.data(), bytecode.size()}
-        };
+        stream.domain_shader = {{bytecode.data(), bytecode.size()}};
     }
 
     //--Render targets
@@ -864,19 +853,17 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(
             stream.flags |= D3D12_PIPELINE_STATE_FLAG_DYNAMIC_DEPTH_BIAS;
         }
 
-        stream.rasterizer = CD3DX12_RASTERIZER_DESC2{
-            D3D12_RASTERIZER_DESC2{
-                                   .FillMode = wis::detail::DX12Convert(raster.fill_mode),
-                                   .CullMode = wis::detail::DX12Convert(raster.cull_mode),
-                                   .FrontCounterClockwise = wis::detail::DX12Convert(raster.front_face),
-                                   .DepthBias = bias ? raster.depth_bias : 0.0f,
-                                   .DepthBiasClamp = bias ? raster.depth_bias_clamp : 0.0f,
-                                   .SlopeScaledDepthBias = bias ? raster.depth_bias_slope_factor : 0.0f,
-                                   .DepthClipEnable = raster.depth_clip_enable,
-                                   .LineRasterizationMode = wis::detail::DX12Convert(raster.line_rasterization),
-                                   .ConservativeRaster = wis::detail::DX12Convert(raster.conservative_rasterization)
-            }
-        };
+        stream.rasterizer = CD3DX12_RASTERIZER_DESC2{D3D12_RASTERIZER_DESC2{
+            .FillMode = wis::detail::DX12Convert(raster.fill_mode),
+            .CullMode = wis::detail::DX12Convert(raster.cull_mode),
+            .FrontCounterClockwise = wis::detail::DX12Convert(raster.front_face),
+            .DepthBias = bias ? raster.depth_bias : 0.0f,
+            .DepthBiasClamp = bias ? raster.depth_bias_clamp : 0.0f,
+            .SlopeScaledDepthBias = bias ? raster.depth_bias_slope_factor : 0.0f,
+            .DepthClipEnable = raster.depth_clip_enable,
+            .LineRasterizationMode = wis::detail::DX12Convert(raster.line_rasterization),
+            .ConservativeRaster = wis::detail::DX12Convert(raster.conservative_rasterization)
+        }};
     }
 
     //--Multisample
@@ -909,7 +896,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(
                      .StencilFunc = wis::detail::DX12Convert(ds.stencil_front.stencil_comp),
                      .StencilReadMask = ds.stencil_front.read_mask,
                      .StencilWriteMask = ds.stencil_front.write_mask,
-                 }, .BackFace =
+                 },
+             .BackFace =
                  D3D12_DEPTH_STENCILOP_DESC1{
                      .StencilFailOp = wis::detail::DX12Convert(ds.stencil_back.fail_op),
                      .StencilDepthFailOp = wis::detail::DX12Convert(ds.stencil_back.depth_fail_op),
@@ -917,7 +905,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(
                      .StencilFunc = wis::detail::DX12Convert(ds.stencil_back.stencil_comp),
                      .StencilReadMask = ds.stencil_back.read_mask,
                      .StencilWriteMask = ds.stencil_back.write_mask,
-                 }, .DepthBoundsTestEnable = ds.depth_bound_test}
+                 },
+             .DepthBoundsTestEnable = ds.depth_bound_test}
         };
     }
 

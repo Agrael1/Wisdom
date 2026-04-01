@@ -7,6 +7,52 @@
 
 #include <vulkan/vulkan.h>
 
+#ifndef VK_KHR_device_address_commands
+#    define VK_KHR_DEVICE_ADDRESS_COMMANDS_EXTENSION_NAME "VK_KHR_device_address_commands"
+typedef struct VkPhysicalDeviceDeviceAddressCommandsFeaturesKHR {
+    VkStructureType sType;
+    void* pNext;
+    VkBool32 deviceAddressCommands;
+} VkPhysicalDeviceDeviceAddressCommandsFeaturesKHR;
+
+static constexpr VkStructureType
+    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_ADDRESS_COMMANDS_FEATURES_KHR = VkStructureType(1000318006);
+static constexpr VkStructureType VK_STRUCTURE_TYPE_BIND_VERTEX_BUFFER_3_INFO_KHR = VkStructureType(1000318008);
+static constexpr VkStructureType VK_STRUCTURE_TYPE_BIND_INDEX_BUFFER_3_INFO_KHR = VkStructureType(1000318007);
+
+typedef VkFlags VkAddressCommandFlagsKHR;
+
+typedef struct VkDeviceAddressRangeKHR {
+    VkDeviceAddress address;
+    VkDeviceSize size;
+} VkDeviceAddressRangeKHR;
+
+typedef struct VkBindVertexBuffer3InfoKHR {
+    VkStructureType sType;
+    const void* pNext;
+    VkBool32 setStride;
+    VkStridedDeviceAddressRangeKHR addressRange;
+    VkAddressCommandFlagsKHR addressFlags;
+} VkBindVertexBuffer3InfoKHR;
+
+typedef struct VkBindIndexBuffer3InfoKHR {
+    VkStructureType sType;
+    const void* pNext;
+    VkDeviceAddressRangeKHR addressRange;
+    VkAddressCommandFlagsKHR addressFlags;
+    VkIndexType indexType;
+} VkBindIndexBuffer3InfoKHR;
+
+using PFN_vkCmdBindVertexBuffers3KHR = void (*)(
+    VkCommandBuffer commandBuffer,
+    uint32_t firstBinding,
+    uint32_t bindingCount,
+    const VkBindVertexBuffer3InfoKHR* pBindingInfos
+);
+using PFN_vkCmdBindIndexBuffer3KHR = void (*)(VkCommandBuffer commandBuffer, const VkBindIndexBuffer3InfoKHR* pInfo);
+
+#endif // VK_KHR_device_address_commands
+
 namespace wis {
 namespace impl {
 //----------------------------------------------------------------------------------------------------------------------
@@ -138,6 +184,10 @@ struct VKMainCommandList {
     PFN_vkCmdBindSamplerHeapEXT vkCmdBindSamplerHeapEXT;
     PFN_vkCmdPushDataEXT vkCmdPushDataEXT;
 
+    // Device address commands functions
+    PFN_vkCmdBindVertexBuffers3KHR vkCmdBindVertexBuffers3KHR;
+    PFN_vkCmdBindIndexBuffer3KHR vkCmdBindIndexBuffer3KHR;
+
 public:
     bool Init(VkDevice device, PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr) noexcept
     {
@@ -173,6 +223,9 @@ public:
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkCmdBindResourceHeapEXT);
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkCmdBindSamplerHeapEXT);
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkCmdPushDataEXT);
+
+        ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkCmdBindVertexBuffers3KHR);
+        ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkCmdBindIndexBuffer3KHR);
         return true;
     }
 };

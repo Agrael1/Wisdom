@@ -383,6 +383,18 @@ constexpr inline D3D12_RENDER_PASS_ENDING_ACCESS_TYPE DX12Convert(WisStoreOp val
     }
 }
 
+constexpr inline DXGI_FORMAT DX12Convert(WisIndexType value) noexcept
+{
+    switch (value) {
+    case WisIndexTypeUInt16:
+        return DXGI_FORMAT_R16_UINT;
+    case WisIndexTypeUInt32:
+        return DXGI_FORMAT_R32_UINT;
+    default:
+        return static_cast<DXGI_FORMAT>(0);
+    }
+}
+
 constexpr inline D3D12_SAMPLER_FLAGS DX12Convert(WisSamplerFlags value) noexcept
 {
     D3D12_SAMPLER_FLAGS result = static_cast<D3D12_SAMPLER_FLAGS>(0);

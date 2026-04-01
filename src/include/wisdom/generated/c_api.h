@@ -1197,6 +1197,16 @@ typedef enum WisStoreOp {
 } WisStoreOp;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Index type for index buffer.
+ * Enum values resemble the byte stride of the format.
+ *
+ * */
+typedef enum WisIndexType {
+    WisIndexTypeUInt16 = 2, ///< 16-bit unsigned integer index type.
+    WisIndexTypeUInt32 = 4, ///< 32-bit unsigned integer index type.
+} WisIndexType;
+
+/**
  * @brief Provided by Wisdom 0.7.0. Flags that describe adapter.
  *
  * */
@@ -2276,6 +2286,25 @@ typedef struct WisTextureCopyRegion {
 } WisTextureCopyRegion;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Vertex buffer binding description for wisCommandListSetVertexBuffers2.
+ *
+ * */
+typedef struct WisVertexBufferAddressDesc {
+    uint64_t buffer; ///< Buffer address.
+    uint32_t size; ///< Size of the buffer in bytes.
+    uint32_t stride; ///< Stride of the buffer in bytes.
+} WisVertexBufferAddressDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Vertex buffer binding description for wisCommandListSetVertexBuffers2.
+ *
+ * */
+typedef struct WisIndexBufferAddressDesc {
+    uint64_t buffer; ///< Buffer address.
+    uint32_t size; ///< Size of the buffer in bytes.
+} WisIndexBufferAddressDesc;
+
+/**
  * @brief Provided by Wisdom 0.7.0. Query struct header. Used as a header for all query structs.
  *
  * */
@@ -2313,6 +2342,11 @@ typedef struct WisDeviceBindingProperties {
      * rectangles. If false, only one viewport and scissor rectangle is supported.
      * */
     bool multiple_viewports_supported;
+    /**
+     * @brief indicates if commands with buffer addresses are supported. If true, the device supports commands that take
+     * buffer addresses directly, such as wisCommandListSetVertexBuffers2.
+     * */
+    bool address_commands_supported;
 } WisDeviceBindingProperties;
 
 /**
@@ -2458,6 +2492,10 @@ typedef struct WisDeviceMemoryProperties {
 /// @brief Provided by Wisdom 0.7.0. [internal] Defines the maximum amount of images that can be present in a swapchain
 /// within any implementation.
 #define WIS_ABSOLUTE_MAX_SWAPCHAIN_IMAGES ((uint32_t)16)
+
+/// @brief Provided by Wisdom 0.7.0. [internal] Defines the maximum amount of vertex input bindings that can be present
+/// in a single draw call within any implementation.
+#define WIS_ABSOLUTE_MAX_INPUT_BINDINGS ((uint32_t)32)
 
 /// @brief Provided by Wisdom 0.7.0. Select whole size of a resource.
 #define WIS_WHOLE_SIZE ((uint64_t)0xffffffffffffffff)
@@ -2851,6 +2889,27 @@ typedef struct WisDX12GraphicsPipelineDesc {
     WisDX12PipelineCacheView cache; ///< defines pipeline cache data. Used to speed up pipeline creation if available.
     WisPipelineFlags flags; ///< describes pipeline flags. Describe additional options for the pipeline.
 } WisDX12GraphicsPipelineDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Struct for vertex buffer binding.
+ *
+ * */
+typedef struct WisDX12VertexBufferDesc {
+    WisDX12BufferView buffer; ///< Vertex Buffer to bind. The buffer view @wis_must have been created with  usage flag.
+    uint32_t size; ///< Size of the buffer in bytes.
+    uint32_t stride; ///< Stride of the buffer in bytes.
+    uint32_t offset; ///< Offset in buffer in bytes. Default is 0.
+} WisDX12VertexBufferDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Struct for index buffer binding.
+ *
+ * */
+typedef struct WisDX12IndexBufferDesc {
+    WisDX12BufferView buffer; ///< Vertex Buffer to bind. The buffer view @wis_must have been created with  usage flag.
+    uint32_t size; ///< Size of the buffer in bytes.
+    uint32_t offset; ///< Offset in buffer in bytes. Default is 0.
+} WisDX12IndexBufferDesc;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisTexture handle.
@@ -3946,6 +4005,66 @@ WISDOM_API void wisDX12CommandListCopyTexture(
 );
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Sets the vertex buffers.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param buffers The vertex buffers to set.
+ * @param buffer_count The number of vertex buffers to set.
+ * @param start_slot The start slot to set the vertex buffers to. Default is 0.
+ *
+ * */
+WISDOM_API void wisDX12CommandListSetVertexBuffers(
+    WisDX12CommandList* self,
+    const WisDX12VertexBufferDesc* buffers,
+    size_t buffer_count,
+    uint32_t start_slot
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the vertex buffers. Support @wis_must be queried from
+ * `WisDeviceBindingProperties::address_commands_supported` in order to be used. Always supported for DX12.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param buffers The vertex buffers to set.
+ * @param buffer_count The number of vertex buffers to set.
+ * @param start_slot The start slot to set the vertex buffers to. Default is 0.
+ *
+ * */
+WISDOM_API void wisDX12CommandListSetVertexBuffers2(
+    WisDX12CommandList* self,
+    const WisVertexBufferAddressDesc* buffers,
+    size_t buffer_count,
+    uint32_t start_slot
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the index buffer.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param buffer The index buffer to set.
+ * @param index_type Defines index type. Used to determine the size of each index in the buffer. Must be either
+ * `WisIndexTypeUInt16` or `WisIndexTypeUInt32`.
+ *
+ * */
+WISDOM_API void wisDX12CommandListSetIndexBuffer(
+    WisDX12CommandList* self,
+    const WisDX12IndexBufferDesc* buffer,
+    WisIndexType index_type
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the index buffer. Support @wis_must be queried from
+ * `WisDeviceBindingProperties::address_commands_supported` in order to be used. Always supported for DX12.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param buffer The index buffer to set.
+ * @param index_type Defines index type. Used to determine the size of each index in the buffer. Must be either
+ * `WisIndexTypeUInt16` or `WisIndexTypeUInt32`.
+ *
+ * */
+WISDOM_API void wisDX12CommandListSetIndexBuffer2(
+    WisDX12CommandList* self,
+    const WisIndexBufferAddressDesc* buffer,
+    WisIndexType index_type
+);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Gets the data from the pipeline cache.
  * @param self is a pointer to the valid WisPipelineCache instance.
  * @param data points to an array that is filled with serialized cache data on success.
@@ -4406,6 +4525,27 @@ typedef struct WisVKGraphicsPipelineDesc {
     WisVKPipelineCacheView cache; ///< defines pipeline cache data. Used to speed up pipeline creation if available.
     WisPipelineFlags flags; ///< describes pipeline flags. Describe additional options for the pipeline.
 } WisVKGraphicsPipelineDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Struct for vertex buffer binding.
+ *
+ * */
+typedef struct WisVKVertexBufferDesc {
+    WisVKBufferView buffer; ///< Vertex Buffer to bind. The buffer view @wis_must have been created with  usage flag.
+    uint32_t size; ///< Size of the buffer in bytes.
+    uint32_t stride; ///< Stride of the buffer in bytes.
+    uint32_t offset; ///< Offset in buffer in bytes. Default is 0.
+} WisVKVertexBufferDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Struct for index buffer binding.
+ *
+ * */
+typedef struct WisVKIndexBufferDesc {
+    WisVKBufferView buffer; ///< Vertex Buffer to bind. The buffer view @wis_must have been created with  usage flag.
+    uint32_t size; ///< Size of the buffer in bytes.
+    uint32_t offset; ///< Offset in buffer in bytes. Default is 0.
+} WisVKIndexBufferDesc;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisTexture handle.
@@ -5480,6 +5620,66 @@ WISDOM_API void wisVKCommandListCopyTexture(
     WisVKTextureView src_texture,
     const WisTextureCopyRegion* regions,
     size_t region_count
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the vertex buffers.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param buffers The vertex buffers to set.
+ * @param buffer_count The number of vertex buffers to set.
+ * @param start_slot The start slot to set the vertex buffers to. Default is 0.
+ *
+ * */
+WISDOM_API void wisVKCommandListSetVertexBuffers(
+    WisVKCommandList* self,
+    const WisVKVertexBufferDesc* buffers,
+    size_t buffer_count,
+    uint32_t start_slot
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the vertex buffers. Support @wis_must be queried from
+ * `WisDeviceBindingProperties::address_commands_supported` in order to be used. Always supported for DX12.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param buffers The vertex buffers to set.
+ * @param buffer_count The number of vertex buffers to set.
+ * @param start_slot The start slot to set the vertex buffers to. Default is 0.
+ *
+ * */
+WISDOM_API void wisVKCommandListSetVertexBuffers2(
+    WisVKCommandList* self,
+    const WisVertexBufferAddressDesc* buffers,
+    size_t buffer_count,
+    uint32_t start_slot
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the index buffer.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param buffer The index buffer to set.
+ * @param index_type Defines index type. Used to determine the size of each index in the buffer. Must be either
+ * `WisIndexTypeUInt16` or `WisIndexTypeUInt32`.
+ *
+ * */
+WISDOM_API void wisVKCommandListSetIndexBuffer(
+    WisVKCommandList* self,
+    const WisVKIndexBufferDesc* buffer,
+    WisIndexType index_type
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the index buffer. Support @wis_must be queried from
+ * `WisDeviceBindingProperties::address_commands_supported` in order to be used. Always supported for DX12.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param buffer The index buffer to set.
+ * @param index_type Defines index type. Used to determine the size of each index in the buffer. Must be either
+ * `WisIndexTypeUInt16` or `WisIndexTypeUInt32`.
+ *
+ * */
+WISDOM_API void wisVKCommandListSetIndexBuffer2(
+    WisVKCommandList* self,
+    const WisIndexBufferAddressDesc* buffer,
+    WisIndexType index_type
 );
 
 /**

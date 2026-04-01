@@ -213,9 +213,7 @@ public:
         ps = ex::Unwrap(setup.device.CreateShader(ps_code.data(), ps_code.size()));
 
         // Create root for storage (it is bindless, so no reason to use tables anymore)
-        wis::PushConstant root_constants[]{
-            {.stage = wis::ShaderStages::All, .size_bytes = 2 * sizeof(uint32_t)}
-        };
+        wis::PushConstant root_constants[]{{.stage = wis::ShaderStages::All, .size_bytes = 2 * sizeof(uint32_t)}};
         wis::DescriptorBindingDesc bindings[] = {
             {.binding_type = wis::DescriptorType::ConstantBuffer,
              .binding_space = 1,
@@ -248,27 +246,23 @@ public:
                 .root_signature = root,
                 .input_layout =
                     {
-                                   .slots = input_slots,
-                                   .slot_count = 1,
-                                   .attributes = input_attributes,
-                                   .attribute_count = 1,
-                                   },
+                        .slots = input_slots,
+                        .slot_count = 1,
+                        .attributes = input_attributes,
+                        .attribute_count = 1,
+                    },
                 .shaders = {.vertex = vs, .pixel = ps},
                 .attachments = {
-                                   .attachment_formats = {ex::swapchain_format},
-                                   .attachments_count = 1,
-                                   },
+                    .attachment_formats = {ex::swapchain_format},
+                    .attachments_count = 1,
+                },
             };
             pipeline = ex::Unwrap(setup.device.CreateGraphicsPipeline(desc));
         }
 
         // Create vertex buffer
         {
-            glm::vec3 triangle_vertices[] = {
-                { 0.0f,  0.5f, 0.0f},
-                { 0.5f, -0.5f, 0.0f},
-                {-0.5f, -0.5f, 0.0f}
-            };
+            glm::vec3 triangle_vertices[] = {{0.0f, 0.5f, 0.0f}, {0.5f, -0.5f, 0.0f}, {-0.5f, -0.5f, 0.0f}};
             vertex_buffer = setup.CreateAndUploadBuffer(
                 std::span<glm::vec3>{triangle_vertices},
                 wis::BufferUsage::VertexBuffer

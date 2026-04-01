@@ -65,6 +65,8 @@ typedef struct WisDX12TextureBarrier WisTextureBarrier;
 typedef struct WisDX12BarrierGroup WisBarrierGroup;
 typedef struct WisDX12ComputePipelineDesc WisComputePipelineDesc;
 typedef struct WisDX12GraphicsPipelineDesc WisGraphicsPipelineDesc;
+typedef struct WisDX12VertexBufferDesc WisVertexBufferDesc;
+typedef struct WisDX12IndexBufferDesc WisIndexBufferDesc;
 
 //==============================================================
 // Functions
@@ -169,6 +171,10 @@ typedef struct WisDX12GraphicsPipelineDesc WisGraphicsPipelineDesc;
 #    define wisCommandListCopyBufferToTexture           wisDX12CommandListCopyBufferToTexture
 #    define wisCommandListCopyTextureToBuffer           wisDX12CommandListCopyTextureToBuffer
 #    define wisCommandListCopyTexture                   wisDX12CommandListCopyTexture
+#    define wisCommandListSetVertexBuffers              wisDX12CommandListSetVertexBuffers
+#    define wisCommandListSetVertexBuffers2             wisDX12CommandListSetVertexBuffers2
+#    define wisCommandListSetIndexBuffer                wisDX12CommandListSetIndexBuffer
+#    define wisCommandListSetIndexBuffer2               wisDX12CommandListSetIndexBuffer2
 #    define wisPipelineCacheSerialize                   wisDX12PipelineCacheSerialize
 #    define wisPipelineCacheGetSerializedSize           wisDX12PipelineCacheGetSerializedSize
 #    define wisSwapchainPresent                         wisDX12SwapchainPresent
@@ -225,6 +231,8 @@ typedef struct WisVKTextureBarrier WisTextureBarrier;
 typedef struct WisVKBarrierGroup WisBarrierGroup;
 typedef struct WisVKComputePipelineDesc WisComputePipelineDesc;
 typedef struct WisVKGraphicsPipelineDesc WisGraphicsPipelineDesc;
+typedef struct WisVKVertexBufferDesc WisVertexBufferDesc;
+typedef struct WisVKIndexBufferDesc WisIndexBufferDesc;
 
 //==============================================================
 // Functions
@@ -329,6 +337,10 @@ typedef struct WisVKGraphicsPipelineDesc WisGraphicsPipelineDesc;
 #    define wisCommandListCopyBufferToTexture           wisVKCommandListCopyBufferToTexture
 #    define wisCommandListCopyTextureToBuffer           wisVKCommandListCopyTextureToBuffer
 #    define wisCommandListCopyTexture                   wisVKCommandListCopyTexture
+#    define wisCommandListSetVertexBuffers              wisVKCommandListSetVertexBuffers
+#    define wisCommandListSetVertexBuffers2             wisVKCommandListSetVertexBuffers2
+#    define wisCommandListSetIndexBuffer                wisVKCommandListSetIndexBuffer
+#    define wisCommandListSetIndexBuffer2               wisVKCommandListSetIndexBuffer2
 #    define wisPipelineCacheSerialize                   wisVKPipelineCacheSerialize
 #    define wisPipelineCacheGetSerializedSize           wisVKPipelineCacheGetSerializedSize
 #    define wisSwapchainPresent                         wisVKSwapchainPresent

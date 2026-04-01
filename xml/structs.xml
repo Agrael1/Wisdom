@@ -398,6 +398,16 @@ Viewport is considered from Top Left corner.">
       <member type="TextureRegion" name="dst_region" doc="describes destination texture region to copy."/>
     </type>
 
+    <type name="VertexBufferAddressDesc" category="struct" version="0.7.0" doc="Vertex buffer binding description for {CommandList::SetVertexBuffers2}.">
+      <member type="u64" name="buffer" doc="Buffer address."/>
+      <member type="u32" name="size" doc="Size of the buffer in bytes."/>
+      <member type="u32" name="stride" doc="Stride of the buffer in bytes."/>
+    </type>
+    <type name="IndexBufferAddressDesc" category="struct" version="0.7.0" doc="Vertex buffer binding description for {CommandList::SetVertexBuffers2}.">
+      <member type="u64" name="buffer" doc="Buffer address."/>
+      <member type="u32" name="size" doc="Size of the buffer in bytes."/>
+    </type>
+
     <!-- Variants -->
     <type name="DeviceRequirements" category="variant" version="0.7.0" doc="Device requirements. Used to specify required features and properties for device creation.">
       <member type="CommandQueueDesc" name="queue_descs" mod="const,span" default="nullptr" doc="points to an array of {CommandQueueDesc::} for which queues are created during device creation."/>
@@ -421,6 +431,7 @@ Viewport is considered from Top Left corner.">
       <member type="u32" name="max_vertex_input_attributes" doc="defines maximum number of vertex input attributes supported by the device. Used for vertex buffer bindings."/>
       <member type="u32" name="max_vertex_input_bindings" doc="indicates maximum number of vertex input bindings supported by the device. Used for vertex buffer bindings."/>
       <member type="bool" name="multiple_viewports_supported" doc="indicates if multiple viewports are supported. If true, the device supports up to 16 viewports and scissor rectangles. If false, only one viewport and scissor rectangle is supported."/>
+      <member type="bool" name="address_commands_supported" doc="indicates if commands with buffer addresses are supported. If true, the device supports commands that take buffer addresses directly, such as {CommandList::SetVertexBuffers2}."/>
     </type>
 
     <type name="DeviceDescriptorHeapProperties" category="struct" version="0.7.0" doc="Device descriptor heap properties. Used to query descriptor heap support and limits.">
@@ -523,6 +534,19 @@ Viewport is considered from Top Left corner.">
       <member type="BlendStateDesc" name="blend_state_desc" mod="const,ptr" default="nullptr" doc="indicates blend state description for the pipeline. If not set, the pipeline will be created with blending disabled."/>
       <member type="PipelineCacheView" name="cache" default="0" doc="defines pipeline cache data. Used to speed up pipeline creation if available."/>
       <member type="PipelineFlags" name="flags" doc="describes pipeline flags. Describe additional options for the pipeline."/>
+    </type>
+
+    <type name="VertexBufferDesc" category="variant" version="0.7.0" doc="Struct for vertex buffer binding.">
+      <member type="BufferView" name="buffer" doc="Vertex Buffer to bind. The buffer view must have been created with {BufferUsage::VertexBuffer} usage flag."/>
+      <member type="u32" name="size" doc="Size of the buffer in bytes."/>
+      <member type="u32" name="stride" doc="Stride of the buffer in bytes."/>
+      <member type="u32" name="offset" doc="Offset in buffer in bytes. Default is 0."/>
+    </type>
+
+    <type name="IndexBufferDesc" category="variant" version="0.7.0" doc="Struct for index buffer binding.">
+      <member type="BufferView" name="buffer" doc="Vertex Buffer to bind. The buffer view must have been created with {BufferUsage::IndexBuffer} usage flag."/>
+      <member type="u32" name="size" doc="Size of the buffer in bytes."/>
+      <member type="u32" name="offset" doc="Offset in buffer in bytes. Default is 0."/>
     </type>
 
   </types>

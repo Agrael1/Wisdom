@@ -439,6 +439,24 @@ If multiple viewports are used, SV_ViewportArrayIndex in geometry shader selects
         <arg type="TextureCopyRegion" name="regions" mod="const,span" doc="points to an array of {TextureCopyRegion::} that defines the copy regions."/>
         <arg type="size" name="region_count" doc="defines the count of the regions."/>
       </func>
+      <func for="CommandList" name="SetVertexBuffers" version="0.7.0" doc="Sets the vertex buffers.">
+        <arg type="VertexBufferDesc" name="buffers" mod="const,ptr" doc="The vertex buffers to set."/>
+        <arg type="size" name="buffer_count" doc="The number of vertex buffers to set."/>
+        <arg type="u32" name="start_slot" default="0" doc="The start slot to set the vertex buffers to. Default is 0."/>
+      </func>
+      <func for="CommandList" name="SetVertexBuffers2" version="0.7.0" doc="Sets the vertex buffers. Support @wis_must be queried from {DeviceBindingProperties::address_commands_supported} in order to be used. Always supported for DX12.">
+        <arg type="VertexBufferAddressDesc" name="buffers" mod="const,span" doc="The vertex buffers to set."/>
+        <arg type="size" name="buffer_count" doc="The number of vertex buffers to set."/>
+        <arg type="u32" name="start_slot" default="0" doc="The start slot to set the vertex buffers to. Default is 0."/>
+      </func>
+      <func for="CommandList" name="SetIndexBuffer" version="0.7.0" doc="Sets the index buffer.">
+        <arg type="IndexBufferDesc" name="buffer" mod="const,ptr" doc="The index buffer to set."/>
+        <arg type="IndexType" name="index_type" doc="Defines index type. Used to determine the size of each index in the buffer. Must be either {IndexType::UInt16} or {IndexType::UInt32}."/>
+      </func>
+      <func for="CommandList" name="SetIndexBuffer2" version="0.7.0" doc="Sets the index buffer. Support @wis_must be queried from {DeviceBindingProperties::address_commands_supported} in order to be used. Always supported for DX12.">
+        <arg type="IndexBufferAddressDesc" name="buffer" mod="const,ptr" doc="The index buffer to set."/>
+        <arg type="IndexType" name="index_type" doc="Defines index type. Used to determine the size of each index in the buffer. Must be either {IndexType::UInt16} or {IndexType::UInt32}."/>
+      </func>
 
       <!-- Pipeline Cache -->
       <func for="PipelineCache" name="Serialize" version="0.7.0" mod="const" doc="Gets the data from the pipeline cache.">
