@@ -1051,4 +1051,18 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListSetIndexBuffer2(
     impl.command_list_table->vkCmdBindIndexBuffer3KHR(impl.command_buffer, &bind_index_buffer_info);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisVKCommandListSetBlendFactors(
+    const WisVKCommandList* self,
+    float blend_factor_r,
+    float blend_factor_g,
+    float blend_factor_b,
+    float blend_factor_a
+)
+{
+    auto& impl = wis::from_handle_ref<const wis::impl::VKCommandListImpl>(self);
+    float blend_factors[4] = {blend_factor_r, blend_factor_g, blend_factor_b, blend_factor_a};
+    impl.command_list_table->vkCmdSetBlendConstants(impl.command_buffer, blend_factors);
+}
+
 #endif // WIS_VK_COMMAND_LIST_CPP

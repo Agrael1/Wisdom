@@ -1006,4 +1006,18 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetIndexBuffer2(
     impl.list->IASetIndexBuffer(&view);
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetBlendFactors(
+    const WisDX12CommandList* self,
+    float blend_factor_r,
+    float blend_factor_g,
+    float blend_factor_b,
+    float blend_factor_a
+)
+{
+    auto& impl = wis::from_handle_ref<const wis::impl::DX12CommandListImpl>(self);
+    float blend_factors[4] = {blend_factor_r, blend_factor_g, blend_factor_b, blend_factor_a};
+    impl.list->OMSetBlendFactor(blend_factors);
+}
+
 #endif // WIS_DX12_COMMAND_LIST_CPP

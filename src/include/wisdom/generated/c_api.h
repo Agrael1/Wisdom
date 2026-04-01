@@ -4065,6 +4065,24 @@ WISDOM_API void wisDX12CommandListSetIndexBuffer2(
 );
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Sets the blend factors for the command list, so they can be used for blending
+ * operations.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param blend_factor_r specifies blend factor for red color to set.
+ * @param blend_factor_g specifies blend factor for green color to set.
+ * @param blend_factor_b specifies blend factor for blue color to set.
+ * @param blend_factor_a specifies blend factor for alpha channel to set.
+ *
+ * */
+WISDOM_API void wisDX12CommandListSetBlendFactors(
+    const WisDX12CommandList* self,
+    float blend_factor_r,
+    float blend_factor_g,
+    float blend_factor_b,
+    float blend_factor_a
+);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Gets the data from the pipeline cache.
  * @param self is a pointer to the valid WisPipelineCache instance.
  * @param data points to an array that is filled with serialized cache data on success.
@@ -5680,6 +5698,24 @@ WISDOM_API void wisVKCommandListSetIndexBuffer2(
     WisVKCommandList* self,
     const WisIndexBufferAddressDesc* buffer,
     WisIndexType index_type
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the blend factors for the command list, so they can be used for blending
+ * operations.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param blend_factor_r specifies blend factor for red color to set.
+ * @param blend_factor_g specifies blend factor for green color to set.
+ * @param blend_factor_b specifies blend factor for blue color to set.
+ * @param blend_factor_a specifies blend factor for alpha channel to set.
+ *
+ * */
+WISDOM_API void wisVKCommandListSetBlendFactors(
+    const WisVKCommandList* self,
+    float blend_factor_r,
+    float blend_factor_g,
+    float blend_factor_b,
+    float blend_factor_a
 );
 
 /**

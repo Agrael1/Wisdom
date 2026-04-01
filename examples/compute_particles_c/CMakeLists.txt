@@ -1,11 +1,11 @@
 project(compute_particles_c-${POSTFIX})
 
-set(HEADERS sdl_platform.h)
-set(SOURCES entry_main.c sdl_platform.c)
+set(HEADERS)
+set(SOURCES entry_main.c)
 
 if(WISDOM_BUILD_STATIC)
   add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
-  target_link_libraries(${PROJECT_NAME} PUBLIC wis::wisdom wis::wisdom-platform SDL3::SDL3)
+  target_link_libraries(${PROJECT_NAME} PUBLIC wis::wisdom wis::wisdom-platform SDL3::SDL3 example_backend_c-${POSTFIX})
   set_target_properties(
     ${PROJECT_NAME} PROPERTIES C_STANDARD 11 RUNTIME_OUTPUT_DIRECTORY
                                              ${EXAMPLE_BIN_OUTPUT})
@@ -16,7 +16,7 @@ endif()
 
 if(WISDOM_BUILD_SHARED)
   add_executable(${PROJECT_NAME}-shared ${HEADERS} ${SOURCES})
-  target_link_libraries(${PROJECT_NAME}-shared PUBLIC wis::wisdom-shared wis::wisdom-platform-shared SDL3::SDL3)
+  target_link_libraries(${PROJECT_NAME}-shared PUBLIC wis::wisdom-shared wis::wisdom-platform-shared SDL3::SDL3 example_backend_c-${POSTFIX})
   set_target_properties(
     ${PROJECT_NAME}-shared PROPERTIES C_STANDARD 11 RUNTIME_OUTPUT_DIRECTORY
                                                     ${EXAMPLE_BIN_OUTPUT})
