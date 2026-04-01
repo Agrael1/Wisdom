@@ -3857,6 +3857,30 @@ public:
             static_cast<WisIndexType>(index_type)
         );
     }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Sets the blend factors for the command list, so they can be used for blending
+     * operations.
+     * @param blend_factor_r specifies blend factor for red color to set.
+     * @param blend_factor_g specifies blend factor for green color to set.
+     * @param blend_factor_b specifies blend factor for blue color to set.
+     * @param blend_factor_a specifies blend factor for alpha channel to set.
+     *
+     * */
+    inline void SetBlendFactors(
+        float blend_factor_r,
+        float blend_factor_g,
+        float blend_factor_b,
+        float blend_factor_a
+    ) const noexcept
+    {
+        ::wisDX12CommandListSetBlendFactors(
+            &_impl_storage,
+            blend_factor_r,
+            blend_factor_g,
+            blend_factor_b,
+            blend_factor_a
+        );
+    }
 };
 
 struct DX12CommandAllocatorDeleter {
@@ -5836,6 +5860,30 @@ public:
             &_impl_storage,
             reinterpret_cast<const WisIndexBufferAddressDesc*>(buffer),
             static_cast<WisIndexType>(index_type)
+        );
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Sets the blend factors for the command list, so they can be used for blending
+     * operations.
+     * @param blend_factor_r specifies blend factor for red color to set.
+     * @param blend_factor_g specifies blend factor for green color to set.
+     * @param blend_factor_b specifies blend factor for blue color to set.
+     * @param blend_factor_a specifies blend factor for alpha channel to set.
+     *
+     * */
+    inline void SetBlendFactors(
+        float blend_factor_r,
+        float blend_factor_g,
+        float blend_factor_b,
+        float blend_factor_a
+    ) const noexcept
+    {
+        ::wisVKCommandListSetBlendFactors(
+            &_impl_storage,
+            blend_factor_r,
+            blend_factor_g,
+            blend_factor_b,
+            blend_factor_a
         );
     }
 };

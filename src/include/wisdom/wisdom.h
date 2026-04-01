@@ -175,6 +175,7 @@ typedef struct WisDX12IndexBufferDesc WisIndexBufferDesc;
 #    define wisCommandListSetVertexBuffers2             wisDX12CommandListSetVertexBuffers2
 #    define wisCommandListSetIndexBuffer                wisDX12CommandListSetIndexBuffer
 #    define wisCommandListSetIndexBuffer2               wisDX12CommandListSetIndexBuffer2
+#    define wisCommandListSetBlendFactors               wisDX12CommandListSetBlendFactors
 #    define wisPipelineCacheSerialize                   wisDX12PipelineCacheSerialize
 #    define wisPipelineCacheGetSerializedSize           wisDX12PipelineCacheGetSerializedSize
 #    define wisSwapchainPresent                         wisDX12SwapchainPresent
@@ -341,6 +342,7 @@ typedef struct WisVKIndexBufferDesc WisIndexBufferDesc;
 #    define wisCommandListSetVertexBuffers2             wisVKCommandListSetVertexBuffers2
 #    define wisCommandListSetIndexBuffer                wisVKCommandListSetIndexBuffer
 #    define wisCommandListSetIndexBuffer2               wisVKCommandListSetIndexBuffer2
+#    define wisCommandListSetBlendFactors               wisVKCommandListSetBlendFactors
 #    define wisPipelineCacheSerialize                   wisVKPipelineCacheSerialize
 #    define wisPipelineCacheGetSerializedSize           wisVKPipelineCacheGetSerializedSize
 #    define wisSwapchainPresent                         wisVKSwapchainPresent

@@ -1,7 +1,12 @@
 #pragma once
+
 #include <wisdom/wisdom.h>
 
 #include <SDL3/SDL.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef enum SDLPlatformExtension {
     SDL_PLATFORM_EXTENSION_NONE = 0,
@@ -18,3 +23,7 @@ typedef struct SDLPlatform {
 SDLPlatform CreatePlatform();
 WisSurface CreateSurface(const SDLPlatform* platform, SDL_Window* window);
 void DestroyPlatform(SDLPlatform* platform);
+
+#ifdef __cplusplus
+}
+#endif

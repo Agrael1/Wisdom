@@ -457,6 +457,12 @@ If multiple viewports are used, SV_ViewportArrayIndex in geometry shader selects
         <arg type="IndexBufferAddressDesc" name="buffer" mod="const,ptr" doc="The index buffer to set."/>
         <arg type="IndexType" name="index_type" doc="Defines index type. Used to determine the size of each index in the buffer. Must be either {IndexType::UInt16} or {IndexType::UInt32}."/>
       </func>
+      <func for="CommandList" name="SetBlendFactors" version="0.7.0" mod="const" doc="Sets the blend factors for the command list, so they can be used for blending operations.">
+        <arg type="f32" name="blend_factor_r" doc="specifies blend factor for red color to set."/>
+        <arg type="f32" name="blend_factor_g" doc="specifies blend factor for green color to set."/>
+        <arg type="f32" name="blend_factor_b" doc="specifies blend factor for blue color to set."/>
+        <arg type="f32" name="blend_factor_a" doc="specifies blend factor for alpha channel to set."/>
+      </func>
 
       <!-- Pipeline Cache -->
       <func for="PipelineCache" name="Serialize" version="0.7.0" mod="const" doc="Gets the data from the pipeline cache.">

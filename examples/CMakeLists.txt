@@ -46,6 +46,7 @@ add_custom_target(
 
 include(cmake/deps.cmake)
 
-add_example_suite(test)
+add_example_suite(backend)
 add_example_suite(compute_particles_c)
+add_example_suite(hello_triangle)
 

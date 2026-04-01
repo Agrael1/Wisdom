@@ -741,6 +741,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(
                    : D3D12_PIPELINE_STATE_FLAG_NONE,
     };
 
+
+
     static constexpr size_t shader_stage_count = 5;
     const wis::detail::DX12ShaderHeader* shader_headers[shader_stage_count] = {
         std::bit_cast<const wis::detail::DX12ShaderHeader*>(desc->vertex_shader),
@@ -908,6 +910,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(
                  },
              .DepthBoundsTestEnable = ds.depth_bound_test}
         };
+    } else {
+        // Fix for depth stencil
+        CD3DX12_DEPTH_STENCIL_DESC2& ds = stream.depth_stencil;
+        ds.DepthEnable = false;
+        ds.StencilEnable = false;
     }
 
     //--Blend

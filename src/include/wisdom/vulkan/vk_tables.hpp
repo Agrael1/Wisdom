@@ -178,6 +178,7 @@ struct VKMainCommandList {
     PFN_vkCmdSetPrimitiveRestartEnable vkCmdSetPrimitiveRestartEnable;
     PFN_vkEndCommandBuffer vkEndCommandBuffer;
     PFN_vkFreeCommandBuffers vkFreeCommandBuffers;
+    PFN_vkCmdSetBlendConstants vkCmdSetBlendConstants;
 
     // Descriptor heap functions
     PFN_vkCmdBindResourceHeapEXT vkCmdBindResourceHeapEXT;
@@ -218,6 +219,7 @@ public:
         ASSIGN_DEVICE_PROC_ADDR_CHECK_VAR(device, vkCmdSetPrimitiveRestartEnable, "vkCmdSetPrimitiveRestartEnableEXT");
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkEndCommandBuffer);
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkFreeCommandBuffers);
+        ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkCmdSetBlendConstants);
 
         // Descriptor heap functions (optional, since support is not wide)
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkCmdBindResourceHeapEXT);

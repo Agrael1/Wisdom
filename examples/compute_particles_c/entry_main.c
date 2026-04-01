@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "sdl_platform.h"
+#include <sdl_backend_c.h>
 
 #define FRAMES_IN_FLIGHT 2
 #define SWAPCHAIN_FRAMES 3
