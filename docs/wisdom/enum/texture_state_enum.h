@@ -26,6 +26,8 @@
  *     WisTextureStateShadingRate = 12,
  *     WisTextureStateVideoDecodeRead = 13,
  *     WisTextureStateVideoDecodeWrite = 14,
+ *     WisTextureStateResolveDepthStensilDst = 15,
+ *     WisTextureStateResolveRenderTargetDst = 16,
  * } WisTextureState;
  * ```
  * C++ version:
@@ -49,6 +51,8 @@
  *     ShadingRate = 12,
  *     VideoDecodeRead = 13,
  *     VideoDecodeWrite = 14,
+ *     ResolveDepthStensilDst = 15,
+ *     ResolveRenderTargetDst = 16,
  * };
  * }
  * ```
@@ -78,6 +82,8 @@
  * - `WisTextureStateShadingRate = 12`: Shading Rate state. Used for Variable Shading Rate.
  * - `WisTextureStateVideoDecodeRead = 13`: Video Decode Read state.
  * - `WisTextureStateVideoDecodeWrite = 14`: Video Decode Write state.
+ * - `WisTextureStateResolveDepthStensilDst = 15`: Depth Stencil Resolve Destination state.
+ * - `WisTextureStateResolveRenderTargetDst = 16`: Render Target Resolve Destination state.
  * \endcond
  *
  *

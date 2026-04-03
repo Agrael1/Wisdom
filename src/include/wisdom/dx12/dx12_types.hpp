@@ -15,6 +15,7 @@ namespace wis {
 namespace detail {
 struct DX12DebugLayer;
 struct DX12ShaderHeader;
+struct DX12RenderTargetViewAuxData;
 } // namespace detail
 
 namespace impl {
@@ -60,7 +61,9 @@ struct DX12CommandListImpl {
     uint16_t sampler_size;
     WisCommandQueueType queue_type;
     mutable uint32_t scratch_memory_size;
+    mutable uint32_t rp_memory_size;
     mutable uint8_t* scratch_memory;
+    mutable D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS* render_pass_memory;
 };
 
 struct DX12FenceImpl {
@@ -70,6 +73,7 @@ struct DX12FenceImpl {
 
 struct DX12ResourceAllocatorImpl {
     D3D12MA::Allocator* allocator;
+    ID3D12Device10* device;
 };
 
 struct DX12RootSignatureImpl {
@@ -94,6 +98,8 @@ struct DX12ViewHeapImpl {
     uint32_t descriptor_size; // store descriptor size for heap type to avoid calling GetDescriptorHandleIncrementSize
     // every time we need it
     D3D12_DESCRIPTOR_HEAP_TYPE type;
+    uint32_t capacity = 0;
+    detail::DX12RenderTargetViewAuxData* aux_data; // Store auxiliary data for render target views
 };
 
 struct DX12BufferImpl {

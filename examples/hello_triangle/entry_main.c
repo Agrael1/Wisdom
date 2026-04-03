@@ -252,7 +252,7 @@ static bool init_app(HelloTriangleApp* app, SDL_Window* window)
         return false;
     }
 
-    result = wisDeviceCreateViewHeap(&app->device, WisViewHeapTypeRenderTarget, SWAPCHAIN_FRAMES, &app->rtv_heap);
+    result = wisDeviceCreateViewHeap(&app->device, WisViewHeapTypeRenderTarget, SWAPCHAIN_FRAMES, 0, &app->rtv_heap);
     if (!check_result(result, "wisDeviceCreateViewHeap")) {
         return false;
     }

@@ -10,6 +10,7 @@
 #include <string>
 #include <string_view>
 #include <vector>
+#include <thread>
 
 #include <sdl_backend_cpp.h>
 
@@ -30,6 +31,8 @@ struct HelloTriangleApp {
 
     wis::Swapchain swapchain{};
     wis::Texture swapchain_textures[SWAPCHAIN_FRAMES]{};
+    wis::Texture msaa_render_target[FRAMES_IN_FLIGHT];
+    wis::ResourceAllocator allocator{};
     wis::ViewHeap rtv_heap{};
     wis::DataFormat swapchain_format = wis::DataFormat::BGRA8Unorm;
 
@@ -101,16 +104,13 @@ static wis::Shader create_shader(const wis::Device* device, std::string_view bas
         return shader;
     }
 
-    std::vector<uint8_t> bytes{
-        std::istreambuf_iterator<char>{file},
-        std::istreambuf_iterator<char>{}
-    };
+    std::vector<uint8_t> bytes{std::istreambuf_iterator<char>{file}, std::istreambuf_iterator<char>{}};
     if (bytes.empty()) {
         return shader;
     }
 
     wis::Result result;
-    shader = device->CreateShader({ bytes.data(), bytes.size() }, result);
+    shader = device->CreateShader({bytes.data(), bytes.size()}, result);
     if (result.status == wis::Status::Ok) {
         return shader;
     }
@@ -139,7 +139,7 @@ static bool init_device(HelloTriangleApp* app, wis::Instance* instance, wis::Sur
     };
 
     wis::DeviceRequirements requirements{};
-    requirements.queue_descs = { queue_descs, 1 };
+    requirements.queue_descs = {queue_descs, 1};
 
     const size_t adapter_count = adapters.GetAdapterCount();
     for (size_t i = 0; i < adapter_count; ++i) {
@@ -158,7 +158,7 @@ static bool init_device(HelloTriangleApp* app, wis::Instance* instance, wis::Sur
 
 static bool refresh_swapchain_targets(HelloTriangleApp* app)
 {
-    auto result = app->swapchain.GetTextures({ app->swapchain_textures, SWAPCHAIN_FRAMES });
+    auto result = app->swapchain.GetTextures({app->swapchain_textures, SWAPCHAIN_FRAMES});
     if (!check_result(result, "Swapchain::GetTextures")) {
         return false;
     }
@@ -172,6 +172,31 @@ static bool refresh_swapchain_targets(HelloTriangleApp* app)
         std::ignore = app->rtv_heap.WriteRenderTarget(app->swapchain_textures[i], rtv_desc, i);
     }
 
+    // Create MSAA render targets
+    for (uint32_t i = 0; i < FRAMES_IN_FLIGHT; ++i) {
+        wis::TextureDesc msaa_desc = {
+            app->width,
+            app->height,
+            1,
+            1,
+            app->swapchain_format,
+            wis::SampleCount::S4,
+            wis::TextureLayout::Texture2DMS,
+            wis::TextureUsageFlags::RenderTarget,
+            wis::TextureFlags::None,
+            wis::MemoryType::Default,
+            wis::MemoryFlags::None
+        };
+        app->msaa_render_target[i] = app->allocator.CreateTexture(msaa_desc, result);
+
+        wis::RenderTargetDesc rtv_desc = {
+            .format = app->swapchain_format,
+            .layout = wis::TextureLayout::Texture2DMS,
+            .array_layer_count = 1,
+        };
+        std::ignore = app->rtv_heap.WriteRenderTarget(app->msaa_render_target[i], rtv_desc, SWAPCHAIN_FRAMES + i);
+    }
+
     return true;
 }
 
@@ -183,13 +208,13 @@ static bool init_app(HelloTriangleApp* app, SDL_Window* window)
     }
 
     wis::DebugDesc debug_desc = {
-        .enable_debug_layer = true,
+        .enable_debug_layer = false,
         .callback = log_callback,
     };
 
     wis::InstanceExtensionHeader* extensions[] = {platform.Extension()};
     wis::Result result;
-    wis::Instance instance = wis::CreateInstance(&debug_desc, wis::span{ extensions }, result);
+    wis::Instance instance = wis::CreateInstance(&debug_desc, wis::span{extensions}, result);
     if (!check_result(result, "CreateInstance")) {
         return false;
     }
@@ -199,17 +224,17 @@ static bool init_app(HelloTriangleApp* app, SDL_Window* window)
         return false;
     }
 
+    app->allocator = app->device.GetResourceAllocator(result);
+    if (!check_result(result, "Device::GetResourceAllocator")) {
+        return false;
+    }
+
     app->queue = app->device.CreateCommandQueue(wis::CommandQueueType::Graphics, result);
     if (!check_result(result, "Device::CreateCommandQueue")) {
         return false;
     }
 
-    app->swapchain_format = app->device.GetFormatPresentationSupport(
-                                surface.GetView(),
-                                wis::DataFormat::RGB10A2Unorm
-                            )
-                              ? wis::DataFormat::RGB10A2Unorm
-                              : wis::DataFormat::BGRA8Unorm;
+    app->swapchain_format = wis::DataFormat::BGRA8Unorm;
 
     wis::SwapchainDesc swapchain_desc = {
         .width = app->width,
@@ -232,7 +257,12 @@ static bool init_app(HelloTriangleApp* app, SDL_Window* window)
         return false;
     }
 
-    app->rtv_heap = app->device.CreateViewHeap(wis::ViewHeapType::RenderTarget, SWAPCHAIN_FRAMES, {}, result);
+    app->rtv_heap = app->device.CreateViewHeap(
+        wis::ViewHeapType::RenderTarget,
+        SWAPCHAIN_FRAMES * 2,
+        wis::ViewHeapFlags::AllowMutisample,
+        result
+    );
     if (!check_result(result, "Device::CreateViewHeap")) {
         return false;
     }
@@ -260,7 +290,7 @@ static bool init_app(HelloTriangleApp* app, SDL_Window* window)
     push_constant.size_bytes = 16;
 
     wis::RootSignatureDesc root_signature_desc{};
-    root_signature_desc.push_constants = { &push_constant, 1 };
+    root_signature_desc.push_constants = {&push_constant, 1};
 
     app->root_signature = app->device.CreateRootSignature(root_signature_desc, result);
     if (!check_result(result, "Device::CreateRootSignature")) {
@@ -281,6 +311,11 @@ static bool init_app(HelloTriangleApp* app, SDL_Window* window)
         .depth_clip_enable = true,
     };
 
+    wis::SampleDesc sample_desc = {
+        .rate = wis::SampleCount::S4,
+        .sample_mask = 0xFFFFFFFF,
+    };
+
     wis::GraphicsPipelineDesc pipeline_desc = {
         .root_signature = app->root_signature.GetView(),
         .vertex_shader = vertex_shader.GetView(),
@@ -288,6 +323,7 @@ static bool init_app(HelloTriangleApp* app, SDL_Window* window)
         .render_attachments = attachments,
         .topology_type = wis::TopologyType::Triangle,
         .rasterizer_desc = &rasterizer,
+        .sample_desc = &sample_desc,
         .flags = wis::PipelineFlags::None,
     };
 
@@ -331,7 +367,6 @@ static void draw_frame(HelloTriangleApp* app, float angle)
     if (frame->fence_value > 0 && app->fence.GetCompletedValue() < frame->fence_value) {
         result = app->fence.Wait(frame->fence_value, UINT64_MAX);
     }
-
     result = frame->command_allocator.Reset();
 
     uint32_t swapchain_index = app->swapchain.GetCurrentIndex(result);
@@ -340,36 +375,57 @@ static void draw_frame(HelloTriangleApp* app, float angle)
     }
 
     wis::Texture& target_texture = app->swapchain_textures[swapchain_index];
+    wis::Texture& msaa_texture = app->msaa_render_target[app->frame_index];
+
     uint64_t target_rtv = app->rtv_heap.GetViewAddress(swapchain_index);
+    uint64_t msaa_rtv = app->rtv_heap.GetViewAddress(SWAPCHAIN_FRAMES + app->frame_index);
 
-    wis::TextureBarrier barriers[2]{};
-    barriers[0].sync_before = wis::BarrierSync::None;
-    barriers[0].sync_after = wis::BarrierSync::RenderTarget;
-    barriers[0].access_before = wis::ResourceAccess::None;
-    barriers[0].access_after = wis::ResourceAccess::RenderTarget;
-    barriers[0].state_before = wis::TextureState::Undefined;
-    barriers[0].state_after = wis::TextureState::RenderTarget;
-    barriers[0].flags = wis::BarrierFlags::DiscardContent;
-    barriers[0].texture = target_texture.GetView();
-    barriers[0].subresource_range = {0, 1, 0, 1, 0, 1};
-    barriers[0].queue_type_before = wis::CommandQueueType::Graphics;
-    barriers[0].queue_type_after = wis::CommandQueueType::Graphics;
+    wis::TextureBarrier barriers[3]{};
+    barriers[0] = {
+        .sync_before = wis::BarrierSync::None,
+        .sync_after = wis::BarrierSync::RenderTarget,
+        .access_before = wis::ResourceAccess::None,
+        .access_after = wis::ResourceAccess::RenderTarget,
+        .state_before = wis::TextureState::Undefined,
+        .state_after = wis::TextureState::RenderTarget,
+        .flags = wis::BarrierFlags::DiscardContent,
+        .texture = msaa_texture.GetView(),
+        .subresource_range = {0, 1, 0, 1, 0, 1},
+        .queue_type_before = wis::CommandQueueType::Graphics,
+        .queue_type_after = wis::CommandQueueType::Graphics,
+    };
 
-    barriers[1].sync_before = wis::BarrierSync::RenderTarget;
-    barriers[1].sync_after = wis::BarrierSync::None;
-    barriers[1].access_before = wis::ResourceAccess::RenderTarget;
-    barriers[1].access_after = wis::ResourceAccess::None;
-    barriers[1].state_before = wis::TextureState::RenderTarget;
-    barriers[1].state_after = wis::TextureState::Present;
-    barriers[1].texture = target_texture.GetView();
-    barriers[1].subresource_range = {0, 1, 0, 1, 0, 1};
-    barriers[1].queue_type_before = wis::CommandQueueType::Graphics;
-    barriers[1].queue_type_after = wis::CommandQueueType::Graphics;
+    barriers[1] = {
+        .sync_before = wis::BarrierSync::None,
+        .sync_after = wis::BarrierSync::Resolve,
+        .access_before = wis::ResourceAccess::None,
+        .access_after = wis::ResourceAccess::ResolveDst,
+        .state_before = wis::TextureState::Undefined,
+        .state_after = wis::TextureState::ResolveRenderTargetDst,
+        .flags = wis::BarrierFlags::DiscardContent,
+        .texture = target_texture.GetView(),
+        .subresource_range = {0, 1, 0, 1, 0, 1},
+        .queue_type_before = wis::CommandQueueType::Graphics,
+        .queue_type_after = wis::CommandQueueType::Graphics,
+    };
+
+    barriers[2] = {
+        .sync_before = wis::BarrierSync::Resolve,
+        .sync_after = wis::BarrierSync::None,
+        .access_before = wis::ResourceAccess::ResolveDst,
+        .access_after = wis::ResourceAccess::None,
+        .state_before = wis::TextureState::ResolveRenderTargetDst,
+        .state_after = wis::TextureState::Present,
+        .texture = target_texture.GetView(),
+        .subresource_range = {0, 1, 0, 1, 0, 1},
+        .queue_type_before = wis::CommandQueueType::Graphics,
+        .queue_type_after = wis::CommandQueueType::Graphics,
+    };
 
     wis::BarrierGroup pre_barrier{};
-    pre_barrier.texture_barriers = { barriers, 1 };
+    pre_barrier.texture_barriers = {barriers, 2};
     wis::BarrierGroup post_barrier{};
-    post_barrier.texture_barriers = { barriers + 1, 1 };
+    post_barrier.texture_barriers = {barriers + 2, 1};
 
     wis::Viewport viewport = {
         .width = (float)app->width,
@@ -385,7 +441,7 @@ static void draw_frame(HelloTriangleApp* app, float angle)
         .height = app->height,
     };
 
-    const float push_data[4] = { std::cos(angle), std::sin(angle), 0.0f, 0.0f };
+    const float push_data[4] = {std::cos(angle), std::sin(angle), 0.0f, 0.0f};
     wis::PushConstantDataDesc push_constant = {
         .pipeline = wis::PipelineType::Graphics,
         .root_index = 0,
@@ -394,27 +450,44 @@ static void draw_frame(HelloTriangleApp* app, float angle)
         .push_offset = 0,
     };
 
-    wis::RenderPassDesc render_pass{};
-    render_pass.render_targets[0] = {
+    wis::RenderPassDesc render_pass{
+        .flags = wis::RenderPassFlags::None,
+        .render_targets = {{{
             .target = target_rtv,
             .load_op = wis::LoadOp::Clear,
             .store_op = wis::StoreOp::Store,
             .clear_value = {0.1f, 0.1f, 0.15f, 1.0f},
+        }}},
+        .render_target_count = 1,
     };
-    render_pass.render_target_count = 1;
-    render_pass.flags = wis::RenderPassFlags::None;
+
+    wis::ResolveDesc resolve_desc = {.resolve_target = target_rtv, .mode = wis::ResolveMode::Average};
+    wis::RenderPassDesc render_pass2{
+        .flags = wis::RenderPassFlags::None,
+        .render_targets = {{{
+            .target = msaa_rtv,
+            .load_op = wis::LoadOp::Clear,
+            .store_op = wis::StoreOp::DontCare,
+            .clear_value = {0.1f, 0.1f, 0.15f, 1.0f},
+            .resolve_desc = &resolve_desc,
+        }}},
+        .render_target_count = 1,
+    };
 
     result = frame->command_list.Begin();
     frame->command_list.InsertBarriers(pre_barrier);
     frame->command_list.SetRootSignature(app->root_signature.GetView(), wis::PipelineType::Graphics);
     frame->command_list.SetPipeline(app->pipeline.GetView(), wis::PipelineType::Graphics);
     frame->command_list.SetPushConstants(push_constant);
-    frame->command_list.SetViewports({ &viewport, 1 });
-    frame->command_list.SetScissors({ &scissor, 1 });
+    frame->command_list.SetViewports({&viewport, 1});
+    frame->command_list.SetScissors({&scissor, 1});
     frame->command_list.SetPrimitiveTopology(wis::PrimitiveTopology::TriangleList);
-    frame->command_list.BeginRenderPass(render_pass);
+
+    // MSAA debug
+    frame->command_list.BeginRenderPass(render_pass2);
     frame->command_list.Draw(3, 1, 0, 0);
     frame->command_list.EndRenderPass();
+
     frame->command_list.InsertBarriers(post_barrier);
     result = frame->command_list.End();
 

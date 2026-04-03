@@ -403,6 +403,10 @@ constexpr inline VkImageLayout VKConvert(WisTextureState value) noexcept
         return VK_IMAGE_LAYOUT_VIDEO_DECODE_SRC_KHR;
     case WisTextureStateVideoDecodeWrite:
         return VK_IMAGE_LAYOUT_VIDEO_DECODE_DST_KHR;
+    case WisTextureStateResolveDepthStensilDst:
+        return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+    case WisTextureStateResolveRenderTargetDst:
+        return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
     default:
         return static_cast<VkImageLayout>(0);
     }
@@ -677,6 +681,20 @@ constexpr inline VkAttachmentStoreOp VKConvert(WisStoreOp value) noexcept
         return VK_ATTACHMENT_STORE_OP_DONT_CARE;
     default:
         return static_cast<VkAttachmentStoreOp>(0);
+    }
+}
+
+constexpr inline VkResolveModeFlagBits VKConvert(WisResolveMode value) noexcept
+{
+    switch (value) {
+    case WisResolveModeAverage:
+        return VK_RESOLVE_MODE_AVERAGE_BIT;
+    case WisResolveModeMin:
+        return VK_RESOLVE_MODE_MIN_BIT;
+    case WisResolveModeMax:
+        return VK_RESOLVE_MODE_MAX_BIT;
+    default:
+        return static_cast<VkResolveModeFlagBits>(0);
     }
 }
 

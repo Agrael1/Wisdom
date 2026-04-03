@@ -426,9 +426,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateViewHeap(
     const WisVKDevice* self,
     WisViewHeapType type,
     uint32_t capacity,
+    WisViewHeapFlags flags,
     WisVKViewHeap* heap
 )
 {
+    (void)flags;
     auto& device = *wis::from_handle<const wis::impl::VKDeviceImpl>(self);
     wis::detail::VKRenderTargetView* view_heap = new (std::nothrow) wis::detail::VKRenderTargetView[capacity]{};
     if (!view_heap) {
@@ -1821,6 +1823,82 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateSwapchain(
             make_result<wis::detail::Func(), "Failed to acquire next image for the swapchain after creation">(vr);
     }
 
+    return wis::detail::vk_success;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceGetFormatProperties(
+    const WisVKDevice* self,
+    WisDataFormat format,
+    WisFormatProperties* properties
+)
+{
+    auto& device = wis::from_handle_ref<const wis::impl::VKDeviceImpl>(self);
+    auto atable = device.device_header->header.shared_header->header.adapter_table;
+
+    VkFormat vk_format = wis::detail::VKConvert(format);
+    VkFormatProperties format_props;
+    atable.vkGetPhysicalDeviceFormatProperties(device.physical_device, vk_format, &format_props);
+
+    uint32_t support_flags = 0;
+    VkFormatFeatureFlags features = format_props.optimalTilingFeatures;
+
+    VkFormatFeatureFlags buffer_features = format_props.bufferFeatures;
+    if (buffer_features & VK_FORMAT_FEATURE_VERTEX_BUFFER_BIT) support_flags |= WisFormatSupportFlagsVertexBuffer;
+    if (buffer_features != 0) support_flags |= WisFormatSupportFlagsBuffer;
+
+    if (features & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) {
+        support_flags |= WisFormatSupportFlagsShaderResource | WisFormatSupportFlagsTexture1D | 
+                         WisFormatSupportFlagsTexture2D | WisFormatSupportFlagsTexture3D | WisFormatSupportFlagsTextureCube;
+    }
+    if (features & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) support_flags |= WisFormatSupportFlagsRenderTarget;
+    if (features & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) support_flags |= WisFormatSupportFlagsDepthStencil;
+    if (features & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BLEND_BIT) support_flags |= WisFormatSupportFlagsBlendable;
+    if (features & VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT) support_flags |= WisFormatSupportFlagsUnorderedAccess;
+
+    VkSampleCountFlags sample_counts = 0;
+    if (features & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) {
+        VkImageFormatProperties image_props{};
+        if (wis::detail::succeeded(atable.vkGetPhysicalDeviceImageFormatProperties(
+                device.physical_device, vk_format, VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, 
+                VK_IMAGE_USAGE_SAMPLED_BIT, 0, &image_props))) {
+            sample_counts |= image_props.sampleCounts;
+        }
+    }
+    if (features & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) {
+        VkImageFormatProperties image_props{};
+        if (wis::detail::succeeded(atable.vkGetPhysicalDeviceImageFormatProperties(
+                device.physical_device, vk_format, VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, 
+                VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, 0, &image_props))) {
+            sample_counts |= image_props.sampleCounts;
+        }
+    }
+    if (features & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
+        VkImageFormatProperties image_props{};
+        if (wis::detail::succeeded(atable.vkGetPhysicalDeviceImageFormatProperties(
+                device.physical_device, vk_format, VK_IMAGE_TYPE_2D, VK_IMAGE_TILING_OPTIMAL, 
+                VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, 0, &image_props))) {
+            sample_counts |= image_props.sampleCounts;
+        }
+    }
+
+    WisSampleCount max_sample_count = WisSampleCountS1;
+    if (sample_counts & VK_SAMPLE_COUNT_16_BIT) max_sample_count = WisSampleCountS16;
+    else if (sample_counts & VK_SAMPLE_COUNT_8_BIT) max_sample_count = WisSampleCountS8;
+    else if (sample_counts & VK_SAMPLE_COUNT_4_BIT) max_sample_count = WisSampleCountS4;
+    else if (sample_counts & VK_SAMPLE_COUNT_2_BIT) max_sample_count = WisSampleCountS2;
+
+    if (max_sample_count > WisSampleCountS1) {
+        if (features & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT || features & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
+            support_flags |= WisFormatSupportFlagsMultisampleRenderTarget;
+        }
+        support_flags |= WisFormatSupportFlagsMultisampleResolve;
+    }
+
+    *properties = WisFormatProperties{
+        .format_support_flags = static_cast<WisFormatSupportFlags>(support_flags),
+        .max_sample_count = max_sample_count
+    };
     return wis::detail::vk_success;
 }
 

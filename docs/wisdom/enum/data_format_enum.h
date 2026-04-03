@@ -482,6 +482,6 @@
  * @see Structs:
  * WisTextureDesc, WisTextureBinding, WisInputAttributeDesc, WisRenderAttachmentsDesc, WisRenderTargetDesc, WisSwapchainDesc, WisSwapchainUpdateDesc
  * Functions:
- * wisDeviceGetFormatPresentationSupport
+ * wisDeviceGetFormatPresentationSupport, wisDeviceGetFormatProperties
  * \endcond
  */

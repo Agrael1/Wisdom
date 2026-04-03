@@ -11,14 +11,16 @@
  * ```c
  * // Provided by Wisdom 0.7.0. 
  * typedef struct  WisRenderPassDepthStencilDesc {
- *     uint64_t             target;
- *     WisLoadOp            load_op_depth;
- *     WisLoadOp            load_op_stencil;
- *     WisStoreOp           store_op_depth;
- *     WisStoreOp           store_op_stencil;
- *     WisDepthStencilFlags flags;
- *     float                clear_depth;
- *     uint8_t              clear_stencil;
+ *     uint64_t              target;
+ *     WisLoadOp             load_op_depth;
+ *     WisLoadOp             load_op_stencil;
+ *     WisStoreOp            store_op_depth;
+ *     WisStoreOp            store_op_stencil;
+ *     WisDepthStencilFlags  flags;
+ *     float                 clear_depth;
+ *     uint8_t               clear_stencil;
+ *     const WisResolveDesc* resolve_depth_desc;
+ *     const WisResolveDesc* resolve_stencil_desc;
  * } WisRenderPassDepthStencilDesc;
  * 
  * ```
@@ -27,14 +29,16 @@
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
  * struct  RenderPassDepthStencilDesc {
- *     std::uint64_t          target;
- *     wis::LoadOp            load_op_depth;
- *     wis::LoadOp            load_op_stencil;
- *     wis::StoreOp           store_op_depth;
- *     wis::StoreOp           store_op_stencil;
- *     wis::DepthStencilFlags flags;
- *     float                  clear_depth;
- *     std::uint8_t           clear_stencil;
+ *     std::uint64_t           target;
+ *     wis::LoadOp             load_op_depth;
+ *     wis::LoadOp             load_op_stencil;
+ *     wis::StoreOp            store_op_depth;
+ *     wis::StoreOp            store_op_stencil;
+ *     wis::DepthStencilFlags  flags;
+ *     float                   clear_depth;
+ *     std::uint8_t            clear_stencil;
+ *     const wis::ResolveDesc* resolve_depth_desc;
+ *     const wis::ResolveDesc* resolve_stencil_desc;
  * };
  * }
  * ```
@@ -51,6 +55,8 @@
  * - `flags` describes depth stencil select.
  * - `clear_depth` indicates clear depth value for `WisLoadOpClear`. Default is 1.0f.
  * - `clear_stencil` defines clear stencil value for `WisLoadOpClear`. Default is 0.
+ * - `resolve_depth_desc` describes resolve parameters for multisampled depth.
+ * - `resolve_stencil_desc` describes resolve parameters for multisampled stencil.
  * \endcond
  *
  * @section WisRenderPassDepthStencilDesc_descr Description

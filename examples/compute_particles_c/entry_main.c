@@ -537,7 +537,7 @@ void InitRenderer(BasicRenderer* renderer, SDL_Window* window)
         result.error ? result.error : "None"
     );
 
-    result = wisDeviceCreateViewHeap(&renderer->device, WisViewHeapTypeRenderTarget, 10, &renderer->rtv_heap);
+    result = wisDeviceCreateViewHeap(&renderer->device, WisViewHeapTypeRenderTarget, 10, 0, &renderer->rtv_heap);
     printf(
         "CreateViewHeap result: %d, platform_code: %d, error: %s\n",
         result.status,
@@ -546,7 +546,7 @@ void InitRenderer(BasicRenderer* renderer, SDL_Window* window)
     );
 
     // Depth view heap
-    result = wisDeviceCreateViewHeap(&renderer->device, WisViewHeapTypeDepthStencil, 10, &renderer->dsv_heap);
+    result = wisDeviceCreateViewHeap(&renderer->device, WisViewHeapTypeDepthStencil, 10, 0, &renderer->dsv_heap);
     printf(
         "CreateViewHeap (DSV) result: %d, platform_code: %d, error: %s\n",
         result.status,

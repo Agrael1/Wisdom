@@ -16,7 +16,7 @@
  *  DX12 Version:
  * ```c
  * // Provided by Wisdom 0.7.0. 
- * WIS_DEFINE_HANDLE(WisDX12CommandList,7);
+ * WIS_DEFINE_HANDLE(WisDX12CommandList,8);
  * WIS_DEFINE_HANDLE_VIEW(WisDX12CommandList,1);
  * ```
  * \endcond

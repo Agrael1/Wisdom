@@ -959,6 +959,8 @@ typedef enum WisTextureState {
     WisTextureStateShadingRate = 12, ///< Shading Rate state. Used for Variable Shading Rate.
     WisTextureStateVideoDecodeRead = 13, ///< Video Decode Read state.
     WisTextureStateVideoDecodeWrite = 14, ///< Video Decode Write state.
+    WisTextureStateResolveDepthStensilDst = 15, ///< Depth Stencil Resolve Destination state.
+    WisTextureStateResolveRenderTargetDst = 16, ///< Render Target Resolve Destination state.
 } WisTextureState;
 
 /**
@@ -1195,6 +1197,17 @@ typedef enum WisStoreOp {
     WisStoreOpStore = 0, ///< Store the attachment contents.
     WisStoreOpDontCare = 1, ///< Do not care about the attachment contents.
 } WisStoreOp;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Resolve mode used for multisample resolve in render pass attachments.
+ *
+ * */
+typedef enum WisResolveMode {
+    WisResolveModeNone = 0, ///< Do not resolve the attachment.
+    WisResolveModeAverage = 1, ///< Resolve by averaging samples.
+    WisResolveModeMin = 2, ///< Resolve by selecting minimum sample value.
+    WisResolveModeMax = 3, ///< Resolve by selecting maximum sample value.
+} WisResolveMode;
 
 /**
  * @brief Provided by Wisdom 0.7.0. Index type for index buffer.
@@ -1525,6 +1538,41 @@ typedef enum WisDepthStencilFlags {
      * */
     WisDepthStencilFlagsReadOnlyStencil = (1u << 3),
 } WisDepthStencilFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. View heap creation flags.
+ *
+ * */
+typedef enum WisViewHeapFlags {
+    WisViewHeapFlagsNone = 0, ///< No flags set. View heap is regular.
+    /**
+     * @brief Shader visible view heap. If set, the view heap is visible to shaders and can be used for descriptor
+     * tables. If not set, the view heap is not visible to shaders and cannot be used for descriptor tables.
+     * */
+    WisViewHeapFlagsAllowMutisample = (1u << 0),
+} WisViewHeapFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Format support flags.
+ * Indicates what features are supported for a specific format.
+ *
+ * */
+typedef enum WisFormatSupportFlags {
+    WisFormatSupportFlagsNone = 0, ///< No features supported.
+    WisFormatSupportFlagsBuffer = (1u << 0), ///< Format can be used for buffers.
+    WisFormatSupportFlagsVertexBuffer = (1u << 1), ///< Format can be used for vertex buffers.
+    WisFormatSupportFlagsTexture1D = (1u << 2), ///< Format can be used for 1D textures.
+    WisFormatSupportFlagsTexture2D = (1u << 3), ///< Format can be used for 2D textures.
+    WisFormatSupportFlagsTexture3D = (1u << 4), ///< Format can be used for 3D textures.
+    WisFormatSupportFlagsTextureCube = (1u << 5), ///< Format can be used for cube textures.
+    WisFormatSupportFlagsRenderTarget = (1u << 6), ///< Format can be used for render targets.
+    WisFormatSupportFlagsDepthStencil = (1u << 7), ///< Format can be used for depth stencil.
+    WisFormatSupportFlagsBlendable = (1u << 8), ///< Format supports blending.
+    WisFormatSupportFlagsMultisampleRenderTarget = (1u << 9), ///< Format supports multisampled render targets.
+    WisFormatSupportFlagsMultisampleResolve = (1u << 10), ///< Format supports multisample resolve.
+    WisFormatSupportFlagsShaderResource = (1u << 11), ///< Format can be used for shader resource.
+    WisFormatSupportFlagsUnorderedAccess = (1u << 12), ///< Format can be used for unordered access.
+} WisFormatSupportFlags;
 
 //==============================================================
 // Delegates
@@ -2188,14 +2236,32 @@ typedef struct WisSwapchainUpdateDesc {
 } WisSwapchainUpdateDesc;
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Resolve description for .
+ *
+ * */
+typedef struct WisResolveDesc {
+    /**
+     * @brief specifies resolve target view for multisampled render target; it @wis_must reside on WisViewHeap which was
+     * allocated with allow_multisample. If the render target is multisampled and resolve_target is set to 0. `target`
+     * @wis_must also reside on WisViewHeap which was allocated with allow_multisample.
+     * */
+    uint64_t resolve_target;
+    WisResolveMode mode; ///< defines resolve mode. Default is `WisResolveModeAverage`.
+} WisResolveDesc;
+
+/**
  * @brief Provided by Wisdom 0.7.0. Description for render target.
  *
  * */
 typedef struct WisRenderPassRenderTargetDesc {
     uint64_t target; ///< indicates render target view; it @wis_must reside on WisViewHeap.
-    WisLoadOp load_op; ///< specifies load operation on beginning of render pass. Default is `WisLoadOpLoad`.
+    /**
+     * @brief specifies load operation on beginning of render pass. Default is `WisLoadOpLoad`.
+     * */
+    WisLoadOp load_op;
     WisStoreOp store_op; ///< indicates store operation on end of render pass. Default is `WisStoreOpStore`.
     float clear_value[4]; ///< indicates clear value for `WisLoadOpClear`.
+    const WisResolveDesc* resolve_desc; ///< describes resolve parameters for multisampled render target.
 } WisRenderPassRenderTargetDesc;
 
 /**
@@ -2223,6 +2289,8 @@ typedef struct WisRenderPassDepthStencilDesc {
     WisDepthStencilFlags flags; ///< describes depth stencil select.
     float clear_depth; ///< indicates clear depth value for `WisLoadOpClear`. Default is 1.0f.
     uint8_t clear_stencil; ///< defines clear stencil value for `WisLoadOpClear`. Default is 0.
+    const WisResolveDesc* resolve_depth_desc; ///< describes resolve parameters for multisampled depth.
+    const WisResolveDesc* resolve_stencil_desc; ///< describes resolve parameters for multisampled stencil.
 } WisRenderPassDepthStencilDesc;
 
 /**
@@ -2387,6 +2455,16 @@ typedef struct WisDeviceDescriptorHeapProperties {
      * stencil view descriptor offsets.
      * */
     uint32_t depth_stencil_increment_size;
+    /**
+     * @brief defines size of a single render target view descriptor in the descriptor heap with multisample targets
+     * enabled. Used for calculating render target view descriptor offsets.
+     * */
+    uint32_t render_target_with_ms_increment_size;
+    /**
+     * @brief defines size of a single depth stencil view descriptor in the descriptor heap with multisample targets
+     * enabled. Used for calculating depth stencil view descriptor offsets.
+     * */
+    uint32_t depth_stencil_with_ms_increment_size;
 } WisDeviceDescriptorHeapProperties;
 
 /**
@@ -2447,6 +2525,20 @@ typedef struct WisDeviceMemoryProperties {
      * */
     uint32_t supported_initial_transitions;
 } WisDeviceMemoryProperties;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Data format properties. Used to query support and capabilities of specific data
+ * formats.
+ *
+ * */
+typedef struct WisFormatProperties {
+    WisFormatSupportFlags format_support_flags; ///< specifies bitmask of supported features for the format.
+    /**
+     * @brief defines maximum supported sample count for the format. If the format does not support multisampling, the
+     * value is `S1`.
+     * */
+    WisSampleCount max_sample_count;
+} WisFormatProperties;
 
 //==============================================================
 // Constants
@@ -2555,7 +2647,7 @@ static inline WisDX12SurfaceView wisGetDX12SurfaceView(const WisDX12Surface* han
  * @brief Provided by Wisdom 0.7.0. Class representing a storage for resource views used in contiguous array.
  *
  * */
-WIS_DEFINE_HANDLE(WisDX12ViewHeap, 4);
+WIS_DEFINE_HANDLE(WisDX12ViewHeap, 6);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a GPU pipeline state object, which encapsulates the state of the
@@ -2627,7 +2719,7 @@ static inline WisDX12RootSignatureView wisGetDX12RootSignatureView(const WisDX12
  * @brief Provided by Wisdom 0.7.0. Class for allocating and managing GPU resources like buffers and textures.
  *
  * */
-WIS_DEFINE_HANDLE(WisDX12ResourceAllocator, 1);
+WIS_DEFINE_HANDLE(WisDX12ResourceAllocator, 2);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a fence for GPU-CPU and GPU-GPU synchronization.
@@ -2647,7 +2739,7 @@ static inline WisDX12FenceView wisGetDX12FenceView(const WisDX12Fence* handle)
  * @brief Provided by Wisdom 0.7.0. Class representing a command list for recording GPU commands.
  *
  * */
-WIS_DEFINE_HANDLE(WisDX12CommandList, 7);
+WIS_DEFINE_HANDLE(WisDX12CommandList, 8);
 WIS_DEFINE_HANDLE_VIEW(WisDX12CommandList, 1);
 
 static inline WisDX12CommandListView wisGetDX12CommandListView(const WisDX12CommandList* handle)
@@ -3208,6 +3300,7 @@ WISDOM_API WisResult wisDX12DeviceCreateDescriptorHeap(
  * @param self is a pointer to the valid WisDevice instance.
  * @param type specifies the type of the view heap to create.
  * @param capacity specifies the capacity in descriptors of the view heap to create.
+ * @param flags specifies additional flags for the view heap to create.
  * @param heap points to WisViewHeap, which is initialized on success.
  * @return Result denoting the outcome of operation.
  *
@@ -3216,6 +3309,7 @@ WISDOM_API WisResult wisDX12DeviceCreateViewHeap(
     const WisDX12Device* self,
     WisViewHeapType type,
     uint32_t capacity,
+    WisViewHeapFlags flags,
     WisDX12ViewHeap* heap
 );
 
@@ -3356,6 +3450,20 @@ WISDOM_API WisResult wisDX12DeviceCreateSwapchain(
     const WisDX12CommandQueue* queue,
     const WisSwapchainDesc* desc,
     WisDX12Swapchain* swapchain
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Gets properties of the format.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param format describes the format to get properties for.
+ * @param properties Properties of the format.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DeviceGetFormatProperties(
+    const WisDX12Device* self,
+    WisDataFormat format,
+    WisFormatProperties* properties
 );
 
 /**
@@ -4858,6 +4966,7 @@ WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(
  * @param self is a pointer to the valid WisDevice instance.
  * @param type specifies the type of the view heap to create.
  * @param capacity specifies the capacity in descriptors of the view heap to create.
+ * @param flags specifies additional flags for the view heap to create.
  * @param heap points to WisViewHeap, which is initialized on success.
  * @return Result denoting the outcome of operation.
  *
@@ -4866,6 +4975,7 @@ WISDOM_API WisResult wisVKDeviceCreateViewHeap(
     const WisVKDevice* self,
     WisViewHeapType type,
     uint32_t capacity,
+    WisViewHeapFlags flags,
     WisVKViewHeap* heap
 );
 
@@ -5006,6 +5116,20 @@ WISDOM_API WisResult wisVKDeviceCreateSwapchain(
     const WisVKCommandQueue* queue,
     const WisSwapchainDesc* desc,
     WisVKSwapchain* swapchain
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Gets properties of the format.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param format describes the format to get properties for.
+ * @param properties Properties of the format.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKDeviceGetFormatProperties(
+    const WisVKDevice* self,
+    WisDataFormat format,
+    WisFormatProperties* properties
 );
 
 /**

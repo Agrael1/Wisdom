@@ -121,6 +121,7 @@ typedef struct WisDX12IndexBufferDesc WisIndexBufferDesc;
 #    define wisDeviceGetFormatPresentationSupport       wisDX12DeviceGetFormatPresentationSupport
 #    define wisDeviceGetSurfaceParameters               wisDX12DeviceGetSurfaceParameters
 #    define wisDeviceCreateSwapchain                    wisDX12DeviceCreateSwapchain
+#    define wisDeviceGetFormatProperties                wisDX12DeviceGetFormatProperties
 #    define wisFenceGetCompletedValue                   wisDX12FenceGetCompletedValue
 #    define wisFenceWait                                wisDX12FenceWait
 #    define wisFenceSignal                              wisDX12FenceSignal
@@ -288,6 +289,7 @@ typedef struct WisVKIndexBufferDesc WisIndexBufferDesc;
 #    define wisDeviceGetFormatPresentationSupport       wisVKDeviceGetFormatPresentationSupport
 #    define wisDeviceGetSurfaceParameters               wisVKDeviceGetSurfaceParameters
 #    define wisDeviceCreateSwapchain                    wisVKDeviceCreateSwapchain
+#    define wisDeviceGetFormatProperties                wisVKDeviceGetFormatProperties
 #    define wisFenceGetCompletedValue                   wisVKFenceGetCompletedValue
 #    define wisFenceWait                                wisVKFenceWait
 #    define wisFenceSignal                              wisVKFenceSignal

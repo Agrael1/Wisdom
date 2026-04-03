@@ -1,12 +1,14 @@
 #ifndef WIS_DX12_COMMAND_LIST_CPP
 #define WIS_DX12_COMMAND_LIST_CPP
 
+#include <wisdom/dx12/detail/dx12_detail.hpp>
 #include <wisdom/dx12/detail/dx12_utils.hpp>
 #include <wisdom/generated/cpp_api.hpp>
 #include <wisdom/generated/dx12_convert.hpp>
 #include <wisdom/util/allocation.hpp>
 
 #include <bit>
+#include <cassert>
 
 namespace wis::detail {
 constexpr static uint32_t dx12_max_barrier_size = std::max(
@@ -19,9 +21,25 @@ inline uint8_t* DX12AllocateScratchSpace(const wis::impl::DX12CommandListImpl& i
     if (new_size > impl.scratch_memory_size) {
         delete[] impl.scratch_memory;
         impl.scratch_memory = new (std::nothrow) uint8_t[new_size];
+        impl.scratch_memory_size = impl.scratch_memory ? new_size : 0;
     }
     return impl.scratch_memory;
 }
+
+inline D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS* DX12AllocateRPSpace(
+    const wis::impl::DX12CommandListImpl& impl,
+    uint32_t new_size
+)
+{
+    if (new_size > impl.rp_memory_size) {
+        delete[] impl.render_pass_memory;
+        impl.render_pass_memory = new (std::nothrow)
+            D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS[new_size];
+        impl.rp_memory_size = impl.render_pass_memory ? new_size : 0;
+    }
+    return impl.render_pass_memory;
+}
+
 inline constexpr D3D12_BARRIER_LAYOUT DX12GetOptimalBarrierLayout(
     WisCommandQueueType type,
     WisTextureState state
@@ -65,19 +83,6 @@ inline constexpr D3D12_BARRIER_LAYOUT DX12GetOptimalBarrierLayout(
     default:
         return wis::detail::DX12Convert(state);
     }
-}
-
-inline constexpr uint32_t DX12GetCopyPlaneSlice(WisBarrierFlags flags, uint16_t plane_slice) noexcept
-{
-    if (flags & WisBarrierFlagsPlanarImage) {
-        return plane_slice;
-    }
-
-    if (flags & WisBarrierFlagsStencilResource) {
-        return 1u;
-    }
-
-    return 0u;
 }
 
 inline std::array<wis::span<uint8_t>, 3> DX12AllocateBarriers(
@@ -189,6 +194,11 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyCommandList(WisDX12CommandList* self)
     impl.list->Release();
     impl.allocator->Release();
     delete[] impl.scratch_memory;
+    delete[] impl.render_pass_memory;
+    impl.scratch_memory = nullptr;
+    impl.render_pass_memory = nullptr;
+    impl.scratch_memory_size = 0;
+    impl.rp_memory_size = 0;
     impl.list = nullptr;
 }
 
@@ -594,25 +604,58 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListBeginRenderPass(
 
     D3D12_RENDER_PASS_RENDER_TARGET_DESC render_targets[wis::MaxRenderTargets];
     D3D12_RENDER_PASS_DEPTH_STENCIL_DESC depth_stencil;
+    uint32_t resolve_count = 0;
+    uint32_t layer_count = 0;
+    uint32_t width = 0;
+    uint32_t height = 0;
 
-    if (render_target_count > 0) {
-        for (uint32_t i = 0; i < render_target_count; ++i) {
-            auto& src = desc->render_targets[i];
-            render_targets[i] = {
-                .cpuDescriptor = {src.target},
-                .BeginningAccess =
-                    {
-                        .Type = wis::detail::DX12Convert(src.load_op),
-                    },
-                .EndingAccess = {
-                    .Type = wis::detail::DX12Convert(src.store_op),
+    for (uint32_t i = 0; i < render_target_count; ++i) {
+        auto& src = desc->render_targets[i];
+        auto* aux = wis::detail::DX12DecodeViewAddress(src.target);
+        render_targets[i] = {
+            .cpuDescriptor = aux ? aux->handle : D3D12_CPU_DESCRIPTOR_HANDLE{src.target},
+            .BeginningAccess =
+                {
+                    .Type = wis::detail::DX12Convert(src.load_op),
                 },
+            .EndingAccess = {
+                .Type = src.resolve_desc ? D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_RESOLVE
+                                         : wis::detail::DX12Convert(src.store_op),
+            },
+        };
+        if (src.load_op == WisLoadOpClear) {
+            render_targets[i].BeginningAccess.Clear.ClearValue = {
+                .Color = {src.clear_value[0], src.clear_value[1], src.clear_value[2], src.clear_value[3]},
             };
-            if (src.load_op == WisLoadOpClear) {
-                render_targets[i].BeginningAccess.Clear.ClearValue = {
-                    .Color = {src.clear_value[0], src.clear_value[1], src.clear_value[2], src.clear_value[3]},
-                };
+        }
+        if (src.resolve_desc) {
+            auto& resolve = *src.resolve_desc;
+            auto* dst = wis::detail::DX12DecodeViewAddress(resolve.resolve_target);
+            assert(dst && "Resolve target must be a valid view");
+            assert(aux && "Source view must be a from a multisample view heap");
+
+            if (!width || !height) {
+                auto resource_desc = dst->resource->GetDesc();
+                width = static_cast<uint32_t>(resource_desc.Width);
+                height = static_cast<uint32_t>(resource_desc.Height);
+                layer_count = dst->subresource_count;
             }
+
+            render_targets[i].EndingAccess.Resolve = {
+                .pSrcResource = aux->resource,
+                .pDstResource = dst->resource,
+                .SubresourceCount = layer_count,
+
+                // Encode the other parameters
+                .pSubresourceParameters = static_cast<
+                    const D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS*>(
+                    static_cast<const void*>(dst)
+                ),
+                .Format = static_cast<DXGI_FORMAT>(dst->format),
+                .ResolveMode = wis::detail::DX12Convert(resolve.mode),
+                .PreserveResolveSource = src.store_op == WisStoreOpStore,
+            };
+            resolve_count += layer_count;
         }
     }
 
@@ -629,8 +672,9 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListBeginRenderPass(
                    : D3D12_RENDER_PASS_FLAG_NONE;
 
         auto& src = desc->depth_stencil;
+        auto* aux = wis::detail::DX12DecodeViewAddress(src.target);
         depth_stencil = {
-            .cpuDescriptor = {src.target},
+            .cpuDescriptor = aux ? aux->handle : D3D12_CPU_DESCRIPTOR_HANDLE{src.target},
             .DepthBeginningAccess =
                 {
                     .Type = ignore_depth ? D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE_NO_ACCESS
@@ -643,14 +687,182 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListBeginRenderPass(
                 },
             .DepthEndingAccess =
                 {
-                    .Type = ignore_depth ? D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS
-                                         : wis::detail::DX12Convert(src.store_op_depth),
+                    .Type = ignore_depth           ? D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS
+                          : src.resolve_depth_desc ? D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_RESOLVE
+                                                   : wis::detail::DX12Convert(src.store_op_depth),
                 },
             .StencilEndingAccess = {
-                .Type = ignore_stencil ? D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS
-                                       : wis::detail::DX12Convert(src.store_op_stencil),
+                .Type = ignore_stencil           ? D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS
+                      : src.resolve_stencil_desc ? D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_RESOLVE
+                                                 : wis::detail::DX12Convert(src.store_op_stencil),
             },
         };
+
+        if (src.resolve_depth_desc) {
+            auto& resolve = *src.resolve_depth_desc;
+            auto* dst = wis::detail::DX12DecodeViewAddress(resolve.resolve_target);
+            assert(dst && "Resolve target must be a valid view");
+
+            if (!width || !height) {
+                auto resource_desc = dst->resource->GetDesc();
+                width = static_cast<uint32_t>(resource_desc.Width);
+                height = static_cast<uint32_t>(resource_desc.Height);
+                layer_count = dst->subresource_count;
+            }
+
+            depth_stencil.DepthEndingAccess.Resolve = {
+                .pSrcResource = aux->resource,
+                .pDstResource = dst->resource,
+                .SubresourceCount = layer_count,
+
+                // Encode the other parameters
+                .pSubresourceParameters = static_cast<
+                    const D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS*>(
+                    static_cast<const void*>(dst)
+                ),
+                .Format = static_cast<DXGI_FORMAT>(dst->format),
+                .ResolveMode = wis::detail::DX12Convert(resolve.mode),
+                .PreserveResolveSource = src.store_op_depth == WisStoreOpStore,
+            };
+            resolve_count += layer_count;
+        }
+
+        if (src.resolve_stencil_desc) {
+            auto& resolve = *src.resolve_stencil_desc;
+            auto* dst = wis::detail::DX12DecodeViewAddress(resolve.resolve_target);
+            assert(dst && "Resolve target must be a valid view");
+            assert(aux && "Source view must be a from a multisample view heap");
+            if (!width || !height) {
+                auto resource_desc = dst->resource->GetDesc();
+                width = static_cast<uint32_t>(resource_desc.Width);
+                height = static_cast<uint32_t>(resource_desc.Height);
+                layer_count = dst->subresource_count;
+            }
+            depth_stencil.StencilEndingAccess.Resolve = {
+                .pSrcResource = aux->resource,
+                .pDstResource = dst->resource,
+                .SubresourceCount = layer_count,
+                // Encode the other parameters
+                .pSubresourceParameters = static_cast<
+                    const D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS*>(
+                    static_cast<const void*>(dst)
+                ),
+                .Format = static_cast<DXGI_FORMAT>(dst->format),
+                .ResolveMode = wis::detail::DX12Convert(resolve.mode),
+                .PreserveResolveSource = src.store_op_stencil == WisStoreOpStore,
+            };
+            resolve_count += layer_count;
+        }
+    }
+
+    // Resolve the targets
+    uint32_t offset = 0;
+    if (resolve_count > 0) {
+        auto* subresources = wis::detail::DX12AllocateRPSpace(impl, resolve_count);
+
+        // Render targets
+        for (uint32_t i = 0; i < render_target_count; ++i) {
+            auto& src = desc->render_targets[i];
+            if (!src.resolve_desc) {
+                continue;
+            }
+
+            auto& dst = render_targets[i].EndingAccess.Resolve;
+            auto* src_aux = wis::detail::DX12DecodeViewAddress(src.target);
+            auto* dst_aux = reinterpret_cast<const wis::detail::DX12RenderTargetViewAuxData*>(
+                dst.pSubresourceParameters
+            );
+
+            wis::span<D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS> subresource_params{
+                subresources + offset,
+                layer_count
+            };
+
+            for (uint32_t j = 0; j < layer_count; ++j) {
+                subresource_params[j] = {
+                    .SrcSubresource = src_aux->base_subresource + j * src_aux->subresource_stride,
+                    .DstSubresource = dst_aux->base_subresource + j * dst_aux->subresource_stride,
+                    .SrcRect = {
+                        .left = 0,
+                        .top = 0,
+                        .right = static_cast<LONG>(width),
+                        .bottom = static_cast<LONG>(height),
+                    },
+                };
+            }
+            dst.pSubresourceParameters = subresource_params.data();
+            offset += layer_count;
+        }
+
+        // Depth/stencil
+        if (has_depth_stencil) {
+            do {
+                auto& src = desc->depth_stencil;
+                if (!src.resolve_depth_desc && !src.resolve_stencil_desc) {
+                    break;
+                }
+
+                auto* aux = wis::detail::DX12DecodeViewAddress(src.target);
+
+                if (src.resolve_depth_desc) {
+                    auto& dst_depth = depth_stencil.DepthEndingAccess.Resolve;
+                    auto* dst_depth_aux = reinterpret_cast<const wis::detail::DX12RenderTargetViewAuxData*>(
+                        dst_depth.pSubresourceParameters
+                    );
+
+                    wis::span<D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS> subresource_params{
+                        subresources + offset,
+                        layer_count
+                    };
+
+                    for (uint32_t j = 0; j < layer_count; ++j) {
+                        subresource_params[j] = {
+                            .SrcSubresource = aux->base_subresource + j * aux->subresource_stride,
+                            .DstSubresource = (dst_depth_aux ? dst_depth_aux->base_subresource : 0)
+                                            + j * (dst_depth_aux ? dst_depth_aux->subresource_stride : 0),
+                            .SrcRect = {
+                                .left = 0,
+                                .top = 0,
+                                .right = static_cast<LONG>(width),
+                                .bottom = static_cast<LONG>(height),
+                            },
+                        };
+                    }
+                    depth_stencil.DepthEndingAccess.Resolve.pSubresourceParameters = subresource_params.data();
+                    offset += layer_count;
+                }
+
+                // Stencil resolve
+                if (!src.resolve_stencil_desc) {
+                    break;
+                }
+
+                auto& dst_stencil = depth_stencil.StencilEndingAccess.Resolve;
+                auto* dst_stencil_aux = reinterpret_cast<const wis::detail::DX12RenderTargetViewAuxData*>(
+                    dst_stencil.pSubresourceParameters
+                );
+
+                wis::span<D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS> subresource_params{
+                    subresources + offset,
+                    layer_count
+                };
+
+                for (uint32_t j = 0; j < layer_count; ++j) {
+                    subresource_params[j] = {
+                        .SrcSubresource = aux->base_stencil_subresource + j * aux->subresource_stride,
+                        .DstSubresource = (dst_stencil_aux ? dst_stencil_aux->base_stencil_subresource : 0)
+                                        + j * (dst_stencil_aux ? dst_stencil_aux->subresource_stride : 0),
+                        .SrcRect = {
+                            .left = 0,
+                            .top = 0,
+                            .right = static_cast<LONG>(width),
+                            .bottom = static_cast<LONG>(height),
+                        },
+                    };
+                }
+                depth_stencil.StencilEndingAccess.Resolve.pSubresourceParameters = subresource_params.data();
+            } while (false);
+        }
     }
 
     impl.list->BeginRenderPass(
@@ -945,7 +1157,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetVertexBuffers(
         };
     }
 
-    impl.list->IASetVertexBuffers(start_slot, static_cast<UINT>(buffer_count), buffer_count ? views : nullptr);
+    impl.list->IASetVertexBuffers(start_slot, static_cast<UINT>(max_count), max_count ? views : nullptr);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -969,7 +1181,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListSetVertexBuffers2(
         };
     }
 
-    impl.list->IASetVertexBuffers(start_slot, static_cast<UINT>(buffer_count), buffer_count ? views : nullptr);
+    impl.list->IASetVertexBuffers(start_slot, static_cast<UINT>(max_count), max_count ? views : nullptr);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

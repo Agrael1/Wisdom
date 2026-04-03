@@ -131,10 +131,10 @@ public:
         });
 
         // Swapchain maintenance
-        if (collector.IsExtensionPresent(VK_KHR_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME)) {
+        if (collector.IsExtensionPresent(VK_EXT_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME)) {
             features.swapchain_maintenance = true;
             collector.EnableExtension({
-                .name = VK_KHR_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME,
+                .name = VK_EXT_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME,
                 .feature_struct = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_EXT,
                 .feature_struct_size = sizeof(VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT),
             });

@@ -15,11 +15,16 @@
       <PreprocessorDefinitions Condition="'$(WisdomForceVulkan)' == 'true'">WISDOM_FORCE_VULKAN=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(WisdomLinkage)' == 'dynamic'">WISDOM_SHARED_LIBRARY=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(WisdomLinkage)' == 'headers'">WISDOM_HEADER_ONLY=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(WisdomPlatformExtension)' == 'true'">WIS_PLATFORM_WIN32_PRESENT=1;WISDOM_PLATFORM_UWP_PRESENT=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(WisdomPlatformExtension)' == 'true' and '$(WisdomLinkage)' != 'dynamic'">WISDOM_PLATFORM_STATIC=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(WisdomPlatformExtension)' == 'true' and '$(WisdomLinkage)' == 'dynamic'">WISDOM_PLATFORM_SHARED_LIBRARY=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
 
     <Link>
       <AdditionalDependencies Condition="'$(WisdomLinkage)' == 'static'">$(MSBuildThisFileDirectory)..\..\lib\wisdom$(LP).lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalDependencies Condition="'$(WisdomLinkage)' == 'dynamic'">$(MSBuildThisFileDirectory)..\..\lib\wisdom-shared$(LP).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(WisdomPlatformExtension)' == 'true' and '$(WisdomLinkage)' == 'static'">$(MSBuildThisFileDirectory)..\..\lib\wisdom-platform$(LP).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(WisdomPlatformExtension)' == 'true' and '$(WisdomLinkage)' == 'dynamic'">$(MSBuildThisFileDirectory)..\..\lib\wisdom-platform-shared$(LP).lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalDependencies Condition="'$(WisdomVulkanEnabled)' == 'true'"> $(MSBuildThisFileDirectory)..\..\lib\vkma$(LP).lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalDependencies> $(MSBuildThisFileDirectory)..\..\lib\DX12Allocator$(LP).lib;$(MSBuildThisFileDirectory)..\..\lib\DX12Agility$(LP).lib;dxguid.lib;DXGI.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
@@ -32,6 +37,12 @@
 				<!-- WinRT/UWP specific: include in app package -->
 				<DeploymentContent>true</DeploymentContent>
 			</None>
+      <None Condition="'$(WisdomPlatformExtension)' == 'true'" Include="$(MSBuildThisFileDirectory)..\..\bin\wisdom-platform-shared$(LP).dll">
+        <Link>wisdom-platform-shared$(LP).dll</Link>
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        <!-- WinRT/UWP specific: include in app package -->
+        <DeploymentContent>true</DeploymentContent>
+      </None>
 		</ItemGroup>
 
   </ItemDefinitionGroup>

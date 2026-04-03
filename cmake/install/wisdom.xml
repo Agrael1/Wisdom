@@ -18,6 +18,11 @@
     <EnumValue Name="dynamic" DisplayName="dynamic" Description="Link to .dll" />
   </EnumProperty>
 
+  <BoolProperty Name="WisdomPlatformExtension"
+              DisplayName="Platform extension"
+              Description="Enables platform extension flags and links platform extension libraries"
+              Category="General" />
+
   <BoolProperty Name="WisdomForceVulkan"
               DisplayName="Force Vulkan"
               Description="Forces Vulkan implementation to be the main. Requires installed Vulkan SDK"

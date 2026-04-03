@@ -11,10 +11,11 @@
  * ```c
  * // Provided by Wisdom 0.7.0. 
  * typedef struct  WisRenderPassRenderTargetDesc {
- *     uint64_t   target;
- *     WisLoadOp  load_op;
- *     WisStoreOp store_op;
- *     float      clear_value[4];
+ *     uint64_t              target;
+ *     WisLoadOp             load_op;
+ *     WisStoreOp            store_op;
+ *     float                 clear_value[4];
+ *     const WisResolveDesc* resolve_desc;
  * } WisRenderPassRenderTargetDesc;
  * 
  * ```
@@ -23,10 +24,11 @@
  * namespace wis{
  * // Provided by Wisdom 0.7.0. 
  * struct  RenderPassRenderTargetDesc {
- *     std::uint64_t target;
- *     wis::LoadOp   load_op;
- *     wis::StoreOp  store_op;
- *     std::array<float, 4> clear_value;
+ *     std::uint64_t           target;
+ *     wis::LoadOp             load_op;
+ *     wis::StoreOp            store_op;
+ *     std::array<float, 4>    clear_value;
+ *     const wis::ResolveDesc* resolve_desc;
  * };
  * }
  * ```
@@ -39,6 +41,7 @@
  * - `load_op` specifies load operation on beginning of render pass. Default is `WisLoadOpLoad`.
  * - `store_op` indicates store operation on end of render pass. Default is `WisStoreOpStore`.
  * - `clear_value` indicates clear value for `WisLoadOpClear`.
+ * - `resolve_desc` describes resolve parameters for multisampled render target.
  * \endcond
  *
  * @section WisRenderPassRenderTargetDesc_descr Description
