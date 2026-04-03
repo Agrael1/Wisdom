@@ -354,11 +354,17 @@ Viewport is considered from Top Left corner.">
       <!--TODO: Colorspace-->
     </type>
 
+    <type name="ResolveDesc" category="struct" version="0.7.0" doc="Resolve description for {CommandList::ResolveRenderTarget}.">
+      <member type="u64" name="resolve_target" default="0" doc="specifies resolve target view for multisampled render target; it @wis_must reside on {ViewHeap::} which was allocated with allow_multisample. If the render target is multisampled and resolve_target is set to 0. `target` @wis_must also reside on {ViewHeap::} which was allocated with allow_multisample."/>
+      <member type="ResolveMode" name="mode" default="Average" doc="defines resolve mode. Default is {ResolveMode::Average}."/>
+    </type>
+
     <type name="RenderPassRenderTargetDesc" category="struct" version="0.7.0" doc="Description for render target.">
       <member type="u64" name="target" doc="indicates render target view; it @wis_must reside on {ViewHeap::}."/>
       <member type="LoadOp" name="load_op" default="Load" doc="specifies load operation on beginning of render pass. Default is {LoadOp::Load}."/>
       <member type="StoreOp" name="store_op" default="Store" doc="indicates store operation on end of render pass. Default is {StoreOp::Store}."/>
       <member type="f32" name="clear_value" array="4" doc="indicates clear value for {LoadOp::Clear}."/>
+      <member type="ResolveDesc" name="resolve_desc" mod="const,ptr" doc="describes resolve parameters for multisampled render target."/>
     </type>
 
     <type name="RenderPassDepthStencilDesc" category="struct" version="0.7.0" doc="Variant of RenderPassDesc for depth stencil.">
@@ -370,6 +376,8 @@ Viewport is considered from Top Left corner.">
       <member type="DepthStencilFlags" name="flags" default="None" doc="describes depth stencil select."/>
       <member type="f32" name="clear_depth" default="1.0f" doc="indicates clear depth value for {LoadOp::Clear}. Default is 1.0f."/>
       <member type="u8" name="clear_stencil" default="0" doc="defines clear stencil value for {LoadOp::Clear}. Default is 0."/>
+      <member type="ResolveDesc" name="resolve_depth_desc" mod="const,ptr" doc="describes resolve parameters for multisampled depth."/>
+      <member type="ResolveDesc" name="resolve_stencil_desc" mod="const,ptr" doc="describes resolve parameters for multisampled stencil."/>
     </type>
 
     <type name="RenderPassDesc" category="struct" version="0.7.0" doc="Render pass description.">
@@ -408,16 +416,6 @@ Viewport is considered from Top Left corner.">
       <member type="u32" name="size" doc="Size of the buffer in bytes."/>
     </type>
 
-    <!-- Variants -->
-    <type name="DeviceRequirements" category="variant" version="0.7.0" doc="Device requirements. Used to specify required features and properties for device creation.">
-      <member type="CommandQueueDesc" name="queue_descs" mod="const,span" default="nullptr" doc="points to an array of {CommandQueueDesc::} for which queues are created during device creation."/>
-      <member type="size" name="queue_desc_count" default="0" doc="indicates the number of the number of queue descriptions in the {AdapterQuery::CreateDevice} queue_descs array."/>
-      <member type="DeviceExtensionHeader" name="extensions" mod="ptr,span" default="nullptr" doc="points to an array of extensions that are to be initialized with pointers to {DeviceExtensionHeader::}."/>
-      <member type="size" name="extension_count" default="0" doc="describes the number of the number of extensions in the {AdapterQuery::CreateDevice} extensions array."/>
-    </type>
-
-
-
     <!-- Queries -->
     <type name="QueryStructHeader" category="struct" version="0.7.0" doc="Query struct header. Used as a header for all query structs.">
       <member type="QueryPropertyType" name="property_type" doc="specifies the type of the queried property. Used to determine what struct is passed."/>
@@ -446,6 +444,8 @@ Viewport is considered from Top Left corner.">
       <member type="u32" name="sampler_increment_size" doc="specifies size of a single sampler in the sampler heap. Used for calculating sampler offsets."/>
       <member type="u32" name="render_target_increment_size" doc="defines size of a single render target view descriptor in the descriptor heap. Used for calculating render target view descriptor offsets."/>
       <member type="u32" name="depth_stencil_increment_size" doc="defines size of a single depth stencil view descriptor in the descriptor heap. Used for calculating depth stencil view descriptor offsets."/>
+      <member type="u32" name="render_target_with_ms_increment_size" doc="defines size of a single render target view descriptor in the descriptor heap with multisample targets enabled. Used for calculating render target view descriptor offsets."/>
+      <member type="u32" name="depth_stencil_with_ms_increment_size" doc="defines size of a single depth stencil view descriptor in the descriptor heap with multisample targets enabled. Used for calculating depth stencil view descriptor offsets."/>
     </type>
 
     <type name="DeviceCommandQueueProperties" category="struct" version="0.7.0" doc="Device memory properties. Used to query memory type support and limits.">
@@ -465,6 +465,19 @@ Viewport is considered from Top Left corner.">
       <member type="bool" name="gpu_upload_supported" doc="describes if GPU upload memory type is supported. This memory type allows mapping the memory and writing to it from CPU, while being accessible from GPU. It is usually implemented as write-combined memory on integrated GPUs and as a part of shared system memory on discrete GPUs."/>
       <member type="bool" name="host_image_copy_supported" doc="indicates if host image copy is supported. This feature allows copying data directly from CPU memory to optimal tiled image layout on GPU, without the need for an intermediate staging buffer. It is supported on Windows 10 22H2 and later with WDDM 3.0 or later. On Vulkan it requires `VK_EXT_host_image_copy` extension."/>
       <member type="u32" name="supported_initial_transitions" doc="defines bitfield of supported initial resource state transitions for buffers and textures. If a transition is supported, the corresponding bit is set to `1`, otherwise `0`. Bit positions are the same as in {TextureState::} enum. {TextureState::Undefined} is always supported."/>
+    </type>
+
+    <type name="FormatProperties" category="struct" version="0.7.0" doc="Data format properties. Used to query support and capabilities of specific data formats.">
+      <member type="FormatSupportFlags" name="format_support_flags" doc="specifies bitmask of supported features for the format."/>
+      <member type="SampleCount" name="max_sample_count" doc="defines maximum supported sample count for the format. If the format does not support multisampling, the value is `S1`."/>
+    </type>
+
+    <!-- Variants -->
+    <type name="DeviceRequirements" category="variant" version="0.7.0" doc="Device requirements. Used to specify required features and properties for device creation.">
+      <member type="CommandQueueDesc" name="queue_descs" mod="const,span" default="nullptr" doc="points to an array of {CommandQueueDesc::} for which queues are created during device creation."/>
+      <member type="size" name="queue_desc_count" default="0" doc="indicates the number of the number of queue descriptions in the {AdapterQuery::CreateDevice} queue_descs array."/>
+      <member type="DeviceExtensionHeader" name="extensions" mod="ptr,span" default="nullptr" doc="points to an array of extensions that are to be initialized with pointers to {DeviceExtensionHeader::}."/>
+      <member type="size" name="extension_count" default="0" doc="describes the number of the number of extensions in the {AdapterQuery::CreateDevice} extensions array."/>
     </type>
 
     <type name="BufferBarrier" category="variant" version="0.7.0" doc="Buffer barrier with the buffer handle.">

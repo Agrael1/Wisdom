@@ -13,6 +13,7 @@
 #include <d3dx12/d3dx12_pipeline_state_stream.h>
 
 #include <bit>
+#include <cassert>
 #include <ranges>
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -139,6 +140,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceGetResourceAllocator(
     device.allocator->AddRef(); // hold reference to allocator
     auto& allocator_impl = *new (allocator) wis::impl::DX12ResourceAllocatorImpl{
         .allocator = device.allocator,
+        .device = device.device,
     };
     return wis::detail::dx_success;
 }
@@ -184,6 +186,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateViewHeap(
     const WisDX12Device* self,
     WisViewHeapType type,
     uint32_t capacity,
+    WisViewHeapFlags flags,
     WisDX12ViewHeap* heap
 )
 {
@@ -205,11 +208,36 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateViewHeap(
     }
 
     auto* raw_heap = descriptor_heap.detach();
+    auto descriptor_size = device.device->GetDescriptorHandleIncrementSize(heap_desc.Type);
+    auto cpu_handle = raw_heap->GetCPUDescriptorHandleForHeapStart();
+
+    wis::detail::DX12RenderTargetViewAuxData* aux_data = nullptr;
+    if (flags & WisViewHeapFlagsAllowMutisample) {
+        assert(
+            (cpu_handle.ptr & 0b1) == 0
+            && "[INTERNAL ERROR] DescriptorHandle is not aligned! Report the issue to the developers."
+        );
+
+        aux_data = new (std::nothrow) wis::detail::DX12RenderTargetViewAuxData[capacity]{};
+        if (!aux_data) {
+            raw_heap->Release();
+            return wis::detail::make_result<wis::detail::Func(), "Out of memory while creating view heap metadata">(
+                E_OUTOFMEMORY
+            );
+        }
+        for (uint32_t i = 0; i < capacity; ++i) {
+            aux_data[i].handle = {cpu_handle.ptr + static_cast<uint64_t>(i) * descriptor_size};
+        }
+    }
+
     auto& heap_impl = *new (heap) wis::impl::DX12ViewHeapImpl{
         .view_heap = raw_heap,
         .device = device.device,
-        .cpu_handle = raw_heap->GetCPUDescriptorHandleForHeapStart(),
-        .descriptor_size = device.device->GetDescriptorHandleIncrementSize(heap_desc.Type),
+        .cpu_handle = cpu_handle,
+        .descriptor_size = descriptor_size,
+        .type = heap_desc.Type,
+        .capacity = capacity,
+        .aux_data = aux_data,
     };
     return wis::detail::dx_success;
 }
@@ -270,14 +298,14 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(
     for (std::size_t i = 0; i < desc->push_descriptor_count; ++i) {
         auto& src = desc->push_descriptors[i];
 
-        if (!wis::detail::dx12_is_pushable(src.type)) {
+        if (!wis::detail::DX12IsPushable(src.type)) {
             return wis::detail::make_result<
                 wis::detail::Func(),
                 "Descriptor type is not pushable to DX12 root signature">(E_INVALIDARG);
         }
 
         root_parameters_span[i] = {
-            .ParameterType = wis::detail::dx12_root_parameter_type(src.type),
+            .ParameterType = wis::detail::DX12RootParameterType(src.type),
             .Descriptor =
                 {
                     .ShaderRegister = src.bind_register,
@@ -444,6 +472,8 @@ WIS_EXTERN_C WISDOM_API void wisDX12DeviceQueryProperties(const WisDX12Device* s
                 props->depth_stencil_increment_size = device.device->GetDescriptorHandleIncrementSize(
                     D3D12_DESCRIPTOR_HEAP_TYPE_DSV
                 );
+                props->render_target_with_ms_increment_size = sizeof(wis::detail::DX12RenderTargetViewAuxData);
+                props->depth_stencil_with_ms_increment_size = sizeof(wis::detail::DX12RenderTargetViewAuxData);
             }
         } break;
         case WisQueryPropertyTypeDeviceMemoryProperties: {
@@ -741,8 +771,6 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(
                    : D3D12_PIPELINE_STATE_FLAG_NONE,
     };
 
-
-
     static constexpr size_t shader_stage_count = 5;
     const wis::detail::DX12ShaderHeader* shader_headers[shader_stage_count] = {
         std::bit_cast<const wis::detail::DX12ShaderHeader*>(desc->vertex_shader),
@@ -872,7 +900,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(
     if (desc->sample_desc) {
         stream.sample_desc = DXGI_SAMPLE_DESC{
             .Count = wis::detail::DX12Convert(desc->sample_desc->rate),
-            .Quality = DXGI_STANDARD_MULTISAMPLE_QUALITY_PATTERN,
+            .Quality = 0,
         };
         stream.sample_mask = desc->sample_desc->sample_mask;
 
@@ -1184,6 +1212,83 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateSwapchain(
         .data_format = static_cast<uint16_t>(desc->format),
     };
 
+    return wis::detail::dx_success;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceGetFormatProperties(
+    const WisDX12Device* self,
+    WisDataFormat format,
+    WisFormatProperties* properties
+)
+{
+    auto& impl = wis::from_handle_ref<const wis::impl::DX12DeviceImpl>(self);
+    D3D12_FEATURE_DATA_FORMAT_SUPPORT formatSupport = {.Format = wis::detail::DX12Convert(format)};
+    HRESULT hr = impl.device->CheckFeatureSupport(D3D12_FEATURE_FORMAT_SUPPORT, &formatSupport, sizeof(formatSupport));
+    if (!wis::detail::succeeded(hr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to query format properties">(hr);
+    }
+
+    uint32_t support_flags = 0;
+    if (formatSupport.Support1 & D3D12_FORMAT_SUPPORT1_BUFFER) {
+        support_flags |= WisFormatSupportFlagsBuffer;
+    }
+    if (formatSupport.Support1 & D3D12_FORMAT_SUPPORT1_IA_VERTEX_BUFFER) {
+        support_flags |= WisFormatSupportFlagsVertexBuffer;
+    }
+    if (formatSupport.Support1 & D3D12_FORMAT_SUPPORT1_TEXTURE1D) {
+        support_flags |= WisFormatSupportFlagsTexture1D;
+    }
+    if (formatSupport.Support1 & D3D12_FORMAT_SUPPORT1_TEXTURE2D) {
+        support_flags |= WisFormatSupportFlagsTexture2D;
+    }
+    if (formatSupport.Support1 & D3D12_FORMAT_SUPPORT1_TEXTURE3D) {
+        support_flags |= WisFormatSupportFlagsTexture3D;
+    }
+    if (formatSupport.Support1 & D3D12_FORMAT_SUPPORT1_TEXTURECUBE) {
+        support_flags |= WisFormatSupportFlagsTextureCube;
+    }
+    if (formatSupport.Support1 & D3D12_FORMAT_SUPPORT1_RENDER_TARGET) {
+        support_flags |= WisFormatSupportFlagsRenderTarget;
+    }
+    if (formatSupport.Support1 & D3D12_FORMAT_SUPPORT1_DEPTH_STENCIL) {
+        support_flags |= WisFormatSupportFlagsDepthStencil;
+    }
+    if (formatSupport.Support1 & D3D12_FORMAT_SUPPORT1_BLENDABLE) {
+        support_flags |= WisFormatSupportFlagsBlendable;
+    }
+    if (formatSupport.Support1 & D3D12_FORMAT_SUPPORT1_MULTISAMPLE_RENDERTARGET) {
+        support_flags |= WisFormatSupportFlagsMultisampleRenderTarget;
+    }
+    if (formatSupport.Support1 & D3D12_FORMAT_SUPPORT1_MULTISAMPLE_RESOLVE) {
+        support_flags |= WisFormatSupportFlagsMultisampleResolve;
+    }
+    if (formatSupport.Support1 & D3D12_FORMAT_SUPPORT1_SHADER_SAMPLE) {
+        support_flags |= WisFormatSupportFlagsShaderResource;
+    }
+    if (formatSupport.Support2 & D3D12_FORMAT_SUPPORT2_UAV_TYPED_STORE) {
+        support_flags |= WisFormatSupportFlagsUnorderedAccess;
+    }
+
+    WisSampleCount max_sample_count = WisSampleCountS1;
+    for (uint32_t i = 16; i > 1; i /= 2) {
+        D3D12_FEATURE_DATA_MULTISAMPLE_QUALITY_LEVELS msLevels = {
+            .Format = formatSupport.Format,
+            .SampleCount = i,
+            .Flags = D3D12_MULTISAMPLE_QUALITY_LEVELS_FLAG_NONE,
+            .NumQualityLevels = 0
+        };
+        impl.device->CheckFeatureSupport(D3D12_FEATURE_MULTISAMPLE_QUALITY_LEVELS, &msLevels, sizeof(msLevels));
+        if (msLevels.NumQualityLevels > 0) {
+            max_sample_count = static_cast<WisSampleCount>(i);
+            break;
+        }
+    }
+
+    *properties = WisFormatProperties{
+        .format_support_flags = static_cast<WisFormatSupportFlags>(support_flags),
+        .max_sample_count = max_sample_count
+    };
     return wis::detail::dx_success;
 }
 

@@ -35,7 +35,7 @@ add_executable(${PROJECT_NAME}-cpp-headers ${CPP_SOURCES})
 target_link_libraries(${PROJECT_NAME}-cpp-headers PUBLIC wis::wisdom-headers wis::wisdom-platform-headers SDL3::SDL3 example_backend_cpp-${POSTFIX})
 set_target_properties(${PROJECT_NAME}-cpp-headers PROPERTIES CXX_STANDARD 23 RUNTIME_OUTPUT_DIRECTORY ${EXAMPLE_BIN_OUTPUT})
 target_compile_definitions(${PROJECT_NAME}-cpp-headers PUBLIC ${ADD_DEFINITIONS})
-add_dependencies(${PROJECT_NAME}-cpp-shared copy_sdl wis_test_compile_shaders)
+add_dependencies(${PROJECT_NAME}-cpp-headers copy_sdl wis_test_compile_shaders)
 
 if(POSTFIX STREQUAL "dx12" AND WISDOM_BUILD_STATIC)
   wis_install_deps(${PROJECT_NAME}-c)

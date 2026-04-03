@@ -23,6 +23,6 @@
  * <hr>
  * \cond WIS_GEN_REFS
  * @see Functions:
- * wisDestroyDevice, wisAdapterQueryCreateDevice, wisDeviceCreateCommandQueue, wisDeviceCreateCommandAllocator, wisDeviceCreateFence, wisDeviceGetResourceAllocator, wisDeviceCreateRootSignature, wisDeviceCreateDescriptorHeap, wisDeviceCreateViewHeap, wisDeviceQueryProperties, wisDeviceWaitForMultipleFences, wisDeviceCreatePipelineCache, wisDeviceCreateShader, wisDeviceCreateComputePipeline, wisDeviceCreateGraphicsPipeline, wisDeviceGetFormatPresentationSupport, wisDeviceGetSurfaceParameters, wisDeviceCreateSwapchain
+ * wisDestroyDevice, wisAdapterQueryCreateDevice, wisDeviceCreateCommandQueue, wisDeviceCreateCommandAllocator, wisDeviceCreateFence, wisDeviceGetResourceAllocator, wisDeviceCreateRootSignature, wisDeviceCreateDescriptorHeap, wisDeviceCreateViewHeap, wisDeviceQueryProperties, wisDeviceWaitForMultipleFences, wisDeviceCreatePipelineCache, wisDeviceCreateShader, wisDeviceCreateComputePipeline, wisDeviceCreateGraphicsPipeline, wisDeviceGetFormatPresentationSupport, wisDeviceGetSurfaceParameters, wisDeviceCreateSwapchain, wisDeviceGetFormatProperties
  * \endcond
  */

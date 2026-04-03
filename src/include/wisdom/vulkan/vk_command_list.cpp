@@ -591,7 +591,16 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListBeginRenderPass(
                 .storeOp = wis::detail::VKConvert(rt.store_op),
                 .clearValue = {.color = {rt.clear_value[0], rt.clear_value[1], rt.clear_value[2], rt.clear_value[3]}}
             };
+
+            if (rt.resolve_desc) {
+                auto& resolve_desc = *rt.resolve_desc;
+                auto& resolve_target = *reinterpret_cast<wis::detail::VKRenderTargetView*>(resolve_desc.resolve_target);
+                data[i].resolveMode = wis::detail::VKConvert(resolve_desc.mode);
+                data[i].resolveImageView = resolve_target.view;
+                data[i].resolveImageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+            }
         }
+
         rendering_info.pColorAttachments = data;
         rendering_info.colorAttachmentCount = render_target_count;
     }
@@ -637,6 +646,16 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListBeginRenderPass(
                 .storeOp = wis::detail::VKConvert(desc->depth_stencil.store_op_depth),
                 .clearValue = {.depthStencil = {desc->depth_stencil.clear_depth, desc->depth_stencil.clear_stencil}}
             };
+            if (desc->depth_stencil.resolve_depth_desc) {
+                auto& resolve_desc = *desc->depth_stencil.resolve_depth_desc;
+                auto& resolve_target = *reinterpret_cast<wis::detail::VKRenderTargetView*>(resolve_desc.resolve_target);
+
+
+                depth_data.resolveMode = wis::detail::VKConvert(resolve_desc.mode);
+                depth_data.resolveImageView = resolve_target.view;
+                depth_data.resolveImageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            }
+
             rendering_info.pDepthAttachment = &depth_data;
         }
         if (!ignore_stencil) {
@@ -649,6 +668,13 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListBeginRenderPass(
                 .storeOp = wis::detail::VKConvert(desc->depth_stencil.store_op_stencil),
                 .clearValue = {.depthStencil = {desc->depth_stencil.clear_depth, desc->depth_stencil.clear_stencil}}
             };
+            if (desc->depth_stencil.resolve_stencil_desc) {
+                auto& resolve_desc = *desc->depth_stencil.resolve_stencil_desc;
+                auto& resolve_target = *reinterpret_cast<wis::detail::VKRenderTargetView*>(resolve_desc.resolve_target);
+                stencil_data.resolveMode = wis::detail::VKConvert(resolve_desc.mode);
+                stencil_data.resolveImageView = resolve_target.view;
+                stencil_data.resolveImageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+            }
             rendering_info.pStencilAttachment = &stencil_data;
         }
     }

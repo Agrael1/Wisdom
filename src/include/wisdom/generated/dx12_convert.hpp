@@ -225,6 +225,10 @@ constexpr inline D3D12_BARRIER_LAYOUT DX12Convert(WisTextureState value) noexcep
         return D3D12_BARRIER_LAYOUT_VIDEO_DECODE_READ;
     case WisTextureStateVideoDecodeWrite:
         return D3D12_BARRIER_LAYOUT_VIDEO_DECODE_WRITE;
+    case WisTextureStateResolveDepthStensilDst:
+        return D3D12_BARRIER_LAYOUT_RESOLVE_DEST;
+    case WisTextureStateResolveRenderTargetDst:
+        return D3D12_BARRIER_LAYOUT_RESOLVE_DEST;
     default:
         return static_cast<D3D12_BARRIER_LAYOUT>(0);
     }
@@ -380,6 +384,20 @@ constexpr inline D3D12_RENDER_PASS_ENDING_ACCESS_TYPE DX12Convert(WisStoreOp val
         return D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_DISCARD;
     default:
         return static_cast<D3D12_RENDER_PASS_ENDING_ACCESS_TYPE>(0);
+    }
+}
+
+constexpr inline D3D12_RESOLVE_MODE DX12Convert(WisResolveMode value) noexcept
+{
+    switch (value) {
+    case WisResolveModeAverage:
+        return D3D12_RESOLVE_MODE_AVERAGE;
+    case WisResolveModeMin:
+        return D3D12_RESOLVE_MODE_MIN;
+    case WisResolveModeMax:
+        return D3D12_RESOLVE_MODE_MAX;
+    default:
+        return static_cast<D3D12_RESOLVE_MODE>(0);
     }
 }
 
@@ -632,6 +650,12 @@ constexpr inline D3D12_RENDER_PASS_FLAGS DX12Convert(WisRenderPassFlags value) n
     if (value & WisRenderPassFlagsResuming) {
         result |= D3D12_RENDER_PASS_FLAG_RESUMING_PASS;
     }
+    return result;
+}
+
+constexpr inline D3D12_DESCRIPTOR_HEAP_FLAGS DX12Convert(WisViewHeapFlags value) noexcept
+{
+    D3D12_DESCRIPTOR_HEAP_FLAGS result = static_cast<D3D12_DESCRIPTOR_HEAP_FLAGS>(0);
     return result;
 }
 

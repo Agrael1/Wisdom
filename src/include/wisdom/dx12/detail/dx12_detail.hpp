@@ -12,6 +12,7 @@
 #include <d3d12.h>
 
 #include <array>
+#include <bit>
 
 namespace wis::detail {
 
@@ -129,8 +130,9 @@ private:
 //----------------------------------------------------------------------------------------------------------------------
 struct DX12RootSignatureKey {
     static constexpr GUID guid{0xf062fe85, 0x857f, 0x43a9, {0xa2, 0x66, 0x75, 0x59, 0xb8, 0x10, 0x10, 0x01}};
-    std::array<uint64_t, 2>
-        hash{}; // Hash of the root signature description, used for caching and identification purposes.
+    
+    // Hash of the root signature description, used for caching and identification purposes.
+    std::array<uint64_t, 2> hash{};
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -151,6 +153,30 @@ struct DX12ShaderHeader {
 };
 
 //----------------------------------------------------------------------------------------------------------------------
+struct DX12RenderTargetViewAuxData {
+    D3D12_CPU_DESCRIPTOR_HANDLE handle;
+    ID3D12Resource* resource; // Non-owning pointer.
+    uint16_t base_subresource;
+    uint16_t subresource_count;
+    uint16_t subresource_stride;
+    uint16_t format; // DXGI_FORMAT, stored as uint16_t for compactness.
+    uint16_t base_stencil_subresource;
+};
+
+constexpr uint64_t DX12EncodeViewAddress(const DX12RenderTargetViewAuxData* ptr) noexcept
+{
+    return std::bit_cast<uint64_t>(ptr) | 0x1ull;
+}
+
+constexpr const DX12RenderTargetViewAuxData* DX12DecodeViewAddress(const uint64_t address) noexcept
+{
+    if ((address & 0x1ull) == 0) {
+        return nullptr;
+    }
+    return std::bit_cast<const DX12RenderTargetViewAuxData*>(address & ~0x1ull);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 /**
  * @brief Internal helper function to convert a WisDescriptorType to a D3D12_ROOT_PARAMETER_TYPE.
  * This function is used internally to determine the appropriate root parameter type for a given descriptor type when
@@ -161,7 +187,7 @@ struct DX12ShaderHeader {
  * @param type The WisDescriptorType to convert.
  * @return The corresponding D3D12_ROOT_PARAMETER_TYPE for the given WisDescriptorType.
  */
-constexpr D3D12_ROOT_PARAMETER_TYPE dx12_root_parameter_type(const WisDescriptorType type) noexcept
+constexpr D3D12_ROOT_PARAMETER_TYPE DX12RootParameterType(const WisDescriptorType type) noexcept
 {
     switch (type) {
     case WisDescriptorTypeConstantBuffer:
@@ -184,7 +210,7 @@ constexpr D3D12_ROOT_PARAMETER_TYPE dx12_root_parameter_type(const WisDescriptor
  * @param type The WisDescriptorType to check.
  * @return True if the descriptor type can be used as a push descriptor, false otherwise.
  */
-constexpr bool dx12_is_pushable(const WisDescriptorType type) noexcept
+constexpr bool DX12IsPushable(const WisDescriptorType type) noexcept
 {
     switch (type) {
     case WisDescriptorTypeBuffer:
@@ -195,6 +221,26 @@ constexpr bool dx12_is_pushable(const WisDescriptorType type) noexcept
     default:
         return false;
     }
+}
+
+//------------------------------------------------------------------------------------------------------
+/**
+ * @brief Internal helper function to determine the appropriate plane slice for a given set of barrier flags in
+ * DirectX 12.
+ * @param flags The WisBarrierFlags that may indicate whether the resource is a planar image or a stencil resource.
+ * @param plane_slice The original plane slice index from the subresource range.
+ */
+inline constexpr uint32_t DX12GetCopyPlaneSlice(WisBarrierFlags flags, uint16_t plane_slice) noexcept
+{
+    if (flags & WisBarrierFlagsPlanarImage) {
+        return plane_slice;
+    }
+
+    if (flags & WisBarrierFlagsStencilResource) {
+        return 1u;
+    }
+
+    return 0u;
 }
 } // namespace wis::detail
 

@@ -15,7 +15,7 @@
  *  DX12 Version:
  * ```c
  * // Provided by Wisdom 0.7.0. 
- * WIS_DEFINE_HANDLE(WisDX12ResourceAllocator,1);
+ * WIS_DEFINE_HANDLE(WisDX12ResourceAllocator,2);
  * ```
  * \endcond
  *

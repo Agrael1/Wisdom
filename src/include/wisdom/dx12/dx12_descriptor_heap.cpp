@@ -1,6 +1,7 @@
 #ifndef WIS_DX12_DESCRIPTOR_HEAP_CPP
 #define WIS_DX12_DESCRIPTOR_HEAP_CPP
 
+#include <wisdom/dx12/detail/dx12_detail.hpp>
 #include <wisdom/dx12/detail/dx12_utils.hpp>
 #include <wisdom/dx12/dx12_types.hpp>
 #include <wisdom/generated/dx12_convert.hpp>
@@ -8,7 +9,7 @@
 
 #include <algorithm>
 #include <array>
-#include <bit>
+#include <limits>
 
 namespace wis::detail {
 inline DXGI_FORMAT DX12GetSRVFormat(const WisTextureBinding& binding) noexcept
@@ -199,6 +200,43 @@ inline D3D12_UNORDERED_ACCESS_VIEW_DESC DX12FillTextureUAVDesc(const WisTextureB
 
     return srv_desc;
 }
+
+inline void DX12FillRTVAuxData(
+    wis::detail::DX12RenderTargetViewAuxData& aux,
+    const WisRenderTargetDesc& render_target,
+    const D3D12_RESOURCE_DESC& texture_desc,
+    uint32_t plane_slice,
+    bool is_stencil_view
+) noexcept
+{
+    uint32_t mip_levels = std::max<uint32_t>(texture_desc.MipLevels, 1u);
+    uint32_t array_size = std::max<uint32_t>(texture_desc.DepthOrArraySize, 1u);
+    uint32_t plane_stride = mip_levels * array_size;
+
+    // even though RT can be non-array, it may be a part of array
+    uint32_t base_subresource = render_target.mip_level + mip_levels * render_target.base_array_layer
+                              + plane_stride * plane_slice;
+
+    switch (render_target.layout) {
+    default:
+        aux.subresource_count = 1;
+        aux.subresource_stride = 0;
+        break;
+    case WisTextureLayoutTexture1DArray:
+    case WisTextureLayoutTexture2DArray:
+        aux.subresource_count = render_target.array_layer_count;
+        aux.subresource_stride = mip_levels;
+        break;
+    case WisTextureLayoutTexture2DMSArray:
+        aux.subresource_count = render_target.array_layer_count;
+        aux.subresource_stride = 1;
+        break;
+    }
+
+    aux.base_subresource = base_subresource;
+
+    aux.base_stencil_subresource = is_stencil_view ? aux.base_subresource + plane_stride : 0;
+}
 } // namespace wis::detail
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -219,6 +257,8 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyViewHeap(WisDX12ViewHeap* self)
     if (!heap.view_heap) {
         return;
     }
+    delete[] heap.aux_data;
+    heap.aux_data = nullptr;
     heap.view_heap->Release();
     heap.view_heap = nullptr;
 }
@@ -449,9 +489,14 @@ WIS_EXTERN_C WISDOM_API uint64_t wisDX12ViewHeapWriteRenderTarget(
 {
     auto& heap = wis::from_handle_ref<const wis::impl::DX12ViewHeapImpl>(self);
     auto& tex = wis::from_handle_ref<const wis::impl::DX12TextureImpl>(texture);
+    auto descriptor_handle = D3D12_CPU_DESCRIPTOR_HANDLE{
+        heap.cpu_handle.ptr + static_cast<uint64_t>(index) * heap.descriptor_size
+    };
     D3D12_RENDER_TARGET_VIEW_DESC rtv_desc{
         .Format = wis::detail::DX12Convert(render_target->format),
     };
+    uint32_t plane_slice = 0;
+
     switch (render_target->layout) {
     case WisTextureLayoutTexture1D:
         rtv_desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE1D;
@@ -468,6 +513,7 @@ WIS_EXTERN_C WISDOM_API uint64_t wisDX12ViewHeapWriteRenderTarget(
     case WisTextureLayoutTexture2D:
         rtv_desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
         rtv_desc.Texture2D = {.MipSlice = render_target->mip_level, .PlaneSlice = render_target->plane_slice};
+        plane_slice = render_target->plane_slice;
         break;
     case WisTextureLayoutTexture2DArray:
         rtv_desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY;
@@ -477,6 +523,7 @@ WIS_EXTERN_C WISDOM_API uint64_t wisDX12ViewHeapWriteRenderTarget(
             .ArraySize = render_target->array_layer_count,
             .PlaneSlice = render_target->plane_slice
         };
+        plane_slice = render_target->plane_slice;
         break;
     case WisTextureLayoutTexture2DMS:
         rtv_desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DMS;
@@ -500,12 +547,18 @@ WIS_EXTERN_C WISDOM_API uint64_t wisDX12ViewHeapWriteRenderTarget(
         break;
     }
 
-    heap.device->CreateRenderTargetView(
-        tex.resource,
-        &rtv_desc,
-        {heap.cpu_handle.ptr + static_cast<uint64_t>(index) * heap.descriptor_size}
-    );
-    return heap.cpu_handle.ptr + static_cast<uint64_t>(index) * heap.descriptor_size;
+    heap.device->CreateRenderTargetView(tex.resource, &rtv_desc, descriptor_handle);
+
+    if (heap.aux_data) {
+        auto& aux = heap.aux_data[index];
+        aux.handle = descriptor_handle;
+        aux.resource = tex.resource;
+        aux.format = static_cast<uint16_t>(rtv_desc.Format);
+        wis::detail::DX12FillRTVAuxData(aux, *render_target, tex.resource->GetDesc(), plane_slice, false);
+        return wis::detail::DX12EncodeViewAddress(&aux);
+    }
+
+    return descriptor_handle.ptr;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -518,6 +571,9 @@ WIS_EXTERN_C WISDOM_API uint64_t wisDX12ViewHeapWriteDepthStencil(
 {
     auto& heap = wis::from_handle_ref<const wis::impl::DX12ViewHeapImpl>(self);
     auto& tex = wis::from_handle_ref<const wis::impl::DX12TextureImpl>(texture);
+    auto descriptor_handle = D3D12_CPU_DESCRIPTOR_HANDLE{
+        heap.cpu_handle.ptr + static_cast<uint64_t>(index) * heap.descriptor_size
+    };
     D3D12_DEPTH_STENCIL_VIEW_DESC dsv_desc{
         .Format = wis::detail::DX12Convert(render_target->format),
     };
@@ -560,18 +616,27 @@ WIS_EXTERN_C WISDOM_API uint64_t wisDX12ViewHeapWriteDepthStencil(
         break;
     }
 
-    heap.device->CreateDepthStencilView(
-        tex.resource,
-        &dsv_desc,
-        {heap.cpu_handle.ptr + static_cast<uint64_t>(index) * heap.descriptor_size}
-    );
-    return heap.cpu_handle.ptr + static_cast<uint64_t>(index) * heap.descriptor_size;
+    heap.device->CreateDepthStencilView(tex.resource, &dsv_desc, descriptor_handle);
+
+    if (heap.aux_data) {
+        auto& aux = heap.aux_data[index];
+        aux.handle = descriptor_handle;
+        aux.resource = tex.resource;
+        aux.format = static_cast<uint16_t>(dsv_desc.Format);
+        wis::detail::DX12FillRTVAuxData(aux, *render_target, tex.resource->GetDesc(), 0, true);
+        return wis::detail::DX12EncodeViewAddress(&aux);
+    }
+
+    return descriptor_handle.ptr;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API uint64_t wisDX12ViewHeapGetViewAddress(const WisDX12ViewHeap* self, uint32_t index)
 {
     auto& heap = wis::from_handle_ref<const wis::impl::DX12ViewHeapImpl>(self);
+    if (heap.aux_data) {
+        return wis::detail::DX12EncodeViewAddress(&heap.aux_data[index]);
+    }
     return heap.cpu_handle.ptr + static_cast<uint64_t>(index) * heap.descriptor_size;
 }
 
@@ -585,10 +650,17 @@ WIS_EXTERN_C WISDOM_API void wisDX12ViewHeapCopyViews(
 )
 {
     auto& heap = wis::from_handle_ref<const wis::impl::DX12ViewHeapImpl>(self);
+
+    auto src_handle_ptr = std::bit_cast<std::size_t>(src_ptr) + static_cast<uint64_t>(src_index) * heap.descriptor_size;
+    if (auto* src_aux_base = wis::detail::DX12DecodeViewAddress(src_ptr)) {
+        auto* src_aux = src_aux_base + src_index;
+        src_handle_ptr = src_aux->handle.ptr;
+    }
+
     heap.device->CopyDescriptorsSimple(
         count,
         {heap.cpu_handle.ptr + static_cast<uint64_t>(dst_index) * heap.descriptor_size},
-        {std::bit_cast<std::size_t>(src_ptr) + static_cast<uint64_t>(src_index) * heap.descriptor_size},
+        {src_handle_ptr},
         heap.type
     );
 }

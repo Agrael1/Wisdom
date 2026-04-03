@@ -29,7 +29,7 @@
       </handle>
       <handle name="ViewHeap" version="0.7.0" doc="Class representing a storage for resource views used in contiguous array.">
         <impl for="vk" size="3"/>
-        <impl for="dx" size="4"/>
+        <impl for="dx" size="6"/>
       </handle>
       <handle name="Pipeline" version="0.7.0" doc="Class representing a GPU pipeline state object, which encapsulates the state of the GPU pipeline and allows to execute draw and dispatch calls with it.">
         <impl for="vk" size="2"/>
@@ -57,7 +57,7 @@
       </handle>
       <handle name="ResourceAllocator" version="0.7.0" doc="Class for allocating and managing GPU resources like buffers and textures.">
         <impl for="vk" size="3"/>
-        <impl for="dx" size="1"/>
+        <impl for="dx" size="2"/>
       </handle>
       <handle name="Fence" version="0.7.0" doc="Class representing a fence for GPU-CPU and GPU-GPU synchronization.">
         <impl for="vk" size="3"/>
@@ -66,7 +66,7 @@
       </handle>
       <handle name="CommandList" version="0.7.0" doc="Class representing a command list for recording GPU commands.">
         <impl for="vk" size="7"/>
-        <impl for="dx" size="7"/>
+        <impl for="dx" size="8"/>
         <view size="1"/>
       </handle>
       <handle name="CommandAllocator" version="0.7.0" doc="Class representing a pool allocator for command lists for recording GPU commands.">
@@ -152,6 +152,7 @@
         <ret type="ViewHeap" name="heap" result="true" doc="points to {ViewHeap::}, which is initialized on success."/>
         <arg type="ViewHeapType" name="type" doc="specifies the type of the view heap to create."/>
         <arg type="u32" name="capacity" doc="specifies the capacity in descriptors of the view heap to create."/>
+        <arg type="ViewHeapFlags" name="flags" doc="specifies additional flags for the view heap to create."/>
       </func>
       <func for="Device" name="QueryProperties" version="0.7.0" mod="const" doc="Queries the properties of the device.">
         <arg type="void" name="properties" mod="ptr" doc="describes a pointer to one of the query structs, which is filled with device properties."/>
@@ -198,6 +199,10 @@ Otherwise waits for any fence to be signaled.">
         <arg type="Surface" name="surface" mod="const,ref" doc="describes a pointer to {Surface::} to create the swapchain for. Surface is ref-counted."/>
         <arg type="CommandQueue" name="queue" mod="const,ref" doc="describes a pointer to {CommandQueue::} to create the swapchain for. Queue is ref-counted and @wis_must be a graphics queue."/>
         <arg type="SwapchainDesc" name="desc" mod="const,ref" doc="indicates a pointer to {SwapchainDesc::}, which describes the swapchain to create."/>
+      </func>
+      <func for="Device" name="GetFormatProperties" version="0.7.0" mod="const" doc="Gets properties of the format.">
+        <ret type="FormatProperties" result="true" name="properties" doc="Properties of the format."/>
+        <arg type="DataFormat" name="format" doc="describes the format to get properties for."/>
       </func>
 
       <!-- Fence Functions -->

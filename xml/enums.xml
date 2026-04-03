@@ -904,6 +904,14 @@ Support of this memory must be queried.">
         <impl name="dx" value="D3D12_BARRIER_LAYOUT_VIDEO_DECODE_WRITE"/>
         <impl name="vk" value="VK_IMAGE_LAYOUT_VIDEO_DECODE_DST_KHR"/>
       </value>
+      <value name="ResolveDepthStensilDst" value="15" doc="Depth Stencil Resolve Destination state.">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_RESOLVE_DEST"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL"/>
+      </value>
+      <value name="ResolveRenderTargetDst" value="16" doc="Render Target Resolve Destination state.">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_RESOLVE_DEST"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL"/>
+      </value>
     </type>
 
     <type name="ShaderIntermediate" category="enum" version="0.7.0" doc="Intermediate shader representation.">
@@ -1292,11 +1300,24 @@ More info could be found [here](https://learn.microsoft.com/en-us/windows/win32/
         <impl name="dx" value="D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_DISCARD"/>
         <impl name="vk" value="VK_ATTACHMENT_STORE_OP_DONT_CARE"/>
       </value>
-      <!-- TODO: Resolve and MSAA -->
-      <!-- <value name="Resolve" value="2" doc="Resolve the attachment contents. Used for multisampling attachments.">
-        <impl name="dx" value="D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_RESOLVE"/>
-        <impl name="vk" value="VK_ATTACHMENT_STORE_OP_STORE"/>
-      </value> -->
+    </type>
+
+    <type name="ResolveMode" category="enum" version="0.7.0" doc="Resolve mode used for multisample resolve in render pass attachments.">
+      <impl_type for="vk" name="VkResolveModeFlagBits"/>
+      <impl_type for="dx" name="D3D12_RESOLVE_MODE"/>
+      <value name="None" value="0" doc="Do not resolve the attachment."/>
+      <value name="Average" value="1" doc="Resolve by averaging samples.">
+        <impl name="dx" value="D3D12_RESOLVE_MODE_AVERAGE"/>
+        <impl name="vk" value="VK_RESOLVE_MODE_AVERAGE_BIT"/>
+      </value>
+      <value name="Min" value="2" doc="Resolve by selecting minimum sample value.">
+        <impl name="dx" value="D3D12_RESOLVE_MODE_MIN"/>
+        <impl name="vk" value="VK_RESOLVE_MODE_MIN_BIT"/>
+      </value>
+      <value name="Max" value="3" doc="Resolve by selecting maximum sample value.">
+        <impl name="dx" value="D3D12_RESOLVE_MODE_MAX"/>
+        <impl name="vk" value="VK_RESOLVE_MODE_MAX_BIT"/>
+      </value>
     </type>
 
     <type name="IndexType" category="enum" version="0.7.0" doc="Index type for index buffer.
@@ -1662,6 +1683,30 @@ Affect which part of the depth stencil buffer is used.">
       <value name="IgnoreStencil" bit="1" doc="Don't use stencil part of the depth stencil buffer."/>
       <value name="ReadOnlyDepth" bit="2" doc="Depth part is read only. Texture @wis_must be in either read state, depending on the format."/>
       <value name="ReadOnlyStencil" bit="3" doc="Stencil part is read only. Texture @wis_must be in either read state, depending on the format."/>
+    </type>
+
+    <type name="ViewHeapFlags" category="bitmask" version="0.7.0" doc="View heap creation flags.">
+      <impl_type for="dx" name="D3D12_DESCRIPTOR_HEAP_FLAGS"/>
+      <value name="None" value="0" doc="No flags set. View heap is regular."/>
+      <value name="AllowMutisample" bit="0" doc="Shader visible view heap. If set, the view heap is visible to shaders and can be used for descriptor tables. If not set, the view heap is not visible to shaders and cannot be used for descriptor tables."/>
+    </type>
+
+    <type name="FormatSupportFlags" category="bitmask" version="0.7.0" doc="Format support flags.
+Indicates what features are supported for a specific format.">
+      <value name="None" value="0" doc="No features supported."/>
+      <value name="Buffer" bit="0" doc="Format can be used for buffers."/>
+      <value name="VertexBuffer" bit="1" doc="Format can be used for vertex buffers."/>
+      <value name="Texture1D" bit="2" doc="Format can be used for 1D textures."/>
+      <value name="Texture2D" bit="3" doc="Format can be used for 2D textures."/>
+      <value name="Texture3D" bit="4" doc="Format can be used for 3D textures."/>
+      <value name="TextureCube" bit="5" doc="Format can be used for cube textures."/>
+      <value name="RenderTarget" bit="6" doc="Format can be used for render targets."/>
+      <value name="DepthStencil" bit="7" doc="Format can be used for depth stencil."/>
+      <value name="Blendable" bit="8" doc="Format supports blending."/>
+      <value name="MultisampleRenderTarget" bit="9" doc="Format supports multisampled render targets."/>
+      <value name="MultisampleResolve" bit="10" doc="Format supports multisample resolve."/>
+      <value name="ShaderResource" bit="11" doc="Format can be used for shader resource."/>
+      <value name="UnorderedAccess" bit="12" doc="Format can be used for unordered access."/>
     </type>
 
   </types>

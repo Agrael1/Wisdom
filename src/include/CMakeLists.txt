@@ -51,7 +51,9 @@ endif ()
 
 
 # header target
-add_library(wisdom-headers INTERFACE "../natvis/span.natvis")
+add_library(wisdom-headers INTERFACE
+    "../natvis/span.natvis"
+    "../natvis/opaque_handles.natvis")
 add_library(wis::wisdom-headers ALIAS wisdom-headers)
 
 target_include_directories(wisdom-headers
