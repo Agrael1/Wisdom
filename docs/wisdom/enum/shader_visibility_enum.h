@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef enum WisShaderVisibility {
  *     WisShaderVisibilityAll = 0,
  *     WisShaderVisibilityVertex = 1,
@@ -24,7 +24,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * enum class ShaderVisibility {
  *     All = 0,
  *     Vertex = 1,
@@ -43,10 +43,12 @@
  * @section WisShaderVisibility_descr Description
  * <hr>
  * \cond WIS_GEN_DESC
- * Shader stages that can be used in the pipeline. Main use is Root signature and descriptor management. Stages have no granularity, either all or one can be selected.
- * 
- * \note Translates to  `D3D12_SHADER_VISIBILITY` for DirectX 12 implementation, and `VkShaderStageFlags` for Vulkan implementation.
- * 
+ * Shader stages that can be used in the pipeline. Main use is Root signature and descriptor management. Stages have no
+ * granularity, either all or one can be selected.
+ *
+ * \note Translates to  `D3D12_SHADER_VISIBILITY` for DirectX 12 implementation, and `VkShaderStageFlags` for Vulkan
+ * implementation.
+ *
  * Values:
  * - `WisShaderVisibilityAll = 0`: All shader stages.
  * - `WisShaderVisibilityVertex = 1`: Vertex shader stage.

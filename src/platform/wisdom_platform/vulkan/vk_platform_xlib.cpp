@@ -63,11 +63,8 @@ WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKDestroyXlibExtension(WisVKXlibExtensi
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WISDOM_PLATFORM_API WisResult wisVKXlibExtensionCreateSurface(
-    WisVKXlibExtension* self,
-    const WisXlibWindowDesc* info,
-    WisVKSurface* surface
-)
+WISDOM_PLATFORM_API WisResult
+wisVKXlibExtensionCreateSurface(WisVKXlibExtension* self, const WisXlibWindowDesc* info, WisVKSurface* surface)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKXlibExtensionImpl>(self);
     auto vkCreateXlibSurfaceKHR = reinterpret_cast<PFN_vkCreateXlibSurfaceKHR>(impl.vkCreateXlibSurfaceKHR);

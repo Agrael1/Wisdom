@@ -1011,15 +1011,14 @@ void Render(BasicRenderer* renderer, const ResourceContainer* resources, const B
               .store_op = WisStoreOpStore,
               .clear_value = {0.5f, 1.0f, 1.0f, 1.0f}}},
         .render_target_count = 1,
-        .depth_stencil = {
-            .target = wisViewHeapGetViewAddress(&renderer->dsv_heap, renderer->frame_index),
-            .load_op_depth = WisLoadOpClear,
-            .load_op_stencil = WisLoadOpDontCare,
-            .store_op_depth = WisStoreOpStore,
-            .store_op_stencil = WisStoreOpDontCare,
-            .flags = WisDepthStencilFlagsIgnoreStencil,
-            .clear_depth = 1.0f
-        },
+        .depth_stencil =
+            {.target = wisViewHeapGetViewAddress(&renderer->dsv_heap, renderer->frame_index),
+             .load_op_depth = WisLoadOpClear,
+             .load_op_stencil = WisLoadOpDontCare,
+             .store_op_depth = WisStoreOpStore,
+             .store_op_stencil = WisStoreOpDontCare,
+             .flags = WisDepthStencilFlagsIgnoreStencil,
+             .clear_depth = 1.0f},
     };
 
     result = wisCommandListBegin(&frame->command_list);

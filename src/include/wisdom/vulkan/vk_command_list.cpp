@@ -309,8 +309,8 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListInsertBarriers(
 {
     // clang-format off
     if (barriers->buffer_barrier_count +
-        barriers->texture_barrier_count +
-        barriers->global_barrier_count == 0) {
+            barriers->texture_barrier_count +
+            barriers->global_barrier_count == 0) {
         return;
     }
     // clang-format on

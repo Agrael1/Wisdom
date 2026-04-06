@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef enum WisCullMode {
  *     WisCullModeNone = 1,
  *     WisCullModeFront = 2,
@@ -18,7 +18,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * enum class CullMode {
  *     None = 1,
  *     Front = 2,
@@ -33,9 +33,10 @@
  * \cond WIS_GEN_DESC
  * Cull mode for rasterizer.
  * Triangle culling depends on WisWindingOrder option.
- * 
- * \note Translates to  `D3D12_CULL_MODE` for DirectX 12 implementation, and `VkCullModeFlags` for Vulkan implementation.
- * 
+ *
+ * \note Translates to  `D3D12_CULL_MODE` for DirectX 12 implementation, and `VkCullModeFlags` for Vulkan
+ * implementation.
+ *
  * Values:
  * - `WisCullModeNone = 1`: No culling.
  * - `WisCullModeFront = 2`: Cull front-facing triangles.

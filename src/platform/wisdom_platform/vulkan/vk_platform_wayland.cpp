@@ -52,11 +52,8 @@ WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKDestroyWaylandExtension(WisVKWaylandE
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_PLATFORM_API WisResult wisVKWaylandExtensionCreateSurface(
-    WisVKWaylandExtension* self,
-    const WisWaylandWindowDesc* info,
-    WisVKSurface* surface
-)
+WIS_EXTERN_C WISDOM_PLATFORM_API WisResult
+wisVKWaylandExtensionCreateSurface(WisVKWaylandExtension* self, const WisWaylandWindowDesc* info, WisVKSurface* surface)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKWaylandExtensionImpl>(self);
     auto vkCreateWaylandSurfaceKHR = reinterpret_cast<PFN_vkCreateWaylandSurfaceKHR>(impl.vkCreateWaylandSurfaceKHR);

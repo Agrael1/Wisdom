@@ -21,7 +21,7 @@ include("${CMAKE_CURRENT_LIST_DIR}/wisdom-targets.cmake")
 if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/wisdom-platform-targets.cmake")
 include("${CMAKE_CURRENT_LIST_DIR}/wisdom-platform-targets.cmake")
 
-set(WISDOM_CORE_DEFINITIONS 
+set(WISDOM_CORE_DEFINITIONS
     NOMINMAX
     $<$<BOOL:${WISDOM_WINDOWS}>:WISDOM_WINDOWS=1>
     $<$<BOOL:${WISDOM_LINUX}>:WISDOM_LINUX=1>
@@ -39,7 +39,7 @@ target_compile_definitions(wis::wisdom-shared INTERFACE ${WISDOM_CORE_DEFINITION
 endif()
 
 if(TARGET wis::wisdom-platform-headers)
-target_compile_definitions(wis::wisdom-platform-headers INTERFACE 
+target_compile_definitions(wis::wisdom-platform-headers INTERFACE
     $<$<BOOL:${WISDOM_PLATFORM_WIN32_PRESENT}>:WIS_PLATFORM_WIN32_PRESENT=1>
     $<$<BOOL:${WISDOM_PLATFORM_XLIB_PRESENT}>:WISDOM_PLATFORM_XLIB_PRESENT=1>
     $<$<BOOL:${WISDOM_PLATFORM_XCB_PRESENT}>:WISDOM_PLATFORM_XCB_PRESENT=1>

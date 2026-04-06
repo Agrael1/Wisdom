@@ -166,8 +166,8 @@ struct VKDeviceFeatures {
     uint16_t sampler_desc_size = 0;
     uint16_t max_root_space = 0;
     uint16_t supported_image_layout_transitions = 0; // bitmask of supported image layout transitions, indexed by
-                                                     // WisImageLayout. A bit value of 1 indicates support for the
-                                                     // transition.
+    // WisImageLayout. A bit value of 1 indicates support for the
+    // transition.
     uint32_t descriptor_heap_reserved_size = 0;
     uint32_t sampler_heap_reserved_size = 0;
     uint32_t sampler_heap_reserved_size_with_embedded = 0;
@@ -200,7 +200,7 @@ struct VKQueueFamilyExtras {
     static constexpr uint8_t invalid_family_index = 0xFF;
     uint8_t family_index = invalid_family_index;
     uint32_t compatible_to_families = 0; // Bitmask of compatible queue families for relaxed transitions, indexed by
-                                         // family index. A bit value of 1 indicates compatibility.
+    // family index. A bit value of 1 indicates compatibility.
 };
 
 //----------------------------------------------------------------------------------------------------------------------

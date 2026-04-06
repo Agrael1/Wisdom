@@ -9,19 +9,19 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisScissor {
  *     int32_t left;
  *     int32_t top;
  *     int32_t right;
  *     int32_t bottom;
  * } WisScissor;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  Scissor {
  *     std::int32_t left;
  *     std::int32_t top;

@@ -326,7 +326,7 @@ inline VKQueueResidencyInfo VKGetQueueResidencyInfo(
             // Check if the global priority of the already allocated family is greater.
             if (priority_next > info.data[allocated_family].pNext) {
                 info.data[allocated_family].pNext = priority_next; // Upgrade the global priority for the already
-                                                                   // allocated family
+                // allocated family
             }
 
             info.residency[desc.type] = family_props.queueFlags;
@@ -335,8 +335,8 @@ inline VKQueueResidencyInfo VKGetQueueResidencyInfo(
 
         info.residency[desc.type] = family_props
                                         .queueFlags = allocated_queue_count; // Store where the family is allocated in
-                                                                             // the residency field (abusing queueFlags
-                                                                             // for this purpose)
+        // the residency field (abusing queueFlags
+        // for this purpose)
 
         info.data[allocated_queue_count++] = {
             .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
@@ -458,11 +458,8 @@ WIS_EXTERN_C WISDOM_API size_t wisVKAdapterQueryGetAdapterCount(const WisVKAdapt
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryGetAdapterDesc(
-    const WisVKAdapterQuery* self,
-    size_t index,
-    WisAdapterDesc* desc
-)
+WIS_EXTERN_C WISDOM_API WisResult
+wisVKAdapterQueryGetAdapterDesc(const WisVKAdapterQuery* self, size_t index, WisAdapterDesc* desc)
 {
     const auto& impl = *wis::from_handle<const wis::impl::VKAdapterQueryImpl>(self);
     if (index >= impl.adapter_count) {
@@ -703,8 +700,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(
     }
     control_block_size += sizeof(std::binary_semaphore) * semaphore_count;
 
-    std::unique_ptr<std::byte[]> header_storage{
-        static_cast<std::byte*>(operator new(control_block_size, std::nothrow))
+    std::unique_ptr<std::byte[]> header_storage{static_cast<std::byte*>(operator new(control_block_size, std::nothrow))
     };
     if (!header_storage) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to allocate memory for Vulkan device header">(
@@ -715,7 +711,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(
     // Start header lifetime
     wis::detail::VKDeviceControlBlock* header = new (header_storage.get()) wis::detail::VKDeviceControlBlock{};
     header->header.instance = impl.instance; // store instance handle in device header for later use in resource
-                                             // allocator
+    // allocator
 
     wis::span<std::binary_semaphore> semaphores{reinterpret_cast<std::binary_semaphore*>(header + 1), semaphore_count};
     for (auto& sem : semaphores) {

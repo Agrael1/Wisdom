@@ -9,19 +9,19 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisPushDescriptorDataDesc {
  *     WisPipelineType   pipeline;
  *     uint32_t          root_index;
  *     WisDescriptorType descriptor_type;
  *     uint64_t          buffer_address;
  * } WisPushDescriptorDataDesc;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  PushDescriptorDataDesc {
  *     wis::PipelineType   pipeline;
  *     std::uint32_t       root_index;

@@ -7,8 +7,8 @@
 void Generator::ParseFile(std::filesystem::path file)
 {
     // open and parse XML file
-    auto  absolute = std::filesystem::absolute(file);
-    auto& doc      = documents[absolute];
+    auto absolute = std::filesystem::absolute(file);
+    auto& doc = documents[absolute];
     doc.LoadFile(absolute.string().c_str());
 
     auto* root = doc.FirstChildElement("registry");
@@ -18,26 +18,28 @@ void Generator::ParseFile(std::filesystem::path file)
 
     bool has_modules = false;
     for (auto* module_node = root->FirstChildElement("module"); module_node;
-         module_node       = module_node->NextSiblingElement("module")) {
+         module_node = module_node->NextSiblingElement("module")) {
         has_modules = true;
 
-        auto* module_attr   = module_node->FindAttribute("name");
-        auto* version_attr  = module_node->FindAttribute("version");
+        auto* module_attr = module_node->FindAttribute("name");
+        auto* version_attr = module_node->FindAttribute("version");
         auto* base_dir_attr = module_node->FindAttribute("base_dir");
-        auto* doc_dir_attr  = module_node->FindAttribute("doc_dir");
+        auto* doc_dir_attr = module_node->FindAttribute("doc_dir");
         if (!module_attr || !version_attr || !base_dir_attr || !doc_dir_attr) {
-            throw std::runtime_error("Module metadata is missing. Required attributes: name, version, base_dir, doc_dir.");
+            throw std::runtime_error(
+                "Module metadata is missing. Required attributes: name, version, base_dir, doc_dir."
+            );
         }
 
-        auto module_name    = std::string_view(module_attr->Value());
+        auto module_name = std::string_view(module_attr->Value());
         auto [it, inserted] = module_map.try_emplace(module_name);
         if (inserted) {
             modules_in_order.emplace_back(module_name);
         }
 
-        auto& module    = it->second;
-        module.name     = module_name;
-        module.version  = version_attr->Value();
+        auto& module = it->second;
+        module.name = module_name;
+        module.version = version_attr->Value();
         module.gen_path = base_dir_attr->Value();
         module.doc_path = doc_dir_attr->Value();
         if (auto* backend = module_node->FindAttribute("backend")) {
@@ -60,7 +62,7 @@ void Generator::WriteModuleAPI()
     }
 
     auto& module = it->second;
-    std::filesystem::path cpp_output_path     = std::filesystem::path(main_output_dir) / module.gen_path;
+    std::filesystem::path cpp_output_path = std::filesystem::path(main_output_dir) / module.gen_path;
     std::filesystem::path cpp_output_path_api = cpp_output_path / "generated";
     WriteCAPI(cpp_output_path_api);
     WriteCPPAPI(cpp_output_path_api);
@@ -87,13 +89,13 @@ void Generator::WriteModuleAPIDoc(std::string_view module_name)
     }
 
     auto previous_module = active_module_name;
-    active_module_name   = module_name;
+    active_module_name = module_name;
 
     std::filesystem::path module_doc_output_path = std::filesystem::path(doc_output_dir) / it->second.doc_path;
-    std::filesystem::path enum_output_path       = module_doc_output_path / "enum";
-    std::filesystem::path struct_output_path     = module_doc_output_path / "struct";
-    std::filesystem::path handle_output_path     = module_doc_output_path / "handle";
-    std::filesystem::path func_output_path       = module_doc_output_path / "func";
+    std::filesystem::path enum_output_path = module_doc_output_path / "enum";
+    std::filesystem::path struct_output_path = module_doc_output_path / "struct";
+    std::filesystem::path handle_output_path = module_doc_output_path / "handle";
+    std::filesystem::path func_output_path = module_doc_output_path / "func";
 
     WriteEnumDocumentation(enum_output_path);
     WriteBitmaskDocumentation(enum_output_path);
@@ -138,9 +140,9 @@ void Generator::ParseRegistrySections(tinyxml2::XMLElement* root)
 void Generator::ParseIncludes(tinyxml2::XMLElement* includes)
 {
     for (auto* include = includes->FirstChildElement("include"); include;
-         include       = include->NextSiblingElement("include")) {
-        auto file     = include->GetText();
-        auto rpath    = std::filesystem::path(INPUT_FILE).parent_path() / file;
+         include = include->NextSiblingElement("include")) {
+        auto file = include->GetText();
+        auto rpath = std::filesystem::path(INPUT_FILE).parent_path() / file;
         auto absolute = std::filesystem::absolute(rpath);
 
         if (std::filesystem::exists(absolute) && !documents.contains(absolute)) {
@@ -160,8 +162,7 @@ void Generator::ParseIncludes(tinyxml2::XMLElement* includes)
 
 void Generator::ParseTypes(tinyxml2::XMLElement* types)
 {
-    for (auto* type = types->FirstChildElement("type"); type;
-         type       = type->NextSiblingElement("type")) {
+    for (auto* type = types->FirstChildElement("type"); type; type = type->NextSiblingElement("type")) {
         auto category = type->FindAttribute("category")->Value();
         if (std::string_view(category) == "struct") {
             ParseStruct(type);
@@ -183,11 +184,9 @@ void Generator::WriteCAPI(std::filesystem::path dir)
 {
     auto& module = module_map.at(active_module_name);
 
-    bool has_independent_api = !module.enums_in_order.empty() ||
-            !module.bitmasks_in_order.empty() ||
-            !module.structs_in_order.empty() ||
-            !module.constants_in_order.empty() ||
-            !module.delegates_in_order.empty();
+    bool has_independent_api = !module.enums_in_order.empty() || !module.bitmasks_in_order.empty()
+                            || !module.structs_in_order.empty() || !module.constants_in_order.empty()
+                            || !module.delegates_in_order.empty();
 
     auto path = dir / "c_api.h";
     if (!has_independent_api) {
@@ -195,21 +194,20 @@ void Generator::WriteCAPI(std::filesystem::path dir)
     }
 
     files.push_back(path);
-    std::ofstream file{ path, std::ios::out | std::ios::trunc };
+    std::ofstream file{path, std::ios::out | std::ios::trunc};
     if (!file.is_open()) {
         throw std::runtime_error("Failed to open output file: " + path.string());
     }
 
     auto header_guard = MakeUpperSnakeCase(module.name);
 
-    auto includes = module.name == "Core"
-            ? R"(#include <wisdom/global/definitions.h>
+    auto includes = module.name == "Core" ? R"(#include <wisdom/global/definitions.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
 )"
-            : R"(#include <wisdom/generated/c_api.h>
+                                          : R"(#include <wisdom/generated/c_api.h>
 #include "wisdom_exports.h"
 )";
 
@@ -291,7 +289,7 @@ extern "C" {{
     // Write handles
     for (auto& handle_name : module.handles_in_order) {
         auto& handle_def = handle_map[handle_name];
-        auto  supported  = handle_def.GetBackend();
+        auto supported = handle_def.GetBackend();
         if (has(supported, Backend::DX12)) {
             file << MakeCHandle(handle_def, Backend::DX12);
             file << "\n";
@@ -325,7 +323,7 @@ extern "C" {{
     // Write Vulkan handles
     for (auto& handle_name : module.handles_in_order) {
         auto& handle_def = handle_map[handle_name];
-        auto  supported  = handle_def.GetBackend();
+        auto supported = handle_def.GetBackend();
         if (has(supported, Backend::Vulkan)) {
             file << MakeCHandle(handle_def, Backend::Vulkan);
             file << "\n";
@@ -367,12 +365,10 @@ extern "C" {{
 
 void Generator::WriteCPPAPI(std::filesystem::path dir)
 {
-    auto& module              = module_map.at(active_module_name);
-    bool  has_independent_api = !module.enums_in_order.empty() ||
-            !module.bitmasks_in_order.empty() ||
-            !module.structs_in_order.empty() ||
-            !module.constants_in_order.empty() ||
-            !module.delegates_in_order.empty();
+    auto& module = module_map.at(active_module_name);
+    bool has_independent_api = !module.enums_in_order.empty() || !module.bitmasks_in_order.empty()
+                            || !module.structs_in_order.empty() || !module.constants_in_order.empty()
+                            || !module.delegates_in_order.empty();
 
     auto path = dir / "cpp_api.hpp";
     if (!has_independent_api) {
@@ -380,7 +376,7 @@ void Generator::WriteCPPAPI(std::filesystem::path dir)
     }
 
     files.push_back(path);
-    std::ofstream file{ path, std::ios::out | std::ios::trunc };
+    std::ofstream file{path, std::ios::out | std::ios::trunc};
     if (!file.is_open()) {
         throw std::runtime_error("Failed to open output file: " + path.string());
     }
@@ -388,13 +384,12 @@ void Generator::WriteCPPAPI(std::filesystem::path dir)
     auto header_guard = MakeUpperSnakeCase(module.name);
     auto include_root = dir.parent_path().filename().generic_string();
 
-    auto includes = module.name == "Core"
-            ? R"(#include <wisdom/global/definitions.h>
+    auto includes = module.name == "Core" ? R"(#include <wisdom/global/definitions.h>
 #include <wisdom/bridge/span.hpp>
 #include <wisdom/global/internal.hpp>
 #include "c_api.h"
 )"
-            : R"(#include <wisdom/generated/cpp_api.hpp>
+                                          : R"(#include <wisdom/generated/cpp_api.hpp>
 #include "wisdom_exports.h"
 #include "c_api.h"
 )";
@@ -470,14 +465,17 @@ namespace wis {{
         }
     }
 
-    file << wis::format(R"(
+    file << wis::format(
+        R"(
 }} // namespace wis
 
 #ifdef WISDOM_DX12
 #include <{0}/dx12/dx12_types.hpp>
 
 namespace wis {{
-)", include_root);
+)",
+        include_root
+    );
 
     // Write Views for handles
     for (auto& handle_name : module.views_in_order) {
@@ -500,7 +498,7 @@ namespace wis {{
     // Write handles
     for (auto& handle_name : module.handles_in_order) {
         auto& handle_def = handle_map[handle_name];
-        auto  supported  = handle_def.GetBackend();
+        auto supported = handle_def.GetBackend();
         if (has(supported, Backend::DX12)) {
             file << MakeCPPHandle(handle_def, Backend::DX12);
             file << "\n";
@@ -509,15 +507,16 @@ namespace wis {{
 
     // Write functions
     for (auto& func_name : module.free_functions_in_order) {
-        FunctionKey key      = MakeFunctionKey("", func_name);
-        auto&       func_def = function_map[key];
+        FunctionKey key = MakeFunctionKey("", func_name);
+        auto& func_def = function_map[key];
         if (has(func_def.backend, Backend::DX12)) {
             file << MakeCPPFunctionImpl(func_def, Backend::DX12, "inline ");
             file << "\n";
         }
     }
 
-    file << wis::format(R"(
+    file << wis::format(
+        R"(
 }} // namespace wis
 #endif // WISDOM_DX12
 
@@ -525,7 +524,9 @@ namespace wis {{
 #include <{0}/vulkan/vk_types.hpp>
 
 namespace wis {{
-)", include_root);
+)",
+        include_root
+    );
 
     // Write Views for handles
     for (auto& handle_name : module.views_in_order) {
@@ -548,7 +549,7 @@ namespace wis {{
     // Write handles
     for (auto& handle_name : module.handles_in_order) {
         auto& handle_def = handle_map[handle_name];
-        auto  supported  = handle_def.GetBackend();
+        auto supported = handle_def.GetBackend();
         if (has(supported, Backend::Vulkan)) {
             file << MakeCPPHandle(handle_def, Backend::Vulkan);
             file << "\n";
@@ -557,8 +558,8 @@ namespace wis {{
 
     // Write functions
     for (auto& func_name : module.free_functions_in_order) {
-        FunctionKey key      = MakeFunctionKey("", func_name);
-        auto&       func_def = function_map[key];
+        FunctionKey key = MakeFunctionKey("", func_name);
+        auto& func_def = function_map[key];
         if (has(func_def.backend, Backend::Vulkan)) {
             file << MakeCPPFunctionImpl(func_def, Backend::Vulkan, "inline ");
             file << "\n";
@@ -578,32 +579,32 @@ namespace wis {{
 
 //----------------------------------------------------------------------------------------------------------------------
 
-
 void Generator::WriteCIndependentAPI(std::filesystem::path dir)
 {
     auto& module = module_map.at(active_module_name);
 
-    auto independent_name = module.name == "Core" ? std::string("wisdom") : wis::format("wisdom_{}", MakeSnakeCase(module.name));
-    auto module_folder    = std::filesystem::path(module.gen_path).filename().generic_string();
+    auto independent_name = module.name == "Core" ? std::string("wisdom")
+                                                  : wis::format("wisdom_{}", MakeSnakeCase(module.name));
+    auto module_folder = std::filesystem::path(module.gen_path).filename().generic_string();
     if (module_folder.empty()) {
         module_folder = std::filesystem::path(module.gen_path).parent_path().filename().generic_string();
     }
 
-    auto backend_include = module_folder == "wisdom"
-            ? std::string("generated/c_api.h")
-            : wis::format("../{}/generated/c_api.h", module_folder);
-    auto header_guard    = wis::format("WISDOM_{}_H", MakeUpperSnakeCase(module.name));
+    auto backend_include = module_folder == "wisdom" ? std::string("generated/c_api.h")
+                                                     : wis::format("../{}/generated/c_api.h", module_folder);
+    auto header_guard = wis::format("WISDOM_{}_H", MakeUpperSnakeCase(module.name));
 
     std::filesystem::path path_w = dir / (independent_name + ".h");
     files.push_back(path_w);
 
-    std::ofstream file_w{ path_w, std::ios::out | std::ios::trunc };
+    std::ofstream file_w{path_w, std::ios::out | std::ios::trunc};
     if (!file_w.is_open()) {
         throw std::runtime_error("Failed to open output file: " + path_w.string());
     }
 
     // Write header
-    file_w << wis::format(R"(// This file is generated. Do not edit directly.
+    file_w << wis::format(
+        R"(// This file is generated. Do not edit directly.
 #ifndef {0}
 #define {0}
 
@@ -623,8 +624,9 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 
 #if defined(WISDOM_DX12) && !FORCEVK_SWITCH
 )",
-                          header_guard,
-                          backend_include);
+        header_guard,
+        backend_include
+    );
     constexpr static auto impl_dx = GetBackendSuffix(Backend::DX12);
     constexpr static auto impl_vk = GetBackendSuffix(Backend::Vulkan);
 
@@ -665,7 +667,11 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
         for (auto& handle_name : module.handles_in_order) {
             auto& handle_def = handle_map[handle_name];
             if (has(handle_def.GetBackend(), Backend::DX12)) {
-                file_w << wis::format("typedef struct {} {};\n", GetCFullTypename(handle_def.name, Backend::DX12), GetCFullTypename(handle_def.name));
+                file_w << wis::format(
+                    "typedef struct {} {};\n",
+                    GetCFullTypename(handle_def.name, Backend::DX12),
+                    GetCFullTypename(handle_def.name)
+                );
             }
         }
 
@@ -673,7 +679,11 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
         for (auto& handle_name : module.views_in_order) {
             auto& handle_def = handle_map[handle_name];
             if (handle_def.GetViewSize(Backend::DX12) > 0) {
-                file_w << wis::format("typedef struct {}View {}View;\n", GetCFullTypename(handle_def.name, Backend::DX12), GetCFullTypename(handle_def.name));
+                file_w << wis::format(
+                    "typedef struct {}View {}View;\n",
+                    GetCFullTypename(handle_def.name, Backend::DX12),
+                    GetCFullTypename(handle_def.name)
+                );
             }
         }
     }
@@ -687,7 +697,11 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
         for (auto& variant_name : module.variants_in_order) {
             auto& variant_def = variant_map[variant_name];
             if (has(variant_def.backend, Backend::DX12)) {
-                file_w << wis::format("typedef struct {} {};\n", GetCFullTypename(variant_def.name, Backend::DX12), GetCFullTypename(variant_def.name));
+                file_w << wis::format(
+                    "typedef struct {} {};\n",
+                    GetCFullTypename(variant_def.name, Backend::DX12),
+                    GetCFullTypename(variant_def.name)
+                );
             }
         }
     }
@@ -700,10 +714,12 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
     for (auto& handle_name : module.handles_in_order) {
         auto& handle_def = handle_map[handle_name];
         if (has(handle_def.GetBackend(), Backend::DX12) && handle_def.GetViewSize(Backend::DX12) > 0) {
-            file_w << wis::format("#define wisGet{}View wisGet{}{}View\n",
-                                  handle_def.name,
-                                  GetBackendSuffix(Backend::DX12),
-                                  handle_def.name);
+            file_w << wis::format(
+                "#define wisGet{}View wisGet{}{}View\n",
+                handle_def.name,
+                GetBackendSuffix(Backend::DX12),
+                handle_def.name
+            );
         }
     }
 
@@ -711,9 +727,11 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
     for (auto& func_name : module.functions_in_order) {
         auto& func_def = function_map[func_name];
         if (has(func_def.backend, Backend::DX12)) {
-            file_w << wis::format("#define {} {}\n",
-                                  GetCFullFunctionName(func_name),
-                                  GetCFullFunctionName(func_name, Backend::DX12));
+            file_w << wis::format(
+                "#define {} {}\n",
+                GetCFullFunctionName(func_name),
+                GetCFullFunctionName(func_name, Backend::DX12)
+            );
         }
     }
 
@@ -758,7 +776,11 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
         for (auto& handle_name : module.handles_in_order) {
             auto& handle_def = handle_map[handle_name];
             if (has(handle_def.GetBackend(), Backend::Vulkan)) {
-                file_w << wis::format("typedef struct {} {};\n", GetCFullTypename(handle_def.name, Backend::Vulkan), GetCFullTypename(handle_def.name));
+                file_w << wis::format(
+                    "typedef struct {} {};\n",
+                    GetCFullTypename(handle_def.name, Backend::Vulkan),
+                    GetCFullTypename(handle_def.name)
+                );
             }
         }
 
@@ -766,7 +788,11 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
         for (auto& handle_name : module.views_in_order) {
             auto& handle_def = handle_map[handle_name];
             if (handle_def.GetViewSize(Backend::Vulkan) > 0) {
-                file_w << wis::format("typedef struct {}View {}View;\n", GetCFullTypename(handle_def.name, Backend::Vulkan), GetCFullTypename(handle_def.name));
+                file_w << wis::format(
+                    "typedef struct {}View {}View;\n",
+                    GetCFullTypename(handle_def.name, Backend::Vulkan),
+                    GetCFullTypename(handle_def.name)
+                );
             }
         }
     }
@@ -780,12 +806,15 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
         for (auto& variant_name : module.variants_in_order) {
             auto& variant_def = variant_map[variant_name];
             if (has(variant_def.backend, Backend::Vulkan)) {
-                file_w << wis::format("typedef struct {} {};\n", GetCFullTypename(variant_def.name, Backend::Vulkan), GetCFullTypename(variant_def.name));
+                file_w << wis::format(
+                    "typedef struct {} {};\n",
+                    GetCFullTypename(variant_def.name, Backend::Vulkan),
+                    GetCFullTypename(variant_def.name)
+                );
             }
         }
     }
 
-    
     file_w << "\n\n//==============================================================\n"
               "// Functions\n"
               "//==============================================================\n\n";
@@ -794,10 +823,12 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
     for (auto& handle_name : module.handles_in_order) {
         auto& handle_def = handle_map[handle_name];
         if (has(handle_def.GetBackend(), Backend::Vulkan) && handle_def.GetViewSize(Backend::Vulkan) > 0) {
-            file_w << wis::format("#define wisGet{}View wisGet{}{}View\n",
-                                  handle_def.name,
-                                  GetBackendSuffix(Backend::Vulkan),
-                                  handle_def.name);
+            file_w << wis::format(
+                "#define wisGet{}View wisGet{}{}View\n",
+                handle_def.name,
+                GetBackendSuffix(Backend::Vulkan),
+                handle_def.name
+            );
         }
     }
 
@@ -805,9 +836,11 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
     for (auto& func_name : module.functions_in_order) {
         auto& func_def = function_map[func_name];
         if (has(func_def.backend, Backend::Vulkan)) {
-            file_w << wis::format("#define {} {}\n",
-                                  GetCFullFunctionName(func_name),
-                                  GetCFullFunctionName(func_name, Backend::Vulkan));
+            file_w << wis::format(
+                "#define {} {}\n",
+                GetCFullFunctionName(func_name),
+                GetCFullFunctionName(func_name, Backend::Vulkan)
+            );
         }
     }
 
@@ -834,27 +867,28 @@ void Generator::WriteCPPIndependentAPI(std::filesystem::path dir)
 {
     auto& module = module_map.at(active_module_name);
 
-    auto independent_name = module.name == "Core" ? std::string("wisdom") : wis::format("wisdom_{}", MakeSnakeCase(module.name));
-    auto module_folder    = std::filesystem::path(module.gen_path).filename().generic_string();
+    auto independent_name = module.name == "Core" ? std::string("wisdom")
+                                                  : wis::format("wisdom_{}", MakeSnakeCase(module.name));
+    auto module_folder = std::filesystem::path(module.gen_path).filename().generic_string();
     if (module_folder.empty()) {
         module_folder = std::filesystem::path(module.gen_path).parent_path().filename().generic_string();
     }
 
-    auto backend_include = module_folder == "wisdom"
-            ? std::string("generated/cpp_api.hpp")
-            : wis::format("../{}/generated/cpp_api.hpp", module_folder);
-    auto header_guard    = wis::format("WISDOM_{}_HPP", MakeUpperSnakeCase(module.name));
+    auto backend_include = module_folder == "wisdom" ? std::string("generated/cpp_api.hpp")
+                                                     : wis::format("../{}/generated/cpp_api.hpp", module_folder);
+    auto header_guard = wis::format("WISDOM_{}_HPP", MakeUpperSnakeCase(module.name));
 
     std::filesystem::path path_w = dir / (independent_name + ".hpp");
     files.push_back(path_w);
 
-    std::ofstream file_w{ path_w, std::ios::out | std::ios::trunc };
+    std::ofstream file_w{path_w, std::ios::out | std::ios::trunc};
     if (!file_w.is_open()) {
         throw std::runtime_error("Failed to open output file: " + path_w.string());
     }
 
     // Write header
-    file_w << wis::format(R"(// This file is generated. Do not edit directly.
+    file_w << wis::format(
+        R"(// This file is generated. Do not edit directly.
 #ifndef {0}
 #define {0}
 
@@ -876,8 +910,9 @@ void Generator::WriteCPPIndependentAPI(std::filesystem::path dir)
 
 namespace wis {{
 )",
-                          header_guard,
-                          backend_include);
+        header_guard,
+        backend_include
+    );
 
     if (module.name == "Core") {
         file_w << "static constexpr wis::ShaderIntermediate shader_intermediate = wis::ShaderIntermediate::DXIL;\n";
@@ -925,7 +960,11 @@ namespace wis {{
         for (auto& handle_name : module.handles_in_order) {
             auto& handle_def = handle_map[handle_name];
             if (has(handle_def.GetBackend(), Backend::DX12)) {
-                file_w << wis::format("using {} = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, Backend::DX12));
+                file_w << wis::format(
+                    "using {} = {};\n",
+                    handle_def.name,
+                    GetCPPFullTypename(handle_def.name, Backend::DX12)
+                );
             }
         }
 
@@ -933,7 +972,11 @@ namespace wis {{
         for (auto& handle_name : module.views_in_order) {
             auto& handle_def = handle_map[handle_name];
             if (handle_def.GetViewSize(Backend::DX12) > 0) {
-                file_w << wis::format("using {}View = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, Backend::DX12) + "View");
+                file_w << wis::format(
+                    "using {}View = {};\n",
+                    handle_def.name,
+                    GetCPPFullTypename(handle_def.name, Backend::DX12) + "View"
+                );
             }
         }
     }
@@ -947,7 +990,11 @@ namespace wis {{
         for (auto& variant_name : module.variants_in_order) {
             auto& variant_def = variant_map[variant_name];
             if (has(variant_def.backend, Backend::DX12)) {
-                file_w << wis::format("using {} = {};\n", variant_def.name, GetCPPFullTypename(variant_def.name, Backend::DX12));
+                file_w << wis::format(
+                    "using {} = {};\n",
+                    variant_def.name,
+                    GetCPPFullTypename(variant_def.name, Backend::DX12)
+                );
             }
         }
     }
@@ -959,8 +1006,8 @@ namespace wis {{
 
         // Write functions
         for (auto& func_name : module.free_functions_in_order) {
-            FunctionKey key      = MakeFunctionKey("", func_name);
-            auto&       func_def = function_map[key];
+            FunctionKey key = MakeFunctionKey("", func_name);
+            auto& func_def = function_map[key];
             if (has(func_def.backend, Backend::DX12)) {
                 file_w << MakeCPPFunctionImpl(func_def, Backend::DX12, "inline ", DocKind::Full, ProtoType::Universal);
                 file_w << '\n';
@@ -1022,7 +1069,11 @@ namespace wis {
         for (auto& handle_name : module.handles_in_order) {
             auto& handle_def = handle_map[handle_name];
             if (has(handle_def.GetBackend(), Backend::Vulkan)) {
-                file_w << wis::format("using {} = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, Backend::Vulkan));
+                file_w << wis::format(
+                    "using {} = {};\n",
+                    handle_def.name,
+                    GetCPPFullTypename(handle_def.name, Backend::Vulkan)
+                );
             }
         }
 
@@ -1030,7 +1081,11 @@ namespace wis {
         for (auto& handle_name : module.views_in_order) {
             auto& handle_def = handle_map[handle_name];
             if (handle_def.GetViewSize(Backend::Vulkan) > 0) {
-                file_w << wis::format("using {}View = {};\n", handle_def.name, GetCPPFullTypename(handle_def.name, Backend::Vulkan) + "View");
+                file_w << wis::format(
+                    "using {}View = {};\n",
+                    handle_def.name,
+                    GetCPPFullTypename(handle_def.name, Backend::Vulkan) + "View"
+                );
             }
         }
     }
@@ -1044,7 +1099,11 @@ namespace wis {
         for (auto& variant_name : module.variants_in_order) {
             auto& variant_def = variant_map[variant_name];
             if (has(variant_def.backend, Backend::Vulkan)) {
-                file_w << wis::format("using {} = {};\n", variant_def.name, GetCPPFullTypename(variant_def.name, Backend::Vulkan));
+                file_w << wis::format(
+                    "using {} = {};\n",
+                    variant_def.name,
+                    GetCPPFullTypename(variant_def.name, Backend::Vulkan)
+                );
             }
         }
     }
@@ -1056,10 +1115,11 @@ namespace wis {
 
         // Write functions
         for (auto& func_name : module.free_functions_in_order) {
-            FunctionKey key      = MakeFunctionKey("", func_name);
-            auto&       func_def = function_map[key];
+            FunctionKey key = MakeFunctionKey("", func_name);
+            auto& func_def = function_map[key];
             if (has(func_def.backend, Backend::Vulkan)) {
-                file_w << MakeCPPFunctionImpl(func_def, Backend::Vulkan, "inline ", DocKind::Full, ProtoType::Universal);
+                file_w
+                    << MakeCPPFunctionImpl(func_def, Backend::Vulkan, "inline ", DocKind::Full, ProtoType::Universal);
                 file_w << '\n';
             }
         }
@@ -1076,8 +1136,8 @@ namespace wis {
 
 void Generator::WriteConversions(std::filesystem::path dir)
 {
-    auto& module          = module_map.at(active_module_name);
-    bool  has_conversions = !module.enums_in_order.empty() || !module.bitmasks_in_order.empty();
+    auto& module = module_map.at(active_module_name);
+    bool has_conversions = !module.enums_in_order.empty() || !module.bitmasks_in_order.empty();
     if (!has_conversions) {
         return;
     }
@@ -1087,11 +1147,11 @@ void Generator::WriteConversions(std::filesystem::path dir)
     files.push_back(path_dx);
     files.push_back(path_vk);
 
-    std::ofstream file_dx{ path_dx, std::ios::out | std::ios::trunc };
+    std::ofstream file_dx{path_dx, std::ios::out | std::ios::trunc};
     if (!file_dx.is_open()) {
         throw std::runtime_error("Failed to open output file: " + path_dx.string());
     }
-    std::ofstream file_vk{ path_vk, std::ios::out | std::ios::trunc };
+    std::ofstream file_vk{path_vk, std::ios::out | std::ios::trunc};
     if (!file_vk.is_open()) {
         throw std::runtime_error("Failed to open output file: " + path_vk.string());
     }
@@ -1099,7 +1159,8 @@ void Generator::WriteConversions(std::filesystem::path dir)
     auto header_guard = MakeUpperSnakeCase(module.name);
 
     // Write header
-    file_dx << wis::format(R"(// This file is generated. Do not edit directly.
+    file_dx << wis::format(
+        R"(// This file is generated. Do not edit directly.
 #ifndef WISDOM_{0}_CPP_DX12_CONVERT_HPP
 #define WISDOM_{0}_CPP_DX12_CONVERT_HPP
 #ifndef __cplusplus
@@ -1113,8 +1174,10 @@ void Generator::WriteConversions(std::filesystem::path dir)
 
 namespace wis{{ namespace detail {{
 )",
-                           header_guard);
-    file_vk << wis::format(R"(// This file is generated. Do not edit directly.
+        header_guard
+    );
+    file_vk << wis::format(
+        R"(// This file is generated. Do not edit directly.
 #ifndef WISDOM_{0}_CPP_VK_CONVERT_HPP
 #define WISDOM_{0}_CPP_VK_CONVERT_HPP
 #ifndef __cplusplus
@@ -1126,7 +1189,8 @@ namespace wis{{ namespace detail {{
 
 namespace wis{{ namespace detail {{
 )",
-                           header_guard);
+        header_guard
+    );
 
     // Write enums
     for (auto& enum_name : module.enums_in_order) {
@@ -1146,36 +1210,45 @@ namespace wis{{ namespace detail {{
     }
 
     // Write footer
-    file_dx << wis::format(R"(
+    file_dx << wis::format(
+        R"(
 }}}}
 #endif // WISDOM_{}_CPP_DX12_CONVERT_HPP
 )",
-                           header_guard);
-    file_vk << wis::format(R"(
+        header_guard
+    );
+    file_vk << wis::format(
+        R"(
 }}}}
 #endif // WISDOM_{}_CPP_VK_CONVERT_HPP
 )",
-                           header_guard);
+        header_guard
+    );
 }
 
-void Generator::WriteDocumentation(std::filesystem::path doc_output_path,
-                                   std::string_view      doc_template,
-                                   std::string_view      object_name,
-                                   std::string_view      code,
-                                   std::string_view      vuids,
-                                   std::string_view      desc,
-                                   std::string_view      refs)
+void Generator::WriteDocumentation(
+    std::filesystem::path doc_output_path,
+    std::string_view doc_template,
+    std::string_view object_name,
+    std::string_view code,
+    std::string_view vuids,
+    std::string_view desc,
+    std::string_view refs
+)
 {
     if (refs.empty()) {
         refs = " * ";
     }
 
     // If file exists, only edit the generated code section, else create new file
-    bool         file_exists = std::filesystem::exists(doc_output_path);
-    std::fstream enum_file{ doc_output_path, file_exists ? std::ios::in | std::ios::out : std::ios::out };
+    bool file_exists = std::filesystem::exists(doc_output_path);
+    std::fstream enum_file{doc_output_path, file_exists ? std::ios::in | std::ios::out : std::ios::out};
 
     if (!file_exists) {
-        std::string xenum = wis::vformat(doc_template, wis::make_format_args(object_name, code, desc, active_module_name));
+        std::string xenum = wis::vformat(
+            doc_template,
+            wis::make_format_args(object_name, code, desc, active_module_name)
+        );
 
         enum_file << FinalizeCDocumentation(xenum, object_name);
         enum_file.close();
@@ -1184,44 +1257,47 @@ void Generator::WriteDocumentation(std::filesystem::path doc_output_path,
 
     // Otherwise, we would need to parse the existing file and replace the generated section
     // Read entire file content
-    std::string existing_content((std::istreambuf_iterator<char>(enum_file)),
-                                 std::istreambuf_iterator<char>());
+    std::string existing_content((std::istreambuf_iterator<char>(enum_file)), std::istreambuf_iterator<char>());
     enum_file.close();
     // Find the generated section
     size_t gen_start = existing_content.find(R"(\cond WIS_GEN_CODE)");
-    size_t gen_end   = existing_content.find(R"(\endcond)", gen_start);
+    size_t gen_end = existing_content.find(R"(\endcond)", gen_start);
 
     // Find the vuids section
     size_t vuid_start = existing_content.find(R"(\cond WIS_GEN_WIS_IDS)");
-    size_t vuid_end   = existing_content.find(R"(\endcond)", vuid_start);
+    size_t vuid_end = existing_content.find(R"(\endcond)", vuid_start);
 
     // Find the description section
     size_t desc_start = existing_content.find(R"(\cond WIS_GEN_DESC)");
-    size_t desc_end   = existing_content.find(R"(\endcond)", desc_start);
+    size_t desc_end = existing_content.find(R"(\endcond)", desc_start);
 
     // Find the references section
     size_t ref_start = existing_content.find(R"(\cond WIS_GEN_REFS)");
-    size_t ref_end   = existing_content.find(R"(\endcond)", ref_start);
+    size_t ref_end = existing_content.find(R"(\endcond)", ref_start);
 
     // Replace the references section
     if (ref_start != std::string::npos && ref_end != std::string::npos && ref_end > ref_start) {
-        existing_content = existing_content.substr(0, ref_start) + "\\cond WIS_GEN_REFS\n" + std::string(refs) + existing_content.substr(ref_end);
+        existing_content = existing_content.substr(0, ref_start) + "\\cond WIS_GEN_REFS\n" + std::string(refs)
+                         + existing_content.substr(ref_end);
     }
     // Replace the vuids section
     if (vuid_start != std::string::npos && vuid_end != std::string::npos && vuid_end > vuid_start) {
-        existing_content = existing_content.substr(0, vuid_start) + "\\cond WIS_GEN_WIS_IDS\n" + std::string(vuids) + existing_content.substr(vuid_end);
+        existing_content = existing_content.substr(0, vuid_start) + "\\cond WIS_GEN_WIS_IDS\n" + std::string(vuids)
+                         + existing_content.substr(vuid_end);
     }
     // Replace the description section
     if (desc_start != std::string::npos && desc_end != std::string::npos && desc_end > desc_start) {
-        existing_content = existing_content.substr(0, desc_start) + "\\cond WIS_GEN_DESC\n" + std::string(desc) + existing_content.substr(desc_end);
+        existing_content = existing_content.substr(0, desc_start) + "\\cond WIS_GEN_DESC\n" + std::string(desc)
+                         + existing_content.substr(desc_end);
     }
     // Replace the generated section
     if (gen_start != std::string::npos && gen_end != std::string::npos && gen_end > gen_start) {
-        existing_content = existing_content.substr(0, gen_start) + "\\cond WIS_GEN_CODE\n" + std::string(code) + existing_content.substr(gen_end);
+        existing_content = existing_content.substr(0, gen_start) + "\\cond WIS_GEN_CODE\n" + std::string(code)
+                         + existing_content.substr(gen_end);
     }
 
     // Write back to file
-    std::ofstream enum_file_out{ doc_output_path, std::ios::trunc };
+    std::ofstream enum_file_out{doc_output_path, std::ios::trunc};
     enum_file_out << existing_content;
     enum_file_out.close();
 }
@@ -1283,10 +1359,7 @@ void Generator::TryMakeRef(std::string_view type, std::string_view ref)
     }
 }
 
-void Generator::TryMakeRef(std::string_view type, FunctionKey ref)
-{
-    dependency_tree[type].functions.push_back(ref);
-}
+void Generator::TryMakeRef(std::string_view type, FunctionKey ref) { dependency_tree[type].functions.push_back(ref); }
 
 std::string Generator::GetCFullTypename(std::string_view type, Backend backend)
 {
@@ -1382,36 +1455,36 @@ std::string Generator::FinalizeCDocumentation(std::string doc, std::string_view 
         case TypeKind::None:
             break;
         case TypeKind::Enum: {
-            auto& x      = enum_map.at(this_type_view);
-            auto  evalue = x.HasValue(value);
-            replacement  = evalue ? wis::format("`{}{}`", GetCFullTypename(x.name, backend), evalue->name)
-                                  : GetCFullTypename(x.name, backend);
+            auto& x = enum_map.at(this_type_view);
+            auto evalue = x.HasValue(value);
+            replacement = evalue ? wis::format("`{}{}`", GetCFullTypename(x.name, backend), evalue->name)
+                                 : GetCFullTypename(x.name, backend);
             break;
         }
         case TypeKind::Bitmask: {
-            auto& b      = bitmask_map.at(this_type_view);
-            auto  evalue = b.HasValue(value);
-            replacement  = evalue ? wis::format("`{}{}`", GetCFullTypename(b.name, backend), evalue->name)
-                                  : GetCFullTypename(b.name, backend);
+            auto& b = bitmask_map.at(this_type_view);
+            auto evalue = b.HasValue(value);
+            replacement = evalue ? wis::format("`{}{}`", GetCFullTypename(b.name, backend), evalue->name)
+                                 : GetCFullTypename(b.name, backend);
             break;
         }
         case TypeKind::Struct: {
-            auto& s      = struct_map.at(this_type_view);
-            auto  member = s.HasValue(value);
-            replacement  = member ? wis::format("`{}::{}`", GetCFullTypename(s.name, backend), member->name)
-                                  : GetCFullTypename(s.name, backend);
+            auto& s = struct_map.at(this_type_view);
+            auto member = s.HasValue(value);
+            replacement = member ? wis::format("`{}::{}`", GetCFullTypename(s.name, backend), member->name)
+                                 : GetCFullTypename(s.name, backend);
             break;
         }
         case TypeKind::Variant: {
-            auto& v     = variant_map.at(this_type_view);
-            auto  m     = v.HasValue(value);
+            auto& v = variant_map.at(this_type_view);
+            auto m = v.HasValue(value);
             replacement = m ? wis::format("`{}::{}`", GetCFullTypename(v.name, backend), m->name)
                             : GetCFullTypename(v.name, backend);
             break;
         }
         case TypeKind::FuncPointer: {
-            auto& d     = delegate_map.at(this_type_view);
-            auto  m     = d.HasValue(value);
+            auto& d = delegate_map.at(this_type_view);
+            auto m = d.HasValue(value);
             replacement = m ? wis::format("`{}::{}`", GetCFullTypename(d.name, backend), m->name)
                             : GetCFullTypename(d.name, backend);
             break;
@@ -1423,7 +1496,7 @@ std::string Generator::FinalizeCDocumentation(std::string doc, std::string_view 
             } else {
                 // member function
                 FunctionKey key = MakeFunctionKey(type, value);
-                auto        f   = function_map.find(key);
+                auto f = function_map.find(key);
                 if (f != function_map.end()) {
                     replacement = GetCFullFunctionName(key);
                 }
@@ -1499,36 +1572,36 @@ std::string Generator::FinalizeCPPDocumentation(std::string doc, std::string_vie
         case TypeKind::None:
             break;
         case TypeKind::Enum: {
-            auto& x      = enum_map.at(this_type_view);
-            auto  evalue = x.HasValue(value);
-            replacement  = evalue ? wis::format("`{}::{}`", GetCPPFullTypename(x.name, backend), evalue->name)
-                                  : GetCPPFullTypename(x.name, backend);
+            auto& x = enum_map.at(this_type_view);
+            auto evalue = x.HasValue(value);
+            replacement = evalue ? wis::format("`{}::{}`", GetCPPFullTypename(x.name, backend), evalue->name)
+                                 : GetCPPFullTypename(x.name, backend);
             break;
         }
         case TypeKind::Bitmask: {
-            auto& b      = bitmask_map.at(this_type_view);
-            auto  evalue = b.HasValue(value);
-            replacement  = evalue ? wis::format("`{}::{}`", GetCPPFullTypename(b.name, backend), evalue->name)
-                                  : GetCPPFullTypename(b.name, backend);
+            auto& b = bitmask_map.at(this_type_view);
+            auto evalue = b.HasValue(value);
+            replacement = evalue ? wis::format("`{}::{}`", GetCPPFullTypename(b.name, backend), evalue->name)
+                                 : GetCPPFullTypename(b.name, backend);
             break;
         }
         case TypeKind::Struct: {
-            auto& s      = struct_map.at(this_type_view);
-            auto  member = s.HasValue(value);
-            replacement  = member ? wis::format("`{}::{}`", GetCPPFullTypename(s.name, backend), member->name)
-                                  : GetCPPFullTypename(s.name, backend);
+            auto& s = struct_map.at(this_type_view);
+            auto member = s.HasValue(value);
+            replacement = member ? wis::format("`{}::{}`", GetCPPFullTypename(s.name, backend), member->name)
+                                 : GetCPPFullTypename(s.name, backend);
             break;
         }
         case TypeKind::Variant: {
-            auto& v     = variant_map.at(this_type_view);
-            auto  m     = v.HasValue(value);
+            auto& v = variant_map.at(this_type_view);
+            auto m = v.HasValue(value);
             replacement = m ? wis::format("`{}::{}`", GetCPPFullTypename(v.name, backend), m->name)
                             : GetCPPFullTypename(v.name, backend);
             break;
         }
         case TypeKind::FuncPointer: {
-            auto& d     = delegate_map.at(this_type_view);
-            auto  m     = d.HasValue(value);
+            auto& d = delegate_map.at(this_type_view);
+            auto m = d.HasValue(value);
             replacement = m ? wis::format("`{}::{}`", GetCPPFullTypename(d.name, backend), m->name)
                             : GetCPPFullTypename(d.name, backend);
             break;
@@ -1540,7 +1613,7 @@ std::string Generator::FinalizeCPPDocumentation(std::string doc, std::string_vie
             } else {
                 // member function
                 FunctionKey key = MakeFunctionKey(type, value);
-                auto        f   = function_map.find(key);
+                auto f = function_map.find(key);
                 if (f != function_map.end()) {
                     replacement = GetCPPFullFunctionName(key);
                 }
@@ -1589,15 +1662,22 @@ std::string Generator::FinalizeCPPDocumentation(std::string doc, std::string_vie
     return doc;
 }
 
-std::string Generator::GetSpecificationCode(std::string_view c_code, std::string_view c_impl_code, std::string_view cpp_code, std::string_view cpp_impl_code)
+std::string Generator::GetSpecificationCode(
+    std::string_view c_code,
+    std::string_view c_impl_code,
+    std::string_view cpp_code,
+    std::string_view cpp_impl_code
+)
 {
     std::string template_content_c;
     if (!c_code.empty()) {
         template_content_c = wis::format(" C Version:\n```c\n{}```\n", c_code);
         if (!c_impl_code.empty()) {
             // append a details section
-            template_content_c += wis::format("<details>\n<summary>C Implementation Specific Version:</summary>\n```c\n{}```\n</details>\n",
-                                              c_impl_code);
+            template_content_c += wis::format(
+                "<details>\n<summary>C Implementation Specific Version:</summary>\n```c\n{}```\n</details>\n",
+                c_impl_code
+            );
         }
     }
 
@@ -1606,8 +1686,11 @@ std::string Generator::GetSpecificationCode(std::string_view c_code, std::string
         template_content_cpp = wis::format("C++ Version:\n```cpp\nnamespace wis{{\n{}}}\n```\n", cpp_code);
         if (!cpp_impl_code.empty()) {
             // append a details section
-            template_content_cpp += wis::format("<details>\n<summary>C++ Implementation Specific Version:</summary>\n```cpp\nnamespace wis{{\n{}}}\n```\n</details>\n",
-                                                cpp_impl_code);
+            template_content_cpp += wis::format(
+                "<details>\n<summary>C++ Implementation Specific Version:</summary>\n```cpp\nnamespace "
+                "wis{{\n{}}}\n```\n</details>\n",
+                cpp_impl_code
+            );
         }
     }
 
@@ -1630,9 +1713,9 @@ Backend Generator::ParseBackend(std::string_view backend) noexcept
 ImplOs Generator::GetImplOs(std::string_view os) noexcept
 {
     // tokenize by comma
-    for (auto&& tk : std::views::split(os, std::string_view{ "," })) {
+    for (auto&& tk : std::views::split(os, std::string_view{","})) {
         // trim
-        std::string_view tk_view{ tk.begin(), tk.end() };
+        std::string_view tk_view{tk.begin(), tk.end()};
         if (tk_view == "windows") {
             return ImplOs::Windows;
         }
@@ -1668,7 +1751,7 @@ void Generator::ReplaceAll(std::string& str, const std::string& from, const std:
 
 InlineTypeInfo Generator::FindInlineType(std::string_view str)
 {
-    auto end   = str.rfind('}');
+    auto end = str.rfind('}');
     auto end_n = str.rfind('\n');
     if (end == std::string_view::npos || end_n < end) {
         return {};
@@ -1687,10 +1770,10 @@ InlineTypeInfo Generator::FindInlineType(std::string_view str)
     auto colon = caption.find("::");
     if (colon != std::string_view::npos) {
         value = caption.substr(colon + 2);
-        type  = caption.substr(0, colon);
+        type = caption.substr(0, colon);
     }
 
-    return { type, value, pos, end };
+    return {type, value, pos, end};
 }
 
 std::string Generator::MakeVersionString(std::string_view version, bool newline)
@@ -1718,9 +1801,9 @@ Modifier Generator::GetModifiers(std::string_view mod_str) noexcept
 {
     // tokenize by comma lazily
     Modifier mods = Modifier::None;
-    for (auto&& tk : std::views::split(mod_str, std::string_view{ "," })) {
+    for (auto&& tk : std::views::split(mod_str, std::string_view{","})) {
         // trim
-        std::string_view tk_view{ tk.begin(), tk.end() };
+        std::string_view tk_view{tk.begin(), tk.end()};
         switch (tk_view[0]) {
         case 'p':
             if (tk_view == "ptr") {
@@ -1764,7 +1847,7 @@ Modifier Generator::GetModifiers(std::string_view mod_str) noexcept
     return mods;
 }
 
-template<typename Kty>
+template <typename Kty>
 void Deduplicate(std::vector<Kty>& dependency)
 {
     // deduplicate handles
@@ -1786,7 +1869,7 @@ std::string Generator::GetRefs(std::string_view for_type)
     }
     auto& xrefs = it->second;
 
-    std::size_t                  ref_count     = 0;
+    std::size_t ref_count = 0;
     static constexpr std::size_t max_ref_count = 10;
 
     auto type = GetType(for_type);

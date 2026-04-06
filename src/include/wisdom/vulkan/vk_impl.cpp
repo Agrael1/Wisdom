@@ -75,11 +75,8 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyTexture(WisVKTexture* self)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisVKTextureWriteSubresource(
-    const WisVKTexture* self,
-    const void* source_data,
-    const WisTextureRegion* target_region
-)
+WIS_EXTERN_C WISDOM_API WisResult
+wisVKTextureWriteSubresource(const WisVKTexture* self, const void* source_data, const WisTextureRegion* target_region)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKTextureImpl>(self);
     auto& header = impl.device_header->header;

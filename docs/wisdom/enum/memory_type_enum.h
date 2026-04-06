@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef enum WisMemoryType {
  *     WisMemoryTypeDefault = 0,
  *     WisMemoryTypeDeviceLocal = 0,
@@ -20,7 +20,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * enum class MemoryType {
  *     Default = 0,
  *     DeviceLocal = 0,
@@ -36,9 +36,10 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * Memory type for resource allocation.
- * 
- * \note Translates to  `D3D12_HEAP_TYPE` for DirectX 12 implementation, and `VkMemoryPropertyFlags` for Vulkan implementation.
- * 
+ *
+ * \note Translates to  `D3D12_HEAP_TYPE` for DirectX 12 implementation, and `VkMemoryPropertyFlags` for Vulkan
+ * implementation.
+ *
  * Values:
  * - `WisMemoryTypeDefault = 0`: Default memory type. Alias for `WisMemoryTypeDeviceLocal`
  * - `WisMemoryTypeDeviceLocal = 0`: Default memory type.

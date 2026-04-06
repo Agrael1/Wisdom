@@ -5,7 +5,8 @@
  *
  * @section overview_sec Overview
  *
- * We welcome contributions to the Wisdom project! Whether you're fixing bugs, adding features, improving documentation, or helping with testing, your contributions are valuable to the community.
+ * We welcome contributions to the Wisdom project! Whether you're fixing bugs, adding features, improving documentation,
+ * or helping with testing, your contributions are valuable to the community.
  *
  * Before contributing, please familiarize yourself with our codebase structure and coding standards outlined below.
  *
@@ -23,7 +24,8 @@
  *
  * @subsection code_style Code Style
  *
- * The Wisdom project uses a **custom clang-format configuration** located in `.clang-format` at the root of the repository. All code should be formatted according to this style:
+ * The Wisdom project uses a **custom clang-format configuration** located in `.clang-format` at the root of the
+ * repository. All code should be formatted according to this style:
  *
  * - **Base Style**: WebKit
  * - **Pointer Alignment**: `Type* pointer` (pointer binds to type)
@@ -47,7 +49,8 @@
  * - **Variables and constants**: snake_case (e.g., `command_list`, `descriptor_heap`)
  * - **Defines**: SCREAMING_SNAKE_CASE (e.g., `WISDOM_VERSION`)
  * - **Enums and enum values**: PascalCase (e.g., `Status`, `Ok`, `ErrorInvalidArgument`)
- * - **Container Classes**: snake_case (e.g., `unique_event`). These are usually templated containers or wrappers around STL containers.
+ * - **Container Classes**: snake_case (e.g., `unique_event`). These are usually templated containers or wrappers around
+ * STL containers.
  * - **Namespaces**: snake_case (e.g., `wis`)
  *
  * @note I just prefer this style, it is not strictly enforced.
@@ -57,15 +60,19 @@
  * - **Result-based returns**: Most functions return `wis::Result` as 1st value, that allows RVO and easy error handling
  * - **RAII compliance**: All resources manage their own lifetime, no raw pointers outside of implementation
  * - **Move semantics**: Most classes are move-only to prevent resource duplication
- * - **No virtual functions**: Direct API calls for maximum performance, unless designing extension classes for device or factory
- * - **Platform abstraction**: Code should work on both DirectX 12 and Vulkan backends, unless explicitly stated otherwise
+ * - **No virtual functions**: Direct API calls for maximum performance, unless designing extension classes for device
+ * or factory
+ * - **Platform abstraction**: Code should work on both DirectX 12 and Vulkan backends, unless explicitly stated
+ * otherwise
  *
  * @subsection language_standards Language Standards
  *
  * - **Primary**: C++20 (required)
- * - **Supported**: C++23 features where available. If you want to use C++23 features, please ensure they are supported by all target compilers by using feature macros. Don't use `__cplusplus`! It is unreliable on MSVC.
+ * - **Supported**: C++23 features where available. If you want to use C++23 features, please ensure they are supported
+ * by all target compilers by using feature macros. Don't use `__cplusplus`! It is unreliable on MSVC.
  * - **Legacy**: If you see any C++17 or older constructs, please consider updating them to modern C++20 equivalents.
- * - **Modules**: Experimental C++20 modules support (opt-in via `WISDOM_EXPERIMENTAL_CPP_MODULES`). Modules are not required and the project fully supports traditional headers.
+ * - **Modules**: Experimental C++20 modules support (opt-in via `WISDOM_EXPERIMENTAL_CPP_MODULES`). Modules are not
+ * required and the project fully supports traditional headers.
  *
  * @section build_requirements_sec Build Requirements
  *
@@ -271,5 +278,6 @@
  * By contributing to Wisdom, you agree that your contributions will be licensed under the same license as the project.
  * Please see the LICENSE.txt file in the repository root for details.
  *
- * @note Thank you for your interest in contributing to Wisdom! Your contributions help make this library better for everyone.
+ * @note Thank you for your interest in contributing to Wisdom! Your contributions help make this library better for
+ * everyone.
  */

@@ -97,11 +97,8 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyResourceAllocator(WisVKResourceAllocato
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateBuffer(
-    const WisVKResourceAllocator* self,
-    const WisBufferDesc* desc,
-    WisVKBuffer* buffer
-)
+WIS_EXTERN_C WISDOM_API WisResult
+wisVKResourceAllocatorCreateBuffer(const WisVKResourceAllocator* self, const WisBufferDesc* desc, WisVKBuffer* buffer)
 {
     auto& allocator = wis::from_handle_ref<const wis::impl::VKResourceAllocatorImpl>(self);
 
@@ -212,13 +209,14 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateTexture(
             .image = image_handle,
             .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
             .newLayout = VK_IMAGE_LAYOUT_GENERAL,
-            .subresourceRange = {
-                .aspectMask = wis::detail::VKAspectFlags(image_info.format),
-                .baseMipLevel = 0,
-                .levelCount = image_info.mipLevels,
-                .baseArrayLayer = 0,
-                .layerCount = image_info.arrayLayers,
-            },
+            .subresourceRange =
+                {
+                    .aspectMask = wis::detail::VKAspectFlags(image_info.format),
+                    .baseMipLevel = 0,
+                    .levelCount = image_info.mipLevels,
+                    .baseArrayLayer = 0,
+                    .layerCount = image_info.arrayLayers,
+                },
         };
 
         vr = table.vkTransitionImageLayoutEXT(header.device, 1, &transition_info);

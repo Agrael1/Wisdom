@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * void wisCommandListSetBlendFactors(const WisCommandList* self,
  *                                    float                 blend_factor_r,
  *                                    float                 blend_factor_g,
@@ -19,14 +19,14 @@
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * void wisVKCommandListSetBlendFactors(const WisVKCommandList* self,
  *                                      float                   blend_factor_r,
  *                                      float                   blend_factor_g,
  *                                      float                   blend_factor_b,
  *                                      float                   blend_factor_a);
- * 
- * // Provided by Wisdom 0.7.0. 
+ *
+ * // Provided by Wisdom 0.7.0.
  * void wisDX12CommandListSetBlendFactors(const WisDX12CommandList* self,
  *                                        float                     blend_factor_r,
  *                                        float                     blend_factor_g,
@@ -34,11 +34,11 @@
  *                                        float                     blend_factor_a);
  * ```
  * </details>
- * 
+ *
  * C++ Version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * void CommandList::SetBlendFactors(float blend_factor_r,
  *                                   float blend_factor_g,
  *                                   float blend_factor_b,
@@ -49,13 +49,13 @@
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * void VKCommandList::SetBlendFactors(float blend_factor_r,
  *                                     float blend_factor_g,
  *                                     float blend_factor_b,
  *                                     float blend_factor_a) const noexcept;
- * 
- * // Provided by Wisdom 0.7.0. 
+ *
+ * // Provided by Wisdom 0.7.0.
  * void DX12CommandList::SetBlendFactors(float blend_factor_r,
  *                                       float blend_factor_g,
  *                                       float blend_factor_b,

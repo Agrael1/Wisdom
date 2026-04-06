@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef enum WisResolveMode {
  *     WisResolveModeNone = 0,
  *     WisResolveModeAverage = 1,
@@ -19,7 +19,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * enum class ResolveMode {
  *     None = 0,
  *     Average = 1,
@@ -34,9 +34,10 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * Resolve mode used for multisample resolve in render pass attachments.
- * 
- * \note Translates to  `D3D12_RESOLVE_MODE` for DirectX 12 implementation, and `VkResolveModeFlagBits` for Vulkan implementation.
- * 
+ *
+ * \note Translates to  `D3D12_RESOLVE_MODE` for DirectX 12 implementation, and `VkResolveModeFlagBits` for Vulkan
+ * implementation.
+ *
  * Values:
  * - `WisResolveModeNone = 0`: Do not resolve the attachment.
  * - `WisResolveModeAverage = 1`: Resolve by averaging samples.
