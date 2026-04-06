@@ -11,7 +11,9 @@
  *
  * - Positive status codes provide additional information about the success of an operation.
  * - Negative status codes indicate various error conditions.
- * - Special value `WisStatusError` is used for general errors. This means that the operation failed, but no common error code is suit to describe the error. Specific details @wis_may be provided by platform code or by other means (e.g., error callbacks, logs, etc.).
+ * - Special value `WisStatusError` is used for general errors. This means that the operation failed, but no common
+ * error code is suit to describe the error. Specific details @wis_may be provided by platform code or by other means
+ * (e.g., error callbacks, logs, etc.).
  *
  * Common return status codes are:
  * \cond WIS_GEN_CODE
@@ -62,7 +64,8 @@
  * - `WisStatusOk = 0`: Operation succeeded.
  * - `WisStatusTimeout = 1`: Operation timed out.
  * - `WisStatusPartial = 2`: Operation partially succeeded.
- * - `WisStatusInvalidArgument = -1`: One or more arguments, or parts of arguments passed to the function were incorrect.
+ * - `WisStatusInvalidArgument = -1`: One or more arguments, or parts of arguments passed to the function were
+ * incorrect.
  * - `WisStatusOutOfHostMemory = -2`: There is no more host memory available.
  * - `WisStatusOutOfDeviceMemory = -3`: There is no more device memory available.
  * - `WisStatusDeviceLost = -4`: Device driver was forcefully stopped.
@@ -72,7 +75,8 @@
  * - `WisStatusError = -10000`: Operation failed.
  * \endcond
  *
- * Performance critical commands @wis_should avoid returning error codes when possible. Instead they @wis_may report errors on command list close.
+ * Performance critical commands @wis_should avoid returning error codes when possible. Instead they @wis_may report
+ * errors on command list close.
  *
  * @section Status_see_also See Also
  * <hr>

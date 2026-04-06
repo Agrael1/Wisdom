@@ -37,7 +37,8 @@
  * \cond WIS_GEN_DESC
  * Address mode for texture sampling.
  *
- * \note Translates to  `D3D12_TEXTURE_ADDRESS_MODE` for DirectX 12 implementation, and `VkSamplerAddressMode` for Vulkan implementation.
+ * \note Translates to  `D3D12_TEXTURE_ADDRESS_MODE` for DirectX 12 implementation, and `VkSamplerAddressMode` for
+ * Vulkan implementation.
  *
  * Values:
  * - `WisAddressModeRepeat = 0`: Repeat the texture.

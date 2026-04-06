@@ -46,9 +46,11 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * Primitive topology for rendering.
- * More info could be found [here](https://learn.microsoft.com/en-us/windows/win32/direct3d11/d3d10-graphics-programming-guide-primitive-topologies).
+ * More info could be found
+ * [here](https://learn.microsoft.com/en-us/windows/win32/direct3d11/d3d10-graphics-programming-guide-primitive-topologies).
  *
- * \note Translates to  `D3D_PRIMITIVE_TOPOLOGY` for DirectX 12 implementation, and `VkPrimitiveTopology` for Vulkan implementation.
+ * \note Translates to  `D3D_PRIMITIVE_TOPOLOGY` for DirectX 12 implementation, and `VkPrimitiveTopology` for Vulkan
+ * implementation.
  *
  * Values:
  * - `WisPrimitiveTopologyPointList = 1`: Render points for each vertex.

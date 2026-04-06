@@ -8,8 +8,8 @@
  *
  * There is no global state in Wisdom. All per-application state is stored in an instance of `WisInstance`.
  * Depending on the underlying graphics API, the instance may hold different resources.
- * Most notably, in Vulkan, the instance holds a `VkInstance` handle, while in DX12, it may hold a `IDXGIFactory` or similar object.
- * Vulkan implementation also carries global function pointers needed to call Vulkan functions.
+ * Most notably, in Vulkan, the instance holds a `VkInstance` handle, while in DX12, it may hold a `IDXGIFactory` or
+ * similar object. Vulkan implementation also carries global function pointers needed to call Vulkan functions.
  *
  * \cond WIS_GEN_CODE
  *  Vulkan Version:

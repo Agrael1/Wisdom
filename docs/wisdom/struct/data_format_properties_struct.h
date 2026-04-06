@@ -29,8 +29,8 @@
  * @section WisDataFormatProperties_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `max_sample_count` defines maximum supported sample count for the format. If the format does not support multisampling, the value is `S1`.
- * \endcond
+ * - `max_sample_count` defines maximum supported sample count for the format. If the format does not support
+ * multisampling, the value is `S1`. \endcond
  *
  * @section WisDataFormatProperties_descr Description
  * <hr>

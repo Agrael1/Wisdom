@@ -1,20 +1,16 @@
 #pragma once
-#include <string>
-#include <optional>
-#include <vector>
-#include <list>
 #include <algorithm>
+#include <list>
+#include <optional>
+#include <string>
+#include <vector>
 
 enum class DocKind {
     Full,
     VersionOnly,
 };
 
-enum class ProtoType {
-    Prefixed,
-    Universal,
-    ClassMember
-};
+enum class ProtoType { Prefixed, Universal, ClassMember };
 
 //----------------------------------------------------------------------------------------------------------------------
 enum class TypeKind {
@@ -33,9 +29,9 @@ enum class TypeKind {
 };
 enum class Backend {
     Any,
-    DX12   = 1 << 0,
+    DX12 = 1 << 0,
     Vulkan = 1 << 1,
-    All    = DX12 | Vulkan,
+    All = DX12 | Vulkan,
 };
 constexpr Backend operator|(Backend a, Backend b)
 {
@@ -45,18 +41,15 @@ constexpr Backend operator&(Backend a, Backend b)
 {
     return static_cast<Backend>(static_cast<int>(a) & static_cast<int>(b));
 }
-constexpr bool has(Backend a, Backend b)
-{
-    return (a & b) == b;
-}
+constexpr bool has(Backend a, Backend b) { return (a & b) == b; }
 
 enum class ImplOs {
     None,
     Windows = 1 << 0,
-    Linux   = 1 << 1,
-    MacOS   = 1 << 2,
+    Linux = 1 << 1,
+    MacOS = 1 << 2,
     Android = 1 << 3,
-    IOS     = 1 << 4,
+    IOS = 1 << 4,
 };
 constexpr ImplOs operator|(ImplOs a, ImplOs b)
 {
@@ -64,17 +57,17 @@ constexpr ImplOs operator|(ImplOs a, ImplOs b)
 }
 
 enum Modifier {
-    None             = 0,
-    Pointer          = 1 << 0,
-    Reference        = 1 << 1,
-    Const            = 1 << 2,
-    Nodiscard        = 1 << 4,
+    None = 0,
+    Pointer = 1 << 0,
+    Reference = 1 << 1,
+    Const = 1 << 2,
+    Nodiscard = 1 << 4,
     PointerToPointer = 1 << 5,
-    Span             = 1 << 6,
-    Destroy          = 1 << 7,
-    COnly            = 1 << 8,
-    Universal        = 1 << 9, // for functions only
-    Construct        = 1 << 10, // for functions only
+    Span = 1 << 6,
+    Destroy = 1 << 7,
+    COnly = 1 << 8,
+    Universal = 1 << 9, // for functions only
+    Construct = 1 << 10, // for functions only
 };
 
 enum ReturnTypeKind {
@@ -92,75 +85,65 @@ enum class Lang {
     C,
     CPP,
 };
-enum class Extends {
-    None,
-    Instance,
-    Device
-};
+enum class Extends { None, Instance, Device };
 
 struct InlineTypeInfo {
     std::string_view type;
     std::string_view value;
-    std::size_t      pos;
-    std::size_t      after;
+    std::size_t pos;
+    std::size_t after;
 };
 
 struct WisConvert {
     std::string_view value;
     std::string_view default_value;
-    bool             direct = false;
-    bool             convert_back = false;
+    bool direct = false;
+    bool convert_back = false;
 };
 struct WisEnumValue {
-    std::string_view                name;
-    std::string_view                doc;
-    std::string_view                version;
+    std::string_view name;
+    std::string_view doc;
+    std::string_view version;
     std::array<std::string_view, 3> converts;
-    int64_t                         value = 0;
+    int64_t value = 0;
 };
 struct WisEnum {
-    std::string_view          name;
-    std::string_view          type;
-    std::string_view          doc;
-    std::string_view          version;
+    std::string_view name;
+    std::string_view type;
+    std::string_view doc;
+    std::string_view version;
     std::vector<WisEnumValue> values;
     std::array<WisConvert, 3> conversion_type;
 
 public:
     std::optional<WisEnumValue> HasValue(std::string_view name) const noexcept
     {
-        auto enum_value = std::find_if(values.begin(), values.end(), [&](auto& v) {
-            return v.name == name;
-        });
-        return enum_value != values.end() ? std::optional<WisEnumValue> { *enum_value } :
-               std::nullopt;
+        auto enum_value = std::find_if(values.begin(), values.end(), [&](auto& v) { return v.name == name; });
+        return enum_value != values.end() ? std::optional<WisEnumValue>{*enum_value} : std::nullopt;
     }
 };
 
 struct WisBitmaskValue {
-    std::string_view                name;
-    std::string_view                doc;
-    std::string_view                version;
+    std::string_view name;
+    std::string_view doc;
+    std::string_view version;
     std::array<std::string_view, 3> converts;
-    int64_t                         value_or_bit = 0;
-    bool                            is_bit       = false;
+    int64_t value_or_bit = 0;
+    bool is_bit = false;
 };
 struct WisBitmask {
-    std::string_view             name;
-    std::string_view             type;
-    std::string_view             doc;
-    std::string_view             version;
+    std::string_view name;
+    std::string_view type;
+    std::string_view doc;
+    std::string_view version;
     std::vector<WisBitmaskValue> values;
-    std::array<WisConvert, 3>    conversion_type;
+    std::array<WisConvert, 3> conversion_type;
 
 public:
     std::optional<WisBitmaskValue> HasValue(std::string_view name) const noexcept
     {
-        auto enum_value = std::find_if(values.begin(), values.end(), [&](auto& v) {
-            return v.name == name;
-        });
-        return enum_value != values.end() ? std::optional<WisBitmaskValue> { *enum_value } :
-               std::nullopt;
+        auto enum_value = std::find_if(values.begin(), values.end(), [&](auto& v) { return v.name == name; });
+        return enum_value != values.end() ? std::optional<WisBitmaskValue>{*enum_value} : std::nullopt;
     }
 };
 
@@ -169,18 +152,18 @@ struct WisStructMember {
     std::string_view name;
     std::string_view type;
     std::string_view array_size;
-    Modifier         modifier;
+    Modifier modifier;
     std::string_view default_value;
     std::string_view doc;
 };
 
 struct WisStruct {
-    std::string_view             name;
-    std::string_view             doc;
-    std::string_view             version;
-    std::string_view             platform; // optional
-    Modifier                     modifier = Modifier::None;
-    Backend                      backend  = Backend::All; // support query
+    std::string_view name;
+    std::string_view doc;
+    std::string_view version;
+    std::string_view platform; // optional
+    Modifier modifier = Modifier::None;
+    Backend backend = Backend::All; // support query
     std::vector<WisStructMember> members;
 
 public:
@@ -190,24 +173,19 @@ public:
             return {};
         }
 
-        auto enum_value = std::find_if(members.begin(), members.end(), [&](auto& v) {
-            return v.name == name;
-        });
+        auto enum_value = std::find_if(members.begin(), members.end(), [&](auto& v) { return v.name == name; });
         return *enum_value;
     }
-    void FilterBackend(Backend b)
-    {
-        backend = backend & b;
-    }
+    void FilterBackend(Backend b) { backend = backend & b; }
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 struct WisHandle {
-    std::string_view        name;
-    std::string_view        doc;
-    std::string_view        version;
-    std::string_view        platform; // optional
-    Extends                 extends = Extends::None; // handle for extension
+    std::string_view name;
+    std::string_view doc;
+    std::string_view version;
+    std::string_view platform; // optional
+    Extends extends = Extends::None; // handle for extension
     std::array<uint32_t, 2> sizes{};
     std::array<uint32_t, 2> view_sizes{};
 
@@ -251,16 +229,16 @@ struct WisFunctionParameter {
     std::string_view type;
     std::string_view doc;
     std::string_view name;
-    Modifier         modifier = Modifier::None;
+    Modifier modifier = Modifier::None;
     std::string_view default_value;
 };
 
 struct WisReturnType {
-    bool             has_result = false;
+    bool has_result = false;
     std::string_view type;
     std::string_view doc;
     std::string_view opt_name;
-    Modifier         modifier = Modifier::None;
+    Modifier modifier = Modifier::None;
 
     ReturnTypeKind GetKind() const noexcept
     {
@@ -276,33 +254,21 @@ struct WisReturnType {
         return ReturnTypeKind::ResultAndValue;
     }
 
-    bool IsVoid() const noexcept
-    {
-        return type.empty() && !has_result;
-    }
-    bool IsRV() const noexcept
-    {
-        return has_result && !type.empty();
-    }
-    bool IsDirect() const noexcept
-    {
-        return !has_result && !type.empty();
-    }
-    bool IsResultOnly() const noexcept
-    {
-        return has_result && type.empty();
-    }
+    bool IsVoid() const noexcept { return type.empty() && !has_result; }
+    bool IsRV() const noexcept { return has_result && !type.empty(); }
+    bool IsDirect() const noexcept { return !has_result && !type.empty(); }
+    bool IsResultOnly() const noexcept { return has_result && type.empty(); }
 };
 struct WisFunction {
     std::string_view name;
-    std::string      doc;
+    std::string doc;
     std::string_view this_type;
     std::string_view version;
     std::string_view platform; // optional
-    Modifier         modifier = Modifier::None;
-    Backend          backend  = Backend::All; // support query
+    Modifier modifier = Modifier::None;
+    Backend backend = Backend::All; // support query
 
-    WisReturnType                     return_type;
+    WisReturnType return_type;
     std::vector<WisFunctionParameter> parameters;
 
     std::optional<WisFunctionParameter> HasValue(std::string_view name) const noexcept
@@ -310,13 +276,17 @@ struct WisFunction {
         if (name.empty()) {
             return {};
         }
-        auto enum_value = std::find_if(parameters.begin(), parameters.end(), [&](auto& v) {
-            return v.name == name;
-        });
+        auto enum_value = std::find_if(parameters.begin(), parameters.end(), [&](auto& v) { return v.name == name; });
         if (enum_value == parameters.end()) {
             // it can be return value
             if (return_type.opt_name == name) {
-                return WisFunctionParameter{ return_type.type, return_type.doc, return_type.opt_name, return_type.modifier, "" };
+                return WisFunctionParameter{
+                    return_type.type,
+                    return_type.doc,
+                    return_type.opt_name,
+                    return_type.modifier,
+                    ""
+                };
             }
             return {};
         }
@@ -324,15 +294,9 @@ struct WisFunction {
     }
 
     // constructor or destructor
-    bool IsCD() const noexcept
-    {
-        return modifier & (Modifier::Construct | Modifier::Destroy);
-    }
+    bool IsCD() const noexcept { return modifier & (Modifier::Construct | Modifier::Destroy); }
 
-    void FilterBackend(Backend b)
-    {
-        backend = backend & b;
-    }
+    void FilterBackend(Backend b) { backend = backend & b; }
 };
 
 static inline constexpr Severity from_chars(std::string_view input) noexcept
@@ -355,41 +319,41 @@ struct WisConstant {
     std::string_view value;
     std::string_view doc;
     std::string_view version;
-    Modifier         modifier = Modifier::None;
+    Modifier modifier = Modifier::None;
 };
 
 struct Validation {
     std::string_view type_name;
     std::string_view id;
-    Severity         severity;
+    Severity severity;
     std::string_view message;
 };
 
 using ValidationList = std::vector<Validation>;
-using MethodList     = std::vector<std::string_view>;
+using MethodList = std::vector<std::string_view>;
 
 using FunctionKey = std::pair<std::string_view, std::string_view>; // (this type :: function name)
 
 // Define hash function for function_key_t to be used in unordered_map
 namespace std {
-template<>
+template <>
 struct hash<FunctionKey> {
     std::size_t operator()(const FunctionKey& k) const noexcept
     {
-        return std::hash<std::string_view> {}(k.first) ^ (std::hash<std::string_view> {}(k.second) << 1);
+        return std::hash<std::string_view>{}(k.first) ^ (std::hash<std::string_view>{}(k.second) << 1);
     }
 };
 } // namespace std
 
 constexpr FunctionKey MakeFunctionKey(std::string_view this_type, std::string_view func_name)
 {
-    return { this_type, func_name };
+    return {this_type, func_name};
 }
 
 struct Dependencies {
     std::vector<std::string_view> structs;
     std::vector<std::string_view> handles;
-    std::vector<FunctionKey>      functions;
+    std::vector<FunctionKey> functions;
 };
 
 struct WisModule {
@@ -397,15 +361,15 @@ struct WisModule {
     std::string_view doc_path;
     std::string_view gen_path;
     std::string_view version; // inctroduction version
-    Backend          backend = Backend::Any; // optional
-    ImplOs           os      = ImplOs::None; // optional
+    Backend backend = Backend::Any; // optional
+    ImplOs os = ImplOs::None; // optional
 
     std::vector<std::string_view> enums_in_order;
     std::vector<std::string_view> bitmasks_in_order;
     std::vector<std::string_view> structs_in_order;
     std::vector<std::string_view> variants_in_order;
     std::vector<std::string_view> handles_in_order;
-    std::vector<FunctionKey>      functions_in_order;
+    std::vector<FunctionKey> functions_in_order;
     std::vector<std::string_view> delegates_in_order;
     std::vector<std::string_view> constants_in_order;
     std::vector<std::string_view> free_functions_in_order;

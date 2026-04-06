@@ -53,11 +53,8 @@ WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKDestroyWin32Extension(WisVKWin32Exten
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WISDOM_PLATFORM_API WisResult wisVKWin32ExtensionCreateSurface(
-    WisVKWin32Extension* self,
-    const WisWin32WindowDesc* info,
-    WisVKSurface* surface
-)
+WISDOM_PLATFORM_API WisResult
+wisVKWin32ExtensionCreateSurface(WisVKWin32Extension* self, const WisWin32WindowDesc* info, WisVKSurface* surface)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKWin32ExtensionImpl>(self);
     auto vkCreateWin32SurfaceKHR = reinterpret_cast<PFN_vkCreateWin32SurfaceKHR>(impl.vkCreateWin32SurfaceKHR);
@@ -82,8 +79,8 @@ WISDOM_PLATFORM_API WisResult wisVKWin32ExtensionCreateSurface(
         auto& itable = impl.instance_control_block->header.instance_table;
         itable.vkDestroySurfaceKHR(impl.instance_control_block->header.instance, vk_surface, nullptr);
         return wis::detail::make_result<wis::detail::Func(), "Failed to allocate surface control block">(
-                   VK_ERROR_OUT_OF_HOST_MEMORY
-               );
+            VK_ERROR_OUT_OF_HOST_MEMORY
+        );
     }
 
     header->header.instance_header = impl.instance_control_block, header->header.surface = vk_surface,

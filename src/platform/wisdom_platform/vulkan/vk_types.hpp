@@ -34,11 +34,11 @@ struct VKWaylandExtensionImpl {
 
 struct VKWin32ExtensionImpl {
     VKInstanceExtensionHeader
-    header; // The instance extension header, containing the function pointer for initialization
+        header; // The instance extension header, containing the function pointer for initialization
     detail::VKInstanceControlBlock* instance_control_block; // Pointer to the instance control block, used to access
     // instance-level data and functions
     PFN_vkVoidFunction
-    vkCreateWin32SurfaceKHR; // Pointer to the function table containing the loaded extension functions
+        vkCreateWin32SurfaceKHR; // Pointer to the function table containing the loaded extension functions
 };
 
 } // namespace impl

@@ -35,7 +35,8 @@
  * \cond WIS_GEN_DESC
  * Resolve mode used for multisample resolve in render pass attachments.
  *
- * \note Translates to  `D3D12_RESOLVE_MODE` for DirectX 12 implementation, and `VkResolveModeFlagBits` for Vulkan implementation.
+ * \note Translates to  `D3D12_RESOLVE_MODE` for DirectX 12 implementation, and `VkResolveModeFlagBits` for Vulkan
+ * implementation.
  *
  * Values:
  * - `WisResolveModeNone = 0`: Do not resolve the attachment.

@@ -36,8 +36,11 @@
  * @section wisDestroyInstance_descr Description
  * <hr>
  *
- * In contrast to similar [vkDestroyInstance](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyInstance.html) in Vulkan, wisDestroyInstance does not require all the objects to be destroyed prior to its invocation.
- * The resources created under the instance continue to exist after the instance is destroyed, and are cleaned up automatically when their respective handles are destroyed.
+ * In contrast to similar
+ * [vkDestroyInstance](https://docs.vulkan.org/refpages/latest/refpages/source/vkDestroyInstance.html) in Vulkan,
+ * wisDestroyInstance does not require all the objects to be destroyed prior to its invocation. The resources created
+ * under the instance continue to exist after the instance is destroyed, and are cleaned up automatically when their
+ * respective handles are destroyed.
  *
  * \cond WIS_GEN_WIS_IDS
  * \endcond

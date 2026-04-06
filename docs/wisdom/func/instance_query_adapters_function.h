@@ -67,11 +67,11 @@
  * <hr>
  *
  * This function creates a `WisAdapterQuery` object that can be used to enumerate the available adapters on the system.
- * `preference` influences the order in which adapters are listed, allowing applications to prioritize certain types of adapters based on their needs.
- * `preference` does not guarantee the real adapter order, as the underlying graphics APIs @wis_may have their own heuristics for adapter selection.
- * The created AdapterQuery object @wis_must be destroyed with `wisDestroyAdapterQuery` when no longer needed.
- * The order of adapters depends on `preference`:
- * For MinConsumption
+ * `preference` influences the order in which adapters are listed, allowing applications to prioritize certain types of
+ * adapters based on their needs. `preference` does not guarantee the real adapter order, as the underlying graphics
+ * APIs @wis_may have their own heuristics for adapter selection. The created AdapterQuery object @wis_must be destroyed
+ * with `wisDestroyAdapterQuery` when no longer needed. The order of adapters depends on `preference`: For
+ * MinConsumption
  * - DirectX 12: Integrated, Discrete, External, Software;
  * - Vulkan: Integrated GPU, Discrete GPU, Virtual GPU, CPU.
  * For Performance

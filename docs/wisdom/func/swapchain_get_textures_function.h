@@ -55,7 +55,8 @@
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisSwapchain instance.
  * - `buffers` points to an array of texture views, which are filled with swapchain backbuffers on success.
- * - `buffer_count` specifies the number of buffers to get. It @wis_must be greater or equal to the value, supplied to `WisSwapchainDesc::image_count` or subsequent `WisSwapchainUpdateDesc::image_count`.
+ * - `buffer_count` specifies the number of buffers to get. It @wis_must be greater or equal to the value, supplied to
+ * `WisSwapchainDesc::image_count` or subsequent `WisSwapchainUpdateDesc::image_count`.
  *
  * - **return** denoting the outcome of operation.
  * \endcond

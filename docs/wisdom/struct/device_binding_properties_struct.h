@@ -39,13 +39,17 @@
  * @section WisDeviceBindingProperties_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `property_type` specifies the type of the queried property. Used to determine what struct is passed. @wis_must be `WisQueryPropertyTypeDeviceBindingProperties`.
+ * - `property_type` specifies the type of the queried property. Used to determine what struct is passed. @wis_must be
+ * `WisQueryPropertyTypeDeviceBindingProperties`.
  * - `next_in_chain` indicates pointer to the next queried data struct.
- * - `max_vertex_input_attributes` defines maximum number of vertex input attributes supported by the device. Used for vertex buffer bindings.
- * - `max_vertex_input_bindings` indicates maximum number of vertex input bindings supported by the device. Used for vertex buffer bindings.
- * - `multiple_viewports_supported` indicates if multiple viewports are supported. If true, the device supports up to 16 viewports and scissor rectangles. If false, only one viewport and scissor rectangle is supported.
- * - `address_commands_supported` indicates if commands with buffer addresses are supported. If true, the device supports commands that take buffer addresses directly, such as wisCommandListSetVertexBuffers2.
- * \endcond
+ * - `max_vertex_input_attributes` defines maximum number of vertex input attributes supported by the device. Used for
+ * vertex buffer bindings.
+ * - `max_vertex_input_bindings` indicates maximum number of vertex input bindings supported by the device. Used for
+ * vertex buffer bindings.
+ * - `multiple_viewports_supported` indicates if multiple viewports are supported. If true, the device supports up to 16
+ * viewports and scissor rectangles. If false, only one viewport and scissor rectangle is supported.
+ * - `address_commands_supported` indicates if commands with buffer addresses are supported. If true, the device
+ * supports commands that take buffer addresses directly, such as wisCommandListSetVertexBuffers2. \endcond
  *
  * @section WisDeviceBindingProperties_descr Description
  * <hr>

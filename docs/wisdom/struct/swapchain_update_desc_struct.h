@@ -41,8 +41,8 @@
  * - `height` describes new swapchain image height in pixels.
  * - `image_count` indicates number of images in the swapchain.
  * - `format` describes swapchain image format.
- * - `vsync` indicates controls vsync; when true, presentation is synchronized to the vertical blanking interval to reduce tearing, whereas false can improve frame rate but can introduce tearing.
- * \endcond
+ * - `vsync` indicates controls vsync; when true, presentation is synchronized to the vertical blanking interval to
+ * reduce tearing, whereas false can improve frame rate but can introduce tearing. \endcond
  *
  * @section WisSwapchainUpdateDesc_descr Description
  * <hr>

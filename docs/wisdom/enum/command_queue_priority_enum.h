@@ -33,13 +33,14 @@
  * \cond WIS_GEN_DESC
  * Global queue priority. Higher priority queues get more GPU time, but @wis_may cause performance issues if overused.
  *
- * \note Translates to  `D3D12_COMMAND_QUEUE_PRIORITY` for DirectX 12 implementation, and `VkQueueGlobalPriorityEXT` for Vulkan implementation.
+ * \note Translates to  `D3D12_COMMAND_QUEUE_PRIORITY` for DirectX 12 implementation, and `VkQueueGlobalPriorityEXT` for
+ * Vulkan implementation.
  *
  * Values:
  * - `WisCommandQueuePriorityNormal = 0`: Normal queue priority.
  * - `WisCommandQueuePriorityHigh = 1`: High queue priority.
- * - `WisCommandQueuePriorityRealtime = 2`: Global realtime queue priority. Requires special GPU support and @wis_may cause performance issues if used on unsupported hardware.
- * \endcond
+ * - `WisCommandQueuePriorityRealtime = 2`: Global realtime queue priority. Requires special GPU support and @wis_may
+ * cause performance issues if used on unsupported hardware. \endcond
  *
  *
  * @section WisCommandQueuePriority_see_also See Also

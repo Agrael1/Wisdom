@@ -43,7 +43,8 @@
  * @section WisDeviceExtensionHeader_descr Description
  * <hr>
  *
- * This structure is always present in every device extension and @wis_must be initialized with extension-specific initialization function before being passed to `wisCreateDevice`.
+ * This structure is always present in every device extension and @wis_must be initialized with extension-specific
+ * initialization function before being passed to `wisCreateDevice`.
  *
  * \cond WIS_GEN_WIS_IDS
  * \endcond

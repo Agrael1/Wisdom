@@ -33,7 +33,8 @@
  * \cond WIS_GEN_DESC
  * Predefined static border colors for samplers. Used when address mode is set to Border.
  *
- * \note Translates to  `D3D12_STATIC_BORDER_COLOR` for DirectX 12 implementation, and `VkBorderColor` for Vulkan implementation.
+ * \note Translates to  `D3D12_STATIC_BORDER_COLOR` for DirectX 12 implementation, and `VkBorderColor` for Vulkan
+ * implementation.
  *
  * Values:
  * - `WisStaticBorderTransparentBlack = 0`: Transparent black border color.

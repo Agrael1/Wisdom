@@ -17,13 +17,13 @@ inline VkResult VKAcquireNextImage(const impl::VKSwapchainImpl& impl) noexcept
 
     // Acquire the next image index for the new swapchain to update internal state
     auto result = impl.swapchain_table->vkAcquireNextImageKHR(
-                      impl.device,
-                      impl.swapchain,
-                      impl.lazy_acquire ? 0 : std::numeric_limits<uint64_t>::max(),
-                      semaphores[impl.acquire_index],
-                      nullptr,
-                      &impl.present_index
-                  );
+        impl.device,
+        impl.swapchain,
+        impl.lazy_acquire ? 0 : std::numeric_limits<uint64_t>::max(),
+        semaphores[impl.acquire_index],
+        nullptr,
+        &impl.present_index
+    );
 
     if (result != VK_SUCCESS) {
         return result; // Caller can choose to handle timeout differently (e.g. by skipping rendering and trying again
@@ -79,12 +79,8 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroySwapchain(WisVKSwapchain* self)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainPresent(
-    const WisVKSwapchain* self,
-    WisPresentFlags flags,
-    const WisRect* rects,
-    size_t rect_count
-)
+WIS_EXTERN_C WISDOM_API WisResult
+wisVKSwapchainPresent(const WisVKSwapchain* self, WisPresentFlags flags, const WisRect* rects, size_t rect_count)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKSwapchainImpl>(self);
 
@@ -162,8 +158,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainUpdate(const WisVKSwapchain* sel
 
     VkFormat new_format = wis::detail::VKConvert(desc->format);
     bool size_changed = desc->width != 0 && desc->height != 0
-                        && (desc->width != create_info.imageExtent.width
-                            || desc->height != create_info.imageExtent.height);
+                     && (desc->width != create_info.imageExtent.width || desc->height != create_info.imageExtent.height
+                     );
     bool format_changed = desc->format != WisDataFormatUnknown && new_format != create_info.imageFormat;
     bool count_changed = desc->image_count != 0 && desc->image_count != create_info.minImageCount;
     bool vsync_changed = desc->vsync != (create_info.presentMode == VK_PRESENT_MODE_FIFO_KHR);
@@ -191,15 +187,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainUpdate(const WisVKSwapchain* sel
     if (format_changed) {
         auto formats = header.GetSupportedFormats();
         if (std::ranges::find_if(
-                    formats,
-        [new_format](const VkSurfaceFormatKHR& fmt) {
-        return fmt.format == new_format;
-    }
+                formats,
+                [new_format](const VkSurfaceFormatKHR& fmt) { return fmt.format == new_format; }
             )
-    == std::end(formats)) {
+            == std::end(formats)) {
             return wis::detail::make_result<wis::detail::Func(), "Requested format is not supported for presentation">(
-                       VK_ERROR_FORMAT_NOT_SUPPORTED
-                   );
+                VK_ERROR_FORMAT_NOT_SUPPORTED
+            );
         }
     }
 
@@ -218,16 +212,16 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainUpdate(const WisVKSwapchain* sel
         header.vkGetPhysicalDeviceSurfaceCapabilities2KHR(header.physical_device, &surface_info, &capabilities);
 
         capabilities.surfaceCapabilities.maxImageCount = capabilities.surfaceCapabilities.maxImageCount == 0
-            ? wis::AbsoluteMaxSwapchainImages
-            : capabilities.surfaceCapabilities.maxImageCount;
+                                                           ? wis::AbsoluteMaxSwapchainImages
+                                                           : capabilities.surfaceCapabilities.maxImageCount;
     }
 
     if (count_changed
-            && (desc->image_count < capabilities.surfaceCapabilities.minImageCount
-                || desc->image_count > capabilities.surfaceCapabilities.maxImageCount)) {
+        && (desc->image_count < capabilities.surfaceCapabilities.minImageCount
+            || desc->image_count > capabilities.surfaceCapabilities.maxImageCount)) {
         return wis::detail::make_result<
-               wis::detail::Func(),
-               "Requested swapchain image count is out of bounds for the given surface">(VK_ERROR_INITIALIZATION_FAILED);
+            wis::detail::Func(),
+            "Requested swapchain image count is out of bounds for the given surface">(VK_ERROR_INITIALIZATION_FAILED);
     }
 
     // Store backups
@@ -245,17 +239,17 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainUpdate(const WisVKSwapchain* sel
     };
 
     create_info.imageExtent.width = desc->width != 0 ? std::clamp(
-                                        desc->width,
-                                        capabilities.surfaceCapabilities.minImageExtent.width,
-                                        capabilities.surfaceCapabilities.maxImageExtent.width
-                                    )
-                                    : create_info.imageExtent.width;
+                                                           desc->width,
+                                                           capabilities.surfaceCapabilities.minImageExtent.width,
+                                                           capabilities.surfaceCapabilities.maxImageExtent.width
+                                                       )
+                                                     : create_info.imageExtent.width;
     create_info.imageExtent.height = desc->height != 0 ? std::clamp(
-                                         desc->height,
-                                         capabilities.surfaceCapabilities.minImageExtent.height,
-                                         capabilities.surfaceCapabilities.maxImageExtent.height
-                                     )
-                                     : create_info.imageExtent.height;
+                                                             desc->height,
+                                                             capabilities.surfaceCapabilities.minImageExtent.height,
+                                                             capabilities.surfaceCapabilities.maxImageExtent.height
+                                                         )
+                                                       : create_info.imageExtent.height;
 
     create_info.imageFormat = desc->format != WisDataFormatUnknown ? new_format : create_info.imageFormat;
     create_info.minImageCount = desc->image_count != 0 ? desc->image_count : create_info.minImageCount;
@@ -278,7 +272,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainUpdate(const WisVKSwapchain* sel
 
     // Wait for the GPU to finish with the swapchain
     vr = impl.swapchain_table
-         ->vkWaitForFences(impl.device, 1, &impl.destroy_fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
+             ->vkWaitForFences(impl.device, 1, &impl.destroy_fence, VK_TRUE, std::numeric_limits<uint64_t>::max());
     if (!wis::detail::succeeded(vr)) {
         restore_on_failure();
         return wis::detail::make_result<wis::detail::Func(), "Failed to wait for fence during swapchain update">(vr);
@@ -294,18 +288,15 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainUpdate(const WisVKSwapchain* sel
     if (vr != VK_SUCCESS) {
         // no restore
         return wis::detail::
-               make_result<wis::detail::Func(), "Failed to acquire next image for the new swapchain during update">(vr);
+            make_result<wis::detail::Func(), "Failed to acquire next image for the new swapchain during update">(vr);
     }
 
     return wis::detail::vk_success;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainGetTextures(
-    const WisVKSwapchain* self,
-    WisVKTexture* buffers,
-    size_t buffer_count
-)
+WIS_EXTERN_C WISDOM_API WisResult
+wisVKSwapchainGetTextures(const WisVKSwapchain* self, WisVKTexture* buffers, size_t buffer_count)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKSwapchainImpl>(self);
 
@@ -317,8 +308,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainGetTextures(
 
     if (buffer_count < actual_buffer_count) {
         return wis::detail::make_result<
-               wis::detail::Func(),
-               "Provided buffer count is less than the number of swapchain images">(VK_ERROR_UNKNOWN);
+            wis::detail::Func(),
+            "Provided buffer count is less than the number of swapchain images">(VK_ERROR_UNKNOWN);
     }
 
     // Cheat the allocation of the output array to avoid dynamic memory allocation in this function by treating the

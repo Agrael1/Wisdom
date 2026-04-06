@@ -43,7 +43,8 @@
  * @section WisInstanceExtensionHeader_descr Description
  * <hr>
  *
- * This structure is always present in every instance extension and @wis_must be initialized with extension-specific initialization function before being passed to `wisCreateInstance`.
+ * This structure is always present in every instance extension and @wis_must be initialized with extension-specific
+ * initialization function before being passed to `wisCreateInstance`.
  *
  * \cond WIS_GEN_WIS_IDS
  * \endcond

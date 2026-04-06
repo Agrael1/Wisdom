@@ -53,8 +53,8 @@
  * - `WisStencilOperationDecClamp = 5`: Decrement the value and clamp to the minimum value.
  * - `WisStencilOperationInvert = 6`: Invert the value.
  * - `WisStencilOperationIncWrap = 7`: Increment the value and wrap to zero when the maximum value is exceeded.
- * - `WisStencilOperationDecWrap = 8`: Decrement the value and wrap to the maximum value when the minimum value is exceeded.
- * \endcond
+ * - `WisStencilOperationDecWrap = 8`: Decrement the value and wrap to the maximum value when the minimum value is
+ * exceeded. \endcond
  *
  *
  * @section WisStencilOperation_see_also See Also

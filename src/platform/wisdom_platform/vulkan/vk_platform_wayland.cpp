@@ -52,11 +52,8 @@ WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKDestroyWaylandExtension(WisVKWaylandE
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_PLATFORM_API WisResult wisVKWaylandExtensionCreateSurface(
-    WisVKWaylandExtension* self,
-    const WisWaylandWindowDesc* info,
-    WisVKSurface* surface
-)
+WIS_EXTERN_C WISDOM_PLATFORM_API WisResult
+wisVKWaylandExtensionCreateSurface(WisVKWaylandExtension* self, const WisWaylandWindowDesc* info, WisVKSurface* surface)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKWaylandExtensionImpl>(self);
     auto vkCreateWaylandSurfaceKHR = reinterpret_cast<PFN_vkCreateWaylandSurfaceKHR>(impl.vkCreateWaylandSurfaceKHR);
@@ -80,8 +77,8 @@ WIS_EXTERN_C WISDOM_PLATFORM_API WisResult wisVKWaylandExtensionCreateSurface(
         auto& itable = impl.instance_control_block->header.instance_table;
         itable.vkDestroySurfaceKHR(impl.instance_control_block->header.instance, vk_surface, nullptr);
         return wis::detail::make_result<wis::detail::Func(), "Failed to allocate surface control block">(
-                   VK_ERROR_OUT_OF_HOST_MEMORY
-               );
+            VK_ERROR_OUT_OF_HOST_MEMORY
+        );
     }
 
     header->header.instance_header = impl.instance_control_block, header->header.surface = vk_surface,

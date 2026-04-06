@@ -61,7 +61,8 @@
  * - `WisBufferUsageFlagsIndirectBuffer = (1 << 5)`: Buffer is used as an indirect buffer.
  * - `WisBufferUsageFlagsStorageBuffer = (1 << 6)`: Buffer is used as a storage unordered access buffer.
  * - `WisBufferUsageFlagsAccelerationStructureBuffer = (1 << 7)`: Buffer is used as an acceleration structure buffer.
- * - `WisBufferUsageFlagsAccelerationStructureInput = (1 << 8)`: Buffer is used as a read only acceleration instance input buffer.
+ * - `WisBufferUsageFlagsAccelerationStructureInput = (1 << 8)`: Buffer is used as a read only acceleration instance
+ * input buffer.
  * - `WisBufferUsageFlagsShaderBindingTable = (1 << 9)`: Buffer is used as a shader binding table buffer.
  * \endcond
  *

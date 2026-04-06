@@ -23,6 +23,6 @@
  * <hr>
  * \cond WIS_GEN_REFS
  * @see Functions:
- * wisDestroyCommandQueue, wisDeviceCreateCommandQueue, wisDeviceCreateSwapchain, wisCommandQueueSubmit, wisCommandQueueSignalFence, wisCommandQueueWaitFence
- * \endcond
+ * wisDestroyCommandQueue, wisDeviceCreateCommandQueue, wisDeviceCreateSwapchain, wisCommandQueueSubmit,
+ * wisCommandQueueSignalFence, wisCommandQueueWaitFence \endcond
  */

@@ -58,20 +58,29 @@
  * @section WisAdapterDesc_descr Description
  * <hr>
  *
- * `description` provides a human-readable name for the adapter, which @wis_may help in identifying it among multiple adapters in the system.
- * The string is null-terminated and with length 256 characters.
+ * `description` provides a human-readable name for the adapter, which @wis_may help in identifying it among multiple
+ * adapters in the system. The string is null-terminated and with length 256 characters.
  *
- * `vendor_id` and `device_id` are identifiers assigned by the hardware manufacturer. They @wis_can be used to look up more detailed information about the adapter from vendor databases.
+ * `vendor_id` and `device_id` are identifiers assigned by the hardware manufacturer. They @wis_can be used to look up
+ * more detailed information about the adapter from vendor databases.
  *
- * `dedicated_video_memory` indicates the amount of memory that is exclusively available to the GPU for high-performance operations. This memory is typically faster and more efficient for graphics processing tasks.
- * `shared_system_memory` indicates the amount of system memory that @wis_can be used by the GPU when dedicated video memory is insufficient. This memory is shared with the CPU and @wis_may have higher latency compared to dedicated video memory.
- * Both `dedicated_video_memory` and `shared_system_memory` are reported in bytes. Applications @wis_may use this information to make decisions about resource allocation and performance optimizations.
- * The values @wis_may not be identical across different implementations, because underlying graphics APIs expose varying levels of detail about adapter memory.
+ * `dedicated_video_memory` indicates the amount of memory that is exclusively available to the GPU for high-performance
+ * operations. This memory is typically faster and more efficient for graphics processing tasks. `shared_system_memory`
+ * indicates the amount of system memory that @wis_can be used by the GPU when dedicated video memory is insufficient.
+ * This memory is shared with the CPU and @wis_may have higher latency compared to dedicated video memory. Both
+ * `dedicated_video_memory` and `shared_system_memory` are reported in bytes. Applications @wis_may use this information
+ * to make decisions about resource allocation and performance optimizations. The values @wis_may not be identical
+ * across different implementations, because underlying graphics APIs expose varying levels of detail about adapter
+ * memory.
  *
- * `adapter_id` provides a unique identifier for the adapter within the system. This ID @wis_can be used to select or reference the same adapter in other API calls or configurations.
- * It matches the LUID provided by Vulkan and DirectX 12 APIs. On systems where LUID is not available (e.g., some Linux systems with Vulkan), `adapter_uuid` is used instead to uniquely identify the adapter.
+ * `adapter_id` provides a unique identifier for the adapter within the system. This ID @wis_can be used to select or
+ * reference the same adapter in other API calls or configurations. It matches the LUID provided by Vulkan and DirectX
+ * 12 APIs. On systems where LUID is not available (e.g., some Linux systems with Vulkan), `adapter_uuid` is used
+ * instead to uniquely identify the adapter.
  *
- * `flags` describe the type and capabilities of the adapter. They provide information about whether the adapter is integrated, discrete, software-based, or external. This information @wis_can help applications make decisions about which adapter to use based on performance and power consumption considerations.
+ * `flags` describe the type and capabilities of the adapter. They provide information about whether the adapter is
+ * integrated, discrete, software-based, or external. This information @wis_can help applications make decisions about
+ * which adapter to use based on performance and power consumption considerations.
  *
  *
  * \cond WIS_GEN_WIS_IDS

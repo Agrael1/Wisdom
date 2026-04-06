@@ -59,7 +59,8 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisAdapterQuery instance.
- * - `index` defines the index of the adapter to get the description for. It @wis_must be less than the value returned by wisAdapterQueryGetAdapterCount.
+ * - `index` defines the index of the adapter to get the description for. It @wis_must be less than the value returned
+ * by wisAdapterQueryGetAdapterCount.
  * - `desc` points to WisAdapterDesc, which is initialized on success.
  *
  * - **return** denoting the outcome of operation.
@@ -69,8 +70,10 @@
  * <hr>
  *
  * `index` selects which adapter's description to retrieve from the AdapterQuery. The index is zero-based.
- * `desc` @wis_must be a valid pointer and it is populated with the description of the specified adapter, including details such as its name, type, and capabilities.
- * The information about memory resources @wis_maynot be identical across different implementations, because underlying graphics APIs expose varying levels of detail about adapter memory.
+ * `desc` @wis_must be a valid pointer and it is populated with the description of the specified adapter, including
+ * details such as its name, type, and capabilities. The information about memory resources @wis_maynot be identical
+ * across different implementations, because underlying graphics APIs expose varying levels of detail about adapter
+ * memory.
  * `
  *
  * \cond WIS_GEN_WIS_IDS

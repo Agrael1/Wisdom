@@ -1,9 +1,9 @@
-#include "generator.hpp"
 #include <iostream>
 #include "../src/include/wisdom/bridge/format.hpp"
+#include "generator.hpp"
 
 constexpr inline std::string_view clang_format_exe = CLANG_FORMAT_EXECUTABLE;
-inline constexpr std::string_view input_file       = INPUT_FILE;
+inline constexpr std::string_view input_file = INPUT_FILE;
 
 void FormatFiles(std::span<const std::filesystem::path> files)
 {
@@ -16,8 +16,7 @@ void FormatFiles(std::span<const std::filesystem::path> files)
         cmd += f.string();
         cmd += ' ';
     }
-    std::cout << "Wisdom Vk Utils: Formatting:\n"
-              << cmd << '\n';
+    std::cout << "Wisdom Vk Utils: Formatting:\n" << cmd << '\n';
     std::string command = wis::format("\"{}\" -i --style=file {}", clang_format_exe, cmd);
 
     int ret = 0;
@@ -44,9 +43,11 @@ int main(int argc, char** argv)
     // get second arg. If it's -h or --help, print usage. Otherwise, treat it as a platform module name and generate it.
     std::string_view arg = argv[1];
     if (arg == "-h" || arg == "--help") {
-        std::cout << "Usage: " << argv[0] << " [module_name,...]\n"
-                  << "If module_name is provided, generates API for that platform module. Otherwise, generates core API.\n"
-                  << "Modules are stored in xml folder. For example, if module_name is 'platform', the generator will look for 'xml/platform.xml' and generate API for it.\n";
+        std::cout
+            << "Usage: " << argv[0] << " [module_name,...]\n"
+            << "If module_name is provided, generates API for that platform module. Otherwise, generates core API.\n"
+            << "Modules are stored in xml folder. For example, if module_name is 'platform', the generator will look "
+               "for 'xml/platform.xml' and generate API for it.\n";
         return 0;
     }
 
@@ -55,9 +56,10 @@ int main(int argc, char** argv)
 
     // Split platform module names by comma and generate for each
     for (size_t i = 0; i < arg.size();) {
-        size_t           next_comma           = arg.find(',', i);
+        size_t next_comma = arg.find(',', i);
         std::string_view platform_module_name = arg.substr(i, next_comma - i);
-        auto             module_path          = std::filesystem::path(input_file).parent_path() / (std::string(platform_module_name) + std::string(".xml"));
+        auto module_path = std::filesystem::path(input_file).parent_path()
+                         / (std::string(platform_module_name) + std::string(".xml"));
 
         g.ParseFile(module_path);
         g.WriteModuleAPI();

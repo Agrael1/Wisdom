@@ -33,7 +33,8 @@
  *  * - `base_mip_level` Mipmap level of the subresource.
  * - `mip_level_count` Number of mip levels in the subresource.
  * - `base_array_layer` Array layer of the subresource. For 3D textures, this defines the depth slice.
- * - `array_layer_count` Number of array layers in the subresource. For 3D textures, this defines the number of depth slices.
+ * - `array_layer_count` Number of array layers in the subresource. For 3D textures, this defines the number of depth
+ * slices.
  *
  * \endcond
  *

@@ -1,5 +1,5 @@
-#include "generator.hpp"
 #include <fstream>
+#include "generator.hpp"
 
 //----------------------------------------------------------------------------------------------------------------------
 static inline constexpr char template_enum[] =
@@ -36,7 +36,7 @@ void Generator::ParseEnum(tinyxml2::XMLElement* type)
     module_map[active_module_name].enums_in_order.push_back(name);
     type_map[name] = TypeKind::Enum;
     auto& ref = enum_map[name];
-    ref.name  = name;
+    ref.name = name;
 
     if (auto* size = type->FindAttribute("type")) {
         ref.type = size->Value();
@@ -53,11 +53,11 @@ void Generator::ParseEnum(tinyxml2::XMLElement* type)
     }
 
     for (auto* impl_type = type->FirstChildElement("impl_type"); impl_type;
-            impl_type       = impl_type->NextSiblingElement("impl_type")) {
-        auto impl_for      = impl_type->FindAttribute("for")->Value();
-        auto backend       = ParseBackend(impl_for);
-        auto impl_name     = impl_type->FindAttribute("name")->Value();
-        bool convert_back  = impl_type->FindAttribute("convert_back") != nullptr;
+         impl_type = impl_type->NextSiblingElement("impl_type")) {
+        auto impl_for = impl_type->FindAttribute("for")->Value();
+        auto backend = ParseBackend(impl_for);
+        auto impl_name = impl_type->FindAttribute("name")->Value();
+        bool convert_back = impl_type->FindAttribute("convert_back") != nullptr;
 
         std::string_view def_value;
         if (auto xdefault = impl_type->FindAttribute("default")) {
@@ -65,18 +65,17 @@ void Generator::ParseEnum(tinyxml2::XMLElement* type)
         }
 
         if (auto direct = impl_type->FindAttribute("direct")) {
-            ref.conversion_type[static_cast<size_t>(backend)] = WisConvert{ impl_name, def_value, true, convert_back };
+            ref.conversion_type[static_cast<size_t>(backend)] = WisConvert{impl_name, def_value, true, convert_back};
             continue;
         }
 
-        ref.conversion_type[static_cast<size_t>(backend)] = WisConvert{ impl_name, def_value, false, convert_back };
+        ref.conversion_type[static_cast<size_t>(backend)] = WisConvert{impl_name, def_value, false, convert_back};
     }
 
-    for (auto* member = type->FirstChildElement("value"); member;
-            member       = member->NextSiblingElement("value")) {
+    for (auto* member = type->FirstChildElement("value"); member; member = member->NextSiblingElement("value")) {
         auto& m = ref.values.emplace_back();
 
-        m.name  = member->FindAttribute("name")->Value();
+        m.name = member->FindAttribute("name")->Value();
         m.value = std::stoll(member->FindAttribute("value")->Value());
         if (auto* doc = member->FindAttribute("doc")) {
             m.doc = doc->Value();
@@ -86,10 +85,9 @@ void Generator::ParseEnum(tinyxml2::XMLElement* type)
             m.version = size->Value();
         }
 
-        for (auto* impl = member->FirstChildElement("impl"); impl;
-                impl       = impl->NextSiblingElement("impl")) {
+        for (auto* impl = member->FirstChildElement("impl"); impl; impl = impl->NextSiblingElement("impl")) {
             auto impl_name = impl->FindAttribute("name")->Value();
-            auto value     = impl->FindAttribute("value")->Value();
+            auto value = impl->FindAttribute("value")->Value();
 
             auto backend = ParseBackend(impl_name);
             m.converts[static_cast<size_t>(backend)] = value;
@@ -100,12 +98,12 @@ void Generator::ParseEnum(tinyxml2::XMLElement* type)
 //----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeCEnum(const WisEnum& s, DocKind kind)
 {
-    auto        full_name = GetCFullTypename(s.name, Backend::Any);
-    std::string st_decl   = wis::format("typedef enum {} {{\n", full_name);
+    auto full_name = GetCFullTypename(s.name, Backend::Any);
+    std::string st_decl = wis::format("typedef enum {} {{\n", full_name);
 
     if (!s.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation(s, kind);
-        st_decl          = wis::format("{}\n{}", xdoc, st_decl);
+        st_decl = wis::format("{}\n{}", xdoc, st_decl);
     }
 
     for (auto& m : s.values) {
@@ -123,7 +121,7 @@ std::string Generator::MakeCPPEnum(const WisEnum& s, DocKind kind)
 
     if (!s.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation<Lang::CPP>(s, kind);
-        st_decl          = wis::format("{}\n{}", xdoc, st_decl);
+        st_decl = wis::format("{}\n{}", xdoc, st_decl);
     }
 
     for (auto& m : s.values) {
@@ -142,27 +140,31 @@ void Generator::WriteEnumDocumentation(std::filesystem::path enum_output_path)
     for (auto& enum_name : enum_names) {
         // Make a folder for enums starting with this letter
         std::filesystem::path enum_file_path = enum_output_path / wis::format("{}_enum.h", MakeSnakeCase(enum_name));
-        auto&                 enum_ref       = enum_map[enum_name];
+        auto& enum_ref = enum_map[enum_name];
 
-        std::string enum_template_content = wis::format(" * C version:\n```c\n{}```\n"
-                                            "C++ version:\n```cpp\nnamespace wis{{\n{}}}\n```\n",
-                                            MakeCEnum(enum_ref, DocKind::VersionOnly),
-                                            MakeCPPEnum(enum_ref, DocKind::VersionOnly));
-        std::string enum_description      = wis::format(" * {}", MakeEnumDescription(enum_ref));
-        std::string enum_refs             = GetRefs(enum_name);
+        std::string enum_template_content = wis::format(
+            " * C version:\n```c\n{}```\n"
+            "C++ version:\n```cpp\nnamespace wis{{\n{}}}\n```\n",
+            MakeCEnum(enum_ref, DocKind::VersionOnly),
+            MakeCPPEnum(enum_ref, DocKind::VersionOnly)
+        );
+        std::string enum_description = wis::format(" * {}", MakeEnumDescription(enum_ref));
+        std::string enum_refs = GetRefs(enum_name);
         ReplaceAll(enum_template_content, "\n", "\n * ");
         ReplaceAll(enum_description, "\n", "\n * ");
         ReplaceAll(enum_refs, "\n", "\n * ");
 
         enum_description = FinalizeCDocumentation(enum_description, enum_name);
 
-        WriteDocumentation(enum_file_path,
-                           template_enum,
-                           GetCFullTypename(enum_name, Backend::Any),
-                           enum_template_content,
-                           empty_doc,
-                           enum_description,
-                           enum_refs);
+        WriteDocumentation(
+            enum_file_path,
+            template_enum,
+            GetCFullTypename(enum_name, Backend::Any),
+            enum_template_content,
+            empty_doc,
+            enum_description,
+            enum_refs
+        );
     }
 }
 
@@ -179,15 +181,20 @@ std::string Generator::MakeEnumDescription(const WisEnum& s)
         "Vulkan",
     };
 
-    std::string translates    = "\\note Translates to ";
-    bool        has_translate = false;
+    std::string translates = "\\note Translates to ";
+    bool has_translate = false;
     for (size_t i = 1; i < s.conversion_type.size(); ++i) {
         auto& cvt = s.conversion_type[i];
         if (cvt.value.empty()) {
             continue;
         }
 
-        translates += wis::format("{} `{}` for {} implementation", has_translate ? ", and" : "", cvt.value, impl_names[i]);
+        translates += wis::format(
+            "{} `{}` for {} implementation",
+            has_translate ? ", and" : "",
+            cvt.value,
+            impl_names[i]
+        );
         has_translate = true;
     }
     if (has_translate) {
@@ -204,8 +211,8 @@ std::string Generator::MakeEnumDescription(const WisEnum& s)
 std::string Generator::MakeEnumConverter(const WisEnum& s, Backend backend)
 {
     std::string converters;
-    auto        backend_tag = GetBackendSuffix(backend);
-    auto&       cvt         = s.conversion_type[static_cast<size_t>(backend)];
+    auto backend_tag = GetBackendSuffix(backend);
+    auto& cvt = s.conversion_type[static_cast<size_t>(backend)];
     if (cvt.value.empty()) {
         return converters;
     }
@@ -213,62 +220,70 @@ std::string Generator::MakeEnumConverter(const WisEnum& s, Backend backend)
     auto wisdom_type = GetCFullTypename(s.name, Backend::Any);
 
     if (cvt.direct) {
-        converters = wis::format("constexpr inline {} {}Convert({} value) noexcept {{\n    return static_cast<{}>(value);\n}}\n\n",
-                                 cvt.value,
-                                 backend_tag,
-                                 GetCFullTypename(s.name, backend),
-                                 cvt.value);
+        converters = wis::format(
+            "constexpr inline {} {}Convert({} value) noexcept {{\n    return static_cast<{}>(value);\n}}\n\n",
+            cvt.value,
+            backend_tag,
+            GetCFullTypename(s.name, backend),
+            cvt.value
+        );
     } else {
-        converters = wis::format("constexpr inline {} {}Convert({} value) noexcept {{\n    switch(value) {{\n",
-                                 cvt.value,
-                                 backend_tag,
-                                 GetCFullTypename(s.name, backend));
+        converters = wis::format(
+            "constexpr inline {} {}Convert({} value) noexcept {{\n    switch(value) {{\n",
+            cvt.value,
+            backend_tag,
+            GetCFullTypename(s.name, backend)
+        );
         for (auto& m : s.values) {
             auto convert_value = m.converts[static_cast<size_t>(backend)];
             if (convert_value.empty()) {
                 continue;
             }
-            converters += wis::format("    case {}: return {};\n",
-                                      wis::format("{}{}",
-                                                  GetCFullTypename(s.name, backend),
-                                                  m.name),
-                                      convert_value);
+            converters += wis::format(
+                "    case {}: return {};\n",
+                wis::format("{}{}", GetCFullTypename(s.name, backend), m.name),
+                convert_value
+            );
         }
 
         if (!cvt.default_value.empty()) {
             converters += wis::format("    default: return {};\n    }}\n}}\n\n", cvt.default_value);
         } else {
-            converters += wis::format("    default: return static_cast<{}>(0);\n    }}\n}}\n\n",
-                                      cvt.value);
+            converters += wis::format("    default: return static_cast<{}>(0);\n    }}\n}}\n\n", cvt.value);
         }
     }
 
     if (cvt.convert_back) {
         if (cvt.direct) {
-            converters += wis::format("constexpr inline {} {}Convert({} value) noexcept {{\n    return static_cast<{}>(value);\n}}\n\n",
-                                      wisdom_type,
-                                      backend_tag,
-                                      cvt.value,
-                                      wisdom_type);
+            converters += wis::format(
+                "constexpr inline {} {}Convert({} value) noexcept {{\n    return static_cast<{}>(value);\n}}\n\n",
+                wisdom_type,
+                backend_tag,
+                cvt.value,
+                wisdom_type
+            );
         } else {
-            converters += wis::format("constexpr inline {} {}Convert({} value) noexcept {{\n",
-                                      wisdom_type,
-                                      backend_tag,
-                                      cvt.value);
+            converters += wis::format(
+                "constexpr inline {} {}Convert({} value) noexcept {{\n",
+                wisdom_type,
+                backend_tag,
+                cvt.value
+            );
 
             for (auto& m : s.values) {
                 auto convert_value = m.converts[static_cast<size_t>(backend)];
                 if (convert_value.empty()) {
                     continue;
                 }
-                converters += wis::format("    if (value == {}) {{ return {}{}; }}\n",
-                                          convert_value,
-                                          wisdom_type,
-                                          m.name);
+                converters += wis::format(
+                    "    if (value == {}) {{ return {}{}; }}\n",
+                    convert_value,
+                    wisdom_type,
+                    m.name
+                );
             }
 
-            converters += wis::format("    return static_cast<{}>(0);\n}}\n\n",
-                                      wisdom_type);
+            converters += wis::format("    return static_cast<{}>(0);\n}}\n\n", wisdom_type);
         }
     }
 

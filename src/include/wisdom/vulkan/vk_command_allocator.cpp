@@ -22,10 +22,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCommandAllocatorReset(const WisVKCommandA
     auto& header = impl.command_pool_header->header;
     auto& device_header = header.device_header->header;
     auto result = device_header.device_table.vkResetCommandPool(
-                      header.device,
-                      impl.command_pool,
-                      VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT
-                  );
+        header.device,
+        impl.command_pool,
+        VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT
+    );
 
     if (!wis::detail::succeeded(result)) {
         return wis::detail::make_result<wis::detail::Func(), "vkResetCommandPool failed">(result);
@@ -35,10 +35,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCommandAllocatorReset(const WisVKCommandA
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisVKCommandAllocatorCreateCommandList(
-    const WisVKCommandAllocator* self,
-    WisVKCommandList* list
-)
+WIS_EXTERN_C WISDOM_API WisResult
+wisVKCommandAllocatorCreateCommandList(const WisVKCommandAllocator* self, WisVKCommandList* list)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKCommandAllocatorImpl>(self);
     auto& header = impl.command_pool_header->header;

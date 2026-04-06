@@ -16,7 +16,7 @@ typedef struct VkPhysicalDeviceDeviceAddressCommandsFeaturesKHR {
 } VkPhysicalDeviceDeviceAddressCommandsFeaturesKHR;
 
 static constexpr VkStructureType
-VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_ADDRESS_COMMANDS_FEATURES_KHR = VkStructureType(1000318006);
+    VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEVICE_ADDRESS_COMMANDS_FEATURES_KHR = VkStructureType(1000318006);
 static constexpr VkStructureType VK_STRUCTURE_TYPE_BIND_VERTEX_BUFFER_3_INFO_KHR = VkStructureType(1000318008);
 static constexpr VkStructureType VK_STRUCTURE_TYPE_BIND_INDEX_BUFFER_3_INFO_KHR = VkStructureType(1000318007);
 
@@ -44,11 +44,11 @@ typedef struct VkBindIndexBuffer3InfoKHR {
 } VkBindIndexBuffer3InfoKHR;
 
 using PFN_vkCmdBindVertexBuffers3KHR = void (*)(
-        VkCommandBuffer commandBuffer,
-        uint32_t firstBinding,
-        uint32_t bindingCount,
-        const VkBindVertexBuffer3InfoKHR* pBindingInfos
-                                       );
+    VkCommandBuffer commandBuffer,
+    uint32_t firstBinding,
+    uint32_t bindingCount,
+    const VkBindVertexBuffer3InfoKHR* pBindingInfos
+);
 using PFN_vkCmdBindIndexBuffer3KHR = void (*)(VkCommandBuffer commandBuffer, const VkBindIndexBuffer3InfoKHR* pInfo);
 
 #endif // VK_KHR_device_address_commands

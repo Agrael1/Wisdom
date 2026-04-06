@@ -34,15 +34,17 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * Set of flags that affect render pass behavior.
- * More on render pass flags [here](https://learn.microsoft.com/en-us/windows/win32/direct3d12/direct3d-12-render-passes).
+ * More on render pass flags
+ * [here](https://learn.microsoft.com/en-us/windows/win32/direct3d12/direct3d-12-render-passes).
  *
  * \note Translates to DirectX 12 as D3D12_RENDER_PASS_FLAGS, Vulkan as VkRenderingFlags.
  * Values:
  * - `WisRenderPassFlagsNone = 0`: No flags set. Render pass is regular.
  * - `WisRenderPassFlagsSuspending = (1 << 1)`: Render pass is suspending.
  * - `WisRenderPassFlagsResuming = (1 << 2)`: Render pass is resuming.
- * - `WisRenderPassFlagsAllowUAVWrites = (1 << 3)`: Allow UAV writes. If set, unordered access view (UAV) writes are allowed during the render pass. If not set, UAV writes are not allowed and @wis_may result in undefined behavior if attempted.
- * \endcond
+ * - `WisRenderPassFlagsAllowUAVWrites = (1 << 3)`: Allow UAV writes. If set, unordered access view (UAV) writes are
+ * allowed during the render pass. If not set, UAV writes are not allowed and @wis_may result in undefined behavior if
+ * attempted. \endcond
  *
  *
  * @section WisRenderPassFlags_see_also See Also

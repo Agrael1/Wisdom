@@ -41,11 +41,13 @@
  * - `WisAdapterFlagsSoftware = (1 << 1)`: Adapter is software. Uses CPU for software rendering.
  * \endcond
  *
- * \note on DirectX 12 implementation, `WisAdapterFlagsRemote` translates to `DXGI_ADAPTER_FLAG_REMOTE` and `WisAdapterFlagsSoftware` translates to `DXGI_ADAPTER_FLAG_SOFTWARE`.
- * The values are directly mapped, meaning it is possible to get values outside of this enum when querying adapters.
+ * \note on DirectX 12 implementation, `WisAdapterFlagsRemote` translates to `DXGI_ADAPTER_FLAG_REMOTE` and
+ * `WisAdapterFlagsSoftware` translates to `DXGI_ADAPTER_FLAG_SOFTWARE`. The values are directly mapped, meaning it is
+ * possible to get values outside of this enum when querying adapters.
  *
- * Adapters that are neither remote nor software are considered hardware adapters, which can be either discrete or integrated GPUs.
- * The distinction is not available through flags, but can be inferred from other properties such as vendor and device IDs.
+ * Adapters that are neither remote nor software are considered hardware adapters, which can be either discrete or
+ * integrated GPUs. The distinction is not available through flags, but can be inferred from other properties such as
+ * vendor and device IDs.
  *
  * @section WisAdapterFlags_see_also See Also
  * <hr>

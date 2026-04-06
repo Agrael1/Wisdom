@@ -36,7 +36,8 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - `status` defines operation status. Compare with `WisStatusOk`.
- * - `platform_code` indicates platform code from underlying implementation. Is an `HRESULT` for DX12 and a `VkResult` for Vulkan.
+ * - `platform_code` indicates platform code from underlying implementation. Is an `HRESULT` for DX12 and a `VkResult`
+ * for Vulkan.
  * - `error` specifies contains a human readable error message.
  * \endcond
  *
@@ -44,12 +45,15 @@
  * <hr>
  *
  * To check if an operation succeeded, the return code is greater or equal to 0. Negative values indicate failure.
- * Some operations @wis_may return positive codes other than `WisStatusOk`, indicating partial success, timeout or additional information about the operation.
- * The structure also contains `platform_code`, which provides additional information about the result from the underlying graphics API.
+ * Some operations @wis_may return positive codes other than `WisStatusOk`, indicating partial success, timeout or
+ * additional information about the operation. The structure also contains `platform_code`, which provides additional
+ * information about the result from the underlying graphics API.
  *
- * `error` contains a human-readable error message, which @wis_may provide additional context about the failure. The message is static and @wis_must not be freed or modified.
+ * `error` contains a human-readable error message, which @wis_may provide additional context about the failure. The
+ * message is static and @wis_must not be freed or modified.
  *
- * \note In C implementation, the structure is returned by value. In C++ implementation, because of RVO optimizations, most functions return wis::Result by reference.
+ * \note In C implementation, the structure is returned by value. In C++ implementation, because of RVO optimizations,
+ * most functions return wis::Result by reference.
  *
  * \cond WIS_GEN_WIS_IDS
  * \endcond

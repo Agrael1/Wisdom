@@ -34,7 +34,8 @@
  * namespace wis{
  * // Provided by Wisdom 0.7.0.
  * WIS_NODISCARD wis::Pipeline Device::CreateGraphicsPipeline(const wis::GraphicsPipelineDesc& desc,
- *                                                            wis::Result&                     out_result) const noexcept;
+ *                                                            wis::Result&                     out_result) const
+ * noexcept;
  * }
  * ```
  * <details>
@@ -43,11 +44,13 @@
  * namespace wis{
  * // Provided by Wisdom 0.7.0.
  * WIS_NODISCARD wis::VKPipeline VKDevice::CreateGraphicsPipeline(const wis::VKGraphicsPipelineDesc& desc,
- *                                                                wis::Result&                       out_result) const noexcept;
+ *                                                                wis::Result&                       out_result) const
+ * noexcept;
  *
  * // Provided by Wisdom 0.7.0.
  * WIS_NODISCARD wis::DX12Pipeline DX12Device::CreateGraphicsPipeline(const wis::DX12GraphicsPipelineDesc& desc,
- *                                                                    wis::Result&                         out_result) const noexcept;
+ *                                                                    wis::Result&                         out_result)
+ * const noexcept;
  * }
  * ```
  * </details>

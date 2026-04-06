@@ -36,7 +36,8 @@
  * @section wisDestroyAdapterQuery_descr Description
  * <hr>
  *
- * Destruction of the AdapterQuery handle does not invalidate any `WisAdapter` instances that were created from it. They remain valid until destroyed individually.
+ * Destruction of the AdapterQuery handle does not invalidate any `WisAdapter` instances that were created from it. They
+ * remain valid until destroyed individually.
  *
  * \cond WIS_GEN_WIS_IDS
  * \endcond

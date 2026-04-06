@@ -31,7 +31,8 @@
  * @section WisPipelineType_descr Description
  * <hr>
  * \cond WIS_GEN_DESC
- * Defines types of pipelines that can be created on the device. Each type corresponds to a specific kind of workload that the GPU can handle.
+ * Defines types of pipelines that can be created on the device. Each type corresponds to a specific kind of workload
+ * that the GPU can handle.
  *
  * \note Translates to  `VkPipelineBindPoint` for Vulkan implementation.
  *

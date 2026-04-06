@@ -40,7 +40,8 @@
  * Values:
  * - `WisSeverityVerbose = 0`: Verbose level messages, typically used for detailed debugging information.
  * - `WisSeverityInfo = 1`: Informational messages that highlight the progress of the application.
- * - `WisSeverityWarning = 2`: Potentially harmful situations that warrant attention but do not prevent normal operation.
+ * - `WisSeverityWarning = 2`: Potentially harmful situations that warrant attention but do not prevent normal
+ * operation.
  * - `WisSeverityError = 3`: Error events that might still allow the application to continue running.
  * - `WisSeverityFatal = 4`: Severe error events that will presumably lead the application to abort.
  * \endcond

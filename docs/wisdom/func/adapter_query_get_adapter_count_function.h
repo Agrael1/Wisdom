@@ -57,8 +57,9 @@
  * @section wisAdapterQueryGetAdapterCount_descr Description
  * <hr>
  *
- * Returns the number of adapters that can be queried from the AdapterQuery instance. This number is fixed at the time of AdapterQuery creation and does not change during its lifetime.
- * If no adapters are found, the function returns zero.
+ * Returns the number of adapters that can be queried from the AdapterQuery instance. This number is fixed at the time
+ * of AdapterQuery creation and does not change during its lifetime. If no adapters are found, the function returns
+ * zero.
  *
  * \cond WIS_GEN_WIS_IDS
  * \endcond
