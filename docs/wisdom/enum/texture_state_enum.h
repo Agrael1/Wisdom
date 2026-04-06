@@ -1,6 +1,6 @@
 /**
  * @struct WisTextureState WisTextureState
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisTextureState_spec Specification
  * <hr>

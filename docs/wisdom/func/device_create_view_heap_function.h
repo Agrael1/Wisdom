@@ -1,6 +1,6 @@
 /**
  * @struct wisDeviceCreateViewHeap
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDeviceCreateViewHeap_spec Specification

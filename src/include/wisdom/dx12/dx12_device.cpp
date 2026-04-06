@@ -212,7 +212,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateViewHeap(
     auto cpu_handle = raw_heap->GetCPUDescriptorHandleForHeapStart();
 
     wis::detail::DX12RenderTargetViewAuxData* aux_data = nullptr;
-    if (flags & WisViewHeapFlagsAllowMutisample) {
+    if (flags & WisViewHeapFlagsAllowMultisample) {
         assert(
             (cpu_handle.ptr & 0b1) == 0
             && "[INTERNAL ERROR] DescriptorHandle is not aligned! Report the issue to the developers."

@@ -1,6 +1,6 @@
 /**
  * @struct wisCommandListSetPushConstants
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisCommandListSetPushConstants_spec Specification

@@ -1,6 +1,6 @@
 /**
  * @struct wisCommandListSetPipeline
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisCommandListSetPipeline_spec Specification

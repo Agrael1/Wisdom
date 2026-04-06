@@ -1,6 +1,6 @@
 /**
  * @struct WisBufferBarrier2
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisBufferBarrier2_spec Specification

@@ -1,6 +1,6 @@
 /**
  * @struct WisInputClass WisInputClass
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisInputClass_spec Specification
  * <hr>

@@ -1,6 +1,6 @@
 /**
  * @struct wisDestroyTexture
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDestroyTexture_spec Specification

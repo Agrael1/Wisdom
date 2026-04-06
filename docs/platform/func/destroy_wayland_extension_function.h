@@ -1,6 +1,6 @@
 /**
  * @struct wisDestroyWaylandExtension
- * @ingroup Functions
+ * @ingroup Functions Platform
  *
  *
  * @section wisDestroyWaylandExtension_spec Specification

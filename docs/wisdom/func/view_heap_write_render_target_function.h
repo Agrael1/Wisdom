@@ -1,6 +1,6 @@
 /**
  * @struct wisViewHeapWriteRenderTarget
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisViewHeapWriteRenderTarget_spec Specification

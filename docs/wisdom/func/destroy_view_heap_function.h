@@ -1,6 +1,6 @@
 /**
  * @struct wisDestroyViewHeap
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDestroyViewHeap_spec Specification

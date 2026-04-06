@@ -1,5 +1,5 @@
 /**
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  * @struct WisStatus
  * WisStatus - Common return status codes.
  *
@@ -68,7 +68,7 @@
  * - `WisStatusDeviceLost = -4`: Device driver was forcefully stopped.
  * - `WisStatusOccluded = -5`: Swap chain presentation was not visible to the user. Rendering is too fast.
  * - `WisStatusValidationFailed = -6`: A validation layer found an error.
- * - `WisStatusFail = -7`: Operation expectedly failed.
+ * - `WisStatusFail = -7`: Operation failed as expected.
  * - `WisStatusError = -10000`: Operation failed.
  * \endcond
  *

@@ -1,6 +1,6 @@
 /**
  * @struct wisWin32ExtensionCreateSurface
- * @ingroup Functions
+ * @ingroup Functions Platform
  *
  *
  * @section wisWin32ExtensionCreateSurface_spec Specification

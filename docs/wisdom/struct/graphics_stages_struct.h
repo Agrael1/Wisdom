@@ -1,6 +1,6 @@
 /**
  * @struct WisGraphicsStages
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisGraphicsStages_spec Specification

@@ -1,6 +1,6 @@
 /**
  * @struct wisAdapterQueryGetAdapterDesc
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisAdapterQueryGetAdapterDesc_spec Specification

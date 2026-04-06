@@ -5,7 +5,7 @@
 static inline constexpr char template_enum[] =
         R"(/**
  * @struct {0} {0}
- * @ingroup Enumerations
+ * @ingroup Enumerations {3}
  *
  * @section {0}_spec Specification
  * <hr>

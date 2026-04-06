@@ -256,7 +256,7 @@ Can still be enqueued after the signal.">
       </func>
 
       <!-- Texture Functions -->
-      <func for="Texture" name="WriteSubresource" version="0.7.0" mod="const" doc="Writes data directly to the texture subresource. Texture @wis_must be in {TextureState::Common} and @wis_must_not be a depth or planar texture.">
+      <func for="Texture" name="WriteSubresource" version="0.7.0" mod="const" doc="Writes data directly to the texture subresource. Texture @wis_must be in {TextureState::Common} and @wis_mustnot be a depth or planar texture.">
         <ret type="Result" name="result" doc="Result of operation."/>
         <arg type="void" name="source_data" mod="const,ptr" doc="specifies a pointer to the data to write to the texture."/>
         <arg type="TextureRegion" name="target_region" mod="const,ref" doc="specifies a pointer to {TextureRegion::}, which describes the region of the texture to write to. The `flags` parameter of the region is ignored, as depth/stencil/planar is not supported."/>

@@ -1,6 +1,6 @@
 /**
  * @struct WisViewHeapType WisViewHeapType
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisViewHeapType_spec Specification
  * <hr>

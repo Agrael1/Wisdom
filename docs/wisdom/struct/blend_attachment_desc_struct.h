@@ -1,6 +1,6 @@
 /**
  * @struct WisBlendAttachmentDesc
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisBlendAttachmentDesc_spec Specification

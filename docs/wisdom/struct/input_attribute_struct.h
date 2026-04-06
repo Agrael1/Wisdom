@@ -1,6 +1,6 @@
 /**
  * @struct WisInputAttribute
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisInputAttribute_spec Specification

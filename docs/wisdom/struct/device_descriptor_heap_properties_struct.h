@@ -1,6 +1,6 @@
 /**
  * @struct WisDeviceDescriptorHeapProperties
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisDeviceDescriptorHeapProperties_spec Specification

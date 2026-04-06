@@ -1,6 +1,6 @@
 /**
  * @struct wisInitWaylandExtension
- * @ingroup Functions
+ * @ingroup Functions Platform
  *
  *
  * @section wisInitWaylandExtension_spec Specification

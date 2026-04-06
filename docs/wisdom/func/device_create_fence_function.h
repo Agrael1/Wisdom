@@ -1,6 +1,6 @@
 /**
  * @struct wisDeviceCreateFence
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDeviceCreateFence_spec Specification

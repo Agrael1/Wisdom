@@ -1,6 +1,6 @@
 /**
  * @struct WisPipeline
- * @ingroup Handles
+ * @ingroup Handles Core
  *
  *
  * @section WisPipeline_spec Specification

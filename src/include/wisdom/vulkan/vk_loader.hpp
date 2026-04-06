@@ -71,7 +71,7 @@ using unique_library = std::unique_ptr<void, LibraryDeleter>;
             return false;                        \
         }                                        \
     } while (0)
-#define ASSIGN_INSTANCE_PROC_ADDR_OPTIONAL(instance, name)                          \
+#define ASSIGN_INSTANCE_PROC_ADDR_OPTIONAL(instance, name) \
     name = reinterpret_cast<decltype(name)>(vkGetInstanceProcAddr(instance, #name))
 #define ASSIGN_INSTANCE_PROC_ADDR_CHECK(instance, name)                                  \
     do {                                                                                 \
@@ -92,7 +92,7 @@ using unique_library = std::unique_ptr<void, LibraryDeleter>;
             return false;                                                                                \
         }                                                                                                \
     } while (0)
-#define ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, name)                          \
+#define ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, name) \
     name = reinterpret_cast<decltype(name)>(vkGetDeviceProcAddr(device, #name))
 #define ASSIGN_DEVICE_PROC_ADDR_CHECK(device, name)                                  \
     do {                                                                             \

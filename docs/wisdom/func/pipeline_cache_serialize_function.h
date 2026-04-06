@@ -1,6 +1,6 @@
 /**
  * @struct wisPipelineCacheSerialize
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisPipelineCacheSerialize_spec Specification

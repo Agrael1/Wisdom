@@ -1,6 +1,6 @@
 /**
  * @struct WisPipelineType WisPipelineType
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisPipelineType_spec Specification
  * <hr>

@@ -1,6 +1,6 @@
 /**
  * @struct wisCommandListBufferReleaseBarriers
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisCommandListBufferReleaseBarriers_spec Specification

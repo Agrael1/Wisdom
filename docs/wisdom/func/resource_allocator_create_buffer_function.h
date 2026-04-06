@@ -1,6 +1,6 @@
 /**
  * @struct wisResourceAllocatorCreateBuffer
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisResourceAllocatorCreateBuffer_spec Specification

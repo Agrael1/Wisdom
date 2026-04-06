@@ -1,11 +1,11 @@
-#include "generator.hpp"
 #include <fstream>
+#include "generator.hpp"
 
 //----------------------------------------------------------------------------------------------------------------------
 static inline constexpr char template_constant[] =
-        R"(/**
+    R"(/**
  * @page {0}
- * @ingroup Constants
+ * @ingroup Constants {3}
  *
  *
  * @section {0}_spec Specification
@@ -24,14 +24,13 @@ static inline constexpr char template_constant[] =
 //----------------------------------------------------------------------------------------------------------------------
 void Generator::ParseConstants(tinyxml2::XMLElement* constants)
 {
-    for (auto* val = constants->FirstChildElement("value"); val;
-         val       = val->NextSiblingElement("value")) {
-        auto  name = val->FindAttribute("name")->Value();
-        auto& ref  = constant_map[name];
+    for (auto* val = constants->FirstChildElement("value"); val; val = val->NextSiblingElement("value")) {
+        auto name = val->FindAttribute("name")->Value();
+        auto& ref = constant_map[name];
         module_map[active_module_name].constants_in_order.emplace_back(name);
 
-        ref.name  = name;
-        ref.type  = val->FindAttribute("type")->Value();
+        ref.name = name;
+        ref.type = val->FindAttribute("type")->Value();
         ref.value = val->FindAttribute("value")->Value();
 
         if (auto* doc = val->FindAttribute("doc")) {
@@ -59,13 +58,13 @@ std::string Generator::MakeCConstant(const WisConstant& c, DocKind kind)
     }
 
     std::string define_name = "WIS_" + MakeUpperSnakeCase(c.name);
-    std::string st_decl     = wis::format("#define {} (({}{}){})\n", define_name, type_str, mod_str, c.value);
+    std::string st_decl = wis::format("#define {} (({}{}){})\n", define_name, type_str, mod_str, c.value);
 
     if (!c.doc.empty() && kind == DocKind::Full) {
-        std::string version_info  = MakeVersionString(c.version);
+        std::string version_info = MakeVersionString(c.version);
         std::string documentation = wis::format("/// @brief {}{}\n", version_info, c.doc);
-        documentation             = FinalizeCDocumentation(documentation, c.name);
-        st_decl                   = documentation + st_decl;
+        documentation = FinalizeCDocumentation(documentation, c.name);
+        st_decl = documentation + st_decl;
     }
     return st_decl;
 }
@@ -85,10 +84,10 @@ std::string Generator::MakeCPPConstant(const WisConstant& c, DocKind kind)
     std::string st_decl = wis::format("static constexpr {}{} {} = {};\n", type_str, mod_str, c.name, c.value);
 
     if (!c.doc.empty() && kind == DocKind::Full) {
-        std::string version_info  = MakeVersionString(c.version);
+        std::string version_info = MakeVersionString(c.version);
         std::string documentation = wis::format("/// @brief {}{}\n", version_info, c.doc);
-        documentation             = FinalizeCPPDocumentation(documentation, c.name);
-        st_decl                   = documentation + st_decl;
+        documentation = FinalizeCPPDocumentation(documentation, c.name);
+        st_decl = documentation + st_decl;
     }
     return st_decl;
 }
@@ -132,6 +131,10 @@ void Generator::WriteConstantDocumentation(std::filesystem::path const_output_pa
     std::string all_cpp_code;
 
     auto& constant_names = module_map.at(active_module_name).constants_in_order;
+    if (constant_names.empty()) {
+        return;
+    }
+
     for (auto& const_name : constant_names) {
         auto& const_ref = constant_map[const_name];
         all_c_code += MakeCConstant(const_ref, DocKind::VersionOnly);
@@ -140,11 +143,13 @@ void Generator::WriteConstantDocumentation(std::filesystem::path const_output_pa
 
     std::string const_template_content = GetSpecificationCode(all_c_code, "", all_cpp_code, "");
 
-    WriteDocumentation(const_file_path,
-                       template_constant,
-                       "Constants",
-                       const_template_content,
-                       empty_doc,
-                       empty_doc,
-                       empty_doc);
+    WriteDocumentation(
+        const_file_path,
+        template_constant,
+        wis::format("{}Constants", active_module_name),
+        const_template_content,
+        empty_doc,
+        empty_doc,
+        empty_doc
+    );
 }

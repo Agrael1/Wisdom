@@ -1,6 +1,6 @@
 /**
  * @struct wisViewHeapCopyViews
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisViewHeapCopyViews_spec Specification

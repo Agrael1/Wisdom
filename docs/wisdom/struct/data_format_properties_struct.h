@@ -1,6 +1,6 @@
 /**
  * @struct WisDataFormatProperties
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisDataFormatProperties_spec Specification

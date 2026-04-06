@@ -1,6 +1,6 @@
 /**
  * @struct WisDepthStencilFlags WisDepthStencilFlags
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisDepthStencilFlags_spec Specification
  * <hr>

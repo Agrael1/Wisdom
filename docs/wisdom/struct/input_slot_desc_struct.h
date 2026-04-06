@@ -1,6 +1,6 @@
 /**
  * @struct WisInputSlotDesc
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisInputSlotDesc_spec Specification

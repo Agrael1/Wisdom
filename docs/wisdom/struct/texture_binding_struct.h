@@ -1,6 +1,6 @@
 /**
  * @struct WisTextureBinding
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisTextureBinding_spec Specification

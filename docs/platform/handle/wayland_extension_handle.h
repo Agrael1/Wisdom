@@ -1,6 +1,6 @@
 /**
  * @struct WisWaylandExtension
- * @ingroup Handles
+ * @ingroup Handles Platform
  *
  *
  * @section WisWaylandExtension_spec Specification

@@ -1,6 +1,6 @@
 /**
  * @struct WisCullMode WisCullMode
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisCullMode_spec Specification
  * <hr>

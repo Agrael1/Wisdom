@@ -1,6 +1,6 @@
 /**
  * @struct wisDescriptorHeapWriteRWTexture
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDescriptorHeapWriteRWTexture_spec Specification

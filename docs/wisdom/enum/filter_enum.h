@@ -1,6 +1,6 @@
 /**
  * @struct WisFilter WisFilter
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisFilter_spec Specification
  * <hr>

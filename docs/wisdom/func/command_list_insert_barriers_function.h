@@ -1,6 +1,6 @@
 /**
  * @struct wisCommandListInsertBarriers
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisCommandListInsertBarriers_spec Specification

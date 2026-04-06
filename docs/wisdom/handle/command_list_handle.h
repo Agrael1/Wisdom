@@ -1,6 +1,6 @@
 /**
  * @struct WisCommandList
- * @ingroup Handles
+ * @ingroup Handles Core
  *
  *
  * @section WisCommandList_spec Specification

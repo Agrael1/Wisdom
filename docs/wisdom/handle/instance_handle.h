@@ -1,6 +1,6 @@
 /**
  * @struct WisInstance
- * @ingroup Handles
+ * @ingroup Handles Core
  *
  *
  * @section WisInstance_spec Specification

@@ -1,6 +1,6 @@
 /**
  * @struct WisDescriptorHeapType WisDescriptorHeapType
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisDescriptorHeapType_spec Specification
  * <hr>

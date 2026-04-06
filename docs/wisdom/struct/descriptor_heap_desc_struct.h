@@ -1,6 +1,6 @@
 /**
  * @struct WisDescriptorHeapDesc
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisDescriptorHeapDesc_spec Specification

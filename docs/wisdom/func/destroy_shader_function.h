@@ -1,6 +1,6 @@
 /**
  * @struct wisDestroyShader
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDestroyShader_spec Specification

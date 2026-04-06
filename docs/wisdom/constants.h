@@ -1,9 +1,9 @@
 /**
- * @page Constants
- * @ingroup Constants
+ * @page CoreConstants
+ * @ingroup Constants Core
  *
  *
- * @section Constants_spec Specification
+ * @section CoreConstants_spec Specification
  * <hr>
  *
  * \cond WIS_GEN_CODE
@@ -46,7 +46,7 @@
  * ```
  * \endcond
  *
- * @section Constants_see_also See Also
+ * @section CoreConstants_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
  * \endcond

@@ -1,6 +1,6 @@
 /**
  * @struct WisSampleCount WisSampleCount
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisSampleCount_spec Specification
  * <hr>

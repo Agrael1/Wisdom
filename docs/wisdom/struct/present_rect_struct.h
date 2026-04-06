@@ -1,6 +1,6 @@
 /**
  * @struct WisPresentRect
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisPresentRect_spec Specification

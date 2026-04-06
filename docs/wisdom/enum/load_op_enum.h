@@ -1,6 +1,6 @@
 /**
  * @struct WisLoadOp WisLoadOp
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisLoadOp_spec Specification
  * <hr>

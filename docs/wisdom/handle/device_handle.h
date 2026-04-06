@@ -1,6 +1,6 @@
 /**
  * @struct WisDevice
- * @ingroup Handles
+ * @ingroup Handles Core
  *
  *
  * @section WisDevice_spec Specification

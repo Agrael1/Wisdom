@@ -1,6 +1,6 @@
 /**
  * @struct WisResourceAccess WisResourceAccess
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisResourceAccess_spec Specification
  * <hr>

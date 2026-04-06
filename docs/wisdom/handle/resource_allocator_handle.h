@@ -1,6 +1,6 @@
 /**
  * @struct WisResourceAllocator
- * @ingroup Handles
+ * @ingroup Handles Core
  *
  *
  * @section WisResourceAllocator_spec Specification

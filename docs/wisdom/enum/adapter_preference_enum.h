@@ -1,6 +1,6 @@
 /**
  * @struct WisAdapterPreference WisAdapterPreference
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisAdapterPreference_spec Specification
  * <hr>

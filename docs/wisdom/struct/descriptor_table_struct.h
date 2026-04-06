@@ -1,6 +1,6 @@
 /**
  * @struct WisDescriptorTable
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisDescriptorTable_spec Specification

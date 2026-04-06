@@ -1,6 +1,6 @@
 /**
  * @struct wisCommandAllocatorReset
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisCommandAllocatorReset_spec Specification

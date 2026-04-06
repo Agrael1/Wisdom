@@ -1,6 +1,6 @@
 /**
  * @struct WisBarrierFlags WisBarrierFlags
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisBarrierFlags_spec Specification
  * <hr>

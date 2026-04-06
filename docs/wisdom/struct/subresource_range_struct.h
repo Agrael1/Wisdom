@@ -1,6 +1,6 @@
 /**
  * @struct WisSubresourceRange
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisSubresourceRange_spec Specification

@@ -1,6 +1,6 @@
 /**
  * @struct wisDeviceCreateCommandQueue
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDeviceCreateCommandQueue_spec Specification

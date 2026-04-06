@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 FORMAT_TARGETS=("src" "examples")
 

@@ -1,6 +1,6 @@
 /**
  * @struct WisIndexBufferAddressDesc
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisIndexBufferAddressDesc_spec Specification

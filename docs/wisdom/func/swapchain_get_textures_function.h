@@ -1,6 +1,6 @@
 /**
  * @struct wisSwapchainGetTextures
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisSwapchainGetTextures_spec Specification

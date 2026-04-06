@@ -1,6 +1,6 @@
 /**
  * @struct wisDestroyPipelineCache
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDestroyPipelineCache_spec Specification

@@ -1,6 +1,6 @@
 /**
  * @struct WisResolveMode WisResolveMode
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisResolveMode_spec Specification
  * <hr>

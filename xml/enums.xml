@@ -13,7 +13,7 @@
       <value name="DeviceLost" value="-4" doc="Device driver was forcefully stopped."/>
       <value name="Occluded" value="-5" doc="Swap chain presentation was not visible to the user. Rendering is too fast."/>
       <value name="ValidationFailed" value="-6" doc="A validation layer found an error."/>
-      <value name="Fail" value="-7" doc="Operation expectedly failed."/>
+      <value name="Fail" value="-7" doc="Operation failed as expected."/>
       <value name="Error" value="-10000" doc="Operation failed."/>
     </type>
 
@@ -798,7 +798,7 @@ a 4-bit A component in bits 12..15.">
 
     <type name="DescriptorHeapFlags" category="bitmask" version="0.7.0" doc="Flags for descriptor heap creation.">
       <value name="None" value="0" doc="No flags set."/>
-      <value name="DisallowEmbeddedSamplers" bit="1" doc="Heap is used in full for dynamic samplers. There @wis_must_not be any shader that use embedded samplers that uses that heap. User @wis_may allocate more samplers in the heap than it would normally be."/>
+      <value name="DisallowEmbeddedSamplers" bit="1" doc="Heap is used in full for dynamic samplers. There @wis_mustnot be any shader that use embedded samplers that uses that heap. User @wis_may allocate more samplers in the heap than it would normally be."/>
     </type>
 
     <type name="SamplerFlags" category="bitmask" version="0.7.0" doc="Flags for sampler creation.">
@@ -1688,7 +1688,7 @@ Affect which part of the depth stencil buffer is used.">
     <type name="ViewHeapFlags" category="bitmask" version="0.7.0" doc="View heap creation flags.">
       <impl_type for="dx" name="D3D12_DESCRIPTOR_HEAP_FLAGS"/>
       <value name="None" value="0" doc="No flags set. View heap is regular."/>
-      <value name="AllowMutisample" bit="0" doc="Shader visible view heap. If set, the view heap is visible to shaders and can be used for descriptor tables. If not set, the view heap is not visible to shaders and cannot be used for descriptor tables."/>
+      <value name="AllowMultisample" bit="0" doc="Shader visible view heap. If set, the view heap is visible to shaders and can be used for descriptor tables. If not set, the view heap is not visible to shaders and cannot be used for descriptor tables."/>
     </type>
 
     <type name="FormatSupportFlags" category="bitmask" version="0.7.0" doc="Format support flags.

@@ -1,6 +1,6 @@
 /**
  * @struct WisMemoryFlags WisMemoryFlags
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisMemoryFlags_spec Specification
  * <hr>

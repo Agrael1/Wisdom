@@ -1,6 +1,6 @@
 /**
  * @struct WisTextureCopyRegion
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisTextureCopyRegion_spec Specification

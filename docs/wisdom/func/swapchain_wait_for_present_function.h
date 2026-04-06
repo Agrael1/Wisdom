@@ -1,6 +1,6 @@
 /**
  * @struct wisSwapchainWaitForPresent
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisSwapchainWaitForPresent_spec Specification

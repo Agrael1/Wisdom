@@ -1,6 +1,6 @@
 /**
  * @struct WisAdapterDesc
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisAdapterDesc_spec Specification

@@ -1,6 +1,6 @@
 /**
  * @struct wisCommandAllocatorCreateCommandList
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisCommandAllocatorCreateCommandList_spec Specification

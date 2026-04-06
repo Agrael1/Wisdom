@@ -1,6 +1,6 @@
 /**
  * @struct WisBufferCopyRegion
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisBufferCopyRegion_spec Specification

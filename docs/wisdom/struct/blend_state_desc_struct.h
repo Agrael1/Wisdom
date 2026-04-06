@@ -1,6 +1,6 @@
 /**
  * @struct WisBlendStateDesc
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisBlendStateDesc_spec Specification

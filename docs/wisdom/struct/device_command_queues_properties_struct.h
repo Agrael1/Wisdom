@@ -1,6 +1,6 @@
 /**
  * @struct WisDeviceCommandQueuesProperties
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisDeviceCommandQueuesProperties_spec Specification

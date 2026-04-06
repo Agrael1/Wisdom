@@ -1,6 +1,6 @@
 /**
  * @struct WisCommandQueueDesc
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisCommandQueueDesc_spec Specification

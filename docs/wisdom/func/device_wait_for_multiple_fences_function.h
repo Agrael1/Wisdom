@@ -1,6 +1,6 @@
 /**
  * @struct wisDeviceWaitForMultipleFences
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDeviceWaitForMultipleFences_spec Specification

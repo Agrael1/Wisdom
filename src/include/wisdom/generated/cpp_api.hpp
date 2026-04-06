@@ -30,7 +30,7 @@ enum class Status {
     DeviceLost = -4, ///< Device driver was forcefully stopped.
     Occluded = -5, ///< Swap chain presentation was not visible to the user. Rendering is too fast.
     ValidationFailed = -6, ///< A validation layer found an error.
-    Fail = -7, ///< Operation expectedly failed.
+    Fail = -7, ///< Operation failed as expected.
     Error = -10000, ///< Operation failed.
 };
 
@@ -693,7 +693,7 @@ enum class CommandQueueType {
 };
 
 /**
- * @brief Provided by Wisdom 0.7.0. Global queue priority. Higher priority queues get more GPU time, but @wis_may cause
+ * @brief Provided by Wisdom 0.7.0. Global queue priority. Higher priority queues get more GPU time, but may cause
  * performance issues if overused.
  *
  * */
@@ -701,8 +701,8 @@ enum class CommandQueuePriority {
     Normal = 0, ///< Normal queue priority.
     High = 1, ///< High queue priority.
     /**
-     * @brief Global realtime queue priority. Requires special GPU support and @wis_may cause performance issues if used
-     * on unsupported hardware.
+     * @brief Global realtime queue priority. Requires special GPU support and may cause performance issues if used on
+     * unsupported hardware.
      * */
     Realtime = 2,
 };
@@ -913,7 +913,7 @@ enum class MemoryType {
      * @brief
      * GPU upload memory type.
      * Used for data that is directly uploaded to the GPU Local memory using copy operations.
-     * Support of this memory @wis_must be queried.
+     * Support of this memory must be queried.
      * */
     GPUUpload = 3,
 };
@@ -1201,7 +1201,7 @@ enum class IndexType {
  *
  * */
 enum class AdapterFlags : uint32_t {
-    None = 0, ///< No flags set. Adapter @wis_may be discrete or embedded.
+    None = 0, ///< No flags set. Adapter may be discrete or embedded.
     Remote = (1u << 0), ///< Adapter is remote. Used for remote rendering.
     Software = (1u << 1), ///< Adapter is software. Uses CPU for software rendering.
 };
@@ -1214,7 +1214,7 @@ WISDOM_DEFINE_ENUM_OPERATORS(AdapterFlags)
 enum class DescriptorHeapFlags : uint32_t {
     None = 0, ///< No flags set.
     /**
-     * @brief Heap is used in full for dynamic samplers. There @wis_must_not be any shader that use embedded samplers
+     * @brief Heap is used in full for dynamic samplers. There @wis_mustnot be any shader that use embedded samplers
      * that uses that heap. User @wis_may allocate more samplers in the heap than it would normally be.
      * */
     DisallowEmbeddedSamplers = (1u << 1),
@@ -1428,17 +1428,17 @@ enum class PipelineFlags : uint32_t {
     None = 0, ///< No flags set. Pipeline is regular.
     /**
      * @brief Fail pipeline creation if the pipeline cache is missing or incompatible. If not set, the implementation
-     * @wis_may choose to create the pipeline without using the cache, which @wis_may result in longer creation time.
+     * may choose to create the pipeline without using the cache, which may result in longer creation time.
      * */
     FailOnCacheMiss = (1u << 0),
     /**
      * @brief Enable primitive restart for graphics pipelines. If not set, primitive restart is disabled and the
-     * implementation @wis_may choose to ignore restart indices in draw calls.
+     * implementation may choose to ignore restart indices in draw calls.
      * */
     EnablePrimitiveRestart = (1u << 1),
     /**
-     * @brief Enable dynamic depth bias for graphics pipelines. If not set, depth bias is static and @wis_must be
-     * specified at pipeline creation time.
+     * @brief Enable dynamic depth bias for graphics pipelines. If not set, depth bias is static and must be specified
+     * at pipeline creation time.
      * */
     DynamicDepthBias = (1u << 2),
 };
@@ -1482,8 +1482,8 @@ WISDOM_DEFINE_ENUM_OPERATORS(SwapchainFlags)
 enum class PresentFlags : uint32_t {
     None = 0, ///< No flags set. Swapchain is regular.
     /**
-     * @brief Fail present if the presentation engine is busy. If not set, the implementation @wis_may choose to block
-     * until the presentation engine is available.
+     * @brief Fail present if the presentation engine is busy. If not set, the implementation may choose to block until
+     * the presentation engine is available.
      * */
     TimeoutOnBlock = (1u << 0),
 };
@@ -1501,7 +1501,7 @@ enum class RenderPassFlags : uint32_t {
     Resuming = (1u << 2), ///< Render pass is resuming.
     /**
      * @brief Allow UAV writes. If set, unordered access view (UAV) writes are allowed during the render pass. If not
-     * set, UAV writes are not allowed and @wis_may result in undefined behavior if attempted.
+     * set, UAV writes are not allowed and may result in undefined behavior if attempted.
      * */
     AllowUAVWrites = (1u << 3),
 };
@@ -1537,7 +1537,7 @@ enum class ViewHeapFlags : uint32_t {
      * @brief Shader visible view heap. If set, the view heap is visible to shaders and can be used for descriptor
      * tables. If not set, the view heap is not visible to shaders and cannot be used for descriptor tables.
      * */
-    AllowMutisample = (1u << 0),
+    AllowMultisample = (1u << 0),
 };
 WISDOM_DEFINE_ENUM_OPERATORS(ViewHeapFlags)
 
@@ -2585,11 +2585,11 @@ static constexpr std::uint32_t TransientMaxBarrierCount = 32;
 /// @brief Provided by Wisdom 0.7.0. Defines the amount of planes that can be present on the single (YUV) image.
 static constexpr std::uint32_t MaxPlaneCount = 3;
 
-/// @brief Provided by Wisdom 0.7.0. Defines the minimum amount of vertex attributes that @wis_must be supported by the
+/// @brief Provided by Wisdom 0.7.0. Defines the minimum amount of vertex attributes that must be supported by the
 /// implementation.
 static constexpr std::uint32_t MinSupportedInputAttributes = 16;
 
-/// @brief Provided by Wisdom 0.7.0. Defines the minimum amount of vertex bindings that @wis_must be supported by the
+/// @brief Provided by Wisdom 0.7.0. Defines the minimum amount of vertex bindings that must be supported by the
 /// implementation.
 static constexpr std::uint32_t MinSupportedInputBindings = 16;
 
@@ -2806,10 +2806,7 @@ struct DX12GraphicsPipelineDesc {
  *
  * */
 struct DX12VertexBufferDesc {
-    /**
-     * @brief Vertex Buffer to bind. The buffer view @wis_must have been created with  usage flag.
-     * */
-    wis::DX12BufferView buffer;
+    wis::DX12BufferView buffer; ///< Vertex Buffer to bind. The buffer view must have been created with  usage flag.
     std::uint32_t size; ///< Size of the buffer in bytes.
     std::uint32_t stride; ///< Stride of the buffer in bytes.
     std::uint32_t offset; ///< Offset in buffer in bytes. Default is 0.
@@ -2820,10 +2817,7 @@ struct DX12VertexBufferDesc {
  *
  * */
 struct DX12IndexBufferDesc {
-    /**
-     * @brief Vertex Buffer to bind. The buffer view @wis_must have been created with  usage flag.
-     * */
-    wis::DX12BufferView buffer;
+    wis::DX12BufferView buffer; ///< Vertex Buffer to bind. The buffer view must have been created with  usage flag.
     std::uint32_t size; ///< Size of the buffer in bytes.
     std::uint32_t offset; ///< Offset in buffer in bytes. Default is 0.
 };
@@ -2850,7 +2844,7 @@ public:
     WIS_NODISCARD operator DX12TextureView() const noexcept { return GetView(); }
     /**
      * @brief Provided by Wisdom 0.7.0. Writes data directly to the texture subresource. Texture @wis_must be in
-     * `wis::TextureState::Common` and @wis_must_not be a depth or planar texture.
+     * `wis::TextureState::Common` and @wis_mustnot be a depth or planar texture.
      * @param source_data specifies a pointer to the data to write to the texture.
      * @param target_region specifies a pointer to wis::TextureRegion, which describes the region of the texture to
      * write to. The `flags` parameter of the region is ignored, as depth/stencil/planar is not supported.
@@ -2938,8 +2932,8 @@ public:
         return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     }
     /**
-     * @brief Provided by Wisdom 0.7.0. Gets the index of the current backbuffer. In case of lazy indexing it @wis_may
-     * wait for presentation to finish and block.
+     * @brief Provided by Wisdom 0.7.0. Gets the index of the current backbuffer. In case of lazy indexing it may wait
+     * for presentation to finish and block.
      * @param out_result denoting the outcome of operation.
      * @return index Index of the current backbuffer.
      *
@@ -2960,7 +2954,7 @@ public:
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Resizes the swapchain buffers. If the swapchain is currently in use, it
-     * @wis_must be resized after the GPU finishes using it, so the call @wis_may block until then.
+     * @wis_must be resized after the GPU finishes using it, so the call may block until then.
      * @param desc indicates a pointer to wis::SwapchainUpdateDesc, which describes the new swapchain parameters.
      * @return Result denoting the outcome of operation.
      *
@@ -4857,7 +4851,7 @@ struct VKGraphicsPipelineDesc {
  *
  * */
 struct VKVertexBufferDesc {
-    wis::VKBufferView buffer; ///< Vertex Buffer to bind. The buffer view @wis_must have been created with  usage flag.
+    wis::VKBufferView buffer; ///< Vertex Buffer to bind. The buffer view must have been created with  usage flag.
     std::uint32_t size; ///< Size of the buffer in bytes.
     std::uint32_t stride; ///< Stride of the buffer in bytes.
     std::uint32_t offset; ///< Offset in buffer in bytes. Default is 0.
@@ -4868,7 +4862,7 @@ struct VKVertexBufferDesc {
  *
  * */
 struct VKIndexBufferDesc {
-    wis::VKBufferView buffer; ///< Vertex Buffer to bind. The buffer view @wis_must have been created with  usage flag.
+    wis::VKBufferView buffer; ///< Vertex Buffer to bind. The buffer view must have been created with  usage flag.
     std::uint32_t size; ///< Size of the buffer in bytes.
     std::uint32_t offset; ///< Offset in buffer in bytes. Default is 0.
 };
@@ -4895,7 +4889,7 @@ public:
     WIS_NODISCARD operator VKTextureView() const noexcept { return GetView(); }
     /**
      * @brief Provided by Wisdom 0.7.0. Writes data directly to the texture subresource. Texture @wis_must be in
-     * `wis::TextureState::Common` and @wis_must_not be a depth or planar texture.
+     * `wis::TextureState::Common` and @wis_mustnot be a depth or planar texture.
      * @param source_data specifies a pointer to the data to write to the texture.
      * @param target_region specifies a pointer to wis::TextureRegion, which describes the region of the texture to
      * write to. The `flags` parameter of the region is ignored, as depth/stencil/planar is not supported.
@@ -4982,8 +4976,8 @@ public:
         return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     }
     /**
-     * @brief Provided by Wisdom 0.7.0. Gets the index of the current backbuffer. In case of lazy indexing it @wis_may
-     * wait for presentation to finish and block.
+     * @brief Provided by Wisdom 0.7.0. Gets the index of the current backbuffer. In case of lazy indexing it may wait
+     * for presentation to finish and block.
      * @param out_result denoting the outcome of operation.
      * @return index Index of the current backbuffer.
      *
@@ -5004,7 +4998,7 @@ public:
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Resizes the swapchain buffers. If the swapchain is currently in use, it
-     * @wis_must be resized after the GPU finishes using it, so the call @wis_may block until then.
+     * @wis_must be resized after the GPU finishes using it, so the call may block until then.
      * @param desc indicates a pointer to wis::SwapchainUpdateDesc, which describes the new swapchain parameters.
      * @return Result denoting the outcome of operation.
      *

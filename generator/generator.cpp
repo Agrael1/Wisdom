@@ -1175,7 +1175,7 @@ void Generator::WriteDocumentation(std::filesystem::path doc_output_path,
     std::fstream enum_file{ doc_output_path, file_exists ? std::ios::in | std::ios::out : std::ios::out };
 
     if (!file_exists) {
-        std::string xenum = wis::vformat(doc_template, wis::make_format_args(object_name, code, desc));
+        std::string xenum = wis::vformat(doc_template, wis::make_format_args(object_name, code, desc, active_module_name));
 
         enum_file << FinalizeCDocumentation(xenum, object_name);
         enum_file.close();
@@ -1438,13 +1438,37 @@ std::string Generator::FinalizeCDocumentation(std::string doc, std::string_view 
     }
 
     // replave should, must, may with @wis_should, @wis_must, @wis_may
-    ReplaceAll(doc, " should not", " @wis_shouldnot ");
-    ReplaceAll(doc, " must not", " @wis_mustnot");
-    ReplaceAll(doc, " may not", " @wis_maynot");
+    // skip replacing in brief documentation
+    size_t start_replacing = 0;
+    if (doc.find("///<") != std::string::npos || doc.find("/// @brief") != std::string::npos) {
+        start_replacing = doc.length();
+    } else {
+        size_t brief_start = doc.find("@brief");
+        if (brief_start != std::string::npos) {
+            size_t brief_end = doc.find("\n * \n * ", brief_start);
+            if (brief_end == std::string::npos) {
+                brief_end = doc.find("\n * \n", brief_start);
+            }
+            if (brief_end != std::string::npos) {
+                start_replacing = brief_end;
+            } else {
+                start_replacing = doc.length();
+            }
+        }
+    }
 
-    ReplaceAll(doc, " should ", " @wis_should ");
-    ReplaceAll(doc, " must ", " @wis_must ");
-    ReplaceAll(doc, " may ", " @wis_may ");
+    if (start_replacing < doc.length()) {
+        std::string big_doc = doc.substr(start_replacing);
+        ReplaceAll(big_doc, " should not", " @wis_shouldnot ");
+        ReplaceAll(big_doc, " must not", " @wis_mustnot");
+        ReplaceAll(big_doc, " may not", " @wis_maynot");
+
+        ReplaceAll(big_doc, " should ", " @wis_should ");
+        ReplaceAll(big_doc, " must ", " @wis_must ");
+        ReplaceAll(big_doc, " may ", " @wis_may ");
+
+        doc.replace(start_replacing, std::string::npos, big_doc);
+    }
     return doc;
 }
 std::string Generator::FinalizeCPPDocumentation(std::string doc, std::string_view this_type, Backend backend)
@@ -1531,13 +1555,37 @@ std::string Generator::FinalizeCPPDocumentation(std::string doc, std::string_vie
     }
 
     // replave should, must, may with @wis_should, @wis_must, @wis_may
-    ReplaceAll(doc, " should not", " @wis_shouldnot ");
-    ReplaceAll(doc, " must not", " @wis_mustnot");
-    ReplaceAll(doc, " may not", " @wis_maynot");
+    // skip replacing in brief documentation
+    size_t start_replacing = 0;
+    if (doc.find("///<") != std::string::npos || doc.find("/// @brief") != std::string::npos) {
+        start_replacing = doc.length();
+    } else {
+        size_t brief_start = doc.find("@brief");
+        if (brief_start != std::string::npos) {
+            size_t brief_end = doc.find("\n * \n * ", brief_start);
+            if (brief_end == std::string::npos) {
+                brief_end = doc.find("\n * \n", brief_start);
+            }
+            if (brief_end != std::string::npos) {
+                start_replacing = brief_end;
+            } else {
+                start_replacing = doc.length();
+            }
+        }
+    }
 
-    ReplaceAll(doc, " should ", " @wis_should ");
-    ReplaceAll(doc, " must ", " @wis_must ");
-    ReplaceAll(doc, " may ", " @wis_may ");
+    if (start_replacing < doc.length()) {
+        std::string big_doc = doc.substr(start_replacing);
+        ReplaceAll(big_doc, " should not", " @wis_shouldnot ");
+        ReplaceAll(big_doc, " must not", " @wis_mustnot");
+        ReplaceAll(big_doc, " may not", " @wis_maynot");
+
+        ReplaceAll(big_doc, " should ", " @wis_should ");
+        ReplaceAll(big_doc, " must ", " @wis_must ");
+        ReplaceAll(big_doc, " may ", " @wis_may ");
+
+        doc.replace(start_replacing, std::string::npos, big_doc);
+    }
     return doc;
 }
 

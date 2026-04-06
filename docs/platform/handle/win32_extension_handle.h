@@ -1,6 +1,6 @@
 /**
  * @struct WisWin32Extension
- * @ingroup Handles
+ * @ingroup Handles Platform
  *
  *
  * @section WisWin32Extension_spec Specification

@@ -1,6 +1,6 @@
 /**
  * @struct WisBlendFactor WisBlendFactor
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisBlendFactor_spec Specification
  * <hr>

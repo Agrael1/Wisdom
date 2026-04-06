@@ -9,8 +9,8 @@
 #include <iterator>
 #include <string>
 #include <string_view>
-#include <vector>
 #include <thread>
+#include <vector>
 
 #include <sdl_backend_cpp.h>
 
@@ -260,7 +260,7 @@ static bool init_app(HelloTriangleApp* app, SDL_Window* window)
     app->rtv_heap = app->device.CreateViewHeap(
         wis::ViewHeapType::RenderTarget,
         SWAPCHAIN_FRAMES * 2,
-        wis::ViewHeapFlags::AllowMutisample,
+        wis::ViewHeapFlags::AllowMultisample,
         result
     );
     if (!check_result(result, "Device::CreateViewHeap")) {

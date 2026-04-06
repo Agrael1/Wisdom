@@ -1,6 +1,6 @@
 /**
  * @struct wisDestroyDescriptorHeap
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDestroyDescriptorHeap_spec Specification

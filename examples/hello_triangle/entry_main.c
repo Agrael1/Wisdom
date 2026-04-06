@@ -75,7 +75,13 @@ static bool check_result(WisResult result, const char* where)
         return true;
     }
 
-    printf("%s failed: %d, platform_code: %d, error: %s\n", where, result.status, result.platform_code, result.error ? result.error : "None");
+    printf(
+        "%s failed: %d, platform_code: %d, error: %s\n",
+        where,
+        result.status,
+        result.platform_code,
+        result.error ? result.error : "None"
+    );
     return false;
 }
 
@@ -223,9 +229,13 @@ static bool init_app(HelloTriangleApp* app, SDL_Window* window)
         return false;
     }
 
-    app->swapchain_format = wisDeviceGetFormatPresentationSupport(&app->device, wisGetSurfaceView(&surface), WisDataFormatRGB10A2Unorm)
-        ? WisDataFormatRGB10A2Unorm
-        : WisDataFormatBGRA8Unorm;
+    app->swapchain_format = wisDeviceGetFormatPresentationSupport(
+                                &app->device,
+                                wisGetSurfaceView(&surface),
+                                WisDataFormatRGB10A2Unorm
+                            )
+                              ? WisDataFormatRGB10A2Unorm
+                              : WisDataFormatBGRA8Unorm;
 
     WisSwapchainDesc swapchain_desc = {
         .width = app->width,
@@ -258,7 +268,11 @@ static bool init_app(HelloTriangleApp* app, SDL_Window* window)
     }
 
     for (uint32_t i = 0; i < FRAMES_IN_FLIGHT; ++i) {
-        result = wisDeviceCreateCommandAllocator(&app->device, WisCommandQueueTypeGraphics, &app->frames[i].command_allocator);
+        result = wisDeviceCreateCommandAllocator(
+            &app->device,
+            WisCommandQueueTypeGraphics,
+            &app->frames[i].command_allocator
+        );
         if (!check_result(result, "wisDeviceCreateCommandAllocator")) {
             return false;
         }
@@ -435,19 +449,22 @@ static void draw_frame(HelloTriangleApp* app, float angle)
     };
 
     WisRenderPassDesc render_pass = {
-        .render_targets =
-            {{
-                .target = target_rtv,
-                .load_op = WisLoadOpClear,
-                .store_op = WisStoreOpStore,
-                .clear_value = {0.1f, 0.1f, 0.15f, 1.0f},
-            }},
+        .render_targets = {{
+            .target = target_rtv,
+            .load_op = WisLoadOpClear,
+            .store_op = WisStoreOpStore,
+            .clear_value = {0.1f, 0.1f, 0.15f, 1.0f},
+        }},
         .render_target_count = 1,
     };
 
     wisCommandListBegin(&frame->command_list);
     wisCommandListInsertBarriers(&frame->command_list, &pre_barrier);
-    wisCommandListSetRootSignature(&frame->command_list, wisGetRootSignatureView(&app->root_signature), WisPipelineTypeGraphics);
+    wisCommandListSetRootSignature(
+        &frame->command_list,
+        wisGetRootSignatureView(&app->root_signature),
+        WisPipelineTypeGraphics
+    );
     wisCommandListSetPipeline(&frame->command_list, wisGetPipelineView(&app->pipeline), WisPipelineTypeGraphics);
     wisCommandListSetPushConstants(&frame->command_list, &push_constant);
     wisCommandListSetViewports(&frame->command_list, &viewport, 1);

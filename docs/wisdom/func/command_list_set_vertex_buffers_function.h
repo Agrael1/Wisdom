@@ -1,6 +1,6 @@
 /**
  * @struct wisCommandListSetVertexBuffers
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisCommandListSetVertexBuffers_spec Specification

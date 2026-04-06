@@ -1,6 +1,6 @@
 /**
  * @struct WisViewport
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisViewport_spec Specification

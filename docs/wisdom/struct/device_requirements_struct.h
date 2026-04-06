@@ -1,6 +1,6 @@
 /**
  * @struct WisDeviceRequirements
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisDeviceRequirements_spec Specification

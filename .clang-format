@@ -20,7 +20,7 @@ AlignConsecutiveShortCaseStatements:
   Enabled: true
   AcrossEmptyLines: false
   AcrossComments: false
-AlignEscapedNewlines: LeftWithLastLine
+AlignEscapedNewlines: Left
 AlignOperands: AlignAfterOperator
 AlignTrailingComments:
   Kind: Never
@@ -58,8 +58,6 @@ BreakAdjacentStringLiterals: true
 BreakBeforeBinaryOperators: NonAssignment
 BreakBeforeTernaryOperators: true
 BreakConstructorInitializers: BeforeComma
-BreakFunctionDefinitionParameters: false
-BreakTemplateDeclarations: Yes
 IndentPPDirectives: AfterHash
 FixNamespaceComments: true
 Cpp11BracedListStyle: true
@@ -95,3 +93,4 @@ StatementAttributeLikeMacros:
   - WISDOM_API
   - WIS_EXTERN_C
   - WISDOM_PLATFORM_API
+AlwaysBreakTemplateDeclarations: Yes

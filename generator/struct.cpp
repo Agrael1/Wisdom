@@ -4,7 +4,7 @@
 static inline constexpr char template_struct[] =
         R"(/**
  * @struct {0}
- * @ingroup Structures
+ * @ingroup Structures {3}
  *
  *
  * @section {0}_spec Specification

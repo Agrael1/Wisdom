@@ -1,6 +1,6 @@
 /**
  * @struct wisDestroySwapchain
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDestroySwapchain_spec Specification

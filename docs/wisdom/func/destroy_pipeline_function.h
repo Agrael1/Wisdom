@@ -1,6 +1,6 @@
 /**
  * @struct wisDestroyPipeline
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDestroyPipeline_spec Specification

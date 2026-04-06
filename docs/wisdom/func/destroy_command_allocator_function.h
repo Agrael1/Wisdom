@@ -1,6 +1,6 @@
 /**
  * @struct wisDestroyCommandAllocator
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDestroyCommandAllocator_spec Specification

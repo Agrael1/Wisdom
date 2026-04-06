@@ -1,6 +1,6 @@
 /**
  * @struct WisPushDescriptorDataDesc
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisPushDescriptorDataDesc_spec Specification

@@ -1,6 +1,6 @@
 /**
  * @struct wisSwapchainUpdate
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisSwapchainUpdate_spec Specification

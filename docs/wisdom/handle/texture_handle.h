@@ -1,6 +1,6 @@
 /**
  * @struct WisTexture
- * @ingroup Handles
+ * @ingroup Handles Core
  *
  *
  * @section WisTexture_spec Specification

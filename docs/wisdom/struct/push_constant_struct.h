@@ -1,6 +1,6 @@
 /**
  * @struct WisPushConstant
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisPushConstant_spec Specification

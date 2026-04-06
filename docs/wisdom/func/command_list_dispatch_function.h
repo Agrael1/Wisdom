@@ -1,6 +1,6 @@
 /**
  * @struct wisCommandListDispatch
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisCommandListDispatch_spec Specification

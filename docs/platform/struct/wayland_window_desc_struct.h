@@ -1,6 +1,6 @@
 /**
  * @struct WisWaylandWindowDesc
- * @ingroup Structures
+ * @ingroup Structures Platform
  *
  *
  * @section WisWaylandWindowDesc_spec Specification

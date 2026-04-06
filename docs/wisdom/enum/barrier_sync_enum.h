@@ -1,6 +1,6 @@
 /**
  * @struct WisBarrierSync WisBarrierSync
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisBarrierSync_spec Specification
  * <hr>

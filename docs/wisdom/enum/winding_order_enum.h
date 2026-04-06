@@ -1,6 +1,6 @@
 /**
  * @struct WisWindingOrder WisWindingOrder
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisWindingOrder_spec Specification
  * <hr>

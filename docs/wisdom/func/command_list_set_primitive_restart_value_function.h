@@ -1,6 +1,6 @@
 /**
  * @struct wisCommandListSetPrimitiveRestartValue
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisCommandListSetPrimitiveRestartValue_spec Specification

@@ -1,6 +1,6 @@
 /**
  * @struct wisDestroyBuffer
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDestroyBuffer_spec Specification

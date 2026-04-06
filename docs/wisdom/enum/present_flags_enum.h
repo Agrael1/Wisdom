@@ -1,6 +1,6 @@
 /**
  * @struct WisPresentFlags WisPresentFlags
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisPresentFlags_spec Specification
  * <hr>

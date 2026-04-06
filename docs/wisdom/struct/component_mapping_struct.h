@@ -1,6 +1,6 @@
 /**
  * @struct WisComponentMapping
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisComponentMapping_spec Specification

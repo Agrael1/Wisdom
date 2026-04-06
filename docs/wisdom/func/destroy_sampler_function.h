@@ -1,6 +1,6 @@
 /**
  * @struct wisDestroySampler
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDestroySampler_spec Specification

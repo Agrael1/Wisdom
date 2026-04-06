@@ -1,6 +1,6 @@
 /**
  * @struct WisIndexType WisIndexType
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisIndexType_spec Specification
  * <hr>

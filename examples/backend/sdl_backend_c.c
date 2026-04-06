@@ -56,7 +56,8 @@ WisSurface CreateSurface(const SDLPlatform* platform, SDL_Window* window)
 #if defined(SDL_PLATFORM_WIN32)
     case SDL_PLATFORM_EXTENSION_WIN32: {
         WisWin32Extension* win32_extension = (WisWin32Extension*)platform->platform_extension;
-        HWND hwnd = (HWND)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
+        HWND hwnd = (HWND)
+            SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, NULL);
         if (hwnd) {
             WisWin32WindowDesc desc = {
                 .hinstance = GetModuleHandle(NULL),
@@ -71,8 +72,10 @@ WisSurface CreateSurface(const SDLPlatform* platform, SDL_Window* window)
 #elif defined(SDL_PLATFORM_LINUX)
     case SDL_PLATFORM_EXTENSION_X11: {
 #    ifdef WIS_PLATFORM_XLIB_PRESENT
-        void* xdisplay = (void*)SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_X11_DISPLAY_POINTER, NULL);
-        uint64_t xwindow = (uint64_t)SDL_GetNumberProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_X11_WINDOW_NUMBER, 0);
+        void* xdisplay = (void*)
+            SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_X11_DISPLAY_POINTER, NULL);
+        uint64_t xwindow = (uint64_t)
+            SDL_GetNumberProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_X11_WINDOW_NUMBER, 0);
         if (xdisplay && xwindow) {
             WisXlibWindowDesc desc = {
                 .display = xdisplay,
@@ -88,16 +91,10 @@ WisSurface CreateSurface(const SDLPlatform* platform, SDL_Window* window)
     case SDL_PLATFORM_EXTENSION_WAYLAND: {
 #    ifdef WIS_PLATFORM_WAYLAND_PRESENT
         WisWaylandExtension* wayland_extension = (WisWaylandExtension*)platform->platform_extension;
-        struct wl_display* display = (struct wl_display*)SDL_GetPointerProperty(
-            SDL_GetWindowProperties(window),
-            SDL_PROP_WINDOW_WAYLAND_DISPLAY_POINTER,
-            NULL
-        );
-        struct wl_surface* surface = (struct wl_surface*)SDL_GetPointerProperty(
-            SDL_GetWindowProperties(window),
-            SDL_PROP_WINDOW_WAYLAND_SURFACE_POINTER,
-            NULL
-        );
+        struct wl_display* display = (struct wl_display*)
+            SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WAYLAND_DISPLAY_POINTER, NULL);
+        struct wl_surface* surface = (struct wl_surface*)
+            SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WAYLAND_SURFACE_POINTER, NULL);
         if (display && surface) {
             WisWaylandWindowDesc desc = {
                 .display = display,

@@ -137,7 +137,7 @@
  * ```bash
  * # Enable documentation build
  * cmake --preset x64-release -DWISDOM_BUILD_DOCS=ON
- * cmake --build --preset x64-release --target docs
+ * cmake --build --preset x64-release --target doc_doxygen
  * ```
  *
  * @section extension_development_sec Extension Development

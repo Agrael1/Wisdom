@@ -1,6 +1,6 @@
 /**
  * @struct wisCommandListCopyTexture
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisCommandListCopyTexture_spec Specification

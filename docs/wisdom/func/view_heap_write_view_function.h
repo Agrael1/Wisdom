@@ -1,6 +1,6 @@
 /**
  * @struct wisViewHeapWriteView
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisViewHeapWriteView_spec Specification

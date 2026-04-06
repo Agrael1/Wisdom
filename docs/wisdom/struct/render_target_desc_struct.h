@@ -1,6 +1,6 @@
 /**
  * @struct WisRenderTargetDesc
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisRenderTargetDesc_spec Specification

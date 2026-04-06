@@ -1,6 +1,6 @@
 /**
  * @struct WisInputBindingDesc
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisInputBindingDesc_spec Specification

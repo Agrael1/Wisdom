@@ -1,6 +1,6 @@
 /**
  * @struct WisViewHeap
- * @ingroup Handles
+ * @ingroup Handles Core
  *
  *
  * @section WisViewHeap_spec Specification

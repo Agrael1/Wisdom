@@ -1,6 +1,6 @@
 /**
  * @struct wisDeviceCreateSwapchain
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDeviceCreateSwapchain_spec Specification

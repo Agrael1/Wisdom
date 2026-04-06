@@ -1,6 +1,6 @@
 /**
  * @struct wisDescriptorHeapGetCPUHandle
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDescriptorHeapGetCPUHandle_spec Specification

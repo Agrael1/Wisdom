@@ -1,6 +1,6 @@
 /**
  * @struct WisShaderVisibility WisShaderVisibility
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisShaderVisibility_spec Specification
  * <hr>

@@ -1,6 +1,6 @@
 /**
  * @struct wisDestroyFence
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDestroyFence_spec Specification

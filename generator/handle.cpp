@@ -4,7 +4,7 @@
 static inline constexpr char template_handle[] =
         R"(/**
  * @struct {0}
- * @ingroup Handles
+ * @ingroup Handles {3}
  *
  *
  * @section {0}_spec Specification

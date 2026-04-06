@@ -1,6 +1,6 @@
 /**
  * @struct WisBox
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisBox_spec Specification

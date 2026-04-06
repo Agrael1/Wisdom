@@ -1,6 +1,6 @@
 /**
  * @struct wisDescriptorHeapWriteAccelerationStructure
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDescriptorHeapWriteAccelerationStructure_spec Specification

@@ -1,6 +1,6 @@
 /**
  * @struct WisXlibWindowDesc
- * @ingroup Structures
+ * @ingroup Structures Platform
  *
  *
  * @section WisXlibWindowDesc_spec Specification

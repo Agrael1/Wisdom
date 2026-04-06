@@ -1,6 +1,6 @@
 /**
  * @struct WisAdapterFlags WisAdapterFlags
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisAdapterFlags_spec Specification
  * <hr>

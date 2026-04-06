@@ -1,6 +1,6 @@
 /**
  * @struct wisXlibExtensionCreateSurface
- * @ingroup Functions
+ * @ingroup Functions Platform
  *
  *
  * @section wisXlibExtensionCreateSurface_spec Specification

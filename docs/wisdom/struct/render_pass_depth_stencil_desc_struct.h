@@ -1,6 +1,6 @@
 /**
  * @struct WisRenderPassDepthStencilDesc
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisRenderPassDepthStencilDesc_spec Specification

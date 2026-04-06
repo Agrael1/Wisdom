@@ -1,6 +1,6 @@
 /**
  * @struct wisCommandListResolveTexture
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisCommandListResolveTexture_spec Specification

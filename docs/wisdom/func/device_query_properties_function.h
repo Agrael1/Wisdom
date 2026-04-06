@@ -1,6 +1,6 @@
 /**
  * @struct wisDeviceQueryProperties
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDeviceQueryProperties_spec Specification

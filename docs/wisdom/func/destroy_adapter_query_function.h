@@ -1,6 +1,6 @@
 /**
  * @struct wisDestroyAdapterQuery
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDestroyAdapterQuery_spec Specification

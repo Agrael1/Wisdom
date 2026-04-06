@@ -1,6 +1,6 @@
 /**
  * @struct wisCommandListEnd
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisCommandListEnd_spec Specification

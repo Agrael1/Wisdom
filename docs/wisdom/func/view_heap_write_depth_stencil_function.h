@@ -1,6 +1,6 @@
 /**
  * @struct wisViewHeapWriteDepthStencil
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisViewHeapWriteDepthStencil_spec Specification

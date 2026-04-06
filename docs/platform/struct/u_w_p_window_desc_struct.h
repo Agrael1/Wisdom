@@ -1,6 +1,6 @@
 /**
  * @struct WisUWPWindowDesc
- * @ingroup Structures
+ * @ingroup Structures Platform
  *
  *
  * @section WisUWPWindowDesc_spec Specification

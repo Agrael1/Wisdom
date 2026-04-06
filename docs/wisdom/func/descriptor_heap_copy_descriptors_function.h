@@ -1,6 +1,6 @@
 /**
  * @struct wisDescriptorHeapCopyDescriptors
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDescriptorHeapCopyDescriptors_spec Specification

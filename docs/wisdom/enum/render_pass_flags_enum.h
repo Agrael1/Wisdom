@@ -1,6 +1,6 @@
 /**
  * @struct WisRenderPassFlags WisRenderPassFlags
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisRenderPassFlags_spec Specification
  * <hr>

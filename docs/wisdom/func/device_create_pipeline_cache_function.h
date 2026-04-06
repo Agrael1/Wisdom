@@ -1,6 +1,6 @@
 /**
  * @struct wisDeviceCreatePipelineCache
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDeviceCreatePipelineCache_spec Specification

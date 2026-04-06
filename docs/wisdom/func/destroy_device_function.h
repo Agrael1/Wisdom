@@ -1,6 +1,6 @@
 /**
  * @struct wisDestroyDevice
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDestroyDevice_spec Specification

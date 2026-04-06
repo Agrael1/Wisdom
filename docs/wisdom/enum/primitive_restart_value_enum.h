@@ -1,6 +1,6 @@
 /**
  * @struct WisPrimitiveRestartValue WisPrimitiveRestartValue
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisPrimitiveRestartValue_spec Specification
  * <hr>

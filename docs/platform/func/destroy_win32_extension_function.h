@@ -1,6 +1,6 @@
 /**
  * @struct wisDestroyWin32Extension
- * @ingroup Functions
+ * @ingroup Functions Platform
  *
  *
  * @section wisDestroyWin32Extension_spec Specification

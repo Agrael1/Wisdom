@@ -1,6 +1,6 @@
 /**
  * @struct WisGlobalBarrier
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisGlobalBarrier_spec Specification

@@ -1,6 +1,6 @@
 /**
  * @struct WisShaderIntermediate WisShaderIntermediate
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisShaderIntermediate_spec Specification
  * <hr>

@@ -1,6 +1,6 @@
 /**
  * @struct wisFenceGetCompletedValue
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisFenceGetCompletedValue_spec Specification

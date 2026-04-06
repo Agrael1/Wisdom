@@ -1,6 +1,6 @@
 /**
  * @struct wisDestroyUWPExtension
- * @ingroup Functions
+ * @ingroup Functions Platform
  *
  *
  * @section wisDestroyUWPExtension_spec Specification

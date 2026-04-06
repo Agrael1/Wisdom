@@ -650,7 +650,6 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListBeginRenderPass(
                 auto& resolve_desc = *desc->depth_stencil.resolve_depth_desc;
                 auto& resolve_target = *reinterpret_cast<wis::detail::VKRenderTargetView*>(resolve_desc.resolve_target);
 
-
                 depth_data.resolveMode = wis::detail::VKConvert(resolve_desc.mode);
                 depth_data.resolveImageView = resolve_target.view;
                 depth_data.resolveImageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;

@@ -1,6 +1,6 @@
 /**
  * @struct WisUWPExtension
- * @ingroup Handles
+ * @ingroup Handles Platform
  *
  *
  * @section WisUWPExtension_spec Specification

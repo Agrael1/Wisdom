@@ -1,6 +1,6 @@
 /**
  * @struct WisConservativeRasterization WisConservativeRasterization
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisConservativeRasterization_spec Specification
  * <hr>

@@ -1,6 +1,6 @@
 /**
  * @struct WisDebugCallback
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section WisDebugCallback_spec Specification

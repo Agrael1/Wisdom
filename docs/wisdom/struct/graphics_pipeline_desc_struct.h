@@ -1,6 +1,6 @@
 /**
  * @struct WisGraphicsPipelineDesc
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisGraphicsPipelineDesc_spec Specification
