@@ -115,7 +115,7 @@
       <member type="DescriptorHeapType" name="type" doc="specifies the type of descriptor heap to create (sampler or descriptor)."/>
       <member type="DescriptorMemoryType" name="memory_type" doc="specifies where the descriptor heap will be allocated."/>
       <member type="u32" name="descriptor_count" default="0" doc="indicates the amount of descriptors, present in the heap."/>
-      <member type="DescriptorHeapFlags" name="flags" doc="describes describe additional options for the descriptor heap."/>
+      <member type="DescriptorHeapFlags" name="flags" doc="describes additional options for the descriptor heap."/>
     </type>
 
     <type name="ComponentMapping" category="struct" version="0.7.0" doc="Component mapping for {ShaderResourceDesc::}.">
@@ -206,7 +206,7 @@
     <type name="DepthStencilDesc" category="struct" version="0.7.0" doc="Depth stencil description for {GraphicsPipelineDesc::}.">
       <member type="bool" name="depth_enable" default="false" doc="indicates depth test enable. Default is false."/>
       <member type="bool" name="depth_write_enable" default="false" doc="describes depth write enable. Default is false."/>
-      <member type="CompareOp" name="depth_comp" default="Less" doc="indicates depth comparison function. Default is {Compare::Less}."/>
+      <member type="CompareOp" name="depth_comp" default="Less" doc="indicates depth comparison function. Default is {CompareOp::Less}."/>
       <member type="bool" name="stencil_enable" default="false" doc="defines stencil test enable. Default is false."/>
       <member type="StencilDesc" name="stencil_front" default="{}" doc="specifies stencil description for front faces."/>
       <member type="StencilDesc" name="stencil_back" default="{}" doc="specifies stencil description for back faces."/>

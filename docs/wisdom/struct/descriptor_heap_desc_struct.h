@@ -38,7 +38,7 @@
  * - `type` specifies the type of descriptor heap to create (sampler or descriptor).
  * - `memory_type` specifies where the descriptor heap will be allocated.
  * - `descriptor_count` indicates the amount of descriptors, present in the heap.
- * - `flags` describes describe additional options for the descriptor heap.
+ * - `flags` describes additional options for the descriptor heap.
  * \endcond
  *
  * @section WisDescriptorHeapDesc_descr Description

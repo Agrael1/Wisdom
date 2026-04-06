@@ -1785,7 +1785,7 @@ typedef struct WisDescriptorHeapDesc {
     WisDescriptorHeapType type; ///< specifies the type of descriptor heap to create (sampler or descriptor).
     WisDescriptorMemoryType memory_type; ///< specifies where the descriptor heap will be allocated.
     uint32_t descriptor_count; ///< indicates the amount of descriptors, present in the heap.
-    WisDescriptorHeapFlags flags; ///< describes describe additional options for the descriptor heap.
+    WisDescriptorHeapFlags flags; ///< describes additional options for the descriptor heap.
 } WisDescriptorHeapDesc;
 
 /**
@@ -1959,7 +1959,7 @@ typedef struct WisStencilDesc {
 typedef struct WisDepthStencilDesc {
     bool depth_enable; ///< indicates depth test enable. Default is false.
     bool depth_write_enable; ///< describes depth write enable. Default is false.
-    WisCompareOp depth_comp; ///< indicates depth comparison function. Default is .
+    WisCompareOp depth_comp; ///< indicates depth comparison function. Default is `WisCompareOpLess`.
     bool stencil_enable; ///< defines stencil test enable. Default is false.
     WisStencilDesc stencil_front; ///< specifies stencil description for front faces.
     WisStencilDesc stencil_back; ///< specifies stencil description for back faces.

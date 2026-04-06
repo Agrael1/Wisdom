@@ -43,7 +43,7 @@
  * \cond WIS_GEN_DESC
  * - `depth_enable` indicates depth test enable. Default is false.
  * - `depth_write_enable` describes depth write enable. Default is false.
- * - `depth_comp` indicates depth comparison function. Default is .
+ * - `depth_comp` indicates depth comparison function. Default is `WisCompareOpLess`.
  * - `stencil_enable` defines stencil test enable. Default is false.
  * - `stencil_front` specifies stencil description for front faces.
  * - `stencil_back` specifies stencil description for back faces.
