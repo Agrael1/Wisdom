@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisRenderTargetDesc {
  *     WisDataFormat    format;
  *     WisTextureLayout layout;
@@ -18,12 +18,12 @@
  *     uint16_t         array_layer_count;
  *     uint16_t         plane_slice;
  * } WisRenderTargetDesc;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  RenderTargetDesc {
  *     wis::DataFormat    format;
  *     wis::TextureLayout layout;

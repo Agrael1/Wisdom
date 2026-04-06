@@ -9,17 +9,17 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisXlibWindowDesc {
  *     void*    display;
  *     uint64_t window;
  * } WisXlibWindowDesc;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  XlibWindowDesc {
  *     void*         display;
  *     std::uint64_t window;

@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisDeviceDescriptorHeapProperties {
  *     WisQueryPropertyType property_type;
  *     void*                next_in_chain;
@@ -23,12 +23,12 @@
  *     uint32_t             render_target_with_ms_increment_size;
  *     uint32_t             depth_stencil_with_ms_increment_size;
  * } WisDeviceDescriptorHeapProperties;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  DeviceDescriptorHeapProperties {
  *     wis::QueryPropertyType property_type;
  *     void*                  next_in_chain;

@@ -9,19 +9,19 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisBlendStateDesc {
  *     bool                   logic_op_enable;
  *     WisLogicOp             logic_op;
  *     WisBlendAttachmentDesc attachments[8];
  *     uint32_t               attachment_count;
  * } WisBlendStateDesc;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  BlendStateDesc {
  *     bool                     logic_op_enable;
  *     wis::LogicOp             logic_op;

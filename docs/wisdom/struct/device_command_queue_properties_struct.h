@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisDeviceCommandQueueProperties {
  *     WisQueryPropertyType    property_type;
  *     void*                   next_in_chain;
@@ -17,12 +17,12 @@
  *     bool                    relaxed_queue_transition;
  *     WisCommandQueuePriority max_queue_priority[5];
  * } WisDeviceCommandQueueProperties;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  DeviceCommandQueueProperties {
  *     wis::QueryPropertyType    property_type;
  *     void*                     next_in_chain;

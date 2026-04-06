@@ -9,19 +9,19 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisDescriptorHeapDesc {
  *     WisDescriptorHeapType   type;
  *     WisDescriptorMemoryType memory_type;
  *     uint32_t                descriptor_count;
  *     WisDescriptorHeapFlags  flags;
  * } WisDescriptorHeapDesc;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  DescriptorHeapDesc {
  *     wis::DescriptorHeapType   type;
  *     wis::DescriptorMemoryType memory_type;

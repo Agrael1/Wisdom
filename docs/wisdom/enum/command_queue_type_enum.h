@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef enum WisCommandQueueType {
  *     WisCommandQueueTypeGraphics = 0,
  *     WisCommandQueueTypeCompute = 1,
@@ -21,7 +21,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * enum class CommandQueueType {
  *     Graphics = 0,
  *     Compute = 1,
@@ -38,9 +38,9 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * Defines types of command queues that can be created on the device. Each type corresponds to a specific kind of workload that the GPU can handle.
- * 
+ *
  * \note Translates to  `D3D12_COMMAND_LIST_TYPE` for DirectX 12 implementation.
- * 
+ *
  * Values:
  * - `WisCommandQueueTypeGraphics = 0`: Command queue for graphics operations, including rendering and compute tasks.
  * - `WisCommandQueueTypeCompute = 1`: Command queue dedicated to compute operations, optimized for parallel processing tasks.

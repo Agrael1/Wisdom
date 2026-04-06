@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct WisDeviceRequirements {
  *     const WisCommandQueueDesc* queue_descs;
  *     size_t                     queue_desc_count;
@@ -20,15 +20,15 @@
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct WisVKDeviceRequirements {
  *     const WisCommandQueueDesc*   queue_descs;
  *     size_t                       queue_desc_count;
  *     WisVKDeviceExtensionHeader** extensions;
  *     size_t                       extension_count;
  * } WisVKDeviceRequirements;
- * 
- * // Provided by Wisdom 0.7.0. 
+ *
+ * // Provided by Wisdom 0.7.0.
  * typedef struct WisDX12DeviceRequirements {
  *     const WisCommandQueueDesc*     queue_descs;
  *     size_t                         queue_desc_count;
@@ -37,11 +37,11 @@
  * } WisDX12DeviceRequirements;
  * ```
  * </details>
- * 
+ *
  * C++ Version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct DeviceRequirements {
  *     wis::span<const wis::CommandQueueDesc> queue_descs;
  *     wis::span<wis::DeviceExtensionHeader*> extensions;
@@ -52,13 +52,13 @@
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct VKDeviceRequirements {
  *     wis::span<const wis::CommandQueueDesc>   queue_descs;
  *     wis::span<wis::VKDeviceExtensionHeader*> extensions;
  * };
- * 
- * // Provided by Wisdom 0.7.0. 
+ *
+ * // Provided by Wisdom 0.7.0.
  * struct DX12DeviceRequirements {
  *     wis::span<const wis::CommandQueueDesc>     queue_descs;
  *     wis::span<wis::DX12DeviceExtensionHeader*> extensions;

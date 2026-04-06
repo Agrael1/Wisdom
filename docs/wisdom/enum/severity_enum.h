@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef enum WisSeverity {
  *     WisSeverityVerbose = 0,
  *     WisSeverityInfo = 1,
@@ -20,7 +20,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * enum class Severity {
  *     Verbose = 0,
  *     Info = 1,
@@ -36,7 +36,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * Defines severity levels for logging and debugging messages.
- * 
+ *
  * Values:
  * - `WisSeverityVerbose = 0`: Verbose level messages, typically used for detailed debugging information.
  * - `WisSeverityInfo = 1`: Informational messages that highlight the progress of the application.

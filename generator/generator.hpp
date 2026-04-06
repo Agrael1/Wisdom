@@ -27,7 +27,7 @@ public:
     void WriteModuleAPIDoc(std::string_view module_name = {});
     auto GetFiles() const
     {
-        return std::span<const std::filesystem::path>{ files };
+        return std::span<const std::filesystem::path> { files };
     }
 
 public:
@@ -80,7 +80,7 @@ public:
     std::string MakeCPPFunctionImpl(const WisFunction& func, Backend backend = Backend::Any, std::string_view pre_decl = "WISDOM_API", DocKind kind = DocKind::Full, ProtoType type = ProtoType::Prefixed);
     std::string MakeCPPDelegate(const WisFunction& func, DocKind kind = DocKind::Full);
     std::string MakeCPPConstant(const WisConstant& c, DocKind kind = DocKind::Full);
-    
+
     // Write
     void WriteCAPI(std::filesystem::path path);
     void WriteCPPAPI(std::filesystem::path path);
@@ -222,8 +222,8 @@ public:
             }
         }
         return pre_doc
-                ? wis::format("    {}\n    {}\n", documentation, value_decl)
-                : wis::format("{}{}\n", value_decl, documentation);
+               ? wis::format("    {}\n    {}\n", documentation, value_decl)
+               : wis::format("{}{}\n", value_decl, documentation);
     }
 
     template<Lang lang = Lang::C, typename T>

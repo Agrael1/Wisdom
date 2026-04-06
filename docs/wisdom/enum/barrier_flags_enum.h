@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef enum WisBarrierFlags {
  *     WisBarrierFlagsNone = 0,
  *     WisBarrierFlagsDiscardContent = (1u << 0),
@@ -21,7 +21,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * enum class BarrierFlags : uint32_t {
  *     None = 0,
  *     DiscardContent = (1u << 0),
@@ -38,7 +38,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * Barrier flags for resource barriers.
- * 
+ *
  * Values:
  * - `WisBarrierFlagsNone = 0`: No flags set. Barrier is regular.
  * - `WisBarrierFlagsDiscardContent = (1 << 0)`: Discard resource content. The content of the resource before the barrier is treated as if resource was not initialized.

@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisBlendAttachmentDesc {
  *     bool               blend_enable;
  *     WisBlendFactor     src_color_blend;
@@ -20,12 +20,12 @@
  *     WisBlendOp         alpha_blend_op;
  *     WisColorComponents color_write_mask;
  * } WisBlendAttachmentDesc;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  BlendAttachmentDesc {
  *     bool                 blend_enable;
  *     wis::BlendFactor     src_color_blend;

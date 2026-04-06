@@ -12,12 +12,12 @@ namespace wis::detail {
 inline VkImageAspectFlags VKGetAspectFlags(const WisTextureBinding& binding) noexcept
 {
     if ((binding.flags & WisTextureBindingFlagsStencilView)
-        && (binding.format == WisDataFormatD24UnormS8Uint || binding.format == WisDataFormatD32FloatS8Uint)) {
+            && (binding.format == WisDataFormatD24UnormS8Uint || binding.format == WisDataFormatD32FloatS8Uint)) {
         return VK_IMAGE_ASPECT_STENCIL_BIT;
     }
     if ((binding.flags & WisTextureBindingFlagsDepthView)
             && (binding.format == WisDataFormatD32FloatS8Uint || binding.format == WisDataFormatD24UnormS8Uint)
-        || (binding.format == WisDataFormatD16Unorm || binding.format == WisDataFormatD32Float)) {
+            || (binding.format == WisDataFormatD16Unorm || binding.format == WisDataFormatD32Float)) {
         return VK_IMAGE_ASPECT_DEPTH_BIT;
     }
     if (binding.range.plane_slice) {
@@ -97,7 +97,7 @@ inline VkImageViewCreateInfo VKGetSRVDesc(const WisTextureBinding& binding) noex
     case WisTextureLayoutTexture2DMS:
         srv_desc.viewType = VK_IMAGE_VIEW_TYPE_2D;
         srv_desc.subresourceRange =
-            {.aspectMask = aspect_flags, .baseMipLevel = 0, .levelCount = 1, .baseArrayLayer = 0, .layerCount = 1};
+        {.aspectMask = aspect_flags, .baseMipLevel = 0, .levelCount = 1, .baseArrayLayer = 0, .layerCount = 1};
         break;
     case WisTextureLayoutTexture2DMSArray:
         srv_desc.viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
@@ -246,7 +246,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyViewHeap(WisVKViewHeap* self)
         for (uint32_t i = 0; i < impl.capacity; ++i) {
             if (impl.view_heap[i].view != VK_NULL_HANDLE) {
                 impl.device_header->header.device_table
-                    .vkDestroyImageView(impl.device_header->header.device, impl.view_heap[i].view, nullptr);
+                .vkDestroyImageView(impl.device_header->header.device, impl.view_heap[i].view, nullptr);
             }
         }
 
@@ -291,7 +291,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDescriptorHeapWriteConstantBuffer(
     VkResult result = table.vkWriteResourceDescriptorsEXT(heap.device, 1, &resource_desc, &host_range);
     if (!wis::detail::succeeded(result)) {
         return wis::detail::
-            make_result<wis::detail::Func(), "Failed to write resource descriptor for constant buffer view">(result);
+               make_result<wis::detail::Func(), "Failed to write resource descriptor for constant buffer view">(result);
     }
     return wis::detail::vk_success;
 }
@@ -333,7 +333,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDescriptorHeapWriteStructuredBuffer(
     VkResult result = table.vkWriteResourceDescriptorsEXT(heap.device, 1, &resource_desc, &host_range);
     if (!wis::detail::succeeded(result)) {
         return wis::detail::
-            make_result<wis::detail::Func(), "Failed to write resource descriptor for storage buffer view">(result);
+               make_result<wis::detail::Func(), "Failed to write resource descriptor for storage buffer view">(result);
     }
     return wis::detail::vk_success;
 }
@@ -370,7 +370,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDescriptorHeapWriteSampler(
         .sType = VK_STRUCTURE_TYPE_SAMPLER_REDUCTION_MODE_CREATE_INFO,
         .pNext = nullptr, // Custom border?
         .reductionMode = sampler->comparison_op != WisCompareOpNever ? VK_SAMPLER_REDUCTION_MODE_WEIGHTED_AVERAGE
-                                                                     : wis::detail::VKConvert(sampler->reduction_mode)
+        : wis::detail::VKConvert(sampler->reduction_mode)
     };
     VkSamplerCreateInfo sampler_info{
         .sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO,
@@ -395,7 +395,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDescriptorHeapWriteSampler(
     VkResult result = table.vkWriteSamplerDescriptorsEXT(heap.device, 1, &sampler_info, &host_range);
     if (!wis::detail::succeeded(result)) {
         return wis::detail::
-            make_result<wis::detail::Func(), "Failed to write resource descriptor for storage buffer view">(result);
+               make_result<wis::detail::Func(), "Failed to write resource descriptor for storage buffer view">(result);
     }
     return wis::detail::vk_success;
 }
@@ -434,7 +434,7 @@ WISDOM_API WisResult wisVKDescriptorHeapWriteTexture(
     VkResult result = table.vkWriteResourceDescriptorsEXT(heap.device, 1, &resource_desc, &host_range);
     if (!wis::detail::succeeded(result)) {
         return wis::detail::
-            make_result<wis::detail::Func(), "Failed to write resource descriptor for constant buffer view">(result);
+               make_result<wis::detail::Func(), "Failed to write resource descriptor for constant buffer view">(result);
     }
     return wis::detail::vk_success;
 }
@@ -473,7 +473,7 @@ WISDOM_API WisResult wisVKDescriptorHeapWriteRWTexture(
     VkResult result = table.vkWriteResourceDescriptorsEXT(heap.device, 1, &resource_desc, &host_range);
     if (!wis::detail::succeeded(result)) {
         return wis::detail::
-            make_result<wis::detail::Func(), "Failed to write resource descriptor for constant buffer view">(result);
+               make_result<wis::detail::Func(), "Failed to write resource descriptor for constant buffer view">(result);
     }
     return wis::detail::vk_success;
 }
@@ -505,7 +505,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDescriptorHeapWriteAccelerationStructure(
     VkResult result = table.vkWriteResourceDescriptorsEXT(heap.device, 1, &resource_desc, &host_range);
     if (!wis::detail::succeeded(result)) {
         return wis::detail::
-            make_result<wis::detail::Func(), "Failed to write resource descriptor for constant buffer view">(result);
+               make_result<wis::detail::Func(), "Failed to write resource descriptor for constant buffer view">(result);
     }
     return wis::detail::vk_success;
 }
@@ -660,13 +660,13 @@ WIS_EXTERN_C WISDOM_API void wisVKViewHeapCopyViews(
         return; // Invalid range, do nothing
     }
     auto* src_views = reinterpret_cast<const wis::detail::VKRenderTargetView*>(std::bit_cast<const void*>(src_ptr))
-                    + src_index;
+                      + src_index;
     auto* dst_views = heap.view_heap + dst_index;
     for (uint32_t i = 0; i < count; ++i) {
         // Destroy existing view at destination if it's not null
         if (dst_views[i].view != VK_NULL_HANDLE) {
             heap.device_header->header.device_table
-                .vkDestroyImageView(heap.device_header->header.device, dst_views[i].view, nullptr);
+            .vkDestroyImageView(heap.device_header->header.device, dst_views[i].view, nullptr);
         }
         dst_views[i] = src_views[i];
     }

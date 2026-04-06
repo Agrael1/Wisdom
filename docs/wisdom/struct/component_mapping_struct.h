@@ -9,19 +9,19 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisComponentMapping {
  *     WisComponentSwizzle r;
  *     WisComponentSwizzle g;
  *     WisComponentSwizzle b;
  *     WisComponentSwizzle a;
  * } WisComponentMapping;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  ComponentMapping {
  *     wis::ComponentSwizzle r;
  *     wis::ComponentSwizzle g;

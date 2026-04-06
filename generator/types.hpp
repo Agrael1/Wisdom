@@ -132,7 +132,8 @@ public:
         auto enum_value = std::find_if(values.begin(), values.end(), [&](auto& v) {
             return v.name == name;
         });
-        return enum_value != values.end() ? std::optional<WisEnumValue>{ *enum_value } : std::nullopt;
+        return enum_value != values.end() ? std::optional<WisEnumValue> { *enum_value } :
+               std::nullopt;
     }
 };
 
@@ -158,7 +159,8 @@ public:
         auto enum_value = std::find_if(values.begin(), values.end(), [&](auto& v) {
             return v.name == name;
         });
-        return enum_value != values.end() ? std::optional<WisBitmaskValue>{ *enum_value } : std::nullopt;
+        return enum_value != values.end() ? std::optional<WisBitmaskValue> { *enum_value } :
+               std::nullopt;
     }
 };
 
@@ -374,7 +376,7 @@ template<>
 struct hash<FunctionKey> {
     std::size_t operator()(const FunctionKey& k) const noexcept
     {
-        return std::hash<std::string_view>{}(k.first) ^ (std::hash<std::string_view>{}(k.second) << 1);
+        return std::hash<std::string_view> {}(k.first) ^ (std::hash<std::string_view> {}(k.second) << 1);
     }
 };
 } // namespace std

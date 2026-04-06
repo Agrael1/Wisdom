@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct WisBufferBarrier {
  *     WisBarrierSync      sync_before;
  *     WisBarrierSync      sync_after;
@@ -25,7 +25,7 @@
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct WisVKBufferBarrier {
  *     WisBarrierSync      sync_before;
  *     WisBarrierSync      sync_after;
@@ -37,8 +37,8 @@
  *     WisCommandQueueType queue_type_before;
  *     WisCommandQueueType queue_type_after;
  * } WisVKBufferBarrier;
- * 
- * // Provided by Wisdom 0.7.0. 
+ *
+ * // Provided by Wisdom 0.7.0.
  * typedef struct WisDX12BufferBarrier {
  *     WisBarrierSync      sync_before;
  *     WisBarrierSync      sync_after;
@@ -52,11 +52,11 @@
  * } WisDX12BufferBarrier;
  * ```
  * </details>
- * 
+ *
  * C++ Version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct BufferBarrier {
  *     wis::BarrierSync      sync_before;
  *     wis::BarrierSync      sync_after;
@@ -74,7 +74,7 @@
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct VKBufferBarrier {
  *     wis::BarrierSync      sync_before;
  *     wis::BarrierSync      sync_after;
@@ -86,8 +86,8 @@
  *     wis::CommandQueueType queue_type_before;
  *     wis::CommandQueueType queue_type_after;
  * };
- * 
- * // Provided by Wisdom 0.7.0. 
+ *
+ * // Provided by Wisdom 0.7.0.
  * struct DX12BufferBarrier {
  *     wis::BarrierSync      sync_before;
  *     wis::BarrierSync      sync_after;

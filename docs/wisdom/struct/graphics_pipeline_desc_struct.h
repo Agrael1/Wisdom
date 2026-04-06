@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct WisGraphicsPipelineDesc {
  *     WisRootSignatureView       root_signature;
  *     WisShaderView              vertex_shader;
@@ -31,7 +31,7 @@
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct WisVKGraphicsPipelineDesc {
  *     WisVKRootSignatureView     root_signature;
  *     WisVKShaderView            vertex_shader;
@@ -49,8 +49,8 @@
  *     WisVKPipelineCacheView     cache;
  *     WisPipelineFlags           flags;
  * } WisVKGraphicsPipelineDesc;
- * 
- * // Provided by Wisdom 0.7.0. 
+ *
+ * // Provided by Wisdom 0.7.0.
  * typedef struct WisDX12GraphicsPipelineDesc {
  *     WisDX12RootSignatureView   root_signature;
  *     WisDX12ShaderView          vertex_shader;
@@ -70,11 +70,11 @@
  * } WisDX12GraphicsPipelineDesc;
  * ```
  * </details>
- * 
+ *
  * C++ Version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct GraphicsPipelineDesc {
  *     wis::RootSignatureView       root_signature;
  *     wis::ShaderView              vertex_shader;
@@ -98,7 +98,7 @@
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct VKGraphicsPipelineDesc {
  *     wis::VKRootSignatureView     root_signature;
  *     wis::VKShaderView            vertex_shader;
@@ -116,8 +116,8 @@
  *     wis::VKPipelineCacheView     cache;
  *     wis::PipelineFlags           flags;
  * };
- * 
- * // Provided by Wisdom 0.7.0. 
+ *
+ * // Provided by Wisdom 0.7.0.
  * struct DX12GraphicsPipelineDesc {
  *     wis::DX12RootSignatureView   root_signature;
  *     wis::DX12ShaderView          vertex_shader;

@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisSamplerDesc {
  *     WisFilter        min_filter;
  *     WisFilter        mag_filter;
@@ -27,12 +27,12 @@
  *     WisStaticBorder  static_border_color;
  *     WisSamplerFlags  flags;
  * } WisSamplerDesc;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  SamplerDesc {
  *     wis::Filter        min_filter;
  *     wis::Filter        mag_filter;

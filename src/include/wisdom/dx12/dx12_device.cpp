@@ -42,8 +42,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandQueue(
     bool supported = (device.queue_priorities[type] & ~0x7fu) != 0;
     if (!supported) {
         return wis::detail::make_result<
-            wis::detail::Func(),
-            "Requested command queue type is not supported or not enabled by the device">(E_INVALIDARG);
+               wis::detail::Func(),
+               "Requested command queue type is not supported or not enabled by the device">(E_INVALIDARG);
     }
 
     D3D12_COMMAND_QUEUE_DESC desc{
@@ -78,10 +78,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandAllocator(
     wis::com_ptr<ID3D12CommandAllocator> allocator;
 
     auto hr = device.device->CreateCommandAllocator(
-        wis::detail::DX12Convert(type),
-        IID_ID3D12CommandAllocator,
-        allocator.put_void_unchecked()
-    );
+                  wis::detail::DX12Convert(type),
+                  IID_ID3D12CommandAllocator,
+                  allocator.put_void_unchecked()
+              );
     if (!wis::detail::succeeded(hr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to create command allocator">(hr);
     }
@@ -89,7 +89,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandAllocator(
     auto& internal = *new (list) wis::impl::DX12CommandAllocatorImpl{
         .allocator = allocator.detach(),
         .device = device.device, // store device pointer for later use when creating command lists with this allocator
-                                 // (don't refcount)
+        // (don't refcount)
         .type = type,
     };
     return result;
@@ -108,7 +108,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateFence(
     wis::com_ptr<ID3D12Fence> out_fence;
 
     auto hr = device.device
-                  ->CreateFence(initial_value, D3D12_FENCE_FLAG_NONE, IID_ID3D12Fence, out_fence.put_void_unchecked());
+              ->CreateFence(initial_value, D3D12_FENCE_FLAG_NONE, IID_ID3D12Fence, out_fence.put_void_unchecked());
     if (!wis::detail::succeeded(hr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to create fence">(hr);
     }
@@ -117,8 +117,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateFence(
     auto event_handle = CreateEventW(nullptr, false, false, nullptr);
     if (!event_handle) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to create fence event handle">(
-            HRESULT_FROM_WIN32(GetLastError())
-        );
+                   HRESULT_FROM_WIN32(GetLastError())
+               );
     }
 
     auto& internal = *new (fence) wis::impl::DX12FenceImpl{
@@ -164,7 +164,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateDescriptorHeap(
 
     wis::com_ptr<ID3D12DescriptorHeap> descriptor_heap;
     HRESULT hr = device.device
-                     ->CreateDescriptorHeap(&heap_desc, IID_ID3D12DescriptorHeap, descriptor_heap.put_void_unchecked());
+                 ->CreateDescriptorHeap(&heap_desc, IID_ID3D12DescriptorHeap, descriptor_heap.put_void_unchecked());
     if (!wis::detail::succeeded(hr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to create descriptor heap">(hr);
     }
@@ -202,7 +202,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateViewHeap(
 
     wis::com_ptr<ID3D12DescriptorHeap> descriptor_heap;
     HRESULT hr = device.device
-                     ->CreateDescriptorHeap(&heap_desc, IID_ID3D12DescriptorHeap, descriptor_heap.put_void_unchecked());
+                 ->CreateDescriptorHeap(&heap_desc, IID_ID3D12DescriptorHeap, descriptor_heap.put_void_unchecked());
     if (!wis::detail::succeeded(hr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to create descriptor heap">(hr);
     }
@@ -218,12 +218,12 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateViewHeap(
             && "[INTERNAL ERROR] DescriptorHandle is not aligned! Report the issue to the developers."
         );
 
-        aux_data = new (std::nothrow) wis::detail::DX12RenderTargetViewAuxData[capacity]{};
+        aux_data = new (std::nothrow) wis::detail::DX12RenderTargetViewAuxData[capacity] {};
         if (!aux_data) {
             raw_heap->Release();
             return wis::detail::make_result<wis::detail::Func(), "Out of memory while creating view heap metadata">(
-                E_OUTOFMEMORY
-            );
+                       E_OUTOFMEMORY
+                   );
         }
         for (uint32_t i = 0; i < capacity; ++i) {
             aux_data[i].handle = {cpu_handle.ptr + static_cast<uint64_t>(i) * descriptor_size};
@@ -259,8 +259,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(
         const auto& push_constant = desc->push_constants[i];
         if (push_constant.size_bytes % 4 != 0) {
             return wis::detail::make_result<wis::detail::Func(), "Push constant size must be divisible by 4 bytes">(
-                E_INVALIDARG
-            );
+                       E_INVALIDARG
+                   );
         }
         push_constant_size += push_constant.size_bytes;
     }
@@ -269,13 +269,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(
     // Check limits
     if (push_constant_size + 2 * desc->push_descriptor_count + desc->descriptor_table_count > max_root_parameters) {
         return wis::detail::make_result<wis::detail::Func(), "Exceeded maximum number of root parameters">(
-            E_INVALIDARG
-        );
+                   E_INVALIDARG
+               );
     }
 
     D3D12_ROOT_PARAMETER1 root_parameters[max_root_parameters];
     std::size_t num_root_parameters = desc->push_constant_count + desc->push_descriptor_count
-                                    + desc->descriptor_table_count;
+                                      + desc->descriptor_table_count;
     wis::span<D3D12_ROOT_PARAMETER1> root_parameters_span{root_parameters, num_root_parameters};
 
     // Push constants
@@ -284,11 +284,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(
         root_parameters_span[i] = {
             .ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS,
             .Constants =
-                {
-                    .ShaderRegister = static_cast<UINT>(src.bind_register),
-                    .RegisterSpace = static_cast<UINT>(src.bind_space),
-                    .Num32BitValues = static_cast<UINT>(src.size_bytes / 4),
-                },
+            {
+                .ShaderRegister = static_cast<UINT>(src.bind_register),
+                .RegisterSpace = static_cast<UINT>(src.bind_space),
+                .Num32BitValues = static_cast<UINT>(src.size_bytes / 4),
+            },
             .ShaderVisibility = wis::detail::DX12Convert(src.visibility),
         };
     }
@@ -300,18 +300,18 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(
 
         if (!wis::detail::DX12IsPushable(src.type)) {
             return wis::detail::make_result<
-                wis::detail::Func(),
-                "Descriptor type is not pushable to DX12 root signature">(E_INVALIDARG);
+                   wis::detail::Func(),
+                   "Descriptor type is not pushable to DX12 root signature">(E_INVALIDARG);
         }
 
         root_parameters_span[i] = {
             .ParameterType = wis::detail::DX12RootParameterType(src.type),
             .Descriptor =
-                {
-                    .ShaderRegister = src.bind_register,
-                    .RegisterSpace = src.bind_space,
-                    .Flags = D3D12_ROOT_DESCRIPTOR_FLAG_NONE,
-                },
+            {
+                .ShaderRegister = src.bind_register,
+                .RegisterSpace = src.bind_space,
+                .Flags = D3D12_ROOT_DESCRIPTOR_FLAG_NONE,
+            },
             .ShaderVisibility = wis::detail::DX12Convert(src.visibility),
         };
     }
@@ -332,8 +332,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(
         ranges = wis::make_unique<D3D12_DESCRIPTOR_RANGE1[]>(range_count);
         if (!ranges) {
             return wis::detail::make_result<wis::detail::Func(), "Out of memory while creating descriptor ranges">(
-                E_OUTOFMEMORY
-            );
+                       E_OUTOFMEMORY
+                   );
         }
 
         wis::span<D3D12_DESCRIPTOR_RANGE1> ranges_span{ranges.get(), range_count};
@@ -349,7 +349,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(
                     .BaseShaderRegister = src.bind_register,
                     .RegisterSpace = src.bind_space,
                     .Flags = src.count > 1 ? D3D12_DESCRIPTOR_RANGE_FLAG_DESCRIPTORS_VOLATILE
-                                           : D3D12_DESCRIPTOR_RANGE_FLAG_NONE,
+                    : D3D12_DESCRIPTOR_RANGE_FLAG_NONE,
                     .OffsetInDescriptorsFromTableStart = src.descriptor_offset,
                 };
             }
@@ -357,10 +357,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(
             root_parameters_span[i] = {
                 .ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE,
                 .DescriptorTable =
-                    {
-                        .NumDescriptorRanges = static_cast<uint32_t>(table.entry_count),
-                        .pDescriptorRanges = ranges.get() + range_offset,
-                    },
+                {
+                    .NumDescriptorRanges = static_cast<uint32_t>(table.entry_count),
+                    .pDescriptorRanges = ranges.get() + range_offset,
+                },
                 .ShaderVisibility = wis::detail::DX12Convert(table.visibility),
             };
             range_offset += table.entry_count;
@@ -409,12 +409,12 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(
 
     wis::com_ptr<ID3D12RootSignature> root_signature;
     hr = device.device->CreateRootSignature(
-        0,
-        signature->GetBufferPointer(),
-        signature->GetBufferSize(),
-        IID_ID3D12RootSignature,
-        root_signature.put_void_unchecked()
-    );
+             0,
+             signature->GetBufferPointer(),
+             signature->GetBufferSize(),
+             IID_ID3D12RootSignature,
+             root_signature.put_void_unchecked()
+         );
     if (!wis::detail::succeeded(hr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to create root signature">(hr);
     }
@@ -423,7 +423,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(
     XXH128_hash_t hash = XXH3_128bits(signature->GetBufferPointer(), signature->GetBufferSize());
     wis::detail::DX12RootSignatureKey key{.hash{hash.low64, hash.high64}};
     root_signature
-        ->SetPrivateData(wis::detail::DX12RootSignatureKey::guid, sizeof(wis::detail::DX12RootSignatureKey), &key);
+    ->SetPrivateData(wis::detail::DX12RootSignatureKey::guid, sizeof(wis::detail::DX12RootSignatureKey), &key);
 
     auto& layout_impl = *new (layout) wis::impl::DX12RootSignatureImpl{.root_signature = root_signature.detach()};
     return res;
@@ -450,50 +450,54 @@ WIS_EXTERN_C WISDOM_API void wisDX12DeviceQueryProperties(const WisDX12Device* s
                 props->max_queue_priority[i] = WisCommandQueuePriority(device.queue_priorities[i] & 0x7f);
             }
             props->relaxed_queue_transition = true;
-        } break;
+        }
+        break;
         case WisQueryPropertyTypeDeviceDescriptorHeapProperties: {
             auto* props = static_cast<WisDeviceDescriptorHeapProperties*>(next);
             D3D12_FEATURE_DATA_D3D12_OPTIONS19 options19 = {};
             if (wis::detail::succeeded(
-                    device.device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS19, &options19, sizeof(options19))
-                )) {
+                        device.device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS19, &options19, sizeof(options19))
+                    )) {
                 props->max_descriptor_heap_size = options19.MaxViewDescriptorHeapSize;
                 props->max_sampler_heap_size = options19.MaxSamplerDescriptorHeapSize;
                 props->max_sampler_heap_size_with_embedded = options19.MaxSamplerDescriptorHeapSizeWithStaticSamplers;
                 props->descriptor_increment_size = device.device->GetDescriptorHandleIncrementSize(
-                    D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV
-                );
+                                                       D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV
+                                                   );
                 props->sampler_increment_size = device.device->GetDescriptorHandleIncrementSize(
-                    D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER
-                );
+                                                    D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER
+                                                );
                 props->render_target_increment_size = device.device->GetDescriptorHandleIncrementSize(
-                    D3D12_DESCRIPTOR_HEAP_TYPE_RTV
-                );
+                        D3D12_DESCRIPTOR_HEAP_TYPE_RTV
+                                                      );
                 props->depth_stencil_increment_size = device.device->GetDescriptorHandleIncrementSize(
-                    D3D12_DESCRIPTOR_HEAP_TYPE_DSV
-                );
+                        D3D12_DESCRIPTOR_HEAP_TYPE_DSV
+                                                      );
                 props->render_target_with_ms_increment_size = sizeof(wis::detail::DX12RenderTargetViewAuxData);
                 props->depth_stencil_with_ms_increment_size = sizeof(wis::detail::DX12RenderTargetViewAuxData);
             }
-        } break;
+        }
+        break;
         case WisQueryPropertyTypeDeviceMemoryProperties: {
             auto* props = static_cast<WisDeviceMemoryProperties*>(next);
             D3D12_FEATURE_DATA_D3D12_OPTIONS16 options16 = {};
             if (wis::detail::succeeded(
-                    device.device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS16, &options16, sizeof(options16))
-                )) {
+                        device.device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS16, &options16, sizeof(options16))
+                    )) {
                 props->gpu_upload_supported = options16.GPUUploadHeapSupported;
                 props->host_image_copy_supported = options16.GPUUploadHeapSupported;
                 props->supported_initial_transitions = 0b0001'1111'1111'1111; // All thansitions are supported
             }
-        } break;
+        }
+        break;
         case WisQueryPropertyTypeDeviceBindingProperties: {
             auto* props = static_cast<WisDeviceBindingProperties*>(next);
             props->max_vertex_input_bindings = D3D12_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT;
             props->max_vertex_input_attributes = D3D12_IA_VERTEX_INPUT_STRUCTURE_ELEMENT_COUNT;
             props->multiple_viewports_supported = true; // D3D12 supports up to 16 viewports and scissor rectangles
             props->address_commands_supported = true; // D3D12 supports buffer address commands
-        } break;
+        }
+        break;
         default:
             break;
         }
@@ -516,17 +520,17 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceWaitForMultipleFences(
     HANDLE event_handle = CreateEventW(nullptr, false, false, nullptr);
     if (!event_handle) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to create fence event handle">(
-            HRESULT_FROM_WIN32(GetLastError())
-        );
+                   HRESULT_FROM_WIN32(GetLastError())
+               );
     }
 
     auto hr = device.device->SetEventOnMultipleFenceCompletion(
-        reinterpret_cast<ID3D12Fence* const*>(fences),
-        fence_values,
-        static_cast<UINT>(fence_count),
-        static_cast<D3D12_MULTIPLE_FENCE_WAIT_FLAGS>(wait_for),
-        event_handle
-    );
+                  reinterpret_cast<ID3D12Fence* const*>(fences),
+                  fence_values,
+                  static_cast<UINT>(fence_count),
+                  static_cast<D3D12_MULTIPLE_FENCE_WAIT_FLAGS>(wait_for),
+                  event_handle
+              );
 
     CloseHandle(event_handle);
 
@@ -551,8 +555,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreatePipelineCache(
         data_copy = static_cast<uint8_t*>(malloc(data_size));
         if (!data_copy) {
             return wis::detail::make_result<wis::detail::Func(), "Out of memory while copying pipeline cache data">(
-                E_OUTOFMEMORY
-            );
+                       E_OUTOFMEMORY
+                   );
         }
         std::memcpy(data_copy, initial_data, data_size);
     }
@@ -560,11 +564,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreatePipelineCache(
     wis::com_ptr<ID3D12PipelineLibrary1> pipeline_library;
 
     auto hr = device.device->CreatePipelineLibrary(
-        data_copy,
-        data_size,
-        IID_ID3D12PipelineLibrary1,
-        pipeline_library.put_void_unchecked()
-    );
+                  data_copy,
+                  data_size,
+                  IID_ID3D12PipelineLibrary1,
+                  pipeline_library.put_void_unchecked()
+              );
 
     if (!wis::detail::succeeded(hr)) {
         free(data_copy);
@@ -593,12 +597,12 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateShader(
     auto& device = wis::from_handle_ref<const wis::impl::DX12DeviceImpl>(self);
 
     std::unique_ptr<wis::detail::DX12ShaderHeader> shader_header{reinterpret_cast<wis::detail::DX12ShaderHeader*>(
-        operator new(wis::aligned_size(size, 8ull) + sizeof(wis::detail::DX12ShaderHeader), std::nothrow)
-    )};
+                operator new(wis::aligned_size(size, 8ull) + sizeof(wis::detail::DX12ShaderHeader), std::nothrow)
+            )};
     if (!shader_header) {
         return wis::detail::make_result<wis::detail::Func(), "Out of memory while creating shader header">(
-            E_OUTOFMEMORY
-        );
+                   E_OUTOFMEMORY
+               );
     }
 
     std::construct_at(shader_header.get());
@@ -634,14 +638,14 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateComputePipeline(
     // Validate root signature
     if (!rootsig) {
         return wis::detail::make_result<
-            wis::detail::Func(),
-            "Invalid root signature provided for compute pipeline creation">(E_INVALIDARG);
+               wis::detail::Func(),
+               "Invalid root signature provided for compute pipeline creation">(E_INVALIDARG);
     }
     // Validate shader
     if (!shader) {
         return wis::detail::make_result<wis::detail::Func(), "Invalid shader provided for compute pipeline creation">(
-            E_INVALIDARG
-        );
+                   E_INVALIDARG
+               );
     }
 
     auto bytecode = shader->GetBytecode();
@@ -690,11 +694,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateComputePipeline(
 
         // Try to load pipeline from cache first if available
         HRESULT hr = cache->LoadPipeline(
-            name_buffer,
-            &pso_desc,
-            IID_ID3D12PipelineState,
-            pipeline_state.put_void_unchecked()
-        );
+                         name_buffer,
+                         &pso_desc,
+                         IID_ID3D12PipelineState,
+                         pipeline_state.put_void_unchecked()
+                     );
         if (wis::detail::succeeded(hr)) {
             auto& pipeline_impl = *new (pipeline) wis::impl::DX12PipelineImpl{
                 .pipeline_state = pipeline_state.detach(),
@@ -705,13 +709,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateComputePipeline(
         // Cache miss
         if (desc->flags & WisPipelineFlagsFailOnCacheMiss) {
             return wis::detail::make_result<
-                wis::detail::Func(),
-                "Pipeline not found in cache and creation is set to fail on cache miss">(WisStatusError, E_FAIL);
+                   wis::detail::Func(),
+                   "Pipeline not found in cache and creation is set to fail on cache miss">(WisStatusError, E_FAIL);
         }
     }
 
     auto hr = device.device
-                  ->CreatePipelineState(&pso_desc, IID_ID3D12PipelineState, pipeline_state.put_void_unchecked());
+              ->CreatePipelineState(&pso_desc, IID_ID3D12PipelineState, pipeline_state.put_void_unchecked());
     if (!wis::detail::succeeded(hr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to create compute pipeline state object">(hr);
     }
@@ -739,8 +743,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(
     auto* rootsig = std::bit_cast<ID3D12RootSignature*>(desc->root_signature);
     if (!rootsig) {
         return wis::detail::make_result<
-            wis::detail::Func(),
-            "Invalid root signature provided for graphics pipeline creation">(E_INVALIDARG);
+               wis::detail::Func(),
+               "Invalid root signature provided for graphics pipeline creation">(E_INVALIDARG);
     }
 
     struct GraphicsPipelineStream {
@@ -767,8 +771,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(
     } stream{
         .root_signature = rootsig,
         .flags = desc->flags & WisPipelineFlagsEnablePrimitiveRestart
-                   ? D3D12_PIPELINE_STATE_FLAG_DYNAMIC_INDEX_BUFFER_STRIP_CUT
-                   : D3D12_PIPELINE_STATE_FLAG_NONE,
+        ? D3D12_PIPELINE_STATE_FLAG_DYNAMIC_INDEX_BUFFER_STRIP_CUT
+        : D3D12_PIPELINE_STATE_FLAG_NONE,
     };
 
     static constexpr size_t shader_stage_count = 5;
@@ -786,7 +790,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(
         stream.vertex_shader = {{bytecode.data(), bytecode.size()}};
     } else {
         return wis::detail::
-            make_result<wis::detail::Func(), "Vertex shader is required for graphics pipeline creation">(E_INVALIDARG);
+               make_result<wis::detail::Func(), "Vertex shader is required for graphics pipeline creation">(E_INVALIDARG);
     }
     if (auto ps = shader_headers[1]) {
         auto bytecode = ps->GetBytecode();
@@ -808,7 +812,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(
     //--Render targets
     if (desc->render_attachments.attachments_count > wis::MaxRenderTargets) {
         return wis::detail::
-            make_result<wis::detail::Func(), "Exceeded maximum number of render target attachments (8)">(E_INVALIDARG);
+               make_result<wis::detail::Func(), "Exceeded maximum number of render target attachments (8)">(E_INVALIDARG);
     }
 
     D3D12_RT_FORMAT_ARRAY& rtv_formats = stream.rtv_formats;
@@ -821,7 +825,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(
     }
 
     //--Multiview
-    D3D12_VIEW_INSTANCE_LOCATION view_locs[wis::MaxRenderTargets]{};
+    D3D12_VIEW_INSTANCE_LOCATION view_locs[wis::MaxRenderTargets] {};
     if (desc->render_attachments.view_mask) {
         uint32_t view_mask = desc->render_attachments.view_mask;
         for (uint32_t i = 0u; i < wis::MaxRenderTargets; i++) {
@@ -844,7 +848,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(
     //--Input layout
     wis::span<const WisInputBindingDesc> slots{desc->input_layout.bindings, desc->input_layout.binding_count};
     wis::span<const WisInputAttributeDesc> attrs{desc->input_layout.attributes, desc->input_layout.attribute_count};
-    D3D12_INPUT_ELEMENT_DESC reasonable_max_input_elements[wis::MinSupportedInputAttributes * 2]{};
+    D3D12_INPUT_ELEMENT_DESC reasonable_max_input_elements[wis::MinSupportedInputAttributes * 2] {};
     std::unique_ptr<D3D12_INPUT_ELEMENT_DESC[]> input_elements;
     wis::span<D3D12_INPUT_ELEMENT_DESC> input_elements_span;
     if (!slots.empty() && !attrs.empty()) {
@@ -884,16 +888,16 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(
         }
 
         stream.rasterizer = CD3DX12_RASTERIZER_DESC2{D3D12_RASTERIZER_DESC2{
-            .FillMode = wis::detail::DX12Convert(raster.fill_mode),
-            .CullMode = wis::detail::DX12Convert(raster.cull_mode),
-            .FrontCounterClockwise = wis::detail::DX12Convert(raster.front_face),
-            .DepthBias = bias ? raster.depth_bias : 0.0f,
-            .DepthBiasClamp = bias ? raster.depth_bias_clamp : 0.0f,
-            .SlopeScaledDepthBias = bias ? raster.depth_bias_slope_factor : 0.0f,
-            .DepthClipEnable = raster.depth_clip_enable,
-            .LineRasterizationMode = wis::detail::DX12Convert(raster.line_rasterization),
-            .ConservativeRaster = wis::detail::DX12Convert(raster.conservative_rasterization)
-        }};
+                .FillMode = wis::detail::DX12Convert(raster.fill_mode),
+                .CullMode = wis::detail::DX12Convert(raster.cull_mode),
+                .FrontCounterClockwise = wis::detail::DX12Convert(raster.front_face),
+                .DepthBias = bias ? raster.depth_bias : 0.0f,
+                .DepthBiasClamp = bias ? raster.depth_bias_clamp : 0.0f,
+                .SlopeScaledDepthBias = bias ? raster.depth_bias_slope_factor : 0.0f,
+                .DepthClipEnable = raster.depth_clip_enable,
+                .LineRasterizationMode = wis::detail::DX12Convert(raster.line_rasterization),
+                .ConservativeRaster = wis::detail::DX12Convert(raster.conservative_rasterization)
+            }};
     }
 
     //--Multisample
@@ -914,29 +918,30 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(
     if (desc->depth_stencil_desc) {
         auto& ds = *desc->depth_stencil_desc;
         stream.depth_stencil = CD3DX12_DEPTH_STENCIL_DESC2{
-            {.DepthEnable = ds.depth_enable,
-             .DepthWriteMask = D3D12_DEPTH_WRITE_MASK(ds.depth_write_enable),
-             .DepthFunc = wis::detail::DX12Convert(ds.depth_comp),
-             .StencilEnable = ds.stencil_enable,
-             .FrontFace =
-                 D3D12_DEPTH_STENCILOP_DESC1{
-                     .StencilFailOp = wis::detail::DX12Convert(ds.stencil_front.fail_op),
-                     .StencilDepthFailOp = wis::detail::DX12Convert(ds.stencil_front.depth_fail_op),
-                     .StencilPassOp = wis::detail::DX12Convert(ds.stencil_front.pass_op),
-                     .StencilFunc = wis::detail::DX12Convert(ds.stencil_front.stencil_comp),
-                     .StencilReadMask = ds.stencil_front.read_mask,
-                     .StencilWriteMask = ds.stencil_front.write_mask,
-                 },
-             .BackFace =
-                 D3D12_DEPTH_STENCILOP_DESC1{
-                     .StencilFailOp = wis::detail::DX12Convert(ds.stencil_back.fail_op),
-                     .StencilDepthFailOp = wis::detail::DX12Convert(ds.stencil_back.depth_fail_op),
-                     .StencilPassOp = wis::detail::DX12Convert(ds.stencil_back.pass_op),
-                     .StencilFunc = wis::detail::DX12Convert(ds.stencil_back.stencil_comp),
-                     .StencilReadMask = ds.stencil_back.read_mask,
-                     .StencilWriteMask = ds.stencil_back.write_mask,
-                 },
-             .DepthBoundsTestEnable = ds.depth_bound_test}
+            {   .DepthEnable = ds.depth_enable,
+                .DepthWriteMask = D3D12_DEPTH_WRITE_MASK(ds.depth_write_enable),
+                .DepthFunc = wis::detail::DX12Convert(ds.depth_comp),
+                .StencilEnable = ds.stencil_enable,
+                .FrontFace =
+                D3D12_DEPTH_STENCILOP_DESC1{
+                    .StencilFailOp = wis::detail::DX12Convert(ds.stencil_front.fail_op),
+                    .StencilDepthFailOp = wis::detail::DX12Convert(ds.stencil_front.depth_fail_op),
+                    .StencilPassOp = wis::detail::DX12Convert(ds.stencil_front.pass_op),
+                    .StencilFunc = wis::detail::DX12Convert(ds.stencil_front.stencil_comp),
+                    .StencilReadMask = ds.stencil_front.read_mask,
+                    .StencilWriteMask = ds.stencil_front.write_mask,
+                },
+                .BackFace =
+                D3D12_DEPTH_STENCILOP_DESC1{
+                    .StencilFailOp = wis::detail::DX12Convert(ds.stencil_back.fail_op),
+                    .StencilDepthFailOp = wis::detail::DX12Convert(ds.stencil_back.depth_fail_op),
+                    .StencilPassOp = wis::detail::DX12Convert(ds.stencil_back.pass_op),
+                    .StencilFunc = wis::detail::DX12Convert(ds.stencil_back.stencil_comp),
+                    .StencilReadMask = ds.stencil_back.read_mask,
+                    .StencilWriteMask = ds.stencil_back.write_mask,
+                },
+                .DepthBoundsTestEnable = ds.depth_bound_test
+            }
         };
     } else {
         // Fix for depth stencil
@@ -1045,11 +1050,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(
 
         // Try to load pipeline from cache first if available
         HRESULT hr = cache->LoadPipeline(
-            name_buffer,
-            &psstream_desc,
-            IID_ID3D12PipelineState,
-            pipeline_state.put_void_unchecked()
-        );
+                         name_buffer,
+                         &psstream_desc,
+                         IID_ID3D12PipelineState,
+                         pipeline_state.put_void_unchecked()
+                     );
         if (wis::detail::succeeded(hr)) {
             auto& pipeline_impl = *new (pipeline) wis::impl::DX12PipelineImpl{
                 .pipeline_state = pipeline_state.detach(),
@@ -1060,16 +1065,16 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(
         // Cache miss
         if (desc->flags & WisPipelineFlagsFailOnCacheMiss) {
             return wis::detail::make_result<
-                wis::detail::Func(),
-                "Pipeline not found in cache and creation is set to fail on cache miss">(WisStatusError, E_FAIL);
+                   wis::detail::Func(),
+                   "Pipeline not found in cache and creation is set to fail on cache miss">(WisStatusError, E_FAIL);
         }
     }
 
     HRESULT hr = device.device->CreatePipelineState(
-        &psstream_desc,
-        IID_ID3D12PipelineState,
-        pipeline_state.put_void_unchecked()
-    );
+                     &psstream_desc,
+                     IID_ID3D12PipelineState,
+                     pipeline_state.put_void_unchecked()
+                 );
     if (!wis::detail::succeeded(hr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to create graphics pipeline state object">(hr);
     }
@@ -1116,8 +1121,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceGetSurfaceParameters(
         .max_swapchain_images = DXGI_MAX_SWAP_CHAIN_BUFFERS,
         .alpha_modes_supported = 0b0000'1111, // Support all alpha modes (premultiplied, postmultiplied, opaque, custom)
         .texture_usage_flags_supported = static_cast<WisTextureUsageFlags>(
-            WisTextureUsageFlagsRenderTarget | WisTextureUsageFlagsShaderResource | WisTextureUsageFlagsCopySrc
-            | WisTextureUsageFlagsCopyDst | WisTextureUsageFlagsUnorderedAccess
+        WisTextureUsageFlagsRenderTarget | WisTextureUsageFlagsShaderResource | WisTextureUsageFlagsCopySrc
+        | WisTextureUsageFlagsCopyDst | WisTextureUsageFlagsUnorderedAccess
         ),
         .stereo_supported = impl.factory->IsWindowedStereoEnabled() > 0,
     };
@@ -1142,7 +1147,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateSwapchain(
         BOOL xtearing = FALSE;
         device.factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &xtearing, sizeof(xtearing));
         return bool(xtearing);
-    }();
+    }
+    ();
 
     DXGI_USAGE usage = 0;
     switch (desc->texture_usage_flags) {
@@ -1179,21 +1185,21 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateSwapchain(
     HRESULT hr = S_OK;
     if (surface_impl.uwp) {
         hr = device.factory->CreateSwapChainForCoreWindow(
-            queue_impl.queue,
-            static_cast<IUnknown*>(surface_impl.surface),
-            &swap_chain_desc,
-            nullptr,
-            swap_chain1.put_unchecked()
-        );
+                 queue_impl.queue,
+                 static_cast<IUnknown*>(surface_impl.surface),
+                 &swap_chain_desc,
+                 nullptr,
+                 swap_chain1.put_unchecked()
+             );
     } else {
         hr = device.factory->CreateSwapChainForHwnd(
-            queue_impl.queue,
-            static_cast<HWND>(surface_impl.surface),
-            &swap_chain_desc,
-            nullptr,
-            nullptr,
-            swap_chain1.put_unchecked()
-        );
+                 queue_impl.queue,
+                 static_cast<HWND>(surface_impl.surface),
+                 &swap_chain_desc,
+                 nullptr,
+                 nullptr,
+                 swap_chain1.put_unchecked()
+             );
     }
 
     if (!wis::detail::succeeded(hr)) {

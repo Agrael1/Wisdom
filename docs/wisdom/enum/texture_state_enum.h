@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef enum WisTextureState {
  *     WisTextureStateUndefined = -1,
  *     WisTextureStateCommon = 0,
@@ -33,7 +33,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * enum class TextureState {
  *     Undefined = -1,
  *     Common = 0,
@@ -62,9 +62,9 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * Texture state for resource transitions.
- * 
+ *
  * \note Translates to  `D3D12_BARRIER_LAYOUT` for DirectX 12 implementation, and `VkImageLayout` for Vulkan implementation.
- * 
+ *
  * Values:
  * - `WisTextureStateUndefined = -1`: Undefined state.
  * - `WisTextureStateCommon = 0`: Common state.

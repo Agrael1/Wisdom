@@ -2,7 +2,7 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 static inline constexpr char template_bitmask[] =
-        R"(/**
+    R"(/**
  * @struct {0} {0}
  * @ingroup Enumerations {3}
  *
@@ -53,7 +53,7 @@ void Generator::ParseBitmask(tinyxml2::XMLElement* type)
     }
 
     for (auto* impl_type = type->FirstChildElement("impl_type"); impl_type;
-         impl_type       = impl_type->NextSiblingElement("impl_type")) {
+            impl_type       = impl_type->NextSiblingElement("impl_type")) {
         auto impl_for      = impl_type->FindAttribute("for")->Value();
         auto backend       = ParseBackend(impl_for);
         auto impl_name     = impl_type->FindAttribute("name")->Value();
@@ -67,7 +67,7 @@ void Generator::ParseBitmask(tinyxml2::XMLElement* type)
     }
 
     for (auto* member = type->FirstChildElement("value"); member;
-         member       = member->NextSiblingElement("value")) {
+            member       = member->NextSiblingElement("value")) {
         auto& m = ref.values.emplace_back();
 
         m.name      = member->FindAttribute("name")->Value();
@@ -92,7 +92,7 @@ void Generator::ParseBitmask(tinyxml2::XMLElement* type)
         m.is_bit       = true;
 
         for (auto* impl = member->FirstChildElement("impl"); impl;
-             impl       = impl->NextSiblingElement("impl")) {
+                impl       = impl->NextSiblingElement("impl")) {
             auto impl_name = impl->FindAttribute("name")->Value();
             auto value     = impl->FindAttribute("value")->Value();
 
@@ -290,9 +290,9 @@ void Generator::WriteBitmaskDocumentation(std::filesystem::path enum_output_path
         auto&                 enum_ref       = bitmask_map[enum_name];
 
         std::string enum_template_content = wis::format(" * C version:\n```c\n{}```\n"
-                                                        "C++ version:\n```cpp\nnamespace wis{{\n{}}}\n```\n",
-                                                        MakeCBitmask(enum_ref, DocKind::VersionOnly),
-                                                        MakeCPPBitmask(enum_ref, DocKind::VersionOnly));
+                                            "C++ version:\n```cpp\nnamespace wis{{\n{}}}\n```\n",
+                                            MakeCBitmask(enum_ref, DocKind::VersionOnly),
+                                            MakeCPPBitmask(enum_ref, DocKind::VersionOnly));
         std::string enum_description      = wis::format(" * {}", MakeBitmaskDescription(enum_ref));
         std::string enum_refs             = GetRefs(enum_name);
         ReplaceAll(enum_template_content, "\n", "\n * ");

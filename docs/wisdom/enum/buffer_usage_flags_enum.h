@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef enum WisBufferUsageFlags {
  *     WisBufferUsageFlagsNone = 0,
  *     WisBufferUsageFlagsCopySrc = (1u << 0),
@@ -26,7 +26,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * enum class BufferUsageFlags : uint32_t {
  *     None = 0,
  *     CopySrc = (1u << 0),
@@ -49,7 +49,7 @@
  * \cond WIS_GEN_DESC
  * Buffer usage flags.
  * Determine how the buffer can be used throughout its lifetime.
- * 
+ *
  * \note Translates to DirectX 12 as D3D12_RESOURCE_FLAGS, Vulkan as VkBufferUsageFlags.
  * Values:
  * - `WisBufferUsageFlagsNone = 0`: No flags set. Buffer is not used.

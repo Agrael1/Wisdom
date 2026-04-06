@@ -9,17 +9,17 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisFormatProperties {
  *     WisFormatSupportFlags format_support_flags;
  *     WisSampleCount        max_sample_count;
  * } WisFormatProperties;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  FormatProperties {
  *     wis::FormatSupportFlags format_support_flags;
  *     wis::SampleCount        max_sample_count;

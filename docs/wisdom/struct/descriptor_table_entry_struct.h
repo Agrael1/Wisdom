@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisDescriptorTableEntry {
  *     WisDescriptorType type;
  *     uint32_t          bind_register;
@@ -17,12 +17,12 @@
  *     uint32_t          count;
  *     uint32_t          descriptor_offset;
  * } WisDescriptorTableEntry;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  DescriptorTableEntry {
  *     wis::DescriptorType type;
  *     std::uint32_t       bind_register;

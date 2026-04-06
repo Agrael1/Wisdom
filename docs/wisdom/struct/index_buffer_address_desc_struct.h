@@ -9,17 +9,17 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisIndexBufferAddressDesc {
  *     uint64_t buffer;
  *     uint32_t size;
  * } WisIndexBufferAddressDesc;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  IndexBufferAddressDesc {
  *     std::uint64_t buffer;
  *     std::uint32_t size;

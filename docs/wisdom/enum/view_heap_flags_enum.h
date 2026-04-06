@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef enum WisViewHeapFlags {
  *     WisViewHeapFlagsNone = 0,
  *     WisViewHeapFlagsAllowMultisample = (1u << 0),
@@ -17,7 +17,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * enum class ViewHeapFlags : uint32_t {
  *     None = 0,
  *     AllowMultisample = (1u << 0),
@@ -30,7 +30,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * View heap creation flags.
- * 
+ *
  * \note Translates to DirectX 12 as D3D12_DESCRIPTOR_HEAP_FLAGS.
  * Values:
  * - `WisViewHeapFlagsNone = 0`: No flags set. View heap is regular.

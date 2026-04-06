@@ -9,18 +9,18 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisDescriptorTable {
  *     WisShaderVisibility            visibility;
  *     const WisDescriptorTableEntry* entries;
  *     size_t                         entry_count;
  * } WisDescriptorTable;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  DescriptorTable {
  *     wis::ShaderVisibility                      visibility;
  *     wis::span<const wis::DescriptorTableEntry> entries;

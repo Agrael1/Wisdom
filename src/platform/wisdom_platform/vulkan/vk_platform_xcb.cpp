@@ -83,8 +83,8 @@ WISDOM_PLATFORM_API WisResult wisVKXCBExtensionCreateSurface(
         auto& itable = impl.instance_control_block->header.instance_table;
         itable.vkDestroySurfaceKHR(impl.instance_control_block->header.instance, vk_surface, nullptr);
         return wis::detail::make_result<wis::detail::Func(), "Failed to allocate surface control block">(
-            VK_ERROR_OUT_OF_HOST_MEMORY
-        );
+                   VK_ERROR_OUT_OF_HOST_MEMORY
+               );
     }
 
     header->header.instance_header = impl.instance_control_block, header->header.surface = vk_surface,

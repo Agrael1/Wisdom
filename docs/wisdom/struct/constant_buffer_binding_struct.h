@@ -9,17 +9,17 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisConstantBufferBinding {
  *     uint64_t buffer_address;
  *     uint32_t size_bytes;
  * } WisConstantBufferBinding;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  ConstantBufferBinding {
  *     std::uint64_t buffer_address;
  *     std::uint32_t size_bytes;

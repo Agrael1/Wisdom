@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct WisVertexBufferDesc {
  *     WisBufferView buffer;
  *     uint32_t      size;
@@ -20,15 +20,15 @@
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct WisVKVertexBufferDesc {
  *     WisVKBufferView buffer;
  *     uint32_t        size;
  *     uint32_t        stride;
  *     uint32_t        offset;
  * } WisVKVertexBufferDesc;
- * 
- * // Provided by Wisdom 0.7.0. 
+ *
+ * // Provided by Wisdom 0.7.0.
  * typedef struct WisDX12VertexBufferDesc {
  *     WisDX12BufferView buffer;
  *     uint32_t          size;
@@ -37,11 +37,11 @@
  * } WisDX12VertexBufferDesc;
  * ```
  * </details>
- * 
+ *
  * C++ Version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct VertexBufferDesc {
  *     wis::BufferView buffer;
  *     std::uint32_t   size;
@@ -54,15 +54,15 @@
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct VKVertexBufferDesc {
  *     wis::VKBufferView buffer;
  *     std::uint32_t     size;
  *     std::uint32_t     stride;
  *     std::uint32_t     offset;
  * };
- * 
- * // Provided by Wisdom 0.7.0. 
+ *
+ * // Provided by Wisdom 0.7.0.
  * struct DX12VertexBufferDesc {
  *     wis::DX12BufferView buffer;
  *     std::uint32_t       size;

@@ -22,7 +22,7 @@ inline WisResult VKWin32ExtensionInit(
         // Create control block for instance
         impl.instance_control_block = instance_impl->shared_header;
         impl.instance_control_block->AddRef(); // AddRef instance control block to ensure it lives as long as the
-                                               // extension
+        // extension
 
         // Collect functions
         auto instance = instance_impl->instance;
@@ -82,8 +82,8 @@ WISDOM_PLATFORM_API WisResult wisVKWin32ExtensionCreateSurface(
         auto& itable = impl.instance_control_block->header.instance_table;
         itable.vkDestroySurfaceKHR(impl.instance_control_block->header.instance, vk_surface, nullptr);
         return wis::detail::make_result<wis::detail::Func(), "Failed to allocate surface control block">(
-            VK_ERROR_OUT_OF_HOST_MEMORY
-        );
+                   VK_ERROR_OUT_OF_HOST_MEMORY
+               );
     }
 
     header->header.instance_header = impl.instance_control_block, header->header.surface = vk_surface,

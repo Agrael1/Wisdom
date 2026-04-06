@@ -29,14 +29,14 @@ struct HelloTriangleApp {
     uint64_t next_fence_value = 1;
 
     wis::Swapchain swapchain{};
-    wis::Texture swapchain_textures[SWAPCHAIN_FRAMES]{};
+    wis::Texture swapchain_textures[SWAPCHAIN_FRAMES] {};
     wis::ViewHeap rtv_heap{};
     wis::DataFormat swapchain_format = wis::DataFormat::BGRA8Unorm;
 
     wis::RootSignature root_signature{};
     wis::Pipeline pipeline{};
 
-    FrameContext frames[FRAMES_IN_FLIGHT]{};
+    FrameContext frames[FRAMES_IN_FLIGHT] {};
     uint32_t frame_index = 0;
 
     uint32_t width = 800;
@@ -202,8 +202,8 @@ static bool init_app(HelloTriangleApp* app, SDL_Window* window)
     }
 
     app->swapchain_format = app->device.GetFormatPresentationSupport(surface.GetView(), wis::DataFormat::RGB10A2Unorm)
-                              ? wis::DataFormat::RGB10A2Unorm
-                              : wis::DataFormat::BGRA8Unorm;
+                            ? wis::DataFormat::RGB10A2Unorm
+                            : wis::DataFormat::BGRA8Unorm;
 
     wis::SwapchainDesc swapchain_desc = {
         .width = app->width,
@@ -336,7 +336,7 @@ static void draw_frame(HelloTriangleApp* app, float angle)
     wis::Texture& target_texture = app->swapchain_textures[swapchain_index];
     uint64_t target_rtv = app->rtv_heap.GetViewAddress(swapchain_index);
 
-    wis::TextureBarrier barriers[2]{};
+    wis::TextureBarrier barriers[2] {};
     barriers[0].sync_before = wis::BarrierSync::None;
     barriers[0].sync_after = wis::BarrierSync::RenderTarget;
     barriers[0].access_before = wis::ResourceAccess::None;

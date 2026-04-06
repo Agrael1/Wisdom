@@ -9,27 +9,27 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * WisResult wisDeviceGetResourceAllocator(const WisDevice* self,
  * WisResourceAllocator*allocator);
  * ```
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * WisResult wisVKDeviceGetResourceAllocator(const WisVKDevice* self,
  * WisVKResourceAllocator*allocator);
- * 
- * // Provided by Wisdom 0.7.0. 
+ *
+ * // Provided by Wisdom 0.7.0.
  * WisResult wisDX12DeviceGetResourceAllocator(const WisDX12Device* self,
  * WisDX12ResourceAllocator*allocator);
  * ```
  * </details>
- * 
+ *
  * C++ Version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * WIS_NODISCARD wis::ResourceAllocator Device::GetResourceAllocator(wis::Result& out_result) const noexcept;
  * }
  * ```
@@ -37,10 +37,10 @@
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * WIS_NODISCARD wis::VKResourceAllocator VKDevice::GetResourceAllocator(wis::Result& out_result) const noexcept;
- * 
- * // Provided by Wisdom 0.7.0. 
+ *
+ * // Provided by Wisdom 0.7.0.
  * WIS_NODISCARD wis::DX12ResourceAllocator DX12Device::GetResourceAllocator(wis::Result& out_result) const noexcept;
  * }
  * ```
@@ -52,7 +52,7 @@
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisDevice instance.
  * - `allocator` points to WisResourceAllocator, which is initialized on success.
- * 
+ *
  * - **return** denoting the outcome of operation.
  * \endcond
  *

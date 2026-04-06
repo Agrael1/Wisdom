@@ -2,7 +2,7 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 static inline constexpr char template_handle[] =
-        R"(/**
+    R"(/**
  * @struct {0}
  * @ingroup Handles {3}
  *
@@ -24,7 +24,7 @@ static inline constexpr char template_handle[] =
 void Generator::ParseHandles(tinyxml2::XMLElement* types)
 {
     for (auto* type = types->FirstChildElement("handle"); type;
-         type       = type->NextSiblingElement("handle")) {
+            type       = type->NextSiblingElement("handle")) {
 
         auto  name    = type->FindAttribute("name")->Value();
         auto  version = type->FindAttribute("version")->Value();
@@ -45,7 +45,7 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
 
         // Parse implementations
         for (auto* impl = type->FirstChildElement("impl"); impl;
-             impl       = impl->NextSiblingElement("impl")) {
+                impl       = impl->NextSiblingElement("impl")) {
             auto impl_for = impl->FindAttribute("for")->Value();
             auto backend  = ParseBackend(impl_for);
 
@@ -100,7 +100,7 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
         // view sizes
         bool has_view = false;
         for (auto* impl = type->FirstChildElement("view"); impl;
-             impl       = impl->NextSiblingElement("view")) {
+                impl       = impl->NextSiblingElement("view")) {
             has_view      = true;
             auto impl_for = impl->FindAttribute("for");
             if (!impl_for) {
@@ -135,10 +135,10 @@ std::string Generator::MakeCHandle(const WisHandle& s, Backend backend, DocKind 
     auto impl_string = GetBackendSuffix(backend);
 
     auto extends_macro = s.extends == Extends::None
-            ? std::string("WIS_DEFINE_HANDLE")
-            : (s.extends == Extends::Instance
-                       ? wis::format("WIS_DEFINE_{}_INSTANCE_EXT_HANDLE", impl_string)
-                       : wis::format("WIS_DEFINE_{}_DEVICE_EXT_HANDLE", impl_string));
+                         ? std::string("WIS_DEFINE_HANDLE")
+                         : (s.extends == Extends::Instance
+                            ? wis::format("WIS_DEFINE_{}_INSTANCE_EXT_HANDLE", impl_string)
+                            : wis::format("WIS_DEFINE_{}_DEVICE_EXT_HANDLE", impl_string));
 
     auto full_name = GetCFullTypename(s.name, backend);
 
@@ -203,23 +203,23 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, Backend backend, DocKin
     if (s.GetViewSize(backend) > 0) {
         // Strict aliasing rules prevent us from doing a simple cast, so we have to memcpy the data to a new view struct
         st_decl2 += wis::format(
-                "    WIS_NODISCARD {}{}View GetView() const noexcept {{\n"
-                "        {}{}View v;\n"
-                "        std::memcpy(&v, &_impl_storage, sizeof(v));\n"
-                "        return v;\n"
-                "    }}\n",
-                impl_string,
-                s.name,
-                impl_string,
-                s.name);
+                        "    WIS_NODISCARD {}{}View GetView() const noexcept {{\n"
+                        "        {}{}View v;\n"
+                        "        std::memcpy(&v, &_impl_storage, sizeof(v));\n"
+                        "        return v;\n"
+                        "    }}\n",
+                        impl_string,
+                        s.name,
+                        impl_string,
+                        s.name);
 
         // add conversion operator to view
         st_decl2 += wis::format(
-                "    WIS_NODISCARD operator {}{}View() const noexcept {{\n"
-                "        return GetView();\n"
-                "    }}\n",
-                impl_string,
-                s.name);
+                        "    WIS_NODISCARD operator {}{}View() const noexcept {{\n"
+                        "        return GetView();\n"
+                        "    }}\n",
+                        impl_string,
+                        s.name);
     }
 
     // Add all the functions
@@ -243,8 +243,8 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, Backend backend, DocKin
 
     if (s.extends != Extends::None) {
         auto header = s.extends == Extends::Instance
-                ? GetCPPFullTypename("InstanceExtensionHeader", backend)
-                : GetCPPFullTypename("DeviceExtensionHeader", backend);
+                      ? GetCPPFullTypename("InstanceExtensionHeader", backend)
+                      : GetCPPFullTypename("DeviceExtensionHeader", backend);
         ctor_decl += wis::format("        // Operator & overload\n"
                                  "{}* operator&() noexcept {{\n"
                                  "    return &GetMutableInternal().header;\n"

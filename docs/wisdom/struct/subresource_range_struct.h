@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisSubresourceRange {
  *     uint16_t base_mip_level;
  *     uint16_t mip_level_count;
@@ -18,12 +18,12 @@
  *     uint16_t plane_slice;
  *     uint16_t plane_slice_count;
  * } WisSubresourceRange;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  SubresourceRange {
  *     std::uint16_t base_mip_level;
  *     std::uint16_t mip_level_count;

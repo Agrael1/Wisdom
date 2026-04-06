@@ -9,27 +9,27 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * WisResult wisFenceSignal(const WisFence* self,
  *                          uint64_t        value);
  * ```
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * WisResult wisVKFenceSignal(const WisVKFence* self,
  *                            uint64_t          value);
- * 
- * // Provided by Wisdom 0.7.0. 
+ *
+ * // Provided by Wisdom 0.7.0.
  * WisResult wisDX12FenceSignal(const WisDX12Fence* self,
  *                              uint64_t            value);
  * ```
  * </details>
- * 
+ *
  * C++ Version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * wis::Result Fence::Signal(std::uint64_t value) const noexcept;
  * }
  * ```
@@ -37,10 +37,10 @@
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * wis::Result VKFence::Signal(std::uint64_t value) const noexcept;
- * 
- * // Provided by Wisdom 0.7.0. 
+ *
+ * // Provided by Wisdom 0.7.0.
  * wis::Result DX12Fence::Signal(std::uint64_t value) const noexcept;
  * }
  * ```
@@ -52,7 +52,7 @@
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisFence instance.
  * - `value` describes value to signal.
- * 
+ *
  * - **return** denoting the outcome of operation.
  * \endcond
  *

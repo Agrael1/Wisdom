@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * WisResult wisDeviceCreateFence(const WisDevice* self,
  *                                uint64_t         initial_value,
  *                                WisFence*        fence);
@@ -17,22 +17,22 @@
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * WisResult wisVKDeviceCreateFence(const WisVKDevice* self,
  *                                  uint64_t           initial_value,
  *                                  WisVKFence*        fence);
- * 
- * // Provided by Wisdom 0.7.0. 
+ *
+ * // Provided by Wisdom 0.7.0.
  * WisResult wisDX12DeviceCreateFence(const WisDX12Device* self,
  *                                    uint64_t             initial_value,
  *                                    WisDX12Fence*        fence);
  * ```
  * </details>
- * 
+ *
  * C++ Version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * WIS_NODISCARD wis::Fence Device::CreateFence(std::uint64_t initial_value,
  *                                              wis::Result&  out_result) const noexcept;
  * }
@@ -41,11 +41,11 @@
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * WIS_NODISCARD wis::VKFence VKDevice::CreateFence(std::uint64_t initial_value,
  *                                                  wis::Result&  out_result) const noexcept;
- * 
- * // Provided by Wisdom 0.7.0. 
+ *
+ * // Provided by Wisdom 0.7.0.
  * WIS_NODISCARD wis::DX12Fence DX12Device::CreateFence(std::uint64_t initial_value,
  *                                                      wis::Result&  out_result) const noexcept;
  * }
@@ -59,7 +59,7 @@
  * - **this** `self` self is a pointer to the valid WisDevice instance.
  * - `initial_value` specifies the initial value of the fence.
  * - `fence` points to WisFence, which is initialized on success.
- * 
+ *
  * - **return** denoting the outcome of operation.
  * \endcond
  *

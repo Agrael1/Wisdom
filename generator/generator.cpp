@@ -18,7 +18,7 @@ void Generator::ParseFile(std::filesystem::path file)
 
     bool has_modules = false;
     for (auto* module_node = root->FirstChildElement("module"); module_node;
-         module_node       = module_node->NextSiblingElement("module")) {
+            module_node       = module_node->NextSiblingElement("module")) {
         has_modules = true;
 
         auto* module_attr   = module_node->FindAttribute("name");
@@ -138,7 +138,7 @@ void Generator::ParseRegistrySections(tinyxml2::XMLElement* root)
 void Generator::ParseIncludes(tinyxml2::XMLElement* includes)
 {
     for (auto* include = includes->FirstChildElement("include"); include;
-         include       = include->NextSiblingElement("include")) {
+            include       = include->NextSiblingElement("include")) {
         auto file     = include->GetText();
         auto rpath    = std::filesystem::path(INPUT_FILE).parent_path() / file;
         auto absolute = std::filesystem::absolute(rpath);
@@ -161,7 +161,7 @@ void Generator::ParseIncludes(tinyxml2::XMLElement* includes)
 void Generator::ParseTypes(tinyxml2::XMLElement* types)
 {
     for (auto* type = types->FirstChildElement("type"); type;
-         type       = type->NextSiblingElement("type")) {
+            type       = type->NextSiblingElement("type")) {
         auto category = type->FindAttribute("category")->Value();
         if (std::string_view(category) == "struct") {
             ParseStruct(type);
@@ -184,10 +184,10 @@ void Generator::WriteCAPI(std::filesystem::path dir)
     auto& module = module_map.at(active_module_name);
 
     bool has_independent_api = !module.enums_in_order.empty() ||
-            !module.bitmasks_in_order.empty() ||
-            !module.structs_in_order.empty() ||
-            !module.constants_in_order.empty() ||
-            !module.delegates_in_order.empty();
+                               !module.bitmasks_in_order.empty() ||
+                               !module.structs_in_order.empty() ||
+                               !module.constants_in_order.empty() ||
+                               !module.delegates_in_order.empty();
 
     auto path = dir / "c_api.h";
     if (!has_independent_api) {
@@ -203,13 +203,13 @@ void Generator::WriteCAPI(std::filesystem::path dir)
     auto header_guard = MakeUpperSnakeCase(module.name);
 
     auto includes = module.name == "Core"
-            ? R"(#include <wisdom/global/definitions.h>
+                    ? R"(#include <wisdom/global/definitions.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <string.h>
 )"
-            : R"(#include <wisdom/generated/c_api.h>
+                    : R"(#include <wisdom/generated/c_api.h>
 #include "wisdom_exports.h"
 )";
 
@@ -230,8 +230,8 @@ extern "C" {{
 
     if (!module.enums_in_order.empty() || !module.bitmasks_in_order.empty()) {
         file << "\n//==============================================================\n"
-                "// Enums\n"
-                "//==============================================================\n\n";
+             "// Enums\n"
+             "//==============================================================\n\n";
 
         // Write enums
         for (auto& enum_name : module.enums_in_order) {
@@ -250,8 +250,8 @@ extern "C" {{
 
     if (!module.delegates_in_order.empty()) {
         file << "\n//==============================================================\n"
-                "// Delegates\n"
-                "//==============================================================\n\n";
+             "// Delegates\n"
+             "//==============================================================\n\n";
         // Write delegates (before structs, as structs may reference delegates)
         for (auto& delegate_name : module.delegates_in_order) {
             auto& delegate_def = delegate_map[delegate_name];
@@ -262,8 +262,8 @@ extern "C" {{
 
     if (!module.structs_in_order.empty()) {
         file << "\n//==============================================================\n"
-                "// Structs\n"
-                "//==============================================================\n\n";
+             "// Structs\n"
+             "//==============================================================\n\n";
         // Write structs
         for (auto& struct_name : module.structs_in_order) {
             auto& struct_def = struct_map[struct_name];
@@ -274,8 +274,8 @@ extern "C" {{
 
     if (!module.constants_in_order.empty()) {
         file << "\n//==============================================================\n"
-                "// Constants\n"
-                "//==============================================================\n\n";
+             "// Constants\n"
+             "//==============================================================\n\n";
         // Write constants
         for (auto& const_name : module.constants_in_order) {
             auto& const_def = constant_map[const_name];
@@ -369,10 +369,10 @@ void Generator::WriteCPPAPI(std::filesystem::path dir)
 {
     auto& module              = module_map.at(active_module_name);
     bool  has_independent_api = !module.enums_in_order.empty() ||
-            !module.bitmasks_in_order.empty() ||
-            !module.structs_in_order.empty() ||
-            !module.constants_in_order.empty() ||
-            !module.delegates_in_order.empty();
+                                !module.bitmasks_in_order.empty() ||
+                                !module.structs_in_order.empty() ||
+                                !module.constants_in_order.empty() ||
+                                !module.delegates_in_order.empty();
 
     auto path = dir / "cpp_api.hpp";
     if (!has_independent_api) {
@@ -389,12 +389,12 @@ void Generator::WriteCPPAPI(std::filesystem::path dir)
     auto include_root = dir.parent_path().filename().generic_string();
 
     auto includes = module.name == "Core"
-            ? R"(#include <wisdom/global/definitions.h>
+                    ? R"(#include <wisdom/global/definitions.h>
 #include <wisdom/bridge/span.hpp>
 #include <wisdom/global/internal.hpp>
 #include "c_api.h"
 )"
-            : R"(#include <wisdom/generated/cpp_api.hpp>
+                    : R"(#include <wisdom/generated/cpp_api.hpp>
 #include "wisdom_exports.h"
 #include "c_api.h"
 )";
@@ -416,8 +416,8 @@ namespace wis {{
 
     if (!module.enums_in_order.empty() || !module.bitmasks_in_order.empty()) {
         file << "\n//==============================================================\n"
-                "// Enums\n"
-                "//==============================================================\n\n";
+             "// Enums\n"
+             "//==============================================================\n\n";
 
         // Write enums
         for (auto& enum_name : module.enums_in_order) {
@@ -436,8 +436,8 @@ namespace wis {{
 
     if (!module.delegates_in_order.empty()) {
         file << "\n//==============================================================\n"
-                "// Delegates\n"
-                "//==============================================================\n\n";
+             "// Delegates\n"
+             "//==============================================================\n\n";
         // Write delegates (before structs, as structs may reference delegates)
         for (auto& delegate_name : module.delegates_in_order) {
             auto& delegate_def = delegate_map[delegate_name];
@@ -448,8 +448,8 @@ namespace wis {{
 
     if (!module.structs_in_order.empty()) {
         file << "\n//==============================================================\n"
-                "// Structs\n"
-                "//==============================================================\n\n";
+             "// Structs\n"
+             "//==============================================================\n\n";
         // Write structs
         for (auto& struct_name : module.structs_in_order) {
             auto& struct_def = struct_map[struct_name];
@@ -460,8 +460,8 @@ namespace wis {{
 
     if (!module.constants_in_order.empty()) {
         file << "\n//==============================================================\n"
-                "// Constants\n"
-                "//==============================================================\n\n";
+             "// Constants\n"
+             "//==============================================================\n\n";
         // Write constants
         for (auto& const_name : module.constants_in_order) {
             auto& const_def = constant_map[const_name];
@@ -590,8 +590,8 @@ void Generator::WriteCIndependentAPI(std::filesystem::path dir)
     }
 
     auto backend_include = module_folder == "wisdom"
-            ? std::string("generated/c_api.h")
-            : wis::format("../{}/generated/c_api.h", module_folder);
+                           ? std::string("generated/c_api.h")
+                           : wis::format("../{}/generated/c_api.h", module_folder);
     auto header_guard    = wis::format("WISDOM_{}_H", MakeUpperSnakeCase(module.name));
 
     std::filesystem::path path_w = dir / (independent_name + ".h");
@@ -658,8 +658,8 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 
     if (dx_has_handles) {
         file_w << "\n\n//==============================================================\n"
-                  "// Handles\n"
-                  "//==============================================================\n\n";
+               "// Handles\n"
+               "//==============================================================\n\n";
 
         // Write handles
         for (auto& handle_name : module.handles_in_order) {
@@ -680,8 +680,8 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 
     if (dx_has_variants) {
         file_w << "\n\n//==============================================================\n"
-                  "// Variants\n"
-                  "//==============================================================\n\n";
+               "// Variants\n"
+               "//==============================================================\n\n";
 
         // Write variants
         for (auto& variant_name : module.variants_in_order) {
@@ -693,8 +693,8 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
     }
 
     file_w << "\n\n//==============================================================\n"
-              "// Functions\n"
-              "//==============================================================\n\n";
+           "// Functions\n"
+           "//==============================================================\n\n";
 
     // Write view getters for handles
     for (auto& handle_name : module.handles_in_order) {
@@ -751,8 +751,8 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 
     if (vk_has_handles) {
         file_w << "\n\n//==============================================================\n"
-                  "// Handles\n"
-                  "//==============================================================\n\n";
+               "// Handles\n"
+               "//==============================================================\n\n";
 
         // Write handles
         for (auto& handle_name : module.handles_in_order) {
@@ -773,8 +773,8 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 
     if (vk_has_variants) {
         file_w << "\n\n//==============================================================\n"
-                  "// Variants\n"
-                  "//==============================================================\n\n";
+               "// Variants\n"
+               "//==============================================================\n\n";
 
         // Write variants
         for (auto& variant_name : module.variants_in_order) {
@@ -785,10 +785,10 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
         }
     }
 
-    
+
     file_w << "\n\n//==============================================================\n"
-              "// Functions\n"
-              "//==============================================================\n\n";
+           "// Functions\n"
+           "//==============================================================\n\n";
 
     // Write view getters for handles
     for (auto& handle_name : module.handles_in_order) {
@@ -841,8 +841,8 @@ void Generator::WriteCPPIndependentAPI(std::filesystem::path dir)
     }
 
     auto backend_include = module_folder == "wisdom"
-            ? std::string("generated/cpp_api.hpp")
-            : wis::format("../{}/generated/cpp_api.hpp", module_folder);
+                           ? std::string("generated/cpp_api.hpp")
+                           : wis::format("../{}/generated/cpp_api.hpp", module_folder);
     auto header_guard    = wis::format("WISDOM_{}_HPP", MakeUpperSnakeCase(module.name));
 
     std::filesystem::path path_w = dir / (independent_name + ".hpp");
@@ -918,8 +918,8 @@ namespace wis {{
 
     if (dx_has_handles) {
         file_w << "\n\n//==============================================================\n"
-                  "// Handles\n"
-                  "//==============================================================\n\n";
+               "// Handles\n"
+               "//==============================================================\n\n";
 
         // Write handles
         for (auto& handle_name : module.handles_in_order) {
@@ -940,8 +940,8 @@ namespace wis {{
 
     if (dx_has_variants) {
         file_w << "\n\n//==============================================================\n"
-                  "// Variants\n"
-                  "//==============================================================\n\n";
+               "// Variants\n"
+               "//==============================================================\n\n";
 
         // Write variants
         for (auto& variant_name : module.variants_in_order) {
@@ -954,8 +954,8 @@ namespace wis {{
 
     if (dx_has_functions) {
         file_w << "\n\n//==============================================================\n"
-                  "// Functions\n"
-                  "//==============================================================\n\n";
+               "// Functions\n"
+               "//==============================================================\n\n";
 
         // Write functions
         for (auto& func_name : module.free_functions_in_order) {
@@ -1015,8 +1015,8 @@ namespace wis {
 
     if (vk_has_handles) {
         file_w << "\n\n//==============================================================\n"
-                  "// Handles\n"
-                  "//==============================================================\n\n";
+               "// Handles\n"
+               "//==============================================================\n\n";
 
         // Write handles
         for (auto& handle_name : module.handles_in_order) {
@@ -1037,8 +1037,8 @@ namespace wis {
 
     if (vk_has_variants) {
         file_w << "\n\n//==============================================================\n"
-                  "// Variants\n"
-                  "//==============================================================\n\n";
+               "// Variants\n"
+               "//==============================================================\n\n";
 
         // Write variants
         for (auto& variant_name : module.variants_in_order) {
@@ -1051,8 +1051,8 @@ namespace wis {
 
     if (vk_has_functions) {
         file_w << "\n\n//==============================================================\n"
-                  "// Functions\n"
-                  "//==============================================================\n\n";
+               "// Functions\n"
+               "//==============================================================\n\n";
 
         // Write functions
         for (auto& func_name : module.free_functions_in_order) {
@@ -1385,35 +1385,35 @@ std::string Generator::FinalizeCDocumentation(std::string doc, std::string_view 
             auto& x      = enum_map.at(this_type_view);
             auto  evalue = x.HasValue(value);
             replacement  = evalue ? wis::format("`{}{}`", GetCFullTypename(x.name, backend), evalue->name)
-                                  : GetCFullTypename(x.name, backend);
+                           : GetCFullTypename(x.name, backend);
             break;
         }
         case TypeKind::Bitmask: {
             auto& b      = bitmask_map.at(this_type_view);
             auto  evalue = b.HasValue(value);
             replacement  = evalue ? wis::format("`{}{}`", GetCFullTypename(b.name, backend), evalue->name)
-                                  : GetCFullTypename(b.name, backend);
+                           : GetCFullTypename(b.name, backend);
             break;
         }
         case TypeKind::Struct: {
             auto& s      = struct_map.at(this_type_view);
             auto  member = s.HasValue(value);
             replacement  = member ? wis::format("`{}::{}`", GetCFullTypename(s.name, backend), member->name)
-                                  : GetCFullTypename(s.name, backend);
+                           : GetCFullTypename(s.name, backend);
             break;
         }
         case TypeKind::Variant: {
             auto& v     = variant_map.at(this_type_view);
             auto  m     = v.HasValue(value);
             replacement = m ? wis::format("`{}::{}`", GetCFullTypename(v.name, backend), m->name)
-                            : GetCFullTypename(v.name, backend);
+                          : GetCFullTypename(v.name, backend);
             break;
         }
         case TypeKind::FuncPointer: {
             auto& d     = delegate_map.at(this_type_view);
             auto  m     = d.HasValue(value);
             replacement = m ? wis::format("`{}::{}`", GetCFullTypename(d.name, backend), m->name)
-                            : GetCFullTypename(d.name, backend);
+                          : GetCFullTypename(d.name, backend);
             break;
         }
         case TypeKind::Handle: {
@@ -1502,35 +1502,35 @@ std::string Generator::FinalizeCPPDocumentation(std::string doc, std::string_vie
             auto& x      = enum_map.at(this_type_view);
             auto  evalue = x.HasValue(value);
             replacement  = evalue ? wis::format("`{}::{}`", GetCPPFullTypename(x.name, backend), evalue->name)
-                                  : GetCPPFullTypename(x.name, backend);
+                           : GetCPPFullTypename(x.name, backend);
             break;
         }
         case TypeKind::Bitmask: {
             auto& b      = bitmask_map.at(this_type_view);
             auto  evalue = b.HasValue(value);
             replacement  = evalue ? wis::format("`{}::{}`", GetCPPFullTypename(b.name, backend), evalue->name)
-                                  : GetCPPFullTypename(b.name, backend);
+                           : GetCPPFullTypename(b.name, backend);
             break;
         }
         case TypeKind::Struct: {
             auto& s      = struct_map.at(this_type_view);
             auto  member = s.HasValue(value);
             replacement  = member ? wis::format("`{}::{}`", GetCPPFullTypename(s.name, backend), member->name)
-                                  : GetCPPFullTypename(s.name, backend);
+                           : GetCPPFullTypename(s.name, backend);
             break;
         }
         case TypeKind::Variant: {
             auto& v     = variant_map.at(this_type_view);
             auto  m     = v.HasValue(value);
             replacement = m ? wis::format("`{}::{}`", GetCPPFullTypename(v.name, backend), m->name)
-                            : GetCPPFullTypename(v.name, backend);
+                          : GetCPPFullTypename(v.name, backend);
             break;
         }
         case TypeKind::FuncPointer: {
             auto& d     = delegate_map.at(this_type_view);
             auto  m     = d.HasValue(value);
             replacement = m ? wis::format("`{}::{}`", GetCPPFullTypename(d.name, backend), m->name)
-                            : GetCPPFullTypename(d.name, backend);
+                          : GetCPPFullTypename(d.name, backend);
             break;
         }
         case TypeKind::Handle: {

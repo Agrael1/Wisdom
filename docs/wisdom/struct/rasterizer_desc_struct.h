@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisRasterizerDesc {
  *     WisFillMode                  fill_mode;
  *     WisCullMode                  cull_mode;
@@ -22,12 +22,12 @@
  *     WisLineRasterization         line_rasterization;
  *     WisConservativeRasterization conservative_rasterization;
  * } WisRasterizerDesc;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  RasterizerDesc {
  *     wis::FillMode                  fill_mode;
  *     wis::CullMode                  cull_mode;

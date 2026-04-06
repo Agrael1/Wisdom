@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef enum WisBlendFactor {
  *     WisBlendFactorZero = 1,
  *     WisBlendFactorOne = 2,
@@ -32,7 +32,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * enum class BlendFactor {
  *     Zero = 1,
  *     One = 2,
@@ -60,9 +60,9 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * Blend factor for color blending operations.
- * 
+ *
  * \note Translates to  `D3D12_BLEND` for DirectX 12 implementation, and `VkBlendFactor` for Vulkan implementation.
- * 
+ *
  * Values:
  * - `WisBlendFactorZero = 1`: Use zero for blending.
  * - `WisBlendFactorOne = 2`: Use one for blending.

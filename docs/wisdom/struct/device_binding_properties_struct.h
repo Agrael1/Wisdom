@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisDeviceBindingProperties {
  *     WisQueryPropertyType property_type;
  *     void*                next_in_chain;
@@ -18,12 +18,12 @@
  *     bool                 multiple_viewports_supported;
  *     bool                 address_commands_supported;
  * } WisDeviceBindingProperties;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  DeviceBindingProperties {
  *     wis::QueryPropertyType property_type;
  *     void*                  next_in_chain;

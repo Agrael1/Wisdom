@@ -9,19 +9,19 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisInputLayout {
  *     const WisInputBindingDesc*   bindings;
  *     size_t                       binding_count;
  *     const WisInputAttributeDesc* attributes;
  *     size_t                       attribute_count;
  * } WisInputLayout;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  InputLayout {
  *     wis::span<const wis::InputBindingDesc>   bindings;
  *     wis::span<const wis::InputAttributeDesc> attributes;

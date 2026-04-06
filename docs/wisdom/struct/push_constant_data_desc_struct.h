@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisPushConstantDataDesc {
  *     WisPipelineType pipeline;
  *     uint32_t        root_index;
@@ -17,12 +17,12 @@
  *     uint32_t        data_size;
  *     uint32_t        push_offset;
  * } WisPushConstantDataDesc;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  PushConstantDataDesc {
  *     wis::PipelineType pipeline;
  *     std::uint32_t     root_index;

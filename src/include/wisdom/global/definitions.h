@@ -153,9 +153,9 @@
 
 // clang-format off
 #ifndef WISDOM_VULKAN
-    #if defined __has_include && (__has_include(<vulkan/vulkan.h>) || __has_include(<vulkan.h>))
-    #define WISDOM_VULKAN 1
-    #endif // __has_include && (__has_include(<vulkan/vulkan.h>) || __has_include(<vulkan.h>))
+#if defined __has_include && (__has_include(<vulkan/vulkan.h>) || __has_include(<vulkan.h>))
+#define WISDOM_VULKAN 1
+#endif // __has_include && (__has_include(<vulkan/vulkan.h>) || __has_include(<vulkan.h>))
 #endif // !WISDOM_VULKAN
 // clang-format on
 

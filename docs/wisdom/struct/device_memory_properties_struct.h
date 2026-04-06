@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisDeviceMemoryProperties {
  *     WisQueryPropertyType property_type;
  *     void*                next_in_chain;
@@ -17,12 +17,12 @@
  *     bool                 host_image_copy_supported;
  *     uint32_t             supported_initial_transitions;
  * } WisDeviceMemoryProperties;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  DeviceMemoryProperties {
  *     wis::QueryPropertyType property_type;
  *     void*                  next_in_chain;

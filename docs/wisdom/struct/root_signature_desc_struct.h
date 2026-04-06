@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisRootSignatureDesc {
  *     const WisPushConstant*    push_constants;
  *     size_t                    push_constant_count;
@@ -18,12 +18,12 @@
  *     const WisDescriptorTable* descriptor_tables;
  *     size_t                    descriptor_table_count;
  * } WisRootSignatureDesc;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  RootSignatureDesc {
  *     wis::span<const wis::PushConstant>    push_constants;
  *     wis::span<const wis::PushDescriptor>  push_descriptors;

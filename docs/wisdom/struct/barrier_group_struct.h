@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct WisBarrierGroup {
  *     const WisBufferBarrier*  buffer_barriers;
  *     size_t                   buffer_barrier_count;
@@ -22,7 +22,7 @@
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct WisVKBarrierGroup {
  *     const WisVKBufferBarrier*  buffer_barriers;
  *     size_t                     buffer_barrier_count;
@@ -31,8 +31,8 @@
  *     const WisVKGlobalBarrier*  global_barriers;
  *     size_t                     global_barrier_count;
  * } WisVKBarrierGroup;
- * 
- * // Provided by Wisdom 0.7.0. 
+ *
+ * // Provided by Wisdom 0.7.0.
  * typedef struct WisDX12BarrierGroup {
  *     const WisDX12BufferBarrier*  buffer_barriers;
  *     size_t                       buffer_barrier_count;
@@ -43,11 +43,11 @@
  * } WisDX12BarrierGroup;
  * ```
  * </details>
- * 
+ *
  * C++ Version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct BarrierGroup {
  *     wis::span<const wis::BufferBarrier>  buffer_barriers;
  *     wis::span<const wis::TextureBarrier> texture_barriers;
@@ -59,14 +59,14 @@
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct VKBarrierGroup {
  *     wis::span<const wis::VKBufferBarrier>  buffer_barriers;
  *     wis::span<const wis::VKTextureBarrier> texture_barriers;
  *     wis::span<const wis::VKGlobalBarrier>  global_barriers;
  * };
- * 
- * // Provided by Wisdom 0.7.0. 
+ *
+ * // Provided by Wisdom 0.7.0.
  * struct DX12BarrierGroup {
  *     wis::span<const wis::DX12BufferBarrier>  buffer_barriers;
  *     wis::span<const wis::DX12TextureBarrier> texture_barriers;

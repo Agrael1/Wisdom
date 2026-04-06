@@ -2,7 +2,7 @@
 
 //----------------------------------------------------------------------------------------------------------------------
 static inline constexpr char function_doc_template[] =
-        R"(/**
+    R"(/**
  * @struct {0}
  * @ingroup Functions {3}
  *
@@ -36,7 +36,7 @@ static inline constexpr char function_doc_template[] =
 void Generator::ParseFunctions(tinyxml2::XMLElement* type)
 {
     for (auto* func = type->FirstChildElement("func"); func;
-         func       = func->NextSiblingElement("func")) {
+            func       = func->NextSiblingElement("func")) {
 
         auto  name      = func->FindAttribute("name")->Value();
         auto* this_type = func->FindAttribute("for");
@@ -81,7 +81,7 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
                 ref.return_type.type       = "";
             } else {
                 // get backend support
-               ref.FilterBackend(GetTypeBackendSupport(ref.return_type.type));
+                ref.FilterBackend(GetTypeBackendSupport(ref.return_type.type));
             }
 
             if (auto* doc = return_type->FindAttribute("doc")) {
@@ -104,7 +104,7 @@ void Generator::ParseFunctions(tinyxml2::XMLElement* type)
 
         // Parse parameters
         for (auto* param = func->FirstChildElement("arg"); param;
-             param       = param->NextSiblingElement("arg")) {
+                param       = param->NextSiblingElement("arg")) {
 
             auto& p = ref.parameters.emplace_back();
             p.type  = param->FindAttribute("type")->Value();
@@ -154,7 +154,7 @@ void Generator::ParseDelegate(tinyxml2::XMLElement* func)
 
     // Parse parameters
     for (auto* param = func->FirstChildElement("arg"); param;
-         param       = param->NextSiblingElement("arg")) {
+            param       = param->NextSiblingElement("arg")) {
 
         auto& p = ref.parameters.emplace_back();
         p.type  = param->FindAttribute("type")->Value();
@@ -194,8 +194,8 @@ std::string Generator::MakeCFunctionProto(const WisFunction& func, Backend backe
     } else if (func.return_type.has_result) {
         full_return_type     = GetCFullTypename("Result", Backend::Any);
         std::string arg_name = func.return_type.opt_name.empty()
-                ? wis::format("out_{}", MakeSnakeCase(func.return_type.type))
-                : std::string(func.return_type.opt_name);
+                               ? wis::format("out_{}", MakeSnakeCase(func.return_type.type))
+                               : std::string(func.return_type.opt_name);
 
         std::string prefix = "";
         size_t      length = full_return_type.size() + 1 + pre_decl.size() + 1 + function_full_name.size();
@@ -206,9 +206,9 @@ std::string Generator::MakeCFunctionProto(const WisFunction& func, Backend backe
 
         std::string type_str = GetMemberTypeString(func.return_type, backend);
         post_return          = wis::format("{}{}*{{}}{}",
-                                  prefix,
-                                  type_str,
-                                  arg_name);
+                                           prefix,
+                                           type_str,
+                                           arg_name);
         post_return_length   = type_str.size();
     } else {
         full_return_type = GetMemberTypeString(func.return_type, backend);
@@ -314,9 +314,9 @@ std::string Generator::MakeCPPFunctionProto(const WisFunction& func, Backend bac
             std::string type_str = "wis::Result&";
             std::string arg_name = "out_result";
             post_return          = wis::format("{}{} {{}}{}",
-                                      prefix,
-                                      type_str,
-                                      arg_name);
+                                               prefix,
+                                               type_str,
+                                               arg_name);
             post_return_length   = type_str.size();
         }
         break;
@@ -493,8 +493,8 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, Backend back
     switch (func.return_type.GetKind()) {
     case ReturnTypeKind::ResultAndValue: {
         auto ret_value_name = func.return_type.opt_name.empty()
-                ? wis::format("out_{}", MakeSnakeCase(func.return_type.type))
-                : std::string(func.return_type.opt_name);
+                              ? wis::format("out_{}", MakeSnakeCase(func.return_type.type))
+                              : std::string(func.return_type.opt_name);
 
         // Prepare out parameter
         body += wis::format("    {} {};\n", GetMemberTypeString<Lang::CPP>(func.return_type, backend), ret_value_name);
@@ -520,7 +520,8 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, Backend back
         }
         body += "    out_result = wis::Result{ static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error };\n";
         body += wis::format("    return {};\n", ret_value_name);
-    } break;
+    }
+    break;
     case ReturnTypeKind::ResultOnly: {
         body += wis::format("    const WisResult wis_result = ::{}({}",
                             c_name,
@@ -532,7 +533,8 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, Backend back
         set_params();
         body += ");\n";
         body += "    return wis::Result{ static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error };\n";
-    } break;
+    }
+    break;
     case ReturnTypeKind::Direct: {
         auto        ret_type = GetType(func.return_type.type);
         std::string return_cast;
@@ -563,7 +565,8 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, Backend back
         }
         set_params();
         body += "));\n";
-    } break;
+    }
+    break;
     case ReturnTypeKind::Void: {
         body += wis::format("    ::{}({}",
                             c_name,
@@ -574,7 +577,8 @@ std::string Generator::MakeCPPFunctionImpl(const WisFunction& func, Backend back
         }
         set_params();
         body += ");\n";
-    } break;
+    }
+    break;
     default:
         break;
     }
@@ -632,8 +636,8 @@ std::string Generator::MakeFunctionDescription(const WisFunction& s)
         break;
     case ReturnTypeKind::ResultAndValue: {
         std::string arg_name = s.return_type.opt_name.empty()
-                ? wis::format("out_{}", MakeSnakeCase(s.return_type.type))
-                : std::string(s.return_type.opt_name);
+                               ? wis::format("out_{}", MakeSnakeCase(s.return_type.type))
+                               : std::string(s.return_type.opt_name);
         description += wis::format("- `{}` {}\n",
                                    s.return_type.opt_name.empty() ? "value" : s.return_type.opt_name,
                                    s.return_type.doc.empty() ? "No description." : s.return_type.doc);
@@ -665,8 +669,8 @@ void Generator::WriteFunctionDocumentation(std::filesystem::path func_output_pat
     for (auto& func_name : function_names) {
         auto&       func_def       = function_map[func_name];
         std::string full_func_name = wis::format("wis{}{}",
-                                                 func_def.modifier & (Destroy | Construct) ? "" : func_def.this_type,
-                                                 func_def.name);
+                                     func_def.modifier & (Destroy | Construct) ? "" : func_def.this_type,
+                                     func_def.name);
         auto        func_doc_path  = func_output_path / wis::format("{}_function.h", MakeSnakeCase(full_func_name.substr(3)));
 
         auto supports_vk = has(func_def.backend, Backend::Vulkan);
@@ -682,18 +686,18 @@ void Generator::WriteFunctionDocumentation(std::filesystem::path func_output_pat
         }
 
         std::string vk_code_cpp = func_def.modifier & Modifier::Destroy || !supports_vk
-                ? ""
-                : MakeCPPFunctionImpl(func_def, Backend::Vulkan, "", DocKind::VersionOnly);
+                                  ? ""
+                                  : MakeCPPFunctionImpl(func_def, Backend::Vulkan, "", DocKind::VersionOnly);
         std::string dx_code_cpp = func_def.modifier & Modifier::Destroy || !supports_dx
-                ? ""
-                : MakeCPPFunctionImpl(func_def, Backend::DX12, "", DocKind::VersionOnly);
+                                  ? ""
+                                  : MakeCPPFunctionImpl(func_def, Backend::DX12, "", DocKind::VersionOnly);
         std::string regular_code_cpp = func_def.modifier & Modifier::Destroy || !(supports_vk && supports_dx)
-                ? ""
-                : MakeCPPFunctionImpl(func_def, Backend::Any, "", DocKind::VersionOnly);
+                                       ? ""
+                                       : MakeCPPFunctionImpl(func_def, Backend::Any, "", DocKind::VersionOnly);
         std::string cpp_code     = regular_code_cpp;
         std::string cpp_impl_code = func_def.modifier & Modifier::Destroy || !(supports_vk && supports_dx)
-                ? ""
-                : vk_code_cpp + '\n' + dx_code_cpp;
+                                    ? ""
+                                    : vk_code_cpp + '\n' + dx_code_cpp;
         if (cpp_code.empty()) {
             cpp_code = !vk_code_cpp.empty() ? vk_code_cpp : dx_code_cpp;
         }
@@ -722,26 +726,26 @@ void Generator::WriteDelegateDocumentation(std::filesystem::path func_output_pat
 {
     std::filesystem::create_directories(func_output_path);
     for (auto& delegate_name : module_map.at(active_module_name).delegates_in_order) {
-            auto  full_delegate_name = GetCFullTypename(delegate_name, Backend::Any);
-            auto  delegate_doc_path  = func_output_path / wis::format("{}_delegate.h", MakeSnakeCase(full_delegate_name.substr(3)));
-            auto& delegate_def       = delegate_map[delegate_name];
+        auto  full_delegate_name = GetCFullTypename(delegate_name, Backend::Any);
+        auto  delegate_doc_path  = func_output_path / wis::format("{}_delegate.h", MakeSnakeCase(full_delegate_name.substr(3)));
+        auto& delegate_def       = delegate_map[delegate_name];
 
-            std::string regular_code              = MakeCDelegate(delegate_def, DocKind::VersionOnly);
-            std::string regular_code_cpp          = MakeCPPDelegate(delegate_def, DocKind::VersionOnly);
-            std::string delegate_template_content = GetSpecificationCode(regular_code, "", regular_code_cpp, "");
+        std::string regular_code              = MakeCDelegate(delegate_def, DocKind::VersionOnly);
+        std::string regular_code_cpp          = MakeCPPDelegate(delegate_def, DocKind::VersionOnly);
+        std::string delegate_template_content = GetSpecificationCode(regular_code, "", regular_code_cpp, "");
 
-            std::string delegate_description = MakeDelegateDescription(delegate_def);
-            std::string delegate_refs        = GetRefs(delegate_def.name);
-            std::string vuids                = MakeValidationForType(delegate_def.name);
-            ReplaceAll(delegate_description, "\n", "\n * ");
-            ReplaceAll(delegate_refs, "\n", "\n * ");
-            delegate_description = FinalizeCDocumentation(delegate_description, delegate_name);
-            WriteDocumentation(delegate_doc_path,
-                               function_doc_template,
-                               GetCFullTypename(delegate_name, Backend::Any),
-                               delegate_template_content,
-                               vuids,
-                               delegate_description,
-                               delegate_refs);
+        std::string delegate_description = MakeDelegateDescription(delegate_def);
+        std::string delegate_refs        = GetRefs(delegate_def.name);
+        std::string vuids                = MakeValidationForType(delegate_def.name);
+        ReplaceAll(delegate_description, "\n", "\n * ");
+        ReplaceAll(delegate_refs, "\n", "\n * ");
+        delegate_description = FinalizeCDocumentation(delegate_description, delegate_name);
+        WriteDocumentation(delegate_doc_path,
+                           function_doc_template,
+                           GetCFullTypename(delegate_name, Backend::Any),
+                           delegate_template_content,
+                           vuids,
+                           delegate_description,
+                           delegate_refs);
     }
 }
