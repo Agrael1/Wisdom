@@ -13,19 +13,19 @@ mkdir -p "$INSTALL_DIR"
 cd "$INSTALL_DIR" || exit
 
 if [ ! -f "$FILENAME" ]; then
-    echo "Downloading Vulkan SDK (.tar.xz)..."
-    wget "$DOWNLOAD_URL" -O "$FILENAME"
+  echo "Downloading Vulkan SDK (.tar.xz)..."
+  wget "$DOWNLOAD_URL" -O "$FILENAME"
 else
-    echo "Archive already exists, skipping download."
+  echo "Archive already exists, skipping download."
 fi
 
 # 3. Extract (using -xf which auto-detects or handles xz)
 echo "Extracting $FILENAME..."
 if tar -xf "$FILENAME"; then
-    echo "Extraction successful."
+  echo "Extraction successful."
 else
-    echo "Error: Extraction failed. Make sure 'xz-utils' is installed."
-    exit 1
+  echo "Error: Extraction failed. Make sure 'xz-utils' is installed."
+  exit 1
 fi
 
 # 4. Define the path to the 'x86_64' folder inside the extracted SDK
@@ -33,16 +33,16 @@ fi
 SDK_ROOT="$INSTALL_DIR/$VULKAN_VER/x86_64"
 
 if [ -d "$SDK_ROOT" ]; then
-    echo "--- Installation Complete! ---"
-    echo ""
-    echo "To 'hook it up' permanently, add these lines to your ~/.bashrc or ~/.zshrc:"
-    echo "----------------------------------------------------------------"
-    echo "export VULKAN_SDK=$SDK_ROOT"
-    echo "export PATH=\$VULKAN_SDK/bin:\$PATH"
-    echo "export LD_LIBRARY_PATH=\$VULKAN_SDK/lib:\$LD_LIBRARY_PATH"
-    echo "export VK_LAYER_PATH=\$VULKAN_SDK/etc/vulkan/explicit_layer.d"
-    echo "----------------------------------------------------------------"
-    echo "Then run: source ~/.bashrc"
+  echo "--- Installation Complete! ---"
+  echo ""
+  echo "To 'hook it up' permanently, add these lines to your ~/.bashrc or ~/.zshrc:"
+  echo "----------------------------------------------------------------"
+  echo "export VULKAN_SDK=$SDK_ROOT"
+  echo "export PATH=\$VULKAN_SDK/bin:\$PATH"
+  echo "export LD_LIBRARY_PATH=\$VULKAN_SDK/lib:\$LD_LIBRARY_PATH"
+  echo "export VK_LAYER_PATH=\$VULKAN_SDK/etc/vulkan/explicit_layer.d"
+  echo "----------------------------------------------------------------"
+  echo "Then run: source ~/.bashrc"
 else
-    echo "Error: Extraction failed or directory structure is unexpected."
+  echo "Error: Extraction failed or directory structure is unexpected."
 fi
