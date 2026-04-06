@@ -1,6 +1,6 @@
 /**
  * @struct WisShader
- * @ingroup Handles
+ * @ingroup Handles Core
  *
  *
  * @section WisShader_spec Specification

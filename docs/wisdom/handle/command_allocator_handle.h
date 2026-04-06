@@ -1,6 +1,6 @@
 /**
  * @struct WisCommandAllocator
- * @ingroup Handles
+ * @ingroup Handles Core
  *
  *
  * @section WisCommandAllocator_spec Specification

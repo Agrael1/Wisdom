@@ -1,6 +1,6 @@
 /**
  * @struct WisCommandQueueType WisCommandQueueType
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisCommandQueueType_spec Specification
  * <hr>

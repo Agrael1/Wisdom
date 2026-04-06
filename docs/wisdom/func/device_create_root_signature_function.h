@@ -1,6 +1,6 @@
 /**
  * @struct wisDeviceCreateRootSignature
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDeviceCreateRootSignature_spec Specification

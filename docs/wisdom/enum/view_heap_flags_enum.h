@@ -1,6 +1,6 @@
 /**
  * @struct WisViewHeapFlags WisViewHeapFlags
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisViewHeapFlags_spec Specification
  * <hr>
@@ -11,7 +11,7 @@
  * // Provided by Wisdom 0.7.0. 
  * typedef enum WisViewHeapFlags {
  *     WisViewHeapFlagsNone = 0,
- *     WisViewHeapFlagsAllowMutisample = (1u << 0),
+ *     WisViewHeapFlagsAllowMultisample = (1u << 0),
  * } WisViewHeapFlags;
  * ```
  * C++ version:
@@ -20,7 +20,7 @@
  * // Provided by Wisdom 0.7.0. 
  * enum class ViewHeapFlags : uint32_t {
  *     None = 0,
- *     AllowMutisample = (1u << 0),
+ *     AllowMultisample = (1u << 0),
  * };
  * }
  * ```
@@ -34,7 +34,7 @@
  * \note Translates to DirectX 12 as D3D12_DESCRIPTOR_HEAP_FLAGS.
  * Values:
  * - `WisViewHeapFlagsNone = 0`: No flags set. View heap is regular.
- * - `WisViewHeapFlagsAllowMutisample = (1 << 0)`: Shader visible view heap. If set, the view heap is visible to shaders and can be used for descriptor tables. If not set, the view heap is not visible to shaders and cannot be used for descriptor tables.
+ * - `WisViewHeapFlagsAllowMultisample = (1 << 0)`: Shader visible view heap. If set, the view heap is visible to shaders and can be used for descriptor tables. If not set, the view heap is not visible to shaders and cannot be used for descriptor tables.
  * \endcond
  *
  *

@@ -1,6 +1,6 @@
 /**
  * @struct wisCommandListDraw
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisCommandListDraw_spec Specification

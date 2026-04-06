@@ -1,6 +1,6 @@
 /**
  * @struct WisDescriptorTypeCount
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisDescriptorTypeCount_spec Specification

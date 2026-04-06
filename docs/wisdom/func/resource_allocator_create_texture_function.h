@@ -1,6 +1,6 @@
 /**
  * @struct wisResourceAllocatorCreateTexture
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisResourceAllocatorCreateTexture_spec Specification

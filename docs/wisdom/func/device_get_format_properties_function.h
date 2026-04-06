@@ -1,6 +1,6 @@
 /**
  * @struct wisDeviceGetFormatProperties
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDeviceGetFormatProperties_spec Specification

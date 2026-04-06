@@ -1,6 +1,6 @@
 /**
  * @struct WisBarrierGroup
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisBarrierGroup_spec Specification

@@ -1,6 +1,6 @@
 /**
  * @struct wisDestroyCommandList
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDestroyCommandList_spec Specification

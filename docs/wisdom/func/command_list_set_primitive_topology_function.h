@@ -1,6 +1,6 @@
 /**
  * @struct wisCommandListSetPrimitiveTopology
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisCommandListSetPrimitiveTopology_spec Specification

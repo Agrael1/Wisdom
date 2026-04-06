@@ -1,6 +1,6 @@
 /**
  * @struct WisBufferDesc
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisBufferDesc_spec Specification

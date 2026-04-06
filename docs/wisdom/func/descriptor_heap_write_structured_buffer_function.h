@@ -1,6 +1,6 @@
 /**
  * @struct wisDescriptorHeapWriteStructuredBuffer
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDescriptorHeapWriteStructuredBuffer_spec Specification

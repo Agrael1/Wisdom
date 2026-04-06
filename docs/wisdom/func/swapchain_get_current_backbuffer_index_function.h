@@ -1,6 +1,6 @@
 /**
  * @struct wisSwapchainGetCurrentBackbufferIndex
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisSwapchainGetCurrentBackbufferIndex_spec Specification

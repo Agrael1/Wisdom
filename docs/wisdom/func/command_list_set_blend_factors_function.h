@@ -1,6 +1,6 @@
 /**
  * @struct wisCommandListSetBlendFactors
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisCommandListSetBlendFactors_spec Specification

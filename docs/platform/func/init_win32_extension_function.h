@@ -1,6 +1,6 @@
 /**
  * @struct wisInitWin32Extension
- * @ingroup Functions
+ * @ingroup Functions Platform
  *
  *
  * @section wisInitWin32Extension_spec Specification

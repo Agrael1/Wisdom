@@ -1,6 +1,6 @@
 /**
  * @struct wisDeviceGetResourceAllocator
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDeviceGetResourceAllocator_spec Specification

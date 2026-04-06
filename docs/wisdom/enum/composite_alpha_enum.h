@@ -1,6 +1,6 @@
 /**
  * @struct WisCompositeAlpha WisCompositeAlpha
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisCompositeAlpha_spec Specification
  * <hr>

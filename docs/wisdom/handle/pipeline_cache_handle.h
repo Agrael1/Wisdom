@@ -1,6 +1,6 @@
 /**
  * @struct WisPipelineCache
- * @ingroup Handles
+ * @ingroup Handles Core
  *
  *
  * @section WisPipelineCache_spec Specification

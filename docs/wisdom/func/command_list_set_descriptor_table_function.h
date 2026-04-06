@@ -1,6 +1,6 @@
 /**
  * @struct wisCommandListSetDescriptorTable
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisCommandListSetDescriptorTable_spec Specification

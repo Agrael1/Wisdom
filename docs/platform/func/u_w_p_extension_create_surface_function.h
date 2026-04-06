@@ -1,6 +1,6 @@
 /**
  * @struct wisUWPExtensionCreateSurface
- * @ingroup Functions
+ * @ingroup Functions Platform
  *
  *
  * @section wisUWPExtensionCreateSurface_spec Specification

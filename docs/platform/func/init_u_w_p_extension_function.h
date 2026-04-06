@@ -1,6 +1,6 @@
 /**
  * @struct wisInitUWPExtension
- * @ingroup Functions
+ * @ingroup Functions Platform
  *
  *
  * @section wisInitUWPExtension_spec Specification

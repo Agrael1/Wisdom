@@ -1,6 +1,6 @@
 /**
  * @struct wisDeviceCreateDescriptorHeap
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDeviceCreateDescriptorHeap_spec Specification

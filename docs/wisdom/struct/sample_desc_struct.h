@@ -1,6 +1,6 @@
 /**
  * @struct WisSampleDesc
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisSampleDesc_spec Specification

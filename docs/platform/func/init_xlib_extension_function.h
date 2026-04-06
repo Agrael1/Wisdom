@@ -1,6 +1,6 @@
 /**
  * @struct wisInitXlibExtension
- * @ingroup Functions
+ * @ingroup Functions Platform
  *
  *
  * @section wisInitXlibExtension_spec Specification

@@ -1,6 +1,6 @@
 /**
  * @struct wisDestroyXlibExtension
- * @ingroup Functions
+ * @ingroup Functions Platform
  *
  *
  * @section wisDestroyXlibExtension_spec Specification

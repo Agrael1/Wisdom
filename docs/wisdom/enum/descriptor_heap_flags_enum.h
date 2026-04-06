@@ -1,6 +1,6 @@
 /**
  * @struct WisDescriptorHeapFlags WisDescriptorHeapFlags
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisDescriptorHeapFlags_spec Specification
  * <hr>
@@ -33,7 +33,7 @@
  * 
  * Values:
  * - `WisDescriptorHeapFlagsNone = 0`: No flags set.
- * - `WisDescriptorHeapFlagsDisallowEmbeddedSamplers = (1 << 1)`: Heap is used in full for dynamic samplers. There @wis_must_not be any shader that use embedded samplers that uses that heap. User @wis_may allocate more samplers in the heap than it would normally be.
+ * - `WisDescriptorHeapFlagsDisallowEmbeddedSamplers = (1 << 1)`: Heap is used in full for dynamic samplers. There @wis_mustnot be any shader that use embedded samplers that uses that heap. User @wis_may allocate more samplers in the heap than it would normally be.
  * \endcond
  *
  *

@@ -1,6 +1,6 @@
 /**
  * @struct WisCommandQueue
- * @ingroup Handles
+ * @ingroup Handles Core
  *
  *
  * @section WisCommandQueue_spec Specification

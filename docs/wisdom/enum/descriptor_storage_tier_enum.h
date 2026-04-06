@@ -1,6 +1,6 @@
 /**
  * @struct WisDescriptorStorageTier WisDescriptorStorageTier
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisDescriptorStorageTier_spec Specification
  * <hr>

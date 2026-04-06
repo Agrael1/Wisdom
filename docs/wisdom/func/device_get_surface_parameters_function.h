@@ -1,6 +1,6 @@
 /**
  * @struct wisDeviceGetSurfaceParameters
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDeviceGetSurfaceParameters_spec Specification

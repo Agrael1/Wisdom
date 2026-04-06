@@ -1,6 +1,6 @@
 /**
  * @struct wisCommandListSetPushDescriptor
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisCommandListSetPushDescriptor_spec Specification

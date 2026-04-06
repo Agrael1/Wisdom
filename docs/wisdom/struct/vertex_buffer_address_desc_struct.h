@@ -1,6 +1,6 @@
 /**
  * @struct WisVertexBufferAddressDesc
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisVertexBufferAddressDesc_spec Specification

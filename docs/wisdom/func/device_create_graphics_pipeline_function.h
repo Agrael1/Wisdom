@@ -1,6 +1,6 @@
 /**
  * @struct wisDeviceCreateGraphicsPipeline
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDeviceCreateGraphicsPipeline_spec Specification

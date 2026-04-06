@@ -1,6 +1,6 @@
 /**
  * @struct WisCommandQueueFlags WisCommandQueueFlags
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisCommandQueueFlags_spec Specification
  * <hr>

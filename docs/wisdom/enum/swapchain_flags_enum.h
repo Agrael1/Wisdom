@@ -1,6 +1,6 @@
 /**
  * @struct WisSwapchainFlags WisSwapchainFlags
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisSwapchainFlags_spec Specification
  * <hr>

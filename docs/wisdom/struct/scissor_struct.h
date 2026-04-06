@@ -1,6 +1,6 @@
 /**
  * @struct WisScissor
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisScissor_spec Specification

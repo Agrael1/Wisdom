@@ -1,6 +1,6 @@
 /**
  * @struct WisSwapchainScaling WisSwapchainScaling
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisSwapchainScaling_spec Specification
  * <hr>

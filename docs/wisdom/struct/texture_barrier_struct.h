@@ -1,6 +1,6 @@
 /**
  * @struct WisTextureBarrier
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisTextureBarrier_spec Specification

@@ -1,6 +1,6 @@
 /**
  * @struct WisMultiWaitType WisMultiWaitType
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisMultiWaitType_spec Specification
  * <hr>

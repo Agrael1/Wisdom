@@ -1,6 +1,6 @@
 /**
  * @struct WisSeverity WisSeverity
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisSeverity_spec Specification
  * <hr>

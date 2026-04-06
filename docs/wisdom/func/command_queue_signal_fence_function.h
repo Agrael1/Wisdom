@@ -1,6 +1,6 @@
 /**
  * @struct wisCommandQueueSignalFence
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisCommandQueueSignalFence_spec Specification

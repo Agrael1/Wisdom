@@ -1,6 +1,6 @@
 /**
  * @struct WisFillMode WisFillMode
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisFillMode_spec Specification
  * <hr>

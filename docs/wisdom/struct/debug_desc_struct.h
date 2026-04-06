@@ -1,6 +1,6 @@
 /**
  * @struct WisDebugDesc
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisDebugDesc_spec Specification

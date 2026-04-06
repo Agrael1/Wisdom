@@ -1,6 +1,6 @@
 /**
  * @struct wisBufferGetGPUAddress
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisBufferGetGPUAddress_spec Specification

@@ -1,6 +1,6 @@
 /**
  * @struct wisCommandListCopyBuffer
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisCommandListCopyBuffer_spec Specification

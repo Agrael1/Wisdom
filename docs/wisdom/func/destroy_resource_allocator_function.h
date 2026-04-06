@@ -1,6 +1,6 @@
 /**
  * @struct wisDestroyResourceAllocator
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDestroyResourceAllocator_spec Specification

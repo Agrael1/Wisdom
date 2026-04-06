@@ -1,6 +1,6 @@
 /**
  * @struct WisTopologyType WisTopologyType
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisTopologyType_spec Specification
  * <hr>

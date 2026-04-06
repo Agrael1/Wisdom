@@ -1,6 +1,6 @@
 /**
  * @struct WisBufferUsageFlags WisBufferUsageFlags
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisBufferUsageFlags_spec Specification
  * <hr>

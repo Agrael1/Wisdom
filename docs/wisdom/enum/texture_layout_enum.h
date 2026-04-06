@@ -1,6 +1,6 @@
 /**
  * @struct WisTextureLayout WisTextureLayout
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisTextureLayout_spec Specification
  * <hr>

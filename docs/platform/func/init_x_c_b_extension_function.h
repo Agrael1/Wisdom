@@ -1,6 +1,6 @@
 /**
  * @struct wisInitXCBExtension
- * @ingroup Functions
+ * @ingroup Functions Platform
  *
  *
  * @section wisInitXCBExtension_spec Specification

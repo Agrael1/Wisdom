@@ -1,6 +1,6 @@
 /**
  * @struct wisFenceWait
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisFenceWait_spec Specification

@@ -1,6 +1,6 @@
 /**
  * @struct WisColorComponents WisColorComponents
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisColorComponents_spec Specification
  * <hr>

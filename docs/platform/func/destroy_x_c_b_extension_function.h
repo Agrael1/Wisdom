@@ -1,6 +1,6 @@
 /**
  * @struct wisDestroyXCBExtension
- * @ingroup Functions
+ * @ingroup Functions Platform
  *
  *
  * @section wisDestroyXCBExtension_spec Specification

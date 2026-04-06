@@ -1,6 +1,6 @@
 /**
  * @struct WisLineRasterization WisLineRasterization
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisLineRasterization_spec Specification
  * <hr>

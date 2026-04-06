@@ -1,5 +1,5 @@
 /**
- * @ingroup Structures
+ * @ingroup Structures Core
  * @struct WisResult
  *
  *

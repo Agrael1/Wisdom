@@ -1,6 +1,6 @@
 /**
  * @struct wisCommandQueueSubmit
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisCommandQueueSubmit_spec Specification

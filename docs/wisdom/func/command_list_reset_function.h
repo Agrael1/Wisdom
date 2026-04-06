@@ -1,6 +1,6 @@
 /**
  * @struct wisCommandListReset
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisCommandListReset_spec Specification

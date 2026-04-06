@@ -1,6 +1,6 @@
 /**
  * @struct wisAdapterQueryGetSurfaceSupport
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisAdapterQueryGetSurfaceSupport_spec Specification

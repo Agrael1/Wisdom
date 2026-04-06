@@ -1,6 +1,6 @@
 /**
  * @struct WisBlendOp WisBlendOp
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisBlendOp_spec Specification
  * <hr>

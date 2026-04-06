@@ -1,6 +1,6 @@
 /**
  * @struct WisResolveDesc
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisResolveDesc_spec Specification

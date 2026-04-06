@@ -1,6 +1,6 @@
 /**
  * @struct WisCommandQueuePriority WisCommandQueuePriority
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisCommandQueuePriority_spec Specification
  * <hr>

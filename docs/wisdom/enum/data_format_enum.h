@@ -1,6 +1,6 @@
 /**
  * @struct WisDataFormat WisDataFormat
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisDataFormat_spec Specification
  * <hr>

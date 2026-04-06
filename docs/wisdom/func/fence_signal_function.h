@@ -1,6 +1,6 @@
 /**
  * @struct wisFenceSignal
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisFenceSignal_spec Specification

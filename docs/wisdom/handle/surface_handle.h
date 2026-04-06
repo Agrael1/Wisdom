@@ -1,6 +1,6 @@
 /**
  * @struct WisSurface
- * @ingroup Handles
+ * @ingroup Handles Core
  *
  *
  * @section WisSurface_spec Specification

@@ -1,6 +1,6 @@
 /**
  * @struct WisReductionMode WisReductionMode
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisReductionMode_spec Specification
  * <hr>

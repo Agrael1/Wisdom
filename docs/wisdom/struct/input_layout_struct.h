@@ -1,6 +1,6 @@
 /**
  * @struct WisInputLayout
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisInputLayout_spec Specification

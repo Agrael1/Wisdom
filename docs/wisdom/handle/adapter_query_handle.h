@@ -1,6 +1,6 @@
 /**
  * @struct WisAdapterQuery
- * @ingroup Handles
+ * @ingroup Handles Core
  *
  *
  * @section WisAdapterQuery_spec Specification

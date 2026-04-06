@@ -6,7 +6,8 @@
 
 #include <cstring>
 
-class SDLPlatformCpp {
+class SDLPlatformCpp
+{
 public:
     SDLPlatformCpp() = default;
     ~SDLPlatformCpp() { Reset(); }

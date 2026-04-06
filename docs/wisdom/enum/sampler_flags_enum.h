@@ -1,6 +1,6 @@
 /**
  * @struct WisSamplerFlags WisSamplerFlags
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisSamplerFlags_spec Specification
  * <hr>

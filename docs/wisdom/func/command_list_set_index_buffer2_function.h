@@ -1,6 +1,6 @@
 /**
  * @struct wisCommandListSetIndexBuffer2
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisCommandListSetIndexBuffer2_spec Specification

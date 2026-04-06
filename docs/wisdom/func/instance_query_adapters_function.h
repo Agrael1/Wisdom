@@ -1,6 +1,6 @@
 /**
  * @struct wisInstanceQueryAdapters
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisInstanceQueryAdapters_spec Specification

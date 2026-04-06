@@ -1,6 +1,6 @@
 /**
  * @struct WisTextureResolveRegion
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisTextureResolveRegion_spec Specification

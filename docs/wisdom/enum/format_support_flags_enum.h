@@ -1,6 +1,6 @@
 /**
  * @struct WisFormatSupportFlags WisFormatSupportFlags
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisFormatSupportFlags_spec Specification
  * <hr>

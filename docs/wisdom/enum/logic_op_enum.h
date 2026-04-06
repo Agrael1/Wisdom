@@ -1,6 +1,6 @@
 /**
  * @struct WisLogicOp WisLogicOp
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisLogicOp_spec Specification
  * <hr>

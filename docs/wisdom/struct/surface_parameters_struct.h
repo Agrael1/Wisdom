@@ -1,6 +1,6 @@
 /**
  * @struct WisSurfaceParameters
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisSurfaceParameters_spec Specification

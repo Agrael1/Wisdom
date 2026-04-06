@@ -1,6 +1,6 @@
 /**
  * @struct WisXlibExtension
- * @ingroup Handles
+ * @ingroup Handles Platform
  *
  *
  * @section WisXlibExtension_spec Specification

@@ -101,16 +101,13 @@ static wis::Shader create_shader(const wis::Device* device, std::string_view bas
         return shader;
     }
 
-    std::vector<uint8_t> bytes{
-        std::istreambuf_iterator<char>{file},
-        std::istreambuf_iterator<char>{}
-    };
+    std::vector<uint8_t> bytes{std::istreambuf_iterator<char>{file}, std::istreambuf_iterator<char>{}};
     if (bytes.empty()) {
         return shader;
     }
 
     wis::Result result;
-    shader = device->CreateShader({ bytes.data(), bytes.size() }, result);
+    shader = device->CreateShader({bytes.data(), bytes.size()}, result);
     if (result.status == wis::Status::Ok) {
         return shader;
     }
@@ -139,7 +136,7 @@ static bool init_device(HelloTriangleApp* app, wis::Instance* instance, wis::Sur
     };
 
     wis::DeviceRequirements requirements{};
-    requirements.queue_descs = { queue_descs, 1 };
+    requirements.queue_descs = {queue_descs, 1};
 
     const size_t adapter_count = adapters.GetAdapterCount();
     for (size_t i = 0; i < adapter_count; ++i) {
@@ -158,7 +155,7 @@ static bool init_device(HelloTriangleApp* app, wis::Instance* instance, wis::Sur
 
 static bool refresh_swapchain_targets(HelloTriangleApp* app)
 {
-    auto result = app->swapchain.GetTextures({ app->swapchain_textures, SWAPCHAIN_FRAMES });
+    auto result = app->swapchain.GetTextures({app->swapchain_textures, SWAPCHAIN_FRAMES});
     if (!check_result(result, "Swapchain::GetTextures")) {
         return false;
     }
@@ -189,7 +186,7 @@ static bool init_app(HelloTriangleApp* app, SDL_Window* window)
 
     wis::InstanceExtensionHeader* extensions[] = {platform.Extension()};
     wis::Result result;
-    wis::Instance instance = wis::CreateInstance(&debug_desc, wis::span{ extensions }, result);
+    wis::Instance instance = wis::CreateInstance(&debug_desc, wis::span{extensions}, result);
     if (!check_result(result, "CreateInstance")) {
         return false;
     }
@@ -204,10 +201,7 @@ static bool init_app(HelloTriangleApp* app, SDL_Window* window)
         return false;
     }
 
-    app->swapchain_format = app->device.GetFormatPresentationSupport(
-                                surface.GetView(),
-                                wis::DataFormat::RGB10A2Unorm
-                            )
+    app->swapchain_format = app->device.GetFormatPresentationSupport(surface.GetView(), wis::DataFormat::RGB10A2Unorm)
                               ? wis::DataFormat::RGB10A2Unorm
                               : wis::DataFormat::BGRA8Unorm;
 
@@ -260,7 +254,7 @@ static bool init_app(HelloTriangleApp* app, SDL_Window* window)
     push_constant.size_bytes = 16;
 
     wis::RootSignatureDesc root_signature_desc{};
-    root_signature_desc.push_constants = { &push_constant, 1 };
+    root_signature_desc.push_constants = {&push_constant, 1};
 
     app->root_signature = app->device.CreateRootSignature(root_signature_desc, result);
     if (!check_result(result, "Device::CreateRootSignature")) {
@@ -367,9 +361,9 @@ static void draw_frame(HelloTriangleApp* app, float angle)
     barriers[1].queue_type_after = wis::CommandQueueType::Graphics;
 
     wis::BarrierGroup pre_barrier{};
-    pre_barrier.texture_barriers = { barriers, 1 };
+    pre_barrier.texture_barriers = {barriers, 1};
     wis::BarrierGroup post_barrier{};
-    post_barrier.texture_barriers = { barriers + 1, 1 };
+    post_barrier.texture_barriers = {barriers + 1, 1};
 
     wis::Viewport viewport = {
         .width = (float)app->width,
@@ -385,7 +379,7 @@ static void draw_frame(HelloTriangleApp* app, float angle)
         .height = app->height,
     };
 
-    const float push_data[4] = { std::cos(angle), std::sin(angle), 0.0f, 0.0f };
+    const float push_data[4] = {std::cos(angle), std::sin(angle), 0.0f, 0.0f};
     wis::PushConstantDataDesc push_constant = {
         .pipeline = wis::PipelineType::Graphics,
         .root_index = 0,
@@ -396,10 +390,10 @@ static void draw_frame(HelloTriangleApp* app, float angle)
 
     wis::RenderPassDesc render_pass{};
     render_pass.render_targets[0] = {
-            .target = target_rtv,
-            .load_op = wis::LoadOp::Clear,
-            .store_op = wis::StoreOp::Store,
-            .clear_value = {0.1f, 0.1f, 0.15f, 1.0f},
+        .target = target_rtv,
+        .load_op = wis::LoadOp::Clear,
+        .store_op = wis::StoreOp::Store,
+        .clear_value = {0.1f, 0.1f, 0.15f, 1.0f},
     };
     render_pass.render_target_count = 1;
     render_pass.flags = wis::RenderPassFlags::None;
@@ -409,8 +403,8 @@ static void draw_frame(HelloTriangleApp* app, float angle)
     frame->command_list.SetRootSignature(app->root_signature.GetView(), wis::PipelineType::Graphics);
     frame->command_list.SetPipeline(app->pipeline.GetView(), wis::PipelineType::Graphics);
     frame->command_list.SetPushConstants(push_constant);
-    frame->command_list.SetViewports({ &viewport, 1 });
-    frame->command_list.SetScissors({ &scissor, 1 });
+    frame->command_list.SetViewports({&viewport, 1});
+    frame->command_list.SetScissors({&scissor, 1});
     frame->command_list.SetPrimitiveTopology(wis::PrimitiveTopology::TriangleList);
     frame->command_list.BeginRenderPass(render_pass);
     frame->command_list.Draw(3, 1, 0, 0);

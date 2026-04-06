@@ -1,6 +1,6 @@
 /**
  * @struct wisCommandListSetDescriptorHeaps
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisCommandListSetDescriptorHeaps_spec Specification

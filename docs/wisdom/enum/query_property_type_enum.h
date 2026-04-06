@@ -1,6 +1,6 @@
 /**
  * @struct WisQueryPropertyType WisQueryPropertyType
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisQueryPropertyType_spec Specification
  * <hr>

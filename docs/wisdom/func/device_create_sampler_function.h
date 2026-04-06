@@ -1,6 +1,6 @@
 /**
  * @struct wisDeviceCreateSampler
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDeviceCreateSampler_spec Specification

@@ -1,6 +1,6 @@
 /**
  * @struct wisViewHeapGetCPUHandle
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisViewHeapGetCPUHandle_spec Specification

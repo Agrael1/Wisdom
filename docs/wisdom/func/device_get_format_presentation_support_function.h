@@ -1,6 +1,6 @@
 /**
  * @struct wisDeviceGetFormatPresentationSupport
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDeviceGetFormatPresentationSupport_spec Specification

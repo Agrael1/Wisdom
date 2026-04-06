@@ -1,6 +1,6 @@
 /**
  * @struct wisDescriptorHeapWriteConstantBuffer
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDescriptorHeapWriteConstantBuffer_spec Specification

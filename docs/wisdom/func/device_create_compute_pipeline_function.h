@@ -1,6 +1,6 @@
 /**
  * @struct wisDeviceCreateComputePipeline
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDeviceCreateComputePipeline_spec Specification

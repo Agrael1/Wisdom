@@ -1,6 +1,6 @@
 /**
  * @struct WisComponentSwizzle WisComponentSwizzle
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisComponentSwizzle_spec Specification
  * <hr>

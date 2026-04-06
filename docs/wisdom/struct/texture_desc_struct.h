@@ -1,6 +1,6 @@
 /**
  * @struct WisTextureDesc
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisTextureDesc_spec Specification

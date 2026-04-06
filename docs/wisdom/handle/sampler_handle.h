@@ -1,6 +1,6 @@
 /**
  * @struct WisSampler
- * @ingroup Handles
+ * @ingroup Handles Core
  *
  *
  * @section WisSampler_spec Specification

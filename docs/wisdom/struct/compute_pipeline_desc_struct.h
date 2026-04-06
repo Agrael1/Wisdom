@@ -1,6 +1,6 @@
 /**
  * @struct WisComputePipelineDesc
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisComputePipelineDesc_spec Specification

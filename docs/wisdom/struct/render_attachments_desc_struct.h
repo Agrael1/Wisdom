@@ -1,6 +1,6 @@
 /**
  * @struct WisRenderAttachmentsDesc
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisRenderAttachmentsDesc_spec Specification

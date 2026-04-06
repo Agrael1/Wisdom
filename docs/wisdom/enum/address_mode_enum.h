@@ -1,6 +1,6 @@
 /**
  * @struct WisAddressMode WisAddressMode
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisAddressMode_spec Specification
  * <hr>

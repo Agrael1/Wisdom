@@ -1,6 +1,6 @@
 /**
  * @struct wisDestroySurface
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDestroySurface_spec Specification

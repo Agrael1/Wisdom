@@ -1,6 +1,6 @@
 /**
  * @struct wisAdapterQueryCreateDevice
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisAdapterQueryCreateDevice_spec Specification

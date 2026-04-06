@@ -1,6 +1,6 @@
 /**
  * @struct wisCommandListSetRootSignature
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisCommandListSetRootSignature_spec Specification

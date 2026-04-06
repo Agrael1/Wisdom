@@ -1,6 +1,6 @@
 /**
  * @struct WisPipelineFlags WisPipelineFlags
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisPipelineFlags_spec Specification
  * <hr>

@@ -1,6 +1,6 @@
 /**
  * @struct wisDestroyInstance
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDestroyInstance_spec Specification

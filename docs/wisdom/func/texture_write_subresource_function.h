@@ -1,6 +1,6 @@
 /**
  * @struct wisTextureWriteSubresource
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisTextureWriteSubresource_spec Specification

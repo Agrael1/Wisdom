@@ -1,6 +1,6 @@
 /**
  * @struct WisDeviceMemoryProperties
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisDeviceMemoryProperties_spec Specification

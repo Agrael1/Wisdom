@@ -1,6 +1,6 @@
 /**
  * @struct WisCompareOperation WisCompareOperation
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisCompareOperation_spec Specification
  * <hr>

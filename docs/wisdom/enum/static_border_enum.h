@@ -1,6 +1,6 @@
 /**
  * @struct WisStaticBorder WisStaticBorder
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisStaticBorder_spec Specification
  * <hr>

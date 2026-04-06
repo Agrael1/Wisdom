@@ -1,6 +1,6 @@
 /**
  * @struct wisCommandListSetScissors
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisCommandListSetScissors_spec Specification

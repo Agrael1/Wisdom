@@ -1,6 +1,6 @@
 /**
  * @struct WisStencilDesc
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisStencilDesc_spec Specification

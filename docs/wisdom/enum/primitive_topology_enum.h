@@ -1,6 +1,6 @@
 /**
  * @struct WisPrimitiveTopology WisPrimitiveTopology
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisPrimitiveTopology_spec Specification
  * <hr>

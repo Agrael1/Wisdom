@@ -1,6 +1,6 @@
 /**
  * @struct WisBufferQueueOwnershipBarrier2
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisBufferQueueOwnershipBarrier2_spec Specification

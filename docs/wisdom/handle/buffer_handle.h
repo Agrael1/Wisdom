@@ -1,6 +1,6 @@
 /**
  * @struct WisBuffer
- * @ingroup Handles
+ * @ingroup Handles Core
  *
  *
  * @section WisBuffer_spec Specification

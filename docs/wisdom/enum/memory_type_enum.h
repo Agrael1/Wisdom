@@ -1,6 +1,6 @@
 /**
  * @struct WisMemoryType WisMemoryType
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisMemoryType_spec Specification
  * <hr>

@@ -1,6 +1,6 @@
 /**
  * @struct WisTextureUsageFlags WisTextureUsageFlags
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisTextureUsageFlags_spec Specification
  * <hr>

@@ -1,6 +1,6 @@
 /**
  * @struct WisFence
- * @ingroup Handles
+ * @ingroup Handles Core
  *
  *
  * @section WisFence_spec Specification

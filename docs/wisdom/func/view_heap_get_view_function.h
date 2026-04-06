@@ -1,6 +1,6 @@
 /**
  * @struct wisViewHeapGetView
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisViewHeapGetView_spec Specification

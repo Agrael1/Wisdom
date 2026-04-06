@@ -1,6 +1,6 @@
 /**
  * @struct WisDeviceBindingProperties
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisDeviceBindingProperties_spec Specification

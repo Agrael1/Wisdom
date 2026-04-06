@@ -1,6 +1,6 @@
 /**
  * @struct wisCommandListSetViewports
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisCommandListSetViewports_spec Specification

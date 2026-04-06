@@ -1,6 +1,6 @@
 /**
  * @struct WisWin32WindowDesc
- * @ingroup Structures
+ * @ingroup Structures Platform
  *
  *
  * @section WisWin32WindowDesc_spec Specification

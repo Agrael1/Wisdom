@@ -1,6 +1,6 @@
 /**
  * @struct WisDescriptorHeap
- * @ingroup Handles
+ * @ingroup Handles Core
  *
  *
  * @section WisDescriptorHeap_spec Specification

@@ -1,6 +1,6 @@
 /**
  * @struct wisCommandListSetDepthBias
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisCommandListSetDepthBias_spec Specification

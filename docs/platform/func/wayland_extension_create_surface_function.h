@@ -1,6 +1,6 @@
 /**
  * @struct wisWaylandExtensionCreateSurface
- * @ingroup Functions
+ * @ingroup Functions Platform
  *
  *
  * @section wisWaylandExtensionCreateSurface_spec Specification

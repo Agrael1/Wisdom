@@ -1,6 +1,6 @@
 /**
  * @struct wisSwapchainGetCurrentIndex
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisSwapchainGetCurrentIndex_spec Specification

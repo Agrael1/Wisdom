@@ -1,6 +1,6 @@
 /**
  * @struct wisDestroyRootSignature
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDestroyRootSignature_spec Specification

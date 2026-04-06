@@ -1,6 +1,6 @@
 /**
  * @struct wisDeviceCreateShader
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDeviceCreateShader_spec Specification

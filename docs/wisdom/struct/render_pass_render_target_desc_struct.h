@@ -1,6 +1,6 @@
 /**
  * @struct WisRenderPassRenderTargetDesc
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisRenderPassRenderTargetDesc_spec Specification

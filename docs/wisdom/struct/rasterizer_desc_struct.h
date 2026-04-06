@@ -1,6 +1,6 @@
 /**
  * @struct WisRasterizerDesc
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisRasterizerDesc_spec Specification

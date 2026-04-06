@@ -1,6 +1,6 @@
 /**
  * @struct wisCreateInstance
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section CreateInstance_spec Specification

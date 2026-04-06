@@ -1,6 +1,6 @@
 /**
  * @struct wisCommandListEndRenderPass
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisCommandListEndRenderPass_spec Specification

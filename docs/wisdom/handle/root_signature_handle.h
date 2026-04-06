@@ -1,6 +1,6 @@
 /**
  * @struct WisRootSignature
- * @ingroup Handles
+ * @ingroup Handles Core
  *
  *
  * @section WisRootSignature_spec Specification

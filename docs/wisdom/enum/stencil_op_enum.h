@@ -1,6 +1,6 @@
 /**
  * @struct WisStencilOp WisStencilOp
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisStencilOp_spec Specification
  * <hr>

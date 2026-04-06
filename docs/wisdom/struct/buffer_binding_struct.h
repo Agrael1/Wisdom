@@ -1,6 +1,6 @@
 /**
  * @struct WisBufferBinding
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisBufferBinding_spec Specification

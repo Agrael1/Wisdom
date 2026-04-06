@@ -1,6 +1,6 @@
 /**
  * @struct WisRect
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisRect_spec Specification

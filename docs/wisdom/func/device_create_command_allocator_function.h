@@ -1,6 +1,6 @@
 /**
  * @struct wisDeviceCreateCommandAllocator
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDeviceCreateCommandAllocator_spec Specification

@@ -1,6 +1,6 @@
 /**
  * @struct WisQueryStructHeader
- * @ingroup Structures
+ * @ingroup Structures Core
  *
  *
  * @section WisQueryStructHeader_spec Specification

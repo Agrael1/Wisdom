@@ -1,6 +1,6 @@
 /**
  * @struct WisStoreOp WisStoreOp
- * @ingroup Enumerations
+ * @ingroup Enumerations Core
  *
  * @section WisStoreOp_spec Specification
  * <hr>

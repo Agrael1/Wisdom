@@ -1,6 +1,6 @@
 /**
  * @struct wisBufferMap
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisBufferMap_spec Specification

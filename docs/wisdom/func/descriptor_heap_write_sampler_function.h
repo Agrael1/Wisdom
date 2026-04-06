@@ -1,6 +1,6 @@
 /**
  * @struct wisDescriptorHeapWriteSampler
- * @ingroup Functions
+ * @ingroup Functions Core
  *
  *
  * @section wisDescriptorHeapWriteSampler_spec Specification
