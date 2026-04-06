@@ -55,11 +55,8 @@ WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKDestroyXCBExtension(WisVKXCBExtension
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WISDOM_PLATFORM_API WisResult wisVKXCBExtensionCreateSurface(
-    WisVKXCBExtension* self,
-    const WisXCBWindowDesc* info,
-    WisVKSurface* surface
-)
+WISDOM_PLATFORM_API WisResult
+wisVKXCBExtensionCreateSurface(WisVKXCBExtension* self, const WisXCBWindowDesc* info, WisVKSurface* surface)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKXCBExtensionImpl>(self);
     auto vkCreateXcbSurfaceKHR = reinterpret_cast<PFN_vkCreateXcbSurfaceKHR>(impl.vkCreateXcbSurfaceKHR);

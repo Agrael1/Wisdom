@@ -26,7 +26,9 @@ target_sources(
           "handle.cpp"
           "variant.cpp"
           "function.cpp"
-          "validation.cpp" "bitmask.cpp" "constant.cpp" )
+          "validation.cpp"
+          "bitmask.cpp"
+          "constant.cpp")
 target_compile_definitions(
   ${PROJECT_NAME}
   PRIVATE CLANG_FORMAT_EXECUTABLE="${CLANG_FORMAT_EXECUTABLE}"

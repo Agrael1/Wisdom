@@ -20,29 +20,30 @@ if(WISDOM_BUILD_SHARED)
   add_custom_target(
     copy_dll
     COMMAND ${CMAKE_COMMAND} -E echo "Copying DLLs to example binaries..."
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:wisdom-shared> ${EXAMPLE_BIN_OUTPUT}
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:wisdom-platform-shared> ${EXAMPLE_BIN_OUTPUT}
-    DEPENDS wisdom-shared wisdom-platform-shared )
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:wisdom-shared>
+            ${EXAMPLE_BIN_OUTPUT}
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            $<TARGET_FILE:wisdom-platform-shared> ${EXAMPLE_BIN_OUTPUT}
+    DEPENDS wisdom-shared wisdom-platform-shared)
 endif()
 
-# compile shaders from folder shaders and put them in the binary output directory
+# compile shaders from folder shaders and put them in the binary output
+# directory
 
 add_custom_target(wis_test_compile_shaders)
-file (GLOB SHADERS ${CMAKE_CURRENT_SOURCE_DIR}/shaders/*)
+file(GLOB SHADERS ${CMAKE_CURRENT_SOURCE_DIR}/shaders/*)
 foreach(SHADER ${SHADERS})
-    get_filename_component(SHADER_NAME ${SHADER} NAME)
-    WIS_COMPILE_SHADER(
-        TARGET wis_test_compile_shaders
-        SHADER ${SHADER}
-        OUTPUT ${EXAMPLE_BIN_OUTPUT}/${SHADER_NAME}
-    )
+  get_filename_component(SHADER_NAME ${SHADER} NAME)
+  wis_compile_shader(TARGET wis_test_compile_shaders SHADER ${SHADER} OUTPUT
+                     ${EXAMPLE_BIN_OUTPUT}/${SHADER_NAME})
 endforeach()
 
 add_custom_target(
-    copy_sdl
-    COMMAND ${CMAKE_COMMAND} -E echo "Copying DLLs to example binaries..."
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:SDL3-shared> ${EXAMPLE_BIN_OUTPUT}
-    DEPENDS SDL3-shared )
+  copy_sdl
+  COMMAND ${CMAKE_COMMAND} -E echo "Copying DLLs to example binaries..."
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:SDL3-shared>
+          ${EXAMPLE_BIN_OUTPUT}
+  DEPENDS SDL3-shared)
 
 include(cmake/deps.cmake)
 
@@ -50,4 +51,3 @@ add_example_suite(backend)
 add_example_suite(compute_particles_c)
 add_example_suite(hello_triangle)
 add_example_suite(multisampling)
-

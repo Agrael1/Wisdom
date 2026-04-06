@@ -46,7 +46,7 @@ function(wisdom_detect_platform)
     elseif (DEFINED ENV{VULKAN_SDK} AND NOT Vulkan_FOUND)
         set(VULKAN_SDK_PATH "$ENV{VULKAN_SDK}")
         message(STATUS "VULKAN_SDK environment variable found: ${VULKAN_SDK_PATH}")
-        
+
         if (EXISTS "${VULKAN_SDK_PATH}/include/vulkan/vulkan.h")
             set(WISDOM_VULKAN TRUE CACHE BOOL "Vulkan support detected" FORCE)
             message(STATUS "Vulkan headers found in VULKAN_SDK path")

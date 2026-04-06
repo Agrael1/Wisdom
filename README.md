@@ -137,7 +137,6 @@ Tested on Windows with NVIDIA GeForce GTX 1070 and Linux with RTX A4000 with lat
 - Core features demand Descriptor Heap, requiring Vulkan 1.4+ or 1.3 with VK_EXT_descriptor_heap.
 - Tested with RTX A4000 with latest drivers on Ubuntu 24.04.
 
-
 **Windows Store:**
 
 You can install a NuGet package to any Visual studio project.

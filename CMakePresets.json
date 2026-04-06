@@ -52,7 +52,7 @@
       "description": "GCC Release build with examples and tests",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-        "WISDOM_BUILD_TESTS" : false
+        "WISDOM_BUILD_TESTS": false
       }
     },
     {

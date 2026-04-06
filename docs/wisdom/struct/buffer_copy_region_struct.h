@@ -9,18 +9,18 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisBufferCopyRegion {
  *     uint64_t src_offset;
  *     uint64_t dst_offset;
  *     uint64_t size_bytes;
  * } WisBufferCopyRegion;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  BufferCopyRegion {
  *     std::uint64_t src_offset;
  *     std::uint64_t dst_offset;

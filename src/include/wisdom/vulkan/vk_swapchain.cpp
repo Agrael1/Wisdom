@@ -27,17 +27,17 @@ inline VkResult VKAcquireNextImage(const impl::VKSwapchainImpl& impl) noexcept
 
     if (result != VK_SUCCESS) {
         return result; // Caller can choose to handle timeout differently (e.g. by skipping rendering and trying again
-                       // next frame) so return a distinct result code for this case
+        // next frame) so return a distinct result code for this case
     }
 
     VkSemaphoreSubmitInfo submit_info{
         .sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO,
         .semaphore = semaphores[impl.acquire_index],
         .stageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT, // TODO: Fix at some point, since that can cause
-                                                           // unnecessary
-                                                           // synchronization. The stage mask should be determined based
-                                                           // on the swapchain's image usage flags, but for now we can
-                                                           // just use ALL_COMMANDS to ensure correctness.
+        // unnecessary
+        // synchronization. The stage mask should be determined based
+        // on the swapchain's image usage flags, but for now we can
+        // just use ALL_COMMANDS to ensure correctness.
     };
     VkSubmitInfo2 desc2{
         .sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2,
@@ -79,12 +79,8 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroySwapchain(WisVKSwapchain* self)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainPresent(
-    const WisVKSwapchain* self,
-    WisPresentFlags flags,
-    const WisRect* rects,
-    size_t rect_count
-)
+WIS_EXTERN_C WISDOM_API WisResult
+wisVKSwapchainPresent(const WisVKSwapchain* self, WisPresentFlags flags, const WisRect* rects, size_t rect_count)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKSwapchainImpl>(self);
 
@@ -162,8 +158,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainUpdate(const WisVKSwapchain* sel
 
     VkFormat new_format = wis::detail::VKConvert(desc->format);
     bool size_changed = desc->width != 0 && desc->height != 0
-                     && (desc->width != create_info.imageExtent.width
-                         || desc->height != create_info.imageExtent.height);
+                     && (desc->width != create_info.imageExtent.width || desc->height != create_info.imageExtent.height
+                     );
     bool format_changed = desc->format != WisDataFormatUnknown && new_format != create_info.imageFormat;
     bool count_changed = desc->image_count != 0 && desc->image_count != create_info.minImageCount;
     bool vsync_changed = desc->vsync != (create_info.presentMode == VK_PRESENT_MODE_FIFO_KHR);
@@ -299,11 +295,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainUpdate(const WisVKSwapchain* sel
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainGetTextures(
-    const WisVKSwapchain* self,
-    WisVKTexture* buffers,
-    size_t buffer_count
-)
+WIS_EXTERN_C WISDOM_API WisResult
+wisVKSwapchainGetTextures(const WisVKSwapchain* self, WisVKTexture* buffers, size_t buffer_count)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKSwapchainImpl>(self);
 
@@ -322,7 +315,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainGetTextures(
     // Cheat the allocation of the output array to avoid dynamic memory allocation in this function by treating the
     // output array as a byte array and writing the image handles directly into it
     auto bytes = wis::as_writable_bytes(wis::span{buffers, buffer_count}); // zero out the output array to ensure that
-                                                                           // any unused slots are null handles
+    // any unused slots are null handles
     VkImage* vk_images = reinterpret_cast<VkImage*>(bytes.data());
 
     vr = impl.swapchain_table->vkGetSwapchainImagesKHR(impl.device, impl.swapchain, &actual_buffer_count, vk_images);
