@@ -1651,7 +1651,7 @@ Used for color blending operations.">
       <value name="VSync" bit="1" doc="Present with vertical sync. If set, the swapchain is presented with vertical sync pulse."/>
       <value name="Stereo" bit="2" doc="Stereo swapchain. If set, the swapchain is created for stereo rendering. If not set, the swapchain is created for mono rendering."/>
     </type>
-    
+
     <type name="PresentFlags" category="bitmask" version="0.7.0" doc="Swapchain creation flags.">
       <impl_type for="dx" name="uint32_t"/>
       <value name="None" value="0" doc="No flags set. Swapchain is regular."/>

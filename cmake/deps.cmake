@@ -52,4 +52,3 @@ if (WISDOM_BUILD_TESTS)
             GIT_TAG v3.13.0)
     list(APPEND CMAKE_MODULE_PATH ${Catch2_SOURCE_DIR}/extras)
 endif()
-            
