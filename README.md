@@ -1,6 +1,14 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Agrael1/Wisdom/main/docs/logo.png" alt="Wisdom Logo" width="200" />
+</p>
+
 # Wisdom
 
-![CMake Windows](https://github.com/Agrael1/Wisdom/actions/workflows/cmake.yml/badge.svg)
+<p align="center">
+  <a href="https://github.com/Agrael1/Wisdom/actions/workflows/cmake.yml"><img src="https://github.com/Agrael1/Wisdom/actions/workflows/cmake.yml/badge.svg" alt="CMake Windows"/></a>
+  <a href="https://www.nuget.org/packages/Wisdom/"><img src="https://img.shields.io/nuget/v/Wisdom.svg" alt="NuGet Version"/></a>
+  <a href="https://github.com/Agrael1/Wisdom/blob/main/LICENSE.txt"><img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License"/></a>
+</p>
 
 **Low-level Direct Translation Graphics API. Easy to learn, easy to extend, highly performant, multiplatform!**
 
@@ -14,14 +22,20 @@
 
 # Features
 
-- [x] Raytracing support
-- [x] Compute pipeline, Basic rendering and Multiview
-- [x] Embedded DXC shader compiler and standard HLSL language
-- [x] Inline API with no virtual functions.
-- [x] Extensibility with internal state access
-- [x] Advanced memory allocations
-- [x] DMA copy support and ability to share memory between APIs
-- [x] C++20 modules support and header only mode
+- [x] Compute pipeline, Basic rendering and Multiview with stereoscopic rendering support.
+- [x] Embedded DXC shader compiler and standard HLSL language.
+- [x] Inline API with no virtual functions, featuring heavy inlining for C++ and C with static linkage and IPO.
+- [x] Extensibility with unparalleled internal state access, no direct code change required.
+- [x] Compatibility mode allowing C++11 and C99 API interfaces for easy legacy codebase conversion.
+- [x] Advanced memory allocations and direct memory writes, eliminating the need for staging buffers and reducing CPU overhead.
+- [x] Header only mode for C++20+.
+
+# Roadmap
+
+- [ ] Raytracing support (temporarily unavailable, planned for future release)
+- [ ] Mesh Shaders
+- [ ] Extended documentation and tutorials
+- [ ] Vcpkg support
 
 # Why?
 
@@ -36,7 +50,7 @@ Library has transparent API. All classes have their own internal state, that can
 The API is structured like this:
 
 - The basic types are defined, depending on platform of choice. They are **Factory**, **Adapter**, **Device** etc. They are directly implemented, this eliminates memory indirection and potential cache misses.
-- The platform selects the most suitable implemetation to the system: Windows - DirectX 12, Linux - Vulkan. This is done in compile time.
+- The platform selects the most suitable implemetation to the system: Windows - DirectX 12, Linux - Vulkan. This is done at compile time.
 - You can override the implementation selection with `WISDOM_FORCE_VULKAN` option on CMake configuration. This will force the library to use Vulkan as a base API. This is useful for debugging Vulkan extensions.
 - All calls are done directly, without usage of interfaces/virtual functions. This eliminates call indirection and the code is inlined as if you wrote the code directly inside your functions.
 - Underlying accessibility, all of the internals are accessible using `GetInternal()` and can be used to bridge functionality or to create extensions. All the internal state is immutable for the stability of work between library and extensions. However it's not advised to use internal state directly, since it is platform dependent.
@@ -50,8 +64,10 @@ Vulkan is compiled on compatible systems and used as default only if there is no
 Supported platforms are:
 
 - Windows API (Win32) - DirectX 12 and Vulkan
-- Windows Store (UWP) - Microsoft Store applications. DirectX 12 only.
 - Linux (X11, XCB and Wayland) - Vulkan only
+- Windows Store (UWP) - Microsoft Store applications. DirectX 12 only.
+
+New platform extensions can be added by implementation using extensibility API without the need to rewrite the whole library.
 
 # Build
 
@@ -63,37 +79,33 @@ If you don't have Vulkan SDK installed on Windows the library will still provide
 
 # CMake Options
 
-- `WISDOM_LOG_LEVEL=debug/warn` set the log level for the library, values are `debug,trace,info,warn,error,critical` log calls under current level are not compiled
-- `WISDOM_RUNTIME_ASSERTS=ON` enable/disable runtime validation checks from compile time
-- `WISDOM_USE_SYSTEM_DXC=OFF` use system DXC compiler instead of the one provided with the library (default uses the one provided)
-- `WISDOM_FORCE_VULKAN=OFF` if set `ON` forces base types to be Vulkan, useful for debugging Vulkan extensions
-- `WISDOM_BUILD_EXAMPLES=ON` enable/disable example compilation
-- `WISDOM_BUILD_TESTS=ON` enable/disable test compilation
-- `WISDOM_USE_FMT=ON/OFF` use fmt instead of `std::format` (`ON` for Linux build for GCC<13 and Clang<16)
-- `WISDOM_BUILD_DOCS=ON/OFF` build documentation with Doxygen, default is dependent on wether you are building the library as a top project (ON) or as a part/dep for other (OFF)
-- `WISDOM_BUILD_BINARIES=ON/OFF` build static lib. If turned off, the header only version will be the main target.
-- `WISDOM_EXPERIMENTAL_CPP_MODULES=ON/OFF` enable C++20 modules support.
+- `WISDOM_USE_FMT=OFF` use fmt instead of `std::format` (`ON` for Linux build for GCC<13 and Clang<16)
+- `WISDOM_FORCE_VULKAN=OFF` if set `ON` forces base types to be Vulkan, useful for debugging Vulkan extensions. Vulkan is not required to run on Windows and is selected as a fallback or best-platform automatically.
+- `WISDOM_BUILD_EXAMPLES=ON` enable/disable example compilation. `ON` for top-level project, off for subproject by default.
+- `WISDOM_BUILD_TESTS=ON` enable/disable test compilation. `ON` for top-level project, off for subproject by default.
+- `WISDOM_BUILD_STATIC=ON` build static library version.
+- `WISDOM_BUILD_SHARED=ON` build shared/dynamic library version.
+- `WISDOM_BUILD_PLATFORM=ON` build unified platform extension library.
+- `WISDOM_BUILD_DOCS=OFF` build documentation with Doxygen, default is dependent on whether you are building the library as a top project (ON) or as a part/dep for other (OFF)
+
+- `WISDOM_DXC_PATH="Path/to/dxc"` use system DXC compiler instead of the one provided with the library (default uses the one provided)
+- `WISDOM_VULKAN_HEADER_PATH="Path/to/vulkan/Headers"` Path to custom Vulkan Headers (optional). If not set, will use the ones provided by Vulkan SDK or system.
 
 # Consumption
 
-You may use FetchContent, provided by cmake, to download the library and use it in your project. The library is designed to be header-only, so you can also just copy the header folder at `wisdom/include` and use it. Install script with Vcpkg is coming next updates.
+Wisdom library uses CPM for dependency management, so it is enough to add `FetchContent_Declare` in your CMakeLists.txt and link the library.
 
 There is also a NuPkg available for NuGet consumption in release artifacts.
+
+Install target is also provided with .zip archive in the release artifacts, that contains the library and all the headers for Windows.
+To consume the library, add the path to the library /lib/cmake/wisdom to your CMake configuration and call `find_package(wisdom REQUIRED)`.
 
 To link library simply use `target_link_libraries(${YOUR_TARGET} PUBLIC wis::wisdom)`. Alternatively if you wish for header only target, there is also `target_link_libraries(${YOUR_TARGET} PUBLIC wis::wisdom-headers)`.
 
 Available targets are:
 
 - `wis::wisdom | wis::wisdom-headers` - functional library
-- `wis::debug | wis::wisdom-debug-headers` - debug extension
-- `wis::extended-allocation | wis::wisdom-extended-allocation-headers` - extended allocation extension (direct GPU Upload)
-- `wis::platform | wis::wisdom-platform-headers` - platform specific extensions (Swapchain and Interop exports)
-- `wis::raytracing | wis::wisdom-raytracing-headers` - raytracing
-- `wis::descriptor-buffer | wis::wisdom-descriptor-buffer-headers` - descriptor buffer support, requires Vulkan 1.3 and GPU support for `VK_(EXT|VALVE)_mutable_descriptor_type` if used with Vulkan
-
-Since 0.6.7 the library also features C++20 modules support. To use it, you need to enable the `WISDOM_EXPERIMENTAL_CPP_MODULES` option in CMake. The targets are named with postfix `-module` and are not compatible with non-module targets.
-
-Install interface features only full named targets under namespace wis, e.g. `wis::wisdom`, `wis::wisdom-debug`, `wis::wisdom-extended-allocation-module` etc.
+- `wis::platform | wis::wisdom-platform-headers` - platform specific extensions (Surface)
 
 # System Requirements
 
@@ -107,13 +119,24 @@ Video card must support DirectX 12.1+ and Enchanced Barriers.
 
 for Vulkan:
 
-- Vulkan 1.3.2xx+
+- Vulkan 1.3+ minimum
+- Core features demand Descriptor Heap, requiring Vulkan 1.4+ or 1.3 with VK_EXT_descriptor_heap.
 
 Functionality is tested on NVIDIA GeForce GTX 1070 and RTX A4000 with latest drivers. AMD cards were tested, but with limited functionality.
 
-Best performance is achieved with NVIDIA cards later than GTX 1650 series, because of the descriptor buffer support.
+Best performance is achieved with NVIDIA cards later than GTX 1650 series, because of the descriptor heap support.
+Does not require Vulkan to run on Windows, offering a native translation directly via DirectX 12.
 
 Tested on Windows with NVIDIA GeForce GTX 1070 and Linux with RTX A4000 with latest drivers.
+
+**Linux**
+
+- CMake 3.22+
+- Vulkan 1.3.+ minimum
+
+- Core features demand Descriptor Heap, requiring Vulkan 1.4+ or 1.3 with VK_EXT_descriptor_heap.
+- Tested with RTX A4000 with latest drivers on Ubuntu 24.04.
+
 
 **Windows Store:**
 
@@ -122,10 +145,3 @@ You can install a NuGet package to any Visual studio project.
 After the first launch, the project can be launched from the Start Menu.
 
 This type of project does not support Vulkan, since Vulkan does not have UWP surface, but the API is the same as for any other platform. Useful when you want to deploy your application to Microsoft Store without too much code rewriting.
-
-**Linux**
-
-- CMake 3.22+
-- Vulkan 1.3.2xx+
-
-Video card driver should have Descriptor buffer support. Tested on NVIDIA RTX A4000.
