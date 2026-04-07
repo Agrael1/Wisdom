@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Agrael1/Wisdom/main/docs/assets/bar.png" alt="Wisdom Logo" width="200" />
+  <img src="https://raw.githubusercontent.com/Agrael1/Wisdom/feat/0.7.0/docs/assets/bar.png" alt="Wisdom Logo" />
 </p>
 
 # Wisdom
