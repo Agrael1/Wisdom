@@ -1,6 +1,0 @@
-{
-  "kind": "git",
-  "repository": "https://github.com/Agrael1/Wisdom",
-  "baseline": "master",
-  "packages": ["wisdom"]
-}

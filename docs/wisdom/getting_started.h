@@ -135,10 +135,24 @@
  * There is a property page that allows you to configure the library.
  * Options are the same as CMake flags, but with a different naming convention.
  *
+ * @section conan Conan Package
+ *
+ * The project now provides a Conan 2 recipe (`conanfile.py`) for source-based packaging.
+ *
+ * @code{.bash}
+ * conan create . --build=missing
+ * @endcode
+ *
+ * The recipe maps to library-only CMake configuration and keeps existing build logic.
+ * At the moment dependencies are still resolved by project CMake using CPM and NuGet.
+ * This works for private Conan remotes, but Conan Center usually requires those dependencies
+ * to be available as Conan requirements or vendored in the recipe sources.
+ *
  * @section addendum Addendum
  *
- * I would like to add more consumption examples, like conan or vcpkg, but I don't have enough experience with them.
- * I would appreciate any contributions to improve that part.
+ * Conan support is currently focused on private/internal package flows.
+ * For Conan Center submission, dependency sourcing should be migrated from CPM/NuGet downloads
+ * to Conan packages (or vendored sources) to make builds reproducible in the center CI.
  *
  * @ref examples_page "Examples" provides usage examples for the library.
  */
