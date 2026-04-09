@@ -178,4 +178,18 @@
 #    endif // _WIN32
 #endif // !WISDOM_UWP && !WISDOM_WINDOWS && !WISDOM_LINUX
 
+#ifndef FORCEVK_SWITCH
+#    if defined(WISDOM_VULKAN) && defined(WISDOM_FORCE_VULKAN)
+#        define FORCEVK_SWITCH 1
+#    else
+#        define FORCEVK_SWITCH 0
+#    endif // WISDOM_VULKAN_FOUND
+#endif // FORCEVK_SWITCH
+
+#if defined(WISDOM_DX12) && !FORCEVK_SWITCH
+#    define WISDOM_USES_DX12 1
+#elif defined(WISDOM_VULKAN)
+#    define WISDOM_USES_VULKAN 1
+#endif // API selection
+
 #endif // !WIS_GLOBAL_DEFINITIONS_H

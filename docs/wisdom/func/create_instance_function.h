@@ -11,7 +11,7 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * WisResult wisCreateInstance(const WisDebugDesc*          debug_desc,
  *                             WisInstanceExtensionHeader** extensions,
  *                             size_t                       extension_count,
@@ -20,24 +20,24 @@
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * WisResult wisVKCreateInstance(const WisDebugDesc*            debug_desc,
  *                               WisVKInstanceExtensionHeader** extensions,
  *                               size_t                         extension_count,
  *                               WisVKInstance*                 instance);
- *
- * // Provided by Wisdom 0.7.0.
+ * 
+ * // Provided by Wisdom 0.7.0. 
  * WisResult wisDX12CreateInstance(const WisDebugDesc*              debug_desc,
  *                                 WisDX12InstanceExtensionHeader** extensions,
  *                                 size_t                           extension_count,
  *                                 WisDX12Instance*                 instance);
  * ```
  * </details>
- *
+ * 
  * C++ Version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * WIS_NODISCARD wis::Instance CreateInstance(const wis::DebugDesc*                    debug_desc,
  *                                            wis::span<wis::InstanceExtensionHeader*> extensions,
  *                                            wis::Result&                             out_result) noexcept;
@@ -47,12 +47,12 @@
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * WIS_NODISCARD wis::VKInstance VKCreateInstance(const wis::DebugDesc*                      debug_desc,
  *                                                wis::span<wis::VKInstanceExtensionHeader*> extensions,
  *                                                wis::Result&                               out_result) noexcept;
- *
- * // Provided by Wisdom 0.7.0.
+ * 
+ * // Provided by Wisdom 0.7.0. 
  * WIS_NODISCARD wis::DX12Instance DX12CreateInstance(const wis::DebugDesc*                        debug_desc,
  *                                                    wis::span<wis::DX12InstanceExtensionHeader*> extensions,
  *                                                    wis::Result&                                 out_result) noexcept;
@@ -64,13 +64,11 @@
  * @section CreateInstance_memb Parameters
  * <hr>
  * \cond WIS_GEN_DESC
- * - `debug_desc` describes a pointer to WisDebugDesc, which defines debug callback and debug layer usage. If `nullptr`,
- * debug layer is disabled.
- * - `extensions` points to an array of extensions that are to be initialized with pointers to
- * WisInstanceExtensionHeader.
+ * - `debug_desc` describes a pointer to WisDebugDesc, which defines debug callback and debug layer usage. If `nullptr`, debug layer is disabled.
+ * - `extensions` points to an array of extensions that are to be initialized with pointers to WisInstanceExtensionHeader.
  * - `extension_count` describes the number of the number of extensions in the  array.
  * - `instance` points to WisInstance, which is initialized on success.
- *
+ * 
  * - **return** denoting the outcome of operation.
  * \endcond
  *
@@ -106,8 +104,7 @@
  *
  * \cond WIS_GEN_WIS_IDS
  * @validusage_begin
- * @vuid_begin{WIS-WisCreateInstance-extensions-null} If  extension_count is greater than 0,  extensions @wis_must be a
- * valid pointer to an array of  extension_count valid WisInstanceExtensionHeader handles. @vuid_end
+ * @vuid_begin{WIS-WisCreateInstance-extensions-null} If  extension_count is greater than 0,  extensions @wis_must be a valid pointer to an array of  extension_count valid WisInstanceExtensionHeader handles. @vuid_end
  * @vuid_begin{WIS-WisCreateInstance-instance-null}  instance @wis_mustnot be null. @vuid_end
  * @validusage_end
  * \endcond

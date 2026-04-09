@@ -9,18 +9,18 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef struct  WisTextureRegion {
  *     WisBarrierFlags      flags;
  *     WisBox               box;
  *     WisTargetSubresource target_subresource;
  * } WisTextureRegion;
- *
+ * 
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * struct  TextureRegion {
  *     wis::BarrierFlags      flags;
  *     wis::Box               box;

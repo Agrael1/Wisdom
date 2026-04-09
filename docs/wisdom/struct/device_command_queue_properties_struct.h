@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef struct  WisDeviceCommandQueueProperties {
  *     WisQueryPropertyType    property_type;
  *     void*                   next_in_chain;
@@ -17,12 +17,12 @@
  *     bool                    relaxed_queue_transition;
  *     WisCommandQueuePriority max_queue_priority[5];
  * } WisDeviceCommandQueueProperties;
- *
+ * 
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * struct  DeviceCommandQueueProperties {
  *     wis::QueryPropertyType    property_type;
  *     void*                     next_in_chain;
@@ -39,14 +39,10 @@
  * \cond WIS_GEN_DESC
  * - `property_type` specifies the type of the queried property. @wis_must be WisQueryPropertyType..
  * - `next_in_chain` indicates pointer to the next queried data struct.
- * - `supported_queues` describes an array of supported queue types. If a queue type is supported, the value is `1`,
- * otherwise `0`. Order of queue types is the same as in WisCommandQueueType enum.
- * - `relaxed_queue_transition` indicates if relaxed queue transition is supported. This feature allows executing
- * command lists that contain buffers used on different queue types without explicit resource state transitions when the
- * buffers is used on a different queue type. It is supported on Windows 10 22H2 and later with WDDM 3.0 or later. On
- * Vulkan it requires `VK_KHR_maintenance9` extension.
- * - `max_queue_priority` indicates an array of maximum supported priorities for each queue type. If a queue type is not
- * supported, the value is `0`. Order of queue types is the same as in WisCommandQueueType enum. \endcond
+ * - `supported_queues` describes an array of supported queue types. If a queue type is supported, the value is `1`, otherwise `0`. Order of queue types is the same as in WisCommandQueueType enum.
+ * - `relaxed_queue_transition` indicates if relaxed queue transition is supported. This feature allows executing command lists that contain buffers used on different queue types without explicit resource state transitions when the buffers is used on a different queue type. It is supported on Windows 10 22H2 and later with WDDM 3.0 or later. On Vulkan it requires `VK_KHR_maintenance9` extension.
+ * - `max_queue_priority` indicates an array of maximum supported priorities for each queue type. If a queue type is not supported, the value is `0`. Order of queue types is the same as in WisCommandQueueType enum.
+ * \endcond
  *
  * @section WisDeviceCommandQueueProperties_descr Description
  * <hr>

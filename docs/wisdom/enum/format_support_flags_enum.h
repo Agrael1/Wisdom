@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef enum WisFormatSupportFlags {
  *     WisFormatSupportFlagsNone = 0,
  *     WisFormatSupportFlagsBuffer = (1u << 0),
@@ -29,7 +29,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * enum class FormatSupportFlags : uint32_t {
  *     None = 0,
  *     Buffer = (1u << 0),
@@ -55,7 +55,7 @@
  * \cond WIS_GEN_DESC
  * Format support flags.
  * Indicates what features are supported for a specific format.
- *
+ * 
  * Values:
  * - `WisFormatSupportFlagsNone = 0`: No features supported.
  * - `WisFormatSupportFlagsBuffer = (1 << 0)`: Format can be used for buffers.

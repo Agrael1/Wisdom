@@ -9,20 +9,20 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void wisDestroyDescriptorHeap(WisDescriptorHeap* self);
  * ```
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void wisVKDestroyDescriptorHeap(WisVKDescriptorHeap* self);
- *
- * // Provided by Wisdom 0.7.0.
+ * 
+ * // Provided by Wisdom 0.7.0. 
  * void wisDX12DestroyDescriptorHeap(WisDX12DescriptorHeap* self);
  * ```
  * </details>
- *
+ * 
  * \endcond
  *
  * @section wisDestroyDescriptorHeap_memb Parameters

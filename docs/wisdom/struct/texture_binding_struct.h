@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef struct  WisTextureBinding {
  *     WisDataFormat          format;
  *     WisTextureLayout       layout;
@@ -17,12 +17,12 @@
  *     WisComponentMapping    component_mapping;
  *     WisSubresourceRange    range;
  * } WisTextureBinding;
- *
+ * 
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * struct  TextureBinding {
  *     wis::DataFormat          format;
  *     wis::TextureLayout       layout;

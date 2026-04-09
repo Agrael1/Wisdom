@@ -9,13 +9,13 @@
  * \cond WIS_GEN_CODE
  *  Vulkan Version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * WIS_DEFINE_HANDLE(WisVKBuffer,4);
  * WIS_DEFINE_HANDLE_VIEW(WisVKBuffer,1);
  * ```
  *  DX12 Version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * WIS_DEFINE_HANDLE(WisDX12Buffer,3);
  * WIS_DEFINE_HANDLE_VIEW(WisDX12Buffer,1);
  * ```

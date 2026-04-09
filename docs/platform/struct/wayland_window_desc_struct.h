@@ -9,17 +9,17 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef struct  WisWaylandWindowDesc {
  *     void* display;
  *     void* surface;
  * } WisWaylandWindowDesc;
- *
+ * 
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * struct  WaylandWindowDesc {
  *     void* display;
  *     void* surface;

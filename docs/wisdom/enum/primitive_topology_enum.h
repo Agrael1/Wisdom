@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef enum WisPrimitiveTopology {
  *     WisPrimitiveTopologyPointList = 1,
  *     WisPrimitiveTopologyLineList = 2,
@@ -25,7 +25,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * enum class PrimitiveTopology {
  *     PointList = 1,
  *     LineList = 2,
@@ -46,12 +46,10 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * Primitive topology for rendering.
- * More info could be found
- * [here](https://learn.microsoft.com/en-us/windows/win32/direct3d11/d3d10-graphics-programming-guide-primitive-topologies).
- *
- * \note Translates to  `D3D_PRIMITIVE_TOPOLOGY` for DirectX 12 implementation, and `VkPrimitiveTopology` for Vulkan
- * implementation.
- *
+ * More info could be found [here](https://learn.microsoft.com/en-us/windows/win32/direct3d11/d3d10-graphics-programming-guide-primitive-topologies).
+ * 
+ * \note Translates to  `D3D_PRIMITIVE_TOPOLOGY` for DirectX 12 implementation, and `VkPrimitiveTopology` for Vulkan implementation.
+ * 
  * Values:
  * - `WisPrimitiveTopologyPointList = 1`: Render points for each vertex.
  * - `WisPrimitiveTopologyLineList = 2`: Render lines between vertices.

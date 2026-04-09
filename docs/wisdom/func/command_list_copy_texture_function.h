@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void wisCommandListCopyTexture(const WisCommandList* self,
  *                                WisTextureView              dst_texture,
  *                                WisTextureView              src_texture,
@@ -19,14 +19,14 @@
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void wisVKCommandListCopyTexture(const WisVKCommandList* self,
  *                                  WisVKTextureView            dst_texture,
  *                                  WisVKTextureView            src_texture,
  *                                  const WisTextureCopyRegion* regions,
  *                                  size_t                      region_count);
- *
- * // Provided by Wisdom 0.7.0.
+ * 
+ * // Provided by Wisdom 0.7.0. 
  * void wisDX12CommandListCopyTexture(const WisDX12CommandList* self,
  *                                    WisDX12TextureView          dst_texture,
  *                                    WisDX12TextureView          src_texture,
@@ -34,11 +34,11 @@
  *                                    size_t                      region_count);
  * ```
  * </details>
- *
+ * 
  * C++ Version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void CommandList::CopyTexture(wis::TextureView                        dst_texture,
  *                               wis::TextureView                        src_texture,
  *                               wis::span<const wis::TextureCopyRegion> regions) const noexcept;
@@ -48,12 +48,12 @@
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void VKCommandList::CopyTexture(wis::VKTextureView                      dst_texture,
  *                                 wis::VKTextureView                      src_texture,
  *                                 wis::span<const wis::TextureCopyRegion> regions) const noexcept;
- *
- * // Provided by Wisdom 0.7.0.
+ * 
+ * // Provided by Wisdom 0.7.0. 
  * void DX12CommandList::CopyTexture(wis::DX12TextureView                    dst_texture,
  *                                   wis::DX12TextureView                    src_texture,
  *                                   wis::span<const wis::TextureCopyRegion> regions) const noexcept;

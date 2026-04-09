@@ -9,27 +9,27 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void wisCommandListSetDescriptorTable(const WisCommandList* self,
  *                                       const WisDescriptorTableDataDesc* data);
  * ```
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void wisVKCommandListSetDescriptorTable(const WisVKCommandList* self,
  *                                         const WisDescriptorTableDataDesc* data);
- *
- * // Provided by Wisdom 0.7.0.
+ * 
+ * // Provided by Wisdom 0.7.0. 
  * void wisDX12CommandListSetDescriptorTable(const WisDX12CommandList* self,
  *                                           const WisDescriptorTableDataDesc* data);
  * ```
  * </details>
- *
+ * 
  * C++ Version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void CommandList::SetDescriptorTable(const wis::DescriptorTableDataDesc& data) const noexcept;
  * }
  * ```
@@ -37,10 +37,10 @@
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void VKCommandList::SetDescriptorTable(const wis::DescriptorTableDataDesc& data) const noexcept;
- *
- * // Provided by Wisdom 0.7.0.
+ * 
+ * // Provided by Wisdom 0.7.0. 
  * void DX12CommandList::SetDescriptorTable(const wis::DescriptorTableDataDesc& data) const noexcept;
  * }
  * ```

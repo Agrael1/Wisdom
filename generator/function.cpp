@@ -645,10 +645,21 @@ std::string Generator::MakeFunctionDescription(const WisFunction& s)
 {
     std::string description = " * ";
     if (!s.this_type.empty()) {
-        description += wis::format(
-            "- **this** `self` self is a pointer to the valid {{{}::}} instance.\n",
-            s.this_type
-        );
+        if (s.modifier & Modifier::Construct) {
+            description += wis::format(
+                "- **this** `self` is a pointer to uninitialized {{{}::}} instance memory. It will be initialized by "
+                "this function.\n",
+                s.this_type
+            );
+
+            // There must also be a note about the destroy function in the description
+            description += wis::format("**note** The corresponding destroy function is `wisDestroy{}`.\n", s.this_type);
+        } else {
+            description += wis::format(
+                "- **this** `self` self is a pointer to the valid {{{}::}} instance.\n",
+                s.this_type
+            );
+        }
     }
 
     for (auto& p : s.parameters) {

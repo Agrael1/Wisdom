@@ -1,7 +1,7 @@
 /**
  *
  * @page getting_started_page Getting Started
- *
+ * **[OLD SECTION, TODO: REWRITE]**
  * This page provides a quick guide to get started with the Wisdom library. The Wisdom library is designed to be lightweight and efficient, focusing on modern C++ standards and best practices. This guide will help you set up the library, understand its basic usage, and provide resources for further exploration.
  *
  * @section install_sec Installation
@@ -67,7 +67,7 @@
 
 /**
  * @page setup_page Consumption
- *
+ * **[OLD SECTION, TODO: REWRITE]**
  * This page provides information on how to consume the Wisdom library in your project. It covers how to link the library, include headers, use CMake flags, and use the provided features.
  *
  * @section cmake_usage CMake Usage
@@ -145,7 +145,7 @@
 
 /**
  * @page library_structure Library Structure
- *
+ * **[OLD SECTION, TODO: REWRITE]**
  * This page provides an overview of the Wisdom library structure and its components.
  *
  * @section start_overview_sec Overview
@@ -241,7 +241,7 @@
 
 /**
  * @page examples_page Initialization
- *
+ * **[OLD SECTION, TODO: REWRITE]**
  * This page provides basic examples of how to use the Wisdom library in your project. The examples cover initialization and basic setup.
  * Most of the examples are provided in the `examples` directory of the library.
  *

@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void wisCommandListSetDepthBias(WisCommandList* self,
  *                                 float           depth_bias,
  *                                 float           depth_bias_clamp,
@@ -18,24 +18,24 @@
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void wisVKCommandListSetDepthBias(WisVKCommandList* self,
  *                                   float             depth_bias,
  *                                   float             depth_bias_clamp,
  *                                   float             slope_scaled_depth_bias);
- *
- * // Provided by Wisdom 0.7.0.
+ * 
+ * // Provided by Wisdom 0.7.0. 
  * void wisDX12CommandListSetDepthBias(WisDX12CommandList* self,
  *                                     float               depth_bias,
  *                                     float               depth_bias_clamp,
  *                                     float               slope_scaled_depth_bias);
  * ```
  * </details>
- *
+ * 
  * C++ Version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void CommandList::SetDepthBias(float depth_bias,
  *                                float depth_bias_clamp,
  *                                float slope_scaled_depth_bias) noexcept;
@@ -45,12 +45,12 @@
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void VKCommandList::SetDepthBias(float depth_bias,
  *                                  float depth_bias_clamp,
  *                                  float slope_scaled_depth_bias) noexcept;
- *
- * // Provided by Wisdom 0.7.0.
+ * 
+ * // Provided by Wisdom 0.7.0. 
  * void DX12CommandList::SetDepthBias(float depth_bias,
  *                                    float depth_bias_clamp,
  *                                    float slope_scaled_depth_bias) noexcept;

@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef enum WisTextureLayout {
  *     WisTextureLayoutTexture1D = 2,
  *     WisTextureLayoutTexture1DArray = 3,
@@ -24,7 +24,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * enum class TextureLayout {
  *     Texture1D = 2,
  *     Texture1DArray = 3,
@@ -44,7 +44,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * Texture layout. Determines how texture will be accessed.
- *
+ * 
  * Values:
  * - `WisTextureLayoutTexture1D = 2`: Texture is 1D array of data. Behaves similarly to Buffer.
  * - `WisTextureLayoutTexture1DArray = 3`: Texture is an array of 1D data.
@@ -54,8 +54,8 @@
  * - `WisTextureLayoutTexture2DMSArray = 7`: Texture is an array of 2D multisampled images.
  * - `WisTextureLayoutTexture3D = 8`: Texture is 3D volume.
  * - `WisTextureLayoutTextureCube = 9`: Texture is a cube map. Behaves similarly to Texture2DArray with 6 layers.
- * - `WisTextureLayoutTextureCubeArray = 10`: Texture is an array of cube maps. Behaves similarly to Texture2DArray with
- * 6 layers per cube map. \endcond
+ * - `WisTextureLayoutTextureCubeArray = 10`: Texture is an array of cube maps. Behaves similarly to Texture2DArray with 6 layers per cube map.
+ * \endcond
  *
  *
  * @section WisTextureLayout_see_also See Also

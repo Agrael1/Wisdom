@@ -9,20 +9,20 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void wisDestroyViewHeap(WisViewHeap* self);
  * ```
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void wisVKDestroyViewHeap(WisVKViewHeap* self);
- *
- * // Provided by Wisdom 0.7.0.
+ * 
+ * // Provided by Wisdom 0.7.0. 
  * void wisDX12DestroyViewHeap(WisDX12ViewHeap* self);
  * ```
  * </details>
- *
+ * 
  * \endcond
  *
  * @section wisDestroyViewHeap_memb Parameters

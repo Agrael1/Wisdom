@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef enum WisMemoryFlags {
  *     WisMemoryFlagsNone = 0,
  *     WisMemoryFlagsDedicatedAllocation = (1u << 0),
@@ -19,7 +19,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * enum class MemoryFlags : uint32_t {
  *     None = 0,
  *     DedicatedAllocation = (1u << 0),
@@ -35,8 +35,9 @@
  * \cond WIS_GEN_DESC
  * Memory flags.
  * Determine optional properties of the memory allocation.
- *
+ * 
  * \note Translates to DirectX 12 as D3D12MA::ALLOCATION_FLAGS, Vulkan as VmaAllocationCreateFlags.
+ * 
  * Values:
  * - `WisMemoryFlagsNone = 0`: No flags set. Memory is regular.
  * - `WisMemoryFlagsDedicatedAllocation = (1 << 0)`: Memory is dedicated.

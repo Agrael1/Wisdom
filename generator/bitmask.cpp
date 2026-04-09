@@ -183,7 +183,7 @@ std::string Generator::MakeBitmaskDescription(const WisBitmask& s)
         has_translate = true;
     }
     if (has_translate) {
-        description += translates + ".\n";
+        description += translates + ".\n\n";
     }
     description += "Values:\n";
     for (auto& m : s.values) {

@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef struct  WisRenderPassRenderTargetDesc {
  *     uint64_t              target;
  *     WisLoadOp             load_op;
@@ -17,12 +17,12 @@
  *     float                 clear_value[4];
  *     const WisResolveDesc* resolve_desc;
  * } WisRenderPassRenderTargetDesc;
- *
+ * 
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * struct  RenderPassRenderTargetDesc {
  *     std::uint64_t           target;
  *     wis::LoadOp             load_op;
