@@ -1410,29 +1410,24 @@ typedef enum WisResourceAccess {
 typedef enum WisBarrierFlags {
     WisBarrierFlagsNone = 0, ///< No flags set. Barrier is regular.
     /**
-     * @brief Discard resource content. The content of the resource before the barrier is treated as if resource was not
-     * initialized.
-     * */
-    WisBarrierFlagsDiscardContent = (1u << 0),
-    /**
      * @brief Resource is a depth resource. This flag @wis_must be set for all depth resources to make transitions on
      * them.
      * */
-    WisBarrierFlagsDepthResource = (1u << 1),
+    WisBarrierFlagsDepthResource = (1u << 0),
     /**
      * @brief Resource is a stencil resource. This flag @wis_must be set for all stencil resources to make transitions
      * on them.
      * */
-    WisBarrierFlagsStencilResource = (1u << 2),
+    WisBarrierFlagsStencilResource = (1u << 1),
     /**
      * @brief Transition whole resource. If not set, the transition is applied only to the specified subresource range.
      * If set, the subresource range is ignored and the transition is applied to all subresources of the resource.
      * */
-    WisBarrierFlagsWholeRange = (1u << 3),
+    WisBarrierFlagsWholeRange = (1u << 2),
     /**
      * @brief Resource is a planar image. If the flag is not set, plane slices in WisSubresourceRange are ignored.
      * */
-    WisBarrierFlagsPlanarImage = (1u << 4),
+    WisBarrierFlagsPlanarImage = (1u << 3),
 } WisBarrierFlags;
 
 /**
@@ -2148,7 +2143,7 @@ typedef struct WisTargetSubresource {
  *
  * */
 typedef struct WisTextureRegion {
-    WisBarrierFlags flags; ///< describes texture parameters for copy. `WisBarrierFlagsDiscardContent` is implicit.
+    WisBarrierFlags flags; ///< describes texture parameters for copy. WisBarrierFlags is implicit.
     WisBox box; ///< describes box defining the region to copy.
     WisTargetSubresource target_subresource; ///< defines target subresource description for the region.
 } WisTextureRegion;

@@ -33,7 +33,7 @@
  * @section WisTextureRegion_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `flags` describes texture parameters for copy. `WisBarrierFlagsDiscardContent` is implicit.
+ * - `flags` describes texture parameters for copy. WisBarrierFlags is implicit.
  * - `box` describes box defining the region to copy.
  * - `target_subresource` defines target subresource description for the region.
  * \endcond

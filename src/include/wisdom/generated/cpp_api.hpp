@@ -1394,29 +1394,24 @@ WISDOM_DEFINE_ENUM_OPERATORS(ResourceAccess)
 enum class BarrierFlags : uint32_t {
     None = 0, ///< No flags set. Barrier is regular.
     /**
-     * @brief Discard resource content. The content of the resource before the barrier is treated as if resource was not
-     * initialized.
-     * */
-    DiscardContent = (1u << 0),
-    /**
      * @brief Resource is a depth resource. This flag @wis_must be set for all depth resources to make transitions on
      * them.
      * */
-    DepthResource = (1u << 1),
+    DepthResource = (1u << 0),
     /**
      * @brief Resource is a stencil resource. This flag @wis_must be set for all stencil resources to make transitions
      * on them.
      * */
-    StencilResource = (1u << 2),
+    StencilResource = (1u << 1),
     /**
      * @brief Transition whole resource. If not set, the transition is applied only to the specified subresource range.
      * If set, the subresource range is ignored and the transition is applied to all subresources of the resource.
      * */
-    WholeRange = (1u << 3),
+    WholeRange = (1u << 2),
     /**
      * @brief Resource is a planar image. If the flag is not set, plane slices in wis::SubresourceRange are ignored.
      * */
-    PlanarImage = (1u << 4),
+    PlanarImage = (1u << 3),
 };
 WISDOM_DEFINE_ENUM_OPERATORS(BarrierFlags)
 
@@ -2161,10 +2156,7 @@ struct TargetSubresource {
  *
  * */
 struct TextureRegion {
-    /**
-     * @brief describes texture parameters for copy. `wis::BarrierFlags::DiscardContent` is implicit.
-     * */
-    wis::BarrierFlags flags;
+    wis::BarrierFlags flags; ///< describes texture parameters for copy. wis::BarrierFlags is implicit.
     wis::Box box; ///< describes box defining the region to copy.
     wis::TargetSubresource target_subresource; ///< defines target subresource description for the region.
 };

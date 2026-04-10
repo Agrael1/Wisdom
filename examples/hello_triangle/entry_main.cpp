@@ -343,7 +343,6 @@ static void draw_frame(HelloTriangleApp* app, float angle)
     barriers[0].access_after = wis::ResourceAccess::RenderTarget;
     barriers[0].state_before = wis::TextureState::Undefined;
     barriers[0].state_after = wis::TextureState::RenderTarget;
-    barriers[0].flags = wis::BarrierFlags::DiscardContent;
     barriers[0].texture = target_texture.GetView();
     barriers[0].subresource_range = {0, 1, 0, 1, 0, 1};
     barriers[0].queue_type_before = wis::CommandQueueType::Graphics;

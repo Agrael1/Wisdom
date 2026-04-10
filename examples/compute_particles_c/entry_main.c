@@ -292,7 +292,7 @@ void ResizeDepth(BasicRenderer* renderer, uint32_t width, uint32_t height)
             .subresource_range = {0, 1, 0, 1, 0, 1},
             .queue_type_before = WisCommandQueueTypeGraphics,
             .queue_type_after = WisCommandQueueTypeGraphics,
-            .flags = WisBarrierFlagsDepthResource | WisBarrierFlagsStencilResource | WisBarrierFlagsDiscardContent,
+            .flags = WisBarrierFlagsDepthResource | WisBarrierFlagsStencilResource,
         };
     }
 
@@ -962,7 +962,6 @@ void Render(BasicRenderer* renderer, const ResourceContainer* resources, const B
             .subresource_range = {0, 1, 0, 1, 0, 1},
             .queue_type_before = WisCommandQueueTypeGraphics,
             .queue_type_after = WisCommandQueueTypeGraphics,
-            .flags = WisBarrierFlagsDiscardContent,
         },
         {
             .sync_before = WisBarrierSyncRenderTarget,

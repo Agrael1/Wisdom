@@ -400,7 +400,6 @@ static void draw_frame(HelloTriangleApp* app, float angle)
             .subresource_range = {0, 1, 0, 1, 0, 1},
             .queue_type_before = WisCommandQueueTypeGraphics,
             .queue_type_after = WisCommandQueueTypeGraphics,
-            .flags = WisBarrierFlagsDiscardContent,
         },
         {
             .sync_before = WisBarrierSyncRenderTarget,

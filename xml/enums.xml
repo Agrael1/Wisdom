@@ -1621,11 +1621,10 @@ Outside of AllocateXMemory the flag is ignored."/>
 
     <type name="BarrierFlags" category="bitmask" version="0.7.0" doc="Barrier flags for resource barriers.">
       <value name="None" value="0" doc="No flags set. Barrier is regular."/>
-      <value name="DiscardContent" bit="0" doc="Discard resource content. The content of the resource before the barrier is treated as if resource was not initialized."/>
-      <value name="DepthResource" bit="1" doc="Resource is a depth resource. This flag @wis_must be set for all depth resources to make transitions on them."/>
-      <value name="StencilResource" bit="2" doc="Resource is a stencil resource. This flag @wis_must be set for all stencil resources to make transitions on them."/>
-      <value name="WholeRange" bit="3" doc="Transition whole resource. If not set, the transition is applied only to the specified subresource range. If set, the subresource range is ignored and the transition is applied to all subresources of the resource."/>
-      <value name="PlanarImage" bit="4" doc="Resource is a planar image. If the flag is not set, plane slices in {SubresourceRange::} are ignored."/>
+      <value name="DepthResource" bit="0" doc="Resource is a depth resource. This flag @wis_must be set for all depth resources to make transitions on them."/>
+      <value name="StencilResource" bit="1" doc="Resource is a stencil resource. This flag @wis_must be set for all stencil resources to make transitions on them."/>
+      <value name="WholeRange" bit="2" doc="Transition whole resource. If not set, the transition is applied only to the specified subresource range. If set, the subresource range is ignored and the transition is applied to all subresources of the resource."/>
+      <value name="PlanarImage" bit="3" doc="Resource is a planar image. If the flag is not set, plane slices in {SubresourceRange::} are ignored."/>
     </type>
 
     <type name="PipelineFlags" category="bitmask" version="0.7.0" doc="Pipeline creation flags.">

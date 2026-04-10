@@ -394,8 +394,7 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListInsertBarriers(
             .srcAccessMask = wis::detail::VKConvert(src.access_before),
             .dstStageMask = wis::detail::VKConvert(src.sync_after),
             .dstAccessMask = wis::detail::VKConvert(src.access_after),
-            .oldLayout = src.flags & WisBarrierFlagsDiscardContent ? VK_IMAGE_LAYOUT_UNDEFINED
-                                                                   : wis::detail::VKConvert(src.state_before),
+            .oldLayout = wis::detail::VKConvert(src.state_before),
             .newLayout = wis::detail::VKConvert(src.state_after),
             .srcQueueFamilyIndex = q1,
             .dstQueueFamilyIndex = q2,
