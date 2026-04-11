@@ -33,7 +33,8 @@
  * \cond WIS_GEN_DESC
  * Line rasterization mode.
  *
- * \note Translates to  `D3D12_LINE_RASTERIZATION_MODE` for DirectX 12 implementation, and `VkLineRasterizationModeEXT` for Vulkan implementation.
+ * \note Translates to  `D3D12_LINE_RASTERIZATION_MODE` for DirectX 12 implementation, and `VkLineRasterizationModeEXT`
+ * for Vulkan implementation.
  *
  * Values:
  * - `WisLineRasterizationDefault = 0`: Line rasterization is disabled. Lines are not rendered.

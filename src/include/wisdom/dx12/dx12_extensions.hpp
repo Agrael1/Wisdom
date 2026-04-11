@@ -18,13 +18,11 @@ struct DX12DeviceImpl;
 template <typename T>
 struct DX12InstanceExtensionImpl : public DX12InstanceExtensionHeader {
     DX12InstanceExtensionImpl() noexcept
-        : DX12InstanceExtensionHeader {
-        &DX12InstanceExtensionImpl<T>::InitThunk
-    }
+        : DX12InstanceExtensionHeader{&DX12InstanceExtensionImpl<T>::InitThunk}
     {
         assert(
             static_cast<std::uintptr_t>(static_cast<T*>(this))
-            == reinterpret_cast<std::uintptr_t>(static_cast<DX12InstanceExtensionHeader*>(this))
+                == reinterpret_cast<std::uintptr_t>(static_cast<DX12InstanceExtensionHeader*>(this))
             && "DX12InstanceExtensionImpl must be the first base class!"
         );
     }
@@ -46,13 +44,11 @@ public:
 template <typename T>
 struct DX12DeviceExtensionImpl : public DX12DeviceExtensionHeader {
     DX12DeviceExtensionImpl() noexcept
-        : DX12DeviceExtensionHeader {
-        &DX12DeviceExtensionImpl<T>::InitThunk
-    }
+        : DX12DeviceExtensionHeader{&DX12DeviceExtensionImpl<T>::InitThunk}
     {
         assert(
             static_cast<std::uintptr_t>(static_cast<T*>(this))
-            == reinterpret_cast<std::uintptr_t>(static_cast<DX12DeviceExtensionHeader*>(this))
+                == reinterpret_cast<std::uintptr_t>(static_cast<DX12DeviceExtensionHeader*>(this))
             && "DX12DeviceExtensionImpl must be the first base class!"
         );
     }

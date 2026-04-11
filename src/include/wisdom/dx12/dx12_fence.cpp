@@ -35,9 +35,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12FenceWait(const WisDX12Fence* self, uin
         return wis::detail::make_result<wis::detail::Func(), "Failed to set event on fence">(hr);
     }
     DWORD wait_result = WaitForSingleObject(
-                            event,
-                            wait_ns == UINT64_MAX ? INFINITE : static_cast<DWORD>(wait_ns / 1'000'000)
-                        );
+        event,
+        wait_ns == UINT64_MAX ? INFINITE : static_cast<DWORD>(wait_ns / 1'000'000)
+    );
     if (wait_result == WAIT_OBJECT_0) {
         return wis::detail::dx_success;
     } else if (wait_result == WAIT_TIMEOUT) {

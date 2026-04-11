@@ -45,17 +45,20 @@
  * \cond WIS_GEN_DESC
  * Comparison function for depth and stencil operations.
  *
- * \note Translates to  `D3D12_COMPARISON_FUNC` for DirectX 12 implementation, and `VkCompareOp` for Vulkan implementation.
+ * \note Translates to  `D3D12_COMPARISON_FUNC` for DirectX 12 implementation, and `VkCompareOp` for Vulkan
+ * implementation.
  *
  * Values:
  * - `WisCompareOpNone = 0`: No comparison.
  * - `WisCompareOpNever = 1`: Always fail the comparison.
  * - `WisCompareOpLess = 2`: Pass the comparison if the source value is less than the destination value.
  * - `WisCompareOpEqual = 3`: Pass the comparison if the source value is equal to the destination value.
- * - `WisCompareOpLessEqual = 4`: Pass the comparison if the source value is less than or equal to the destination value.
+ * - `WisCompareOpLessEqual = 4`: Pass the comparison if the source value is less than or equal to the destination
+ * value.
  * - `WisCompareOpGreater = 5`: Pass the comparison if the source value is greater than the destination value.
  * - `WisCompareOpNotEqual = 6`: Pass the comparison if the source value is not equal to the destination value.
- * - `WisCompareOpGreaterEqual = 7`: Pass the comparison if the source value is greater than or equal to the destination value.
+ * - `WisCompareOpGreaterEqual = 7`: Pass the comparison if the source value is greater than or equal to the destination
+ * value.
  * - `WisCompareOpAlways = 8`: Always pass the comparison.
  * \endcond
  *

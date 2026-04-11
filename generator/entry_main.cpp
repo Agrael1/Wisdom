@@ -44,10 +44,10 @@ int main(int argc, char** argv)
     std::string_view arg = argv[1];
     if (arg == "-h" || arg == "--help") {
         std::cout
-                << "Usage: " << argv[0] << " [module_name,...]\n"
-                << "If module_name is provided, generates API for that platform module. Otherwise, generates core API.\n"
-                << "Modules are stored in xml folder. For example, if module_name is 'platform', the generator will look "
-                "for 'xml/platform.xml' and generate API for it.\n";
+            << "Usage: " << argv[0] << " [module_name,...]\n"
+            << "If module_name is provided, generates API for that platform module. Otherwise, generates core API.\n"
+            << "Modules are stored in xml folder. For example, if module_name is 'platform', the generator will look "
+               "for 'xml/platform.xml' and generate API for it.\n";
         return 0;
     }
 
@@ -59,7 +59,7 @@ int main(int argc, char** argv)
         size_t next_comma = arg.find(',', i);
         std::string_view platform_module_name = arg.substr(i, next_comma - i);
         auto module_path = std::filesystem::path(input_file).parent_path()
-                           / (std::string(platform_module_name) + std::string(".xml"));
+                         / (std::string(platform_module_name) + std::string(".xml"));
 
         g.ParseFile(module_path);
         g.WriteModuleAPI();

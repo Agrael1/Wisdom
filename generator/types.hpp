@@ -41,9 +41,7 @@ constexpr Backend operator&(Backend a, Backend b)
 {
     return static_cast<Backend>(static_cast<int>(a) & static_cast<int>(b));
 }
-constexpr bool has(Backend a, Backend b) {
-    return (a & b) == b;
-}
+constexpr bool has(Backend a, Backend b) { return (a & b) == b; }
 
 enum class ImplOs {
     None,
@@ -120,11 +118,8 @@ struct WisEnum {
 public:
     std::optional<WisEnumValue> HasValue(std::string_view name) const noexcept
     {
-        auto enum_value = std::find_if(values.begin(), values.end(), [&](auto& v) {
-            return v.name == name;
-        });
-        return enum_value != values.end() ? std::optional<WisEnumValue> {*enum_value} :
-               std::nullopt;
+        auto enum_value = std::find_if(values.begin(), values.end(), [&](auto& v) { return v.name == name; });
+        return enum_value != values.end() ? std::optional<WisEnumValue>{*enum_value} : std::nullopt;
     }
 };
 
@@ -147,11 +142,8 @@ struct WisBitmask {
 public:
     std::optional<WisBitmaskValue> HasValue(std::string_view name) const noexcept
     {
-        auto enum_value = std::find_if(values.begin(), values.end(), [&](auto& v) {
-            return v.name == name;
-        });
-        return enum_value != values.end() ? std::optional<WisBitmaskValue> {*enum_value} :
-               std::nullopt;
+        auto enum_value = std::find_if(values.begin(), values.end(), [&](auto& v) { return v.name == name; });
+        return enum_value != values.end() ? std::optional<WisBitmaskValue>{*enum_value} : std::nullopt;
     }
 };
 
@@ -181,14 +173,10 @@ public:
             return {};
         }
 
-        auto enum_value = std::find_if(members.begin(), members.end(), [&](auto& v) {
-            return v.name == name;
-        });
+        auto enum_value = std::find_if(members.begin(), members.end(), [&](auto& v) { return v.name == name; });
         return *enum_value;
     }
-    void FilterBackend(Backend b) {
-        backend = backend & b;
-    }
+    void FilterBackend(Backend b) { backend = backend & b; }
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -266,18 +254,10 @@ struct WisReturnType {
         return ReturnTypeKind::ResultAndValue;
     }
 
-    bool IsVoid() const noexcept {
-        return type.empty() && !has_result;
-    }
-    bool IsRV() const noexcept {
-        return has_result && !type.empty();
-    }
-    bool IsDirect() const noexcept {
-        return !has_result && !type.empty();
-    }
-    bool IsResultOnly() const noexcept {
-        return has_result && type.empty();
-    }
+    bool IsVoid() const noexcept { return type.empty() && !has_result; }
+    bool IsRV() const noexcept { return has_result && !type.empty(); }
+    bool IsDirect() const noexcept { return !has_result && !type.empty(); }
+    bool IsResultOnly() const noexcept { return has_result && type.empty(); }
 };
 struct WisFunction {
     std::string_view name;
@@ -296,9 +276,7 @@ struct WisFunction {
         if (name.empty()) {
             return {};
         }
-        auto enum_value = std::find_if(parameters.begin(), parameters.end(), [&](auto& v) {
-            return v.name == name;
-        });
+        auto enum_value = std::find_if(parameters.begin(), parameters.end(), [&](auto& v) { return v.name == name; });
         if (enum_value == parameters.end()) {
             // it can be return value
             if (return_type.opt_name == name) {
@@ -316,13 +294,9 @@ struct WisFunction {
     }
 
     // constructor or destructor
-    bool IsCD() const noexcept {
-        return modifier & (Modifier::Construct | Modifier::Destroy);
-    }
+    bool IsCD() const noexcept { return modifier & (Modifier::Construct | Modifier::Destroy); }
 
-    void FilterBackend(Backend b) {
-        backend = backend & b;
-    }
+    void FilterBackend(Backend b) { backend = backend & b; }
 };
 
 static inline constexpr Severity from_chars(std::string_view input) noexcept
@@ -366,7 +340,7 @@ template <>
 struct hash<FunctionKey> {
     std::size_t operator()(const FunctionKey& k) const noexcept
     {
-        return std::hash<std::string_view> {}(k.first) ^ (std::hash<std::string_view> {}(k.second) << 1);
+        return std::hash<std::string_view>{}(k.first) ^ (std::hash<std::string_view>{}(k.second) << 1);
     }
 };
 } // namespace std

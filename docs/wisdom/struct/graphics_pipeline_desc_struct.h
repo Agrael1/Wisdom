@@ -147,15 +147,22 @@
  * - `vertex_shader` defines vertex shader bytecode.
  * - `hull_shader` indicates hull shader bytecode. If not set, the pipeline will be created without a hull shader.
  * - `domain_shader` specifies domain shader bytecode. If not set, the pipeline will be created without a domain shader.
- * - `geometry_shader` specifies geometry shader bytecode. If not set, the pipeline will be created without a geometry shader.
+ * - `geometry_shader` specifies geometry shader bytecode. If not set, the pipeline will be created without a geometry
+ * shader.
  * - `pixel_shader` defines pixel shader bytecode. If not set, the pipeline will be created without a pixel shader.
- * - `render_attachments` indicates render attachments description for the pipeline. Used to create the compatible render pass for the pipeline.
- * - `input_layout` describes input layout description for the pipeline. If not set, the pipeline will be created without an input layout.
+ * - `render_attachments` indicates render attachments description for the pipeline. Used to create the compatible
+ * render pass for the pipeline.
+ * - `input_layout` describes input layout description for the pipeline. If not set, the pipeline will be created
+ * without an input layout.
  * - `topology_type` specifies topology type. Default is `WisTopologyTypeTriangle`.
- * - `rasterizer_desc` describes rasterizer description for the pipeline. If not set, the pipeline will be created with default rasterizer state.
- * - `sample_desc` defines sample description for the pipeline. If not set, the pipeline will be created with default sample state (no multisampling).
- * - `depth_stencil_desc` defines depth stencil description for the pipeline. If not set, the pipeline will be created with depth testing and stencil testing disabled.
- * - `blend_state_desc` indicates blend state description for the pipeline. If not set, the pipeline will be created with blending disabled.
+ * - `rasterizer_desc` describes rasterizer description for the pipeline. If not set, the pipeline will be created with
+ * default rasterizer state.
+ * - `sample_desc` defines sample description for the pipeline. If not set, the pipeline will be created with default
+ * sample state (no multisampling).
+ * - `depth_stencil_desc` defines depth stencil description for the pipeline. If not set, the pipeline will be created
+ * with depth testing and stencil testing disabled.
+ * - `blend_state_desc` indicates blend state description for the pipeline. If not set, the pipeline will be created
+ * with blending disabled.
  * - `cache` defines pipeline cache data. Used to speed up pipeline creation if available.
  * - `flags` describes pipeline flags. Describe additional options for the pipeline.
  * \endcond

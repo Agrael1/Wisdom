@@ -56,9 +56,7 @@ PFN GetProcAddress(void* library, const char* fname) noexcept
 }
 
 struct LibraryDeleter {
-    void operator()(void* library) const noexcept {
-        UninitializeVulkanLibrary(library);
-    }
+    void operator()(void* library) const noexcept { UninitializeVulkanLibrary(library); }
 };
 using unique_library = std::unique_ptr<void, LibraryDeleter>;
 } // namespace detail

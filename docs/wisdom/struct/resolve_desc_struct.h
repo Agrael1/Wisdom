@@ -31,7 +31,9 @@
  * @section WisResolveDesc_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `resolve_target` specifies resolve target view for multisampled render target; it @wis_must reside on WisViewHeap which was allocated with allow_multisample. If the render target is multisampled and resolve_target is set to 0. `target` @wis_must also reside on WisViewHeap which was allocated with allow_multisample.
+ * - `resolve_target` specifies resolve target view for multisampled render target; it @wis_must reside on WisViewHeap
+ * which was allocated with allow_multisample. If the render target is multisampled and resolve_target is set to 0.
+ * `target` @wis_must also reside on WisViewHeap which was allocated with allow_multisample.
  * - `mode` defines resolve mode. Default is `WisResolveModeAverage`.
  * \endcond
  *

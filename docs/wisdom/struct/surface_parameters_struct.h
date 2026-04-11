@@ -39,10 +39,11 @@
  * \cond WIS_GEN_DESC
  * - `min_swapchain_images` specifies minimum number of images in the swapchain.
  * - `max_swapchain_images` defines maximum number of images in the swapchain.
- * - `alpha_modes_supported` specifies bitmask of supported alpha modes for the swapchain. Each bit represents a different alpha mode. Used to determine the supported alpha modes for the swapchain.
+ * - `alpha_modes_supported` specifies bitmask of supported alpha modes for the swapchain. Each bit represents a
+ * different alpha mode. Used to determine the supported alpha modes for the swapchain.
  * - `texture_usage_flags_supported` specifies bitmask of supported texture usage flags for the swapchain images.
- * - `stereo_supported` indicates if stereo rendering is supported. If true, the surface can be used to create a swapchain with stereo support.
- * \endcond
+ * - `stereo_supported` indicates if stereo rendering is supported. If true, the surface can be used to create a
+ * swapchain with stereo support. \endcond
  *
  * @section WisSurfaceParameters_descr Description
  * <hr>

@@ -46,12 +46,13 @@
  * - `width` defines swapchain image width in pixels.
  * - `height` describes swapchain image height in pixels.
  * - `image_count` indicates number of images in the swapchain.
- * - `texture_usage_flags` describes texture usage flags for the swapchain images. Describe how the swapchain images will be used.
+ * - `texture_usage_flags` describes texture usage flags for the swapchain images. Describe how the swapchain images
+ * will be used.
  * - `format` describes swapchain image format.
  * - `scaling` describes swapchain scaling mode.
  * - `flags` describes swapchain flags. Describe additional options for the swapchain.
- * - `composite_alpha` defines composite alpha mode. Describe how the alpha channel of the swapchain images is treated during compositing.
- * \endcond
+ * - `composite_alpha` defines composite alpha mode. Describe how the alpha channel of the swapchain images is treated
+ * during compositing. \endcond
  *
  * @section WisSwapchainDesc_descr Description
  * <hr>

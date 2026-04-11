@@ -91,10 +91,10 @@ std::string Generator::MakeCVariant(const WisStruct& s, Backend backend, DocKind
     auto impl_suffix = GetBackendSuffix(backend);
     auto full_name = GetCFullTypename(s.name, backend);
     std::string st_decl = wis::format(
-                              "typedef struct {}{} {{\n",
-                              s.modifier & Modifier::Nodiscard ? "WIS_NODISCARD " : "",
-                              full_name
-                          );
+        "typedef struct {}{} {{\n",
+        s.modifier & Modifier::Nodiscard ? "WIS_NODISCARD " : "",
+        full_name
+    );
     if (!s.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation(s, kind);
         st_decl = wis::format("{}\n{}", xdoc, st_decl);
@@ -123,11 +123,11 @@ std::string Generator::MakeCPPVariant(const WisStruct& s, Backend backend, DocKi
 
     auto impl_suffix = GetBackendSuffix(backend);
     std::string st_decl = wis::format(
-                              "struct {}{}{} {{\n",
-                              s.modifier & Modifier::Nodiscard ? "WIS_NODISCARD " : "",
-                              impl_suffix,
-                              s.name
-                          );
+        "struct {}{}{} {{\n",
+        s.modifier & Modifier::Nodiscard ? "WIS_NODISCARD " : "",
+        impl_suffix,
+        s.name
+    );
     if (!s.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation<Lang::CPP>(s, kind);
         st_decl = wis::format("{}\n{}", xdoc, st_decl);
@@ -171,7 +171,7 @@ void Generator::WriteVariantDocumentation(std::filesystem::path struct_output_pa
     for (const auto& variant_name : variant_names) {
         // Make a folder for enums starting with this letter
         std::filesystem::path variant_file_path = struct_output_path
-            / wis::format("{}_struct.h", MakeSnakeCase(variant_name));
+                                                / wis::format("{}_struct.h", MakeSnakeCase(variant_name));
         auto& variant_ref = variant_map[variant_name];
 
         auto supports_vk = has(variant_ref.backend, Backend::Vulkan);
@@ -180,8 +180,8 @@ void Generator::WriteVariantDocumentation(std::filesystem::path struct_output_pa
         std::string vk_code = supports_vk ? MakeCVariant(variant_ref, Backend::Vulkan, DocKind::VersionOnly) : "";
         std::string dx_code = supports_dx ? MakeCVariant(variant_ref, Backend::DX12, DocKind::VersionOnly) : "";
         std::string regular_code = supports_vk && supports_dx
-                                   ? MakeCVariant(variant_ref, Backend::Any, DocKind::VersionOnly)
-                                   : "";
+                                     ? MakeCVariant(variant_ref, Backend::Any, DocKind::VersionOnly)
+                                     : "";
 
         std::string c_code = regular_code;
         std::string cimpl_code = supports_vk && supports_dx ? (vk_code + '\n' + dx_code) : "";
@@ -190,18 +190,18 @@ void Generator::WriteVariantDocumentation(std::filesystem::path struct_output_pa
         }
 
         std::string vk_cpp = variant_ref.modifier & Modifier::COnly || !supports_vk
-                             ? ""
-                             : MakeCPPVariant(variant_ref, Backend::Vulkan, DocKind::VersionOnly);
+                               ? ""
+                               : MakeCPPVariant(variant_ref, Backend::Vulkan, DocKind::VersionOnly);
         std::string dx_cpp = variant_ref.modifier & Modifier::COnly || !supports_dx
-                             ? ""
-                             : MakeCPPVariant(variant_ref, Backend::DX12, DocKind::VersionOnly);
+                               ? ""
+                               : MakeCPPVariant(variant_ref, Backend::DX12, DocKind::VersionOnly);
         std::string regular_code_cpp = variant_ref.modifier & Modifier::COnly || !(supports_vk && supports_dx)
-                                       ? ""
-                                       : MakeCPPVariant(variant_ref, Backend::Any, DocKind::VersionOnly);
+                                         ? ""
+                                         : MakeCPPVariant(variant_ref, Backend::Any, DocKind::VersionOnly);
         std::string cpp_code = regular_code_cpp;
         std::string cimpl_code_cpp = variant_ref.modifier & Modifier::COnly || !(supports_vk && supports_dx)
-                                     ? ""
-                                     : vk_cpp + '\n' + dx_cpp;
+                                       ? ""
+                                       : vk_cpp + '\n' + dx_cpp;
         if (cpp_code.empty()) {
             cpp_code = !vk_cpp.empty() ? vk_cpp : dx_cpp;
         }

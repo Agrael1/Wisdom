@@ -224,7 +224,8 @@
  *
  * @note Internals are provided for advanced scenarios and may change between versions.
  * Prefer public APIs unless direct interop is required. The first members of the implementation structures are the
- * guaranteed to represent underlying logical type and guaranteed to stay unless major version bump, so you can safely use them in the extensions.
+ * guaranteed to represent underlying logical type and guaranteed to stay unless major version bump, so you can safely
+ * use them in the extensions.
  *
  *
  */

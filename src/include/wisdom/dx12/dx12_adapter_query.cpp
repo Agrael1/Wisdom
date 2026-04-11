@@ -109,11 +109,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(
     }
     wis::com_ptr<ID3D12Device10> device_ref;
     auto hr = D3D12CreateDevice(
-                  impl.physical_devices[index],
-                  D3D_FEATURE_LEVEL_12_0,
-                  IID_ID3D12Device10,
-                  reinterpret_cast<void**>(device_ref.put_void_unchecked())
-              );
+        impl.physical_devices[index],
+        D3D_FEATURE_LEVEL_12_0,
+        IID_ID3D12Device10,
+        reinterpret_cast<void**>(device_ref.put_void_unchecked())
+    );
     if (!wis::detail::succeeded(hr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to create D3D12 device">(hr);
     }
@@ -121,8 +121,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(
     D3D12_FEATURE_DATA_D3D12_OPTIONS12 options12 = {};
     bool EnhancedBarriersSupported = false;
     if (wis::detail::succeeded(
-                device_ref->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS12, &options12, sizeof(options12))
-            )) {
+            device_ref->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS12, &options12, sizeof(options12))
+        )) {
         EnhancedBarriersSupported = options12.EnhancedBarriersSupported;
     }
     if (!EnhancedBarriersSupported) {
@@ -133,10 +133,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(
     if (impl.debug_layer && impl.debug_layer->callback) {
         wis::com_ptr<ID3D12InfoQueue1> info_queue;
         if (auto hr2 = device_ref->QueryInterface(
-                           IID_ID3D12InfoQueue1,
-                           reinterpret_cast<void**>(info_queue.put_void_unchecked())
-                       );
-                wis::detail::succeeded(hr2)) {
+                IID_ID3D12InfoQueue1,
+                reinterpret_cast<void**>(info_queue.put_void_unchecked())
+            );
+            wis::detail::succeeded(hr2)) {
             const wis::com_ptr<wis::detail::DX12DebugLayerThunk> thunk{
                 new wis::detail::DX12DebugLayerThunk(
                     info_queue.get(),
@@ -186,7 +186,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(
         const auto& desc = requirements->queue_descs[i];
         if (desc.type >= WisCommandQueueTypeCount || desc.type < 0) {
             return wis::detail::
-                   make_result<wis::detail::Func(), "Invalid command queue type specified in requirements">(E_INVALIDARG);
+                make_result<wis::detail::Func(), "Invalid command queue type specified in requirements">(E_INVALIDARG);
         }
 
         if (desc.priority > WisCommandQueuePriorityNormal) {
@@ -196,17 +196,17 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(
                 .Priority = static_cast<UINT>(wis::detail::DX12Convert(desc.priority)),
             };
             device_impl.device
-            ->CheckFeatureSupport(D3D12_FEATURE_COMMAND_QUEUE_PRIORITY, &queue_priority, sizeof(queue_priority));
+                ->CheckFeatureSupport(D3D12_FEATURE_COMMAND_QUEUE_PRIORITY, &queue_priority, sizeof(queue_priority));
             device_impl.queue_priorities[desc.type] = queue_priority.PriorityForTypeIsSupported
-                ? desc.priority
-                : WisCommandQueuePriorityNormal;
+                                                        ? desc.priority
+                                                        : WisCommandQueuePriorityNormal;
         }
 
         device_impl.queue_priorities[desc.type] |= 1 << 7; // set support bit for this queue type
     }
 
     for (auto* ext :
-            wis::span<WisDX12DeviceExtensionHeader*> {requirements->extensions, requirements->extension_count}) {
+         wis::span<WisDX12DeviceExtensionHeader*>{requirements->extensions, requirements->extension_count}) {
         if (auto* table = wis::from_handle<wis::DX12DeviceExtensionHeader>(ext); table && table->init_fptr) {
             if (const auto xres = table->init_fptr(table, device_impl); xres.status != WisStatusOk) {
                 res.status = WisStatusPartial; // mark as partial success if any extension fails

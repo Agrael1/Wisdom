@@ -58,8 +58,8 @@
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisCommandList instance.
  * - `buffer` The index buffer to set.
- * - `index_type` Defines index type. Used to determine the size of each index in the buffer. Must be either `WisIndexTypeUInt16` or `WisIndexTypeUInt32`.
- * \endcond
+ * - `index_type` Defines index type. Used to determine the size of each index in the buffer. Must be either
+ * `WisIndexTypeUInt16` or `WisIndexTypeUInt32`. \endcond
  *
  * @section wisCommandListSetIndexBuffer_descr Description
  * <hr>

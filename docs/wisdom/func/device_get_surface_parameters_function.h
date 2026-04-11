@@ -47,7 +47,8 @@
  *
  * // Provided by Wisdom 0.7.0.
  * WIS_NODISCARD wis::SurfaceParameters DX12Device::GetSurfaceParameters(wis::DX12SurfaceView surface,
- *                                                                       wis::Result&         out_result) const noexcept;
+ *                                                                       wis::Result&         out_result) const
+ * noexcept;
  * }
  * ```
  * </details>
