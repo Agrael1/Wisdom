@@ -1,6 +1,9 @@
 from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import collect_libs, copy
+from conan.tools.cmake import CMake
+from conan.tools.cmake import cmake_layout
+from conan.tools.cmake import CMakeToolchain
+from conan.tools.files import collect_libs
+from conan.tools.files import copy
 
 
 class WisdomConan(ConanFile):
