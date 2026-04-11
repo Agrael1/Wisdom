@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef enum WisSwapchainScaling {
  *     WisSwapchainScalingNone = 0,
  *     WisSwapchainScalingStretch = 1,
@@ -18,7 +18,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * enum class SwapchainScaling {
  *     None = 0,
  *     Stretch = 1,
@@ -32,9 +32,9 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * Swapchain scaling mode.
- * 
+ *
  * \note Translates to  `DXGI_SCALING` for DirectX 12 implementation, and `VkPresentScalingFlagsEXT` for Vulkan implementation.
- * 
+ *
  * Values:
  * - `WisSwapchainScalingNone = 0`: No scaling. The swapchain size is equal to the window size.
  * - `WisSwapchainScalingStretch = 1`: Stretch scaling. The swapchain size is stretched to the window size.

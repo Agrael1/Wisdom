@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef enum WisDepthStencilFlags {
  *     WisDepthStencilFlagsNone = 0,
  *     WisDepthStencilFlagsIgnoreDepth = (1u << 0),
@@ -20,7 +20,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * enum class DepthStencilFlags : uint32_t {
  *     None = 0,
  *     IgnoreDepth = (1u << 0),
@@ -37,7 +37,7 @@
  * \cond WIS_GEN_DESC
  * Depth stencil select flags.
  * Affect which part of the depth stencil buffer is used.
- * 
+ *
  * Values:
  * - `WisDepthStencilFlagsNone = 0`: No flags set. Both attachments are write.
  * - `WisDepthStencilFlagsIgnoreDepth = (1 << 0)`: Don't use depth part of the depth stencil buffer.

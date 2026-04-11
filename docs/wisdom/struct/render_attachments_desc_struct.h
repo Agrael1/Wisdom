@@ -9,19 +9,19 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisRenderAttachmentsDesc {
  *     WisDataFormat attachment_formats[8];
  *     uint32_t      attachments_count;
  *     WisDataFormat depth_attachment;
  *     uint32_t      view_mask;
  * } WisRenderAttachmentsDesc;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  RenderAttachmentsDesc {
  *     std::array<wis::DataFormat, 8> attachment_formats;
  *     std::uint32_t   attachments_count;

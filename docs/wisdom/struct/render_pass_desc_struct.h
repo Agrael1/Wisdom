@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisRenderPassDesc {
  *     WisRenderPassFlags            flags;
  *     WisRenderPassRenderTargetDesc render_targets[8];
@@ -17,12 +17,12 @@
  *     uint32_t                      view_mask;
  *     WisRenderPassDepthStencilDesc depth_stencil;
  * } WisRenderPassDesc;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  RenderPassDesc {
  *     wis::RenderPassFlags            flags;
  *     std::array<wis::RenderPassRenderTargetDesc, 8> render_targets;
