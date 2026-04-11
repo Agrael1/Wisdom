@@ -11,24 +11,24 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * size_t wisAdapterQueryGetAdapterCount(const WisAdapterQuery* self);
  * ```
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * size_t wisVKAdapterQueryGetAdapterCount(const WisVKAdapterQuery* self);
- *
- * // Provided by Wisdom 0.7.0.
+ * 
+ * // Provided by Wisdom 0.7.0. 
  * size_t wisDX12AdapterQueryGetAdapterCount(const WisDX12AdapterQuery* self);
  * ```
  * </details>
- *
+ * 
  * C++ Version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * WIS_NODISCARD std::size_t AdapterQuery::GetAdapterCount() const noexcept;
  * }
  * ```
@@ -36,10 +36,10 @@
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * WIS_NODISCARD std::size_t VKAdapterQuery::GetAdapterCount() const noexcept;
- *
- * // Provided by Wisdom 0.7.0.
+ * 
+ * // Provided by Wisdom 0.7.0. 
  * WIS_NODISCARD std::size_t DX12AdapterQuery::GetAdapterCount() const noexcept;
  * }
  * ```
@@ -50,7 +50,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisAdapterQuery instance.
- *
+ * 
  * - **return** is a number of adapters present on the system.
  * \endcond
  *

@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef enum WisAddressMode {
  *     WisAddressModeRepeat = 0,
  *     WisAddressModeMirroredRepeat = 1,
@@ -20,7 +20,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * enum class AddressMode {
  *     Repeat = 0,
  *     MirroredRepeat = 1,
@@ -36,10 +36,9 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * Address mode for texture sampling.
- *
- * \note Translates to  `D3D12_TEXTURE_ADDRESS_MODE` for DirectX 12 implementation, and `VkSamplerAddressMode` for
- * Vulkan implementation.
- *
+ * 
+ * \note Translates to  `D3D12_TEXTURE_ADDRESS_MODE` for DirectX 12 implementation, and `VkSamplerAddressMode` for Vulkan implementation.
+ * 
  * Values:
  * - `WisAddressModeRepeat = 0`: Repeat the texture.
  * - `WisAddressModeMirroredRepeat = 1`: Repeat the texture with mirroring.

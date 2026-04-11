@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void wisCommandListSetVertexBuffers2(WisCommandList* self,
  *                                      const WisVertexBufferAddressDesc* buffers,
  *                                      size_t                            buffer_count,
@@ -18,24 +18,24 @@
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void wisVKCommandListSetVertexBuffers2(WisVKCommandList* self,
  *                                        const WisVertexBufferAddressDesc* buffers,
  *                                        size_t                            buffer_count,
  *                                        uint32_t                          start_slot);
- *
- * // Provided by Wisdom 0.7.0.
+ * 
+ * // Provided by Wisdom 0.7.0. 
  * void wisDX12CommandListSetVertexBuffers2(WisDX12CommandList* self,
  *                                          const WisVertexBufferAddressDesc* buffers,
  *                                          size_t                            buffer_count,
  *                                          uint32_t                          start_slot);
  * ```
  * </details>
- *
+ * 
  * C++ Version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void CommandList::SetVertexBuffers2(wis::span<const wis::VertexBufferAddressDesc> buffers,
  *                                     std::uint32_t                                 start_slot) noexcept;
  * }
@@ -44,11 +44,11 @@
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void VKCommandList::SetVertexBuffers2(wis::span<const wis::VertexBufferAddressDesc> buffers,
  *                                       std::uint32_t                                 start_slot) noexcept;
- *
- * // Provided by Wisdom 0.7.0.
+ * 
+ * // Provided by Wisdom 0.7.0. 
  * void DX12CommandList::SetVertexBuffers2(wis::span<const wis::VertexBufferAddressDesc> buffers,
  *                                         std::uint32_t                                 start_slot) noexcept;
  * }

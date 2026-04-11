@@ -9,19 +9,19 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef struct  WisPushDescriptor {
  *     WisShaderVisibility visibility;
  *     WisDescriptorType   type;
  *     uint32_t            bind_register;
  *     uint32_t            bind_space;
  * } WisPushDescriptor;
- *
+ * 
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * struct  PushDescriptor {
  *     wis::ShaderVisibility visibility;
  *     wis::DescriptorType   type;

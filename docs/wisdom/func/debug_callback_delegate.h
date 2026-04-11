@@ -9,14 +9,14 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef void (*WisDebugCallback)(WisSeverity severity, const char* message, uint64_t device, void* user_data);
  * ```
- *
+ * 
  * C++ Version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * using DebugCallback = void (*)(wis::Severity severity, const char* message, std::uint64_t device, void* user_data);
  * }
  * ```

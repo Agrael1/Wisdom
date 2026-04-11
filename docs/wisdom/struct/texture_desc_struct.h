@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef struct  WisTextureDesc {
  *     uint32_t             width;
  *     uint32_t             height;
@@ -23,12 +23,12 @@
  *     WisMemoryType        memory_type;
  *     WisMemoryFlags       memory_flags;
  * } WisTextureDesc;
- *
+ * 
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * struct  TextureDesc {
  *     std::uint32_t          width;
  *     std::uint32_t          height;

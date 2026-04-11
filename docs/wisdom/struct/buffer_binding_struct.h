@@ -9,18 +9,18 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef struct  WisBufferBinding {
  *     uint64_t array_offset;
  *     uint32_t stride_bytes;
  *     uint32_t structure_count;
  * } WisBufferBinding;
- *
+ * 
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * struct  BufferBinding {
  *     std::uint64_t array_offset;
  *     std::uint32_t stride_bytes;

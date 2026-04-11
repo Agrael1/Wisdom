@@ -9,19 +9,19 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef struct  WisBufferTextureCopyRegion {
  *     uint64_t         buffer_offset;
  *     uint32_t         buffer_row_length;
  *     uint32_t         buffer_image_height;
  *     WisTextureRegion texture_region;
  * } WisBufferTextureCopyRegion;
- *
+ * 
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * struct  BufferTextureCopyRegion {
  *     std::uint64_t      buffer_offset;
  *     std::uint32_t      buffer_row_length;
@@ -36,10 +36,8 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - `buffer_offset` specifies buffer offset in bytes.
- * - `buffer_row_length` describes buffer row length in pixels. Used for calculating the offset in the buffer for each
- * row of the texture.
- * - `buffer_image_height` describes buffer image height in pixels. Used for calculating the offset in the buffer for
- * each image of the texture.
+ * - `buffer_row_length` describes buffer row length in pixels. Used for calculating the offset in the buffer for each row of the texture.
+ * - `buffer_image_height` describes buffer image height in pixels. Used for calculating the offset in the buffer for each image of the texture.
  * - `texture_region` describes texture region to copy.
  * \endcond
  *

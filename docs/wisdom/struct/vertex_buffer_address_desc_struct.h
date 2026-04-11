@@ -9,18 +9,18 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef struct  WisVertexBufferAddressDesc {
  *     uint64_t buffer;
  *     uint32_t size;
  *     uint32_t stride;
  * } WisVertexBufferAddressDesc;
- *
+ * 
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * struct  VertexBufferAddressDesc {
  *     std::uint64_t buffer;
  *     std::uint32_t size;

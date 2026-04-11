@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef struct  WisDepthStencilDesc {
  *     bool           depth_enable;
  *     bool           depth_write_enable;
@@ -19,12 +19,12 @@
  *     WisStencilDesc stencil_back;
  *     bool           depth_bound_test;
  * } WisDepthStencilDesc;
- *
+ * 
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * struct  DepthStencilDesc {
  *     bool             depth_enable;
  *     bool             depth_write_enable;

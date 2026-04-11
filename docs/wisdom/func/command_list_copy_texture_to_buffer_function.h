@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void wisCommandListCopyTextureToBuffer(const WisCommandList* self,
  *                                        WisBufferView                     dst_buffer,
  *                                        WisTextureView                    src_texture,
@@ -19,14 +19,14 @@
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void wisVKCommandListCopyTextureToBuffer(const WisVKCommandList* self,
  *                                          WisVKBufferView                   dst_buffer,
  *                                          WisVKTextureView                  src_texture,
  *                                          const WisBufferTextureCopyRegion* regions,
  *                                          size_t                            region_count);
- *
- * // Provided by Wisdom 0.7.0.
+ * 
+ * // Provided by Wisdom 0.7.0. 
  * void wisDX12CommandListCopyTextureToBuffer(const WisDX12CommandList* self,
  *                                            WisDX12BufferView                 dst_buffer,
  *                                            WisDX12TextureView                src_texture,
@@ -34,11 +34,11 @@
  *                                            size_t                            region_count);
  * ```
  * </details>
- *
+ * 
  * C++ Version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void CommandList::CopyTextureToBuffer(wis::BufferView                               dst_buffer,
  *                                       wis::TextureView                              src_texture,
  *                                       wis::span<const wis::BufferTextureCopyRegion> regions) const noexcept;
@@ -48,12 +48,12 @@
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void VKCommandList::CopyTextureToBuffer(wis::VKBufferView                             dst_buffer,
  *                                         wis::VKTextureView                            src_texture,
  *                                         wis::span<const wis::BufferTextureCopyRegion> regions) const noexcept;
- *
- * // Provided by Wisdom 0.7.0.
+ * 
+ * // Provided by Wisdom 0.7.0. 
  * void DX12CommandList::CopyTextureToBuffer(wis::DX12BufferView                           dst_buffer,
  *                                           wis::DX12TextureView                          src_texture,
  *                                           wis::span<const wis::BufferTextureCopyRegion> regions) const noexcept;

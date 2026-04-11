@@ -9,18 +9,18 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef struct  WisDebugDesc {
  *     bool             enable_debug_layer;
  *     WisDebugCallback callback;
  *     void*            user_data;
  * } WisDebugDesc;
- *
+ * 
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * struct  DebugDesc {
  *     bool               enable_debug_layer;
  *     wis::DebugCallback callback;

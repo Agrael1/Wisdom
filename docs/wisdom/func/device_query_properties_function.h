@@ -9,27 +9,27 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void wisDeviceQueryProperties(const WisDevice* self,
  *                               void*            properties);
  * ```
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void wisVKDeviceQueryProperties(const WisVKDevice* self,
  *                                 void*              properties);
- *
- * // Provided by Wisdom 0.7.0.
+ * 
+ * // Provided by Wisdom 0.7.0. 
  * void wisDX12DeviceQueryProperties(const WisDX12Device* self,
  *                                   void*                properties);
  * ```
  * </details>
- *
+ * 
  * C++ Version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void Device::QueryProperties(void* properties) const noexcept;
  * }
  * ```
@@ -37,10 +37,10 @@
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void VKDevice::QueryProperties(void* properties) const noexcept;
- *
- * // Provided by Wisdom 0.7.0.
+ * 
+ * // Provided by Wisdom 0.7.0. 
  * void DX12Device::QueryProperties(void* properties) const noexcept;
  * }
  * ```

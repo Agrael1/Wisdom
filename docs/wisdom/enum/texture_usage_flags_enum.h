@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef enum WisTextureUsageFlags {
  *     WisTextureUsageFlagsNone = 0,
  *     WisTextureUsageFlagsRenderTarget = (1u << 0),
@@ -23,7 +23,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * enum class TextureUsageFlags : uint32_t {
  *     None = 0,
  *     RenderTarget = (1u << 0),
@@ -43,9 +43,9 @@
  * \cond WIS_GEN_DESC
  * Texture usage flags.
  * Determine how the texture can be used throughout its lifetime.
- *
+ * 
  * \note Translates to DirectX 12 as D3D12_RESOURCE_FLAGS, Vulkan as VkImageUsageFlags.
- *
+ * 
  * Values:
  * - `WisTextureUsageFlagsNone = 0`: No flags set. Texture is not used.
  * - `WisTextureUsageFlagsRenderTarget = (1 << 0)`: Texture is used as a render target.

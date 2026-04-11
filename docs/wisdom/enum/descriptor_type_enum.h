@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef enum WisDescriptorType {
  *     WisDescriptorTypeSampler = 0,
  *     WisDescriptorTypeConstantBuffer = 1,
@@ -23,7 +23,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * enum class DescriptorType {
  *     Sampler = 0,
  *     ConstantBuffer = 1,
@@ -42,10 +42,9 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * Type of the descriptor in the descriptor table.
- *
- * \note Translates to  `D3D12_DESCRIPTOR_RANGE_TYPE` for DirectX 12 implementation, and `VkDescriptorType` for Vulkan
- * implementation.
- *
+ * 
+ * \note Translates to  `D3D12_DESCRIPTOR_RANGE_TYPE` for DirectX 12 implementation, and `VkDescriptorType` for Vulkan implementation.
+ * 
  * Values:
  * - `WisDescriptorTypeSampler = 0`: Descriptor is a sampler.
  * - `WisDescriptorTypeConstantBuffer = 1`: Descriptor is a constant buffer.
@@ -54,7 +53,7 @@
  * - `WisDescriptorTypeRWBuffer = 4`: Descriptor is an unordered access read-write buffer.
  * - `WisDescriptorTypeBuffer = 5`: Descriptor is a shader resource buffer.
  * - `WisDescriptorTypeAccelerationStructure = 6`: Descriptor is an acceleration structure.
- * - `WisDescriptorTypeCount = 7`: Descriptor is a mutable type.
+ * - `WisDescriptorTypeCount = 7`: Number of descriptor types.
  * \endcond
  *
  *

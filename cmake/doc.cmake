@@ -12,7 +12,7 @@ endif ()
 
 CPMAddPackage(
         NAME doxygen-awesome-css
-        URL https://github.com/jothepro/doxygen-awesome-css/archive/refs/heads/main.zip
+        URL https://github.com/jothepro/doxygen-awesome-css/archive/refs/tags/v2.4.2.zip
         DOWNLOAD_ONLY TRUE
 )
 

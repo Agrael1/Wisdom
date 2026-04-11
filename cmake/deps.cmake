@@ -31,8 +31,8 @@ if (WISDOM_USE_FMT)
         message("Loading latest fmtlib...")
         CPMAddPackage(
                 NAME fmt
-                GIT_REPOSITORY fmtlib/fmt
-                GIT_TAG origin/master)
+                GITHUB_REPOSITORY fmtlib/fmt
+                GIT_TAG 12.1.0)
     endif ()
 endif ()
 

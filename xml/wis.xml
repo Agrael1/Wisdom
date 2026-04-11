@@ -362,10 +362,10 @@ Can still be enqueued after the signal.">
         <arg type="PipelineType" name="pipeline" default="Graphics" doc="specifies the pipeline type to set the root signature for."/>
       </func>
       <func for="CommandList" name="SetPushConstants" version="0.7.0" mod="const" doc="Sets the push constants for the command list, so they can be used for resource binding.">
-        <arg type="PushConstantDataDesc" name="data" mod="const,ref" doc="specifies a pointer to {PushConstantSetDesc::}, which describes the push constant data to set."/>
+        <arg type="PushConstantDataDesc" name="data" mod="const,ref" doc="specifies a pointer to {PushConstantDataDesc::}, which describes the push constant data to set."/>
       </func>
       <func for="CommandList" name="SetPushDescriptor" version="0.7.0" mod="const" doc="Sets the push descriptors for the command list, so they can be used for resource binding.">
-        <arg type="PushDescriptorDataDesc" name="data" mod="const,ref" doc="specifies a pointer to {PushDescriptorSetDesc::}, which describes the push descriptors to set."/>
+        <arg type="PushDescriptorDataDesc" name="data" mod="const,ref" doc="specifies a pointer to {PushDescriptorDataDesc::}, which describes the push descriptors to set."/>
       </func>
       <func for="CommandList" name="SetDescriptorTable" version="0.7.0" mod="const" doc="Sets the descriptor table offset in descriptor heap for the command list, so it can be used for resource binding.">
         <arg type="DescriptorTableDataDesc" name="data" mod="const,ref" doc="specifies the root parameter index to set the descriptor table for."/>

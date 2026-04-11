@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void wisCommandListSetRootSignature(const WisCommandList* self,
  *                                     WisRootSignatureView  signature,
  *                                     WisPipelineType       pipeline);
@@ -17,22 +17,22 @@
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void wisVKCommandListSetRootSignature(const WisVKCommandList* self,
  *                                       WisVKRootSignatureView  signature,
  *                                       WisPipelineType         pipeline);
- *
- * // Provided by Wisdom 0.7.0.
+ * 
+ * // Provided by Wisdom 0.7.0. 
  * void wisDX12CommandListSetRootSignature(const WisDX12CommandList* self,
  *                                         WisDX12RootSignatureView  signature,
  *                                         WisPipelineType           pipeline);
  * ```
  * </details>
- *
+ * 
  * C++ Version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void CommandList::SetRootSignature(wis::RootSignatureView signature,
  *                                    wis::PipelineType      pipeline) const noexcept;
  * }
@@ -41,11 +41,11 @@
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void VKCommandList::SetRootSignature(wis::VKRootSignatureView signature,
  *                                      wis::PipelineType        pipeline) const noexcept;
- *
- * // Provided by Wisdom 0.7.0.
+ * 
+ * // Provided by Wisdom 0.7.0. 
  * void DX12CommandList::SetRootSignature(wis::DX12RootSignatureView signature,
  *                                        wis::PipelineType          pipeline) const noexcept;
  * }

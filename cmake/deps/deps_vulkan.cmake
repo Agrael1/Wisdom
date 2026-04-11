@@ -2,7 +2,7 @@ if (NOT vkma_SOURCE_DIR)
     CPMAddPackage(
             NAME vkma
             GITHUB_REPOSITORY GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
-            GIT_TAG origin/master
+            GIT_TAG v3.3.0
             DOWNLOAD_ONLY TRUE
     )
     set(vkma_SOURCE_DIR ${vkma_SOURCE_DIR} CACHE INTERNAL "")
