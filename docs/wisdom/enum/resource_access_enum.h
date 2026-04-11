@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef enum WisResourceAccess {
  *     WisResourceAccessCommon = 0,
  *     WisResourceAccessVertexBuffer = (1u << 0),
@@ -37,7 +37,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * enum class ResourceAccess : uint32_t {
  *     Common = 0,
  *     VertexBuffer = (1u << 0),
@@ -70,9 +70,9 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * Resource access flags for resource barriers.
- * 
+ *
  * \note Translates to DirectX 12 as D3D12_BARRIER_ACCESS, Vulkan as VkAccessFlags2.
- * 
+ *
  * Values:
  * - `WisResourceAccessCommon = 0`: Common access.
  * - `WisResourceAccessVertexBuffer = (1 << 0)`: Vertex buffer access. Applies only to buffers.

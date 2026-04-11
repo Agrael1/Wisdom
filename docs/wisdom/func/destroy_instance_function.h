@@ -11,20 +11,20 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * void wisDestroyInstance(WisInstance* self);
  * ```
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * void wisVKDestroyInstance(WisVKInstance* self);
- * 
- * // Provided by Wisdom 0.7.0. 
+ *
+ * // Provided by Wisdom 0.7.0.
  * void wisDX12DestroyInstance(WisDX12Instance* self);
  * ```
  * </details>
- * 
+ *
  * \endcond
  *
  * @section wisDestroyInstance_memb Parameters
