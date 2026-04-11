@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef enum WisSamplerFlags {
  *     WisSamplerFlagsNone = 0,
  *     WisSamplerFlagsNonNormalizedCoordinates = (1u << 0),
@@ -17,7 +17,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * enum class SamplerFlags : uint32_t {
  *     None = 0,
  *     NonNormalizedCoordinates = (1u << 0),
@@ -30,9 +30,9 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * Flags for sampler creation.
- * 
+ *
  * \note Translates to DirectX 12 as D3D12_SAMPLER_FLAGS.
- * 
+ *
  * Values:
  * - `WisSamplerFlagsNone = 0`: No flags set.
  * - `WisSamplerFlagsNonNormalizedCoordinates = (1 << 0)`: Use non-normalized texture coordinates.

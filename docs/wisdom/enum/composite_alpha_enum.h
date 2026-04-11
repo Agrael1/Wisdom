@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef enum WisCompositeAlpha {
  *     WisCompositeAlphaOpaque = 0,
  *     WisCompositeAlphaPreMultiplied = 1,
@@ -19,7 +19,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * enum class CompositeAlpha {
  *     Opaque = 0,
  *     PreMultiplied = 1,
@@ -34,9 +34,9 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * Composite alpha flags for swapchain creation.
- * 
+ *
  * \note Translates to  `DXGI_ALPHA_MODE` for DirectX 12 implementation, and `VkCompositeAlphaFlagBitsKHR` for Vulkan implementation.
- * 
+ *
  * Values:
  * - `WisCompositeAlphaOpaque = 0`: The alpha channel, if it exists, is ignored. The image is treated as opaque.
  * - `WisCompositeAlphaPreMultiplied = 1`: The alpha channel, if it exists, is respected and used in compositing. The premultiplied alpha format is expected.

@@ -36,7 +36,7 @@
  *
  * On Windows, Vulkan SDK is optional unless you explicitly force Vulkan.
  * Most third-party dependencies are resolved by CMake during configure.
- * 
+ *
  * Consuming the library does not require C++20, as interface is C++11 compliant and C99 compatible.
  * However building or header only usage may require C++20 for `std::format` an other advanced features.
  * @subsection build_steps Build Steps
@@ -225,7 +225,7 @@
  * @note Internals are provided for advanced scenarios and may change between versions.
  * Prefer public APIs unless direct interop is required. The first members of the implementation structures are the
  * guaranteed to represent underlying logical type and guaranteed to stay unless major version bump, so you can safely use them in the extensions.
- * 
+ *
  *
  */
 

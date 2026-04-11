@@ -66,8 +66,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCreateInstance(
     auto header = wis::make_unique<wis::detail::VKInstanceControlBlock>();
     if (!header) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to allocate memory for Vulkan instance header">(
-            VK_ERROR_OUT_OF_HOST_MEMORY
-        );
+                   VK_ERROR_OUT_OF_HOST_MEMORY
+               );
     }
 
     header->header.library = wis::detail::unique_library{wis::detail::InitializeVulkanLibrary()};
@@ -77,8 +77,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCreateInstance(
 
     if (!header->header.global_table.Init(header->header.library.get())) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to initialize Vulkan global function table">(
-            VK_ERROR_UNKNOWN
-        );
+                   VK_ERROR_UNKNOWN
+               );
     }
 
     const auto& gt = header->header.global_table;
@@ -152,11 +152,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCreateInstance(
         .pNext = nullptr,
         .flags = 0,
         .messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT
-                         | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT
-                         | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT
-                         | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
+        | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT
+        | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT
+        | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT,
         .messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT
-                     | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
+        | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT,
         .pfnUserCallback = wis::detail::VKDebugCallbackThunk::DebugUtilsMessengerCallbackThunk,
         .pUserData = debug_layer_thunk.get(),
     };
@@ -182,26 +182,26 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCreateInstance(
     if (!instance_table.Init(instance_handle, gt.vkGetInstanceProcAddr)) {
         instance_table.vkDestroyInstance(instance_handle, nullptr); // cleanup
         return wis::detail::make_result<wis::detail::Func(), "Failed to initialize Vulkan instance function table">(
-            VK_ERROR_UNKNOWN
-        );
+                   VK_ERROR_UNKNOWN
+               );
     }
 
     // Initialize adapter table
     if (!header->header.adapter_table.Init(instance_handle, gt.vkGetInstanceProcAddr)) {
         instance_table.vkDestroyInstance(instance_handle, nullptr); // cleanup
         return wis::detail::make_result<wis::detail::Func(), "Failed to initialize Vulkan adapter function table">(
-            VK_ERROR_UNKNOWN
-        );
+                   VK_ERROR_UNKNOWN
+               );
     }
 
     // Setup debug messenger if requested
     if (debug_layer_thunk && instance_table.vkCreateDebugUtilsMessengerEXT) {
         auto vr2 = instance_table.vkCreateDebugUtilsMessengerEXT(
-            instance_handle,
-            &debug_create_info,
-            nullptr,
-            &header->header.debug_messenger
-        );
+                       instance_handle,
+                       &debug_create_info,
+                       nullptr,
+                       &header->header.debug_messenger
+                   );
         // Non-fatal, allow to silently fail
         (void)vr2;
     }
@@ -218,7 +218,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCreateInstance(
     };
 
     // Initialize instance extensions
-    for (auto* ext : wis::span<WisVKInstanceExtensionHeader*>{extensions, extension_count}) {
+    for (auto* ext : wis::span<WisVKInstanceExtensionHeader*> {extensions, extension_count}) {
         if (auto* table = wis::from_handle<wis::VKInstanceExtensionHeader>(ext); table && table->init_fptr) {
             if (auto xres = table->init_fptr(table, &impl, &collector); xres.status != WisStatusOk) {
                 res.status = WisStatusPartial; // mark as partial success if any extension fails
@@ -266,16 +266,16 @@ wisVKInstanceQueryAdapters(const WisVKInstance* self, WisAdapterPreference prefe
     }
     if (device_count == 0) {
         return wis::detail::make_result<wis::detail::Func(), "No Vulkan physical devices found">(
-            VK_ERROR_INITIALIZATION_FAILED
-        );
+                   VK_ERROR_INITIALIZATION_FAILED
+               );
     }
 
     // Get physical devices
     devices_ref = wis::make_unique<VkPhysicalDevice[]>(device_count);
     if (!devices_ref) {
         return wis::detail::make_result<wis::detail::Func(), "Not enough memory for physical devices array">(
-            VK_ERROR_OUT_OF_HOST_MEMORY
-        );
+                   VK_ERROR_OUT_OF_HOST_MEMORY
+               );
     }
 
     vr = table.vkEnumeratePhysicalDevices(instance_impl.instance, &device_count, devices_ref.get());
@@ -297,13 +297,13 @@ wisVKInstanceQueryAdapters(const WisVKInstance* self, WisAdapterPreference prefe
     // Sort devices based on preference
     constexpr static std::size_t max_align = std::max(alignof(VkPhysicalDeviceProperties), alignof(std::uintptr_t));
     std::size_t total_aux_size = sizeof(VkPhysicalDeviceProperties) * device_count
-                               + device_count * sizeof(std::uintptr_t);
+                                 + device_count * sizeof(std::uintptr_t);
 
     aux_pool = wis::make_unique<std::byte[]>(total_aux_size + max_align - 1);
     if (!aux_pool) {
         return wis::detail::make_result<wis::detail::Func(), "Not enough memory for auxiliary sorting buffer">(
-            VK_ERROR_OUT_OF_HOST_MEMORY
-        );
+                   VK_ERROR_OUT_OF_HOST_MEMORY
+               );
     }
 
     // Aligned pointers
@@ -348,10 +348,14 @@ wisVKInstanceQueryAdapters(const WisVKInstance* self, WisAdapterPreference prefe
     // Sort indices based on preference
     switch (preference) {
     case WisAdapterPreference::WisAdapterPreferenceMinConsumption:
-        std::ranges::sort(index_span, [&](std::uintptr_t a, std::uintptr_t b) { return less_consumption(a, b); });
+        std::ranges::sort(index_span, [&](std::uintptr_t a, std::uintptr_t b) {
+            return less_consumption(a, b);
+        });
         break;
     case WisAdapterPreference::WisAdapterPreferencePerformance:
-        std::ranges::sort(index_span, [&](std::uintptr_t a, std::uintptr_t b) { return less_performance(a, b); });
+        std::ranges::sort(index_span, [&](std::uintptr_t a, std::uintptr_t b) {
+            return less_performance(a, b);
+        });
         break;
     default:
         // No sorting

@@ -9,17 +9,17 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisResolveDesc {
  *     uint64_t       resolve_target;
  *     WisResolveMode mode;
  * } WisResolveDesc;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  ResolveDesc {
  *     std::uint64_t    resolve_target;
  *     wis::ResolveMode mode;

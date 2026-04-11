@@ -38,12 +38,12 @@ wisDX12CommandAllocatorCreateCommandList(const WisDX12CommandAllocator* self, Wi
     wis::com_ptr<ID3D12GraphicsCommandList9> command_list;
 
     auto hr = device->CreateCommandList1(
-        0,
-        wis::detail::DX12Convert(type),
-        D3D12_COMMAND_LIST_FLAG_NONE,
-        IID_ID3D12GraphicsCommandList9,
-        command_list.put_void_unchecked()
-    );
+                  0,
+                  wis::detail::DX12Convert(type),
+                  D3D12_COMMAND_LIST_FLAG_NONE,
+                  IID_ID3D12GraphicsCommandList9,
+                  command_list.put_void_unchecked()
+              );
 
     if (!wis::detail::succeeded(hr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to create command list">(hr);

@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef enum WisShaderIntermediate {
  *     WisShaderIntermediateDXIL = 0,
  *     WisShaderIntermediateSPIRV = 1,
@@ -17,7 +17,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * enum class ShaderIntermediate {
  *     DXIL = 0,
  *     SPIRV = 1,
@@ -30,7 +30,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * Intermediate shader representation.
- * 
+ *
  * Values:
  * - `WisShaderIntermediateDXIL = 0`: DirectX Intermediate Language.
  * - `WisShaderIntermediateSPIRV = 1`: Standard Portable Intermediate Representation for Vulkan.

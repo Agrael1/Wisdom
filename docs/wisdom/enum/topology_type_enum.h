@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef enum WisTopologyType {
  *     WisTopologyTypePoint = 1,
  *     WisTopologyTypeLine = 2,
@@ -19,7 +19,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * enum class TopologyType {
  *     Point = 1,
  *     Line = 2,
@@ -34,9 +34,9 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * Primitive topology type for WisGraphicsPipelineDesc.
- * 
+ *
  * \note Translates to  `D3D12_PRIMITIVE_TOPOLOGY_TYPE` for DirectX 12 implementation, and `VkPrimitiveTopology` for Vulkan implementation.
- * 
+ *
  * Values:
  * - `WisTopologyTypePoint = 1`: Render points for each vertex.
  * - `WisTopologyTypeLine = 2`: Render lines between vertices.

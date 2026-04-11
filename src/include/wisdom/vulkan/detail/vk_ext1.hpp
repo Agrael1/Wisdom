@@ -165,33 +165,33 @@ public:
         if (features.descriptor_heap) {
             // Descriptor heap properties
             auto& descriptor_heap_properties = *collector.GetEnabledPropertyStruct<
-                VkPhysicalDeviceDescriptorHeapPropertiesEXT>(
-                VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_HEAP_PROPERTIES_EXT
-            );
+                                               VkPhysicalDeviceDescriptorHeapPropertiesEXT>(
+                                                   VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_HEAP_PROPERTIES_EXT
+                                               );
 
             // A lot of space is going to be wasted, but the usage will be simpler and more efficient if we use the same
             // size for both resource and sampler descriptors, so we take the max of the two alignments as the
             // descriptor size
             features.resource_desc_size = static_cast<uint16_t>(std::max(
-                descriptor_heap_properties.imageDescriptorAlignment,
-                descriptor_heap_properties.bufferDescriptorAlignment
-            ));
+                                              descriptor_heap_properties.imageDescriptorAlignment,
+                                              descriptor_heap_properties.bufferDescriptorAlignment
+                                          ));
             features.sampler_desc_size = static_cast<uint16_t>(descriptor_heap_properties.samplerDescriptorAlignment);
             features.max_root_space = static_cast<uint16_t>(descriptor_heap_properties.maxPushDataSize);
             features.descriptor_heap_reserved_size = wis::aligned_size(
-                static_cast<uint32_t>(descriptor_heap_properties.minResourceHeapReservedRange),
-                features.resource_desc_size
-            );
+                    static_cast<uint32_t>(descriptor_heap_properties.minResourceHeapReservedRange),
+                    features.resource_desc_size
+                );
             features.sampler_heap_reserved_size = wis::aligned_size(
-                static_cast<uint32_t>(descriptor_heap_properties.minSamplerHeapReservedRange),
-                features.sampler_desc_size
-            );
+                    static_cast<uint32_t>(descriptor_heap_properties.minSamplerHeapReservedRange),
+                    features.sampler_desc_size
+                                                  );
             features.sampler_heap_reserved_size_with_embedded = wis::aligned_size(
-                static_cast<uint32_t>(descriptor_heap_properties.minSamplerHeapReservedRangeWithEmbedded),
-                features.sampler_desc_size
-            );
+                    static_cast<uint32_t>(descriptor_heap_properties.minSamplerHeapReservedRangeWithEmbedded),
+                    features.sampler_desc_size
+                );
             features.descriptor_heap_alignment = static_cast<uint32_t>(descriptor_heap_properties.resourceHeapAlignment
-            );
+                                                                      );
             features.sampler_heap_alignment = static_cast<uint32_t>(descriptor_heap_properties.samplerHeapAlignment);
             features.max_descriptor_heap_size = descriptor_heap_properties.maxResourceHeapSize;
             features.max_sampler_heap_size = descriptor_heap_properties.maxSamplerHeapSize;
@@ -199,34 +199,34 @@ public:
 
         // Get Device properties
         auto& device_properties = *collector.GetEnabledPropertyStruct<VkPhysicalDeviceProperties2>(
-            VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2
-        );
+                                      VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2
+                                  );
         features.max_vertex_attributes = static_cast<uint8_t>(
-            device_properties.properties.limits.maxVertexInputAttributes
-        );
+                                             device_properties.properties.limits.maxVertexInputAttributes
+                                         );
         features.max_vertex_bindings = static_cast<uint8_t>(device_properties.properties.limits.maxVertexInputBindings);
         features.multiple_viewports = device_properties.properties.limits.maxViewports > 1 ? 1 : 0;
 
         if (features.host_image_copy) {
             // Host image copy support
             auto& host_image_copy_properties = *collector.GetEnabledPropertyStruct<
-                VkPhysicalDeviceHostImageCopyPropertiesEXT>(
-                VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_PROPERTIES_EXT
-            );
+                                               VkPhysicalDeviceHostImageCopyPropertiesEXT>(
+                                                   VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_PROPERTIES_EXT
+                                               );
 
             static constexpr std::size_t reasonable_layout_count = 32;
-            VkImageLayout dst_layouts[reasonable_layout_count]{};
+            VkImageLayout dst_layouts[reasonable_layout_count] {};
             std::unique_ptr<VkImageLayout[]> dynamic_dst_layouts;
             wis::span<VkImageLayout> dst_layout_span;
 
             if (host_image_copy_properties.copyDstLayoutCount > reasonable_layout_count) {
                 dynamic_dst_layouts = std::make_unique<VkImageLayout[]>(host_image_copy_properties.copyDstLayoutCount);
-                dst_layout_span = wis::span<VkImageLayout>{
+                dst_layout_span = wis::span<VkImageLayout> {
                     dynamic_dst_layouts.get(),
-                    host_image_copy_properties.copyDstLayoutCount
+                                       host_image_copy_properties.copyDstLayoutCount
                 };
             } else {
-                dst_layout_span = wis::span<VkImageLayout>{dst_layouts, host_image_copy_properties.copyDstLayoutCount};
+                dst_layout_span = wis::span<VkImageLayout> {dst_layouts, host_image_copy_properties.copyDstLayoutCount};
             }
 
             // We are not interested in src layouts.
