@@ -109,7 +109,7 @@ public:
         // Get device handle if possible
         uint64_t device = 0;
         for (auto&& obj :
-                wis::span<const VkDebugUtilsObjectNameInfoEXT> {pCallbackData->pObjects, pCallbackData->objectCount}) {
+             wis::span<const VkDebugUtilsObjectNameInfoEXT>{pCallbackData->pObjects, pCallbackData->objectCount}) {
             if (obj.objectType == VK_OBJECT_TYPE_DEVICE) {
                 device = obj.objectHandle;
                 break;
@@ -235,8 +235,8 @@ public:
         // Destroy semaphores
         auto& last_family = queue_families[family_count - 1];
         std::binary_semaphore* begin = reinterpret_cast<std::binary_semaphore*>(
-                                           reinterpret_cast<uint8_t*>(this) + sizeof(*this)
-                                       );
+            reinterpret_cast<uint8_t*>(this) + sizeof(*this)
+        );
         std::binary_semaphore* end = last_family.semaphore_offset + last_family.queue_count + begin;
         for (std::binary_semaphore* sem = begin; sem < end; ++sem) {
             sem->release();
@@ -257,7 +257,7 @@ public:
             return nullptr; // No valid family index for this queue type
         }
         return reinterpret_cast<std::binary_semaphore*>(reinterpret_cast<uint8_t*>(this) + sizeof(*this))
-               + queue_families[type].semaphore_offset + queue_index;
+             + queue_families[type].semaphore_offset + queue_index;
     }
 };
 
@@ -290,11 +290,11 @@ struct VKSwapchainHeader {
     VkSurfaceKHR surface; // store surface handle for later use in presentation and swapchain recreation
     VkPhysicalDevice physical_device; // store physical device for later use in swapchain recreation
     PFN_vkGetPhysicalDeviceSurfaceCapabilities2KHR
-    vkGetPhysicalDeviceSurfaceCapabilities2KHR; // store function pointer for later use in swapchain recreation
+        vkGetPhysicalDeviceSurfaceCapabilities2KHR; // store function pointer for later use in swapchain recreation
 
     VkSwapchainCreateInfoKHR create_info; // store create info for later use in presentation and swapchain recreation
     VkSwapchainPresentScalingCreateInfoKHR
-    scaling_create_info; // store scaling create info for later use in presentation and swapchain recreation
+        scaling_create_info; // store scaling create info for later use in presentation and swapchain recreation
 
     VkPresentModeKHR modes[reasonable_mode_count];
     uint8_t mode_count;
@@ -303,29 +303,29 @@ struct VKSwapchainHeader {
 
     wis::span<const VkSemaphore> GetImageAvailableSemaphores() const noexcept
     {
-        return wis::span<const VkSemaphore> {reinterpret_cast<const VkSemaphore*>(this + 1), create_info.minImageCount};
+        return wis::span<const VkSemaphore>{reinterpret_cast<const VkSemaphore*>(this + 1), create_info.minImageCount};
     }
     wis::span<const VkSemaphore> GetRenderFinishedSemaphores() const noexcept
     {
-        return wis::span<const VkSemaphore> {
+        return wis::span<const VkSemaphore>{
             reinterpret_cast<const VkSemaphore*>(this + 1) + create_info.minImageCount,
             create_info.minImageCount
         };
     }
     wis::span<const VkSemaphore> GetSemaphores() const noexcept
     {
-        return wis::span<const VkSemaphore> {
+        return wis::span<const VkSemaphore>{
             reinterpret_cast<const VkSemaphore*>(this + 1),
             create_info.minImageCount * 2
         };
     }
     wis::span<const VkPresentModeKHR> GetSupportedPresentModes() const noexcept
     {
-        return wis::span<const VkPresentModeKHR> {modes, mode_count};
+        return wis::span<const VkPresentModeKHR>{modes, mode_count};
     }
     wis::span<VkSurfaceFormatKHR> GetSupportedFormats() noexcept
     {
-        return wis::span<VkSurfaceFormatKHR> {
+        return wis::span<VkSurfaceFormatKHR>{
             reinterpret_cast<VkSurfaceFormatKHR*>(this + 1) + create_info.minImageCount * 2,
             format_count
         };
@@ -362,24 +362,24 @@ struct alignas(void*) VKRootSignatureControlBlock {
 
     wis::span<const uint32_t> GetRootBindingOffsets() const noexcept
     {
-        return wis::span<const uint32_t> {reinterpret_cast<const uint32_t*>(this + 1), root_parameter_count};
+        return wis::span<const uint32_t>{reinterpret_cast<const uint32_t*>(this + 1), root_parameter_count};
     }
 
     wis::span<uint32_t> GetRootBindingOffsets() noexcept
     {
-        return wis::span<uint32_t> {reinterpret_cast<uint32_t*>(this + 1), root_parameter_count};
+        return wis::span<uint32_t>{reinterpret_cast<uint32_t*>(this + 1), root_parameter_count};
     }
 
     wis::span<VkDescriptorSetAndBindingMappingEXT> GetMappings() noexcept
     {
-        return wis::span<VkDescriptorSetAndBindingMappingEXT> {
+        return wis::span<VkDescriptorSetAndBindingMappingEXT>{
             reinterpret_cast<VkDescriptorSetAndBindingMappingEXT*>(GetRootBindingOffsets().end()),
             mapping_count
         };
     }
     wis::span<const VkDescriptorSetAndBindingMappingEXT> GetMappings() const noexcept
     {
-        return wis::span<const VkDescriptorSetAndBindingMappingEXT> {
+        return wis::span<const VkDescriptorSetAndBindingMappingEXT>{
             reinterpret_cast<const VkDescriptorSetAndBindingMappingEXT*>(GetRootBindingOffsets().end()),
             mapping_count
         };
