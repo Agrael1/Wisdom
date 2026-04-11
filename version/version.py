@@ -19,7 +19,7 @@ def read_version():
 def write_version(version):
     """Write version to VERSION file
 
-    :param version:
+    :param version: 
 
     """
     VERSION_FILE.write_text(f"{version}\n")
@@ -28,7 +28,7 @@ def write_version(version):
 def parse_version(version_str):
     """Parse version string into components
 
-    :param version_str:
+    :param version_str: 
 
     """
     match = re.match(r"^(\d+)\.(\d+)\.(\d+)$", version_str)
@@ -40,7 +40,7 @@ def parse_version(version_str):
 def bump_version(bump_type):
     """Bump version according to type (major, minor, patch)
 
-    :param bump_type:
+    :param bump_type: 
 
     """
     current = read_version()
