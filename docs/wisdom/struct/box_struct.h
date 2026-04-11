@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisBox {
  *     uint32_t x;
  *     uint32_t y;
@@ -18,12 +18,12 @@
  *     uint32_t height;
  *     uint32_t depth;
  * } WisBox;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  Box {
  *     std::uint32_t x;
  *     std::uint32_t y;

@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef enum WisMultiWaitType {
  *     WisMultiWaitTypeAll = 0,
  *     WisMultiWaitTypeAny = 1,
@@ -17,7 +17,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * enum class MultiWaitType {
  *     All = 0,
  *     Any = 1,
@@ -30,7 +30,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * Determines the behavior when waiting for multiple fences.
- * 
+ *
  * Values:
  * - `WisMultiWaitTypeAll = 0`: All the fences in the batch are triggered.
  * - `WisMultiWaitTypeAny = 1`: At least one of the fences from the batch is triggered.

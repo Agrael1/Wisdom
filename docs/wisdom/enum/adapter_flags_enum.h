@@ -10,7 +10,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef enum WisAdapterFlags {
  *     WisAdapterFlagsNone = 0,
  *     WisAdapterFlagsRemote = (1u << 0),
@@ -20,7 +20,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * enum class AdapterFlags : uint32_t {
  *     None = 0,
  *     Remote = (1u << 0),
@@ -34,7 +34,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * Flags that describe adapter.
- * 
+ *
  * Values:
  * - `WisAdapterFlagsNone = 0`: No flags set. Adapter @wis_may be discrete or embedded.
  * - `WisAdapterFlagsRemote = (1 << 0)`: Adapter is remote. Used for remote rendering.

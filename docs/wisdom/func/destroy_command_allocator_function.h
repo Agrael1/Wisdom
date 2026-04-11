@@ -9,20 +9,20 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * void wisDestroyCommandAllocator(WisCommandAllocator* self);
  * ```
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * void wisVKDestroyCommandAllocator(WisVKCommandAllocator* self);
- * 
- * // Provided by Wisdom 0.7.0. 
+ *
+ * // Provided by Wisdom 0.7.0.
  * void wisDX12DestroyCommandAllocator(WisDX12CommandAllocator* self);
  * ```
  * </details>
- * 
+ *
  * \endcond
  *
  * @section wisDestroyCommandAllocator_memb Parameters
