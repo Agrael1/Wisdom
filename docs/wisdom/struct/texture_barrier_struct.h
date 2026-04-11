@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct WisTextureBarrier {
  *     WisBarrierSync      sync_before;
  *     WisBarrierSync      sync_after;
@@ -27,7 +27,7 @@
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct WisVKTextureBarrier {
  *     WisBarrierSync      sync_before;
  *     WisBarrierSync      sync_after;
@@ -41,8 +41,8 @@
  *     WisCommandQueueType queue_type_before;
  *     WisCommandQueueType queue_type_after;
  * } WisVKTextureBarrier;
- * 
- * // Provided by Wisdom 0.7.0. 
+ *
+ * // Provided by Wisdom 0.7.0.
  * typedef struct WisDX12TextureBarrier {
  *     WisBarrierSync      sync_before;
  *     WisBarrierSync      sync_after;
@@ -58,11 +58,11 @@
  * } WisDX12TextureBarrier;
  * ```
  * </details>
- * 
+ *
  * C++ Version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct TextureBarrier {
  *     wis::BarrierSync      sync_before;
  *     wis::BarrierSync      sync_after;
@@ -82,7 +82,7 @@
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct VKTextureBarrier {
  *     wis::BarrierSync      sync_before;
  *     wis::BarrierSync      sync_after;
@@ -96,8 +96,8 @@
  *     wis::CommandQueueType queue_type_before;
  *     wis::CommandQueueType queue_type_after;
  * };
- * 
- * // Provided by Wisdom 0.7.0. 
+ *
+ * // Provided by Wisdom 0.7.0.
  * struct DX12TextureBarrier {
  *     wis::BarrierSync      sync_before;
  *     wis::BarrierSync      sync_after;
@@ -128,9 +128,10 @@
  * - `flags` describes barrier flags. Describe additional options for the barrier.
  * - `texture` describes texture view.
  * - `subresource_range` specifies subresource range for the barrier.
- * - `queue_type_before` defines type of the queue the barrier is executed on before the synchronization point. Used for cross-queue barriers.
- * - `queue_type_after` indicates type of the queue the barrier is executed on after the synchronization point. Used for cross-queue barriers.
- * \endcond
+ * - `queue_type_before` defines type of the queue the barrier is executed on before the synchronization point. Used for
+ * cross-queue barriers.
+ * - `queue_type_after` indicates type of the queue the barrier is executed on after the synchronization point. Used for
+ * cross-queue barriers. \endcond
  *
  * @section WisTextureBarrier_descr Description
  * <hr>

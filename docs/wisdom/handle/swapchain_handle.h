@@ -9,12 +9,12 @@
  * \cond WIS_GEN_CODE
  *  Vulkan Version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * WIS_DEFINE_HANDLE(WisVKSwapchain,8);
  * ```
  *  DX12 Version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * WIS_DEFINE_HANDLE(WisDX12Swapchain,3);
  * ```
  * \endcond
@@ -23,6 +23,6 @@
  * <hr>
  * \cond WIS_GEN_REFS
  * @see Functions:
- * wisDestroySwapchain, wisDeviceCreateSwapchain, wisSwapchainPresent, wisSwapchainGetCurrentIndex, wisSwapchainUpdate, wisSwapchainGetTextures
- * \endcond
+ * wisDestroySwapchain, wisDeviceCreateSwapchain, wisSwapchainPresent, wisSwapchainGetCurrentIndex, wisSwapchainUpdate,
+ * wisSwapchainGetTextures \endcond
  */

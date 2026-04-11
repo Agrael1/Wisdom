@@ -11,7 +11,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisAdapterDesc {
  *     char            description[256];
  *     uint32_t        vendor_id;
@@ -22,12 +22,12 @@
  *     uint8_t         adapter_uuid[16];
  *     WisAdapterFlags flags;
  * } WisAdapterDesc;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  AdapterDesc {
  *     std::array<char, 256> description;
  *     std::uint32_t     vendor_id;

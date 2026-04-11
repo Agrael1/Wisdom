@@ -1,9 +1,14 @@
 from conan import ConanFile
-from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
-from conan.tools.files import collect_libs, copy
+from conan.tools.cmake import CMake
+from conan.tools.cmake import cmake_layout
+from conan.tools.cmake import CMakeToolchain
+from conan.tools.files import collect_libs
+from conan.tools.files import copy
 
 
 class WisdomConan(ConanFile):
+    """ """
+
     name = "wisdom"
     version = "0.7.0"
     package_type = "library"
@@ -26,6 +31,7 @@ class WisdomConan(ConanFile):
     }
 
     def export_sources(self):
+        """ """
         copy(
             self,
             "*",
@@ -47,17 +53,21 @@ class WisdomConan(ConanFile):
         )
 
     def config_options(self):
+        """ """
         if self.settings.os == "Windows":
             self.options.rm_safe("fPIC")
 
     def configure(self):
+        """ """
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
     def layout(self):
+        """ """
         cmake_layout(self)
 
     def generate(self):
+        """ """
         self.output.warning(
             "This recipe currently relies on the project's CPM/NuGet dependency loading during CMake configure. "
             "For Conan Center, those dependencies should be provided as Conan requirements or vendored sources."
@@ -74,15 +84,18 @@ class WisdomConan(ConanFile):
         tc.generate()
 
     def build(self):
+        """ """
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
+        """ """
         cmake = CMake(self)
         cmake.install()
 
     def package_info(self):
+        """ """
         self.cpp_info.set_property("cmake_file_name", "wisdom")
         self.cpp_info.builddirs.append("lib/cmake/wisdom")
 
@@ -90,20 +103,26 @@ class WisdomConan(ConanFile):
 
         core_target = "wis::wisdom-shared" if self.options.shared else "wis::wisdom"
         core_lib_hints = {"wisdom-shared", "wisdom"}
-        core_libs = [lib for lib in all_libs if any(h in lib for h in core_lib_hints)]
+        core_libs = [
+            lib for lib in all_libs if any(h in lib for h in core_lib_hints)
+        ]
         platform_libs = [lib for lib in all_libs if "platform" in lib]
 
-        self.cpp_info.components["headers"].set_property("cmake_target_name", "wis::wisdom-headers")
+        self.cpp_info.components["headers"].set_property(
+            "cmake_target_name", "wis::wisdom-headers")
 
-        self.cpp_info.components["core"].set_property("cmake_target_name", core_target)
+        self.cpp_info.components["core"].set_property("cmake_target_name",
+                                                      core_target)
         self.cpp_info.components["core"].requires = ["headers"]
         self.cpp_info.components["core"].libs = core_libs
 
         self.cpp_info.components["platform_headers"].set_property(
-            "cmake_target_name", "wis::wisdom-platform-headers"
-        )
+            "cmake_target_name", "wis::wisdom-platform-headers")
         self.cpp_info.components["platform_headers"].requires = ["headers"]
 
-        self.cpp_info.components["platform"].set_property("cmake_target_name", "wis::wisdom-platform")
-        self.cpp_info.components["platform"].requires = ["core", "platform_headers"]
+        self.cpp_info.components["platform"].set_property(
+            "cmake_target_name", "wis::wisdom-platform")
+        self.cpp_info.components["platform"].requires = [
+            "core", "platform_headers"
+        ]
         self.cpp_info.components["platform"].libs = platform_libs

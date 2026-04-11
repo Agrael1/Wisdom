@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * void wisCommandListDraw(const WisCommandList* self,
  *                         uint32_t              vertex_count,
  *                         uint32_t              instance_count,
@@ -19,14 +19,14 @@
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * void wisVKCommandListDraw(const WisVKCommandList* self,
  *                           uint32_t                vertex_count,
  *                           uint32_t                instance_count,
  *                           uint32_t                start_vertex,
  *                           uint32_t                start_instance);
- * 
- * // Provided by Wisdom 0.7.0. 
+ *
+ * // Provided by Wisdom 0.7.0.
  * void wisDX12CommandListDraw(const WisDX12CommandList* self,
  *                             uint32_t                  vertex_count,
  *                             uint32_t                  instance_count,
@@ -34,11 +34,11 @@
  *                             uint32_t                  start_instance);
  * ```
  * </details>
- * 
+ *
  * C++ Version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * void CommandList::Draw(std::uint32_t vertex_count,
  *                        std::uint32_t instance_count,
  *                        std::uint32_t start_vertex,
@@ -49,13 +49,13 @@
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * void VKCommandList::Draw(std::uint32_t vertex_count,
  *                          std::uint32_t instance_count,
  *                          std::uint32_t start_vertex,
  *                          std::uint32_t start_instance) const noexcept;
- * 
- * // Provided by Wisdom 0.7.0. 
+ *
+ * // Provided by Wisdom 0.7.0.
  * void DX12CommandList::Draw(std::uint32_t vertex_count,
  *                            std::uint32_t instance_count,
  *                            std::uint32_t start_vertex,

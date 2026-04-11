@@ -24,7 +24,7 @@
  * #define WIS_ABSOLUTE_MAX_INPUT_BINDINGS ((uint32_t)32)
  * #define WIS_WHOLE_SIZE ((uint64_t)0xffffffffffffffff)
  * ```
- * 
+ *
  * C++ Version:
  * ```cpp
  * namespace wis{
