@@ -72,7 +72,9 @@ public:
     }
 
     /// @brief Destructor, calls the Deleter on the internal implementation
-    ~Implements() noexcept { Deleter{}(GetStorage()); }
+    ~Implements() noexcept {
+        Deleter{}(GetStorage());
+    }
 
 public:
     /// @brief Get the immutable internal implementation
@@ -91,7 +93,9 @@ public:
 
     /// @brief Get the storage pointer
     /// @return Pointer to the storage
-    [[nodiscard]] Storage* GetStorage() noexcept { return &_impl_storage; }
+    [[nodiscard]] Storage* GetStorage() noexcept {
+        return &_impl_storage;
+    }
 
     /// @brief Check if the handle holds a valid object
     /// @return true if the first 8 bytes of storage are non-zero
@@ -102,7 +106,9 @@ public:
     }
 
     /// @brief Bool conversion, checks handle validity
-    explicit operator bool() const noexcept { return IsValid(); }
+    explicit operator bool() const noexcept {
+        return IsValid();
+    }
 
 public:
     Storage _impl_storage;

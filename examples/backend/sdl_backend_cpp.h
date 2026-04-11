@@ -10,7 +10,9 @@ class SDLPlatformCpp
 {
 public:
     SDLPlatformCpp() = default;
-    ~SDLPlatformCpp() { Reset(); }
+    ~SDLPlatformCpp() {
+        Reset();
+    }
 
     SDLPlatformCpp(const SDLPlatformCpp&) = delete;
     SDLPlatformCpp& operator=(const SDLPlatformCpp&) = delete;

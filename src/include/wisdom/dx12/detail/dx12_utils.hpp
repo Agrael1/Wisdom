@@ -101,7 +101,9 @@ WIS_CONSTEXPR23 inline WisResult make_result(
  * @param hr The HRESULT value to check for success.
  * @return True if the HRESULT indicates success (non-negative), false otherwise.
  */
-constexpr bool succeeded(HRESULT hr) noexcept { return SUCCEEDED(hr); }
+constexpr bool succeeded(HRESULT hr) noexcept {
+    return SUCCEEDED(hr);
+}
 } // namespace wis::detail
 
 #endif // WIS_DX12_UTILS_HPP

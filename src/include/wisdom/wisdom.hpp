@@ -91,11 +91,11 @@ WIS_NODISCARD inline wis::Instance CreateInstance(
 {
     wis::DX12Instance instance;
     const WisResult wis_result = ::wisDX12CreateInstance(
-        reinterpret_cast<const WisDebugDesc*>(debug_desc),
-        reinterpret_cast<WisDX12InstanceExtensionHeader**>(extensions.data()),
-        extensions.size(),
-        instance.GetStorage()
-    );
+                                     reinterpret_cast<const WisDebugDesc*>(debug_desc),
+                                     reinterpret_cast<WisDX12InstanceExtensionHeader**>(extensions.data()),
+                                     extensions.size(),
+                                     instance.GetStorage()
+                                 );
     out_result = wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     return instance;
 }
@@ -177,11 +177,11 @@ WIS_NODISCARD inline wis::Instance CreateInstance(
 {
     wis::VKInstance instance;
     const WisResult wis_result = ::wisVKCreateInstance(
-        reinterpret_cast<const WisDebugDesc*>(debug_desc),
-        reinterpret_cast<WisVKInstanceExtensionHeader**>(extensions.data()),
-        extensions.size(),
-        instance.GetStorage()
-    );
+                                     reinterpret_cast<const WisDebugDesc*>(debug_desc),
+                                     reinterpret_cast<WisVKInstanceExtensionHeader**>(extensions.data()),
+                                     extensions.size(),
+                                     instance.GetStorage()
+                                 );
     out_result = wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     return instance;
 }

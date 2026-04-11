@@ -97,7 +97,9 @@ make_result(WisStatus status, VkResult hr, wis::source_location sl = wis::source
  * @param hr The VkResult value to check for success.
  * @return True if the VkResult indicates success (non-negative), false otherwise.
  */
-constexpr bool succeeded(const VkResult hr) noexcept { return hr >= 0; }
+constexpr bool succeeded(const VkResult hr) noexcept {
+    return hr >= 0;
+}
 } // namespace wis::detail
 
 #endif // WIS_VK_UTILS_HPP
