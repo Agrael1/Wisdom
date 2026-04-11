@@ -41,18 +41,18 @@
 # Why?
 
 A lot of old graphics APIs are still widely used, but the modern ones are not as widely adopted,
-since they are more complex and often require a lot of boilerplate code to get started. 
-This library aims to provide a low-level, high-performance graphics API that is easy to learn and use, 
+since they are more complex and often require a lot of boilerplate code to get started.
+This library aims to provide a low-level, high-performance graphics API that is easy to learn and use,
 while still being extensible and compatible with existing codebases.
 
 The design is simple - provide a low-level API that is as close to the underlying graphics API as possible,
-while still being easy to use and extend. This allows developers to get the most out of their hardware, 
+while still being easy to use and extend. This allows developers to get the most out of their hardware,
 while still being able to write clean and maintainable code without digging too deep into foreign API.
 
-Wisdom acknowledges that a lot of special use cases require writing extensions or using platform specific features, 
-so it provides unparalleled access to the internal state of the library, 
+Wisdom acknowledges that a lot of special use cases require writing extensions or using platform specific features,
+so it provides unparalleled access to the internal state of the library,
 allowing developers to write extensions without needing to modify the core library code.
-Internal extension resolver allows getting access to the state without worrying about 
+Internal extension resolver allows getting access to the state without worrying about
 collisions of extensions or internal structures.
 
 # Details
@@ -162,4 +162,4 @@ This type of project does not support Vulkan, since Vulkan does not have UWP sur
 
 # API
 
-The library has a simple API, that is defined in xml/*.xml files. Those files can be used to generate bindings for other languages, or to generate documentation. The API is defined in a way that is easy to use and understand, while still being powerful and flexible. 
+The library has a simple API, that is defined in xml/\*.xml files. Those files can be used to generate bindings for other languages, or to generate documentation. The API is defined in a way that is easy to use and understand, while still being powerful and flexible.
