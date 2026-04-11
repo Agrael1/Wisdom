@@ -34,7 +34,8 @@
  * namespace wis{
  * // Provided by Wisdom 0.7.0.
  * WIS_NODISCARD wis::RootSignature Device::CreateRootSignature(const wis::RootSignatureDesc& desc,
- *                                                              wis::Result&                  out_result) const noexcept;
+ *                                                              wis::Result&                  out_result) const
+ * noexcept;
  * }
  * ```
  * <details>
@@ -43,11 +44,13 @@
  * namespace wis{
  * // Provided by Wisdom 0.7.0.
  * WIS_NODISCARD wis::VKRootSignature VKDevice::CreateRootSignature(const wis::RootSignatureDesc& desc,
- *                                                                  wis::Result&                  out_result) const noexcept;
+ *                                                                  wis::Result&                  out_result) const
+ * noexcept;
  *
  * // Provided by Wisdom 0.7.0.
  * WIS_NODISCARD wis::DX12RootSignature DX12Device::CreateRootSignature(const wis::RootSignatureDesc& desc,
- *                                                                      wis::Result&                  out_result) const noexcept;
+ *                                                                      wis::Result&                  out_result) const
+ * noexcept;
  * }
  * ```
  * </details>

@@ -31,7 +31,8 @@
  * \cond WIS_GEN_DESC
  * Conservative rasterization mode.
  *
- * \note Translates to  `D3D12_CONSERVATIVE_RASTERIZATION_MODE` for DirectX 12 implementation, and `VkConservativeRasterizationModeEXT` for Vulkan implementation.
+ * \note Translates to  `D3D12_CONSERVATIVE_RASTERIZATION_MODE` for DirectX 12 implementation, and
+ * `VkConservativeRasterizationModeEXT` for Vulkan implementation.
  *
  * Values:
  * - `WisConservativeRasterizationOff = 0`: Conservative rasterization is disabled.

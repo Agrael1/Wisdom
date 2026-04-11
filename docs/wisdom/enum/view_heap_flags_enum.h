@@ -35,8 +35,9 @@
  *
  * Values:
  * - `WisViewHeapFlagsNone = 0`: No flags set. View heap is regular.
- * - `WisViewHeapFlagsAllowMultisample = (1 << 0)`: Shader visible view heap. If set, the view heap is visible to shaders and can be used for descriptor tables. If not set, the view heap is not visible to shaders and cannot be used for descriptor tables.
- * \endcond
+ * - `WisViewHeapFlagsAllowMultisample = (1 << 0)`: Shader visible view heap. If set, the view heap is visible to
+ * shaders and can be used for descriptor tables. If not set, the view heap is not visible to shaders and cannot be used
+ * for descriptor tables. \endcond
  *
  *
  * @section WisViewHeapFlags_see_also See Also

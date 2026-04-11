@@ -36,7 +36,8 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - `status` defines operation status. Compare with `WisStatusOk`.
- * - `platform_code` indicates platform code from underlying implementation. Is an `HRESULT` for DX12 and a `VkResult` for Vulkan.
+ * - `platform_code` indicates platform code from underlying implementation. Is an `HRESULT` for DX12 and a `VkResult`
+ * for Vulkan.
  * - `error` specifies contains a human readable error message.
  * \endcond
  *

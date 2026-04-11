@@ -33,7 +33,8 @@
  * @section wisInitXlibExtension_memb Parameters
  * <hr>
  * \cond WIS_GEN_DESC
- * - **this** `self` is a pointer to uninitialized WisXlibExtension instance memory. It will be initialized by this function.
+ * - **this** `self` is a pointer to uninitialized WisXlibExtension instance memory. It will be initialized by this
+ * function.
  * **note** The corresponding destroy function is `wisDestroyXlibExtension`.
  * \endcond
  *

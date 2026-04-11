@@ -37,10 +37,13 @@
  *
  * Values:
  * - `WisPipelineFlagsNone = 0`: No flags set. Pipeline is regular.
- * - `WisPipelineFlagsFailOnCacheMiss = (1 << 0)`: Fail pipeline creation if the pipeline cache is missing or incompatible. If not set, the implementation @wis_may choose to create the pipeline without using the cache, which @wis_may result in longer creation time.
- * - `WisPipelineFlagsEnablePrimitiveRestart = (1 << 1)`: Enable primitive restart for graphics pipelines. If not set, primitive restart is disabled and the implementation @wis_may choose to ignore restart indices in draw calls.
- * - `WisPipelineFlagsDynamicDepthBias = (1 << 2)`: Enable dynamic depth bias for graphics pipelines. If not set, depth bias is static and @wis_must be specified at pipeline creation time.
- * \endcond
+ * - `WisPipelineFlagsFailOnCacheMiss = (1 << 0)`: Fail pipeline creation if the pipeline cache is missing or
+ * incompatible. If not set, the implementation @wis_may choose to create the pipeline without using the cache, which
+ * @wis_may result in longer creation time.
+ * - `WisPipelineFlagsEnablePrimitiveRestart = (1 << 1)`: Enable primitive restart for graphics pipelines. If not set,
+ * primitive restart is disabled and the implementation @wis_may choose to ignore restart indices in draw calls.
+ * - `WisPipelineFlagsDynamicDepthBias = (1 << 2)`: Enable dynamic depth bias for graphics pipelines. If not set, depth
+ * bias is static and @wis_must be specified at pipeline creation time. \endcond
  *
  *
  * @section WisPipelineFlags_see_also See Also

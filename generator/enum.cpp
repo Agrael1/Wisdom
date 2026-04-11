@@ -53,7 +53,7 @@ void Generator::ParseEnum(tinyxml2::XMLElement* type)
     }
 
     for (auto* impl_type = type->FirstChildElement("impl_type"); impl_type;
-            impl_type = impl_type->NextSiblingElement("impl_type")) {
+         impl_type = impl_type->NextSiblingElement("impl_type")) {
         auto impl_for = impl_type->FindAttribute("for")->Value();
         auto backend = ParseBackend(impl_for);
         auto impl_name = impl_type->FindAttribute("name")->Value();
@@ -143,11 +143,11 @@ void Generator::WriteEnumDocumentation(std::filesystem::path enum_output_path)
         auto& enum_ref = enum_map[enum_name];
 
         std::string enum_template_content = wis::format(
-                                                " * C version:\n```c\n{}```\n"
-                                                "C++ version:\n```cpp\nnamespace wis{{\n{}}}\n```\n",
-                                                MakeCEnum(enum_ref, DocKind::VersionOnly),
-                                                MakeCPPEnum(enum_ref, DocKind::VersionOnly)
-                                            );
+            " * C version:\n```c\n{}```\n"
+            "C++ version:\n```cpp\nnamespace wis{{\n{}}}\n```\n",
+            MakeCEnum(enum_ref, DocKind::VersionOnly),
+            MakeCPPEnum(enum_ref, DocKind::VersionOnly)
+        );
         std::string enum_description = wis::format(" * {}", MakeEnumDescription(enum_ref));
         std::string enum_refs = GetRefs(enum_name);
         ReplaceAll(enum_template_content, "\n", "\n * ");
@@ -190,11 +190,11 @@ std::string Generator::MakeEnumDescription(const WisEnum& s)
         }
 
         translates += wis::format(
-                          "{} `{}` for {} implementation",
-                          has_translate ? ", and" : "",
-                          cvt.value,
-                          impl_names[i]
-                      );
+            "{} `{}` for {} implementation",
+            has_translate ? ", and" : "",
+            cvt.value,
+            impl_names[i]
+        );
         has_translate = true;
     }
     if (has_translate) {
@@ -221,29 +221,29 @@ std::string Generator::MakeEnumConverter(const WisEnum& s, Backend backend)
 
     if (cvt.direct) {
         converters = wis::format(
-                         "constexpr inline {} {}Convert({} value) noexcept {{\n    return static_cast<{}>(value);\n}}\n\n",
-                         cvt.value,
-                         backend_tag,
-                         GetCFullTypename(s.name, backend),
-                         cvt.value
-                     );
+            "constexpr inline {} {}Convert({} value) noexcept {{\n    return static_cast<{}>(value);\n}}\n\n",
+            cvt.value,
+            backend_tag,
+            GetCFullTypename(s.name, backend),
+            cvt.value
+        );
     } else {
         converters = wis::format(
-                         "constexpr inline {} {}Convert({} value) noexcept {{\n    switch(value) {{\n",
-                         cvt.value,
-                         backend_tag,
-                         GetCFullTypename(s.name, backend)
-                     );
+            "constexpr inline {} {}Convert({} value) noexcept {{\n    switch(value) {{\n",
+            cvt.value,
+            backend_tag,
+            GetCFullTypename(s.name, backend)
+        );
         for (auto& m : s.values) {
             auto convert_value = m.converts[static_cast<size_t>(backend)];
             if (convert_value.empty()) {
                 continue;
             }
             converters += wis::format(
-                              "    case {}: return {};\n",
-                              wis::format("{}{}", GetCFullTypename(s.name, backend), m.name),
-                              convert_value
-                          );
+                "    case {}: return {};\n",
+                wis::format("{}{}", GetCFullTypename(s.name, backend), m.name),
+                convert_value
+            );
         }
 
         if (!cvt.default_value.empty()) {
@@ -256,19 +256,19 @@ std::string Generator::MakeEnumConverter(const WisEnum& s, Backend backend)
     if (cvt.convert_back) {
         if (cvt.direct) {
             converters += wis::format(
-                              "constexpr inline {} {}Convert({} value) noexcept {{\n    return static_cast<{}>(value);\n}}\n\n",
-                              wisdom_type,
-                              backend_tag,
-                              cvt.value,
-                              wisdom_type
-                          );
+                "constexpr inline {} {}Convert({} value) noexcept {{\n    return static_cast<{}>(value);\n}}\n\n",
+                wisdom_type,
+                backend_tag,
+                cvt.value,
+                wisdom_type
+            );
         } else {
             converters += wis::format(
-                              "constexpr inline {} {}Convert({} value) noexcept {{\n",
-                              wisdom_type,
-                              backend_tag,
-                              cvt.value
-                          );
+                "constexpr inline {} {}Convert({} value) noexcept {{\n",
+                wisdom_type,
+                backend_tag,
+                cvt.value
+            );
 
             for (auto& m : s.values) {
                 auto convert_value = m.converts[static_cast<size_t>(backend)];
@@ -276,11 +276,11 @@ std::string Generator::MakeEnumConverter(const WisEnum& s, Backend backend)
                     continue;
                 }
                 converters += wis::format(
-                                  "    if (value == {}) {{ return {}{}; }}\n",
-                                  convert_value,
-                                  wisdom_type,
-                                  m.name
-                              );
+                    "    if (value == {}) {{ return {}{}; }}\n",
+                    convert_value,
+                    wisdom_type,
+                    m.name
+                );
             }
 
             converters += wis::format("    return static_cast<{}>(0);\n}}\n\n", wisdom_type);

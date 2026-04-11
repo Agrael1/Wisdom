@@ -43,11 +43,13 @@
  * namespace wis{
  * // Provided by Wisdom 0.7.0.
  * WIS_NODISCARD wis::VKCommandAllocator VKDevice::CreateCommandAllocator(wis::CommandQueueType type,
- *                                                                        wis::Result&          out_result) const noexcept;
+ *                                                                        wis::Result&          out_result) const
+ * noexcept;
  *
  * // Provided by Wisdom 0.7.0.
  * WIS_NODISCARD wis::DX12CommandAllocator DX12Device::CreateCommandAllocator(wis::CommandQueueType type,
- *                                                                            wis::Result&          out_result) const noexcept;
+ *                                                                            wis::Result&          out_result) const
+ * noexcept;
  * }
  * ```
  * </details>

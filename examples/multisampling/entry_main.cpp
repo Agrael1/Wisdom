@@ -30,7 +30,7 @@ struct HelloTriangleApp {
     uint64_t next_fence_value = 1;
 
     wis::Swapchain swapchain{};
-    wis::Texture swapchain_textures[SWAPCHAIN_FRAMES] {};
+    wis::Texture swapchain_textures[SWAPCHAIN_FRAMES]{};
     wis::Texture msaa_render_target[FRAMES_IN_FLIGHT];
     wis::ResourceAllocator allocator{};
     wis::ViewHeap rtv_heap{};
@@ -39,7 +39,7 @@ struct HelloTriangleApp {
     wis::RootSignature root_signature{};
     wis::Pipeline pipeline{};
 
-    FrameContext frames[FRAMES_IN_FLIGHT] {};
+    FrameContext frames[FRAMES_IN_FLIGHT]{};
     uint32_t frame_index = 0;
 
     uint32_t width = 800;
@@ -258,11 +258,11 @@ static bool init_app(HelloTriangleApp* app, SDL_Window* window)
     }
 
     app->rtv_heap = app->device.CreateViewHeap(
-                        wis::ViewHeapType::RenderTarget,
-                        SWAPCHAIN_FRAMES * 2,
-                        wis::ViewHeapFlags::AllowMultisample,
-                        result
-                    );
+        wis::ViewHeapType::RenderTarget,
+        SWAPCHAIN_FRAMES * 2,
+        wis::ViewHeapFlags::AllowMultisample,
+        result
+    );
     if (!check_result(result, "Device::CreateViewHeap")) {
         return false;
     }
@@ -380,7 +380,7 @@ static void draw_frame(HelloTriangleApp* app, float angle)
     uint64_t target_rtv = app->rtv_heap.GetViewAddress(swapchain_index);
     uint64_t msaa_rtv = app->rtv_heap.GetViewAddress(SWAPCHAIN_FRAMES + app->frame_index);
 
-    wis::TextureBarrier barriers[3] {};
+    wis::TextureBarrier barriers[3]{};
     barriers[0] = {
         .sync_before = wis::BarrierSync::None,
         .sync_after = wis::BarrierSync::RenderTarget,
@@ -451,13 +451,11 @@ static void draw_frame(HelloTriangleApp* app, float angle)
     wis::RenderPassDesc render_pass{
         .flags = wis::RenderPassFlags::None,
         .render_targets = {{{
-                    .target = target_rtv,
-                    .load_op = wis::LoadOp::Clear,
-                    .store_op = wis::StoreOp::Store,
-                    .clear_value = {0.1f, 0.1f, 0.15f, 1.0f},
-                }
-            }
-        },
+            .target = target_rtv,
+            .load_op = wis::LoadOp::Clear,
+            .store_op = wis::StoreOp::Store,
+            .clear_value = {0.1f, 0.1f, 0.15f, 1.0f},
+        }}},
         .render_target_count = 1,
     };
 
@@ -465,14 +463,12 @@ static void draw_frame(HelloTriangleApp* app, float angle)
     wis::RenderPassDesc render_pass2{
         .flags = wis::RenderPassFlags::None,
         .render_targets = {{{
-                    .target = msaa_rtv,
-                    .load_op = wis::LoadOp::Clear,
-                    .store_op = wis::StoreOp::DontCare,
-                    .clear_value = {0.1f, 0.1f, 0.15f, 1.0f},
-                    .resolve_desc = &resolve_desc,
-                }
-            }
-        },
+            .target = msaa_rtv,
+            .load_op = wis::LoadOp::Clear,
+            .store_op = wis::StoreOp::DontCare,
+            .clear_value = {0.1f, 0.1f, 0.15f, 1.0f},
+            .resolve_desc = &resolve_desc,
+        }}},
         .render_target_count = 1,
     };
 

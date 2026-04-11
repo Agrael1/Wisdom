@@ -31,7 +31,8 @@
  * \cond WIS_GEN_DESC
  * Attachment store operation for render pass.
  *
- * \note Translates to  `D3D12_RENDER_PASS_ENDING_ACCESS_TYPE` for DirectX 12 implementation, and `VkAttachmentStoreOp` for Vulkan implementation.
+ * \note Translates to  `D3D12_RENDER_PASS_ENDING_ACCESS_TYPE` for DirectX 12 implementation, and `VkAttachmentStoreOp`
+ * for Vulkan implementation.
  *
  * Values:
  * - `WisStoreOpStore = 0`: Store the attachment contents.

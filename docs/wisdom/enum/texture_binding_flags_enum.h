@@ -35,9 +35,11 @@
  *
  * Values:
  * - `WisTextureBindingFlagsNone = 0`: No flags set. Texture view is regular. Implies color read.
- * - `WisTextureBindingFlagsDepthView = (1 << 0)`: Texture view is used to read depth. Used for special formats that feature depth and stencil. The bound texture @wis_must be in TODO: specific layout before being used by shader.
- * - `WisTextureBindingFlagsStencilView = (1 << 1)`: Texture view is used to read stencil. Used for special formats that feature depth and stencil. The bound texture @wis_must be in TODO: specific layout before being used by shader. Cannot be combined with `WisTextureBindingFlagsDepthView`.
- * \endcond
+ * - `WisTextureBindingFlagsDepthView = (1 << 0)`: Texture view is used to read depth. Used for special formats that
+ * feature depth and stencil. The bound texture @wis_must be in TODO: specific layout before being used by shader.
+ * - `WisTextureBindingFlagsStencilView = (1 << 1)`: Texture view is used to read stencil. Used for special formats that
+ * feature depth and stencil. The bound texture @wis_must be in TODO: specific layout before being used by shader.
+ * Cannot be combined with `WisTextureBindingFlagsDepthView`. \endcond
  *
  *
  * @section WisTextureBindingFlags_see_also See Also

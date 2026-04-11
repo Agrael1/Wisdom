@@ -123,11 +123,8 @@ WISDOM_PLATFORM_API WisResult wisDX12Win32ExtensionCreateSurface(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_PLATFORM_API WisResult wisDX12UWPExtensionCreateSurface(
-    WisDX12UWPExtension* self,
-    const WisUWPWindowDesc* info,
-    WisDX12Surface* surface
-);
+WISDOM_PLATFORM_API WisResult
+wisDX12UWPExtensionCreateSurface(WisDX12UWPExtension* self, const WisUWPWindowDesc* info, WisDX12Surface* surface);
 
 #endif // WISDOM_DX12
 
@@ -220,11 +217,8 @@ WISDOM_PLATFORM_API void wisVKInitWin32Extension(WisVKWin32Extension* self);
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_PLATFORM_API WisResult wisVKXlibExtensionCreateSurface(
-    WisVKXlibExtension* self,
-    const WisXlibWindowDesc* info,
-    WisVKSurface* surface
-);
+WISDOM_PLATFORM_API WisResult
+wisVKXlibExtensionCreateSurface(WisVKXlibExtension* self, const WisXlibWindowDesc* info, WisVKSurface* surface);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a surface using Win32.
@@ -234,11 +228,8 @@ WISDOM_PLATFORM_API WisResult wisVKXlibExtensionCreateSurface(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_PLATFORM_API WisResult wisVKXCBExtensionCreateSurface(
-    WisVKXCBExtension* self,
-    const WisXCBWindowDesc* info,
-    WisVKSurface* surface
-);
+WISDOM_PLATFORM_API WisResult
+wisVKXCBExtensionCreateSurface(WisVKXCBExtension* self, const WisXCBWindowDesc* info, WisVKSurface* surface);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a surface using Wayland.
@@ -262,11 +253,8 @@ WISDOM_PLATFORM_API WisResult wisVKWaylandExtensionCreateSurface(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_PLATFORM_API WisResult wisVKWin32ExtensionCreateSurface(
-    WisVKWin32Extension* self,
-    const WisWin32WindowDesc* info,
-    WisVKSurface* surface
-);
+WISDOM_PLATFORM_API WisResult
+wisVKWin32ExtensionCreateSurface(WisVKWin32Extension* self, const WisWin32WindowDesc* info, WisVKSurface* surface);
 
 #endif // WISDOM_VULKAN
 

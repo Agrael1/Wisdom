@@ -43,11 +43,13 @@
  * namespace wis{
  * // Provided by Wisdom 0.7.0.
  * WIS_NODISCARD wis::VKPipeline VKDevice::CreateComputePipeline(const wis::VKComputePipelineDesc& desc,
- *                                                               wis::Result&                      out_result) const noexcept;
+ *                                                               wis::Result&                      out_result) const
+ * noexcept;
  *
  * // Provided by Wisdom 0.7.0.
  * WIS_NODISCARD wis::DX12Pipeline DX12Device::CreateComputePipeline(const wis::DX12ComputePipelineDesc& desc,
- *                                                                   wis::Result&                        out_result) const noexcept;
+ *                                                                   wis::Result&                        out_result)
+ * const noexcept;
  * }
  * ```
  * </details>

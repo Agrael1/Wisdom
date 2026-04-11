@@ -47,7 +47,8 @@
  * @section wisInitWin32Extension_memb Parameters
  * <hr>
  * \cond WIS_GEN_DESC
- * - **this** `self` is a pointer to uninitialized WisWin32Extension instance memory. It will be initialized by this function.
+ * - **this** `self` is a pointer to uninitialized WisWin32Extension instance memory. It will be initialized by this
+ * function.
  * **note** The corresponding destroy function is `wisDestroyWin32Extension`.
  * \endcond
  *

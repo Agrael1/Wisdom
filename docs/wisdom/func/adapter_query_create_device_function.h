@@ -53,7 +53,8 @@
  * // Provided by Wisdom 0.7.0.
  * WIS_NODISCARD wis::DX12Device DX12AdapterQuery::CreateDevice(std::size_t                        index,
  *                                                              const wis::DX12DeviceRequirements& requirements,
- *                                                              wis::Result&                       out_result) const noexcept;
+ *                                                              wis::Result&                       out_result) const
+ * noexcept;
  * }
  * ```
  * </details>
@@ -63,8 +64,10 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisAdapterQuery instance.
- * - `index` defines the index of the adapter to create the device for. It @wis_must be less than the value returned by wisAdapterQueryGetAdapterCount.
- * - `requirements` defines a pointer to WisDeviceRequirements, which defines required features and properties for device creation.
+ * - `index` defines the index of the adapter to create the device for. It @wis_must be less than the value returned by
+ * wisAdapterQueryGetAdapterCount.
+ * - `requirements` defines a pointer to WisDeviceRequirements, which defines required features and properties for
+ * device creation.
  * - `device` points to WisDevice, which is initialized on success.
  *
  * - **return** denoting the outcome of operation.

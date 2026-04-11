@@ -33,7 +33,8 @@
  * \cond WIS_GEN_DESC
  * Reduction mode for texture sampling when min and mag filters are different.
  *
- * \note Translates to  `D3D12_FILTER_REDUCTION_TYPE` for DirectX 12 implementation, and `VkSamplerReductionModeEXT` for Vulkan implementation.
+ * \note Translates to  `D3D12_FILTER_REDUCTION_TYPE` for DirectX 12 implementation, and `VkSamplerReductionModeEXT` for
+ * Vulkan implementation.
  *
  * Values:
  * - `WisReductionModeStandard = 0`: Standard filtering behavior.
