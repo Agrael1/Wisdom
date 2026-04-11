@@ -103,24 +103,26 @@ class WisdomConan(ConanFile):
 
         core_target = "wis::wisdom-shared" if self.options.shared else "wis::wisdom"
         core_lib_hints = {"wisdom-shared", "wisdom"}
-        core_libs = [lib for lib in all_libs if any(h in lib for h in core_lib_hints)]
+        core_libs = [
+            lib for lib in all_libs if any(h in lib for h in core_lib_hints)
+        ]
         platform_libs = [lib for lib in all_libs if "platform" in lib]
 
         self.cpp_info.components["headers"].set_property(
-            "cmake_target_name", "wis::wisdom-headers"
-        )
+            "cmake_target_name", "wis::wisdom-headers")
 
-        self.cpp_info.components["core"].set_property("cmake_target_name", core_target)
+        self.cpp_info.components["core"].set_property("cmake_target_name",
+                                                      core_target)
         self.cpp_info.components["core"].requires = ["headers"]
         self.cpp_info.components["core"].libs = core_libs
 
         self.cpp_info.components["platform_headers"].set_property(
-            "cmake_target_name", "wis::wisdom-platform-headers"
-        )
+            "cmake_target_name", "wis::wisdom-platform-headers")
         self.cpp_info.components["platform_headers"].requires = ["headers"]
 
         self.cpp_info.components["platform"].set_property(
-            "cmake_target_name", "wis::wisdom-platform"
-        )
-        self.cpp_info.components["platform"].requires = ["core", "platform_headers"]
+            "cmake_target_name", "wis::wisdom-platform")
+        self.cpp_info.components["platform"].requires = [
+            "core", "platform_headers"
+        ]
         self.cpp_info.components["platform"].libs = platform_libs
