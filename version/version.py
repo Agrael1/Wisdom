@@ -3,7 +3,6 @@
 Version management script for Wisdom project
 Usage: python version.py [major|minor|patch|set <version>|get]
 """
-
 import re
 import sys
 from pathlib import Path
