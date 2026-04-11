@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisSwapchainDesc {
  *     uint32_t             width;
  *     uint32_t             height;
@@ -20,12 +20,12 @@
  *     WisSwapchainFlags    flags;
  *     WisCompositeAlpha    composite_alpha;
  * } WisSwapchainDesc;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  SwapchainDesc {
  *     std::uint32_t          width;
  *     std::uint32_t          height;

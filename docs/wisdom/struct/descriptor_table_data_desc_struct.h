@@ -9,19 +9,19 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisDescriptorTableDataDesc {
  *     WisPipelineType       pipeline;
  *     uint32_t              root_index;
  *     WisDescriptorHeapType heap_type;
  *     uint32_t              heap_offset;
  * } WisDescriptorTableDataDesc;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  DescriptorTableDataDesc {
  *     wis::PipelineType       pipeline;
  *     std::uint32_t           root_index;

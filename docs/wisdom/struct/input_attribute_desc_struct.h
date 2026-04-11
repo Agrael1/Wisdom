@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisInputAttributeDesc {
  *     uint32_t      binding_index;
  *     const char*   semantic_name;
@@ -18,12 +18,12 @@
  *     WisDataFormat format;
  *     uint32_t      offset_bytes;
  * } WisInputAttributeDesc;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  InputAttributeDesc {
  *     std::uint32_t   binding_index;
  *     const char*     semantic_name;

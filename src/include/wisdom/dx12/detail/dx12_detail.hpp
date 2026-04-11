@@ -58,11 +58,11 @@ public:
     {
         if (info_queue) {
             const auto hr = info_queue->RegisterMessageCallback(
-                DX12CallbackThunk,
-                D3D12_MESSAGE_CALLBACK_FLAG_NONE,
-                this,
-                &cookie
-            );
+                                DX12CallbackThunk,
+                                D3D12_MESSAGE_CALLBACK_FLAG_NONE,
+                                this,
+                                &cookie
+                            );
             // Debug layer creation failure is allowed to silently fail
             (void)hr;
         }
@@ -137,18 +137,18 @@ struct DX12RootSignatureKey {
 
 //----------------------------------------------------------------------------------------------------------------------
 struct DX12ShaderHeader {
-    uint64_t hash[2]{}; // Hash of the shader bytecode, used for caching and identification purposes.
+    uint64_t hash[2] {}; // Hash of the shader bytecode, used for caching and identification purposes.
     std::size_t size = 0; // Size of the shader bytecode in bytes.
 
     // bytecode follows immediately after the header in memory.
 
     wis::span<const std::byte> GetBytecode() const noexcept
     {
-        return wis::span<const std::byte>{reinterpret_cast<const std::byte*>(this + 1), size};
+        return wis::span<const std::byte> {reinterpret_cast<const std::byte*>(this + 1), size};
     }
     wis::span<std::byte> GetMutableBytecode() noexcept
     {
-        return wis::span<std::byte>{reinterpret_cast<std::byte*>(this + 1), size};
+        return wis::span<std::byte> {reinterpret_cast<std::byte*>(this + 1), size};
     }
 };
 

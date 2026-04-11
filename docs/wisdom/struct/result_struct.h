@@ -11,18 +11,18 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct WIS_NODISCARD WisResult {
  *     WisStatus   status;
  *     int32_t     platform_code;
  *     const char* error;
  * } WisResult;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct WIS_NODISCARD Result {
  *     wis::Status  status;
  *     std::int32_t platform_code;

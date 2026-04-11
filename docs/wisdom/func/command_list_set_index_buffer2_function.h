@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * void wisCommandListSetIndexBuffer2(WisCommandList* self,
  *                                    const WisIndexBufferAddressDesc* buffer,
  *                                    WisIndexType                     index_type);
@@ -17,22 +17,22 @@
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * void wisVKCommandListSetIndexBuffer2(WisVKCommandList* self,
  *                                      const WisIndexBufferAddressDesc* buffer,
  *                                      WisIndexType                     index_type);
- * 
- * // Provided by Wisdom 0.7.0. 
+ *
+ * // Provided by Wisdom 0.7.0.
  * void wisDX12CommandListSetIndexBuffer2(WisDX12CommandList* self,
  *                                        const WisIndexBufferAddressDesc* buffer,
  *                                        WisIndexType                     index_type);
  * ```
  * </details>
- * 
+ *
  * C++ Version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * void CommandList::SetIndexBuffer2(const wis::IndexBufferAddressDesc* buffer,
  *                                   wis::IndexType                     index_type) noexcept;
  * }
@@ -41,11 +41,11 @@
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * void VKCommandList::SetIndexBuffer2(const wis::IndexBufferAddressDesc* buffer,
  *                                     wis::IndexType                     index_type) noexcept;
- * 
- * // Provided by Wisdom 0.7.0. 
+ *
+ * // Provided by Wisdom 0.7.0.
  * void DX12CommandList::SetIndexBuffer2(const wis::IndexBufferAddressDesc* buffer,
  *                                       wis::IndexType                     index_type) noexcept;
  * }

@@ -9,19 +9,19 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisBufferTextureCopyRegion {
  *     uint64_t         buffer_offset;
  *     uint32_t         buffer_row_length;
  *     uint32_t         buffer_image_height;
  *     WisTextureRegion texture_region;
  * } WisBufferTextureCopyRegion;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  BufferTextureCopyRegion {
  *     std::uint64_t      buffer_offset;
  *     std::uint32_t      buffer_row_length;

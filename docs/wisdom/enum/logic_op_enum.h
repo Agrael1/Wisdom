@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef enum WisLogicOp {
  *     WisLogicOpClear = 0,
  *     WisLogicOpSet = 1,
@@ -31,7 +31,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * enum class LogicOp {
  *     Clear = 0,
  *     Set = 1,
@@ -58,9 +58,9 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * Logic operation for color blending operations.
- * 
+ *
  * \note Translates to  `D3D12_LOGIC_OP` for DirectX 12 implementation, and `VkLogicOp` for Vulkan implementation.
- * 
+ *
  * Values:
  * - `WisLogicOpClear = 0`: Clear the destination value.
  * - `WisLogicOpSet = 1`: Set the destination value.

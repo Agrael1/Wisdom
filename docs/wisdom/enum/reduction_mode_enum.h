@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef enum WisReductionMode {
  *     WisReductionModeStandard = 0,
  *     WisReductionModeMin = 1,
@@ -18,7 +18,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * enum class ReductionMode {
  *     Standard = 0,
  *     Min = 1,
@@ -32,9 +32,9 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * Reduction mode for texture sampling when min and mag filters are different.
- * 
+ *
  * \note Translates to  `D3D12_FILTER_REDUCTION_TYPE` for DirectX 12 implementation, and `VkSamplerReductionModeEXT` for Vulkan implementation.
- * 
+ *
  * Values:
  * - `WisReductionModeStandard = 0`: Standard filtering behavior.
  * - `WisReductionModeMin = 1`: Use the minimum value of the samples for filtering.

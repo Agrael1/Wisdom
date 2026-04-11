@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef enum WisBarrierFlags {
  *     WisBarrierFlagsNone = 0,
  *     WisBarrierFlagsDepthResource = (1u << 0),
@@ -20,7 +20,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * enum class BarrierFlags : uint32_t {
  *     None = 0,
  *     DepthResource = (1u << 0),
@@ -36,7 +36,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * Barrier flags for resource barriers.
- * 
+ *
  * Values:
  * - `WisBarrierFlagsNone = 0`: No flags set. Barrier is regular.
  * - `WisBarrierFlagsDepthResource = (1 << 0)`: Resource is a depth resource. This flag @wis_must be set for all depth resources to make transitions on them.

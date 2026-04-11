@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * void wisCommandListSetViewports(WisCommandList* self,
  *                                 const WisViewport* viewports,
  *                                 size_t             viewport_count);
@@ -17,22 +17,22 @@
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * void wisVKCommandListSetViewports(WisVKCommandList* self,
  *                                   const WisViewport* viewports,
  *                                   size_t             viewport_count);
- * 
- * // Provided by Wisdom 0.7.0. 
+ *
+ * // Provided by Wisdom 0.7.0.
  * void wisDX12CommandListSetViewports(WisDX12CommandList* self,
  *                                     const WisViewport*  viewports,
  *                                     size_t              viewport_count);
  * ```
  * </details>
- * 
+ *
  * C++ Version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * void CommandList::SetViewports(wis::span<const wis::Viewport> viewports) noexcept;
  * }
  * ```
@@ -40,10 +40,10 @@
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * void VKCommandList::SetViewports(wis::span<const wis::Viewport> viewports) noexcept;
- * 
- * // Provided by Wisdom 0.7.0. 
+ *
+ * // Provided by Wisdom 0.7.0.
  * void DX12CommandList::SetViewports(wis::span<const wis::Viewport> viewports) noexcept;
  * }
  * ```

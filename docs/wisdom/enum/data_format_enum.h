@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef enum WisDataFormat {
  *     WisDataFormatUnknown = 0,
  *     WisDataFormatRGBA32Float = 2,
@@ -83,7 +83,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * enum class DataFormat {
  *     Unknown = 0,
  *     RGBA32Float = 2,
@@ -168,9 +168,9 @@
  * - Texture data format
  * - Render target data format
  * - Depth stencil data format
- * 
+ *
  * \note Translates to  `DXGI_FORMAT` for DirectX 12 implementation, and `VkFormat` for Vulkan implementation.
- * 
+ *
  * Values:
  * - `WisDataFormatUnknown = 0`: Unknown format.
  * - `WisDataFormatRGBA32Float = 2`: 32 bit per channel RGBA format.

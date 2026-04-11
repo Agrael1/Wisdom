@@ -53,8 +53,8 @@ WIS_NODISCARD inline typename std::enable_if<!std::is_array<T>::value, std::uniq
 
 template <typename T>
 WIS_NODISCARD inline
-    typename std::enable_if<std::is_array<T>::value && std::extent<T>::value == 0, std::unique_ptr<T>>::type
-    make_unique(std::size_t size) noexcept
+typename std::enable_if<std::is_array<T>::value && std::extent<T>::value == 0, std::unique_ptr<T>>::type
+make_unique(std::size_t size) noexcept
 {
     using U = typename std::remove_extent<T>::type;
     return std::unique_ptr<T>(new (std::nothrow) U[size]);
