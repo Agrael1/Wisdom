@@ -19,7 +19,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef enum WisStatus {
  *     WisStatusOk = 0,
  *     WisStatusTimeout = 1,
@@ -37,7 +37,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * enum class Status {
  *     Ok = 0,
  *     Timeout = 1,
@@ -59,12 +59,13 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * Defines common return status codes. Compare against `WisStatusOk` for success.
- * 
+ *
  * Values:
  * - `WisStatusOk = 0`: Operation succeeded.
  * - `WisStatusTimeout = 1`: Operation timed out.
  * - `WisStatusPartial = 2`: Operation partially succeeded.
- * - `WisStatusInvalidArgument = -1`: One or more arguments, or parts of arguments passed to the function were incorrect.
+ * - `WisStatusInvalidArgument = -1`: One or more arguments, or parts of arguments passed to the function were
+ * incorrect.
  * - `WisStatusOutOfHostMemory = -2`: There is no more host memory available.
  * - `WisStatusOutOfDeviceMemory = -3`: There is no more device memory available.
  * - `WisStatusDeviceLost = -4`: Device driver was forcefully stopped.

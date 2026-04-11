@@ -9,18 +9,18 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisStaticSamplerDesc {
  *     WisSamplerDesc      sampler;
  *     WisShaderVisibility visibility;
  *     uint32_t            bind_register;
  * } WisStaticSamplerDesc;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  StaticSamplerDesc {
  *     wis::SamplerDesc      sampler;
  *     wis::ShaderVisibility visibility;

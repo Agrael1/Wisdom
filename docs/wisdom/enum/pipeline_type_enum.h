@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef enum WisPipelineType {
  *     WisPipelineTypeGraphics = 0,
  *     WisPipelineTypeCompute = 1,
@@ -18,7 +18,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * enum class PipelineType {
  *     Graphics = 0,
  *     Compute = 1,
@@ -31,10 +31,11 @@
  * @section WisPipelineType_descr Description
  * <hr>
  * \cond WIS_GEN_DESC
- * Defines types of pipelines that can be created on the device. Each type corresponds to a specific kind of workload that the GPU can handle.
- * 
+ * Defines types of pipelines that can be created on the device. Each type corresponds to a specific kind of workload
+ * that the GPU can handle.
+ *
  * \note Translates to  `VkPipelineBindPoint` for Vulkan implementation.
- * 
+ *
  * Values:
  * - `WisPipelineTypeGraphics = 0`: Pipeline for graphics operations, including rendering tasks.
  * - `WisPipelineTypeCompute = 1`: Pipeline dedicated to compute operations, optimized for parallel processing tasks.

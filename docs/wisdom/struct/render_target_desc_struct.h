@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * typedef struct  WisRenderTargetDesc {
  *     WisDataFormat    format;
  *     WisTextureLayout layout;
@@ -18,12 +18,12 @@
  *     uint16_t         array_layer_count;
  *     uint16_t         plane_slice;
  * } WisRenderTargetDesc;
- * 
+ *
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * struct  RenderTargetDesc {
  *     wis::DataFormat    format;
  *     wis::TextureLayout layout;
@@ -42,8 +42,10 @@
  * - `format` describes render target format.
  * - `layout` specifies render target layout. Default is `WisTextureLayoutTexture2D`.
  * - `mip_level` describes mipmap level of the target subresource.
- * - `base_array_layer` describes array layer of the target subresource. For 3D textures, this defines the base depth slice.
- * - `array_layer_count` indicates number of array layers in the target subresource. For 3D textures, this defines the number of depth slices.
+ * - `base_array_layer` describes array layer of the target subresource. For 3D textures, this defines the base depth
+ * slice.
+ * - `array_layer_count` indicates number of array layers in the target subresource. For 3D textures, this defines the
+ * number of depth slices.
  * - `plane_slice` indicates depth slice of the target subresource. Used only for 2D textures (YUV).
  * \endcond
  *
