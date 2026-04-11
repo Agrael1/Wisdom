@@ -40,9 +40,10 @@
  * - `flags` describes render pass flags.
  * - `render_targets` describes an array of render target descriptions. Max size is 8.
  * - `render_target_count` specifies number of render targets in the render pass.
- * - `view_mask` specifies view mask for multiview rendering. Each bit represents a view that can be rendered to with the render pass. Default is 0, meaning no multiview support.
- * - `depth_stencil` specifies depth stencil description; if depth stencil is not used, the target field @wis_must be set to 0.
- * \endcond
+ * - `view_mask` specifies view mask for multiview rendering. Each bit represents a view that can be rendered to with
+ * the render pass. Default is 0, meaning no multiview support.
+ * - `depth_stencil` specifies depth stencil description; if depth stencil is not used, the target field @wis_must be
+ * set to 0. \endcond
  *
  * @section WisRenderPassDesc_descr Description
  * <hr>

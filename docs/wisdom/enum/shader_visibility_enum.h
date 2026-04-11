@@ -43,9 +43,11 @@
  * @section WisShaderVisibility_descr Description
  * <hr>
  * \cond WIS_GEN_DESC
- * Shader stages that can be used in the pipeline. Main use is Root signature and descriptor management. Stages have no granularity, either all or one can be selected.
+ * Shader stages that can be used in the pipeline. Main use is Root signature and descriptor management. Stages have no
+ * granularity, either all or one can be selected.
  *
- * \note Translates to  `D3D12_SHADER_VISIBILITY` for DirectX 12 implementation, and `VkShaderStageFlags` for Vulkan implementation.
+ * \note Translates to  `D3D12_SHADER_VISIBILITY` for DirectX 12 implementation, and `VkShaderStageFlags` for Vulkan
+ * implementation.
  *
  * Values:
  * - `WisShaderVisibilityAll = 0`: All shader stages.

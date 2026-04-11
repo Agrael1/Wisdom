@@ -49,15 +49,16 @@
  * \cond WIS_GEN_DESC
  * - `fill_mode` indicates fill mode. Solid or Wireframe. Default is `WisFillModeSolid`.
  * - `cull_mode` defines cull mode. None, Front, Back. Default is `WisCullModeBack`.
- * - `front_face` indicates front face winding order. Clockwise or CounterClockwise. Default is `WisWindingOrderClockwise`.
+ * - `front_face` indicates front face winding order. Clockwise or CounterClockwise. Default is
+ * `WisWindingOrderClockwise`.
  * - `depth_bias_enable` describes depth bias enable. Default is false.
  * - `depth_bias` indicates depth bias. Default is 0.0f.
  * - `depth_bias_clamp` indicates depth bias clamp. Default is 0.0f.
  * - `depth_bias_slope_factor` indicates depth bias slope factor e.g. for shadows. Default is 0.0f.
  * - `depth_clip_enable` specifies depth clip enable. Default is true.
  * - `line_rasterization` specifies line rasterization mode. Default is `WisLineRasterizationDefault`.
- * - `conservative_rasterization` indicates conservative rasterization mode. Default is `WisConservativeRasterizationOff`.
- * \endcond
+ * - `conservative_rasterization` indicates conservative rasterization mode. Default is
+ * `WisConservativeRasterizationOff`. \endcond
  *
  * @section WisRasterizerDesc_descr Description
  * <hr>

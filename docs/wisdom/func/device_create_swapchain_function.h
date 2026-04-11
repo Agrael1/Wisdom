@@ -70,7 +70,8 @@
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisDevice instance.
  * - `surface` describes a pointer to WisSurface to create the swapchain for. Surface is ref-counted.
- * - `queue` describes a pointer to WisCommandQueue to create the swapchain for. Queue is ref-counted and @wis_must be a graphics queue.
+ * - `queue` describes a pointer to WisCommandQueue to create the swapchain for. Queue is ref-counted and @wis_must be a
+ * graphics queue.
  * - `desc` indicates a pointer to WisSwapchainDesc, which describes the swapchain to create.
  * - `swapchain` points to WisSwapchain, which is initialized on success.
  *

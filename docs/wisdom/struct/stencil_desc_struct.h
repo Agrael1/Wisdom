@@ -40,7 +40,8 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - `fail_op` specifies stencil operation if the stencil test fails. Default is `WisStencilOpKeep`.
- * - `depth_fail_op` specifies stencil operation if the stencil test passes and the depth test fails. Default is `WisStencilOpKeep`.
+ * - `depth_fail_op` specifies stencil operation if the stencil test passes and the depth test fails. Default is
+ * `WisStencilOpKeep`.
  * - `pass_op` describes stencil operation if the stencil test passes. Default is `WisStencilOpKeep`.
  * - `stencil_comp` defines stencil comparison function. Default is .
  * - `read_mask` indicates stencil read mask. Default is 0xff.

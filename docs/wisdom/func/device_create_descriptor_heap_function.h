@@ -34,7 +34,8 @@
  * namespace wis{
  * // Provided by Wisdom 0.7.0.
  * WIS_NODISCARD wis::DescriptorHeap Device::CreateDescriptorHeap(const wis::DescriptorHeapDesc& desc,
- *                                                                wis::Result&                   out_result) const noexcept;
+ *                                                                wis::Result&                   out_result) const
+ * noexcept;
  * }
  * ```
  * <details>
@@ -43,11 +44,13 @@
  * namespace wis{
  * // Provided by Wisdom 0.7.0.
  * WIS_NODISCARD wis::VKDescriptorHeap VKDevice::CreateDescriptorHeap(const wis::DescriptorHeapDesc& desc,
- *                                                                    wis::Result&                   out_result) const noexcept;
+ *                                                                    wis::Result&                   out_result) const
+ * noexcept;
  *
  * // Provided by Wisdom 0.7.0.
  * WIS_NODISCARD wis::DX12DescriptorHeap DX12Device::CreateDescriptorHeap(const wis::DescriptorHeapDesc& desc,
- *                                                                        wis::Result&                   out_result) const noexcept;
+ *                                                                        wis::Result&                   out_result)
+ * const noexcept;
  * }
  * ```
  * </details>

@@ -13,37 +13,25 @@ public:
 
 public:
     constexpr basic_fixed_string() noexcept = default;
-    constexpr basic_fixed_string(const value_type (&str)[N]) noexcept {
-        char_traits::copy(_data, str, N - 1);
-    }
+    constexpr basic_fixed_string(const value_type (&str)[N]) noexcept { char_traits::copy(_data, str, N - 1); }
     constexpr explicit basic_fixed_string(std::string_view str) noexcept
     {
         char_traits::copy(_data, str.data(), std::min(N - 1, str.size()));
     }
 
 public:
-    constexpr operator const value_type*() const noexcept {
-        return _data;
-    }
+    constexpr operator const value_type*() const noexcept { return _data; }
 
-    constexpr std::size_t size() const noexcept {
-        return N - 1;
-    }
+    constexpr std::size_t size() const noexcept { return N - 1; }
 
-    constexpr const value_type* c_str() const noexcept {
-        return _data;
-    }
+    constexpr const value_type* c_str() const noexcept { return _data; }
 
-    constexpr value_type* data() noexcept {
-        return _data;
-    }
+    constexpr value_type* data() noexcept { return _data; }
 
-    constexpr operator std::basic_string_view<value_type>() const noexcept {
-        return {_data};
-    }
+    constexpr operator std::basic_string_view<value_type>() const noexcept { return {_data}; }
 
 public:
-    value_type _data[N] {}; // +1 for null terminator
+    value_type _data[N]{}; // +1 for null terminator
 };
 
 // Define some aliases for common fixed string types

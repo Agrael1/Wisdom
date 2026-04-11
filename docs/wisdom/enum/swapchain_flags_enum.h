@@ -38,9 +38,10 @@
  * Values:
  * - `WisSwapchainFlagsNone = 0`: No flags set. Swapchain is regular.
  * - `WisSwapchainFlagsAllowTearing = (1 << 0)`: Allow tearing.
- * - `WisSwapchainFlagsVSync = (1 << 1)`: Present with vertical sync. If set, the swapchain is presented with vertical sync pulse.
- * - `WisSwapchainFlagsStereo = (1 << 2)`: Stereo swapchain. If set, the swapchain is created for stereo rendering. If not set, the swapchain is created for mono rendering.
- * \endcond
+ * - `WisSwapchainFlagsVSync = (1 << 1)`: Present with vertical sync. If set, the swapchain is presented with vertical
+ * sync pulse.
+ * - `WisSwapchainFlagsStereo = (1 << 2)`: Stereo swapchain. If set, the swapchain is created for stereo rendering. If
+ * not set, the swapchain is created for mono rendering. \endcond
  *
  *
  * @section WisSwapchainFlags_see_also See Also

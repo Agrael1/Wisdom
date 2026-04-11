@@ -41,7 +41,8 @@
  * \cond WIS_GEN_DESC
  * Component swizzle for texture sampling.
  *
- * \note Translates to  `D3D12_SHADER_COMPONENT_MAPPING` for DirectX 12 implementation, and `VkComponentSwizzle` for Vulkan implementation.
+ * \note Translates to  `D3D12_SHADER_COMPONENT_MAPPING` for DirectX 12 implementation, and `VkComponentSwizzle` for
+ * Vulkan implementation.
  *
  * Values:
  * - `WisComponentSwizzleIdentity = 0`: Use the component as is for sampling.

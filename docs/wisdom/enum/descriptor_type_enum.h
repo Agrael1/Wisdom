@@ -43,7 +43,8 @@
  * \cond WIS_GEN_DESC
  * Type of the descriptor in the descriptor table.
  *
- * \note Translates to  `D3D12_DESCRIPTOR_RANGE_TYPE` for DirectX 12 implementation, and `VkDescriptorType` for Vulkan implementation.
+ * \note Translates to  `D3D12_DESCRIPTOR_RANGE_TYPE` for DirectX 12 implementation, and `VkDescriptorType` for Vulkan
+ * implementation.
  *
  * Values:
  * - `WisDescriptorTypeSampler = 0`: Descriptor is a sampler.

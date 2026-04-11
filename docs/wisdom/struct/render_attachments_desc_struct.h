@@ -38,8 +38,8 @@
  * - `attachment_formats` defines attachment formats array. Describes the format of the render target.
  * - `attachments_count` defines attachment formats count. Max is 8.
  * - `depth_attachment` describes depth attachment format. Describes the format of the depth buffer.
- * - `view_mask` specifies view mask for multiview rendering. Each bit represents a view that can be rendered to with the pipeline. Default is 0, meaning no multiview support.
- * \endcond
+ * - `view_mask` specifies view mask for multiview rendering. Each bit represents a view that can be rendered to with
+ * the pipeline. Default is 0, meaning no multiview support. \endcond
  *
  * @section WisRenderAttachmentsDesc_descr Description
  * <hr>

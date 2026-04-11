@@ -69,9 +69,7 @@ struct has_uuidof_support_tag {
  */
 template <typename T>
 struct guid_of {
-    static constexpr GUID get() {
-        return __uuidof(T);
-    }
+    static constexpr GUID get() { return __uuidof(T); }
 };
 
 /**
@@ -280,9 +278,7 @@ public:
     /**
      * @brief Destructor. Releases the held pointer.
      */
-    ~com_ptr() noexcept {
-        release();
-    }
+    ~com_ptr() noexcept { release(); }
 
     // ========================================================================
     // Assignment Operators
@@ -350,25 +346,19 @@ public:
      * @brief Boolean conversion operator.
      * @return True if pointer is non-null.
      */
-    explicit operator bool() const noexcept {
-        return ptr != nullptr;
-    }
+    explicit operator bool() const noexcept { return ptr != nullptr; }
 
     /**
      * @brief Member access operator.
      * @return The raw pointer.
      */
-    pointer operator->() const noexcept {
-        return ptr;
-    }
+    pointer operator->() const noexcept { return ptr; }
 
     /**
      * @brief Dereference operator.
      * @return Reference to the pointed object.
      */
-    T& operator*() const noexcept {
-        return *ptr;
-    }
+    T& operator*() const noexcept { return *ptr; }
 
     // ========================================================================
     // Public Methods
@@ -379,17 +369,13 @@ public:
      * @return The GUID associated with type T.
      * @note Only available when __uuidof is supported or GUID is specialized.
      */
-    static constexpr GUID iid() noexcept {
-        return guid_of_v<T>();
-    }
+    static constexpr GUID iid() noexcept { return guid_of_v<T>(); }
 
     /**
      * @brief Gets the raw pointer.
      * @return The raw pointer (does not transfer ownership).
      */
-    pointer get() const noexcept {
-        return ptr;
-    }
+    pointer get() const noexcept { return ptr; }
 
     /**
      * @brief Releases current pointer and returns address for output parameter.
@@ -419,9 +405,7 @@ public:
      * factory->CreateFoo(foo.iid(), foo.put_void());
      * @endcode
      */
-    void** put_void() noexcept {
-        return reinterpret_cast<void**>(put());
-    }
+    void** put_void() noexcept { return reinterpret_cast<void**>(put()); }
 
     /**
      * @brief Attaches a raw pointer without incrementing reference count.
@@ -489,9 +473,7 @@ public:
      * @brief Copies from another raw pointer (increments ref count).
      * @param other Raw pointer to copy from.
      */
-    void copy_from(T* other) noexcept {
-        copy_ref(other);
-    }
+    void copy_from(T* other) noexcept { copy_ref(other); }
 
     /**
      * @brief Copies to another raw pointer location (increments ref count).
@@ -506,9 +488,7 @@ public:
     /**
      * @brief Releases the held pointer and sets to nullptr.
      */
-    void reset() noexcept {
-        release();
-    }
+    void reset() noexcept { release(); }
 
     /**
      * @brief Returns void** without releasing (unchecked).
@@ -516,9 +496,7 @@ public:
      * @warning Use only when you know the pointer is already null or
      *          you're handling ownership manually.
      */
-    void** put_void_unchecked() noexcept {
-        return reinterpret_cast<void**>(&ptr);
-    }
+    void** put_void_unchecked() noexcept { return reinterpret_cast<void**>(&ptr); }
 
     /**
      * @brief Returns T** without releasing (unchecked).
@@ -526,9 +504,7 @@ public:
      * @warning Use only when you know the pointer is already null or
      *          you're handling ownership manually.
      */
-    pointer* put_unchecked() noexcept {
-        return &ptr;
-    }
+    pointer* put_unchecked() noexcept { return &ptr; }
 
 private:
     // ========================================================================

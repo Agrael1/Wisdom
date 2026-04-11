@@ -63,7 +63,8 @@
  * \cond WIS_GEN_DESC
  * Texture state for resource transitions.
  *
- * \note Translates to  `D3D12_BARRIER_LAYOUT` for DirectX 12 implementation, and `VkImageLayout` for Vulkan implementation.
+ * \note Translates to  `D3D12_BARRIER_LAYOUT` for DirectX 12 implementation, and `VkImageLayout` for Vulkan
+ * implementation.
  *
  * Values:
  * - `WisTextureStateUndefined = -1`: Undefined state.

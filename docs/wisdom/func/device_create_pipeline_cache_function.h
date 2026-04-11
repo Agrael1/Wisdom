@@ -37,7 +37,8 @@
  * namespace wis{
  * // Provided by Wisdom 0.7.0.
  * WIS_NODISCARD wis::PipelineCache Device::CreatePipelineCache(wis::span<const std::uint8_t> initial_data,
- *                                                              wis::Result&                  out_result) const noexcept;
+ *                                                              wis::Result&                  out_result) const
+ * noexcept;
  * }
  * ```
  * <details>
@@ -46,11 +47,13 @@
  * namespace wis{
  * // Provided by Wisdom 0.7.0.
  * WIS_NODISCARD wis::VKPipelineCache VKDevice::CreatePipelineCache(wis::span<const std::uint8_t> initial_data,
- *                                                                  wis::Result&                  out_result) const noexcept;
+ *                                                                  wis::Result&                  out_result) const
+ * noexcept;
  *
  * // Provided by Wisdom 0.7.0.
  * WIS_NODISCARD wis::DX12PipelineCache DX12Device::CreatePipelineCache(wis::span<const std::uint8_t> initial_data,
- *                                                                      wis::Result&                  out_result) const noexcept;
+ *                                                                      wis::Result&                  out_result) const
+ * noexcept;
  * }
  * ```
  * </details>

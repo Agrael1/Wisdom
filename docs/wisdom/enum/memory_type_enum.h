@@ -37,7 +37,8 @@
  * \cond WIS_GEN_DESC
  * Memory type for resource allocation.
  *
- * \note Translates to  `D3D12_HEAP_TYPE` for DirectX 12 implementation, and `VkMemoryPropertyFlags` for Vulkan implementation.
+ * \note Translates to  `D3D12_HEAP_TYPE` for DirectX 12 implementation, and `VkMemoryPropertyFlags` for Vulkan
+ * implementation.
  *
  * Values:
  * - `WisMemoryTypeDefault = 0`: Default memory type. Alias for `WisMemoryTypeDeviceLocal`
