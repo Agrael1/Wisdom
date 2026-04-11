@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<registry>
+  <constants>
+    <value type="u32" name="DescriptorOffsetAppend" value="0xffffffff" version="0.7.0" doc="Append descriptor table entry after previous table."/>
+    <value type="u32" name="RemainingLayers" value="0xffffffff" version="0.7.0" doc="Select all remaining array layers."/>
+    <value type="u32" name="RemainingMips" value="0xffffffff" version="0.7.0" doc="Select all remaining mip levels."/>
+    <value type="u32" name="RootSignatureDwords" value="64" version="0.7.0" doc="Defines the amount of usable space in root signature."/>
+    <value type="u32" name="TransientMaxBarrierCount" value="32" version="0.7.0" doc="Defines the amount of barriers of all types that will not trigger allocation."/>
+    <value type="u32" name="MaxPlaneCount" value="3" version="0.7.0" doc="Defines the amount of planes that can be present on the single (YUV) image."/>
+    <value type="u32" name="MinSupportedInputAttributes" value="16" version="0.7.0" doc="Defines the minimum amount of vertex attributes that must be supported by the implementation."/>
+    <value type="u32" name="MinSupportedInputBindings" value="16" version="0.7.0" doc="Defines the minimum amount of vertex bindings that must be supported by the implementation."/>
+    <value type="u32" name="MaxRenderTargets" value="8" version="0.7.0" doc="Defines the maximum amount of render targets that can be bound at once."/>
+    <value type="u32" name="MaxViewports" value="16" version="0.7.0" doc="Defines the maximum amount of viewports that can be bound at once. The same count applies to scissors."/>
+    <value type="u32" name="MaxCopyRegions" value="16" version="0.7.0" doc="Defines the maximum amount of present rectangles and copy regions in the Copy* commands that can be used in a single operation."/>
+    <value type="u32" name="AbsoluteMaxSwapchainImages" value="16" version="0.7.0" doc="[internal] Defines the maximum amount of images that can be present in a swapchain within any implementation."/>
+    <value type="u32" name="AbsoluteMaxInputBindings" value="32" version="0.7.0" doc="[internal] Defines the maximum amount of vertex input bindings that can be present in a single draw call within any implementation."/>
+    <value type="u64" name="WholeSize" value="0xffffffffffffffff" version="0.7.0" doc="Select whole size of a resource."/>
+  </constants>
+</registry>

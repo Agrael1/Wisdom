@@ -1,114 +1,399 @@
 name: Release
+
 on:
   workflow_dispatch:
+    inputs:
+      bump_type:
+        description: 'Version bump type'
+        required: false
+        default: patch
+        type: choice
+        options:
+          - patch
+          - minor
+          - major
+      bump_version:
+        description: 'Bump version before tagging'
+        required: false
+        default: true
+        type: boolean
+      publish_nuget:
+        description: 'Publish packages to NuGet.org'
+        required: false
+        default: true
+        type: boolean
+      force_retag:
+        description: 'Replace existing tag if it already exists'
+        required: false
+        default: false
+        type: boolean
+      skip_build:
+        description: 'Skip build verification'
+        required: false
+        default: false
+        type: boolean
+      skip_docs:
+        description: 'Skip documentation deployment'
+        required: false
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
 
 env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
-  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
-  DOTNET_NOLOGO: true
-  NuGetDirectory: ${{ github.workspace }}/nuget
+  VULKAN_SDK_VERSION: 'latest'
 
-jobs:      
-  publish:
-     runs-on: windows-latest
+jobs:
+  # Step 1: Run full CI build
+  build:
+    name: Build Verification
+    if: ${{ !inputs.skip_build }}
+    uses: ./.github/workflows/ci.yml
 
-     steps:       
-       - uses: actions/checkout@v4
-     
-       - name: Visual Studio shell
-         uses: egor-tensin/vs-shell@v2
+  # Step 2: Bump version and create tag
+  version:
+    name: Bump Version
+    needs: [build]
+    if: ${{ !failure() && !cancelled() && (needs.build.result == 'success' || inputs.skip_build) }}
+    runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{ steps.bump.outputs.new_version }}
+      tag_name: ${{ steps.bump.outputs.tag_name }}
+      publish_nuget: ${{ steps.release_options.outputs.publish_nuget }}
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-       - name: Prepare Vulkan SDK
-         uses: humbletim/setup-vulkan-sdk@523828e49cd4afabce369c39c7ee6543a2b7a735
-         with:
-            vulkan-query-version: latest
-            vulkan-components: Vulkan-Headers, Vulkan-Loader
-            vulkan-use-cache: true
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
-       - name: Setup cmake
-         uses: jwlawson/actions-setup-cmake@v2
-         with:
-           cmake-version: '3.30.x'
+      - name: Read current version
+        id: read_version
+        run: |
+          VERSION=$(cat version/VERSION)
+          echo "current_version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $VERSION"
 
-       - name: Set up Clang
-         uses: egor-tensin/setup-clang@v1
-         with:
-           version: latest
-           platform: x64
-        
-       - name: Setup Ninja
-         uses: ashutoshvarma/setup-ninja@master
-         with:
-          # ninja version to download. Default: 1.10.0
-          version: 1.12.0
-       
-       - name: Build packages
-         run: cd ${{github.workspace}} && .\nuget.bat
-        
-       - name: Upload NuGet package
-         uses: actions/upload-artifact@v4
-         with:
-          name: wisdom.nupkg
-          path: ${{github.workspace}}/build/*.nupkg
+      - name: Determine release options
+        id: release_options
+        run: |
+          DO_BUMP="true"
+          DO_NUGET="true"
 
-       - name: Upload ZIP package
-         uses: actions/upload-artifact@v4
-         with:
-          name: wisdom.zip
-          path: ${{github.workspace}}/build/*.zip
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            DO_BUMP="${{ inputs.bump_version }}"
+            DO_NUGET="${{ inputs.publish_nuget }}"
+          else
+            COMMIT_MSG="${{ github.event.head_commit.message }}"
+            if echo "$COMMIT_MSG" | grep -Eiq '\[no-bump\]'; then
+              DO_BUMP="false"
+            fi
+            if echo "$COMMIT_MSG" | grep -Eiq '\[no-nuget\]'; then
+              DO_NUGET="false"
+            fi
+          fi
 
-       - name: Upload Version
-         uses: actions/upload-artifact@v4
-         with:
-          name: version.txt
-          path: ${{github.workspace}}/build/release/version.txt
+          echo "bump_version=$DO_BUMP" >> $GITHUB_OUTPUT
+          echo "publish_nuget=$DO_NUGET" >> $GITHUB_OUTPUT
+          echo "Bump version: $DO_BUMP"
+          echo "Publish NuGet: $DO_NUGET"
 
+      - name: Determine bump type
+        id: determine_bump
+        run: |
+          BUMP_TYPE="patch"
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            BUMP_TYPE="${{ inputs.bump_type }}"
+          else
+            COMMIT_MSG="${{ github.event.head_commit.message }}"
+            if echo "$COMMIT_MSG" | grep -Eiq '\[major\]'; then
+              BUMP_TYPE="major"
+            elif echo "$COMMIT_MSG" | grep -Eiq '\[minor\]'; then
+              BUMP_TYPE="minor"
+            elif echo "$COMMIT_MSG" | grep -Eiq '\[patch\]'; then
+              BUMP_TYPE="patch"
+            fi
+          fi
+
+          echo "bump_type=$BUMP_TYPE" >> $GITHUB_OUTPUT
+          echo "Bump type: $BUMP_TYPE"
+
+      - name: Bump version
+        id: bump
+        run: |
+          VERSION="${{ steps.read_version.outputs.current_version }}"
+
+          if [ "${{ steps.release_options.outputs.bump_version }}" = "true" ]; then
+            IFS='.' read -r MAJOR MINOR PATCH <<< "$VERSION"
+
+            case "${{ steps.determine_bump.outputs.bump_type }}" in
+              major)
+                MAJOR=$((MAJOR + 1))
+                MINOR=0
+                PATCH=0
+                ;;
+              minor)
+                MINOR=$((MINOR + 1))
+                PATCH=0
+                ;;
+              patch)
+                PATCH=$((PATCH + 1))
+                ;;
+            esac
+
+            NEW_VERSION="$MAJOR.$MINOR.$PATCH"
+            echo "$NEW_VERSION" > version/VERSION
+          else
+            NEW_VERSION="$VERSION"
+          fi
+
+          echo "new_version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "tag_name=v$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "New version: $NEW_VERSION"
+
+      - name: Commit version bump
+        if: steps.release_options.outputs.bump_version == 'true'
+        run: |
+          git add version/VERSION
+          git commit -m "chore: bump version to ${{ steps.bump.outputs.new_version }} [skip ci]"
+          git push origin ${{ github.ref_name }}
+
+      - name: Create and push tag
+        run: |
+          if git rev-parse "${{ steps.bump.outputs.tag_name }}" >/dev/null 2>&1; then
+            if [ "${{ inputs.force_retag }}" = "true" ]; then
+              echo "Tag ${{ steps.bump.outputs.tag_name }} exists, replacing it"
+              git tag -d "${{ steps.bump.outputs.tag_name }}"
+              git push origin :refs/tags/${{ steps.bump.outputs.tag_name }}
+              git tag -a "${{ steps.bump.outputs.tag_name }}" -m "Release ${{ steps.bump.outputs.tag_name }}"
+              git push origin "${{ steps.bump.outputs.tag_name }}"
+            else
+              echo "Tag ${{ steps.bump.outputs.tag_name }} already exists, skipping tag creation"
+            fi
+          else
+            git tag -a "${{ steps.bump.outputs.tag_name }}" -m "Release ${{ steps.bump.outputs.tag_name }}"
+            git push origin "${{ steps.bump.outputs.tag_name }}"
+          fi
+
+  # Step 3: Build packages
+  package:
+    name: Build Packages
+    needs: [version]
+    if: ${{ !failure() && !cancelled() }}
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.version.outputs.tag_name }}
+          fetch-depth: 0
+      
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Setup Vulkan SDK
+        uses: jakoch/install-vulkan-sdk-action@v1.4.0
+        with:
+          vulkan_version: ${{ env.VULKAN_SDK_VERSION }}
+          install_runtime: true
+          cache: true
+      
+      - name: Setup CMake
+        uses: lukka/get-cmake@latest
+      
+      - name: Setup NuGet
+        uses: nuget/setup-nuget@v2
+      
+      - name: Build and Package
+        shell: pwsh
+        run: |
+          .\package.ps1 -Format all -Clean -OutputDir './artifacts'
+      
+      - name: Upload NuGet Package
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-package
+          path: artifacts/*.nupkg
+          if-no-files-found: error
+      
+      - name: Upload ZIP Package
+        uses: actions/upload-artifact@v4
+        with:
+          name: zip-package
+          path: artifacts/*.zip
+          if-no-files-found: error
+
+  # Step 3.5: Build Packages for Linux
+  package-linux:
+    name: Build Packages (Linux)
+    needs: [version]
+    if: ${{ !failure() && !cancelled() }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.version.outputs.tag_name }}
+          fetch-depth: 0
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build libx11-dev libxext-dev libxcb1-dev libx11-xcb-dev libwayland-dev wayland-protocols
+
+      - name: Fetch Vulkan Headers
+        run: git clone --depth 1 https://github.com/KhronosGroup/Vulkan-Headers.git ${{ github.workspace }}/vulkan-headers
+
+      - name: Setup CMake
+        uses: lukka/get-cmake@latest
+
+      - name: Configure CMake (Debug)
+        run: cmake --preset linux-gcc-debug-lib -DWISDOM_VULKAN_HEADER_PATH=${{ github.workspace }}/vulkan-headers/include
+
+      - name: Build (Debug)
+        run: cmake --build --preset linux-gcc-debug-lib
+
+      - name: Configure CMake (Release)
+        run: cmake --preset linux-gcc-lib -DWISDOM_VULKAN_HEADER_PATH=${{ github.workspace }}/vulkan-headers/include
+
+      - name: Build (Release)
+        run: cmake --build --preset linux-gcc-lib
+
+      - name: Package
+        run: |
+          mkdir -p artifacts
+          cd out/build/linux-gcc-lib
+          cpack -G TGZ --config ../../../cmake/install/multi-config-linux.cmake
+          mv *.tar.gz ../../../artifacts/
+
+      - name: Upload TAR Package
+        uses: actions/upload-artifact@v4
+        with:
+          name: tar-package
+          path: artifacts/*.tar.gz
+          if-no-files-found: error
+
+  # Step 4: Create GitHub Release with packages
   release:
-     runs-on: windows-latest
-     needs: publish
+    name: Create Release
+    needs: [version, package, package-linux]
+    if: ${{ !failure() && !cancelled() }}
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Download NuGet Package
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-package
+          path: ./artifacts
+      
+      - name: Download ZIP Package
+        uses: actions/download-artifact@v4
+        with:
+          name: zip-package
+          path: ./artifacts
 
-     steps:       
-       - uses: actions/checkout@v4
-  
-       - name: Download Nuget
-         uses: actions/download-artifact@v4
-         id: nuget_download
-         with:
-           name: wisdom.nupkg
-           
-       - name: Download Zip
-         uses: actions/download-artifact@v4
-         with:
-           name: wisdom.zip
+      - name: Download TAR Package
+        uses: actions/download-artifact@v4
+        with:
+          name: tar-package
+          path: ./artifacts
 
-       - name: Download Version
-         uses: actions/download-artifact@v4
-         with:
-           name: version.txt
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.version.outputs.tag_name }}
+          name: Release ${{ needs.version.outputs.tag_name }}
+          files: |
+            artifacts/*.nupkg
+            artifacts/*.zip
+            artifacts/*.tar.gz
+          generate_release_notes: true
+          draft: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  # Step 5: Publish to NuGet
+  publish-nuget:
+    name: Publish to NuGet.org
+    needs: [version, release]
+    if: ${{ !failure() && !cancelled() && needs.version.outputs.publish_nuget == 'true' }}
+    runs-on: windows-latest
+    
+    steps:
+      - name: Download NuGet Package
+        uses: actions/download-artifact@v8
+        with:
+          name: nuget-package
+      
+      - name: Setup NuGet
+        uses: nuget/setup-nuget@v3
 
-       - name: Read version
-         id: version
-         uses: juliangruber/read-file-action@v1
-         with:
-           path: ./version.txt
-         
-       - name: Publish NuGet package
-         continue-on-error: true
-         run: |
-            dotnet nuget push wisdom.*.nupkg --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+      - name: List Artifacts Directory
+        shell: pwsh
+        run: |
+          Get-ChildItem -Path . -Recurse | Select-Object FullName
+      
+      - name: Publish to NuGet.org
+        run: dotnet nuget push wisdom.*.nupkg --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
 
-       - name: Tag and Release Versioned
-         id : tag_release_versioned
-         uses : softprops/action-gh-release@v1
-         with :
-          body: Release ${{ steps.version.outputs.content }}
-          tag_name : ${{ steps.version.outputs.content }}
-          generate_release_notes : true
-          files : |
-               **/*.zip
-               **/*.nupkg
-
-              
-       
+  # Step 6: Build and deploy documentation
+  docs:
+    name: Deploy Documentation
+    needs: [version]
+    if: ${{ !failure() && !cancelled() && !inputs.skip_docs }}
+    runs-on: ubuntu-latest
+    
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.version.outputs.tag_name }}
+          fetch-depth: 0
+      
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y doxygen graphviz ninja-build
+      
+      - name: Fetch Vulkan Headers
+        run: git clone --depth 1 https://github.com/KhronosGroup/Vulkan-Headers.git ${{ github.workspace }}/vulkan-headers
+      
+      - name: Setup CMake
+        uses: lukka/get-cmake@latest
+      
+      - name: Configure CMake
+        run: cmake --preset linux-gcc-docs -DWISDOM_VULKAN_HEADER_PATH=${{ github.workspace }}/vulkan-headers/include
+      
+      - name: Build Documentation
+        run: cmake --build --preset linux-gcc-docs
+      
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+      
+      - name: Upload Pages Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: out/build/linux-gcc-docs/docs/html/
+      
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

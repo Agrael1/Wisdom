@@ -1,0 +1,5812 @@
+// This file is generated. Do not edit directly.
+#ifndef WISDOM_CORE_C_API_H
+#define WISDOM_CORE_C_API_H
+#include <wisdom/global/definitions.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <string.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif // __cplusplus
+
+//==============================================================
+// Enums
+//==============================================================
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Defines common return status codes. Compare against `WisStatusOk` for success.
+ *
+ * */
+typedef enum WisStatus {
+    WisStatusOk = 0, ///< Operation succeeded.
+    WisStatusTimeout = 1, ///< Operation timed out.
+    WisStatusPartial = 2, ///< Operation partially succeeded.
+    /**
+     * @brief One or more arguments, or parts of arguments passed to the function were incorrect.
+     * */
+    WisStatusInvalidArgument = -1,
+    WisStatusOutOfHostMemory = -2, ///< There is no more host memory available.
+    WisStatusOutOfDeviceMemory = -3, ///< There is no more device memory available.
+    WisStatusDeviceLost = -4, ///< Device driver was forcefully stopped.
+    WisStatusOccluded = -5, ///< Swap chain presentation was not visible to the user. Rendering is too fast.
+    WisStatusValidationFailed = -6, ///< A validation layer found an error.
+    WisStatusFail = -7, ///< Operation failed as expected.
+    WisStatusError = -10000, ///< Operation failed.
+} WisStatus;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Data format for data.
+ * Used as a template for data in several cases.
+ * Can be used to describe:
+ * - Vertex buffer data format
+ * - Texture data format
+ * - Render target data format
+ * - Depth stencil data format
+ *
+ * */
+typedef enum WisDataFormat {
+    WisDataFormatUnknown = 0, ///< Unknown format.
+    /**
+     * @brief
+     * 32 bit per channel RGBA format.
+     * A four-component, 128-bit signed floating-point format that has
+     * a 32-bit R component in bytes 0..3,
+     * a 32-bit G component in bytes 4..7,
+     * a 32-bit B component in bytes 8..11,
+     * a 32-bit A component in bytes 12..15.
+     * */
+    WisDataFormatRGBA32Float = 2,
+    /**
+     * @brief
+     * 32 bit per channel RGBA format.
+     * A four-component, 128-bit unsigned integer format that has
+     * a 32-bit R component in bytes 0..3,
+     * a 32-bit G component in bytes 4..7,
+     * a 32-bit B component in bytes 8..11,
+     * a 32-bit A component in bytes 12..15.
+     * */
+    WisDataFormatRGBA32Uint = 3,
+    /**
+     * @brief
+     * 32 bit per channel RGBA format.
+     * A four-component, 128-bit signed integer format that has
+     * a 32-bit R component in bytes 0..3,
+     * a 32-bit G component in bytes 4..7,
+     * a 32-bit B component in bytes 8..11,
+     * a 32-bit A component in bytes 12..15.
+     * */
+    WisDataFormatRGBA32Sint = 4,
+    /**
+     * @brief
+     * 32 bit per channel RGB format.
+     * A three-component, 96-bit signed floating-point format that has
+     * a 32-bit R component in bytes 0..3,
+     * a 32-bit G component in bytes 4..7,
+     * a 32-bit B component in bytes 8..11.
+     * */
+    WisDataFormatRGB32Float = 6,
+    /**
+     * @brief
+     * 32 bit per channel RGB format.
+     * A three-component, 96-bit unsigned integer format that has
+     * a 32-bit R component in bytes 0..3,
+     * a 32-bit G component in bytes 4..7,
+     * a 32-bit B component in bytes 8..11.
+     * */
+    WisDataFormatRGB32Uint = 7,
+    /**
+     * @brief
+     * 32 bit per channel RGB format.
+     * A three-component, 96-bit signed integer format that has
+     * a 32-bit R component in bytes 0..3,
+     * a 32-bit G component in bytes 4..7,
+     * a 32-bit B component in bytes 8..11.
+     * */
+    WisDataFormatRGB32Sint = 8,
+    /**
+     * @brief
+     * 16 bit per channel RGBA format.
+     * A four-component, 64-bit signed floating-point format that has
+     * a 16-bit R component in bytes 0..1,
+     * a 16-bit G component in bytes 2..3,
+     * a 16-bit B component in bytes 4..5,
+     * a 16-bit A component in bytes 6..7.
+     * */
+    WisDataFormatRGBA16Float = 10,
+    /**
+     * @brief
+     * 16 bit per channel RGBA format.
+     * A four-component, 64-bit unsigned normalized format that has
+     * a 16-bit R component in bytes 0..1,
+     * a 16-bit G component in bytes 2..3,
+     * a 16-bit B component in bytes 4..5,
+     * a 16-bit A component in bytes 6..7.
+     * */
+    WisDataFormatRGBA16Unorm = 11,
+    /**
+     * @brief
+     * 16 bit per channel RGBA format.
+     * A four-component, 64-bit unsigned integer format that has
+     * a 16-bit R component in bytes 0..1,
+     * a 16-bit G component in bytes 2..3,
+     * a 16-bit B component in bytes 4..5,
+     * a 16-bit A component in bytes 6..7.
+     * */
+    WisDataFormatRGBA16Uint = 12,
+    /**
+     * @brief
+     * 16 bit per channel RGBA format.
+     * A four-component, 64-bit signed normalized format that has
+     * a 16-bit R component in bytes 0..1,
+     * a 16-bit G component in bytes 2..3,
+     * a 16-bit B component in bytes 4..5,
+     * a 16-bit A component in bytes 6..7.
+     * */
+    WisDataFormatRGBA16Snorm = 13,
+    /**
+     * @brief
+     * 16 bit per channel RGBA format.
+     * A four-component, 64-bit signed integer format that has
+     * a 16-bit R component in bytes 0..1,
+     * a 16-bit G component in bytes 2..3,
+     * a 16-bit B component in bytes 4..5,
+     * a 16-bit A component in bytes 6..7.
+     * */
+    WisDataFormatRGBA16Sint = 14,
+    /**
+     * @brief
+     * 32 bit per channel RG format.
+     * A two-component, 64-bit signed floating-point format that has
+     * a 32-bit R component in bytes 0..3,
+     * a 32-bit G component in bytes 4..7.
+     * */
+    WisDataFormatRG32Float = 16,
+    /**
+     * @brief
+     * 32 bit per channel RG format.
+     * A two-component, 64-bit unsigned integer format that has
+     * a 32-bit R component in bytes 0..3,
+     * a 32-bit G component in bytes 4..7.
+     * */
+    WisDataFormatRG32Uint = 17,
+    /**
+     * @brief
+     * 32 bit per channel RG format.
+     * A two-component, 64-bit signed integer format that has
+     * a 32-bit R component in bytes 0..3,
+     * a 32-bit G component in bytes 4..7.
+     * */
+    WisDataFormatRG32Sint = 18,
+    /**
+     * @brief
+     * 32 bit depth, 8 bit stencil format.
+     * A combined depth/stencil format with a 32-bit depth component in bytes 0..3
+     * and an 8-bit stencil component in bytes 4..4.
+     * */
+    WisDataFormatD32FloatS8Uint = 20,
+    /**
+     * @brief
+     * 10 bit per channel RGB format with 2 bit alpha.
+     * A four-component, 32-bit unsigned normalized format that has
+     * a 10-bit R component in bits 0..9,
+     * a 10-bit G component in bits 10..19,
+     * a 10-bit B component in bits 20..29,
+     * a 2-bit A component in bits 30..31.
+     * */
+    WisDataFormatRGB10A2Unorm = 24,
+    /**
+     * @brief
+     * 10 bit per channel RGB format with 2 bit alpha.
+     * A four-component, 32-bit unsigned integer format that has
+     * a 10-bit R component in bits 0..9,
+     * a 10-bit G component in bits 10..19,
+     * a 10-bit B component in bits 20..29,
+     * a 2-bit A component in bits 30..31.
+     * */
+    WisDataFormatRGB10A2Uint = 25,
+    /**
+     * @brief
+     * 11 bit per channel RG format with 10 bit blue.
+     * A three-component, 32-bit signed floating-point format that has
+     * a 11-bit R component in bits 0..10,
+     * a 11-bit G component in bits 11..21,
+     * a 10-bit B component in bits 22..31.
+     * */
+    WisDataFormatRG11B10Float = 26,
+    /**
+     * @brief
+     * 8 bit per channel RGBA format.
+     * A four-component, 32-bit unsigned normalized format that has
+     * an 8-bit R component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1,
+     * an 8-bit B component in bytes 2..2,
+     * an 8-bit A component in bytes 3..3.
+     * */
+    WisDataFormatRGBA8Unorm = 28,
+    /**
+     * @brief
+     * 8 bit per channel RGBA format. SRGB non-linear color space.
+     * A four-component, 32-bit unsigned normalized non-linear SRGB format that has
+     * an 8-bit R component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1,
+     * an 8-bit B component in bytes 2..2,
+     * an 8-bit A component in bytes 3..3.
+     * */
+    WisDataFormatRGBA8UnormSrgb = 29,
+    /**
+     * @brief
+     * 8 bit per channel RGBA format.
+     * A four-component, 32-bit unsigned integer format that has
+     * an 8-bit R component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1,
+     * an 8-bit B component in bytes 2..2,
+     * an 8-bit A component in bytes 3..3.
+     * */
+    WisDataFormatRGBA8Uint = 30,
+    /**
+     * @brief
+     * 8 bit per channel RGBA format.
+     * A four-component, 32-bit signed normalized format that has
+     * an 8-bit R component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1,
+     * an 8-bit B component in bytes 2..2,
+     * an 8-bit A component in bytes 3..3.
+     * */
+    WisDataFormatRGBA8Snorm = 31,
+    /**
+     * @brief
+     * 8 bit per channel RGBA format.
+     * A four-component, 32-bit signed integer format that has
+     * an 8-bit R component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1,
+     * an 8-bit B component in bytes 2..2,
+     * an 8-bit A component in bytes 3..3.
+     * */
+    WisDataFormatRGBA8Sint = 32,
+    /**
+     * @brief
+     * 16 bit per channel RG format.
+     * A two-component, 32-bit signed floating-point format that has
+     * a 16-bit R component in bytes 0..1,
+     * a 16-bit G component in bytes 2..3.
+     * */
+    WisDataFormatRG16Float = 34,
+    /**
+     * @brief
+     * 16 bit per channel RG format.
+     * A two-component, 32-bit unsigned normalized format that has
+     * a 16-bit R component in bytes 0..1,
+     * a 16-bit G component in bytes 2..3.
+     * */
+    WisDataFormatRG16Unorm = 35,
+    /**
+     * @brief
+     * 16 bit per channel RG format.
+     * A two-component, 32-bit unsigned integer format that has
+     * a 16-bit R component in bytes 0..1,
+     * a 16-bit G component in bytes 2..3.
+     * */
+    WisDataFormatRG16Uint = 36,
+    /**
+     * @brief
+     * 16 bit per channel RG format.
+     * A two-component, 32-bit signed normalized format that has
+     * a 16-bit R component in bytes 0..1,
+     * a 16-bit G component in bytes 2..3.
+     * */
+    WisDataFormatRG16Snorm = 37,
+    /**
+     * @brief
+     * 16 bit per channel RG format.
+     * A two-component, 32-bit signed integer format that has
+     * a 16-bit R component in bytes 0..1,
+     * a 16-bit G component in bytes 2..3.
+     * */
+    WisDataFormatRG16Sint = 38,
+    /**
+     * @brief
+     * 32 bit depth format.
+     * A 32-bit depth format supporting 32-bit floating-point depth values.
+     * */
+    WisDataFormatD32Float = 40,
+    /**
+     * @brief
+     * 32 bit per channel R format.
+     * A one-component, 32-bit signed floating-point format that has
+     * a 32-bit R component in bytes 0..3.
+     * */
+    WisDataFormatR32Float = 41,
+    /**
+     * @brief
+     * 32 bit per channel R format.
+     * A one-component, 32-bit unsigned integer format that has
+     * a 32-bit R component in bytes 0..3.
+     * */
+    WisDataFormatR32Uint = 42,
+    /**
+     * @brief
+     * 32 bit per channel R format.
+     * A one-component, 32-bit signed integer format that has
+     * a 32-bit R component in bytes 0..3.
+     * */
+    WisDataFormatR32Sint = 43,
+    /**
+     * @brief
+     * 24 bit depth, 8 bit stencil format.
+     * A combined depth/stencil format with a 24-bit depth component in bytes 0..2
+     * and an 8-bit stencil component in bytes 3..3.
+     * */
+    WisDataFormatD24UnormS8Uint = 45,
+    /**
+     * @brief
+     * 8 bit per channel RG format.
+     * A two-component, 16-bit unsigned normalized format that has
+     * an 8-bit R component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1.
+     * */
+    WisDataFormatRG8Unorm = 49,
+    /**
+     * @brief
+     * 8 bit per channel RG format.
+     * A two-component, 16-bit unsigned integer format that has
+     * an 8-bit R component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1.
+     * */
+    WisDataFormatRG8Uint = 50,
+    /**
+     * @brief
+     * 8 bit per channel RG format.
+     * A two-component, 16-bit signed normalized format that has
+     * an 8-bit R component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1.
+     * */
+    WisDataFormatRG8Snorm = 51,
+    /**
+     * @brief
+     * 8 bit per channel RG format.
+     * A two-component, 16-bit signed integer format that has
+     * an 8-bit R component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1.
+     * */
+    WisDataFormatRG8Sint = 52,
+    /**
+     * @brief
+     * 16 bit per channel R format.
+     * A one-component, 16-bit signed floating-point format that has
+     * a 16-bit R component in bytes 0..1.
+     * */
+    WisDataFormatR16Float = 54,
+    /**
+     * @brief
+     * 16 bit depth format.
+     * A 16-bit depth format supporting 16-bit unsigned normalized depth values.
+     * */
+    WisDataFormatD16Unorm = 55,
+    /**
+     * @brief
+     * 16 bit per channel R format.
+     * A one-component, 16-bit unsigned normalized format that has
+     * a 16-bit R component in bytes 0..1.
+     * */
+    WisDataFormatR16Unorm = 56,
+    /**
+     * @brief
+     * 16 bit per channel R format.
+     * A one-component, 16-bit unsigned integer format that has
+     * a 16-bit R component in bytes 0..1.
+     * */
+    WisDataFormatR16Uint = 57,
+    /**
+     * @brief
+     * 16 bit per channel R format.
+     * A one-component, 16-bit signed normalized format that has
+     * a 16-bit R component in bytes 0..1.
+     * */
+    WisDataFormatR16Snorm = 58,
+    /**
+     * @brief
+     * 16 bit per channel R format.
+     * A one-component, 16-bit signed integer format that has
+     * a 16-bit R component in bytes 0..1.
+     * */
+    WisDataFormatR16Sint = 59,
+    /**
+     * @brief
+     * 8 bit per channel R format.
+     * A one-component, 8-bit unsigned normalized format that has
+     * an 8-bit R component in bytes 0..0.
+     * */
+    WisDataFormatR8Unorm = 61,
+    /**
+     * @brief
+     * 8 bit per channel R format.
+     * A one-component, 8-bit unsigned integer format that has
+     * an 8-bit R component in bytes 0..0.
+     * */
+    WisDataFormatR8Uint = 62,
+    /**
+     * @brief
+     * 8 bit per channel R format.
+     * A one-component, 8-bit signed normalized format that has
+     * an 8-bit R component in bytes 0..0.
+     * */
+    WisDataFormatR8Snorm = 63,
+    /**
+     * @brief
+     * 8 bit per channel R format.
+     * A one-component, 8-bit signed integer format that has
+     * an 8-bit R component in bytes 0..0.
+     * */
+    WisDataFormatR8Sint = 64,
+    /**
+     * @brief
+     * 9 bit per channel RGB format with shared exponent.
+     * A three-component, 32-bit unsigned floating-point format that has
+     * a 9-bit R component in bits 0..8,
+     * a 9-bit G component in bits 9..17,
+     * a 9-bit B component in bits 18..26,
+     * a shared 5-bit exponent in bits 27..31.
+     * */
+    WisDataFormatRGB9E5UFloat = 67,
+    /**
+     * @brief
+     * BC1/DXT1 compressed format.
+     * A four-component, block-compressed format where each 64-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned normalized RGB texel data, and provides 1 bit of alpha.
+     * */
+    WisDataFormatBC1RGBAUnorm = 71,
+    /**
+     * @brief
+     * BC1/DXT1 compressed format.
+     * A four-component, block-compressed format where each 64-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned normalized RGB texel data with sRGB nonlinear encoding, and provides 1 bit of alpha.
+     * */
+    WisDataFormatBC1RGBAUnormSrgb = 72,
+    /**
+     * @brief
+     * BC2/DXT3 compressed format.
+     * A four-component, block-compressed format where each 128-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned normalized RGBA texel data
+     * with the first 64 bits encoding alpha values followed by 64 bits encoding RGB values
+     * */
+    WisDataFormatBC2RGBAUnorm = 74,
+    /**
+     * @brief
+     * BC2/DXT3 compressed format.
+     * A four-component, block-compressed format where each 128-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned normalized RGBA texel data with sRGB nonlinear encoding
+     * with the first 64 bits encoding alpha values followed by 64 bits encoding RGB values
+     * */
+    WisDataFormatBC2RGBAUnormSrgb = 75,
+    /**
+     * @brief
+     * BC3/DXT5 compressed format.
+     * A four-component, block-compressed format where each 128-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned normalized RGBA texel data with the first 64 bits encoding alpha values
+     * followed by 64 bits encoding RGB values
+     * */
+    WisDataFormatBC3RGBAUnorm = 77,
+    /**
+     * @brief
+     * BC3/DXT5 compressed format.
+     * A four-component, block-compressed format where each 128-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned normalized RGBA texel data with sRGB nonlinear encoding
+     * with the first 64 bits encoding alpha values followed by 64 bits encoding RGB values
+     * */
+    WisDataFormatBC3RGBAUnormSrgb = 78,
+    /**
+     * @brief
+     * BC4 compressed format.
+     * A single-component, block-compressed format where each 64-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned normalized red texel data
+     * */
+    WisDataFormatBC4RUnorm = 80,
+    /**
+     * @brief
+     * BC4 compressed format.
+     * A single-component, block-compressed format where each 64-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of signed normalized red texel data
+     * */
+    WisDataFormatBC4RSnorm = 81,
+    /**
+     * @brief
+     * BC5 compressed format.
+     * A two-component, block-compressed format where each 128-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned normalized red and green texel data
+     * */
+    WisDataFormatBC5RGUnorm = 83,
+    /**
+     * @brief
+     * BC5 compressed format.
+     * A two-component, block-compressed format where each 128-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of signed normalized red and green texel data
+     * */
+    WisDataFormatBC5RGSnorm = 84,
+    /**
+     * @brief
+     * 16 bit per channel RGB format.
+     * A three-component, 16-bit unsigned normalized format that has
+     * a 5-bit B component in bits 0..4,
+     * a 6-bit G component in bits 5..10,
+     * a 5-bit R component in bits 11..15.
+     * */
+    WisDataFormatB5G6R5Unorm = 85,
+    /**
+     * @brief
+     * 16 bit per channel RGBA format.
+     * A four-component, 16-bit unsigned normalized format that has
+     * a 5-bit B component in bits 0..4,
+     * a 5-bit G component in bits 5..9,
+     * a 5-bit R component in bits 10..14,
+     * a 1-bit A component in bits 15..15.
+     * */
+    WisDataFormatB5G5R5A1Unorm = 86,
+    /**
+     * @brief
+     * 8 bit per channel RGBA format.
+     * A four-component, 32-bit unsigned normalized format that has
+     * an 8-bit B component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1,
+     * an 8-bit R component in bytes 2..2,
+     * an 8-bit A component in bytes 3..3.
+     * */
+    WisDataFormatBGRA8Unorm = 87,
+    /**
+     * @brief
+     * 8 bit per channel RGBA format. SRGB non-linear color space.
+     * A four-component, 32-bit unsigned normalized non-linear SRGB format that has
+     * an 8-bit B component in bytes 0..0,
+     * an 8-bit G component in bytes 1..1,
+     * an 8-bit R component in bytes 2..2,
+     * an 8-bit A component in bytes 3..3.
+     * */
+    WisDataFormatBGRA8UnormSrgb = 91,
+    /**
+     * @brief
+     * BC6H compressed format.
+     * A three-component, block-compressed format where each 128-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned floating-point RGB texel data
+     * */
+    WisDataFormatBC6HUfloat16 = 95,
+    /**
+     * @brief
+     * BC6H compressed format.
+     * A three-component, block-compressed format where each 128-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of signed floating-point RGB texel data
+     * */
+    WisDataFormatBC6HSfloat16 = 96,
+    /**
+     * @brief
+     * BC7 compressed format.
+     * A four-component, block-compressed format where each 128-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned normalized RGBA texel data
+     * */
+    WisDataFormatBC7RGBAUnorm = 98,
+    /**
+     * @brief
+     * BC7 compressed format.
+     * A four-component, block-compressed format where each 128-bit
+     * compressed texel block encodes a 4×4 rectangle
+     * of unsigned normalized RGBA texel data with sRGB nonlinear encoding
+     * */
+    WisDataFormatBC7RGBAUnormSrgb = 99,
+    /**
+     * @brief
+     * 4 bit per channel RGB format.
+     * A four-component, 16-bit unsigned normalized format that has
+     * a 4-bit B component in bits 0..3,
+     * a 4-bit G component in bits 4..7,
+     * a 4-bit R component in bits 8..11,
+     * a 4-bit A component in bits 12..15.
+     * */
+    WisDataFormatBGRA4Unorm = 115,
+} WisDataFormat;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sample rate for multisampling.
+ *
+ * */
+typedef enum WisSampleCount {
+    WisSampleCountS1 = 1, ///< 1 sample per pixel.
+    WisSampleCountS2 = 2, ///< 2 samples per pixel.
+    WisSampleCountS4 = 4, ///< 4 samples per pixel.
+    WisSampleCountS8 = 8, ///< 8 samples per pixel.
+    WisSampleCountS16 = 16, ///< 16 samples per pixel.
+} WisSampleCount;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Texture layout. Determines how texture will be accessed.
+ *
+ * */
+typedef enum WisTextureLayout {
+    WisTextureLayoutTexture1D = 2, ///< Texture is 1D array of data. Behaves similarly to Buffer.
+    WisTextureLayoutTexture1DArray = 3, ///< Texture is an array of 1D data.
+    WisTextureLayoutTexture2D = 4, ///< Texture is 2D image, default texture type.
+    WisTextureLayoutTexture2DArray = 5, ///< Texture is an array of 2D images. Can also be used for Cube maps.
+    WisTextureLayoutTexture2DMS = 6, ///< Texture is 2D multisampled image.
+    WisTextureLayoutTexture2DMSArray = 7, ///< Texture is an array of 2D multisampled images.
+    WisTextureLayoutTexture3D = 8, ///< Texture is 3D volume.
+    WisTextureLayoutTextureCube = 9, ///< Texture is a cube map. Behaves similarly to Texture2DArray with 6 layers.
+    /**
+     * @brief Texture is an array of cube maps. Behaves similarly to Texture2DArray with 6 layers per cube map.
+     * */
+    WisTextureLayoutTextureCubeArray = 10,
+} WisTextureLayout;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Orders the adapters according to preference using builtin heuristics of underlying
+ * APIs. For DirectX 12, this translates directly to `DXGI_GPU_PREFERENCE`. For Vulkan, sorting is based on
+ * `VkPhysicalDeviceType` heuristics.
+ *
+ * */
+typedef enum WisAdapterPreference {
+    WisAdapterPreferenceNone = 0, ///< No particular preference, list adapters in system devised order.
+    /**
+     * @brief List the adapters from low power consumption to high. DirectX 12: Integrated, Discrete, External,
+     * Software. Vulkan: Integrated GPU, Discrete GPU, Virtual GPU, CPU.
+     * */
+    WisAdapterPreferenceMinConsumption = 1,
+    /**
+     * @brief List the adapters from high performance to low. DirectX 12: External, Discrete, Integrated, Software.
+     * Vulkan: Discrete GPU, Integrated GPU, Virtual GPU, CPU.
+     * */
+    WisAdapterPreferencePerformance = 2,
+} WisAdapterPreference;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Defines severity levels for logging and debugging messages.
+ *
+ * */
+typedef enum WisSeverity {
+    WisSeverityVerbose = 0, ///< Verbose level messages, typically used for detailed debugging information.
+    WisSeverityInfo = 1, ///< Informational messages that highlight the progress of the application.
+    /**
+     * @brief Potentially harmful situations that warrant attention but do not prevent normal operation.
+     * */
+    WisSeverityWarning = 2,
+    WisSeverityError = 3, ///< Error events that might still allow the application to continue running.
+    WisSeverityFatal = 4, ///< Severe error events that will presumably lead the application to abort.
+} WisSeverity;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Defines types of command queues that can be created on the device. Each type
+ * corresponds to a specific kind of workload that the GPU can handle.
+ *
+ * */
+typedef enum WisCommandQueueType {
+    WisCommandQueueTypeGraphics = 0, ///< Command queue for graphics operations, including rendering and compute tasks.
+    /**
+     * @brief Command queue dedicated to compute operations, optimized for parallel processing tasks.
+     * */
+    WisCommandQueueTypeCompute = 1,
+    /**
+     * @brief Command queue for data transfer operations, such as copying resources between buffers and images.
+     * */
+    WisCommandQueueTypeTransfer = 2,
+    WisCommandQueueTypeVideoDecode = 3, ///< Command queue for video decoding operations.
+    WisCommandQueueTypeVideoEncode = 4, ///< Command queue for video encoding operations.
+    WisCommandQueueTypeCount = 5, ///< Number of command queue types available.
+} WisCommandQueueType;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Global queue priority. Higher priority queues get more GPU time, but may cause
+ * performance issues if overused.
+ *
+ * */
+typedef enum WisCommandQueuePriority {
+    WisCommandQueuePriorityNormal = 0, ///< Normal queue priority.
+    WisCommandQueuePriorityHigh = 1, ///< High queue priority.
+    /**
+     * @brief Global realtime queue priority. Requires special GPU support and may cause performance issues if used on
+     * unsupported hardware.
+     * */
+    WisCommandQueuePriorityRealtime = 2,
+} WisCommandQueuePriority;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Defines types of pipelines that can be created on the device. Each type corresponds
+ * to a specific kind of workload that the GPU can handle.
+ *
+ * */
+typedef enum WisPipelineType {
+    WisPipelineTypeGraphics = 0, ///< Pipeline for graphics operations, including rendering tasks.
+    WisPipelineTypeCompute = 1, ///< Pipeline dedicated to compute operations, optimized for parallel processing tasks.
+    WisPipelineTypeRayTracing = 2, ///< Pipeline for ray tracing operations, optimized for ray tracing workloads.
+} WisPipelineType;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Shader stages that can be used in the pipeline. Main use is Root signature and
+ * descriptor management. Stages have no granularity, either all or one can be selected.
+ *
+ * */
+typedef enum WisShaderVisibility {
+    WisShaderVisibilityAll = 0, ///< All shader stages.
+    WisShaderVisibilityVertex = 1, ///< Vertex shader stage.
+    WisShaderVisibilityHull = 2, ///< Hull/Tessellation control shader stage.
+    WisShaderVisibilityDomain = 3, ///< Domain/Tessellation evaluation shader stage.
+    WisShaderVisibilityGeometry = 4, ///< Geometry shader stage.
+    WisShaderVisibilityPixel = 5, ///< Pixel/Fragment shader stage.
+    WisShaderVisibilityAmplification = 6, ///< Amplification shader stage.
+    WisShaderVisibilityMesh = 7, ///< Mesh shader stage.
+    WisShaderVisibilityCount = 8, ///< Number of stages.
+} WisShaderVisibility;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Type of the descriptor in the descriptor table.
+ *
+ * */
+typedef enum WisDescriptorType {
+    WisDescriptorTypeSampler = 0, ///< Descriptor is a sampler.
+    WisDescriptorTypeConstantBuffer = 1, ///< Descriptor is a constant buffer.
+    WisDescriptorTypeTexture = 2, ///< Descriptor is a texture.
+    WisDescriptorTypeRWTexture = 3, ///< Descriptor is an unordered access read-write texture.
+    WisDescriptorTypeRWBuffer = 4, ///< Descriptor is an unordered access read-write buffer.
+    WisDescriptorTypeBuffer = 5, ///< Descriptor is a shader resource buffer.
+    WisDescriptorTypeAccelerationStructure = 6, ///< Descriptor is an acceleration structure.
+    WisDescriptorTypeCount = 7, ///< Number of descriptor types.
+} WisDescriptorType;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Comparison function for depth and stencil operations.
+ *
+ * */
+typedef enum WisCompareOp {
+    WisCompareOpNone = 0, ///< No comparison.
+    WisCompareOpNever = 1, ///< Always fail the comparison.
+    WisCompareOpLess = 2, ///< Pass the comparison if the source value is less than the destination value.
+    WisCompareOpEqual = 3, ///< Pass the comparison if the source value is equal to the destination value.
+    /**
+     * @brief Pass the comparison if the source value is less than or equal to the destination value.
+     * */
+    WisCompareOpLessEqual = 4,
+    WisCompareOpGreater = 5, ///< Pass the comparison if the source value is greater than the destination value.
+    WisCompareOpNotEqual = 6, ///< Pass the comparison if the source value is not equal to the destination value.
+    /**
+     * @brief Pass the comparison if the source value is greater than or equal to the destination value.
+     * */
+    WisCompareOpGreaterEqual = 7,
+    WisCompareOpAlways = 8, ///< Always pass the comparison.
+} WisCompareOp;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Address mode for texture sampling.
+ *
+ * */
+typedef enum WisAddressMode {
+    WisAddressModeRepeat = 0, ///< Repeat the texture.
+    WisAddressModeMirroredRepeat = 1, ///< Repeat the texture with mirroring.
+    WisAddressModeClampToEdge = 2, ///< Clamp the texture to the edge.
+    WisAddressModeClampToBorder = 3, ///< Clamp the texture to the border.
+    WisAddressModeMirrorClampToEdge = 4, ///< Mirror and clamp the texture to the edge.
+} WisAddressMode;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Filtering mode for texture sampling.
+ *
+ * */
+typedef enum WisFilter {
+    WisFilterPoint = 0, ///< Nearest neighbor filtering.
+    WisFilterLinear = 1, ///< Linear filtering.
+} WisFilter;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Reduction mode for texture sampling when min and mag filters are different.
+ *
+ * */
+typedef enum WisReductionMode {
+    WisReductionModeStandard = 0, ///< Standard filtering behavior.
+    WisReductionModeMin = 1, ///< Use the minimum value of the samples for filtering.
+    WisReductionModeMax = 2, ///< Use the maximum value of the samples for filtering.
+} WisReductionMode;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Predefined static border colors for samplers. Used when address mode is set to
+ * Border.
+ *
+ * */
+typedef enum WisStaticBorder {
+    WisStaticBorderTransparentBlack = 0, ///< Transparent black border color.
+    WisStaticBorderOpaqueBlack = 1, ///< Opaque black border color.
+    WisStaticBorderOpaqueWhite = 2, ///< Opaque white border color.
+} WisStaticBorder;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Descriptor heap type.
+ *
+ * */
+typedef enum WisDescriptorHeapType {
+    WisDescriptorHeapTypeDescriptor = 0, ///< Descriptor heap type. Used for all descriptor types, except for samplers.
+    WisDescriptorHeapTypeSampler = 1, ///< Sampler heap type. Used for sampler descriptors.
+} WisDescriptorHeapType;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Descriptor memory type. Decides if descriptors are visible and can be bound to GPU.
+ *
+ * */
+typedef enum WisDescriptorMemoryType {
+    /**
+     * @brief Descriptors are only visible to CPU. May be used for copying descriptors to the GPU visible pool.
+     * */
+    WisDescriptorMemoryTypeCpuOnly = 0,
+    /**
+     * @brief Descriptors are visible to GPU. Descriptors can be bound to the GPU pipeline directly, but can't be copied
+     * from.
+     * */
+    WisDescriptorMemoryTypeShaderVisible = 1,
+} WisDescriptorMemoryType;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Component swizzle for texture sampling.
+ *
+ * */
+typedef enum WisComponentSwizzle {
+    WisComponentSwizzleIdentity = 0, ///< Use the component as is for sampling.
+    WisComponentSwizzleRed = 1, ///< Use the red component for sampling.
+    WisComponentSwizzleGreen = 2, ///< Use the green component for sampling.
+    WisComponentSwizzleBlue = 3, ///< Use the blue component for sampling.
+    WisComponentSwizzleAlpha = 4, ///< Use the alpha component for sampling.
+    WisComponentSwizzleZero = 5, ///< Use zero for sampling.
+    WisComponentSwizzleOne = 6, ///< Use one for sampling.
+} WisComponentSwizzle;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Determines the behavior when waiting for multiple fences.
+ *
+ * */
+typedef enum WisMultiWaitType {
+    WisMultiWaitTypeAll = 0, ///< All the fences in the batch are triggered.
+    WisMultiWaitTypeAny = 1, ///< At least one of the fences from the batch is triggered.
+} WisMultiWaitType;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Input classification for vertex buffer data.
+ *
+ * */
+typedef enum WisInputClass {
+    WisInputClassPerVertex = 0, ///< Vertex buffer data is vertex data.
+    WisInputClassPerInstance = 1, ///< Vertex buffer data is per instance data.
+} WisInputClass;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Query type for GPU queries.
+ *
+ * */
+typedef enum WisQueryPropertyType {
+    /**
+     * @brief Properties of the device command queues. Expects a WisDeviceCommandQueueProperties struct.
+     * */
+    WisQueryPropertyTypeDeviceCommandQueueProperties = 0,
+    /**
+     * @brief Properties of the device descriptor heap. Expects a WisDeviceDescriptorHeapProperties struct.
+     * */
+    WisQueryPropertyTypeDeviceDescriptorHeapProperties = 1,
+    /**
+     * @brief Properties of the device descriptor heap. Expects a WisDeviceMemoryProperties struct.
+     * */
+    WisQueryPropertyTypeDeviceMemoryProperties = 2,
+    /**
+     * @brief Properties of the device resource binding. Expects a WisDeviceBindingProperties struct.
+     * */
+    WisQueryPropertyTypeDeviceBindingProperties = 3,
+} WisQueryPropertyType;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Memory type for resource allocation.
+ *
+ * */
+typedef enum WisMemoryType {
+    WisMemoryTypeDefault = 0, ///< Default memory type. Alias for `WisMemoryTypeDeviceLocal`
+    /**
+     * @brief
+     * Default memory type.
+     * Local device memory, most efficient for rendering.
+     * */
+    WisMemoryTypeDeviceLocal = 0,
+    /**
+     * @brief
+     * Upload memory type.
+     * Used for data that is uploaded to the GPU Local memory using copy operations.
+     * */
+    WisMemoryTypeUpload = 1,
+    /**
+     * @brief
+     * Readback memory type.
+     * Used for data that is read back from the GPU Local memory using copy operations.
+     * */
+    WisMemoryTypeReadback = 2,
+    /**
+     * @brief
+     * GPU upload memory type.
+     * Used for data that is directly uploaded to the GPU Local memory using copy operations.
+     * Support of this memory must be queried.
+     * */
+    WisMemoryTypeGPUUpload = 3,
+} WisMemoryType;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Texture state for resource transitions.
+ *
+ * */
+typedef enum WisTextureState {
+    WisTextureStateUndefined = -1, ///< Undefined state.
+    WisTextureStateCommon = 0, ///< Common state.
+    WisTextureStateRead = 1, ///< General Read state.
+    WisTextureStateRenderTarget = 2, ///< Render Target state.
+    WisTextureStateUnorderedAccess = 3, ///< Unordered Access state.
+    WisTextureStateDepthStencilWrite = 4, ///< Depth Stencil Write state.
+    WisTextureStateDepthStencilRead = 5, ///< Depth Stencil Read state.
+    WisTextureStateDepthWriteStencilRead = 6, ///< Depth Write Stencil Read state.
+    WisTextureStateStencilWriteDepthRead = 7, ///< Stencil Write Depth Read state.
+    WisTextureStateShaderResource = 8, ///< Shader Resource state.
+    WisTextureStateCopySrc = 9, ///< Copy Source state.
+    WisTextureStateCopyDst = 10, ///< Copy Destination state.
+    WisTextureStatePresent = 11, ///< Present swapchain state.
+    WisTextureStateShadingRate = 12, ///< Shading Rate state. Used for Variable Shading Rate.
+    WisTextureStateVideoDecodeRead = 13, ///< Video Decode Read state.
+    WisTextureStateVideoDecodeWrite = 14, ///< Video Decode Write state.
+    WisTextureStateResolveDepthStensilDst = 15, ///< Depth Stencil Resolve Destination state.
+    WisTextureStateResolveRenderTargetDst = 16, ///< Render Target Resolve Destination state.
+} WisTextureState;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Intermediate shader representation.
+ *
+ * */
+typedef enum WisShaderIntermediate {
+    WisShaderIntermediateDXIL = 0, ///< DirectX Intermediate Language.
+    WisShaderIntermediateSPIRV = 1, ///< Standard Portable Intermediate Representation for Vulkan.
+} WisShaderIntermediate;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Stencil operation for depth and stencil operations.
+ *
+ * */
+typedef enum WisStencilOp {
+    WisStencilOpKeep = 1, ///< Keep the current value.
+    WisStencilOpZero = 2, ///< Set the value to zero.
+    WisStencilOpReplace = 3, ///< Replace the value with the reference value.
+    WisStencilOpIncClamp = 4, ///< Increment the value and clamp to the maximum value.
+    WisStencilOpDecClamp = 5, ///< Decrement the value and clamp to the minimum value.
+    WisStencilOpInvert = 6, ///< Invert the value.
+    WisStencilOpIncWrap = 7, ///< Increment the value and wrap to zero when the maximum value is exceeded.
+    WisStencilOpDecWrap = 8, ///< Decrement the value and wrap to the maximum value when the minimum value is exceeded.
+} WisStencilOp;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Primitive topology type for WisGraphicsPipelineDesc.
+ *
+ * */
+typedef enum WisTopologyType {
+    WisTopologyTypePoint = 1, ///< Render points for each vertex.
+    WisTopologyTypeLine = 2, ///< Render lines between vertices.
+    WisTopologyTypeTriangle = 3, ///< Render triangles between vertices.
+    WisTopologyTypePatch = 4, ///< Vertices are interpret as patch list. Used in tessellation process.
+} WisTopologyType;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Fill mode for rasterizer.
+ *
+ * */
+typedef enum WisFillMode {
+    WisFillModeLines = 2, ///< Draw lines between vertices. Wireframe rendering.
+    WisFillModeSolid = 3, ///< Fill the area between vertices forming polygons.
+} WisFillMode;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Cull mode for rasterizer.
+ * Triangle culling depends on WisWindingOrder option.
+ *
+ * */
+typedef enum WisCullMode {
+    WisCullModeNone = 1, ///< No culling.
+    WisCullModeFront = 2, ///< Cull front-facing triangles.
+    WisCullModeBack = 3, ///< Cull back-facing triangles.
+} WisCullMode;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Winding order for front-facing triangles.
+ *
+ * */
+typedef enum WisWindingOrder {
+    WisWindingOrderClockwise = 0, ///< Front-facing triangles have clockwise winding order.
+    WisWindingOrderCounterClockwise = 1, ///< Front-facing triangles have counter-clockwise winding order.
+} WisWindingOrder;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Conservative rasterization mode.
+ *
+ * */
+typedef enum WisConservativeRasterization {
+    WisConservativeRasterizationOff = 0, ///< Conservative rasterization is disabled.
+    WisConservativeRasterizationOverestimate = 1, ///< Conservative rasterization is enabled.
+} WisConservativeRasterization;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Line rasterization mode.
+ *
+ * */
+typedef enum WisLineRasterization {
+    WisLineRasterizationDefault = 0, ///< Line rasterization is disabled. Lines are not rendered.
+    WisLineRasterizationRectangular = 1, ///< Lines are rasterized as rectangles.
+    WisLineRasterizationAlphaAntialiased = 2, ///< Lines are rasterized as rectangles with anti-aliasing.
+} WisLineRasterization;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Blend factor for color blending operations.
+ *
+ * */
+typedef enum WisBlendFactor {
+    WisBlendFactorZero = 1, ///< Use zero for blending.
+    WisBlendFactorOne = 2, ///< Use one for blending.
+    WisBlendFactorSrcColor = 3, ///< Use the source color for blending.
+    WisBlendFactorInvSrcColor = 4, ///< Use the inverse source color for blending.
+    WisBlendFactorSrcAlpha = 5, ///< Use the source alpha for blending.
+    WisBlendFactorInvSrcAlpha = 6, ///< Use the inverse source alpha for blending.
+    WisBlendFactorDestAlpha = 7, ///< Use the destination alpha for blending.
+    WisBlendFactorInvDestAlpha = 8, ///< Use the inverse destination alpha for blending.
+    WisBlendFactorDestColor = 9, ///< Use the destination color for blending.
+    WisBlendFactorInvDestColor = 10, ///< Use the inverse destination color for blending.
+    WisBlendFactorSrcAlphaSat = 11, ///< Use the source alpha saturated for blending.
+    WisBlendFactorConstantColor = 14, ///< Use a constant blend factor for blending.
+    WisBlendFactorInvBlendFactor = 15, ///< Use the inverse constant blend factor for blending.
+    WisBlendFactorSrc1Color = 16, ///< Use the source color for blending. Dual source blending mode.
+    WisBlendFactorInvSrc1Color = 17, ///< Use the inverse source color for blending. Dual source blending mode.
+    WisBlendFactorSrc1Alpha = 18, ///< Use the source alpha for blending. Dual source blending mode.
+    WisBlendFactorInvSrc1Alpha = 19, ///< Use the inverse source alpha for blending. Dual source blending mode.
+} WisBlendFactor;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Blend operation for color blending operations.
+ *
+ * */
+typedef enum WisBlendOp {
+    WisBlendOpAdd = 1, ///< Add the source and destination colors.
+    WisBlendOpSubtract = 2, ///< Subtract the source color from the destination color.
+    WisBlendOpRevSubtract = 3, ///< Subtract the destination color from the source color.
+    WisBlendOpMin = 4, ///< Use the minimum of the source and destination colors.
+    WisBlendOpMax = 5, ///< Use the maximum of the source and destination colors.
+} WisBlendOp;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Logic operation for color blending operations.
+ *
+ * */
+typedef enum WisLogicOp {
+    WisLogicOpClear = 0, ///< Clear the destination value.
+    WisLogicOpSet = 1, ///< Set the destination value.
+    WisLogicOpCopy = 2, ///< Copy the source value to the destination.
+    WisLogicOpCopyInverted = 3, ///< Copy the inverted source value to the destination.
+    WisLogicOpNoop = 4, ///< Do not modify the destination value.
+    WisLogicOpInvert = 5, ///< Invert the destination value.
+    WisLogicOpAnd = 6, ///< Perform a bitwise AND operation on the source and destination values.
+    WisLogicOpNand = 7, ///< Perform a bitwise NAND operation on the source and destination values.
+    WisLogicOpOr = 8, ///< Perform a bitwise OR operation on the source and destination values.
+    WisLogicOpNor = 9, ///< Perform a bitwise NOR operation on the source and destination values.
+    WisLogicOpXor = 10, ///< Perform a bitwise XOR operation on the source and destination values.
+    WisLogicOpEquiv = 11, ///< Perform a bitwise equivalent operation on the source and destination values.
+    WisLogicOpAndReverse = 12, ///< Perform a bitwise AND operation on the source and inverted destination values.
+    WisLogicOpAndInverted = 13, ///< Perform a bitwise AND operation on the inverted source and destination values.
+    WisLogicOpOrReverse = 14, ///< Perform a bitwise OR operation on the source and inverted destination values.
+    WisLogicOpOrInverted = 15, ///< Perform a bitwise OR operation on the inverted source and destination values.
+} WisLogicOp;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Primitive topology for rendering.
+ * More info could be found
+ * [here](https://learn.microsoft.com/en-us/windows/win32/direct3d11/d3d10-graphics-programming-guide-primitive-topologies).
+ *
+ * */
+typedef enum WisPrimitiveTopology {
+    WisPrimitiveTopologyPointList = 1, ///< Render points for each vertex.
+    WisPrimitiveTopologyLineList = 2, ///< Render lines between vertices.
+    WisPrimitiveTopologyLineStrip = 3, ///< Render lines between vertices in a strip.
+    WisPrimitiveTopologyTriangleList = 4, ///< Render triangles between vertices.
+    WisPrimitiveTopologyTriangleStrip = 5, ///< Render triangles between vertices in a strip.
+    WisPrimitiveTopologyTriangleFan = 6, ///< Interpret vertex data to form a fan of triangles.
+    WisPrimitiveTopologyLineListAdj = 10, ///< Render lines between vertices with adjacency.
+    WisPrimitiveTopologyLineStripAdj = 11, ///< Render lines between vertices in a strip with adjacency.
+    WisPrimitiveTopologyTriangleListAdj = 12, ///< Render triangles between vertices with adjacency.
+    WisPrimitiveTopologyTriangleStripAdj = 13, ///< Render triangles between vertices in a strip with adjacency.
+} WisPrimitiveTopology;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Primitive restart value for indexed drawing with primitive restart enabled.
+ *
+ * */
+typedef enum WisPrimitiveRestartValue {
+    WisPrimitiveRestartValueNone = 0, ///< Primitive restart is disabled. No primitive restart value is used.
+    WisPrimitiveRestartValueUInt16Max = 1, ///< Use the maximum value of uint16_t as the primitive restart value.
+    WisPrimitiveRestartValueUInt32Max = 2, ///< Use the maximum value of uint32_t as the primitive restart value.
+} WisPrimitiveRestartValue;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Type of the view descriptor heap.
+ *
+ * */
+typedef enum WisViewHeapType {
+    WisViewHeapTypeRenderTarget = 0, ///< Descriptor heap for render target views.
+    WisViewHeapTypeDepthStencil = 1, ///< Descriptor heap for depth stencil views.
+} WisViewHeapType;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Swapchain scaling mode.
+ *
+ * */
+typedef enum WisSwapchainScaling {
+    WisSwapchainScalingNone = 0, ///< No scaling. The swapchain size is equal to the window size.
+    WisSwapchainScalingStretch = 1, ///< Stretch scaling. The swapchain size is stretched to the window size.
+    /**
+     * @brief Aspect scaling. The swapchain size is scaled to the window size with aspect ratio preserved.
+     * */
+    WisSwapchainScalingAspect = 2,
+} WisSwapchainScaling;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Composite alpha flags for swapchain creation.
+ *
+ * */
+typedef enum WisCompositeAlpha {
+    WisCompositeAlphaOpaque = 0, ///< The alpha channel, if it exists, is ignored. The image is treated as opaque.
+    /**
+     * @brief The alpha channel, if it exists, is respected and used in compositing. The premultiplied alpha format is
+     * expected.
+     * */
+    WisCompositeAlphaPreMultiplied = 1,
+    /**
+     * @brief The alpha channel, if it exists, is respected and used in compositing. The postmultiplied alpha format is
+     * expected.
+     * */
+    WisCompositeAlphaPostMultiplied = 2,
+    /**
+     * @brief The alpha channel, if it exists, is respected and used in compositing based on the platform's default
+     * behavior.
+     * */
+    WisCompositeAlphaInherit = 3,
+} WisCompositeAlpha;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Attachment load operation for render pass.
+ *
+ * */
+typedef enum WisLoadOp {
+    WisLoadOpLoad = 0, ///< Load the attachment contents.
+    WisLoadOpClear = 1, ///< Clear the attachment contents.
+    WisLoadOpDontCare = 2, ///< Do not care about the attachment contents.
+} WisLoadOp;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Attachment store operation for render pass.
+ *
+ * */
+typedef enum WisStoreOp {
+    WisStoreOpStore = 0, ///< Store the attachment contents.
+    WisStoreOpDontCare = 1, ///< Do not care about the attachment contents.
+} WisStoreOp;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Resolve mode used for multisample resolve in render pass attachments.
+ *
+ * */
+typedef enum WisResolveMode {
+    WisResolveModeNone = 0, ///< Do not resolve the attachment.
+    WisResolveModeAverage = 1, ///< Resolve by averaging samples.
+    WisResolveModeMin = 2, ///< Resolve by selecting minimum sample value.
+    WisResolveModeMax = 3, ///< Resolve by selecting maximum sample value.
+} WisResolveMode;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Index type for index buffer.
+ * Enum values resemble the byte stride of the format.
+ *
+ * */
+typedef enum WisIndexType {
+    WisIndexTypeUInt16 = 2, ///< 16-bit unsigned integer index type.
+    WisIndexTypeUInt32 = 4, ///< 32-bit unsigned integer index type.
+} WisIndexType;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Flags that describe adapter.
+ *
+ * */
+typedef enum WisAdapterFlags {
+    WisAdapterFlagsNone = 0, ///< No flags set. Adapter may be discrete or embedded.
+    WisAdapterFlagsRemote = (1u << 0), ///< Adapter is remote. Used for remote rendering.
+    WisAdapterFlagsSoftware = (1u << 1), ///< Adapter is software. Uses CPU for software rendering.
+} WisAdapterFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Flags for descriptor heap creation.
+ *
+ * */
+typedef enum WisDescriptorHeapFlags {
+    WisDescriptorHeapFlagsNone = 0, ///< No flags set.
+    /**
+     * @brief Heap is used in full for dynamic samplers. There @wis_mustnot be any shader that use embedded samplers
+     * that uses that heap. User @wis_may allocate more samplers in the heap than it would normally be.
+     * */
+    WisDescriptorHeapFlagsDisallowEmbeddedSamplers = (1u << 1),
+} WisDescriptorHeapFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Flags for sampler creation.
+ *
+ * */
+typedef enum WisSamplerFlags {
+    WisSamplerFlagsNone = 0, ///< No flags set.
+    WisSamplerFlagsNonNormalizedCoordinates = (1u << 0), ///< Use non-normalized texture coordinates.
+} WisSamplerFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Buffer usage flags.
+ * Determine how the buffer can be used throughout its lifetime.
+ *
+ * */
+typedef enum WisBufferUsageFlags {
+    WisBufferUsageFlagsNone = 0, ///< No flags set. Buffer is not used.
+    WisBufferUsageFlagsCopySrc = (1u << 0), ///< Buffer is used as a source for copy operations.
+    WisBufferUsageFlagsCopyDst = (1u << 1), ///< Buffer is used as a destination for copy operations.
+    WisBufferUsageFlagsConstantBuffer = (1u << 2), ///< Buffer is used as a constant buffer.
+    WisBufferUsageFlagsIndexBuffer = (1u << 3), ///< Buffer is used as an index buffer.
+    WisBufferUsageFlagsVertexBuffer = (1u << 4), ///< Buffer is used as a vertex buffer or an instance buffer.
+    WisBufferUsageFlagsIndirectBuffer = (1u << 5), ///< Buffer is used as an indirect buffer.
+    WisBufferUsageFlagsStorageBuffer = (1u << 6), ///< Buffer is used as a storage unordered access buffer.
+    WisBufferUsageFlagsAccelerationStructureBuffer = (1u << 7), ///< Buffer is used as an acceleration structure buffer.
+    /**
+     * @brief Buffer is used as a read only acceleration instance input buffer.
+     * */
+    WisBufferUsageFlagsAccelerationStructureInput = (1u << 8),
+    WisBufferUsageFlagsShaderBindingTable = (1u << 9), ///< Buffer is used as a shader binding table buffer.
+} WisBufferUsageFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Texture usage flags.
+ * Determine how the texture can be used throughout its lifetime.
+ *
+ * */
+typedef enum WisTextureUsageFlags {
+    WisTextureUsageFlagsNone = 0, ///< No flags set. Texture is not used.
+    WisTextureUsageFlagsRenderTarget = (1u << 0), ///< Texture is used as a render target.
+    WisTextureUsageFlagsDepthStencil = (1u << 1), ///< Texture is used as a depth stencil buffer.
+    WisTextureUsageFlagsCopySrc = (1u << 2), ///< Texture is used as a source for copy operations.
+    WisTextureUsageFlagsCopyDst = (1u << 3), ///< Texture is used as a destination for copy operations.
+    WisTextureUsageFlagsShaderResource = (1u << 4), ///< Texture is used as a shader resource.
+    WisTextureUsageFlagsUnorderedAccess = (1u << 5), ///< Texture is used as an unordered access resource.
+    WisTextureUsageFlagsHostCopy = (1u << 7), ///< Texture is used for host copy operations. Works with GPUUpload heap.
+} WisTextureUsageFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Memory flags.
+ * Determine optional properties of the memory allocation.
+ *
+ * */
+typedef enum WisMemoryFlags {
+    WisMemoryFlagsNone = 0, ///< No flags set. Memory is regular.
+    /**
+     * @brief
+     * Memory is dedicated.
+     * Used for resources that require dedicated memory.
+     * Useful for big resources that are not shared with other resources.
+     * E.g. fullscreen textures, big buffers, etc.
+     * */
+    WisMemoryFlagsDedicatedAllocation = (1u << 0),
+    /**
+     * @brief
+     * Memory is mapped.
+     * Used in combination with `WisMemoryTypeUpload` or `WisMemoryTypeReadback` to map memory for CPU access.
+     * */
+    WisMemoryFlagsMapped = (1u << 1),
+    /**
+     * @brief
+     * Memory is exportable.
+     * If set, memory can be exported to other processes or APIs.
+     * Works only with Device Local memory (`WisMemoryTypeDefault`) and only on AllocateXMemory calls.
+     * Outside of AllocateXMemory the flag is ignored.
+     * */
+    WisMemoryFlagsExportable = (1u << 2),
+} WisMemoryFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Texture creation flags. Reserved for future features.
+ *
+ * */
+typedef enum WisTextureFlags {
+    WisTextureFlagsNone = 0, ///< No flags set. Texture is regular.
+} WisTextureFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Texture binding flags, used for extra options.
+ *
+ * */
+typedef enum WisTextureBindingFlags {
+    WisTextureBindingFlagsNone = 0, ///< No flags set. Texture view is regular. Implies color read.
+    /**
+     * @brief Texture view is used to read depth. Used for special formats that feature depth and stencil. The bound
+     * texture @wis_must be in TODO: specific layout before being used by shader.
+     * */
+    WisTextureBindingFlagsDepthView = (1u << 0),
+    /**
+     * @brief Texture view is used to read stencil. Used for special formats that feature depth and stencil. The bound
+     * texture @wis_must be in TODO: specific layout before being used by shader. Cannot be combined with
+     * `WisTextureBindingFlagsDepthView`.
+     * */
+    WisTextureBindingFlagsStencilView = (1u << 1),
+} WisTextureBindingFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Barrier synchronization flags for resource barriers.
+ *
+ * */
+typedef enum WisBarrierSync {
+    WisBarrierSyncNone = 0, ///< No synchronization is performed.
+    WisBarrierSyncAll = (1u << 0), ///< Synchronize all commands.
+    WisBarrierSyncDraw = (1u << 1), ///< Synchronize draw commands.
+    WisBarrierSyncIndexInput = (1u << 2), ///< Synchronize index input commands.
+    WisBarrierSyncVertexShading = (1u << 3), ///< Synchronize vertex shading commands.
+    WisBarrierSyncPixelShading = (1u << 4), ///< Synchronize pixel shading commands.
+    WisBarrierSyncDepthStencil = (1u << 5), ///< Synchronize depth-stencil commands.
+    WisBarrierSyncRenderTarget = (1u << 6), ///< Synchronize render target commands.
+    WisBarrierSyncCompute = (1u << 7), ///< Synchronize compute commands.
+    WisBarrierSyncRaytracing = (1u << 8), ///< Synchronize ray tracing commands.
+    WisBarrierSyncCopy = (1u << 9), ///< Synchronize copy commands.
+    WisBarrierSyncResolve = (1u << 10), ///< Synchronize resolve commands.
+    WisBarrierSyncExecuteIndirect = (1u << 11), ///< Synchronize execute indirect commands.
+    WisBarrierSyncAllShading = (1u << 12), ///< Synchronize all shading commands.
+    WisBarrierSyncNonPixelShading = (1u << 13), ///< Synchronize non-pixel shading commands.
+    WisBarrierSyncClearUAV = (1u << 14), ///< Synchronize UAV clear commands.
+    WisBarrierSyncVideoDecode = (1u << 15), ///< Synchronize video decode commands.
+    WisBarrierSyncVideoEncode = (1u << 16), ///< Synchronize video encode commands.
+    WisBarrierSyncBuildRTAS = (1u << 17), ///< Synchronize ray tracing acceleration structure build commands.
+    WisBarrierSyncCopyRTAS = (1u << 18), ///< Synchronize ray tracing acceleration structure copy commands.
+} WisBarrierSync;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Resource access flags for resource barriers.
+ *
+ * */
+typedef enum WisResourceAccess {
+    WisResourceAccessCommon = 0, ///< Common access.
+    WisResourceAccessVertexBuffer = (1u << 0), ///< Vertex buffer access. Applies only to buffers.
+    WisResourceAccessConstantBuffer = (1u << 1), ///< Constant buffer access. Applies only to buffers.
+    WisResourceAccessIndexBuffer = (1u << 2), ///< Index buffer access. Applies only to buffers.
+    WisResourceAccessRenderTarget = (1u << 3), ///< Render target access. Applies only to textures.
+    WisResourceAccessUnorderedAccess = (1u << 4), ///< Unordered access.
+    WisResourceAccessDepthWrite = (1u << 5), ///< Depth write access. Applies only to depth-stencil textures.
+    WisResourceAccessDepthRead = (1u << 6), ///< Depth read access. Applies only to depth-stencil textures.
+    WisResourceAccessShaderResource = (1u << 7), ///< Shader resource access.
+    WisResourceAccessStreamOutput = (1u << 8), ///< Stream output access. Applies only to buffers.
+    WisResourceAccessIndirectArgument = (1u << 9), ///< Indirect argument access.
+    WisResourceAccessCopyDst = (1u << 10), ///< Copy destination access.
+    WisResourceAccessCopySrc = (1u << 11), ///< Copy source access.
+    WisResourceAccessConditionalRendering = (1u << 12), ///< Conditional rendering access.
+    WisResourceAccessAccelerationStructureRead = (1u << 13), ///< Acceleration structure read access.
+    WisResourceAccessAccelerationStructureWrite = (1u << 14), ///< Acceleration structure write access.
+    WisResourceAccessShadingRate = (1u << 15), ///< Shading rate access.
+    WisResourceAccessVideoDecodeRead = (1u << 16), ///< Video decode read access.
+    WisResourceAccessVideoDecodeWrite = (1u << 17), ///< Video decode write access.
+    WisResourceAccessResolveDst = (1u << 18), ///< Resolve destination access.
+    WisResourceAccessResolveSrc = (1u << 19), ///< Resolve source access.
+    WisResourceAccessNone = (1u << 31), ///< No access. Used to indicate no access throughout the pipeline.
+} WisResourceAccess;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Barrier flags for resource barriers.
+ *
+ * */
+typedef enum WisBarrierFlags {
+    WisBarrierFlagsNone = 0, ///< No flags set. Barrier is regular.
+    /**
+     * @brief Resource is a depth resource. This flag @wis_must be set for all depth resources to make transitions on
+     * them.
+     * */
+    WisBarrierFlagsDepthResource = (1u << 0),
+    /**
+     * @brief Resource is a stencil resource. This flag @wis_must be set for all stencil resources to make transitions
+     * on them.
+     * */
+    WisBarrierFlagsStencilResource = (1u << 1),
+    /**
+     * @brief Transition whole resource. If not set, the transition is applied only to the specified subresource range.
+     * If set, the subresource range is ignored and the transition is applied to all subresources of the resource.
+     * */
+    WisBarrierFlagsWholeRange = (1u << 2),
+    /**
+     * @brief Resource is a planar image. If the flag is not set, plane slices in WisSubresourceRange are ignored.
+     * */
+    WisBarrierFlagsPlanarImage = (1u << 3),
+} WisBarrierFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Pipeline creation flags.
+ *
+ * */
+typedef enum WisPipelineFlags {
+    WisPipelineFlagsNone = 0, ///< No flags set. Pipeline is regular.
+    /**
+     * @brief Fail pipeline creation if the pipeline cache is missing or incompatible. If not set, the implementation
+     * may choose to create the pipeline without using the cache, which may result in longer creation time.
+     * */
+    WisPipelineFlagsFailOnCacheMiss = (1u << 0),
+    /**
+     * @brief Enable primitive restart for graphics pipelines. If not set, primitive restart is disabled and the
+     * implementation may choose to ignore restart indices in draw calls.
+     * */
+    WisPipelineFlagsEnablePrimitiveRestart = (1u << 1),
+    /**
+     * @brief Enable dynamic depth bias for graphics pipelines. If not set, depth bias is static and must be specified
+     * at pipeline creation time.
+     * */
+    WisPipelineFlagsDynamicDepthBias = (1u << 2),
+} WisPipelineFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Color component flags.
+ * Used for color blending operations.
+ *
+ * */
+typedef enum WisColorComponents {
+    WisColorComponentsNone = 0, ///< No flags set. Color blending is not used.
+    WisColorComponentsR = (1u << 0), ///< Use red component for blending.
+    WisColorComponentsG = (1u << 1), ///< Use green component for blending.
+    WisColorComponentsB = (1u << 2), ///< Use blue component for blending.
+    WisColorComponentsA = (1u << 3), ///< Use alpha component for blending.
+    WisColorComponentsAll = 15, ///< Use all color components for blending.
+} WisColorComponents;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Swapchain creation flags.
+ *
+ * */
+typedef enum WisSwapchainFlags {
+    WisSwapchainFlagsNone = 0, ///< No flags set. Swapchain is regular.
+    WisSwapchainFlagsAllowTearing = (1u << 0), ///< Allow tearing.
+    /**
+     * @brief Present with vertical sync. If set, the swapchain is presented with vertical sync pulse.
+     * */
+    WisSwapchainFlagsVSync = (1u << 1),
+    /**
+     * @brief Stereo swapchain. If set, the swapchain is created for stereo rendering. If not set, the swapchain is
+     * created for mono rendering.
+     * */
+    WisSwapchainFlagsStereo = (1u << 2),
+} WisSwapchainFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Swapchain creation flags.
+ *
+ * */
+typedef enum WisPresentFlags {
+    WisPresentFlagsNone = 0, ///< No flags set. Swapchain is regular.
+    /**
+     * @brief Fail present if the presentation engine is busy. If not set, the implementation may choose to block until
+     * the presentation engine is available.
+     * */
+    WisPresentFlagsTimeoutOnBlock = (1u << 0),
+} WisPresentFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Set of flags that affect render pass behavior.
+ * More on render pass flags
+ * [here](https://learn.microsoft.com/en-us/windows/win32/direct3d12/direct3d-12-render-passes).
+ *
+ * */
+typedef enum WisRenderPassFlags {
+    WisRenderPassFlagsNone = 0, ///< No flags set. Render pass is regular.
+    WisRenderPassFlagsSuspending = (1u << 1), ///< Render pass is suspending.
+    WisRenderPassFlagsResuming = (1u << 2), ///< Render pass is resuming.
+    /**
+     * @brief Allow UAV writes. If set, unordered access view (UAV) writes are allowed during the render pass. If not
+     * set, UAV writes are not allowed and may result in undefined behavior if attempted.
+     * */
+    WisRenderPassFlagsAllowUAVWrites = (1u << 3),
+} WisRenderPassFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Depth stencil select flags.
+ * Affect which part of the depth stencil buffer is used.
+ *
+ * */
+typedef enum WisDepthStencilFlags {
+    WisDepthStencilFlagsNone = 0, ///< No flags set. Both attachments are write.
+    WisDepthStencilFlagsIgnoreDepth = (1u << 0), ///< Don't use depth part of the depth stencil buffer.
+    WisDepthStencilFlagsIgnoreStencil = (1u << 1), ///< Don't use stencil part of the depth stencil buffer.
+    /**
+     * @brief Depth part is read only. Texture @wis_must be in either read state, depending on the format.
+     * */
+    WisDepthStencilFlagsReadOnlyDepth = (1u << 2),
+    /**
+     * @brief Stencil part is read only. Texture @wis_must be in either read state, depending on the format.
+     * */
+    WisDepthStencilFlagsReadOnlyStencil = (1u << 3),
+} WisDepthStencilFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. View heap creation flags.
+ *
+ * */
+typedef enum WisViewHeapFlags {
+    WisViewHeapFlagsNone = 0, ///< No flags set. View heap is regular.
+    /**
+     * @brief Allows the view heap to be used with multisampled resources. If not set, the view heap does not enable
+     * multisample-related usage.
+     * */
+    WisViewHeapFlagsAllowMultisample = (1u << 0),
+} WisViewHeapFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Format support flags.
+ * Indicates what features are supported for a specific format.
+ *
+ * */
+typedef enum WisFormatSupportFlags {
+    WisFormatSupportFlagsNone = 0, ///< No features supported.
+    WisFormatSupportFlagsBuffer = (1u << 0), ///< Format can be used for buffers.
+    WisFormatSupportFlagsVertexBuffer = (1u << 1), ///< Format can be used for vertex buffers.
+    WisFormatSupportFlagsTexture1D = (1u << 2), ///< Format can be used for 1D textures.
+    WisFormatSupportFlagsTexture2D = (1u << 3), ///< Format can be used for 2D textures.
+    WisFormatSupportFlagsTexture3D = (1u << 4), ///< Format can be used for 3D textures.
+    WisFormatSupportFlagsTextureCube = (1u << 5), ///< Format can be used for cube textures.
+    WisFormatSupportFlagsRenderTarget = (1u << 6), ///< Format can be used for render targets.
+    WisFormatSupportFlagsDepthStencil = (1u << 7), ///< Format can be used for depth stencil.
+    WisFormatSupportFlagsBlendable = (1u << 8), ///< Format supports blending.
+    WisFormatSupportFlagsMultisampleRenderTarget = (1u << 9), ///< Format supports multisampled render targets.
+    WisFormatSupportFlagsMultisampleResolve = (1u << 10), ///< Format supports multisample resolve.
+    WisFormatSupportFlagsShaderResource = (1u << 11), ///< Format can be used for shader resource.
+    WisFormatSupportFlagsUnorderedAccess = (1u << 12), ///< Format can be used for unordered access.
+} WisFormatSupportFlags;
+
+//==============================================================
+// Delegates
+//==============================================================
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Defines the debug callback function signature. Used for logging and debugging
+ * messages from the graphics API.
+ * @param severity indicates message severity level.
+ * @param message contains the debug message string.
+ * @param device defines handle to the device that generated the message. Can be `0` if message is not device specific.
+ * @param user_data defines user defined data pointer passed during callback registration.
+ *
+ * */
+typedef void (*WisDebugCallback)(WisSeverity severity, const char* message, uint64_t device, void* user_data);
+
+//==============================================================
+// Structs
+//==============================================================
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Main source of communication of operation success.
+ *
+ * */
+typedef struct WIS_NODISCARD WisResult {
+    WisStatus status; ///< defines operation status. Compare with `WisStatusOk`.
+    /**
+     * @brief indicates platform code from underlying implementation. Is an `HRESULT` for DX12 and a `VkResult` for
+     * Vulkan.
+     * */
+    int32_t platform_code;
+    const char* error; ///< specifies contains a human readable error message.
+} WisResult;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Adapter description. Describes hardware driver identification as well as memory
+ * limits.
+ *
+ * */
+typedef struct WisAdapterDesc {
+    char description[256]; ///< defines adapter description. Contains name of the graphics adapter.
+    uint32_t vendor_id; ///< specifies denotes Vendor ID. Can be used to find the correct adapter.
+    /**
+     * @brief defines denotes Device ID. Together with `WisAdapterDesc::vendor_id` uniquely identifies the device.
+     * */
+    uint32_t device_id;
+    /**
+     * @brief describes measures dedicated video memory in bytes. Used for device local memory type.
+     * */
+    uint64_t dedicated_video_memory;
+    /**
+     * @brief indicates measures memory that is shared with CPU in bytes. Used for upload and readback.
+     * */
+    uint64_t shared_system_memory;
+    /**
+     * @brief describes denotes adapter unique ID (LUID). Can be used to find the correct adapter.
+     * */
+    uint64_t adapter_id;
+    /**
+     * @brief indicates stores UUID of the adapter, used only with Vulkan API on systems with no LUID.
+     * */
+    uint8_t adapter_uuid[16];
+    WisAdapterFlags flags; ///< describes adapter flags. Describe the adapter kind.
+} WisAdapterDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Debugging and logging description. Used to configure debug callback behavior.
+ *
+ * */
+typedef struct WisDebugDesc {
+    bool enable_debug_layer; ///< describes enables or disables debug layer on both DX12 and VK backends.
+    WisDebugCallback callback; ///< describes the debug callback function.
+    void* user_data; ///< defines user defined data pointer passed to the callback.
+} WisDebugDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Command queue description for WisCommandQueue creation.
+ *
+ * */
+typedef struct WisCommandQueueDesc {
+    WisCommandQueueType type; ///< specifies the type of the command queue.
+    /**
+     * @brief specifies command queue priority. Used to set priority of the command queues of the type.
+     * */
+    WisCommandQueuePriority priority;
+} WisCommandQueueDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sampler description for  creation.
+ *
+ * */
+typedef struct WisSamplerDesc {
+    WisFilter min_filter; ///< describes minification filter.
+    WisFilter mag_filter; ///< specifies magnification filter.
+    WisFilter mip_filter; ///< indicates mip level filter.
+    WisReductionMode reduction_mode; ///< describes reduction mode for min/mag/mip filters.
+    bool is_anisotropic; ///< specifies anisotropic filtering enable.
+    uint32_t max_anisotropy; ///< describes max anisotropy level. Min is 1, Max is 16.
+    WisAddressMode address_u; ///< specifies address mode for U coordinate.
+    WisAddressMode address_v; ///< indicates address mode for V coordinate.
+    WisAddressMode address_w; ///< defines address mode for W coordinate.
+    float min_lod; ///< specifies min LOD value.
+    float max_lod; ///< defines max LOD value.
+    float mip_lod_bias; ///< specifies mip LOD bias value.
+    WisCompareOp comparison_op; ///< describes comparison operation for comparison samplers.
+    /**
+     * @brief indicates static border color. Used if any address mode is set to WisAddressMode.
+     * */
+    WisStaticBorder static_border_color;
+    WisSamplerFlags flags; ///< describes sampler flags. Used to set additional sampler options.
+} WisSamplerDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Static sampler description for WisRootSignature creation.
+ *
+ * */
+typedef struct WisStaticSamplerDesc {
+    WisSamplerDesc sampler; ///< defines sampler description.
+    /**
+     * @brief defines shader stage visibility; it defines the stage where the sampler is used.
+     * */
+    WisShaderVisibility visibility;
+    uint32_t bind_register; ///< describes bind register number in HLSL.
+} WisStaticSamplerDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. A set of constants that get read directly from root buffer.
+ *
+ * */
+typedef struct WisPushConstant {
+    WisShaderVisibility visibility; ///< defines shader stage visibility for the push constant.
+    uint32_t size_bytes; ///< describes size of the constant in bytes; it @wis_must be divisible by 4.
+    uint32_t bind_register; ///< describes bind register number in HLSL.
+    uint32_t bind_space; ///< defines bind space number in HLSL as `register(regN, spaceN)`.
+} WisPushConstant;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Push descriptor. Used to push data directly to pipeline.
+ *
+ * */
+typedef struct WisPushDescriptor {
+    WisShaderVisibility visibility; ///< defines shader stage visibility for the push descriptor.
+    WisDescriptorType type; ///< specifies descriptor type. Works only with buffer bindings.
+    uint32_t bind_register; ///< describes bind register number in HLSL.
+    uint32_t bind_space; ///< defines bind space number in HLSL. `register(regN, spaceN)`
+} WisPushDescriptor;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Descriptor table entry for WisDescriptorTable.
+ *
+ * */
+typedef struct WisDescriptorTableEntry {
+    WisDescriptorType type; ///< specifies descriptor type.
+    uint32_t bind_register; ///< describes bind register number in HLSL.
+    uint32_t bind_space; ///< defines bind space number in HLSL. `register(regN, spaceN)`
+    /**
+     * @brief describes descriptor count for Array descriptors. UINT32_MAX means unbounded array. 0 means single
+     * register, same as 1.
+     * */
+    uint32_t count;
+    /**
+     * @brief describes offset in descriptors from the heap start. Used for calculating descriptor indices when binding
+     * descriptor tables.
+     * */
+    uint32_t descriptor_offset;
+} WisDescriptorTableEntry;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Descriptor table for WisRootSignature creation.
+ *
+ * */
+typedef struct WisDescriptorTable {
+    WisShaderVisibility visibility; ///< defines shader stage. Defines the stage where the table is used.
+    const WisDescriptorTableEntry* entries; ///< points to an array of descriptor table entries.
+    size_t entry_count; ///< specifies descriptor table entries count.
+} WisDescriptorTable;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Pipeline layout description. Defines resource bindings for shaders.
+ *
+ * */
+typedef struct WisRootSignatureDesc {
+    /**
+     * @brief points to an array of push constants that defines global shader push data.
+     * */
+    const WisPushConstant* push_constants;
+    /**
+     * @brief describes the number of the number of push constants in the `WisRootSignatureDesc::push_constants` array.
+     * */
+    size_t push_constant_count;
+    const WisPushDescriptor* push_descriptors; ///< points to an array of WisPushDescriptor.
+    /**
+     * @brief specifies the number of the number of push descriptors in the `WisRootSignatureDesc::push_descriptors`
+     * array.
+     * */
+    size_t push_descriptor_count;
+    const WisDescriptorTable* descriptor_tables; ///< points to an array of WisDescriptorTable.
+    /**
+     * @brief specifies the number of the number of descriptor tables in the `WisRootSignatureDesc::descriptor_tables`
+     * array.
+     * */
+    size_t descriptor_table_count;
+} WisRootSignatureDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Descriptor heap description for WisDescriptorHeap creation.
+ *
+ * */
+typedef struct WisDescriptorHeapDesc {
+    WisDescriptorHeapType type; ///< specifies the type of descriptor heap to create (sampler or descriptor).
+    WisDescriptorMemoryType memory_type; ///< specifies where the descriptor heap will be allocated.
+    uint32_t descriptor_count; ///< indicates the amount of descriptors, present in the heap.
+    WisDescriptorHeapFlags flags; ///< describes additional options for the descriptor heap.
+} WisDescriptorHeapDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Component mapping for .
+ *
+ * */
+typedef struct WisComponentMapping {
+    WisComponentSwizzle r; ///< specifies component mapping for Red channel. Default is `WisComponentSwizzleRed`.
+    WisComponentSwizzle g; ///< indicates component mapping for Green channel. Default is `WisComponentSwizzleGreen`.
+    WisComponentSwizzle b; ///< specifies component mapping for Blue channel. Default is `WisComponentSwizzleBlue`.
+    WisComponentSwizzle a; ///< describes component mapping for Alpha channel. Default is `WisComponentSwizzleAlpha`.
+} WisComponentMapping;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Subresource description for texture data updates and copies.
+ *
+ * */
+typedef struct WisSubresourceRange {
+    uint16_t base_mip_level; ///< indicates mipmap level of the subresource.
+    uint16_t mip_level_count; ///< describes number of mip levels in the subresource.
+    /**
+     * @brief describes array layer of the subresource. For 3D textures, this defines the depth slice.
+     * */
+    uint16_t base_array_layer;
+    /**
+     * @brief indicates number of array layers in the subresource. For 3D textures, this defines the number of depth
+     * slices.
+     * */
+    uint16_t array_layer_count;
+    uint16_t plane_slice; ///< indicates base depth slice of the subresource. Used only for 2D textures (YUV).
+    /**
+     * @brief indicates number of depth slices in the subresource. Used only for 2D textures (YUV). Max value is 3.
+     * */
+    uint16_t plane_slice_count;
+} WisSubresourceRange;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Buffer description for WisBuffer creation.
+ *
+ * */
+typedef struct WisBufferDesc {
+    uint64_t size_bytes; ///< describes size of the buffer in bytes.
+    WisBufferUsageFlags usage_flags; ///< describes buffer usage flags. Describe how the buffer will be used.
+    WisMemoryType memory_type; ///< specifies where the buffer will be allocated.
+    WisMemoryFlags memory_flags; ///< describes the flags of the memory to allocate for the buffer.
+} WisBufferDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Texture description for WisTexture creation.
+ *
+ * */
+typedef struct WisTextureDesc {
+    uint32_t width; ///< defines texture width in pixels.
+    uint32_t height; ///< describes texture height in pixels.
+    uint16_t depth_or_array_size; ///< describes texture depth in pixels. Used only for 3D textures.
+    uint16_t mip_levels; ///< defines number of mip levels in the texture.
+    WisDataFormat format; ///< describes texture format.
+    WisSampleCount sample_count; ///< specifies number of samples per pixel. Used only for multisampled textures.
+    WisTextureLayout layout; ///< specifies texture layout. Default is `WisTextureLayoutTexture2D`.
+    WisTextureUsageFlags usage_flags; ///< describes texture usage flags. Describe how the texture will be used.
+    WisTextureFlags flags; ///< describes texture flags. Describe additional options for the texture.
+    WisMemoryType memory_type; ///< specifies where the texture will be allocated.
+    WisMemoryFlags memory_flags; ///< describes the flags of the memory to allocate for the texture.
+} WisTextureDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Push constant set description for wisCommandListSetPushConstants.
+ *
+ * */
+typedef struct WisPushConstantDataDesc {
+    WisPipelineType pipeline; ///< specifies the pipeline type to set the push constants for.
+    uint32_t root_index; ///< indicates the root index in the root signature to set the push constants for.
+    const void* data; ///< specifies a pointer to the data to set as push constants.
+    /**
+     * @brief defines the size of the data in bytes. It @wis_must be less than or equal to the maximum push constant
+     * size defined by the device and 4-byte aligned.
+     * */
+    uint32_t data_size;
+    /**
+     * @brief specifies the offset in bytes from the start of the push constant root parameter to set the data to. It
+     * @wis_must be less than the maximum push constant size defined by the device and 4-byte aligned.
+     * */
+    uint32_t push_offset;
+} WisPushConstantDataDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Push descriptor set description for wisCommandListSetPushDescriptor.
+ *
+ * */
+typedef struct WisPushDescriptorDataDesc {
+    WisPipelineType pipeline; ///< specifies the pipeline type to set the push descriptors for.
+    uint32_t root_index; ///< indicates the root index in the root signature to set the push descriptors for.
+    WisDescriptorType descriptor_type; ///< defines the type of the descriptors to push.
+    uint64_t buffer_address; ///< indicates buffer device address to push.
+} WisPushDescriptorDataDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Push descriptor set description for wisCommandListSetDescriptorTable.
+ *
+ * */
+typedef struct WisDescriptorTableDataDesc {
+    WisPipelineType pipeline; ///< specifies the pipeline type to set the push descriptors for.
+    /**
+     * @brief indicates the root index in the root signature to set the push descriptors for.
+     * */
+    uint32_t root_index;
+    WisDescriptorHeapType heap_type; ///< indicates the type of the descriptor heap to bind.
+    /**
+     * @brief defines the offset in descriptors from the start of the heap to set the descriptor table to. Used for
+     * calculating descriptor indices when binding descriptor tables.
+     * */
+    uint32_t heap_offset;
+} WisDescriptorTableDataDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Constant buffer binding description for wisDescriptorHeapWriteConstantBuffer.
+ *
+ * */
+typedef struct WisConstantBufferBinding {
+    uint64_t buffer_address; ///< indicates buffer device address to bind.
+    uint32_t size_bytes; ///< describes the size of the buffer region to bind in bytes.
+} WisConstantBufferBinding;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Buffer binding description for wisDescriptorHeapWriteStructuredBuffer.
+ *
+ * */
+typedef struct WisBufferBinding {
+    uint64_t array_offset; ///< describes offset in buffer in structures.
+    uint32_t stride_bytes; ///< describes the size of the single structure in buffer.
+    uint32_t structure_count; ///< describes the number of structures in the buffer region to bind.
+} WisBufferBinding;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Texture binding description for wisDescriptorHeapWriteTexture and
+ * wisDescriptorHeapWriteRWTexture.
+ *
+ * */
+typedef struct WisTextureBinding {
+    WisDataFormat format; ///< describes the format of the view.
+    WisTextureLayout layout; ///< specifies the layout of the texture. Default is `WisTextureLayoutTexture2D`.
+    /**
+     * @brief describes texture binding flags. Describe additional options for the texture binding.
+     * */
+    WisTextureBindingFlags flags;
+    WisComponentMapping component_mapping; ///< specifies component mapping for the texture view.
+    WisSubresourceRange range; ///< describes subresource description for the texture view.
+} WisTextureBinding;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Stencil description for WisDepthStencilDesc.
+ *
+ * */
+typedef struct WisStencilDesc {
+    WisStencilOp fail_op; ///< specifies stencil operation if the stencil test fails. Default is `WisStencilOpKeep`.
+    /**
+     * @brief specifies stencil operation if the stencil test passes and the depth test fails. Default is
+     * `WisStencilOpKeep`.
+     * */
+    WisStencilOp depth_fail_op;
+    WisStencilOp pass_op; ///< describes stencil operation if the stencil test passes. Default is `WisStencilOpKeep`.
+    WisCompareOp stencil_comp; ///< defines stencil comparison function. Default is .
+    uint8_t read_mask; ///< indicates stencil read mask. Default is 0xff.
+    uint8_t write_mask; ///< specifies stencil write mask. Default is 0xff.
+} WisStencilDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Depth stencil description for WisGraphicsPipelineDesc.
+ *
+ * */
+typedef struct WisDepthStencilDesc {
+    bool depth_enable; ///< indicates depth test enable. Default is false.
+    bool depth_write_enable; ///< describes depth write enable. Default is false.
+    WisCompareOp depth_comp; ///< indicates depth comparison function. Default is `WisCompareOpLess`.
+    bool stencil_enable; ///< defines stencil test enable. Default is false.
+    WisStencilDesc stencil_front; ///< specifies stencil description for front faces.
+    WisStencilDesc stencil_back; ///< specifies stencil description for back faces.
+    bool depth_bound_test; ///< indicates depth bound test enable. Default is false.
+} WisDepthStencilDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Input slot description for WisInputLayout.
+ *
+ * */
+typedef struct WisInputBindingDesc {
+    uint32_t slot; ///< specifies input slot number; it @wis_must be unique.
+    uint32_t stride_bytes; ///< describes stride in bytes. Size of one vertex in the slot.
+    WisInputClass input_class; ///< describes input class. Defines how the data is read (Per vertex or Per instance).
+} WisInputBindingDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Input attribute description for WisInputLayout.
+ *
+ * */
+typedef struct WisInputAttributeDesc {
+    uint32_t binding_index; ///< specifies index into an array of bindings that the attribute is tied to.
+    /**
+     * @brief defines semantic name of the attribute in HLSL; it @wis_must be unique and null-terminated.
+     * */
+    const char* semantic_name;
+    uint32_t semantic_index; ///< indicates semantic index of the attribute in HLSL; it @wis_must be unique.
+    uint32_t location; ///< describes location of the attribute in HLSL; it @wis_must be unique.
+    WisDataFormat format; ///< describes data format of the attribute.
+    uint32_t offset_bytes; ///< describes offset in bytes from the beginning of the vertex.
+} WisInputAttributeDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Input layout description for WisGraphicsPipelineDesc.
+ *
+ * */
+typedef struct WisInputLayout {
+    /**
+     * @brief points to an array of input slots used to pick data from multiple vertex arrays.
+     * */
+    const WisInputBindingDesc* bindings;
+    size_t binding_count; ///< indicates input slots count. Max number is 16.
+    /**
+     * @brief points to an array of input attributes that describes how vertex data is read by the HLSL shader.
+     * */
+    const WisInputAttributeDesc* attributes;
+    size_t attribute_count; ///< defines input attributes count.
+} WisInputLayout;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Rasterizer description for WisGraphicsPipelineDesc.
+ *
+ * */
+typedef struct WisRasterizerDesc {
+    WisFillMode fill_mode; ///< indicates fill mode. Solid or Wireframe. Default is `WisFillModeSolid`.
+    WisCullMode cull_mode; ///< defines cull mode. None, Front, Back. Default is `WisCullModeBack`.
+    /**
+     * @brief indicates front face winding order. Clockwise or CounterClockwise. Default is `WisWindingOrderClockwise`.
+     * */
+    WisWindingOrder front_face;
+    bool depth_bias_enable; ///< describes depth bias enable. Default is false.
+    float depth_bias; ///< indicates depth bias. Default is 0.0f.
+    float depth_bias_clamp; ///< indicates depth bias clamp. Default is 0.0f.
+    /**
+     * @brief indicates depth bias slope factor e.g. for shadows. Default is 0.0f.
+     * */
+    float depth_bias_slope_factor;
+    bool depth_clip_enable; ///< specifies depth clip enable. Default is true.
+    /**
+     * @brief specifies line rasterization mode. Default is `WisLineRasterizationDefault`.
+     * */
+    WisLineRasterization line_rasterization;
+    /**
+     * @brief indicates conservative rasterization mode. Default is `WisConservativeRasterizationOff`.
+     * */
+    WisConservativeRasterization conservative_rasterization;
+} WisRasterizerDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sample description of Multisampling for WisGraphicsPipelineDesc.
+ *
+ * */
+typedef struct WisSampleDesc {
+    WisSampleCount rate; ///< defines sample rate. Default is `WisSampleCountS1`.
+    uint32_t sample_mask; ///< describes sample mask. Default is 0xffffffff.
+    bool alpha_to_coverage_enable; ///< describes alpha to coverage enable. Default is false.
+} WisSampleDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Render attachments description for WisGraphicsPipelineDesc.
+ *
+ * */
+typedef struct WisRenderAttachmentsDesc {
+    /**
+     * @brief defines attachment formats array. Describes the format of the render target.
+     * */
+    WisDataFormat attachment_formats[8];
+    uint32_t attachments_count; ///< defines attachment formats count. Max is 8.
+    WisDataFormat depth_attachment; ///< describes depth attachment format. Describes the format of the depth buffer.
+    /**
+     * @brief specifies view mask for multiview rendering. Each bit represents a view that can be rendered to with the
+     * pipeline. Default is 0, meaning no multiview support.
+     * */
+    uint32_t view_mask;
+} WisRenderAttachmentsDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Blend attachment description for WisBlendStateDesc.
+ *
+ * */
+typedef struct WisBlendAttachmentDesc {
+    bool blend_enable; ///< indicates blend enable. Default is false.
+    WisBlendFactor src_color_blend; ///< specifies source color blend factor. Default is `WisBlendFactorOne`.
+    WisBlendFactor dst_color_blend; ///< describes destination color blend factor. Default is `WisBlendFactorZero`.
+    WisBlendOp color_blend_op; ///< describes color blend operation. Default is `WisBlendOpAdd`.
+    WisBlendFactor src_alpha_blend; ///< describes source alpha blend factor. Default is `WisBlendFactorOne`.
+    WisBlendFactor dst_alpha_blend; ///< defines destination alpha blend factor. Default is `WisBlendFactorZero`.
+    WisBlendOp alpha_blend_op; ///< defines alpha blend operation. Default is `WisBlendOpAdd`.
+    WisColorComponents color_write_mask; ///< defines color write mask. Default is `WisColorComponentsAll`.
+} WisBlendAttachmentDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Viewport description for WisCommandList.
+ * Viewport is considered from Top Left corner.
+ *
+ * */
+typedef struct WisViewport {
+    float x; ///< defines top left corner x coordinate.
+    float y; ///< describes top left corner y coordinate.
+    float width; ///< defines viewport width.
+    float height; ///< describes viewport height.
+    float min_depth; ///< defines minimum depth of the viewport.
+    float max_depth; ///< specifies maximum depth of the viewport.
+} WisViewport;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Scissor rect for WisCommandList and present rect.
+ *
+ * */
+typedef struct WisRect {
+    int32_t x; ///< defines left corner x coordinate.
+    int32_t y; ///< describes top corner y coordinate.
+    uint32_t width; ///< defines width of the rect.
+    uint32_t height; ///< describes height of the rect.
+} WisRect;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Blend state description for WisGraphicsPipelineDesc.
+ *
+ * */
+typedef struct WisBlendStateDesc {
+    bool logic_op_enable; ///< specifies logic operation enable. Default is false.
+    WisLogicOp logic_op; ///< defines logic operation. Default is `WisLogicOpNoop`.
+    WisBlendAttachmentDesc attachments[8]; ///< defines blend attachment descriptions. Max Array size is 8.
+    /**
+     * @brief describes blend attachment count. If set as 0 - broadcast to all attachments. Max is 8.
+     * */
+    uint32_t attachment_count;
+} WisBlendStateDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Box description for texture copy regions.
+ *
+ * */
+typedef struct WisBox {
+    uint32_t x; ///< defines left corner x coordinate.
+    uint32_t y; ///< describes top corner y coordinate.
+    uint32_t z; ///< specifies front corner z coordinate. Used only for 3D textures.
+    uint32_t width; ///< defines width of the box.
+    uint32_t height; ///< describes height of the box.
+    uint32_t depth; ///< describes depth of the box. Used only for 3D textures.
+} WisBox;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Target subresource description for texture copy regions.
+ *
+ * */
+typedef struct WisTargetSubresource {
+    uint16_t mip_level; ///< describes mipmap level of the target subresource.
+    uint16_t array_layer; ///< indicates array layer of the target subresource; for 3D textures it @wis_must be 0.
+    uint16_t plane_slice; ///< indicates depth slice of the target subresource. Used only for 2D textures (YUV).
+} WisTargetSubresource;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Texture copy region description for texture copy operations.
+ *
+ * */
+typedef struct WisTextureRegion {
+    WisBarrierFlags flags; ///< describes texture parameters for copy. WisBarrierFlags is implicit.
+    WisBox box; ///< describes box defining the region to copy.
+    WisTargetSubresource target_subresource; ///< defines target subresource description for the region.
+} WisTextureRegion;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Render target description for wisViewHeapWriteRenderTarget and
+ * wisViewHeapWriteDepthStencil.
+ *
+ * */
+typedef struct WisRenderTargetDesc {
+    WisDataFormat format; ///< describes render target format.
+    WisTextureLayout layout; ///< specifies render target layout. Default is `WisTextureLayoutTexture2D`.
+    uint16_t mip_level; ///< describes mipmap level of the target subresource.
+    /**
+     * @brief describes array layer of the target subresource. For 3D textures, this defines the base depth slice.
+     * */
+    uint16_t base_array_layer;
+    /**
+     * @brief indicates number of array layers in the target subresource. For 3D textures, this defines the number of
+     * depth slices.
+     * */
+    uint16_t array_layer_count;
+    uint16_t plane_slice; ///< indicates depth slice of the target subresource. Used only for 2D textures (YUV).
+} WisRenderTargetDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Surface parameters for WisSurface creation.
+ *
+ * */
+typedef struct WisSurfaceParameters {
+    uint32_t min_swapchain_images; ///< specifies minimum number of images in the swapchain.
+    uint32_t max_swapchain_images; ///< defines maximum number of images in the swapchain.
+    /**
+     * @brief specifies bitmask of supported alpha modes for the swapchain. Each bit represents a different alpha mode.
+     * Used to determine the supported alpha modes for the swapchain.
+     * */
+    uint32_t alpha_modes_supported;
+    /**
+     * @brief specifies bitmask of supported texture usage flags for the swapchain images.
+     * */
+    WisTextureUsageFlags texture_usage_flags_supported;
+    /**
+     * @brief indicates if stereo rendering is supported. If true, the surface can be used to create a swapchain with
+     * stereo support.
+     * */
+    bool stereo_supported;
+} WisSurfaceParameters;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Swapchain description for WisSwapchain creation.
+ *
+ * */
+typedef struct WisSwapchainDesc {
+    uint32_t width; ///< defines swapchain image width in pixels.
+    uint32_t height; ///< describes swapchain image height in pixels.
+    uint32_t image_count; ///< indicates number of images in the swapchain.
+    /**
+     * @brief describes texture usage flags for the swapchain images. Describe how the swapchain images will be used.
+     * */
+    WisTextureUsageFlags texture_usage_flags;
+    WisDataFormat format; ///< describes swapchain image format.
+    WisSwapchainScaling scaling; ///< describes swapchain scaling mode.
+    WisSwapchainFlags flags; ///< describes swapchain flags. Describe additional options for the swapchain.
+    /**
+     * @brief defines composite alpha mode. Describe how the alpha channel of the swapchain images is treated during
+     * compositing.
+     * */
+    WisCompositeAlpha composite_alpha;
+} WisSwapchainDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Swapchain update description for wisSwapchainUpdate.
+ *
+ * */
+typedef struct WisSwapchainUpdateDesc {
+    uint32_t width; ///< defines new swapchain image width in pixels.
+    uint32_t height; ///< describes new swapchain image height in pixels.
+    uint32_t image_count; ///< indicates number of images in the swapchain.
+    WisDataFormat format; ///< describes swapchain image format.
+    /**
+     * @brief indicates controls vsync; when true, presentation is synchronized to the vertical blanking interval to
+     * reduce tearing, whereas false can improve frame rate but can introduce tearing.
+     * */
+    bool vsync;
+} WisSwapchainUpdateDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Resolve description for .
+ *
+ * */
+typedef struct WisResolveDesc {
+    /**
+     * @brief specifies resolve target view for multisampled render target; it @wis_must reside on WisViewHeap which was
+     * allocated with allow_multisample. If the render target is multisampled and resolve_target is set to 0. `target`
+     * @wis_must also reside on WisViewHeap which was allocated with allow_multisample.
+     * */
+    uint64_t resolve_target;
+    WisResolveMode mode; ///< defines resolve mode. Default is `WisResolveModeAverage`.
+} WisResolveDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Description for render target.
+ *
+ * */
+typedef struct WisRenderPassRenderTargetDesc {
+    uint64_t target; ///< indicates render target view; it @wis_must reside on WisViewHeap.
+    /**
+     * @brief specifies load operation on beginning of render pass. Default is `WisLoadOpLoad`.
+     * */
+    WisLoadOp load_op;
+    WisStoreOp store_op; ///< indicates store operation on end of render pass. Default is `WisStoreOpStore`.
+    float clear_value[4]; ///< indicates clear value for `WisLoadOpClear`.
+    const WisResolveDesc* resolve_desc; ///< describes resolve parameters for multisampled render target.
+} WisRenderPassRenderTargetDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Variant of RenderPassDesc for depth stencil.
+ *
+ * */
+typedef struct WisRenderPassDepthStencilDesc {
+    uint64_t target; ///< indicates depth stencil view.
+    /**
+     * @brief specifies load operation on beginning of render pass for depth. Default is `WisLoadOpLoad`.
+     * */
+    WisLoadOp load_op_depth;
+    /**
+     * @brief indicates load operation on beginning of render pass for stencil. Default is `WisLoadOpLoad`.
+     * */
+    WisLoadOp load_op_stencil;
+    /**
+     * @brief indicates store operation on end of render pass for depth. Default is `WisStoreOpStore`.
+     * */
+    WisStoreOp store_op_depth;
+    /**
+     * @brief defines store operation on end of render pass for stencil. Default is `WisStoreOpStore`.
+     * */
+    WisStoreOp store_op_stencil;
+    WisDepthStencilFlags flags; ///< describes depth stencil select.
+    float clear_depth; ///< indicates clear depth value for `WisLoadOpClear`. Default is 1.0f.
+    uint8_t clear_stencil; ///< defines clear stencil value for `WisLoadOpClear`. Default is 0.
+    const WisResolveDesc* resolve_depth_desc; ///< describes resolve parameters for multisampled depth.
+    const WisResolveDesc* resolve_stencil_desc; ///< describes resolve parameters for multisampled stencil.
+} WisRenderPassDepthStencilDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Render pass description.
+ *
+ * */
+typedef struct WisRenderPassDesc {
+    WisRenderPassFlags flags; ///< describes render pass flags.
+    /**
+     * @brief describes an array of render target descriptions. Max size is 8.
+     * */
+    WisRenderPassRenderTargetDesc render_targets[8];
+    uint32_t render_target_count; ///< specifies number of render targets in the render pass.
+    /**
+     * @brief specifies view mask for multiview rendering. Each bit represents a view that can be rendered to with the
+     * render pass. Default is 0, meaning no multiview support.
+     * */
+    uint32_t view_mask;
+    /**
+     * @brief specifies depth stencil description; if depth stencil is not used, the target field @wis_must be set to 0.
+     * */
+    WisRenderPassDepthStencilDesc depth_stencil;
+} WisRenderPassDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Buffer copy region description for buffer copy operations.
+ *
+ * */
+typedef struct WisBufferCopyRegion {
+    uint64_t src_offset; ///< specifies source buffer offset in bytes.
+    uint64_t dst_offset; ///< describes destination buffer offset in bytes.
+    uint64_t size_bytes; ///< describes size of the region to copy in bytes.
+} WisBufferCopyRegion;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Buffer texture copy region description for buffer-texture copy operations.
+ *
+ * */
+typedef struct WisBufferTextureCopyRegion {
+    uint64_t buffer_offset; ///< specifies buffer offset in bytes.
+    /**
+     * @brief describes buffer row length in pixels. Used for calculating the offset in the buffer for each row of the
+     * texture.
+     * */
+    uint32_t buffer_row_length;
+    /**
+     * @brief describes buffer image height in pixels. Used for calculating the offset in the buffer for each image of
+     * the texture.
+     * */
+    uint32_t buffer_image_height;
+    WisTextureRegion texture_region; ///< describes texture region to copy.
+} WisBufferTextureCopyRegion;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Texture copy region description for texture copy operations.
+ *
+ * */
+typedef struct WisTextureCopyRegion {
+    WisTextureRegion src_region; ///< describes source texture region to copy.
+    WisTextureRegion dst_region; ///< describes destination texture region to copy.
+} WisTextureCopyRegion;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Vertex buffer binding description for wisCommandListSetVertexBuffers2.
+ *
+ * */
+typedef struct WisVertexBufferAddressDesc {
+    uint64_t buffer; ///< Buffer address.
+    uint32_t size; ///< Size of the buffer in bytes.
+    uint32_t stride; ///< Stride of the buffer in bytes.
+} WisVertexBufferAddressDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Vertex buffer binding description for wisCommandListSetVertexBuffers2.
+ *
+ * */
+typedef struct WisIndexBufferAddressDesc {
+    uint64_t buffer; ///< Buffer address.
+    uint32_t size; ///< Size of the buffer in bytes.
+} WisIndexBufferAddressDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Query struct header. Used as a header for all query structs.
+ *
+ * */
+typedef struct WisQueryStructHeader {
+    /**
+     * @brief specifies the type of the queried property. Used to determine what struct is passed.
+     * */
+    WisQueryPropertyType property_type;
+    void* next_in_chain; ///< indicates pointer to the next queried data struct.
+} WisQueryStructHeader;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Device binding properties. Used to query resource binding support and limits.
+ *
+ * */
+typedef struct WisDeviceBindingProperties {
+    /**
+     * @brief specifies the type of the queried property. Used to determine what struct is passed. @wis_must be
+     * `WisQueryPropertyTypeDeviceBindingProperties`.
+     * */
+    WisQueryPropertyType property_type;
+    void* next_in_chain; ///< indicates pointer to the next queried data struct.
+    /**
+     * @brief defines maximum number of vertex input attributes supported by the device. Used for vertex buffer
+     * bindings.
+     * */
+    uint32_t max_vertex_input_attributes;
+    /**
+     * @brief indicates maximum number of vertex input bindings supported by the device. Used for vertex buffer
+     * bindings.
+     * */
+    uint32_t max_vertex_input_bindings;
+    /**
+     * @brief indicates if multiple viewports are supported. If true, the device supports up to 16 viewports and scissor
+     * rectangles. If false, only one viewport and scissor rectangle is supported.
+     * */
+    bool multiple_viewports_supported;
+    /**
+     * @brief indicates if commands with buffer addresses are supported. If true, the device supports commands that take
+     * buffer addresses directly, such as wisCommandListSetVertexBuffers2.
+     * */
+    bool address_commands_supported;
+} WisDeviceBindingProperties;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Device descriptor heap properties. Used to query descriptor heap support and limits.
+ *
+ * */
+typedef struct WisDeviceDescriptorHeapProperties {
+    /**
+     * @brief specifies the type of the queried property. Used to determine what struct is passed. @wis_must be
+     * `WisQueryPropertyTypeDeviceDescriptorHeapProperties`.
+     * */
+    WisQueryPropertyType property_type;
+    void* next_in_chain; ///< indicates pointer to the next queried data struct.
+    /**
+     * @brief indicates maximum number of descriptors in a single descriptor heap.
+     * */
+    uint32_t max_descriptor_heap_size;
+    uint32_t max_sampler_heap_size; ///< defines maximum number of samplers in a single descriptor heap.
+    /**
+     * @brief defines maximum number of samplers in a single descriptor heap, if embedded samplers are used.
+     * */
+    uint32_t max_sampler_heap_size_with_embedded;
+    /**
+     * @brief describes size of a single descriptor in the descriptor heap. Used for calculating descriptor offsets.
+     * */
+    uint32_t descriptor_increment_size;
+    /**
+     * @brief specifies size of a single sampler in the sampler heap. Used for calculating sampler offsets.
+     * */
+    uint32_t sampler_increment_size;
+    /**
+     * @brief defines size of a single render target view descriptor in the descriptor heap. Used for calculating render
+     * target view descriptor offsets.
+     * */
+    uint32_t render_target_increment_size;
+    /**
+     * @brief defines size of a single depth stencil view descriptor in the descriptor heap. Used for calculating depth
+     * stencil view descriptor offsets.
+     * */
+    uint32_t depth_stencil_increment_size;
+    /**
+     * @brief defines size of a single render target view descriptor in the descriptor heap with multisample targets
+     * enabled. Used for calculating render target view descriptor offsets.
+     * */
+    uint32_t render_target_with_ms_increment_size;
+    /**
+     * @brief defines size of a single depth stencil view descriptor in the descriptor heap with multisample targets
+     * enabled. Used for calculating depth stencil view descriptor offsets.
+     * */
+    uint32_t depth_stencil_with_ms_increment_size;
+} WisDeviceDescriptorHeapProperties;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Device memory properties. Used to query memory type support and limits.
+ *
+ * */
+typedef struct WisDeviceCommandQueueProperties {
+    /**
+     * @brief specifies the type of the queried property. @wis_must be WisQueryPropertyType..
+     * */
+    WisQueryPropertyType property_type;
+    void* next_in_chain; ///< indicates pointer to the next queried data struct.
+    /**
+     * @brief describes an array of supported queue types. If a queue type is supported, the value is `1`, otherwise
+     * `0`. Order of queue types is the same as in WisCommandQueueType enum.
+     * */
+    bool supported_queues[5];
+    /**
+     * @brief indicates if relaxed queue transition is supported. This feature allows executing command lists that
+     * contain buffers used on different queue types without explicit resource state transitions when the buffers is
+     * used on a different queue type. It is supported on Windows 10 22H2 and later with WDDM 3.0 or later. On Vulkan it
+     * requires `VK_KHR_maintenance9` extension.
+     * */
+    bool relaxed_queue_transition;
+    /**
+     * @brief indicates an array of maximum supported priorities for each queue type. If a queue type is not supported,
+     * the value is `0`. Order of queue types is the same as in WisCommandQueueType enum.
+     * */
+    WisCommandQueuePriority max_queue_priority[5];
+} WisDeviceCommandQueueProperties;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Device memory properties. Used to query memory type support and limits.
+ *
+ * */
+typedef struct WisDeviceMemoryProperties {
+    /**
+     * @brief specifies the type of the queried property. @wis_must be `WisQueryPropertyTypeDeviceMemoryProperties`..
+     * */
+    WisQueryPropertyType property_type;
+    void* next_in_chain; ///< indicates pointer to the next queried data struct.
+    /**
+     * @brief describes if GPU upload memory type is supported. This memory type allows mapping the memory and writing
+     * to it from CPU, while being accessible from GPU. It is usually implemented as write-combined memory on integrated
+     * GPUs and as a part of shared system memory on discrete GPUs.
+     * */
+    bool gpu_upload_supported;
+    /**
+     * @brief indicates if host image copy is supported. This feature allows copying data directly from CPU memory to
+     * optimal tiled image layout on GPU, without the need for an intermediate staging buffer. It is supported on
+     * Windows 10 22H2 and later with WDDM 3.0 or later. On Vulkan it requires `VK_EXT_host_image_copy` extension.
+     * */
+    bool host_image_copy_supported;
+    /**
+     * @brief defines bitfield of supported initial resource state transitions for buffers and textures. If a transition
+     * is supported, the corresponding bit is set to `1`, otherwise `0`. Bit positions are the same as in
+     * WisTextureState enum. `WisTextureStateUndefined` is always supported.
+     * */
+    uint32_t supported_initial_transitions;
+} WisDeviceMemoryProperties;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Data format properties. Used to query support and capabilities of specific data
+ * formats.
+ *
+ * */
+typedef struct WisFormatProperties {
+    WisFormatSupportFlags format_support_flags; ///< specifies bitmask of supported features for the format.
+    /**
+     * @brief defines maximum supported sample count for the format. If the format does not support multisampling, the
+     * value is `S1`.
+     * */
+    WisSampleCount max_sample_count;
+} WisFormatProperties;
+
+//==============================================================
+// Constants
+//==============================================================
+
+/// @brief Provided by Wisdom 0.7.0. Append descriptor table entry after previous table.
+#define WIS_DESCRIPTOR_OFFSET_APPEND ((uint32_t)0xffffffff)
+
+/// @brief Provided by Wisdom 0.7.0. Select all remaining array layers.
+#define WIS_REMAINING_LAYERS ((uint32_t)0xffffffff)
+
+/// @brief Provided by Wisdom 0.7.0. Select all remaining mip levels.
+#define WIS_REMAINING_MIPS ((uint32_t)0xffffffff)
+
+/// @brief Provided by Wisdom 0.7.0. Defines the amount of usable space in root signature.
+#define WIS_ROOT_SIGNATURE_DWORDS ((uint32_t)64)
+
+/// @brief Provided by Wisdom 0.7.0. Defines the amount of barriers of all types that will not trigger allocation.
+#define WIS_TRANSIENT_MAX_BARRIER_COUNT ((uint32_t)32)
+
+/// @brief Provided by Wisdom 0.7.0. Defines the amount of planes that can be present on the single (YUV) image.
+#define WIS_MAX_PLANE_COUNT ((uint32_t)3)
+
+/// @brief Provided by Wisdom 0.7.0. Defines the minimum amount of vertex attributes that must be supported by the
+/// implementation.
+#define WIS_MIN_SUPPORTED_INPUT_ATTRIBUTES ((uint32_t)16)
+
+/// @brief Provided by Wisdom 0.7.0. Defines the minimum amount of vertex bindings that must be supported by the
+/// implementation.
+#define WIS_MIN_SUPPORTED_INPUT_BINDINGS ((uint32_t)16)
+
+/// @brief Provided by Wisdom 0.7.0. Defines the maximum amount of render targets that can be bound at once.
+#define WIS_MAX_RENDER_TARGETS ((uint32_t)8)
+
+/// @brief Provided by Wisdom 0.7.0. Defines the maximum amount of viewports that can be bound at once. The same count
+/// applies to scissors.
+#define WIS_MAX_VIEWPORTS ((uint32_t)16)
+
+/// @brief Provided by Wisdom 0.7.0. Defines the maximum amount of present rectangles and copy regions in the Copy*
+/// commands that can be used in a single operation.
+#define WIS_MAX_COPY_REGIONS ((uint32_t)16)
+
+/// @brief Provided by Wisdom 0.7.0. [internal] Defines the maximum amount of images that can be present in a swapchain
+/// within any implementation.
+#define WIS_ABSOLUTE_MAX_SWAPCHAIN_IMAGES ((uint32_t)16)
+
+/// @brief Provided by Wisdom 0.7.0. [internal] Defines the maximum amount of vertex input bindings that can be present
+/// in a single draw call within any implementation.
+#define WIS_ABSOLUTE_MAX_INPUT_BINDINGS ((uint32_t)32)
+
+/// @brief Provided by Wisdom 0.7.0. Select whole size of a resource.
+#define WIS_WHOLE_SIZE ((uint64_t)0xffffffffffffffff)
+
+#ifdef WISDOM_DX12
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU texture resource.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12Texture, 3);
+WIS_DEFINE_HANDLE_VIEW(WisDX12Texture, 1);
+
+static inline WisDX12TextureView wisGetDX12TextureView(const WisDX12Texture* handle)
+{
+    WisDX12TextureView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU buffer resource.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12Buffer, 3);
+WIS_DEFINE_HANDLE_VIEW(WisDX12Buffer, 1);
+
+static inline WisDX12BufferView wisGetDX12BufferView(const WisDX12Buffer* handle)
+{
+    WisDX12BufferView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a swapchain, which is a collection of render targets used for
+ * presentation.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12Swapchain, 3);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU surface, which can be used as a target for rendering and
+ * presentation.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12Surface, 2);
+WIS_DEFINE_HANDLE_VIEW(WisDX12Surface, 1);
+
+static inline WisDX12SurfaceView wisGetDX12SurfaceView(const WisDX12Surface* handle)
+{
+    WisDX12SurfaceView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a storage for resource views used in contiguous array.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12ViewHeap, 6);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU pipeline state object, which encapsulates the state of the
+ * GPU pipeline and allows to execute draw and dispatch calls with it.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12Pipeline, 1);
+WIS_DEFINE_HANDLE_VIEW(WisDX12Pipeline, 1);
+
+static inline WisDX12PipelineView wisGetDX12PipelineView(const WisDX12Pipeline* handle)
+{
+    WisDX12PipelineView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU shader module, which contains shader code and allows to
+ * create pipeline state objects with it.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12Shader, 1);
+WIS_DEFINE_HANDLE_VIEW(WisDX12Shader, 1);
+
+static inline WisDX12ShaderView wisGetDX12ShaderView(const WisDX12Shader* handle)
+{
+    WisDX12ShaderView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a cache for pipeline state objects, which allows to reuse already
+ * created pipelines and speed up pipeline creation.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12PipelineCache, 2);
+WIS_DEFINE_HANDLE_VIEW(WisDX12PipelineCache, 1);
+
+static inline WisDX12PipelineCacheView wisGetDX12PipelineCacheView(const WisDX12PipelineCache* handle)
+{
+    WisDX12PipelineCacheView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a storage for descriptors used in contiguous array.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12DescriptorHeap, 5);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a pipeline layout and a constant data storage, which defines
+ * resource bindings for shaders.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12RootSignature, 1);
+WIS_DEFINE_HANDLE_VIEW(WisDX12RootSignature, 1);
+
+static inline WisDX12RootSignatureView wisGetDX12RootSignatureView(const WisDX12RootSignature* handle)
+{
+    WisDX12RootSignatureView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class for allocating and managing GPU resources like buffers and textures.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12ResourceAllocator, 2);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a fence for GPU-CPU and GPU-GPU synchronization.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12Fence, 2);
+WIS_DEFINE_HANDLE_VIEW(WisDX12Fence, 1);
+
+static inline WisDX12FenceView wisGetDX12FenceView(const WisDX12Fence* handle)
+{
+    WisDX12FenceView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a command list for recording GPU commands.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12CommandList, 8);
+WIS_DEFINE_HANDLE_VIEW(WisDX12CommandList, 1);
+
+static inline WisDX12CommandListView wisGetDX12CommandListView(const WisDX12CommandList* handle)
+{
+    WisDX12CommandListView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a pool allocator for command lists for recording GPU commands.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12CommandAllocator, 3);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a command queue for submitting command lists to the GPU.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12CommandQueue, 1);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Central class representing logical device.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12Device, 5);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class that contains a snapshot of adapters that are present on the system.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12AdapterQuery, 4);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class for creating adapters.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12Instance, 2);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Opaque struct, representing device extension header. Used in extension development.
+ *
+ * */
+typedef struct WisDX12DeviceExtensionHeader {
+    const void* opaque; ///< indicates opaque member; it @wis_mustnot be changed directly outside extension development.
+} WisDX12DeviceExtensionHeader;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Opaque struct, representing instance extension header. Used in extension
+ * development.
+ *
+ * */
+typedef struct WisDX12InstanceExtensionHeader {
+    const void* opaque; ///< indicates opaque member; it @wis_mustnot be changed directly outside extension development.
+} WisDX12InstanceExtensionHeader;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Device requirements. Used to specify required features and properties for device
+ * creation.
+ *
+ * */
+typedef struct WisDX12DeviceRequirements {
+    /**
+     * @brief points to an array of WisCommandQueueDesc for which queues are created during device creation.
+     * */
+    const WisCommandQueueDesc* queue_descs;
+    /**
+     * @brief indicates the number of the number of queue descriptions in the wisAdapterQueryCreateDevice queue_descs
+     * array.
+     * */
+    size_t queue_desc_count;
+    /**
+     * @brief points to an array of extensions that are to be initialized with pointers to WisDeviceExtensionHeader.
+     * */
+    WisDX12DeviceExtensionHeader** extensions;
+    /**
+     * @brief describes the number of the number of extensions in the wisAdapterQueryCreateDevice extensions array.
+     * */
+    size_t extension_count;
+} WisDX12DeviceRequirements;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Buffer barrier with the buffer handle.
+ *
+ * */
+typedef struct WisDX12BufferBarrier {
+    WisBarrierSync sync_before; ///< indicates synchronization scope before the barrier.
+    WisBarrierSync sync_after; ///< specifies synchronization scope after the barrier.
+    WisResourceAccess access_before; ///< defines access scope before the barrier.
+    WisResourceAccess access_after; ///< indicates access scope after the barrier.
+    WisDX12BufferView buffer; ///< specifies buffer view.
+    uint64_t offset; ///< indicates offset in bytes from the start of the buffer. Default is 0.
+    /**
+     * @brief indicates barrier size in bytes. Default is `UINT64_MAX`, which means the whole buffer range.
+     * */
+    uint64_t size;
+    /**
+     * @brief defines type of the queue the barrier is executed on before the synchronization point. Used for
+     * cross-queue barriers.
+     * */
+    WisCommandQueueType queue_type_before;
+    /**
+     * @brief indicates type of the queue the barrier is executed on after the synchronization point. Used for
+     * cross-queue barriers.
+     * */
+    WisCommandQueueType queue_type_after;
+} WisDX12BufferBarrier;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Global barrier without resource handles.
+ *
+ * */
+typedef struct WisDX12GlobalBarrier {
+    WisBarrierSync sync_before; ///< indicates synchronization scope before the barrier.
+    WisBarrierSync sync_after; ///< specifies synchronization scope after the barrier.
+    WisResourceAccess access_before; ///< defines access scope before the barrier.
+    WisResourceAccess access_after; ///< indicates access scope after the barrier.
+} WisDX12GlobalBarrier;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Texture barrier with the texture handle.
+ *
+ * */
+typedef struct WisDX12TextureBarrier {
+    WisBarrierSync sync_before; ///< indicates synchronization scope before the barrier.
+    WisBarrierSync sync_after; ///< specifies synchronization scope after the barrier.
+    WisResourceAccess access_before; ///< defines access scope before the barrier.
+    WisResourceAccess access_after; ///< indicates access scope after the barrier.
+    WisTextureState state_before; ///< indicates texture state before the barrier.
+    WisTextureState state_after; ///< specifies texture state after the barrier.
+    WisBarrierFlags flags; ///< describes barrier flags. Describe additional options for the barrier.
+    WisDX12TextureView texture; ///< describes texture view.
+    WisSubresourceRange subresource_range; ///< specifies subresource range for the barrier.
+    /**
+     * @brief defines type of the queue the barrier is executed on before the synchronization point. Used for
+     * cross-queue barriers.
+     * */
+    WisCommandQueueType queue_type_before;
+    /**
+     * @brief indicates type of the queue the barrier is executed on after the synchronization point. Used for
+     * cross-queue barriers.
+     * */
+    WisCommandQueueType queue_type_after;
+} WisDX12TextureBarrier;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Barrier group for multiple barriers submission.
+ *
+ * */
+typedef struct WisDX12BarrierGroup {
+    const WisDX12BufferBarrier* buffer_barriers; ///< points to an array of buffer barriers.
+    /**
+     * @brief defines number of buffer barriers in the `WisBarrierGroup::buffer_barriers` array.
+     * */
+    size_t buffer_barrier_count;
+    const WisDX12TextureBarrier* texture_barriers; ///< points to an array of texture barriers.
+    /**
+     * @brief indicates number of texture barriers in the `WisBarrierGroup::texture_barriers` array.
+     * */
+    size_t texture_barrier_count;
+    const WisDX12GlobalBarrier* global_barriers; ///< points to an array of global barriers.
+    /**
+     * @brief indicates number of global barriers in the `WisBarrierGroup::global_barriers` array.
+     * */
+    size_t global_barrier_count;
+} WisDX12BarrierGroup;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Compute pipeline description for WisPipeline creation.
+ *
+ * */
+typedef struct WisDX12ComputePipelineDesc {
+    WisDX12RootSignatureView root_signature; ///< describes root signature description for the pipeline.
+    WisDX12ShaderView compute_shader; ///< indicates compute shader bytecode.
+    WisDX12PipelineCacheView cache; ///< defines pipeline cache data. Used to speed up pipeline creation if available.
+    WisPipelineFlags flags; ///< describes pipeline flags. Describe additional options for the pipeline.
+} WisDX12ComputePipelineDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Graphics pipeline description for WisPipeline creation.
+ *
+ * */
+typedef struct WisDX12GraphicsPipelineDesc {
+    WisDX12RootSignatureView root_signature; ///< describes root signature description for the pipeline.
+    WisDX12ShaderView vertex_shader; ///< defines vertex shader bytecode.
+    /**
+     * @brief indicates hull shader bytecode. If not set, the pipeline will be created without a hull shader.
+     * */
+    WisDX12ShaderView hull_shader;
+    /**
+     * @brief specifies domain shader bytecode. If not set, the pipeline will be created without a domain shader.
+     * */
+    WisDX12ShaderView domain_shader;
+    /**
+     * @brief specifies geometry shader bytecode. If not set, the pipeline will be created without a geometry shader.
+     * */
+    WisDX12ShaderView geometry_shader;
+    /**
+     * @brief defines pixel shader bytecode. If not set, the pipeline will be created without a pixel shader.
+     * */
+    WisDX12ShaderView pixel_shader;
+    /**
+     * @brief indicates render attachments description for the pipeline. Used to create the compatible render pass for
+     * the pipeline.
+     * */
+    WisRenderAttachmentsDesc render_attachments;
+    /**
+     * @brief describes input layout description for the pipeline. If not set, the pipeline will be created without an
+     * input layout.
+     * */
+    WisInputLayout input_layout;
+    WisTopologyType topology_type; ///< specifies topology type. Default is `WisTopologyTypeTriangle`.
+    /**
+     * @brief describes rasterizer description for the pipeline. If not set, the pipeline will be created with default
+     * rasterizer state.
+     * */
+    const WisRasterizerDesc* rasterizer_desc;
+    /**
+     * @brief defines sample description for the pipeline. If not set, the pipeline will be created with default sample
+     * state (no multisampling).
+     * */
+    const WisSampleDesc* sample_desc;
+    /**
+     * @brief defines depth stencil description for the pipeline. If not set, the pipeline will be created with depth
+     * testing and stencil testing disabled.
+     * */
+    const WisDepthStencilDesc* depth_stencil_desc;
+    /**
+     * @brief indicates blend state description for the pipeline. If not set, the pipeline will be created with blending
+     * disabled.
+     * */
+    const WisBlendStateDesc* blend_state_desc;
+    WisDX12PipelineCacheView cache; ///< defines pipeline cache data. Used to speed up pipeline creation if available.
+    WisPipelineFlags flags; ///< describes pipeline flags. Describe additional options for the pipeline.
+} WisDX12GraphicsPipelineDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Struct for vertex buffer binding.
+ *
+ * */
+typedef struct WisDX12VertexBufferDesc {
+    WisDX12BufferView buffer; ///< Vertex Buffer to bind. The buffer view must have been created with  usage flag.
+    uint32_t size; ///< Size of the buffer in bytes.
+    uint32_t stride; ///< Stride of the buffer in bytes.
+    uint32_t offset; ///< Offset in buffer in bytes. Default is 0.
+} WisDX12VertexBufferDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Struct for index buffer binding.
+ *
+ * */
+typedef struct WisDX12IndexBufferDesc {
+    WisDX12BufferView buffer; ///< Vertex Buffer to bind. The buffer view must have been created with  usage flag.
+    uint32_t size; ///< Size of the buffer in bytes.
+    uint32_t offset; ///< Offset in buffer in bytes. Default is 0.
+} WisDX12IndexBufferDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisTexture handle.
+ * @param self is a pointer to the valid WisTexture instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroyTexture(WisDX12Texture* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisBuffer handle.
+ * @param self is a pointer to the valid WisBuffer instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroyBuffer(WisDX12Buffer* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisSwapchain handle.
+ * @param self is a pointer to the valid WisSwapchain instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroySwapchain(WisDX12Swapchain* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisSurface handle.
+ * @param self is a pointer to the valid WisSurface instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroySurface(WisDX12Surface* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisViewHeap handle.
+ * @param self is a pointer to the valid WisViewHeap instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroyViewHeap(WisDX12ViewHeap* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisPipeline handle.
+ * @param self is a pointer to the valid WisPipeline instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroyPipeline(WisDX12Pipeline* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisShader handle.
+ * @param self is a pointer to the valid WisShader instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroyShader(WisDX12Shader* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisPipelineCache handle.
+ * @param self is a pointer to the valid WisPipelineCache instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroyPipelineCache(WisDX12PipelineCache* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisDescriptorHeap handle.
+ * @param self is a pointer to the valid WisDescriptorHeap instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroyDescriptorHeap(WisDX12DescriptorHeap* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisRootSignature handle.
+ * @param self is a pointer to the valid WisRootSignature instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroyRootSignature(WisDX12RootSignature* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisResourceAllocator handle.
+ * @param self is a pointer to the valid WisResourceAllocator instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroyResourceAllocator(WisDX12ResourceAllocator* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisFence handle.
+ * @param self is a pointer to the valid WisFence instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroyFence(WisDX12Fence* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisCommandList handle.
+ * @param self is a pointer to the valid WisCommandList instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroyCommandList(WisDX12CommandList* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisCommandAllocator handle.
+ * @param self is a pointer to the valid WisCommandAllocator instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroyCommandAllocator(WisDX12CommandAllocator* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisCommandQueue handle.
+ * @param self is a pointer to the valid WisCommandQueue instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroyCommandQueue(WisDX12CommandQueue* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisDevice handle.
+ * @param self is a pointer to the valid WisDevice instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroyDevice(WisDX12Device* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisAdapterQuery handle.
+ * @param self is a pointer to the valid WisAdapterQuery instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroyAdapterQuery(WisDX12AdapterQuery* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisInstance handle.
+ * @param self is a pointer to the valid WisInstance instance.
+ *
+ * */
+WISDOM_API void wisDX12DestroyInstance(WisDX12Instance* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates the WisInstance with extensions, specified in extension array.
+ * @param debug_desc describes a pointer to WisDebugDesc, which defines debug callback and debug layer usage. If
+ * `nullptr`, debug layer is disabled.
+ * @param extensions points to an array of extensions that are to be initialized with pointers to
+ * WisInstanceExtensionHeader.
+ * @param extension_count describes the number of the number of extensions in the  array.
+ * @param instance points to WisInstance, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12CreateInstance(
+    const WisDebugDesc* debug_desc,
+    WisDX12InstanceExtensionHeader** extensions,
+    size_t extension_count,
+    WisDX12Instance* instance
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Queries all the system adapters and allows to iterate through them. The order of
+ * adapters depends on `preference`: for MinConsumption - DirectX 12: Integrated, Discrete, External, Software; Vulkan:
+ * Integrated GPU, Discrete GPU, Virtual GPU, CPU. For Performance - DirectX 12: External, Discrete, Integrated,
+ * Software; Vulkan: Discrete GPU, Integrated GPU, Virtual GPU, CPU.
+ * @param self is a pointer to the valid WisInstance instance.
+ * @param preference indicates the order in which adapters are listed.
+ * @param query points to WisAdapterQuery, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult
+wisDX12InstanceQueryAdapters(const WisDX12Instance* self, WisAdapterPreference preference, WisDX12AdapterQuery* query);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Returns the number of adapters present on the system at the time of the query.
+ * @param self is a pointer to the valid WisAdapterQuery instance.
+ * @return size is a number of adapters present on the system.
+ *
+ * */
+WISDOM_API size_t wisDX12AdapterQueryGetAdapterCount(const WisDX12AdapterQuery* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Returns the description of the adapter at given index.
+ * @param self is a pointer to the valid WisAdapterQuery instance.
+ * @param index defines the index of the adapter to get the description for. It @wis_must be less than the value
+ * returned by wisAdapterQueryGetAdapterCount.
+ * @param desc points to WisAdapterDesc, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult
+wisDX12AdapterQueryGetAdapterDesc(const WisDX12AdapterQuery* self, size_t index, WisAdapterDesc* desc);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Checks if the adapter at given index supports presentation to given surface.
+ * @param self is a pointer to the valid WisAdapterQuery instance.
+ * @param index defines the index of the adapter to check the support for. It @wis_must be less than the value returned
+ * by wisAdapterQueryGetAdapterCount.
+ * @param surface describes a pointer to WisSurface to check the presentation support for.
+ * @return bool `true` if the adapter supports presentation to the surface, `false` otherwise.
+ *
+ * */
+WISDOM_API bool wisDX12AdapterQueryGetSurfaceSupport(
+    const WisDX12AdapterQuery* self,
+    size_t index,
+    WisDX12SurfaceView surface
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates the device for the adapter at given index.
+ * @param self is a pointer to the valid WisAdapterQuery instance.
+ * @param index defines the index of the adapter to create the device for. It @wis_must be less than the value returned
+ * by wisAdapterQueryGetAdapterCount.
+ * @param requirements defines a pointer to WisDeviceRequirements, which defines required features and properties for
+ * device creation.
+ * @param device points to WisDevice, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(
+    const WisDX12AdapterQuery* self,
+    size_t index,
+    const WisDX12DeviceRequirements* requirements,
+    WisDX12Device* device
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a command queue of given type.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param type specifies the type of the command queue to create.
+ * @param queue points to WisCommandQueue, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult
+wisDX12DeviceCreateCommandQueue(const WisDX12Device* self, WisCommandQueueType type, WisDX12CommandQueue* queue);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a command allocator to allocate command lists with.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param type specifies the type of the command list this pool is able to allocate.
+ * @param allocator points to WisCommandAllocator, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DeviceCreateCommandAllocator(
+    const WisDX12Device* self,
+    WisCommandQueueType type,
+    WisDX12CommandAllocator* allocator
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a fence for GPU-CPU and GPU-GPU synchronization.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param initial_value specifies the initial value of the fence.
+ * @param fence points to WisFence, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DeviceCreateFence(const WisDX12Device* self, uint64_t initial_value, WisDX12Fence* fence);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a resource allocator for managing GPU resources.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param allocator points to WisResourceAllocator, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DeviceGetResourceAllocator(const WisDX12Device* self, WisDX12ResourceAllocator* allocator);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a pipeline layout with given descriptor.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param desc indicates a pointer to WisRootSignatureDesc, which describes the pipeline layout to create.
+ * @param layout points to WisRootSignature, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DeviceCreateRootSignature(
+    const WisDX12Device* self,
+    const WisRootSignatureDesc* desc,
+    WisDX12RootSignature* layout
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a descriptor storage with given description.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param desc indicates a pointer to WisDescriptorHeapDesc, which describes the descriptor heap to create.
+ * @param heap points to WisDescriptorHeap, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DeviceCreateDescriptorHeap(
+    const WisDX12Device* self,
+    const WisDescriptorHeapDesc* desc,
+    WisDX12DescriptorHeap* heap
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a view storage with given descriptor.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param type specifies the type of the view heap to create.
+ * @param capacity specifies the capacity in descriptors of the view heap to create.
+ * @param flags specifies additional flags for the view heap to create.
+ * @param heap points to WisViewHeap, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DeviceCreateViewHeap(
+    const WisDX12Device* self,
+    WisViewHeapType type,
+    uint32_t capacity,
+    WisViewHeapFlags flags,
+    WisDX12ViewHeap* heap
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Queries the properties of the device.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param properties describes a pointer to one of the query structs, which is filled with device properties.
+ *
+ * */
+WISDOM_API void wisDX12DeviceQueryProperties(const WisDX12Device* self, void* properties);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Waits on multiple fences simultaneously.
+ * If wait_for is `WisMultiWaitTypeAll`, waits for all fences to be signaled.
+ * Otherwise waits for any fence to be signaled.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param fences defines an array of fence views to wait on.
+ * @param fence_values defines fence values to wait for; array @wis_must have fence_count values.
+ * @param fence_count describes number of fences to wait on.
+ * @param wait_for indicates the kind of wait, where All waits for all fences and Any waits for any fence; default is
+ * `WisMultiWaitTypeAll`.
+ * @param timeout indicates timeout in nanoseconds; if UINT64_MAX, waits indefinitely.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DeviceWaitForMultipleFences(
+    const WisDX12Device* self,
+    const WisDX12FenceView* fences,
+    const uint64_t* fence_values,
+    size_t fence_count,
+    WisMultiWaitType wait_for,
+    uint64_t timeout
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a pipeline cache for caching pipeline state objects.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param initial_data points to an array of initial cache data bytes. If `nullptr`, the cache is created empty.
+ * @param data_size defines the size of the initial cache data in bytes.
+ * @param cache points to WisPipelineCache, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DeviceCreatePipelineCache(
+    const WisDX12Device* self,
+    const uint8_t* initial_data,
+    size_t data_size,
+    WisDX12PipelineCache* cache
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a shader module from given data.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param data points to an array of shader bytecode.
+ * @param size indicates size of shader data in bytes; for SPIR-V it @wis_must be a multiple of 4.
+ * @param shader points to WisShader, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult
+wisDX12DeviceCreateShader(const WisDX12Device* self, const uint8_t* data, size_t size, WisDX12Shader* shader);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a compute pipeline state object with given descriptor.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param desc indicates a pointer to WisComputePipelineDesc, which describes the compute pipeline to create.
+ * @param pipeline points to WisPipeline, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DeviceCreateComputePipeline(
+    const WisDX12Device* self,
+    const WisDX12ComputePipelineDesc* desc,
+    WisDX12Pipeline* pipeline
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a graphics pipeline state object with given descriptor.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param desc indicates a pointer to WisGraphicsPipelineDesc, which describes the graphics pipeline to create.
+ * @param pipeline points to WisPipeline, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(
+    const WisDX12Device* self,
+    const WisDX12GraphicsPipelineDesc* desc,
+    WisDX12Pipeline* pipeline
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Checks if the surface format is supported for presentation and returns the supported
+ * format.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param surface describes a pointer to WisSurface to check the presentation support for.
+ * @param format describes the format to check the presentation support for.
+ * @return bool Result of operation.
+ *
+ * */
+WISDOM_API bool wisDX12DeviceGetFormatPresentationSupport(
+    const WisDX12Device* self,
+    WisDX12SurfaceView surface,
+    WisDataFormat format
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Gets presentation parameters for the specified surface.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param surface describes a pointer to WisSurface to check the presentation support for.
+ * @param params Parameters of the surface.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult
+wisDX12DeviceGetSurfaceParameters(const WisDX12Device* self, WisDX12SurfaceView surface, WisSurfaceParameters* params);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a swapchain for given surface with given descriptor.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param surface describes a pointer to WisSurface to create the swapchain for. Surface is ref-counted.
+ * @param queue describes a pointer to WisCommandQueue to create the swapchain for. Queue is ref-counted and @wis_must
+ * be a graphics queue.
+ * @param desc indicates a pointer to WisSwapchainDesc, which describes the swapchain to create.
+ * @param swapchain points to WisSwapchain, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DeviceCreateSwapchain(
+    const WisDX12Device* self,
+    const WisDX12Surface* surface,
+    const WisDX12CommandQueue* queue,
+    const WisSwapchainDesc* desc,
+    WisDX12Swapchain* swapchain
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Gets properties of the format.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param format describes the format to get properties for.
+ * @param properties Properties of the format.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult
+wisDX12DeviceGetFormatProperties(const WisDX12Device* self, WisDataFormat format, WisFormatProperties* properties);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Get the current value of the fence.
+ * @param self is a pointer to the valid WisFence instance.
+ * @return u64 Value of the fence.
+ *
+ * */
+WISDOM_API uint64_t wisDX12FenceGetCompletedValue(const WisDX12Fence* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Wait on CPU for the fence to reach a certain value.
+ * @param self is a pointer to the valid WisFence instance.
+ * @param value describes value to wait for.
+ * @param wait_ns describes the time to wait for the fence to reach the value in nanoseconds. Default is infinite.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12FenceWait(const WisDX12Fence* self, uint64_t value, uint64_t wait_ns);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Signal the fence from CPU.
+ * @param self is a pointer to the valid WisFence instance.
+ * @param value describes value to signal.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12FenceSignal(const WisDX12Fence* self, uint64_t value);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Executes the command lists.
+ * @param self is a pointer to the valid WisCommandQueue instance.
+ * @param lists points to an array of command lists to execute.
+ * @param list_count defines number of command lists to execute.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult
+wisDX12CommandQueueSubmit(const WisDX12CommandQueue* self, const WisDX12CommandListView* lists, size_t list_count);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Enqueue the signal to the queue, that gets executed after all the work has been
+ * done.
+ * @param self is a pointer to the valid WisCommandQueue instance.
+ * @param fence describes fence to signal.
+ * @param value describes value used to signal the fence.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult
+wisDX12CommandQueueSignalFence(const WisDX12CommandQueue* self, WisDX12FenceView fence, uint64_t value);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Enqueues wait operation to the command queue. Queue then waits for the fence to be
+ * signalled from CPU or from another queue. Can still be enqueued after the signal.
+ * @param self is a pointer to the valid WisCommandQueue instance.
+ * @param fence describes fence to wait on.
+ * @param value describes value that the fence is expected to reach.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult
+wisDX12CommandQueueWaitFence(const WisDX12CommandQueue* self, WisDX12FenceView fence, uint64_t value);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a buffer with given descriptor.
+ * @param self is a pointer to the valid WisResourceAllocator instance.
+ * @param desc indicates a pointer to WisBufferDesc, which describes the buffer to create.
+ * @param buffer points to WisBuffer, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12ResourceAllocatorCreateBuffer(
+    const WisDX12ResourceAllocator* self,
+    const WisBufferDesc* desc,
+    WisDX12Buffer* buffer
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a texture with given descriptor.
+ * @param self is a pointer to the valid WisResourceAllocator instance.
+ * @param desc indicates a pointer to WisTextureDesc, which describes the texture to create.
+ * @param texture points to WisTexture, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12ResourceAllocatorCreateTexture(
+    const WisDX12ResourceAllocator* self,
+    const WisTextureDesc* desc,
+    WisDX12Texture* texture
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Maps the buffer memory to CPU accessible address space.
+ * @param self is a pointer to the valid WisBuffer instance.
+ * @return void points to the pointer, which is filled with the address of the mapped memory on success.
+ *
+ * */
+WISDOM_API void* wisDX12BufferMap(const WisDX12Buffer* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Gets the GPU virtual address of the buffer.
+ * @param self is a pointer to the valid WisBuffer instance.
+ * @return u64 Address of the buffer on GPU.
+ *
+ * */
+WISDOM_API uint64_t wisDX12BufferGetGPUAddress(const WisDX12Buffer* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Writes data directly to the texture subresource. Texture @wis_must be in
+ * `WisTextureStateCommon` and @wis_mustnot be a depth or planar texture.
+ * @param self is a pointer to the valid WisTexture instance.
+ * @param source_data specifies a pointer to the data to write to the texture.
+ * @param target_region specifies a pointer to WisTextureRegion, which describes the region of the texture to write to.
+ * The `flags` parameter of the region is ignored, as depth/stencil/planar is not supported.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12TextureWriteSubresource(
+    const WisDX12Texture* self,
+    const void* source_data,
+    const WisTextureRegion* target_region
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Returns the CPU descriptor handle for the descriptor heap.
+ * @param self is a pointer to the valid WisDescriptorHeap instance.
+ * @return void CPU descriptor handle for the descriptor heap.
+ *
+ * */
+WISDOM_API void* wisDX12DescriptorHeapGetCPUHandle(const WisDX12DescriptorHeap* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Writes `WisDescriptorTypeConstantBuffer` descriptor to the descriptor heap.
+ * @param self is a pointer to the valid WisDescriptorHeap instance.
+ * @param data specifies a pointer to WisConstantBufferBinding, which describes the constant buffer descriptors to
+ * write.
+ * @param index defines the index in the descriptor heap to write the descriptors to.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DescriptorHeapWriteConstantBuffer(
+    const WisDX12DescriptorHeap* self,
+    const WisConstantBufferBinding* data,
+    uint32_t index
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Writes `WisDescriptorTypeBuffer` descriptor to the descriptor heap.
+ * @param self is a pointer to the valid WisDescriptorHeap instance.
+ * @param buffer specifies a pointer to WisBuffer to write the descriptor for.
+ * @param data specifies a pointer to WisBufferBinding, which describes the shader resource view descriptors to write.
+ * @param index defines the index in the descriptor heap to write the descriptors to.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DescriptorHeapWriteStructuredBuffer(
+    const WisDX12DescriptorHeap* self,
+    WisDX12BufferView buffer,
+    const WisBufferBinding* data,
+    uint32_t index
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Writes `WisDescriptorTypeRWBuffer` descriptor to the descriptor heap.
+ * @param self is a pointer to the valid WisDescriptorHeap instance.
+ * @param buffer specifies a pointer to WisBuffer to write the descriptor for.
+ * @param data specifies a pointer to WisBufferBinding, which describes the shader resource view descriptors to write.
+ * @param index defines the index in the descriptor heap to write the descriptors to.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DescriptorHeapWriteRWStructuredBuffer(
+    const WisDX12DescriptorHeap* self,
+    WisDX12BufferView buffer,
+    const WisBufferBinding* data,
+    uint32_t index
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Writes `WisDescriptorTypeSampler` descriptor to the descriptor heap.
+ * @param self is a pointer to the valid WisDescriptorHeap instance.
+ * @param sampler defines a pointer to WisSamplerDesc, which describes the sampler descriptor to write.
+ * @param index defines the index in the descriptor heap to write the descriptor to.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult
+wisDX12DescriptorHeapWriteSampler(const WisDX12DescriptorHeap* self, const WisSamplerDesc* sampler, uint32_t index);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Writes a descriptor to the descriptor heap.
+ * @param self is a pointer to the valid WisDescriptorHeap instance.
+ * @param texture describes a pointer to WisTexture to write the descriptor for.
+ * @param data specifies a pointer to WisTextureBinding, which describes the texture view to write.
+ * @param index defines the index in the descriptor heap to write the descriptor to.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DescriptorHeapWriteTexture(
+    const WisDX12DescriptorHeap* self,
+    WisDX12TextureView texture,
+    const WisTextureBinding* data,
+    uint32_t index
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Writes a texture view to the descriptor heap.
+ * @param self is a pointer to the valid WisDescriptorHeap instance.
+ * @param texture describes a pointer to WisTexture to write the descriptor for.
+ * @param data specifies a pointer to WisTextureBinding, which describes the texture view to write.
+ * @param index defines the index in the descriptor heap to write the descriptor to.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12DescriptorHeapWriteRWTexture(
+    const WisDX12DescriptorHeap* self,
+    WisDX12TextureView texture,
+    const WisTextureBinding* data,
+    uint32_t index
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Writes a raytracing acceleration to the descriptor heap.
+ * @param self is a pointer to the valid WisDescriptorHeap instance.
+ * @param address specifies GPU address of a raytracing acceleration structure.
+ * @param index defines the index in the descriptor heap to write the descriptor to.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult
+wisDX12DescriptorHeapWriteAccelerationStructure(const WisDX12DescriptorHeap* self, uint64_t address, uint32_t index);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Copies descriptors from one heap to another.
+ * @param self is a pointer to the valid WisDescriptorHeap instance.
+ * @param dst_index specifies the index in the destination descriptor heap to copy descriptors to.
+ * @param src_ptr describes a pointer to WisDescriptorHeap to copy descriptors from. Source heap @wis_must be CPU Only
+ * heap.
+ * @param src_index indicates the index in the source descriptor heap to copy descriptors from.
+ * @param descriptor_count indicates the number of descriptors to copy.
+ *
+ * */
+WISDOM_API void wisDX12DescriptorHeapCopyDescriptors(
+    const WisDX12DescriptorHeap* self,
+    uint32_t dst_index,
+    const void* src_ptr,
+    uint32_t src_index,
+    uint32_t descriptor_count
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Writes a render target view to the view heap and returns the CPU descriptor handle
+ * for it.
+ * @param self is a pointer to the valid WisViewHeap instance.
+ * @param texture describes a pointer to WisTexture to write the descriptor for.
+ * @param render_target specifies a pointer to WisRenderTargetDesc, which describes the render target view to write.
+ * @param index defines the index in the view heap to write the descriptor to.
+ * @return u64 CPU descriptor handle for the view heap.
+ *
+ * */
+WISDOM_API uint64_t wisDX12ViewHeapWriteRenderTarget(
+    const WisDX12ViewHeap* self,
+    const WisDX12Texture* texture,
+    const WisRenderTargetDesc* render_target,
+    uint32_t index
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Writes a depth stencil view to the view heap and returns the CPU descriptor handle
+ * for it.
+ * @param self is a pointer to the valid WisViewHeap instance.
+ * @param texture describes a pointer to WisTexture to write the descriptor for.
+ * @param render_target specifies a pointer to WisRenderTargetDesc, which describes the depth stencil view to write.
+ * @param index defines the index in the view heap to write the descriptor to.
+ * @return u64 CPU descriptor handle for the view heap.
+ *
+ * */
+WISDOM_API uint64_t wisDX12ViewHeapWriteDepthStencil(
+    const WisDX12ViewHeap* self,
+    const WisDX12Texture* texture,
+    const WisRenderTargetDesc* render_target,
+    uint32_t index
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Returns the CPU descriptor handle for the view heap.
+ * @param self is a pointer to the valid WisViewHeap instance.
+ * @param index defines the index in the view heap to get the descriptor from.
+ * @return u64 Address of a view in heap.
+ *
+ * */
+WISDOM_API uint64_t wisDX12ViewHeapGetViewAddress(const WisDX12ViewHeap* self, uint32_t index);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Copies views from one heap to another.
+ * @param self is a pointer to the valid WisViewHeap instance.
+ * @param dst_index specifies the index in the destination view heap to copy views to.
+ * @param src_ptr describes a pointer to WisViewHeap to copy views from.
+ * @param src_index indicates the index in the source view heap to copy views from.
+ * @param view_count indicates the number of views to copy.
+ *
+ * */
+WISDOM_API void wisDX12ViewHeapCopyViews(
+    const WisDX12ViewHeap* self,
+    uint32_t dst_index,
+    uint64_t src_ptr,
+    uint32_t src_index,
+    uint32_t view_count
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Returns the CPU descriptor handle for the view heap.
+ * @param self is a pointer to the valid WisViewHeap instance.
+ * @return u64 CPU descriptor handle for the view heap.
+ *
+ * */
+WISDOM_API uint64_t wisDX12ViewHeapGetCPUHandle(const WisDX12ViewHeap* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Resets the command allocator, so it can be reused for allocating new command lists.
+ * @param self is a pointer to the valid WisCommandAllocator instance.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12CommandAllocatorReset(const WisDX12CommandAllocator* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a command list of given type.
+ * @param self is a pointer to the valid WisCommandAllocator instance.
+ * @param list points to WisCommandList, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult
+wisDX12CommandAllocatorCreateCommandList(const WisDX12CommandAllocator* self, WisDX12CommandList* list);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Opens the command list, so commands can be recorded to it.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12CommandListBegin(const WisDX12CommandList* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Closes the command list, so it can be executed on the command queue.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12CommandListEnd(const WisDX12CommandList* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Binds descriptor heaps to the command list, so they can be used for resource
+ * binding.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param resource_heap describes a pointer to WisDescriptorHeap with shader resource views, unordered access views and
+ * constant buffer views. If `nullptr`, no resource heap is bound.
+ * @param sampler_heap describes a pointer to WisDescriptorHeap with samplers. If `nullptr`, no sampler heap is bound.
+ *
+ * */
+WISDOM_API void wisDX12CommandListSetDescriptorHeaps(
+    const WisDX12CommandList* self,
+    const WisDX12DescriptorHeap* resource_heap,
+    const WisDX12DescriptorHeap* sampler_heap
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the root signature for the command list, so it can be used for resource
+ * binding.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param signature specifies a pointer to WisRootSignature to set.
+ * @param pipeline specifies the pipeline type to set the root signature for.
+ *
+ * */
+WISDOM_API void wisDX12CommandListSetRootSignature(
+    const WisDX12CommandList* self,
+    WisDX12RootSignatureView signature,
+    WisPipelineType pipeline
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the push constants for the command list, so they can be used for resource
+ * binding.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param data specifies a pointer to WisPushConstantDataDesc, which describes the push constant data to set.
+ *
+ * */
+WISDOM_API void wisDX12CommandListSetPushConstants(const WisDX12CommandList* self, const WisPushConstantDataDesc* data);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the push descriptors for the command list, so they can be used for resource
+ * binding.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param data specifies a pointer to WisPushDescriptorDataDesc, which describes the push descriptors to set.
+ *
+ * */
+WISDOM_API void wisDX12CommandListSetPushDescriptor(
+    const WisDX12CommandList* self,
+    const WisPushDescriptorDataDesc* data
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the descriptor table offset in descriptor heap for the command list, so it can
+ * be used for resource binding.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param data specifies the root parameter index to set the descriptor table for.
+ *
+ * */
+WISDOM_API void wisDX12CommandListSetDescriptorTable(
+    const WisDX12CommandList* self,
+    const WisDescriptorTableDataDesc* data
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Inserts one or more barriers on the current command list.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param barriers specifies a pointer to an array of barriers to insert.
+ *
+ * */
+WISDOM_API void wisDX12CommandListInsertBarriers(const WisDX12CommandList* self, const WisDX12BarrierGroup* barriers);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the pipeline state object for the command list, so it can be used for draw and
+ * dispatch calls.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param pipeline specifies a pointer to WisPipeline to set.
+ * @param type specifies the pipeline type to set the pipeline for.
+ *
+ * */
+WISDOM_API void wisDX12CommandListSetPipeline(
+    const WisDX12CommandList* self,
+    WisDX12PipelineView pipeline,
+    WisPipelineType type
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets multiple viewports.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param viewports points to an array of viewports to set.
+ * @param viewport_count defines number of viewports to set.
+ *
+ * */
+WISDOM_API void wisDX12CommandListSetViewports(
+    WisDX12CommandList* self,
+    const WisViewport* viewports,
+    size_t viewport_count
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets a scissor rect.
+ * Only the region, which is in the scissor rect is updated.
+ * If multiple viewports are used, SV_ViewportArrayIndex in geometry shader selects the viewport and associated scissor
+ * rect.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param scissor_rect points to an array of scissor rectangles to set.
+ * @param rect_count defines number of scissor rectangles to set.
+ *
+ * */
+WISDOM_API void wisDX12CommandListSetScissors(WisDX12CommandList* self, const WisRect* scissor_rect, size_t rect_count);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the primitive topology. Determines how vertices shall be processed.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param topology describes primitive topology to set.
+ *
+ * */
+WISDOM_API void wisDX12CommandListSetPrimitiveTopology(WisDX12CommandList* self, WisPrimitiveTopology topology);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the depth bias. Determines how depth values are modified during rasterization.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param depth_bias indicates depth bias to set.
+ * @param depth_bias_clamp indicates depth bias clamp to set.
+ * @param slope_scaled_depth_bias defines slope-scaled depth bias to set.
+ *
+ * */
+WISDOM_API void wisDX12CommandListSetDepthBias(
+    WisDX12CommandList* self,
+    float depth_bias,
+    float depth_bias_clamp,
+    float slope_scaled_depth_bias
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the primitive restart value. Determines the index value which is treated as a
+ * primitive restart when using indexed draw calls.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param restart_value describes primitive restart value to set.
+ *
+ * */
+WISDOM_API void wisDX12CommandListSetPrimitiveRestartValue(
+    WisDX12CommandList* self,
+    WisPrimitiveRestartValue restart_value
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Dispatches compute shader.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param group_count_x defines number of groups to dispatch in X dimension.
+ * @param group_count_y describes number of groups to dispatch in Y dimension; default is 1.
+ * @param group_count_z specifies number of groups to dispatch in Z dimension; default is 1.
+ *
+ * */
+WISDOM_API void wisDX12CommandListDispatch(
+    const WisDX12CommandList* self,
+    uint32_t group_count_x,
+    uint32_t group_count_y,
+    uint32_t group_count_z
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Draws non-indexed geometry.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param vertex_count specifies number of vertices to draw.
+ * @param instance_count describes number of instances to draw; default is 1.
+ * @param start_vertex indicates index of the first vertex to draw; default is 0.
+ * @param start_instance specifies index of the first instance to draw; default is 0.
+ *
+ * */
+WISDOM_API void wisDX12CommandListDraw(
+    const WisDX12CommandList* self,
+    uint32_t vertex_count,
+    uint32_t instance_count,
+    uint32_t start_vertex,
+    uint32_t start_instance
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Draws indexed geometry.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param index_count defines number of indices to draw.
+ * @param instance_count describes number of instances to draw; default is 1.
+ * @param start_index describes index of the first index to draw; default is 0.
+ * @param base_vertex defines value added to each index before reading a vertex from the vertex buffer; default is 0.
+ * @param start_instance specifies index of the first instance to draw; default is 0.
+ *
+ * */
+WISDOM_API void wisDX12CommandListDrawIndexed(
+    const WisDX12CommandList* self,
+    uint32_t index_count,
+    uint32_t instance_count,
+    uint32_t start_index,
+    int32_t base_vertex,
+    uint32_t start_instance
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Begins a render pass with given descriptor.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param desc indicates a pointer to WisRenderPassDesc, which describes the render pass to begin.
+ *
+ * */
+WISDOM_API void wisDX12CommandListBeginRenderPass(const WisDX12CommandList* self, const WisRenderPassDesc* desc);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Ends the current render pass.
+ * @param self is a pointer to the valid WisCommandList instance.
+ *
+ * */
+WISDOM_API void wisDX12CommandListEndRenderPass(const WisDX12CommandList* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Copies regions from one buffer to another.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param dst_buffer defines a pointer to the destination buffer.
+ * @param src_buffer describes a pointer to the source buffer.
+ * @param regions points to an array of WisBufferCopyRegion that defines the copy regions.
+ * @param region_count defines the count of the regions.
+ *
+ * */
+WISDOM_API void wisDX12CommandListCopyBuffer(
+    const WisDX12CommandList* self,
+    WisDX12BufferView dst_buffer,
+    WisDX12BufferView src_buffer,
+    const WisBufferCopyRegion* regions,
+    size_t region_count
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Copies regions from a buffer to a texture.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param dst_texture defines a pointer to the destination texture. Texture @wis_must be in `WisTextureStateCopyDst`.
+ * @param src_buffer describes a pointer to the source buffer.
+ * @param regions points to an array of WisBufferTextureCopyRegion that defines the copy regions.
+ * @param region_count defines the count of the regions.
+ *
+ * */
+WISDOM_API void wisDX12CommandListCopyBufferToTexture(
+    const WisDX12CommandList* self,
+    WisDX12TextureView dst_texture,
+    WisDX12BufferView src_buffer,
+    const WisBufferTextureCopyRegion* regions,
+    size_t region_count
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Copies regions from a texture to a buffer.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param dst_buffer defines a pointer to the destination buffer.
+ * @param src_texture describes a pointer to the source texture. Texture @wis_must be in `WisTextureStateCopySrc`.
+ * @param regions points to an array of WisBufferTextureCopyRegion that defines the copy regions.
+ * @param region_count defines the count of the regions.
+ *
+ * */
+WISDOM_API void wisDX12CommandListCopyTextureToBuffer(
+    const WisDX12CommandList* self,
+    WisDX12BufferView dst_buffer,
+    WisDX12TextureView src_texture,
+    const WisBufferTextureCopyRegion* regions,
+    size_t region_count
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Copies regions from one texture to another.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param dst_texture defines a pointer to the destination texture. Texture @wis_must be in `WisTextureStateCopyDst`.
+ * @param src_texture describes a pointer to the source texture. Texture @wis_must be in `WisTextureStateCopySrc`.
+ * @param regions points to an array of WisTextureCopyRegion that defines the copy regions.
+ * @param region_count defines the count of the regions.
+ *
+ * */
+WISDOM_API void wisDX12CommandListCopyTexture(
+    const WisDX12CommandList* self,
+    WisDX12TextureView dst_texture,
+    WisDX12TextureView src_texture,
+    const WisTextureCopyRegion* regions,
+    size_t region_count
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the vertex buffers.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param buffers The vertex buffers to set.
+ * @param buffer_count The number of vertex buffers to set.
+ * @param start_slot The start slot to set the vertex buffers to. Default is 0.
+ *
+ * */
+WISDOM_API void wisDX12CommandListSetVertexBuffers(
+    WisDX12CommandList* self,
+    const WisDX12VertexBufferDesc* buffers,
+    size_t buffer_count,
+    uint32_t start_slot
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the vertex buffers. Support @wis_must be queried from
+ * `WisDeviceBindingProperties::address_commands_supported` in order to be used. Always supported for DX12.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param buffers The vertex buffers to set.
+ * @param buffer_count The number of vertex buffers to set.
+ * @param start_slot The start slot to set the vertex buffers to. Default is 0.
+ *
+ * */
+WISDOM_API void wisDX12CommandListSetVertexBuffers2(
+    WisDX12CommandList* self,
+    const WisVertexBufferAddressDesc* buffers,
+    size_t buffer_count,
+    uint32_t start_slot
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the index buffer.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param buffer The index buffer to set.
+ * @param index_type Defines index type. Used to determine the size of each index in the buffer. Must be either
+ * `WisIndexTypeUInt16` or `WisIndexTypeUInt32`.
+ *
+ * */
+WISDOM_API void wisDX12CommandListSetIndexBuffer(
+    WisDX12CommandList* self,
+    const WisDX12IndexBufferDesc* buffer,
+    WisIndexType index_type
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the index buffer. Support @wis_must be queried from
+ * `WisDeviceBindingProperties::address_commands_supported` in order to be used. Always supported for DX12.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param buffer The index buffer to set.
+ * @param index_type Defines index type. Used to determine the size of each index in the buffer. Must be either
+ * `WisIndexTypeUInt16` or `WisIndexTypeUInt32`.
+ *
+ * */
+WISDOM_API void wisDX12CommandListSetIndexBuffer2(
+    WisDX12CommandList* self,
+    const WisIndexBufferAddressDesc* buffer,
+    WisIndexType index_type
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the blend factors for the command list, so they can be used for blending
+ * operations.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param blend_factor_r specifies blend factor for red color to set.
+ * @param blend_factor_g specifies blend factor for green color to set.
+ * @param blend_factor_b specifies blend factor for blue color to set.
+ * @param blend_factor_a specifies blend factor for alpha channel to set.
+ *
+ * */
+WISDOM_API void wisDX12CommandListSetBlendFactors(
+    const WisDX12CommandList* self,
+    float blend_factor_r,
+    float blend_factor_g,
+    float blend_factor_b,
+    float blend_factor_a
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Gets the data from the pipeline cache.
+ * @param self is a pointer to the valid WisPipelineCache instance.
+ * @param data points to an array that is filled with serialized cache data on success.
+ * @param data_size defines the size of the data chunk in bytes. It @wis_must be greater or equal to the value returned
+ * by wisPipelineCacheGetSerializedSize.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12PipelineCacheSerialize(const WisDX12PipelineCache* self, uint8_t* data, size_t data_size);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Gets the size of the data in the pipeline cache.
+ * @param self is a pointer to the valid WisPipelineCache instance.
+ * @return size Size of the data in bytes.
+ *
+ * */
+WISDOM_API size_t wisDX12PipelineCacheGetSerializedSize(const WisDX12PipelineCache* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Presents the swapchain image to the screen.
+ * @param self is a pointer to the valid WisSwapchain instance.
+ * @param flags describes the presentation options.
+ * @param rects points to an array of rectangles to present. If `nullptr`, the entire image is presented.
+ * @param rect_count specifies the number of rectangles to present. It @wis_must be 0 if rects is `nullptr`.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult
+wisDX12SwapchainPresent(const WisDX12Swapchain* self, WisPresentFlags flags, const WisRect* rects, size_t rect_count);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Gets the index of the current backbuffer. In case of lazy indexing it may wait for
+ * presentation to finish and block.
+ * @param self is a pointer to the valid WisSwapchain instance.
+ * @param index Index of the current backbuffer.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12SwapchainGetCurrentIndex(const WisDX12Swapchain* self, uint32_t* index);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Resizes the swapchain buffers. If the swapchain is currently in use, it @wis_must be
+ * resized after the GPU finishes using it, so the call may block until then.
+ * @param self is a pointer to the valid WisSwapchain instance.
+ * @param desc indicates a pointer to WisSwapchainUpdateDesc, which describes the new swapchain parameters.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisDX12SwapchainUpdate(const WisDX12Swapchain* self, const WisSwapchainUpdateDesc* desc);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Gets the swapchain buffers. The textures are in `WisTextureStateCommon`.
+ * @param self is a pointer to the valid WisSwapchain instance.
+ * @param buffers points to an array of texture views, which are filled with swapchain backbuffers on success.
+ * @param buffer_count specifies the number of buffers to get. It @wis_must be greater or equal to the value, supplied
+ * to `WisSwapchainDesc::image_count` or subsequent `WisSwapchainUpdateDesc::image_count`.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult
+wisDX12SwapchainGetTextures(const WisDX12Swapchain* self, WisDX12Texture* buffers, size_t buffer_count);
+
+#endif // WISDOM_DX12
+
+#ifdef WISDOM_VULKAN
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU texture resource.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisVKTexture, 4);
+WIS_DEFINE_HANDLE_VIEW(WisVKTexture, 1);
+
+static inline WisVKTextureView wisGetVKTextureView(const WisVKTexture* handle)
+{
+    WisVKTextureView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU buffer resource.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisVKBuffer, 4);
+WIS_DEFINE_HANDLE_VIEW(WisVKBuffer, 1);
+
+static inline WisVKBufferView wisGetVKBufferView(const WisVKBuffer* handle)
+{
+    WisVKBufferView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a swapchain, which is a collection of render targets used for
+ * presentation.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisVKSwapchain, 8);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU surface, which can be used as a target for rendering and
+ * presentation.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisVKSurface, 2);
+WIS_DEFINE_HANDLE_VIEW(WisVKSurface, 1);
+
+static inline WisVKSurfaceView wisGetVKSurfaceView(const WisVKSurface* handle)
+{
+    WisVKSurfaceView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a storage for resource views used in contiguous array.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisVKViewHeap, 3);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU pipeline state object, which encapsulates the state of the
+ * GPU pipeline and allows to execute draw and dispatch calls with it.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisVKPipeline, 2);
+WIS_DEFINE_HANDLE_VIEW(WisVKPipeline, 1);
+
+static inline WisVKPipelineView wisGetVKPipelineView(const WisVKPipeline* handle)
+{
+    WisVKPipelineView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a GPU shader module, which contains shader code and allows to
+ * create pipeline state objects with it.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisVKShader, 2);
+WIS_DEFINE_HANDLE_VIEW(WisVKShader, 1);
+
+static inline WisVKShaderView wisGetVKShaderView(const WisVKShader* handle)
+{
+    WisVKShaderView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a cache for pipeline state objects, which allows to reuse already
+ * created pipelines and speed up pipeline creation.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisVKPipelineCache, 2);
+WIS_DEFINE_HANDLE_VIEW(WisVKPipelineCache, 1);
+
+static inline WisVKPipelineCacheView wisGetVKPipelineCacheView(const WisVKPipelineCache* handle)
+{
+    WisVKPipelineCacheView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a storage for descriptors used in contiguous array.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisVKDescriptorHeap, 7);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a pipeline layout and a constant data storage, which defines
+ * resource bindings for shaders.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisVKRootSignature, 1);
+WIS_DEFINE_HANDLE_VIEW(WisVKRootSignature, 1);
+
+static inline WisVKRootSignatureView wisGetVKRootSignatureView(const WisVKRootSignature* handle)
+{
+    WisVKRootSignatureView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class for allocating and managing GPU resources like buffers and textures.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisVKResourceAllocator, 3);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a fence for GPU-CPU and GPU-GPU synchronization.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisVKFence, 3);
+WIS_DEFINE_HANDLE_VIEW(WisVKFence, 1);
+
+static inline WisVKFenceView wisGetVKFenceView(const WisVKFence* handle)
+{
+    WisVKFenceView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a command list for recording GPU commands.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisVKCommandList, 7);
+WIS_DEFINE_HANDLE_VIEW(WisVKCommandList, 1);
+
+static inline WisVKCommandListView wisGetVKCommandListView(const WisVKCommandList* handle)
+{
+    WisVKCommandListView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a pool allocator for command lists for recording GPU commands.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisVKCommandAllocator, 3);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class representing a command queue for submitting command lists to the GPU.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisVKCommandQueue, 4);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Central class representing logical device.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisVKDevice, 3);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class that contains a snapshot of adapters that are present on the system.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisVKAdapterQuery, 4);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Class for creating adapters.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisVKInstance, 3);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Opaque struct, representing device extension header. Used in extension development.
+ *
+ * */
+typedef struct WisVKDeviceExtensionHeader {
+    const void* opaque; ///< indicates opaque member; it @wis_mustnot be changed directly outside extension development.
+} WisVKDeviceExtensionHeader;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Opaque struct, representing instance extension header. Used in extension
+ * development.
+ *
+ * */
+typedef struct WisVKInstanceExtensionHeader {
+    const void* opaque; ///< indicates opaque member; it @wis_mustnot be changed directly outside extension development.
+} WisVKInstanceExtensionHeader;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Device requirements. Used to specify required features and properties for device
+ * creation.
+ *
+ * */
+typedef struct WisVKDeviceRequirements {
+    /**
+     * @brief points to an array of WisCommandQueueDesc for which queues are created during device creation.
+     * */
+    const WisCommandQueueDesc* queue_descs;
+    /**
+     * @brief indicates the number of the number of queue descriptions in the wisAdapterQueryCreateDevice queue_descs
+     * array.
+     * */
+    size_t queue_desc_count;
+    /**
+     * @brief points to an array of extensions that are to be initialized with pointers to WisDeviceExtensionHeader.
+     * */
+    WisVKDeviceExtensionHeader** extensions;
+    /**
+     * @brief describes the number of the number of extensions in the wisAdapterQueryCreateDevice extensions array.
+     * */
+    size_t extension_count;
+} WisVKDeviceRequirements;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Buffer barrier with the buffer handle.
+ *
+ * */
+typedef struct WisVKBufferBarrier {
+    WisBarrierSync sync_before; ///< indicates synchronization scope before the barrier.
+    WisBarrierSync sync_after; ///< specifies synchronization scope after the barrier.
+    WisResourceAccess access_before; ///< defines access scope before the barrier.
+    WisResourceAccess access_after; ///< indicates access scope after the barrier.
+    WisVKBufferView buffer; ///< specifies buffer view.
+    uint64_t offset; ///< indicates offset in bytes from the start of the buffer. Default is 0.
+    /**
+     * @brief indicates barrier size in bytes. Default is `UINT64_MAX`, which means the whole buffer range.
+     * */
+    uint64_t size;
+    /**
+     * @brief defines type of the queue the barrier is executed on before the synchronization point. Used for
+     * cross-queue barriers.
+     * */
+    WisCommandQueueType queue_type_before;
+    /**
+     * @brief indicates type of the queue the barrier is executed on after the synchronization point. Used for
+     * cross-queue barriers.
+     * */
+    WisCommandQueueType queue_type_after;
+} WisVKBufferBarrier;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Global barrier without resource handles.
+ *
+ * */
+typedef struct WisVKGlobalBarrier {
+    WisBarrierSync sync_before; ///< indicates synchronization scope before the barrier.
+    WisBarrierSync sync_after; ///< specifies synchronization scope after the barrier.
+    WisResourceAccess access_before; ///< defines access scope before the barrier.
+    WisResourceAccess access_after; ///< indicates access scope after the barrier.
+} WisVKGlobalBarrier;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Texture barrier with the texture handle.
+ *
+ * */
+typedef struct WisVKTextureBarrier {
+    WisBarrierSync sync_before; ///< indicates synchronization scope before the barrier.
+    WisBarrierSync sync_after; ///< specifies synchronization scope after the barrier.
+    WisResourceAccess access_before; ///< defines access scope before the barrier.
+    WisResourceAccess access_after; ///< indicates access scope after the barrier.
+    WisTextureState state_before; ///< indicates texture state before the barrier.
+    WisTextureState state_after; ///< specifies texture state after the barrier.
+    WisBarrierFlags flags; ///< describes barrier flags. Describe additional options for the barrier.
+    WisVKTextureView texture; ///< describes texture view.
+    WisSubresourceRange subresource_range; ///< specifies subresource range for the barrier.
+    /**
+     * @brief defines type of the queue the barrier is executed on before the synchronization point. Used for
+     * cross-queue barriers.
+     * */
+    WisCommandQueueType queue_type_before;
+    /**
+     * @brief indicates type of the queue the barrier is executed on after the synchronization point. Used for
+     * cross-queue barriers.
+     * */
+    WisCommandQueueType queue_type_after;
+} WisVKTextureBarrier;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Barrier group for multiple barriers submission.
+ *
+ * */
+typedef struct WisVKBarrierGroup {
+    const WisVKBufferBarrier* buffer_barriers; ///< points to an array of buffer barriers.
+    /**
+     * @brief defines number of buffer barriers in the `WisBarrierGroup::buffer_barriers` array.
+     * */
+    size_t buffer_barrier_count;
+    const WisVKTextureBarrier* texture_barriers; ///< points to an array of texture barriers.
+    /**
+     * @brief indicates number of texture barriers in the `WisBarrierGroup::texture_barriers` array.
+     * */
+    size_t texture_barrier_count;
+    const WisVKGlobalBarrier* global_barriers; ///< points to an array of global barriers.
+    /**
+     * @brief indicates number of global barriers in the `WisBarrierGroup::global_barriers` array.
+     * */
+    size_t global_barrier_count;
+} WisVKBarrierGroup;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Compute pipeline description for WisPipeline creation.
+ *
+ * */
+typedef struct WisVKComputePipelineDesc {
+    WisVKRootSignatureView root_signature; ///< describes root signature description for the pipeline.
+    WisVKShaderView compute_shader; ///< indicates compute shader bytecode.
+    WisVKPipelineCacheView cache; ///< defines pipeline cache data. Used to speed up pipeline creation if available.
+    WisPipelineFlags flags; ///< describes pipeline flags. Describe additional options for the pipeline.
+} WisVKComputePipelineDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Graphics pipeline description for WisPipeline creation.
+ *
+ * */
+typedef struct WisVKGraphicsPipelineDesc {
+    WisVKRootSignatureView root_signature; ///< describes root signature description for the pipeline.
+    WisVKShaderView vertex_shader; ///< defines vertex shader bytecode.
+    /**
+     * @brief indicates hull shader bytecode. If not set, the pipeline will be created without a hull shader.
+     * */
+    WisVKShaderView hull_shader;
+    /**
+     * @brief specifies domain shader bytecode. If not set, the pipeline will be created without a domain shader.
+     * */
+    WisVKShaderView domain_shader;
+    /**
+     * @brief specifies geometry shader bytecode. If not set, the pipeline will be created without a geometry shader.
+     * */
+    WisVKShaderView geometry_shader;
+    /**
+     * @brief defines pixel shader bytecode. If not set, the pipeline will be created without a pixel shader.
+     * */
+    WisVKShaderView pixel_shader;
+    /**
+     * @brief indicates render attachments description for the pipeline. Used to create the compatible render pass for
+     * the pipeline.
+     * */
+    WisRenderAttachmentsDesc render_attachments;
+    /**
+     * @brief describes input layout description for the pipeline. If not set, the pipeline will be created without an
+     * input layout.
+     * */
+    WisInputLayout input_layout;
+    WisTopologyType topology_type; ///< specifies topology type. Default is `WisTopologyTypeTriangle`.
+    /**
+     * @brief describes rasterizer description for the pipeline. If not set, the pipeline will be created with default
+     * rasterizer state.
+     * */
+    const WisRasterizerDesc* rasterizer_desc;
+    /**
+     * @brief defines sample description for the pipeline. If not set, the pipeline will be created with default sample
+     * state (no multisampling).
+     * */
+    const WisSampleDesc* sample_desc;
+    /**
+     * @brief defines depth stencil description for the pipeline. If not set, the pipeline will be created with depth
+     * testing and stencil testing disabled.
+     * */
+    const WisDepthStencilDesc* depth_stencil_desc;
+    /**
+     * @brief indicates blend state description for the pipeline. If not set, the pipeline will be created with blending
+     * disabled.
+     * */
+    const WisBlendStateDesc* blend_state_desc;
+    WisVKPipelineCacheView cache; ///< defines pipeline cache data. Used to speed up pipeline creation if available.
+    WisPipelineFlags flags; ///< describes pipeline flags. Describe additional options for the pipeline.
+} WisVKGraphicsPipelineDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Struct for vertex buffer binding.
+ *
+ * */
+typedef struct WisVKVertexBufferDesc {
+    WisVKBufferView buffer; ///< Vertex Buffer to bind. The buffer view must have been created with  usage flag.
+    uint32_t size; ///< Size of the buffer in bytes.
+    uint32_t stride; ///< Stride of the buffer in bytes.
+    uint32_t offset; ///< Offset in buffer in bytes. Default is 0.
+} WisVKVertexBufferDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Struct for index buffer binding.
+ *
+ * */
+typedef struct WisVKIndexBufferDesc {
+    WisVKBufferView buffer; ///< Vertex Buffer to bind. The buffer view must have been created with  usage flag.
+    uint32_t size; ///< Size of the buffer in bytes.
+    uint32_t offset; ///< Offset in buffer in bytes. Default is 0.
+} WisVKIndexBufferDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisTexture handle.
+ * @param self is a pointer to the valid WisTexture instance.
+ *
+ * */
+WISDOM_API void wisVKDestroyTexture(WisVKTexture* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisBuffer handle.
+ * @param self is a pointer to the valid WisBuffer instance.
+ *
+ * */
+WISDOM_API void wisVKDestroyBuffer(WisVKBuffer* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisSwapchain handle.
+ * @param self is a pointer to the valid WisSwapchain instance.
+ *
+ * */
+WISDOM_API void wisVKDestroySwapchain(WisVKSwapchain* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisSurface handle.
+ * @param self is a pointer to the valid WisSurface instance.
+ *
+ * */
+WISDOM_API void wisVKDestroySurface(WisVKSurface* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisViewHeap handle.
+ * @param self is a pointer to the valid WisViewHeap instance.
+ *
+ * */
+WISDOM_API void wisVKDestroyViewHeap(WisVKViewHeap* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisPipeline handle.
+ * @param self is a pointer to the valid WisPipeline instance.
+ *
+ * */
+WISDOM_API void wisVKDestroyPipeline(WisVKPipeline* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisShader handle.
+ * @param self is a pointer to the valid WisShader instance.
+ *
+ * */
+WISDOM_API void wisVKDestroyShader(WisVKShader* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisPipelineCache handle.
+ * @param self is a pointer to the valid WisPipelineCache instance.
+ *
+ * */
+WISDOM_API void wisVKDestroyPipelineCache(WisVKPipelineCache* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisDescriptorHeap handle.
+ * @param self is a pointer to the valid WisDescriptorHeap instance.
+ *
+ * */
+WISDOM_API void wisVKDestroyDescriptorHeap(WisVKDescriptorHeap* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisRootSignature handle.
+ * @param self is a pointer to the valid WisRootSignature instance.
+ *
+ * */
+WISDOM_API void wisVKDestroyRootSignature(WisVKRootSignature* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisResourceAllocator handle.
+ * @param self is a pointer to the valid WisResourceAllocator instance.
+ *
+ * */
+WISDOM_API void wisVKDestroyResourceAllocator(WisVKResourceAllocator* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisFence handle.
+ * @param self is a pointer to the valid WisFence instance.
+ *
+ * */
+WISDOM_API void wisVKDestroyFence(WisVKFence* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisCommandList handle.
+ * @param self is a pointer to the valid WisCommandList instance.
+ *
+ * */
+WISDOM_API void wisVKDestroyCommandList(WisVKCommandList* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisCommandAllocator handle.
+ * @param self is a pointer to the valid WisCommandAllocator instance.
+ *
+ * */
+WISDOM_API void wisVKDestroyCommandAllocator(WisVKCommandAllocator* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisCommandQueue handle.
+ * @param self is a pointer to the valid WisCommandQueue instance.
+ *
+ * */
+WISDOM_API void wisVKDestroyCommandQueue(WisVKCommandQueue* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisDevice handle.
+ * @param self is a pointer to the valid WisDevice instance.
+ *
+ * */
+WISDOM_API void wisVKDestroyDevice(WisVKDevice* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisAdapterQuery handle.
+ * @param self is a pointer to the valid WisAdapterQuery instance.
+ *
+ * */
+WISDOM_API void wisVKDestroyAdapterQuery(WisVKAdapterQuery* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Destroys a WisInstance handle.
+ * @param self is a pointer to the valid WisInstance instance.
+ *
+ * */
+WISDOM_API void wisVKDestroyInstance(WisVKInstance* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates the WisInstance with extensions, specified in extension array.
+ * @param debug_desc describes a pointer to WisDebugDesc, which defines debug callback and debug layer usage. If
+ * `nullptr`, debug layer is disabled.
+ * @param extensions points to an array of extensions that are to be initialized with pointers to
+ * WisInstanceExtensionHeader.
+ * @param extension_count describes the number of the number of extensions in the  array.
+ * @param instance points to WisInstance, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKCreateInstance(
+    const WisDebugDesc* debug_desc,
+    WisVKInstanceExtensionHeader** extensions,
+    size_t extension_count,
+    WisVKInstance* instance
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Queries all the system adapters and allows to iterate through them. The order of
+ * adapters depends on `preference`: for MinConsumption - DirectX 12: Integrated, Discrete, External, Software; Vulkan:
+ * Integrated GPU, Discrete GPU, Virtual GPU, CPU. For Performance - DirectX 12: External, Discrete, Integrated,
+ * Software; Vulkan: Discrete GPU, Integrated GPU, Virtual GPU, CPU.
+ * @param self is a pointer to the valid WisInstance instance.
+ * @param preference indicates the order in which adapters are listed.
+ * @param query points to WisAdapterQuery, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult
+wisVKInstanceQueryAdapters(const WisVKInstance* self, WisAdapterPreference preference, WisVKAdapterQuery* query);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Returns the number of adapters present on the system at the time of the query.
+ * @param self is a pointer to the valid WisAdapterQuery instance.
+ * @return size is a number of adapters present on the system.
+ *
+ * */
+WISDOM_API size_t wisVKAdapterQueryGetAdapterCount(const WisVKAdapterQuery* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Returns the description of the adapter at given index.
+ * @param self is a pointer to the valid WisAdapterQuery instance.
+ * @param index defines the index of the adapter to get the description for. It @wis_must be less than the value
+ * returned by wisAdapterQueryGetAdapterCount.
+ * @param desc points to WisAdapterDesc, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKAdapterQueryGetAdapterDesc(const WisVKAdapterQuery* self, size_t index, WisAdapterDesc* desc);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Checks if the adapter at given index supports presentation to given surface.
+ * @param self is a pointer to the valid WisAdapterQuery instance.
+ * @param index defines the index of the adapter to check the support for. It @wis_must be less than the value returned
+ * by wisAdapterQueryGetAdapterCount.
+ * @param surface describes a pointer to WisSurface to check the presentation support for.
+ * @return bool `true` if the adapter supports presentation to the surface, `false` otherwise.
+ *
+ * */
+WISDOM_API bool wisVKAdapterQueryGetSurfaceSupport(
+    const WisVKAdapterQuery* self,
+    size_t index,
+    WisVKSurfaceView surface
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates the device for the adapter at given index.
+ * @param self is a pointer to the valid WisAdapterQuery instance.
+ * @param index defines the index of the adapter to create the device for. It @wis_must be less than the value returned
+ * by wisAdapterQueryGetAdapterCount.
+ * @param requirements defines a pointer to WisDeviceRequirements, which defines required features and properties for
+ * device creation.
+ * @param device points to WisDevice, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKAdapterQueryCreateDevice(
+    const WisVKAdapterQuery* self,
+    size_t index,
+    const WisVKDeviceRequirements* requirements,
+    WisVKDevice* device
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a command queue of given type.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param type specifies the type of the command queue to create.
+ * @param queue points to WisCommandQueue, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult
+wisVKDeviceCreateCommandQueue(const WisVKDevice* self, WisCommandQueueType type, WisVKCommandQueue* queue);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a command allocator to allocate command lists with.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param type specifies the type of the command list this pool is able to allocate.
+ * @param allocator points to WisCommandAllocator, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult
+wisVKDeviceCreateCommandAllocator(const WisVKDevice* self, WisCommandQueueType type, WisVKCommandAllocator* allocator);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a fence for GPU-CPU and GPU-GPU synchronization.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param initial_value specifies the initial value of the fence.
+ * @param fence points to WisFence, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKDeviceCreateFence(const WisVKDevice* self, uint64_t initial_value, WisVKFence* fence);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a resource allocator for managing GPU resources.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param allocator points to WisResourceAllocator, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKDeviceGetResourceAllocator(const WisVKDevice* self, WisVKResourceAllocator* allocator);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a pipeline layout with given descriptor.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param desc indicates a pointer to WisRootSignatureDesc, which describes the pipeline layout to create.
+ * @param layout points to WisRootSignature, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult
+wisVKDeviceCreateRootSignature(const WisVKDevice* self, const WisRootSignatureDesc* desc, WisVKRootSignature* layout);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a descriptor storage with given description.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param desc indicates a pointer to WisDescriptorHeapDesc, which describes the descriptor heap to create.
+ * @param heap points to WisDescriptorHeap, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult
+wisVKDeviceCreateDescriptorHeap(const WisVKDevice* self, const WisDescriptorHeapDesc* desc, WisVKDescriptorHeap* heap);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a view storage with given descriptor.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param type specifies the type of the view heap to create.
+ * @param capacity specifies the capacity in descriptors of the view heap to create.
+ * @param flags specifies additional flags for the view heap to create.
+ * @param heap points to WisViewHeap, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKDeviceCreateViewHeap(
+    const WisVKDevice* self,
+    WisViewHeapType type,
+    uint32_t capacity,
+    WisViewHeapFlags flags,
+    WisVKViewHeap* heap
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Queries the properties of the device.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param properties describes a pointer to one of the query structs, which is filled with device properties.
+ *
+ * */
+WISDOM_API void wisVKDeviceQueryProperties(const WisVKDevice* self, void* properties);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Waits on multiple fences simultaneously.
+ * If wait_for is `WisMultiWaitTypeAll`, waits for all fences to be signaled.
+ * Otherwise waits for any fence to be signaled.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param fences defines an array of fence views to wait on.
+ * @param fence_values defines fence values to wait for; array @wis_must have fence_count values.
+ * @param fence_count describes number of fences to wait on.
+ * @param wait_for indicates the kind of wait, where All waits for all fences and Any waits for any fence; default is
+ * `WisMultiWaitTypeAll`.
+ * @param timeout indicates timeout in nanoseconds; if UINT64_MAX, waits indefinitely.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKDeviceWaitForMultipleFences(
+    const WisVKDevice* self,
+    const WisVKFenceView* fences,
+    const uint64_t* fence_values,
+    size_t fence_count,
+    WisMultiWaitType wait_for,
+    uint64_t timeout
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a pipeline cache for caching pipeline state objects.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param initial_data points to an array of initial cache data bytes. If `nullptr`, the cache is created empty.
+ * @param data_size defines the size of the initial cache data in bytes.
+ * @param cache points to WisPipelineCache, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKDeviceCreatePipelineCache(
+    const WisVKDevice* self,
+    const uint8_t* initial_data,
+    size_t data_size,
+    WisVKPipelineCache* cache
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a shader module from given data.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param data points to an array of shader bytecode.
+ * @param size indicates size of shader data in bytes; for SPIR-V it @wis_must be a multiple of 4.
+ * @param shader points to WisShader, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult
+wisVKDeviceCreateShader(const WisVKDevice* self, const uint8_t* data, size_t size, WisVKShader* shader);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a compute pipeline state object with given descriptor.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param desc indicates a pointer to WisComputePipelineDesc, which describes the compute pipeline to create.
+ * @param pipeline points to WisPipeline, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKDeviceCreateComputePipeline(
+    const WisVKDevice* self,
+    const WisVKComputePipelineDesc* desc,
+    WisVKPipeline* pipeline
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a graphics pipeline state object with given descriptor.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param desc indicates a pointer to WisGraphicsPipelineDesc, which describes the graphics pipeline to create.
+ * @param pipeline points to WisPipeline, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(
+    const WisVKDevice* self,
+    const WisVKGraphicsPipelineDesc* desc,
+    WisVKPipeline* pipeline
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Checks if the surface format is supported for presentation and returns the supported
+ * format.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param surface describes a pointer to WisSurface to check the presentation support for.
+ * @param format describes the format to check the presentation support for.
+ * @return bool Result of operation.
+ *
+ * */
+WISDOM_API bool wisVKDeviceGetFormatPresentationSupport(
+    const WisVKDevice* self,
+    WisVKSurfaceView surface,
+    WisDataFormat format
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Gets presentation parameters for the specified surface.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param surface describes a pointer to WisSurface to check the presentation support for.
+ * @param params Parameters of the surface.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult
+wisVKDeviceGetSurfaceParameters(const WisVKDevice* self, WisVKSurfaceView surface, WisSurfaceParameters* params);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a swapchain for given surface with given descriptor.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param surface describes a pointer to WisSurface to create the swapchain for. Surface is ref-counted.
+ * @param queue describes a pointer to WisCommandQueue to create the swapchain for. Queue is ref-counted and @wis_must
+ * be a graphics queue.
+ * @param desc indicates a pointer to WisSwapchainDesc, which describes the swapchain to create.
+ * @param swapchain points to WisSwapchain, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKDeviceCreateSwapchain(
+    const WisVKDevice* self,
+    const WisVKSurface* surface,
+    const WisVKCommandQueue* queue,
+    const WisSwapchainDesc* desc,
+    WisVKSwapchain* swapchain
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Gets properties of the format.
+ * @param self is a pointer to the valid WisDevice instance.
+ * @param format describes the format to get properties for.
+ * @param properties Properties of the format.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult
+wisVKDeviceGetFormatProperties(const WisVKDevice* self, WisDataFormat format, WisFormatProperties* properties);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Get the current value of the fence.
+ * @param self is a pointer to the valid WisFence instance.
+ * @return u64 Value of the fence.
+ *
+ * */
+WISDOM_API uint64_t wisVKFenceGetCompletedValue(const WisVKFence* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Wait on CPU for the fence to reach a certain value.
+ * @param self is a pointer to the valid WisFence instance.
+ * @param value describes value to wait for.
+ * @param wait_ns describes the time to wait for the fence to reach the value in nanoseconds. Default is infinite.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKFenceWait(const WisVKFence* self, uint64_t value, uint64_t wait_ns);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Signal the fence from CPU.
+ * @param self is a pointer to the valid WisFence instance.
+ * @param value describes value to signal.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKFenceSignal(const WisVKFence* self, uint64_t value);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Executes the command lists.
+ * @param self is a pointer to the valid WisCommandQueue instance.
+ * @param lists points to an array of command lists to execute.
+ * @param list_count defines number of command lists to execute.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult
+wisVKCommandQueueSubmit(const WisVKCommandQueue* self, const WisVKCommandListView* lists, size_t list_count);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Enqueue the signal to the queue, that gets executed after all the work has been
+ * done.
+ * @param self is a pointer to the valid WisCommandQueue instance.
+ * @param fence describes fence to signal.
+ * @param value describes value used to signal the fence.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKCommandQueueSignalFence(const WisVKCommandQueue* self, WisVKFenceView fence, uint64_t value);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Enqueues wait operation to the command queue. Queue then waits for the fence to be
+ * signalled from CPU or from another queue. Can still be enqueued after the signal.
+ * @param self is a pointer to the valid WisCommandQueue instance.
+ * @param fence describes fence to wait on.
+ * @param value describes value that the fence is expected to reach.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKCommandQueueWaitFence(const WisVKCommandQueue* self, WisVKFenceView fence, uint64_t value);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a buffer with given descriptor.
+ * @param self is a pointer to the valid WisResourceAllocator instance.
+ * @param desc indicates a pointer to WisBufferDesc, which describes the buffer to create.
+ * @param buffer points to WisBuffer, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult
+wisVKResourceAllocatorCreateBuffer(const WisVKResourceAllocator* self, const WisBufferDesc* desc, WisVKBuffer* buffer);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a texture with given descriptor.
+ * @param self is a pointer to the valid WisResourceAllocator instance.
+ * @param desc indicates a pointer to WisTextureDesc, which describes the texture to create.
+ * @param texture points to WisTexture, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKResourceAllocatorCreateTexture(
+    const WisVKResourceAllocator* self,
+    const WisTextureDesc* desc,
+    WisVKTexture* texture
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Maps the buffer memory to CPU accessible address space.
+ * @param self is a pointer to the valid WisBuffer instance.
+ * @return void points to the pointer, which is filled with the address of the mapped memory on success.
+ *
+ * */
+WISDOM_API void* wisVKBufferMap(const WisVKBuffer* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Gets the GPU virtual address of the buffer.
+ * @param self is a pointer to the valid WisBuffer instance.
+ * @return u64 Address of the buffer on GPU.
+ *
+ * */
+WISDOM_API uint64_t wisVKBufferGetGPUAddress(const WisVKBuffer* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Writes data directly to the texture subresource. Texture @wis_must be in
+ * `WisTextureStateCommon` and @wis_mustnot be a depth or planar texture.
+ * @param self is a pointer to the valid WisTexture instance.
+ * @param source_data specifies a pointer to the data to write to the texture.
+ * @param target_region specifies a pointer to WisTextureRegion, which describes the region of the texture to write to.
+ * The `flags` parameter of the region is ignored, as depth/stencil/planar is not supported.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult
+wisVKTextureWriteSubresource(const WisVKTexture* self, const void* source_data, const WisTextureRegion* target_region);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Returns the CPU descriptor handle for the descriptor heap.
+ * @param self is a pointer to the valid WisDescriptorHeap instance.
+ * @return void CPU descriptor handle for the descriptor heap.
+ *
+ * */
+WISDOM_API void* wisVKDescriptorHeapGetCPUHandle(const WisVKDescriptorHeap* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Writes `WisDescriptorTypeConstantBuffer` descriptor to the descriptor heap.
+ * @param self is a pointer to the valid WisDescriptorHeap instance.
+ * @param data specifies a pointer to WisConstantBufferBinding, which describes the constant buffer descriptors to
+ * write.
+ * @param index defines the index in the descriptor heap to write the descriptors to.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKDescriptorHeapWriteConstantBuffer(
+    const WisVKDescriptorHeap* self,
+    const WisConstantBufferBinding* data,
+    uint32_t index
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Writes `WisDescriptorTypeBuffer` descriptor to the descriptor heap.
+ * @param self is a pointer to the valid WisDescriptorHeap instance.
+ * @param buffer specifies a pointer to WisBuffer to write the descriptor for.
+ * @param data specifies a pointer to WisBufferBinding, which describes the shader resource view descriptors to write.
+ * @param index defines the index in the descriptor heap to write the descriptors to.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKDescriptorHeapWriteStructuredBuffer(
+    const WisVKDescriptorHeap* self,
+    WisVKBufferView buffer,
+    const WisBufferBinding* data,
+    uint32_t index
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Writes `WisDescriptorTypeRWBuffer` descriptor to the descriptor heap.
+ * @param self is a pointer to the valid WisDescriptorHeap instance.
+ * @param buffer specifies a pointer to WisBuffer to write the descriptor for.
+ * @param data specifies a pointer to WisBufferBinding, which describes the shader resource view descriptors to write.
+ * @param index defines the index in the descriptor heap to write the descriptors to.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKDescriptorHeapWriteRWStructuredBuffer(
+    const WisVKDescriptorHeap* self,
+    WisVKBufferView buffer,
+    const WisBufferBinding* data,
+    uint32_t index
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Writes `WisDescriptorTypeSampler` descriptor to the descriptor heap.
+ * @param self is a pointer to the valid WisDescriptorHeap instance.
+ * @param sampler defines a pointer to WisSamplerDesc, which describes the sampler descriptor to write.
+ * @param index defines the index in the descriptor heap to write the descriptor to.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult
+wisVKDescriptorHeapWriteSampler(const WisVKDescriptorHeap* self, const WisSamplerDesc* sampler, uint32_t index);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Writes a descriptor to the descriptor heap.
+ * @param self is a pointer to the valid WisDescriptorHeap instance.
+ * @param texture describes a pointer to WisTexture to write the descriptor for.
+ * @param data specifies a pointer to WisTextureBinding, which describes the texture view to write.
+ * @param index defines the index in the descriptor heap to write the descriptor to.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKDescriptorHeapWriteTexture(
+    const WisVKDescriptorHeap* self,
+    WisVKTextureView texture,
+    const WisTextureBinding* data,
+    uint32_t index
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Writes a texture view to the descriptor heap.
+ * @param self is a pointer to the valid WisDescriptorHeap instance.
+ * @param texture describes a pointer to WisTexture to write the descriptor for.
+ * @param data specifies a pointer to WisTextureBinding, which describes the texture view to write.
+ * @param index defines the index in the descriptor heap to write the descriptor to.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKDescriptorHeapWriteRWTexture(
+    const WisVKDescriptorHeap* self,
+    WisVKTextureView texture,
+    const WisTextureBinding* data,
+    uint32_t index
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Writes a raytracing acceleration to the descriptor heap.
+ * @param self is a pointer to the valid WisDescriptorHeap instance.
+ * @param address specifies GPU address of a raytracing acceleration structure.
+ * @param index defines the index in the descriptor heap to write the descriptor to.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult
+wisVKDescriptorHeapWriteAccelerationStructure(const WisVKDescriptorHeap* self, uint64_t address, uint32_t index);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Copies descriptors from one heap to another.
+ * @param self is a pointer to the valid WisDescriptorHeap instance.
+ * @param dst_index specifies the index in the destination descriptor heap to copy descriptors to.
+ * @param src_ptr describes a pointer to WisDescriptorHeap to copy descriptors from. Source heap @wis_must be CPU Only
+ * heap.
+ * @param src_index indicates the index in the source descriptor heap to copy descriptors from.
+ * @param descriptor_count indicates the number of descriptors to copy.
+ *
+ * */
+WISDOM_API void wisVKDescriptorHeapCopyDescriptors(
+    const WisVKDescriptorHeap* self,
+    uint32_t dst_index,
+    const void* src_ptr,
+    uint32_t src_index,
+    uint32_t descriptor_count
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Writes a render target view to the view heap and returns the CPU descriptor handle
+ * for it.
+ * @param self is a pointer to the valid WisViewHeap instance.
+ * @param texture describes a pointer to WisTexture to write the descriptor for.
+ * @param render_target specifies a pointer to WisRenderTargetDesc, which describes the render target view to write.
+ * @param index defines the index in the view heap to write the descriptor to.
+ * @return u64 CPU descriptor handle for the view heap.
+ *
+ * */
+WISDOM_API uint64_t wisVKViewHeapWriteRenderTarget(
+    const WisVKViewHeap* self,
+    const WisVKTexture* texture,
+    const WisRenderTargetDesc* render_target,
+    uint32_t index
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Writes a depth stencil view to the view heap and returns the CPU descriptor handle
+ * for it.
+ * @param self is a pointer to the valid WisViewHeap instance.
+ * @param texture describes a pointer to WisTexture to write the descriptor for.
+ * @param render_target specifies a pointer to WisRenderTargetDesc, which describes the depth stencil view to write.
+ * @param index defines the index in the view heap to write the descriptor to.
+ * @return u64 CPU descriptor handle for the view heap.
+ *
+ * */
+WISDOM_API uint64_t wisVKViewHeapWriteDepthStencil(
+    const WisVKViewHeap* self,
+    const WisVKTexture* texture,
+    const WisRenderTargetDesc* render_target,
+    uint32_t index
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Returns the CPU descriptor handle for the view heap.
+ * @param self is a pointer to the valid WisViewHeap instance.
+ * @param index defines the index in the view heap to get the descriptor from.
+ * @return u64 Address of a view in heap.
+ *
+ * */
+WISDOM_API uint64_t wisVKViewHeapGetViewAddress(const WisVKViewHeap* self, uint32_t index);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Copies views from one heap to another.
+ * @param self is a pointer to the valid WisViewHeap instance.
+ * @param dst_index specifies the index in the destination view heap to copy views to.
+ * @param src_ptr describes a pointer to WisViewHeap to copy views from.
+ * @param src_index indicates the index in the source view heap to copy views from.
+ * @param view_count indicates the number of views to copy.
+ *
+ * */
+WISDOM_API void wisVKViewHeapCopyViews(
+    const WisVKViewHeap* self,
+    uint32_t dst_index,
+    uint64_t src_ptr,
+    uint32_t src_index,
+    uint32_t view_count
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Returns the CPU descriptor handle for the view heap.
+ * @param self is a pointer to the valid WisViewHeap instance.
+ * @return u64 CPU descriptor handle for the view heap.
+ *
+ * */
+WISDOM_API uint64_t wisVKViewHeapGetCPUHandle(const WisVKViewHeap* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Resets the command allocator, so it can be reused for allocating new command lists.
+ * @param self is a pointer to the valid WisCommandAllocator instance.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKCommandAllocatorReset(const WisVKCommandAllocator* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Creates a command list of given type.
+ * @param self is a pointer to the valid WisCommandAllocator instance.
+ * @param list points to WisCommandList, which is initialized on success.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKCommandAllocatorCreateCommandList(const WisVKCommandAllocator* self, WisVKCommandList* list);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Opens the command list, so commands can be recorded to it.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKCommandListBegin(const WisVKCommandList* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Closes the command list, so it can be executed on the command queue.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKCommandListEnd(const WisVKCommandList* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Binds descriptor heaps to the command list, so they can be used for resource
+ * binding.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param resource_heap describes a pointer to WisDescriptorHeap with shader resource views, unordered access views and
+ * constant buffer views. If `nullptr`, no resource heap is bound.
+ * @param sampler_heap describes a pointer to WisDescriptorHeap with samplers. If `nullptr`, no sampler heap is bound.
+ *
+ * */
+WISDOM_API void wisVKCommandListSetDescriptorHeaps(
+    const WisVKCommandList* self,
+    const WisVKDescriptorHeap* resource_heap,
+    const WisVKDescriptorHeap* sampler_heap
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the root signature for the command list, so it can be used for resource
+ * binding.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param signature specifies a pointer to WisRootSignature to set.
+ * @param pipeline specifies the pipeline type to set the root signature for.
+ *
+ * */
+WISDOM_API void wisVKCommandListSetRootSignature(
+    const WisVKCommandList* self,
+    WisVKRootSignatureView signature,
+    WisPipelineType pipeline
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the push constants for the command list, so they can be used for resource
+ * binding.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param data specifies a pointer to WisPushConstantDataDesc, which describes the push constant data to set.
+ *
+ * */
+WISDOM_API void wisVKCommandListSetPushConstants(const WisVKCommandList* self, const WisPushConstantDataDesc* data);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the push descriptors for the command list, so they can be used for resource
+ * binding.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param data specifies a pointer to WisPushDescriptorDataDesc, which describes the push descriptors to set.
+ *
+ * */
+WISDOM_API void wisVKCommandListSetPushDescriptor(const WisVKCommandList* self, const WisPushDescriptorDataDesc* data);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the descriptor table offset in descriptor heap for the command list, so it can
+ * be used for resource binding.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param data specifies the root parameter index to set the descriptor table for.
+ *
+ * */
+WISDOM_API void wisVKCommandListSetDescriptorTable(
+    const WisVKCommandList* self,
+    const WisDescriptorTableDataDesc* data
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Inserts one or more barriers on the current command list.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param barriers specifies a pointer to an array of barriers to insert.
+ *
+ * */
+WISDOM_API void wisVKCommandListInsertBarriers(const WisVKCommandList* self, const WisVKBarrierGroup* barriers);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the pipeline state object for the command list, so it can be used for draw and
+ * dispatch calls.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param pipeline specifies a pointer to WisPipeline to set.
+ * @param type specifies the pipeline type to set the pipeline for.
+ *
+ * */
+WISDOM_API void wisVKCommandListSetPipeline(
+    const WisVKCommandList* self,
+    WisVKPipelineView pipeline,
+    WisPipelineType type
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets multiple viewports.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param viewports points to an array of viewports to set.
+ * @param viewport_count defines number of viewports to set.
+ *
+ * */
+WISDOM_API void wisVKCommandListSetViewports(
+    WisVKCommandList* self,
+    const WisViewport* viewports,
+    size_t viewport_count
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets a scissor rect.
+ * Only the region, which is in the scissor rect is updated.
+ * If multiple viewports are used, SV_ViewportArrayIndex in geometry shader selects the viewport and associated scissor
+ * rect.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param scissor_rect points to an array of scissor rectangles to set.
+ * @param rect_count defines number of scissor rectangles to set.
+ *
+ * */
+WISDOM_API void wisVKCommandListSetScissors(WisVKCommandList* self, const WisRect* scissor_rect, size_t rect_count);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the primitive topology. Determines how vertices shall be processed.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param topology describes primitive topology to set.
+ *
+ * */
+WISDOM_API void wisVKCommandListSetPrimitiveTopology(WisVKCommandList* self, WisPrimitiveTopology topology);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the depth bias. Determines how depth values are modified during rasterization.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param depth_bias indicates depth bias to set.
+ * @param depth_bias_clamp indicates depth bias clamp to set.
+ * @param slope_scaled_depth_bias defines slope-scaled depth bias to set.
+ *
+ * */
+WISDOM_API void wisVKCommandListSetDepthBias(
+    WisVKCommandList* self,
+    float depth_bias,
+    float depth_bias_clamp,
+    float slope_scaled_depth_bias
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the primitive restart value. Determines the index value which is treated as a
+ * primitive restart when using indexed draw calls.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param restart_value describes primitive restart value to set.
+ *
+ * */
+WISDOM_API void wisVKCommandListSetPrimitiveRestartValue(
+    WisVKCommandList* self,
+    WisPrimitiveRestartValue restart_value
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Dispatches compute shader.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param group_count_x defines number of groups to dispatch in X dimension.
+ * @param group_count_y describes number of groups to dispatch in Y dimension; default is 1.
+ * @param group_count_z specifies number of groups to dispatch in Z dimension; default is 1.
+ *
+ * */
+WISDOM_API void wisVKCommandListDispatch(
+    const WisVKCommandList* self,
+    uint32_t group_count_x,
+    uint32_t group_count_y,
+    uint32_t group_count_z
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Draws non-indexed geometry.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param vertex_count specifies number of vertices to draw.
+ * @param instance_count describes number of instances to draw; default is 1.
+ * @param start_vertex indicates index of the first vertex to draw; default is 0.
+ * @param start_instance specifies index of the first instance to draw; default is 0.
+ *
+ * */
+WISDOM_API void wisVKCommandListDraw(
+    const WisVKCommandList* self,
+    uint32_t vertex_count,
+    uint32_t instance_count,
+    uint32_t start_vertex,
+    uint32_t start_instance
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Draws indexed geometry.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param index_count defines number of indices to draw.
+ * @param instance_count describes number of instances to draw; default is 1.
+ * @param start_index describes index of the first index to draw; default is 0.
+ * @param base_vertex defines value added to each index before reading a vertex from the vertex buffer; default is 0.
+ * @param start_instance specifies index of the first instance to draw; default is 0.
+ *
+ * */
+WISDOM_API void wisVKCommandListDrawIndexed(
+    const WisVKCommandList* self,
+    uint32_t index_count,
+    uint32_t instance_count,
+    uint32_t start_index,
+    int32_t base_vertex,
+    uint32_t start_instance
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Begins a render pass with given descriptor.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param desc indicates a pointer to WisRenderPassDesc, which describes the render pass to begin.
+ *
+ * */
+WISDOM_API void wisVKCommandListBeginRenderPass(const WisVKCommandList* self, const WisRenderPassDesc* desc);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Ends the current render pass.
+ * @param self is a pointer to the valid WisCommandList instance.
+ *
+ * */
+WISDOM_API void wisVKCommandListEndRenderPass(const WisVKCommandList* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Copies regions from one buffer to another.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param dst_buffer defines a pointer to the destination buffer.
+ * @param src_buffer describes a pointer to the source buffer.
+ * @param regions points to an array of WisBufferCopyRegion that defines the copy regions.
+ * @param region_count defines the count of the regions.
+ *
+ * */
+WISDOM_API void wisVKCommandListCopyBuffer(
+    const WisVKCommandList* self,
+    WisVKBufferView dst_buffer,
+    WisVKBufferView src_buffer,
+    const WisBufferCopyRegion* regions,
+    size_t region_count
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Copies regions from a buffer to a texture.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param dst_texture defines a pointer to the destination texture. Texture @wis_must be in `WisTextureStateCopyDst`.
+ * @param src_buffer describes a pointer to the source buffer.
+ * @param regions points to an array of WisBufferTextureCopyRegion that defines the copy regions.
+ * @param region_count defines the count of the regions.
+ *
+ * */
+WISDOM_API void wisVKCommandListCopyBufferToTexture(
+    const WisVKCommandList* self,
+    WisVKTextureView dst_texture,
+    WisVKBufferView src_buffer,
+    const WisBufferTextureCopyRegion* regions,
+    size_t region_count
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Copies regions from a texture to a buffer.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param dst_buffer defines a pointer to the destination buffer.
+ * @param src_texture describes a pointer to the source texture. Texture @wis_must be in `WisTextureStateCopySrc`.
+ * @param regions points to an array of WisBufferTextureCopyRegion that defines the copy regions.
+ * @param region_count defines the count of the regions.
+ *
+ * */
+WISDOM_API void wisVKCommandListCopyTextureToBuffer(
+    const WisVKCommandList* self,
+    WisVKBufferView dst_buffer,
+    WisVKTextureView src_texture,
+    const WisBufferTextureCopyRegion* regions,
+    size_t region_count
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Copies regions from one texture to another.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param dst_texture defines a pointer to the destination texture. Texture @wis_must be in `WisTextureStateCopyDst`.
+ * @param src_texture describes a pointer to the source texture. Texture @wis_must be in `WisTextureStateCopySrc`.
+ * @param regions points to an array of WisTextureCopyRegion that defines the copy regions.
+ * @param region_count defines the count of the regions.
+ *
+ * */
+WISDOM_API void wisVKCommandListCopyTexture(
+    const WisVKCommandList* self,
+    WisVKTextureView dst_texture,
+    WisVKTextureView src_texture,
+    const WisTextureCopyRegion* regions,
+    size_t region_count
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the vertex buffers.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param buffers The vertex buffers to set.
+ * @param buffer_count The number of vertex buffers to set.
+ * @param start_slot The start slot to set the vertex buffers to. Default is 0.
+ *
+ * */
+WISDOM_API void wisVKCommandListSetVertexBuffers(
+    WisVKCommandList* self,
+    const WisVKVertexBufferDesc* buffers,
+    size_t buffer_count,
+    uint32_t start_slot
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the vertex buffers. Support @wis_must be queried from
+ * `WisDeviceBindingProperties::address_commands_supported` in order to be used. Always supported for DX12.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param buffers The vertex buffers to set.
+ * @param buffer_count The number of vertex buffers to set.
+ * @param start_slot The start slot to set the vertex buffers to. Default is 0.
+ *
+ * */
+WISDOM_API void wisVKCommandListSetVertexBuffers2(
+    WisVKCommandList* self,
+    const WisVertexBufferAddressDesc* buffers,
+    size_t buffer_count,
+    uint32_t start_slot
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the index buffer.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param buffer The index buffer to set.
+ * @param index_type Defines index type. Used to determine the size of each index in the buffer. Must be either
+ * `WisIndexTypeUInt16` or `WisIndexTypeUInt32`.
+ *
+ * */
+WISDOM_API void wisVKCommandListSetIndexBuffer(
+    WisVKCommandList* self,
+    const WisVKIndexBufferDesc* buffer,
+    WisIndexType index_type
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the index buffer. Support @wis_must be queried from
+ * `WisDeviceBindingProperties::address_commands_supported` in order to be used. Always supported for DX12.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param buffer The index buffer to set.
+ * @param index_type Defines index type. Used to determine the size of each index in the buffer. Must be either
+ * `WisIndexTypeUInt16` or `WisIndexTypeUInt32`.
+ *
+ * */
+WISDOM_API void wisVKCommandListSetIndexBuffer2(
+    WisVKCommandList* self,
+    const WisIndexBufferAddressDesc* buffer,
+    WisIndexType index_type
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Sets the blend factors for the command list, so they can be used for blending
+ * operations.
+ * @param self is a pointer to the valid WisCommandList instance.
+ * @param blend_factor_r specifies blend factor for red color to set.
+ * @param blend_factor_g specifies blend factor for green color to set.
+ * @param blend_factor_b specifies blend factor for blue color to set.
+ * @param blend_factor_a specifies blend factor for alpha channel to set.
+ *
+ * */
+WISDOM_API void wisVKCommandListSetBlendFactors(
+    const WisVKCommandList* self,
+    float blend_factor_r,
+    float blend_factor_g,
+    float blend_factor_b,
+    float blend_factor_a
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Gets the data from the pipeline cache.
+ * @param self is a pointer to the valid WisPipelineCache instance.
+ * @param data points to an array that is filled with serialized cache data on success.
+ * @param data_size defines the size of the data chunk in bytes. It @wis_must be greater or equal to the value returned
+ * by wisPipelineCacheGetSerializedSize.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKPipelineCacheSerialize(const WisVKPipelineCache* self, uint8_t* data, size_t data_size);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Gets the size of the data in the pipeline cache.
+ * @param self is a pointer to the valid WisPipelineCache instance.
+ * @return size Size of the data in bytes.
+ *
+ * */
+WISDOM_API size_t wisVKPipelineCacheGetSerializedSize(const WisVKPipelineCache* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Presents the swapchain image to the screen.
+ * @param self is a pointer to the valid WisSwapchain instance.
+ * @param flags describes the presentation options.
+ * @param rects points to an array of rectangles to present. If `nullptr`, the entire image is presented.
+ * @param rect_count specifies the number of rectangles to present. It @wis_must be 0 if rects is `nullptr`.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult
+wisVKSwapchainPresent(const WisVKSwapchain* self, WisPresentFlags flags, const WisRect* rects, size_t rect_count);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Gets the index of the current backbuffer. In case of lazy indexing it may wait for
+ * presentation to finish and block.
+ * @param self is a pointer to the valid WisSwapchain instance.
+ * @param index Index of the current backbuffer.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKSwapchainGetCurrentIndex(const WisVKSwapchain* self, uint32_t* index);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Resizes the swapchain buffers. If the swapchain is currently in use, it @wis_must be
+ * resized after the GPU finishes using it, so the call may block until then.
+ * @param self is a pointer to the valid WisSwapchain instance.
+ * @param desc indicates a pointer to WisSwapchainUpdateDesc, which describes the new swapchain parameters.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKSwapchainUpdate(const WisVKSwapchain* self, const WisSwapchainUpdateDesc* desc);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Gets the swapchain buffers. The textures are in `WisTextureStateCommon`.
+ * @param self is a pointer to the valid WisSwapchain instance.
+ * @param buffers points to an array of texture views, which are filled with swapchain backbuffers on success.
+ * @param buffer_count specifies the number of buffers to get. It @wis_must be greater or equal to the value, supplied
+ * to `WisSwapchainDesc::image_count` or subsequent `WisSwapchainUpdateDesc::image_count`.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_API WisResult wisVKSwapchainGetTextures(const WisVKSwapchain* self, WisVKTexture* buffers, size_t buffer_count);
+
+#endif // WISDOM_VULKAN
+
+#ifdef __cplusplus
+}
+#endif // __cplusplus
+#endif // WISDOM_CORE_C_API_H

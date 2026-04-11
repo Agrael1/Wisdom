@@ -1,18 +1,19 @@
-#!/bin/sh
+#!/bin/bash
 
-FORMAT_TARGETS=("wisdom" "examples")
+FORMAT_TARGETS=("src" "examples")
 
 function format() {
-    for f in $(find $@ -name '*.h' -or -name '*.inl' -or -name '*.ixx' -or -name '*.m' -or -name '*.mm' -or -name '*.c' -or -name '*.cpp'); do 
-        echo "format ${f}";
-        clang-format -i ${f};
+  find "$@" \( -name '*.h' -or -name '*.hpp' -or -name '*.ixx' -or -name '*.m' -or -name '*.mm' -or -name '*.c' -or -name '*.cpp' \) ! -name 'xxhash.h' -print0 |
+    while IFS= read -r -d '' f; do
+      echo "format $f"
+      clang-format -i "$f"
     done
 
-    echo "~~~ $@ Done ~~~";
+  echo "~~~ $@ Done ~~~"
 }
 
 for dir in "$FORMAT_TARGETS"; do
-    if [ -d "${dir}" ]; then
-        format ${dir};
-    fi
+  if [ -d "$dir" ]; then
+    format "$dir"
+  fi
 done

@@ -1,0 +1,132 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - 'feat/**'
+      - 'fix/**'
+      - 'dev/**'
+    tags-ignore:
+      - '**'
+  pull_request:
+    branches:
+      - master
+      - main
+  workflow_call:  # Allow this workflow to be called by other workflows
+  workflow_dispatch:
+
+env:
+  BUILD_TYPE: Release
+  VULKAN_SDK_VERSION: 'latest'
+
+jobs:
+  build-windows-dx12:
+    name: Windows (DirectX 12)
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+      
+      - name: Setup CMake
+        uses: lukka/get-cmake@latest
+      
+      - name: Configure CMake
+        run: cmake --preset win-msvc-release
+      
+      - name: Build
+        run: cmake --build --preset win-msvc-release
+
+  build-windows-vulkan:
+    name: Windows (Vulkan)
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      
+      - name: Setup MSVC
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+      
+      - name: Setup Vulkan SDK
+        uses: jakoch/install-vulkan-sdk-action@v1.4.0
+        with:
+          vulkan_version: ${{ env.VULKAN_SDK_VERSION }}
+          install_runtime: true
+          cache: true
+      
+      - name: Setup CMake
+        uses: lukka/get-cmake@latest
+      
+      - name: Configure CMake
+        run: cmake --preset win-msvc-release -DWISDOM_FORCE_VULKAN=ON
+      
+      - name: Build
+        run: cmake --build --preset win-msvc-release
+
+  build-windows-clang:
+    name: Windows (Clang + Vulkan)
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      
+      - name: Setup Clang
+        uses: egor-tensin/setup-clang@v1
+        with:
+          version: latest
+          platform: x64
+      
+      - name: Setup Ninja
+        uses: ashutoshvarma/setup-ninja@master
+        with:
+          version: 1.12.0
+      
+      - name: Setup Vulkan SDK
+        uses: jakoch/install-vulkan-sdk-action@v1.4.0
+        with:
+          vulkan_version: ${{ env.VULKAN_SDK_VERSION }}
+          install_runtime: true
+          cache: true
+      
+      - name: Setup CMake
+        uses: lukka/get-cmake@latest
+      
+      - name: Configure CMake
+        run: cmake --preset win-clang-release -DWISDOM_FORCE_VULKAN=ON
+      
+      - name: Build
+        run: cmake --build --preset win-clang-release
+
+  build-linux:
+    name: Linux (Vulkan)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build libx11-dev libxext-dev libxcb1-dev libx11-xcb-dev libwayland-dev wayland-protocols
+
+      - name: Fetch Vulkan Headers
+        run: git clone --depth 1 https://github.com/KhronosGroup/Vulkan-Headers.git ${{ github.workspace }}/vulkan-headers
+
+      - name: Setup CMake
+        uses: lukka/get-cmake@latest
+
+      - name: Configure CMake
+        run: cmake --preset linux-gcc-release -DWISDOM_VULKAN_HEADER_PATH=${{ github.workspace }}/vulkan-headers/include
+      
+      - name: Build
+        run: cmake --build --preset linux-gcc-release

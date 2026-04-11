@@ -1,0 +1,17 @@
+<Project>
+  <PropertyGroup>
+    <WisdomLinkage Condition="'$(WisdomLinkage)' == ''">static</WisdomLinkage>
+    <WisdomPlatformExtension Condition="'$(WisdomPlatformExtension)' == ''">false</WisdomPlatformExtension>
+    <WisdomForceVulkan Condition="'$(WisdomForceVulkan)' == ''">false</WisdomForceVulkan>
+    <WisdomVulkanSDKPath Condition="'$(WisdomVulkanSDKPath)' == ''">$(VULKAN_SDK)\Include</WisdomVulkanSDKPath>
+
+    <LibraryPostfix Condition="'$(Configuration)' == 'Debug'">d</LibraryPostfix>
+    <LibraryPostfix Condition="'$(Configuration)' != 'Debug'"></LibraryPostfix>
+    <LP>$(LibraryPostfix)</LP>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PropertyPageSchema Include="$(MSBuildThisFileDirectory)\wisdom.xml"/>
+    <ProjectCapability Include="Wisdom" />
+  </ItemGroup>
+</Project>

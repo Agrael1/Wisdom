@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+  <Type Name="wis::impl::Implements&lt;*, *, *&gt;" Inheritable="true">
+    <DisplayString>{{ valid={(bool)(*(const unsigned __int64*)&amp;_impl_storage != 0)} }}</DisplayString>
+    <Expand>
+      <Item Name="[valid]">(bool)(*(const unsigned __int64*)&amp;_impl_storage != 0)</Item>
+      <Item Name="[impl]">(const $T1*)&amp;_impl_storage</Item>
+      <Item Name="[impl object]" Condition="*(const unsigned __int64*)&amp;_impl_storage != 0">*(const $T1*)&amp;_impl_storage</Item>
+      <Item Name="[storage]">_impl_storage</Item>
+    </Expand>
+  </Type>
+
+</AutoVisualizer>

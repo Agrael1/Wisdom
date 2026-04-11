@@ -1,38 +1,96 @@
 ---
-BasedOnStyle: WebKit
-Standard: Cpp11
-SortIncludes: false
-
-ColumnLimit: 0
-ContinuationIndentWidth: 8
-
-FixNamespaceComments: true
-NamespaceIndentation: None
-AlignAfterOpenBracket: true
-
-PointerBindsToType: true
-SpaceAfterTemplateKeyword: false
-
-AllowShortFunctionsOnASingleLine: Inline
-ConstructorInitializerAllOnOneLineOrOnePerLine: true
-AlwaysBreakTemplateDeclarations: true
-BreakBeforeBinaryOperators: None
-
-SpaceBeforeCpp11BracedList: false
+ColumnLimit: 120
+BracedInitializerIndentWidth: 4
+AccessModifierOffset: -4
+AlignAfterOpenBracket: BlockIndent
+AlignArrayOfStructures: None
+AlignConsecutiveAssignments:
+  Enabled: false
+AlignConsecutiveBitFields:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
+AlignConsecutiveDeclarations:
+  Enabled: false
+AlignConsecutiveMacros:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
+AlignConsecutiveShortCaseStatements:
+  Enabled: true
+  AcrossEmptyLines: false
+  AcrossComments: false
+AlignEscapedNewlines: Left
+AlignOperands: AlignAfterOperator
+AlignTrailingComments:
+  Kind: Never
+AllowAllArgumentsOnNextLine: false
+AllowAllParametersOfDeclarationOnNextLine: false
+AllowBreakBeforeNoexceptSpecifier: Never
+AllowShortBlocksOnASingleLine: Empty
+BinPackArguments: false
+BinPackParameters: false
+BitFieldColonSpacing: Both
 BreakBeforeBraces: Custom
 BraceWrapping:
-    AfterClass: true
-    AfterControlStatement: false
-    AfterEnum: false
-    AfterFunction: true
-    AfterNamespace: false
-    AfterObjCDeclaration: false
-    AfterStruct: false
-    AfterUnion: false
-    BeforeCatch: false
-    BeforeElse: false
-    IndentBraces: false
-
+  AfterCaseLabel: false
+  AfterClass: true
+  AfterControlStatement: Never
+  AfterEnum: false
+  AfterFunction: true
+  AfterNamespace: false
+  AfterStruct: false
+  AfterUnion: false
+  AfterExternBlock: false
+  BeforeCatch: false
+  BeforeElse: false
+  BeforeLambdaBody: false
+  BeforeWhile: false
+  IndentBraces: false
+  SplitEmptyFunction: false
+  SplitEmptyRecord: false
+  SplitEmptyNamespace: false
+InsertTrailingCommas: Wrapped
 InsertBraces: true
-
-CommentPragmas:  '/\*(.+\n.+)+\*/'
+InsertNewlineAtEOF: true
+IndentWidth: 4
+BreakAdjacentStringLiterals: true
+BreakBeforeBinaryOperators: NonAssignment
+BreakBeforeTernaryOperators: true
+BreakConstructorInitializers: BeforeComma
+IndentPPDirectives: AfterHash
+FixNamespaceComments: true
+Cpp11BracedListStyle: true
+ContinuationIndentWidth: 4
+AlwaysBreakAfterDefinitionReturnType: None
+Standard: Latest
+TabWidth: 4
+UseTab: Never
+SpacesInParens: Never
+SortIncludes: CaseInsensitive
+IncludeCategories:
+  - Regex: ^<(wisdom.*)$
+    Priority: 1
+    CaseSensitive: true
+  - Regex: ^<.*\.h.*>$
+    Priority: 2
+  - Regex: ^<.*>$
+    Priority: 3
+  - Regex: ^".*"$
+    Priority: 4
+RemoveSemicolon: true
+PointerAlignment: Left
+QualifierAlignment: Left
+ReferenceAlignment: Pointer
+ReflowComments: true
+PenaltyReturnTypeOnItsOwnLine: 100000
+PackConstructorInitializers: Never
+PenaltyBreakAssignment: 1000
+PenaltyBreakBeforeFirstCallParameter: 0
+PenaltyBreakOpenParenthesis: 0
+AllowShortLoopsOnASingleLine: false
+StatementAttributeLikeMacros:
+  - WISDOM_API
+  - WIS_EXTERN_C
+  - WISDOM_PLATFORM_API
+AlwaysBreakTemplateDeclarations: Yes

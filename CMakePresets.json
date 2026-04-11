@@ -1,19 +1,18 @@
 {
-  "version": 3,
+  "version": 6,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 28,
+    "patch": 0
+  },
   "configurePresets": [
     {
       "name": "linux-base",
-      "displayName": "Linux Debug",
       "hidden": true,
-      "description": "Target the Windows Subsystem for Linux (WSL) or a remote Linux system.",
+      "description": "Base configuration for Linux builds (WSL or remote)",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "installDir": "${sourceDir}/out/install/${presetName}",
-      "cacheVariables": {
-        "CMAKE_C_COMPILER": "/usr/bin/clang",
-        "CMAKE_CXX_COMPILER": "/usr/bin/clang++",
-        "WISDOM_EXPERIMENTAL_CPP_MODULES": "ON"
-      },
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",
@@ -25,36 +24,386 @@
         }
       }
     },
+
     {
-      "name": "linux-debug",
-      "displayName": "Linux Debug",
-      "description": "Target the Windows Subsystem for Linux (WSL) or a remote Linux system.",
+      "name": "linux-gcc-base",
       "inherits": "linux-base",
+      "hidden": true,
+      "displayName": "Linux GCC Base",
+      "description": "GCC compiler configuration",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "/usr/bin/gcc",
+        "CMAKE_CXX_COMPILER": "/usr/bin/g++"
+      }
+    },
+    {
+      "name": "linux-gcc-debug",
+      "inherits": "linux-gcc-base",
+      "displayName": "Linux GCC Debug",
+      "description": "GCC Debug build",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug"
       }
     },
     {
-      "name": "linux-release",
-      "displayName": "Linux Release",
-      "description": "Target the Windows Subsystem for Linux (WSL) or a remote Linux system.",
-      "inherits": "linux-base",
+      "name": "linux-gcc-release",
+      "inherits": "linux-gcc-base",
+      "displayName": "Linux GCC Release",
+      "description": "GCC Release build with examples and tests",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-        "WISDOM_BUILD_DOCS": true
+        "WISDOM_BUILD_TESTS": false
+      }
+    },
+    {
+      "name": "linux-gcc-debug-lib",
+      "inherits": "linux-gcc-base",
+      "displayName": "Linux GCC Lib (Debug)",
+      "description": "GCC library-only debug build for packaging",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "WISDOM_BUILD_EXAMPLES": false,
+        "WISDOM_BUILD_TESTS": false
+      }
+    },
+    {
+      "name": "linux-gcc-lib",
+      "inherits": "linux-gcc-base",
+      "displayName": "Linux GCC Lib (Release)",
+      "description": "GCC library-only release build for packaging",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "WISDOM_BUILD_EXAMPLES": false,
+        "WISDOM_BUILD_TESTS": false,
+        "CMAKE_INTERPROCEDURAL_OPTIMIZATION": true
+      }
+    },
+    {
+      "name": "linux-gcc-docs",
+      "inherits": "linux-gcc-base",
+      "displayName": "Linux GCC Docs",
+      "description": "GCC build for documentation generation",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "WISDOM_BUILD_DOCS": true,
+        "WISDOM_BUILD_EXAMPLES": false,
+        "WISDOM_BUILD_TESTS": false
       }
     },
 
     {
-      "name": "macos-debug",
-      "displayName": "macOS Debug",
-      "description": "Target a remote macOS system.",
+      "name": "linux-clang-base",
+      "inherits": "linux-base",
+      "hidden": true,
+      "displayName": "Linux Clang Base",
+      "description": "Clang compiler configuration",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "/usr/bin/clang",
+        "CMAKE_CXX_COMPILER": "/usr/bin/clang++"
+      }
+    },
+    {
+      "name": "linux-clang-debug",
+      "inherits": "linux-clang-base",
+      "displayName": "Linux Clang Debug",
+      "description": "Clang Debug build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "linux-clang-release",
+      "inherits": "linux-clang-base",
+      "displayName": "Linux Clang Release",
+      "description": "Clang Release build with examples and tests",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "linux-clang-lib",
+      "inherits": "linux-clang-base",
+      "displayName": "Linux Clang Lib (Release)",
+      "description": "Clang library-only release build for packaging",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "WISDOM_BUILD_EXAMPLES": false,
+        "WISDOM_BUILD_TESTS": false,
+        "CMAKE_INTERPROCEDURAL_OPTIMIZATION": true
+      }
+    },
+
+    {
+      "name": "windows-base",
+      "hidden": true,
+      "description": "Base configuration for Windows builds",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "installDir": "${sourceDir}/out/install/${presetName}",
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+
+    {
+      "name": "win-msvc-base",
+      "inherits": "windows-base",
+      "hidden": true,
+      "displayName": "Windows MSVC Base",
+      "description": "MSVC compiler configuration",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "cl.exe",
+        "CMAKE_CXX_COMPILER": "cl.exe"
+      },
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      }
+    },
+    {
+      "name": "win-msvc-debug",
+      "inherits": "win-msvc-base",
+      "displayName": "Windows MSVC Debug",
+      "description": "MSVC Debug build",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "win-msvc-release",
+      "inherits": "win-msvc-base",
+      "displayName": "Windows MSVC Release",
+      "description": "MSVC Release build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "WISDOM_BUILD_TESTS": false
+      }
+    },
+    {
+      "name": "win-msvc-lib",
+      "inherits": "win-msvc-base",
+      "displayName": "Windows MSVC Lib (Release)",
+      "description": "MSVC library-only release build",
+      "binaryDir": "${sourceDir}/build/msvc-release",
+      "installDir": "${sourceDir}/install/msvc-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "WISDOM_BUILD_EXAMPLES": false,
+        "WISDOM_BUILD_TESTS": false,
+        "CMAKE_INTERPROCEDURAL_OPTIMIZATION": true
+      }
+    },
+    {
+      "name": "win-msvc-debug-lib",
+      "inherits": "win-msvc-base",
+      "displayName": "Windows MSVC Lib (Debug)",
+      "description": "MSVC library-only debug build",
+      "binaryDir": "${sourceDir}/build/msvc-debug",
+      "installDir": "${sourceDir}/install/msvc-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "WISDOM_BUILD_EXAMPLES": false,
+        "WISDOM_BUILD_TESTS": false
+      }
+    },
+    {
+      "name": "win-msvc-docs",
+      "inherits": "win-msvc-base",
+      "displayName": "Windows MSVC Docs",
+      "description": "MSVC build for documentation generation",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "WISDOM_BUILD_DOCS": true,
+        "WISDOM_BUILD_EXAMPLES": false,
+        "WISDOM_BUILD_TESTS": false
+      }
+    },
+
+    {
+      "name": "win-clang-base",
+      "inherits": "windows-base",
+      "hidden": true,
+      "displayName": "Windows Clang Base",
+      "description": "Clang compiler configuration",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang.exe",
+        "CMAKE_CXX_COMPILER": "clang++.exe"
       },
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      }
+    },
+    {
+      "name": "win-clang-debug",
+      "inherits": "win-clang-base",
+      "displayName": "Windows Clang Debug",
+      "description": "Clang Debug build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "win-clang-release",
+      "inherits": "win-clang-base",
+      "displayName": "Windows Clang Release",
+      "description": "Clang Release build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "WISDOM_BUILD_TESTS": false
+      }
+    },
+    {
+      "name": "win-clang-lib",
+      "inherits": "win-clang-base",
+      "displayName": "Windows Clang Lib (Release)",
+      "description": "Clang library-only release build",
+      "binaryDir": "${sourceDir}/build/clang-release",
+      "installDir": "${sourceDir}/install/clang-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "WISDOM_BUILD_EXAMPLES": false,
+        "WISDOM_BUILD_TESTS": false,
+        "CMAKE_INTERPROCEDURAL_OPTIMIZATION": true
+      }
+    },
+    {
+      "name": "win-clang-debug-lib",
+      "inherits": "win-clang-base",
+      "displayName": "Windows Clang Lib (Debug)",
+      "description": "Clang library-only debug build",
+      "binaryDir": "${sourceDir}/build/clang-debug",
+      "installDir": "${sourceDir}/install/clang-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "WISDOM_BUILD_EXAMPLES": false,
+        "WISDOM_BUILD_TESTS": false
+      }
+    },
+
+    {
+      "name": "win-clangcl-base",
+      "inherits": "windows-base",
+      "hidden": true,
+      "displayName": "Windows Clang-CL Base",
+      "description": "Clang-CL (Clang with MSVC compatibility) configuration",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "clang-cl.exe",
+        "CMAKE_CXX_COMPILER": "clang-cl.exe"
+      },
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      }
+    },
+    {
+      "name": "win-clangcl-debug",
+      "inherits": "win-clangcl-base",
+      "displayName": "Windows Clang-CL Debug",
+      "description": "Clang-CL Debug build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "win-clangcl-release",
+      "inherits": "win-clangcl-base",
+      "displayName": "Windows Clang-CL Release",
+      "description": "Clang-CL Release build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "win-clangcl-lib",
+      "inherits": "win-clangcl-base",
+      "displayName": "Windows Clang-CL Lib (Release)",
+      "description": "Clang-CL library-only release build",
+      "binaryDir": "${sourceDir}/build/clangcl-release",
+      "installDir": "${sourceDir}/install/clangcl-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "WISDOM_BUILD_EXAMPLES": false,
+        "WISDOM_BUILD_TESTS": false,
+        "CMAKE_INTERPROCEDURAL_OPTIMIZATION": true
+      }
+    },
+
+    {
+      "name": "win-mingw-base",
+      "inherits": "windows-base",
+      "hidden": true,
+      "displayName": "Windows MinGW Base",
+      "description": "MinGW-w64 GCC compiler configuration",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "gcc.exe",
+        "CMAKE_CXX_COMPILER": "g++.exe"
+      }
+    },
+    {
+      "name": "win-mingw-debug",
+      "inherits": "win-mingw-base",
+      "displayName": "Windows MinGW Debug",
+      "description": "MinGW Debug build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "win-mingw-release",
+      "inherits": "win-mingw-base",
+      "displayName": "Windows MinGW Release",
+      "description": "MinGW Release build",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+      }
+    },
+    {
+      "name": "win-mingw-lib",
+      "inherits": "win-mingw-base",
+      "displayName": "Windows MinGW Lib (Release)",
+      "description": "MinGW library-only release build",
+      "binaryDir": "${sourceDir}/build/mingw-release",
+      "installDir": "${sourceDir}/install/mingw-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "WISDOM_BUILD_EXAMPLES": false,
+        "WISDOM_BUILD_TESTS": false,
+        "CMAKE_INTERPROCEDURAL_OPTIMIZATION": true
+      }
+    },
+
+    {
+      "name": "x64-vs",
+      "displayName": "x64 Visual Studio",
+      "description": "Visual Studio generator for IDE development",
+      "generator": "Visual Studio 17 2022",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "cl.exe",
+        "CMAKE_CXX_COMPILER": "cl.exe",
+        "CMAKE_BUILD_TYPE": "Debug"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+
+    {
+      "name": "macos-base",
+      "hidden": true,
+      "displayName": "macOS Base",
+      "description": "Base configuration for macOS builds",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "installDir": "${sourceDir}/out/install/${presetName}",
       "condition": {
         "type": "equals",
         "lhs": "${hostSystemName}",
@@ -66,197 +415,237 @@
         }
       }
     },
-
     {
-      "name": "windows-base",
-      "description": "Target Windows with the Visual Studio development environment.",
-      "hidden": true,
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/out/build/${presetName}",
-      "installDir": "${sourceDir}/out/install/${presetName}",
+      "name": "macos-debug",
+      "inherits": "macos-base",
+      "displayName": "macOS Debug",
+      "description": "macOS Debug build with default compiler",
       "cacheVariables": {
-        "CMAKE_C_COMPILER": "cl.exe",
-        "CMAKE_CXX_COMPILER": "cl.exe",
-        "WISDOM_EXPERIMENTAL_CPP_MODULES": "OFF",
-        "WISDOM_GENERATE_FUNCTIONS": false,
-        "WISDOM_BUILD_DOCS": false
-      },
-      "condition": {
-        "type": "equals",
-        "lhs": "${hostSystemName}",
-        "rhs": "Windows"
+        "CMAKE_BUILD_TYPE": "Debug"
       }
     },
     {
-      "name": "x64-debug",
-      "displayName": "x64 Debug",
-      "description": "Target Windows (64-bit) with the Visual Studio development environment. (Debug)",
-      "inherits": "windows-base",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
-        "WISDOM_BUILD_DOCS": true
-      }
-    },
-    {
-      "name": "x64-debug-clang",
-      "displayName": "x64 Debug Clang",
-      "description": "Target Windows (64-bit) with the Visual Studio development environment. (Debug)",
-      "inherits": "windows-base",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
-      "cacheVariables": {
-        "CMAKE_C_COMPILER": "clang.exe",
-        "CMAKE_CXX_COMPILER": "clang.exe",
-        "CMAKE_BUILD_TYPE": "Debug",
-        "WISDOM_GENERATE_FUNCTIONS": true,
-        "WISDOM_EXPERIMENTAL_CPP_MODULES": "ON"
-      }
-    },
-    {
-      "name": "x64-release",
-      "displayName": "x64 Release",
-      "description": "Target Windows (64-bit) with the Visual Studio development environment. (RelWithDebInfo)",
-      "inherits": "x64-debug",
+      "name": "macos-release",
+      "inherits": "macos-base",
+      "displayName": "macOS Release",
+      "description": "macOS Release build with default compiler",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "RelWithDebInfo"
       }
     },
     {
-      "name": "x64-only-lib",
-      "displayName": "x64 Lib",
-      "description": "Target Windows (64-bit) with the Visual Studio development environment. (Debug)",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
-      "generator": "Ninja",
-      "cacheVariables": {
-        "WISDOM_BUILD_EXAMPLES": false,
-        "WISDOM_BUILD_TESTS": false,
-        "WISDOM_BUILD_BINDINGS": true,
-        "WISDOM_GENERATE_FUNCTIONS": false,
-        "CMAKE_C_COMPILER": "clang.exe",
-        "CMAKE_CXX_COMPILER": "clang.exe",
-        "WISDOM_EXPERIMENTAL_CPP_MODULES": "ON"
-      },
-      "condition": {
-        "type": "equals",
-        "lhs": "${hostSystemName}",
-        "rhs": "Windows"
-      }
-    },
-    {
-      "name": "x64-vs",
-      "displayName": "x64 VS",
-      "description": "Target Windows (64-bit) with the Visual Studio development environment. (Debug)",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
-      "generator": "Visual Studio 17 2022",
-      "cacheVariables": {
-        "WISDOM_GENERATE_FUNCTIONS": false,
-        "CMAKE_C_COMPILER": "cl.exe",
-        "CMAKE_CXX_COMPILER": "cl.exe",
-        "CMAKE_BUILD_TYPE": "Debug"
-      },
-      "condition": {
-        "type": "equals",
-        "lhs": "${hostSystemName}",
-        "rhs": "Windows"
-      }
-    },
-    {
-      "name": "x64-debug-only-lib",
-      "displayName": "x64 Lib Debug",
-      "description": "Target Windows (64-bit) with the Visual Studio development environment. (Debug)",
-      "inherits": "x64-only-lib",
-      "binaryDir": "${sourceDir}/build/debug",
-      "installDir": "${sourceDir}/install/debug",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
-        "WISDOM_GENERATE_FUNCTIONS": false
-      }
-    },
-    {
-      "name": "x64-release-only-lib",
-      "displayName": "x64 Lib Release",
-      "description": "Target Windows (64-bit) with the Visual Studio development environment. (Debug)",
-      "inherits": "x64-only-lib",
-      "binaryDir": "${sourceDir}/build/release",
-      "installDir": "${sourceDir}/install/release",
+      "name": "macos-lib-release",
+      "inherits": "macos-base",
+      "displayName": "macOS Lib (Release)",
+      "description": "macOS library-only release build",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Release",
-        "WISDOM_GENERATE_FUNCTIONS": false
+        "WISDOM_BUILD_EXAMPLES": false,
+        "WISDOM_BUILD_TESTS": false,
+        "CMAKE_INTERPROCEDURAL_OPTIMIZATION": true
+      }
+    },
+    {
+      "name": "macos-docs",
+      "inherits": "macos-base",
+      "displayName": "macOS Docs",
+      "description": "macOS build for documentation generation",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "WISDOM_BUILD_DOCS": true,
+        "WISDOM_BUILD_EXAMPLES": false,
+        "WISDOM_BUILD_TESTS": false
       }
     }
   ],
+
   "buildPresets": [
     {
-      "name": "x64-debug",
-      "displayName": "x64 Debug",
-      "configurePreset": "x64-debug",
+      "name": "linux-gcc-debug",
+      "displayName": "Linux GCC Debug",
+      "configurePreset": "linux-gcc-debug",
       "jobs": 16
     },
     {
-      "name": "x64-release",
-      "displayName": "x64 Release",
-      "configurePreset": "x64-release",
+      "name": "linux-gcc-release",
+      "displayName": "Linux GCC Release",
+      "configurePreset": "linux-gcc-release",
       "jobs": 16
     },
     {
-      "name": "linux-debug",
-      "displayName": "Linux Debug",
-      "configurePreset": "linux-debug",
+      "name": "linux-gcc-debug-lib",
+      "displayName": "Linux GCC Lib (Debug)",
+      "configurePreset": "linux-gcc-debug-lib",
       "jobs": 16
     },
     {
-      "name": "linux-release",
-      "displayName": "Linux Release",
-      "configurePreset": "linux-release",
+      "name": "linux-gcc-lib",
+      "displayName": "Linux GCC Lib",
+      "configurePreset": "linux-gcc-lib",
       "jobs": 16
     },
     {
-      "name": "x64-only-lib",
-      "displayName": "x64 Lib",
-      "configurePreset": "x64-only-lib",
+      "name": "linux-gcc-docs",
+      "displayName": "Linux GCC Docs",
+      "configurePreset": "linux-gcc-docs",
+      "targets": ["doc_doxygen"],
+      "jobs": 16
+    },
+
+    {
+      "name": "linux-clang-debug",
+      "displayName": "Linux Clang Debug",
+      "configurePreset": "linux-clang-debug",
       "jobs": 16
     },
     {
-      "name": "x64-debug-clang",
-      "displayName": "x64 Debug Clang",
-      "configurePreset": "x64-debug-clang",
+      "name": "linux-clang-release",
+      "displayName": "Linux Clang Release",
+      "configurePreset": "linux-clang-release",
       "jobs": 16
     },
     {
-      "name": "x64-vs",
-      "displayName": "x64 VS",
-      "configurePreset": "x64-vs",
+      "name": "linux-clang-lib",
+      "displayName": "Linux Clang Lib",
+      "configurePreset": "linux-clang-lib",
+      "jobs": 16
+    },
+
+    {
+      "name": "win-msvc-debug",
+      "displayName": "Windows MSVC Debug",
+      "configurePreset": "win-msvc-debug",
       "jobs": 16
     },
     {
-      "name": "x64-debug-only-lib",
-      "displayName": "x64 Lib Debug",
-      "configurePreset": "x64-debug-only-lib",
+      "name": "win-msvc-release",
+      "displayName": "Windows MSVC Release",
+      "configurePreset": "win-msvc-release",
       "jobs": 16
     },
     {
-      "name": "x64-release-only-lib",
-      "displayName": "x64 Lib Release",
-      "configurePreset": "x64-release-only-lib",
+      "name": "win-msvc-lib",
+      "displayName": "Windows MSVC Lib",
+      "configurePreset": "win-msvc-lib",
       "jobs": 16
     },
+    {
+      "name": "win-msvc-docs",
+      "displayName": "Windows MSVC Docs",
+      "configurePreset": "win-msvc-docs",
+      "targets": ["doc_doxygen"],
+      "jobs": 16
+    },
+
+    {
+      "name": "win-clang-debug",
+      "displayName": "Windows Clang Debug",
+      "configurePreset": "win-clang-debug",
+      "jobs": 16
+    },
+    {
+      "name": "win-clang-release",
+      "displayName": "Windows Clang Release",
+      "configurePreset": "win-clang-release",
+      "jobs": 16
+    },
+    {
+      "name": "win-clang-lib",
+      "displayName": "Windows Clang Lib",
+      "configurePreset": "win-clang-lib",
+      "jobs": 16
+    },
+
+    {
+      "name": "win-clangcl-debug",
+      "displayName": "Windows Clang-CL Debug",
+      "configurePreset": "win-clangcl-debug",
+      "jobs": 16
+    },
+    {
+      "name": "win-clangcl-release",
+      "displayName": "Windows Clang-CL Release",
+      "configurePreset": "win-clangcl-release",
+      "jobs": 16
+    },
+    {
+      "name": "win-clangcl-lib",
+      "displayName": "Windows Clang-CL Lib",
+      "configurePreset": "win-clangcl-lib",
+      "jobs": 16
+    },
+
+    {
+      "name": "win-mingw-debug",
+      "displayName": "Windows MinGW Debug",
+      "configurePreset": "win-mingw-debug",
+      "jobs": 16
+    },
+    {
+      "name": "win-mingw-release",
+      "displayName": "Windows MinGW Release",
+      "configurePreset": "win-mingw-release",
+      "jobs": 16
+    },
+    {
+      "name": "win-mingw-lib",
+      "displayName": "Windows MinGW Lib",
+      "configurePreset": "win-mingw-lib",
+      "jobs": 16
+    },
+
     {
       "name": "macos-debug",
       "displayName": "macOS Debug",
       "configurePreset": "macos-debug",
       "jobs": 16
+    },
+    {
+      "name": "macos-release",
+      "displayName": "macOS Release",
+      "configurePreset": "macos-release",
+      "jobs": 16
+    },
+    {
+      "name": "macos-lib",
+      "displayName": "macOS Lib",
+      "configurePreset": "macos-lib-release",
+      "jobs": 16
+    },
+    {
+      "name": "macos-docs",
+      "displayName": "macOS Docs",
+      "configurePreset": "macos-docs",
+      "targets": ["doc_doxygen"],
+      "jobs": 16
+    }
+  ],
+
+  "testPresets": [
+    {
+      "name": "linux-gcc-debug",
+      "configurePreset": "linux-gcc-debug",
+      "output": { "outputOnFailure": true }
+    },
+    {
+      "name": "linux-clang-debug",
+      "configurePreset": "linux-clang-debug",
+      "output": { "outputOnFailure": true }
+    },
+    {
+      "name": "win-msvc-debug",
+      "configurePreset": "win-msvc-debug",
+      "output": { "outputOnFailure": true }
+    },
+    {
+      "name": "win-clang-debug",
+      "configurePreset": "win-clang-debug",
+      "output": { "outputOnFailure": true }
+    },
+    {
+      "name": "macos-debug",
+      "configurePreset": "macos-debug",
+      "output": { "outputOnFailure": true }
     }
   ]
 }

@@ -1,7 +1,0 @@
-[VKDescBufferExt]
-
-# Device table
-vkCmdBindDescriptorBuffersEXT
-vkCmdSetDescriptorBufferOffsetsEXT
-vkGetDescriptorSetLayoutBindingOffsetEXT
-vkGetDescriptorEXT
