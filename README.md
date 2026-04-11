@@ -29,53 +29,64 @@
 - [x] Compatibility mode allowing C++11 and C99 API interfaces for easy legacy codebase conversion.
 - [x] Advanced memory allocations and direct memory writes, eliminating the need for staging buffers and reducing CPU overhead.
 - [x] Header only mode for C++20+.
+- [x] Conan integration.
 
 # Roadmap
 
 - [ ] Raytracing support (temporarily unavailable, planned for future release)
 - [ ] Mesh Shaders
 - [ ] Extended documentation and tutorials
-- [ ] Vcpkg support
+- [ ] Interoperability with other graphics libraries
 
 # Why?
 
-A lot of old OpenGL solutions are scratching the ceiling of OpenGL potential, and Vulkan is too low-level for most of the tasks. DirectX 12 is a good alternative, but it's not cross-platform.
-Wisdom is designed to be a direct translation layer on top of DirectX 12 and Vulkan, with a simple API, that is easy to learn and extend.
-It is still low level, yet more user friendly. It uses a lot of advanced graphics features, like Descriptor Buffer and Direct GPU Upload.
+A lot of old graphics APIs are still widely used, but the modern ones are not as widely adopted,
+since they are more complex and often require a lot of boilerplate code to get started. 
+This library aims to provide a low-level, high-performance graphics API that is easy to learn and use, 
+while still being extensible and compatible with existing codebases.
 
-Library has transparent API. All classes have their own internal state, that can be accessed and modified. This allows for easy extension of the library, without the need to rewrite the whole API.
+The design is simple - provide a low-level API that is as close to the underlying graphics API as possible,
+while still being easy to use and extend. This allows developers to get the most out of their hardware, 
+while still being able to write clean and maintainable code without digging too deep into foreign API.
+
+Wisdom acknowledges that a lot of special use cases require writing extensions or using platform specific features, 
+so it provides unparalleled access to the internal state of the library, 
+allowing developers to write extensions without needing to modify the core library code.
+Internal extension resolver allows getting access to the state without worrying about 
+collisions of extensions or internal structures.
 
 # Details
 
 The API is structured like this:
 
-- The basic types are defined, depending on platform of choice. They are **Factory**, **Adapter**, **Device** etc. They are directly implemented, this eliminates memory indirection and potential cache misses.
+- The basic types are defined at compile time with selected backend. They are **Instance**, **Device** etc. They are stack based and do not require dynamic memory allocation.
 - The platform selects the most suitable implemetation to the system: Windows - DirectX 12, Linux - Vulkan. This is done at compile time.
-- You can override the implementation selection with `WISDOM_FORCE_VULKAN` option on CMake configuration. This will force the library to use Vulkan as a base API. This is useful for debugging Vulkan extensions.
+- You can override the implementation selection with `WISDOM_FORCE_VULKAN` option on CMake configuration or global definition. This will force the library to use Vulkan as a base API. This is useful for debugging Vulkan extensions.
 - All calls are done directly, without usage of interfaces/virtual functions. This eliminates call indirection and the code is inlined as if you wrote the code directly inside your functions.
-- Underlying accessibility, all of the internals are accessible using `GetInternal()` and can be used to bridge functionality or to create extensions. All the internal state is immutable for the stability of work between library and extensions. However it's not advised to use internal state directly, since it is platform dependent.
+- Underlying accessibility, all of the internals are accessible using `GetInternal()` in C++ and can be used to bridge functionality or to create extensions.
+- Internal state is considered sealed, but the types that are at offset 0 are guaranteed to be stable and can be used for extensions. This allows you to write extensions without worrying about the internal state changes, as long as you don't rely on the internal state that is not at offset 0.
 
-Vulkan is compiled on compatible systems and used as default only if there is no other alternative. Vulkan can still be used under supported operating system with explicit types `wis::VKFactory`, `wis::VKDevice` etc.
-
-[Changelog](Changelog.md)
+Vulkan is compiled on compatible systems and used as default only if there is no other alternative. Vulkan can still be used under supported operating system with explicit types `wis::VKInstance`, `wis::VKDevice` etc.
 
 # Platforms
 
 Supported platforms are:
 
-- Windows API (Win32) - DirectX 12 and Vulkan
-- Linux (X11, XCB and Wayland) - Vulkan only
-- Windows Store (UWP) - Microsoft Store applications. DirectX 12 only.
+- Windows API (Win32) - DirectX 12 and Vulkan.
+- Linux (X11, XCB and Wayland) - Vulkan only.
+- Windows Store (UWP) - Microsoft Store applications. DirectX 12 only. Can be used with NuGet package.
 
-New platform extensions can be added by implementation using extensibility API without the need to rewrite the whole library.
+New platform extensions can be added by implementation using extensibility API.
 
 # Build
 
 This is a CMake project, all the plugins are ensured to download beforehand, so it's enough to just configure the project, everything is going to be downloaded with respect to platform.
 
-The library does not contain any extra dependencies.
+The library uses minimal dependencies, so the build is going to be fast and easy.
 
-If you don't have Vulkan SDK installed on Windows the library will still provide you with DX12 implementation, that comes with Windows system. No administrative rights are required to build or use the library.
+If you don't have Vulkan SDK installed on Windows the library will still provide you with DX12 implementation, that comes with Windows system.
+There is also an option to directly point to Vulkan headers with `WISDOM_VULKAN_HEADER_PATH` CMake option, so you can use the library with custom Vulkan headers or without Vulkan SDK.
+Vulkan library is loaded dynamically, so it is not required to have Vulkan SDK installed to run the library.
 
 # CMake Options
 
@@ -107,6 +118,10 @@ Available targets are:
 - `wis::wisdom | wis::wisdom-headers` - functional library
 - `wis::platform | wis::wisdom-platform-headers` - platform specific extensions (Surface)
 
+There is also Conan package available for consumption, it can't be loaded to Conan Center yet,
+but you can add it manually by downloading the repo and executing `conan create .` command in the root of the repository.
+This will build the library and create a local package that you can use in your projects. The package name is `wisdom/0.7.0` and it can be used in your `conanfile.txt` or `conanfile.py` with `requires = wisdom/0.7.0`.
+
 # System Requirements
 
 **Windows:**
@@ -134,7 +149,7 @@ Tested on Windows with NVIDIA GeForce GTX 1070 and Linux with RTX A4000 with lat
 - CMake 3.22+
 - Vulkan 1.3.+ minimum
 
-- Core features demand Descriptor Heap, requiring Vulkan 1.4+ or 1.3 with VK_EXT_descriptor_heap.
+- Core features demand Descriptor Heap, requiring Vulkan 1.3 with VK_EXT_descriptor_heap.
 - Tested with RTX A4000 with latest drivers on Ubuntu 24.04.
 
 **Windows Store:**
@@ -144,3 +159,7 @@ You can install a NuGet package to any Visual studio project.
 After the first launch, the project can be launched from the Start Menu.
 
 This type of project does not support Vulkan, since Vulkan does not have UWP surface, but the API is the same as for any other platform. Useful when you want to deploy your application to Microsoft Store without too much code rewriting.
+
+# API
+
+The library has a simple API, that is defined in xml/*.xml files. Those files can be used to generate bindings for other languages, or to generate documentation. The API is defined in a way that is easy to use and understand, while still being powerful and flexible. 
