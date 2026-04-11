@@ -47,7 +47,8 @@
  *
  * // Provided by Wisdom 0.7.0.
  * WIS_NODISCARD wis::DX12Texture DX12ResourceAllocator::CreateTexture(const wis::TextureDesc& desc,
- *                                                                     wis::Result&            out_result) const noexcept;
+ *                                                                     wis::Result&            out_result) const
+ * noexcept;
  * }
  * ```
  * </details>

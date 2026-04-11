@@ -34,9 +34,10 @@
  * \note Translates to  `D3D12_DESCRIPTOR_HEAP_FLAGS` for DirectX 12 implementation.
  *
  * Values:
- * - `WisDescriptorMemoryTypeCpuOnly = 0`: Descriptors are only visible to CPU. May be used for copying descriptors to the GPU visible pool.
- * - `WisDescriptorMemoryTypeShaderVisible = 1`: Descriptors are visible to GPU. Descriptors can be bound to the GPU pipeline directly, but can't be copied from.
- * \endcond
+ * - `WisDescriptorMemoryTypeCpuOnly = 0`: Descriptors are only visible to CPU. May be used for copying descriptors to
+ * the GPU visible pool.
+ * - `WisDescriptorMemoryTypeShaderVisible = 1`: Descriptors are visible to GPU. Descriptors can be bound to the GPU
+ * pipeline directly, but can't be copied from. \endcond
  *
  *
  * @section WisDescriptorMemoryType_see_also See Also

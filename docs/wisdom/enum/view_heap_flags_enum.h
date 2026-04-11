@@ -35,8 +35,8 @@
  *
  * Values:
  * - `WisViewHeapFlagsNone = 0`: No flags set. View heap is regular.
- * - `WisViewHeapFlagsAllowMultisample = (1 << 0)`: Allows the view heap to be used with multisampled resources. If not set, the view heap does not enable multisample-related usage.
- * \endcond
+ * - `WisViewHeapFlagsAllowMultisample = (1 << 0)`: Allows the view heap to be used with multisampled resources. If not
+ * set, the view heap does not enable multisample-related usage. \endcond
  *
  *
  * @section WisViewHeapFlags_see_also See Also

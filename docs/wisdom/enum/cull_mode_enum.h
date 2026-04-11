@@ -34,7 +34,8 @@
  * Cull mode for rasterizer.
  * Triangle culling depends on WisWindingOrder option.
  *
- * \note Translates to  `D3D12_CULL_MODE` for DirectX 12 implementation, and `VkCullModeFlags` for Vulkan implementation.
+ * \note Translates to  `D3D12_CULL_MODE` for DirectX 12 implementation, and `VkCullModeFlags` for Vulkan
+ * implementation.
  *
  * Values:
  * - `WisCullModeNone = 1`: No culling.

@@ -55,7 +55,8 @@
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisPipelineCache instance.
  * - `data` points to an array that is filled with serialized cache data on success.
- * - `data_size` defines the size of the data chunk in bytes. It @wis_must be greater or equal to the value returned by wisPipelineCacheGetSerializedSize.
+ * - `data_size` defines the size of the data chunk in bytes. It @wis_must be greater or equal to the value returned by
+ * wisPipelineCacheGetSerializedSize.
  *
  * - **return** denoting the outcome of operation.
  * \endcond

@@ -78,7 +78,8 @@
  * - `fences` defines an array of fence views to wait on.
  * - `fence_values` defines fence values to wait for; array @wis_must have fence_count values.
  * - `fence_count` describes number of fences to wait on.
- * - `wait_for` indicates the kind of wait, where All waits for all fences and Any waits for any fence; default is `WisMultiWaitTypeAll`.
+ * - `wait_for` indicates the kind of wait, where All waits for all fences and Any waits for any fence; default is
+ * `WisMultiWaitTypeAll`.
  * - `timeout` indicates timeout in nanoseconds; if UINT64_MAX, waits indefinitely.
  *
  * - **return** denoting the outcome of operation.

@@ -37,14 +37,17 @@
  * @section WisCommandQueueType_descr Description
  * <hr>
  * \cond WIS_GEN_DESC
- * Defines types of command queues that can be created on the device. Each type corresponds to a specific kind of workload that the GPU can handle.
+ * Defines types of command queues that can be created on the device. Each type corresponds to a specific kind of
+ * workload that the GPU can handle.
  *
  * \note Translates to  `D3D12_COMMAND_LIST_TYPE` for DirectX 12 implementation.
  *
  * Values:
  * - `WisCommandQueueTypeGraphics = 0`: Command queue for graphics operations, including rendering and compute tasks.
- * - `WisCommandQueueTypeCompute = 1`: Command queue dedicated to compute operations, optimized for parallel processing tasks.
- * - `WisCommandQueueTypeTransfer = 2`: Command queue for data transfer operations, such as copying resources between buffers and images.
+ * - `WisCommandQueueTypeCompute = 1`: Command queue dedicated to compute operations, optimized for parallel processing
+ * tasks.
+ * - `WisCommandQueueTypeTransfer = 2`: Command queue for data transfer operations, such as copying resources between
+ * buffers and images.
  * - `WisCommandQueueTypeVideoDecode = 3`: Command queue for video decoding operations.
  * - `WisCommandQueueTypeVideoEncode = 4`: Command queue for video encoding operations.
  * - `WisCommandQueueTypeCount = 5`: Number of command queue types available.

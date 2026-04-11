@@ -196,8 +196,8 @@ std::string Generator::MakeCFunctionProto(
     } else if (func.return_type.has_result) {
         full_return_type = GetCFullTypename("Result", Backend::Any);
         std::string arg_name = func.return_type.opt_name.empty()
-                               ? wis::format("out_{}", MakeSnakeCase(func.return_type.type))
-                               : std::string(func.return_type.opt_name);
+                                 ? wis::format("out_{}", MakeSnakeCase(func.return_type.type))
+                                 : std::string(func.return_type.opt_name);
 
         std::string prefix = "";
         size_t length = full_return_type.size() + 1 + pre_decl.size() + 1 + function_full_name.size();
@@ -262,14 +262,14 @@ std::string Generator::MakeCFunctionProto(
     }
 
     return wis::format(
-               "{}{} {}({}{}{});\n",
-               pre_decl,
-               full_return_type,
-               function_full_name,
-               this_arg,
-               params.empty() && !post_return.empty() ? ",\n" : params.c_str(),
-               post_return
-           );
+        "{}{} {}({}{}{});\n",
+        pre_decl,
+        full_return_type,
+        function_full_name,
+        this_arg,
+        params.empty() && !post_return.empty() ? ",\n" : params.c_str(),
+        post_return
+    );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -305,23 +305,23 @@ std::string Generator::MakeCPPFunctionProto(
         break;
     case Direct:
         full_return_type = GetMemberTypeString<Lang::CPP>(
-                               func.return_type,
-                               type != ProtoType::Universal ? backend : Backend::Any
-                           );
+            func.return_type,
+            type != ProtoType::Universal ? backend : Backend::Any
+        );
         break;
     case ResultOnly:
         full_return_type = "wis::Result";
         break;
     case ResultAndValue:
         full_return_type = GetMemberTypeString<Lang::CPP>(
-                               func.return_type,
-                               type != ProtoType::Universal ? backend : Backend::Any
-                           );
+            func.return_type,
+            type != ProtoType::Universal ? backend : Backend::Any
+        );
         // Add out parameter for result
         {
             std::string prefix = "";
             size_t length = full_return_type.size() + 1 + pre_decl.size() + 1 + func.name.size() + func_prefix.size()
-                            + xclass_code.size();
+                          + xclass_code.size();
             if (func.parameters.size() > 0) {
                 prefix = ",\n" + std::string(length, ' ');
             }
@@ -336,7 +336,7 @@ std::string Generator::MakeCPPFunctionProto(
     }
 
     size_t length = full_return_type.size() + 1 + pre_decl.size() + 1 + func.name.size() + func_prefix.size()
-                    + xclass_code.size();
+                  + xclass_code.size();
     size_t max_arg_length = post_return_length;
 
     // account for spans
@@ -390,16 +390,16 @@ std::string Generator::MakeCPPFunctionProto(
     }
 
     return wis::format(
-               "{}{} {}{}{}({}{}){} noexcept;\n",
-               pre_decl,
-               full_return_type,
-               func_prefix,
-               xclass_code,
-               func.name,
-               params,
-               post_return,
-               func.modifier & Modifier::Const ? " const" : ""
-           );
+        "{}{} {}{}{}({}{}){} noexcept;\n",
+        pre_decl,
+        full_return_type,
+        func_prefix,
+        xclass_code,
+        func.name,
+        params,
+        post_return,
+        func.modifier & Modifier::Const ? " const" : ""
+    );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -474,11 +474,11 @@ std::string Generator::MakeCPPFunctionImpl(
 
             if (p.modifier & Modifier::Span) {
                 body += wis::format(
-                            "reinterpret_cast<{}>({}.data()), {}.size()",
-                            GetMemberTypeString<Lang::C>(p, backend),
-                            p.name,
-                            p.name
-                        );
+                    "reinterpret_cast<{}>({}.data()), {}.size()",
+                    GetMemberTypeString<Lang::C>(p, backend),
+                    p.name,
+                    p.name
+                );
                 i++; // skip next parameter (the size)
                 if (i < func.parameters.size() - 1) {
                     body += arg_prefix;
@@ -514,17 +514,17 @@ std::string Generator::MakeCPPFunctionImpl(
     switch (func.return_type.GetKind()) {
     case ReturnTypeKind::ResultAndValue: {
         auto ret_value_name = func.return_type.opt_name.empty()
-                              ? wis::format("out_{}", MakeSnakeCase(func.return_type.type))
-                              : std::string(func.return_type.opt_name);
+                                ? wis::format("out_{}", MakeSnakeCase(func.return_type.type))
+                                : std::string(func.return_type.opt_name);
 
         // Prepare out parameter
         body += wis::format("    {} {};\n", GetMemberTypeString<Lang::CPP>(func.return_type, backend), ret_value_name);
 
         body += wis::format(
-                    "    const WisResult wis_result = ::{}({}",
-                    c_name,
-                    func.this_type.empty() ? "" : "&_impl_storage"
-                );
+            "    const WisResult wis_result = ::{}({}",
+            c_name,
+            func.this_type.empty() ? "" : "&_impl_storage"
+        );
 
         if (func.parameters.size() > 0 && !func.this_type.empty()) {
             body += arg_prefix;
@@ -538,22 +538,21 @@ std::string Generator::MakeCPPFunctionImpl(
             body += wis::format(", {}.GetStorage());\n", ret_value_name);
         } else {
             body += wis::format(
-                        ", reinterpret_cast<{}*>(&{}));\n",
-                        GetMemberTypeString<Lang::C>(func.return_type, backend),
-                        ret_value_name
-                    );
+                ", reinterpret_cast<{}*>(&{}));\n",
+                GetMemberTypeString<Lang::C>(func.return_type, backend),
+                ret_value_name
+            );
         }
         body += "    out_result = wis::Result{ static_cast<wis::Status>(wis_result.status), wis_result.platform_code, "
                 "wis_result.error };\n";
         body += wis::format("    return {};\n", ret_value_name);
-    }
-    break;
+    } break;
     case ReturnTypeKind::ResultOnly: {
         body += wis::format(
-                    "    const WisResult wis_result = ::{}({}",
-                    c_name,
-                    func.this_type.empty() ? "" : "&_impl_storage"
-                );
+            "    const WisResult wis_result = ::{}({}",
+            c_name,
+            func.this_type.empty() ? "" : "&_impl_storage"
+        );
         constexpr static std::string_view arg_prefix = ",\n    ";
         if (func.parameters.size() > 0 && !func.this_type.empty()) {
             body += arg_prefix;
@@ -562,8 +561,7 @@ std::string Generator::MakeCPPFunctionImpl(
         body += ");\n";
         body += "    return wis::Result{ static_cast<wis::Status>(wis_result.status), wis_result.platform_code, "
                 "wis_result.error };\n";
-    }
-    break;
+    } break;
     case ReturnTypeKind::Direct: {
         auto ret_type = GetType(func.return_type.type);
         std::string return_cast;
@@ -581,26 +579,25 @@ std::string Generator::MakeCPPFunctionImpl(
             break;
         default:
             return_cast = wis::format(
-                              "reinterpret_cast<{}>",
-                              GetMemberTypeString<Lang::CPP>(func.return_type, backend)
-                          );
+                "reinterpret_cast<{}>",
+                GetMemberTypeString<Lang::CPP>(func.return_type, backend)
+            );
             break;
         }
 
         body += wis::format(
-                    "    return {}(::{}({}",
-                    return_cast,
-                    c_name,
-                    func.this_type.empty() ? "" : "&_impl_storage"
-                );
+            "    return {}(::{}({}",
+            return_cast,
+            c_name,
+            func.this_type.empty() ? "" : "&_impl_storage"
+        );
         constexpr static std::string_view arg_prefix = ",\n    ";
         if (func.parameters.size() > 0 && !func.this_type.empty()) {
             body += arg_prefix;
         }
         set_params();
         body += "));\n";
-    }
-    break;
+    } break;
     case ReturnTypeKind::Void: {
         body += wis::format("    ::{}({}", c_name, func.this_type.empty() ? "" : "&_impl_storage");
         constexpr static std::string_view arg_prefix = ",\n    ";
@@ -609,8 +606,7 @@ std::string Generator::MakeCPPFunctionImpl(
         }
         set_params();
         body += ");\n";
-    }
-    break;
+    } break;
     default:
         break;
     }
@@ -651,18 +647,18 @@ std::string Generator::MakeFunctionDescription(const WisFunction& s)
     if (!s.this_type.empty()) {
         if (s.modifier & Modifier::Construct) {
             description += wis::format(
-                               "- **this** `self` is a pointer to uninitialized {{{}::}} instance memory. It will be initialized by "
-                               "this function.\n",
-                               s.this_type
-                           );
+                "- **this** `self` is a pointer to uninitialized {{{}::}} instance memory. It will be initialized by "
+                "this function.\n",
+                s.this_type
+            );
 
             // There must also be a note about the destroy function in the description
             description += wis::format("**note** The corresponding destroy function is `wisDestroy{}`.\n", s.this_type);
         } else {
             description += wis::format(
-                               "- **this** `self` self is a pointer to the valid {{{}::}} instance.\n",
-                               s.this_type
-                           );
+                "- **this** `self` self is a pointer to the valid {{{}::}} instance.\n",
+                s.this_type
+            );
         }
     }
 
@@ -673,21 +669,21 @@ std::string Generator::MakeFunctionDescription(const WisFunction& s)
     switch (s.return_type.GetKind()) {
     case ReturnTypeKind::Direct:
         description += wis::format(
-                           "\n- **return** {}\n",
-                           s.return_type.doc.empty() ? "No description." : s.return_type.doc
-                       );
+            "\n- **return** {}\n",
+            s.return_type.doc.empty() ? "No description." : s.return_type.doc
+        );
         break;
     case ReturnTypeKind::ResultOnly:
         description += wis::format("\n- **return** denoting the outcome of operation.\n");
         break;
     case ReturnTypeKind::ResultAndValue: {
         std::string arg_name = s.return_type.opt_name.empty() ? wis::format("out_{}", MakeSnakeCase(s.return_type.type))
-                               : std::string(s.return_type.opt_name);
+                                                              : std::string(s.return_type.opt_name);
         description += wis::format(
-                           "- `{}` {}\n",
-                           s.return_type.opt_name.empty() ? "value" : s.return_type.opt_name,
-                           s.return_type.doc.empty() ? "No description." : s.return_type.doc
-                       );
+            "- `{}` {}\n",
+            s.return_type.opt_name.empty() ? "value" : s.return_type.opt_name,
+            s.return_type.doc.empty() ? "No description." : s.return_type.doc
+        );
         description += wis::format("\n- **return** denoting the outcome of operation.\n");
         break;
     }
@@ -716,10 +712,10 @@ void Generator::WriteFunctionDocumentation(std::filesystem::path func_output_pat
     for (auto& func_name : function_names) {
         auto& func_def = function_map[func_name];
         std::string full_func_name = wis::format(
-                                         "wis{}{}",
-                                         func_def.modifier & (Destroy | Construct) ? "" : func_def.this_type,
-                                         func_def.name
-                                     );
+            "wis{}{}",
+            func_def.modifier & (Destroy | Construct) ? "" : func_def.this_type,
+            func_def.name
+        );
         auto func_doc_path = func_output_path / wis::format("{}_function.h", MakeSnakeCase(full_func_name.substr(3)));
 
         auto supports_vk = has(func_def.backend, Backend::Vulkan);
@@ -735,18 +731,18 @@ void Generator::WriteFunctionDocumentation(std::filesystem::path func_output_pat
         }
 
         std::string vk_code_cpp = func_def.modifier & Modifier::Destroy || !supports_vk
-                                  ? ""
-                                  : MakeCPPFunctionImpl(func_def, Backend::Vulkan, "", DocKind::VersionOnly);
+                                    ? ""
+                                    : MakeCPPFunctionImpl(func_def, Backend::Vulkan, "", DocKind::VersionOnly);
         std::string dx_code_cpp = func_def.modifier & Modifier::Destroy || !supports_dx
-                                  ? ""
-                                  : MakeCPPFunctionImpl(func_def, Backend::DX12, "", DocKind::VersionOnly);
+                                    ? ""
+                                    : MakeCPPFunctionImpl(func_def, Backend::DX12, "", DocKind::VersionOnly);
         std::string regular_code_cpp = func_def.modifier & Modifier::Destroy || !(supports_vk && supports_dx)
-                                       ? ""
-                                       : MakeCPPFunctionImpl(func_def, Backend::Any, "", DocKind::VersionOnly);
+                                         ? ""
+                                         : MakeCPPFunctionImpl(func_def, Backend::Any, "", DocKind::VersionOnly);
         std::string cpp_code = regular_code_cpp;
         std::string cpp_impl_code = func_def.modifier & Modifier::Destroy || !(supports_vk && supports_dx)
-                                    ? ""
-                                    : vk_code_cpp + '\n' + dx_code_cpp;
+                                      ? ""
+                                      : vk_code_cpp + '\n' + dx_code_cpp;
         if (cpp_code.empty()) {
             cpp_code = !vk_code_cpp.empty() ? vk_code_cpp : dx_code_cpp;
         }
@@ -779,7 +775,7 @@ void Generator::WriteDelegateDocumentation(std::filesystem::path func_output_pat
     for (auto& delegate_name : module_map.at(active_module_name).delegates_in_order) {
         auto full_delegate_name = GetCFullTypename(delegate_name, Backend::Any);
         auto delegate_doc_path = func_output_path
-                                 / wis::format("{}_delegate.h", MakeSnakeCase(full_delegate_name.substr(3)));
+                               / wis::format("{}_delegate.h", MakeSnakeCase(full_delegate_name.substr(3)));
         auto& delegate_def = delegate_map[delegate_name];
 
         std::string regular_code = MakeCDelegate(delegate_def, DocKind::VersionOnly);

@@ -35,7 +35,8 @@
  * \cond WIS_GEN_DESC
  * Primitive topology type for WisGraphicsPipelineDesc.
  *
- * \note Translates to  `D3D12_PRIMITIVE_TOPOLOGY_TYPE` for DirectX 12 implementation, and `VkPrimitiveTopology` for Vulkan implementation.
+ * \note Translates to  `D3D12_PRIMITIVE_TOPOLOGY_TYPE` for DirectX 12 implementation, and `VkPrimitiveTopology` for
+ * Vulkan implementation.
  *
  * Values:
  * - `WisTopologyTypePoint = 1`: Render points for each vertex.

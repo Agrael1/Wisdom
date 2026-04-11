@@ -33,7 +33,8 @@
  * \cond WIS_GEN_DESC
  * Attachment load operation for render pass.
  *
- * \note Translates to  `D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE` for DirectX 12 implementation, and `VkAttachmentLoadOp` for Vulkan implementation.
+ * \note Translates to  `D3D12_RENDER_PASS_BEGINNING_ACCESS_TYPE` for DirectX 12 implementation, and
+ * `VkAttachmentLoadOp` for Vulkan implementation.
  *
  * Values:
  * - `WisLoadOpLoad = 0`: Load the attachment contents.

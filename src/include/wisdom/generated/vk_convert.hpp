@@ -362,7 +362,7 @@ constexpr inline VkMemoryPropertyFlags VKConvert(WisMemoryType value) noexcept
         return VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT;
     case WisMemoryTypeGPUUpload:
         return VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT
-               | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+             | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
     default:
         return static_cast<VkMemoryPropertyFlags>(0);
     }
@@ -820,9 +820,9 @@ constexpr inline VkPipelineStageFlags2 VKConvert(WisBarrierSync value) noexcept
     }
     if (value & WisBarrierSyncDraw) {
         result |= VK_PIPELINE_STAGE_2_VERTEX_ATTRIBUTE_INPUT_BIT | VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT
-                  | VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT
-                  | VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT
-                  | VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
+                | VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT
+                | VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT
+                | VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
     }
     if (value & WisBarrierSyncIndexInput) {
         result |= VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT;
@@ -850,14 +850,14 @@ constexpr inline VkPipelineStageFlags2 VKConvert(WisBarrierSync value) noexcept
     }
     if (value & WisBarrierSyncResolve) {
         result |= VK_PIPELINE_STAGE_2_COPY_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT
-                  | VK_PIPELINE_STAGE_2_RESOLVE_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
+                | VK_PIPELINE_STAGE_2_RESOLVE_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
     }
     if (value & WisBarrierSyncExecuteIndirect) {
         result |= VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
     }
     if (value & WisBarrierSyncAllShading) {
         result |= VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT
-                  | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
+                | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
     }
     if (value & WisBarrierSyncNonPixelShading) {
         result |= VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;

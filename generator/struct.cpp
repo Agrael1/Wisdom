@@ -88,10 +88,10 @@ std::string Generator::MakeCStruct(const WisStruct& s, DocKind kind)
 {
     auto full_name = GetCFullTypename(s.name, Backend::Any);
     std::string st_decl = wis::format(
-                              "typedef struct {} {} {{\n",
-                              s.modifier & Modifier::Nodiscard ? "WIS_NODISCARD" : "",
-                              full_name
-                          );
+        "typedef struct {} {} {{\n",
+        s.modifier & Modifier::Nodiscard ? "WIS_NODISCARD" : "",
+        full_name
+    );
     if (!s.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation(s, kind);
         st_decl = wis::format("{}\n{}", xdoc, st_decl);
@@ -115,10 +115,10 @@ std::string Generator::MakeCStruct(const WisStruct& s, DocKind kind)
 std::string Generator::MakeCPPStruct(const WisStruct& s, DocKind kind)
 {
     std::string st_decl = wis::format(
-                              "struct {} {} {{\n",
-                              s.modifier & Modifier::Nodiscard ? "WIS_NODISCARD" : "",
-                              s.name
-                          );
+        "struct {} {} {{\n",
+        s.modifier & Modifier::Nodiscard ? "WIS_NODISCARD" : "",
+        s.name
+    );
     if (!s.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation<Lang::CPP>(s, kind);
         st_decl = wis::format("{}\n{}", xdoc, st_decl);
@@ -139,11 +139,11 @@ std::string Generator::MakeCPPStruct(const WisStruct& s, DocKind kind)
         }
 
         st_decl += MakeValueDocumentation<Lang::CPP>(
-                       s,
-                       m,
-                       MakeCPPMemberDeclaration(m, max_type_length, Backend::Any),
-                       kind
-                   );
+            s,
+            m,
+            MakeCPPMemberDeclaration(m, max_type_length, Backend::Any),
+            kind
+        );
         prev_span = m.modifier & Modifier::Span;
     }
     st_decl += "};\n";
@@ -201,15 +201,15 @@ void Generator::WriteStructDocumentation(std::filesystem::path struct_output_pat
     for (const auto& struct_name : struct_names) {
         // Make a folder for enums starting with this letter
         std::filesystem::path struct_file_path = struct_output_path
-            / wis::format("{}_struct.h", MakeSnakeCase(struct_name));
+                                               / wis::format("{}_struct.h", MakeSnakeCase(struct_name));
         auto& struct_ref = struct_map[struct_name];
 
         std::string struct_template_content = wis::format(
-                " * C version:\n```c\n{}```\n"
-                "C++ version:\n```cpp\nnamespace wis{{\n{}}}\n```\n",
-                MakeCStruct(struct_ref, DocKind::VersionOnly),
-                MakeCPPStruct(struct_ref, DocKind::VersionOnly)
-                                              );
+            " * C version:\n```c\n{}```\n"
+            "C++ version:\n```cpp\nnamespace wis{{\n{}}}\n```\n",
+            MakeCStruct(struct_ref, DocKind::VersionOnly),
+            MakeCPPStruct(struct_ref, DocKind::VersionOnly)
+        );
 
         std::string struct_description = wis::format(" * {}", MakeStructDescription(struct_ref));
         std::string struct_refs = GetRefs(struct_name);

@@ -19,23 +19,23 @@ inline WisResult DX12CreateResource(
 {
     if (all_desc.HeapType == D3D12_HEAP_TYPE_GPU_UPLOAD && !allocator->IsGPUUploadHeapSupported()) {
         return wis::detail::make_result<wis::detail::Func(), "GPU Upload Heaps are not supported on this system">(
-                   E_NOTIMPL
-               );
+            E_NOTIMPL
+        );
     }
 
     wis::com_ptr<ID3D12Resource> resource;
     wis::com_ptr<D3D12MA::Allocation> allocation;
     HRESULT hr = allocator->CreateResource3(
-                     &all_desc,
-                     &res_desc,
-                     initial_layout,
-                     nullptr,
-                     0,
-                     nullptr,
-                     allocation.put_unchecked(),
-                     resource.iid(),
-                     resource.put_void_unchecked()
-                 );
+        &all_desc,
+        &res_desc,
+        initial_layout,
+        nullptr,
+        0,
+        nullptr,
+        allocation.put_unchecked(),
+        resource.iid(),
+        resource.put_void_unchecked()
+    );
 
     if (!wis::detail::succeeded(hr)) {
         return wis::detail::make_result<wis::detail::Func(), "Resource Allocation failed">(hr);
@@ -129,9 +129,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12ResourceAllocatorCreateBuffer(
 {
     auto& [allocator, device] = wis::from_handle_ref<const wis::impl::DX12ResourceAllocatorImpl>(self);
     uint64_t size = wis::aligned_size(
-                        desc->size_bytes,
-                        static_cast<uint64_t>(D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT)
-                    );
+        desc->size_bytes,
+        static_cast<uint64_t>(D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT)
+    );
     D3D12_RESOURCE_DESC1 buffer_desc{
         .Dimension = D3D12_RESOURCE_DIMENSION_BUFFER,
         .Alignment = 0,

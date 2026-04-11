@@ -132,13 +132,13 @@ wisVKResourceAllocatorCreateBuffer(const WisVKResourceAllocator* self, const Wis
     VkBuffer buffer_handle = VK_NULL_HANDLE;
     VmaAllocation allocation_handle = VK_NULL_HANDLE;
     VkResult vr = vmaCreateBuffer(
-                      allocator.allocator,
-                      &buffer_info,
-                      &alloc_info,
-                      &buffer_handle,
-                      &allocation_handle,
-                      nullptr
-                  );
+        allocator.allocator,
+        &buffer_info,
+        &alloc_info,
+        &buffer_handle,
+        &allocation_handle,
+        nullptr
+    );
     if (!wis::detail::succeeded(vr)) {
         return wis::detail::make_result<wis::detail::Func(), "Buffer creation failed">(vr);
     }
@@ -175,8 +175,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateTexture(
     // Check memory type, you can't create a texture with upload or readback memory types
     if (desc->memory_type == WisMemoryTypeUpload || desc->memory_type == WisMemoryTypeReadback) {
         return wis::detail::make_result<wis::detail::Func(), "Invalid memory type for texture creation">(
-                   VK_ERROR_UNKNOWN
-               );
+            VK_ERROR_UNKNOWN
+        );
     }
 
     VkImageCreateInfo image_info = wis::detail::VKFillImageDesc(*desc);
@@ -190,7 +190,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateTexture(
     VkImage image_handle = VK_NULL_HANDLE;
     VmaAllocation allocation_handle = VK_NULL_HANDLE;
     VkResult
-    vr = vmaCreateImage(allocator.allocator, &image_info, &alloc_info, &image_handle, &allocation_handle, nullptr);
+        vr = vmaCreateImage(allocator.allocator, &image_info, &alloc_info, &image_handle, &allocation_handle, nullptr);
     if (!wis::detail::succeeded(vr)) {
         return wis::detail::make_result<wis::detail::Func(), "Buffer creation failed">(vr);
     }
@@ -210,13 +210,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateTexture(
             .oldLayout = VK_IMAGE_LAYOUT_UNDEFINED,
             .newLayout = VK_IMAGE_LAYOUT_GENERAL,
             .subresourceRange =
-            {
-                .aspectMask = wis::detail::VKAspectFlags(image_info.format),
-                .baseMipLevel = 0,
-                .levelCount = image_info.mipLevels,
-                .baseArrayLayer = 0,
-                .layerCount = image_info.arrayLayers,
-            },
+                {
+                    .aspectMask = wis::detail::VKAspectFlags(image_info.format),
+                    .baseMipLevel = 0,
+                    .levelCount = image_info.mipLevels,
+                    .baseArrayLayer = 0,
+                    .layerCount = image_info.arrayLayers,
+                },
         };
 
         vr = table.vkTransitionImageLayoutEXT(header.device, 1, &transition_info);
@@ -233,8 +233,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateTexture(
         .width = static_cast<uint16_t>(image_info.extent.width),
         .height = static_cast<uint16_t>(image_info.extent.height),
         .depth_or_array_size = desc->layout == WisTextureLayoutTexture3D
-        ? static_cast<uint16_t>(image_info.extent.depth)
-        : static_cast<uint16_t>(image_info.arrayLayers),
+                                 ? static_cast<uint16_t>(image_info.extent.depth)
+                                 : static_cast<uint16_t>(image_info.arrayLayers),
     };
     impl.device_header->AddRef();
 

@@ -70,7 +70,8 @@
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisDescriptorHeap instance.
  * - `dst_index` specifies the index in the destination descriptor heap to copy descriptors to.
- * - `src_ptr` describes a pointer to WisDescriptorHeap to copy descriptors from. Source heap @wis_must be CPU Only heap.
+ * - `src_ptr` describes a pointer to WisDescriptorHeap to copy descriptors from. Source heap @wis_must be CPU Only
+ * heap.
  * - `src_index` indicates the index in the source descriptor heap to copy descriptors from.
  * - `descriptor_count` indicates the number of descriptors to copy.
  * \endcond

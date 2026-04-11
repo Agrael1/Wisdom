@@ -36,8 +36,10 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - `buffer_offset` specifies buffer offset in bytes.
- * - `buffer_row_length` describes buffer row length in pixels. Used for calculating the offset in the buffer for each row of the texture.
- * - `buffer_image_height` describes buffer image height in pixels. Used for calculating the offset in the buffer for each image of the texture.
+ * - `buffer_row_length` describes buffer row length in pixels. Used for calculating the offset in the buffer for each
+ * row of the texture.
+ * - `buffer_image_height` describes buffer image height in pixels. Used for calculating the offset in the buffer for
+ * each image of the texture.
  * - `texture_region` describes texture region to copy.
  * \endcond
  *

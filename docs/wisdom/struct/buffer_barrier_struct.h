@@ -114,9 +114,10 @@
  * - `buffer` specifies buffer view.
  * - `offset` indicates offset in bytes from the start of the buffer. Default is 0.
  * - `size` indicates barrier size in bytes. Default is `UINT64_MAX`, which means the whole buffer range.
- * - `queue_type_before` defines type of the queue the barrier is executed on before the synchronization point. Used for cross-queue barriers.
- * - `queue_type_after` indicates type of the queue the barrier is executed on after the synchronization point. Used for cross-queue barriers.
- * \endcond
+ * - `queue_type_before` defines type of the queue the barrier is executed on before the synchronization point. Used for
+ * cross-queue barriers.
+ * - `queue_type_after` indicates type of the queue the barrier is executed on after the synchronization point. Used for
+ * cross-queue barriers. \endcond
  *
  * @section WisBufferBarrier_descr Description
  * <hr>

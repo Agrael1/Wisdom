@@ -46,8 +46,8 @@ wisDX12SwapchainPresent(const WisDX12Swapchain* self, WisPresentFlags flags, con
 
     if (hr == DXGI_ERROR_WAS_STILL_DRAWING) {
         return wis::detail::make_result<
-               wis::detail::Func(),
-               "Previous frame is still being presented, cannot present again yet">(WisStatusTimeout, hr);
+            wis::detail::Func(),
+            "Previous frame is still being presented, cannot present again yet">(WisStatusTimeout, hr);
     }
 
     if (!wis::detail::succeeded(hr)) {
@@ -85,7 +85,7 @@ wisDX12SwapchainUpdate(const WisDX12Swapchain* self, const WisSwapchainUpdateDes
     }
 
     auto hr = swapchain.swapchain
-              ->ResizeBuffers(image_count, width, height, wis::detail::DX12Convert(desc->format), swapchain.flags);
+                  ->ResizeBuffers(image_count, width, height, wis::detail::DX12Convert(desc->format), swapchain.flags);
 
     if (!wis::detail::succeeded(hr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to resize swap chain buffers">(hr);
@@ -104,8 +104,8 @@ wisDX12SwapchainGetTextures(const WisDX12Swapchain* self, WisDX12Texture* buffer
     auto& impl = wis::from_handle_ref<const wis::impl::DX12SwapchainImpl>(self);
     if (buffer_count < impl.backbuffer_count) {
         return wis::detail::make_result<
-               wis::detail::Func(),
-               "Provided buffer count is less than the number of swapchain backbuffers">(E_INVALIDARG);
+            wis::detail::Func(),
+            "Provided buffer count is less than the number of swapchain backbuffers">(E_INVALIDARG);
     }
 
     for (uint32_t i = 0; i < impl.backbuffer_count; i++) {

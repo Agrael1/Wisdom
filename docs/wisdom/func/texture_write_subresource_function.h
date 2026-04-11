@@ -58,7 +58,8 @@
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisTexture instance.
  * - `source_data` specifies a pointer to the data to write to the texture.
- * - `target_region` specifies a pointer to WisTextureRegion, which describes the region of the texture to write to. The `flags` parameter of the region is ignored, as depth/stencil/planar is not supported.
+ * - `target_region` specifies a pointer to WisTextureRegion, which describes the region of the texture to write to. The
+ * `flags` parameter of the region is ignored, as depth/stencil/planar is not supported.
  *
  * - **return** denoting the outcome of operation.
  * \endcond
