@@ -5,7 +5,7 @@ endif ()
 # check if Doxygen is installed
 find_package(Doxygen)
 if (NOT DOXYGEN_FOUND)
-    message("Doxygen need to be installed to generate the doxygen documentation")
+    message(WARNING "Doxygen needs to be installed to generate the Doxygen documentation")
     return()
 endif ()
 

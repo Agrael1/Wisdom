@@ -1216,10 +1216,10 @@ More info could be found [here](https://learn.microsoft.com/en-us/windows/win32/
       <value name="None" value="0" doc="Primitive restart is disabled. No primitive restart value is used.">
         <impl name="dx" value="D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_DISABLED"/>
       </value>
-      <value name="UInt16Max" value="65535" doc="Use the maximum value of uint16_t as the primitive restart value.">
+      <value name="UInt16Max" value="1" doc="Use the maximum value of uint16_t as the primitive restart value.">
         <impl name="dx" value="D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_0xFFFF"/>
       </value>
-      <value name="UInt32Max" value="-1" doc="Use the maximum value of uint32_t as the primitive restart value.">
+      <value name="UInt32Max" value="2" doc="Use the maximum value of uint32_t as the primitive restart value.">
         <impl name="dx" value="D3D12_INDEX_BUFFER_STRIP_CUT_VALUE_0xFFFFFFFF"/>
       </value>
     </type>

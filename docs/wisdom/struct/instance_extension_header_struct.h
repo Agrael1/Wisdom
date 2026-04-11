@@ -12,7 +12,7 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef struct WisInstanceExtensionHeader {
  *     const void* opaque;
  * } WisInstanceExtensionHeader;
@@ -20,18 +20,18 @@
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef struct WisVKInstanceExtensionHeader {
  *     const void* opaque;
  * } WisVKInstanceExtensionHeader;
- *
- * // Provided by Wisdom 0.7.0.
+ * 
+ * // Provided by Wisdom 0.7.0. 
  * typedef struct WisDX12InstanceExtensionHeader {
  *     const void* opaque;
  * } WisDX12InstanceExtensionHeader;
  * ```
  * </details>
- *
+ * 
  * \endcond
  *
  * @section WisInstanceExtensionHeader_memb Members

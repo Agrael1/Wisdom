@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef struct  WisRenderPassDepthStencilDesc {
  *     uint64_t              target;
  *     WisLoadOp             load_op_depth;
@@ -22,12 +22,12 @@
  *     const WisResolveDesc* resolve_depth_desc;
  *     const WisResolveDesc* resolve_stencil_desc;
  * } WisRenderPassDepthStencilDesc;
- *
+ * 
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * struct  RenderPassDepthStencilDesc {
  *     std::uint64_t           target;
  *     wis::LoadOp             load_op_depth;

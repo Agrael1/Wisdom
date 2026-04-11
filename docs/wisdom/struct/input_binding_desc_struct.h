@@ -9,18 +9,18 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef struct  WisInputBindingDesc {
  *     uint32_t      slot;
  *     uint32_t      stride_bytes;
  *     WisInputClass input_class;
  * } WisInputBindingDesc;
- *
+ * 
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * struct  InputBindingDesc {
  *     std::uint32_t   slot;
  *     std::uint32_t   stride_bytes;

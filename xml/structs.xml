@@ -32,7 +32,7 @@
 
     <type name="DebugCallback" category="delegate" version="0.7.0" doc="Defines the debug callback function signature. Used for logging and debugging messages from the graphics API.">
       <arg type="Severity" name="severity" doc="indicates message severity level."/>
-      <arg type="char" name="message" mod="const,ptr" doc="describes contains the debug message string."/>
+      <arg type="char" name="message" mod="const,ptr" doc="contains the debug message string."/>
       <arg type="u64" name="device" doc="defines handle to the device that generated the message. Can be `0` if message is not device specific."/>
       <arg type="void" name="user_data" mod="ptr" doc="defines user defined data pointer passed during callback registration."/>
     </type>

@@ -9,20 +9,20 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void wisDestroyBuffer(WisBuffer* self);
  * ```
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void wisVKDestroyBuffer(WisVKBuffer* self);
- *
- * // Provided by Wisdom 0.7.0.
+ * 
+ * // Provided by Wisdom 0.7.0. 
  * void wisDX12DestroyBuffer(WisDX12Buffer* self);
  * ```
  * </details>
- *
+ * 
  * \endcond
  *
  * @section wisDestroyBuffer_memb Parameters

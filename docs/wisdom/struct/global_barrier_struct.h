@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef struct WisGlobalBarrier {
  *     WisBarrierSync    sync_before;
  *     WisBarrierSync    sync_after;
@@ -20,15 +20,15 @@
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef struct WisVKGlobalBarrier {
  *     WisBarrierSync    sync_before;
  *     WisBarrierSync    sync_after;
  *     WisResourceAccess access_before;
  *     WisResourceAccess access_after;
  * } WisVKGlobalBarrier;
- *
- * // Provided by Wisdom 0.7.0.
+ * 
+ * // Provided by Wisdom 0.7.0. 
  * typedef struct WisDX12GlobalBarrier {
  *     WisBarrierSync    sync_before;
  *     WisBarrierSync    sync_after;
@@ -37,11 +37,11 @@
  * } WisDX12GlobalBarrier;
  * ```
  * </details>
- *
+ * 
  * C++ Version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * struct GlobalBarrier {
  *     wis::BarrierSync    sync_before;
  *     wis::BarrierSync    sync_after;
@@ -54,15 +54,15 @@
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * struct VKGlobalBarrier {
  *     wis::BarrierSync    sync_before;
  *     wis::BarrierSync    sync_after;
  *     wis::ResourceAccess access_before;
  *     wis::ResourceAccess access_after;
  * };
- *
- * // Provided by Wisdom 0.7.0.
+ * 
+ * // Provided by Wisdom 0.7.0. 
  * struct DX12GlobalBarrier {
  *     wis::BarrierSync    sync_before;
  *     wis::BarrierSync    sync_after;

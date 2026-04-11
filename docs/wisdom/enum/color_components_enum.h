@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef enum WisColorComponents {
  *     WisColorComponentsNone = 0,
  *     WisColorComponentsR = (1u << 0),
@@ -21,7 +21,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * enum class ColorComponents : uint32_t {
  *     None = 0,
  *     R = (1u << 0),
@@ -39,7 +39,7 @@
  * \cond WIS_GEN_DESC
  * Color component flags.
  * Used for color blending operations.
- *
+ * 
  * Values:
  * - `WisColorComponentsNone = 0`: No flags set. Color blending is not used.
  * - `WisColorComponentsR = (1 << 0)`: Use red component for blending.

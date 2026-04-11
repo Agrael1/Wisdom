@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef struct WisIndexBufferDesc {
  *     WisBufferView buffer;
  *     uint32_t      size;
@@ -19,14 +19,14 @@
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef struct WisVKIndexBufferDesc {
  *     WisVKBufferView buffer;
  *     uint32_t        size;
  *     uint32_t        offset;
  * } WisVKIndexBufferDesc;
- *
- * // Provided by Wisdom 0.7.0.
+ * 
+ * // Provided by Wisdom 0.7.0. 
  * typedef struct WisDX12IndexBufferDesc {
  *     WisDX12BufferView buffer;
  *     uint32_t          size;
@@ -34,11 +34,11 @@
  * } WisDX12IndexBufferDesc;
  * ```
  * </details>
- *
+ * 
  * C++ Version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * struct IndexBufferDesc {
  *     wis::BufferView buffer;
  *     std::uint32_t   size;
@@ -50,14 +50,14 @@
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * struct VKIndexBufferDesc {
  *     wis::VKBufferView buffer;
  *     std::uint32_t     size;
  *     std::uint32_t     offset;
  * };
- *
- * // Provided by Wisdom 0.7.0.
+ * 
+ * // Provided by Wisdom 0.7.0. 
  * struct DX12IndexBufferDesc {
  *     wis::DX12BufferView buffer;
  *     std::uint32_t       size;

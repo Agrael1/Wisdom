@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef enum WisStencilOp {
  *     WisStencilOpKeep = 1,
  *     WisStencilOpZero = 2,
@@ -23,7 +23,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * enum class StencilOp {
  *     Keep = 1,
  *     Zero = 2,
@@ -42,9 +42,9 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * Stencil operation for depth and stencil operations.
- *
+ * 
  * \note Translates to  `D3D12_STENCIL_OP` for DirectX 12 implementation, and `VkStencilOp` for Vulkan implementation.
- *
+ * 
  * Values:
  * - `WisStencilOpKeep = 1`: Keep the current value.
  * - `WisStencilOpZero = 2`: Set the value to zero.

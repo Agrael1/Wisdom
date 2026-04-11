@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void wisViewHeapCopyViews(const WisViewHeap* self,
  *                           uint32_t           dst_index,
  *                           uint64_t           src_ptr,
@@ -19,14 +19,14 @@
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void wisVKViewHeapCopyViews(const WisVKViewHeap* self,
  *                             uint32_t             dst_index,
  *                             uint64_t             src_ptr,
  *                             uint32_t             src_index,
  *                             uint32_t             view_count);
- *
- * // Provided by Wisdom 0.7.0.
+ * 
+ * // Provided by Wisdom 0.7.0. 
  * void wisDX12ViewHeapCopyViews(const WisDX12ViewHeap* self,
  *                               uint32_t               dst_index,
  *                               uint64_t               src_ptr,
@@ -34,11 +34,11 @@
  *                               uint32_t               view_count);
  * ```
  * </details>
- *
+ * 
  * C++ Version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void ViewHeap::CopyViews(std::uint32_t dst_index,
  *                          std::uint64_t src_ptr,
  *                          std::uint32_t src_index,
@@ -49,13 +49,13 @@
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void VKViewHeap::CopyViews(std::uint32_t dst_index,
  *                            std::uint64_t src_ptr,
  *                            std::uint32_t src_index,
  *                            std::uint32_t view_count) const noexcept;
- *
- * // Provided by Wisdom 0.7.0.
+ * 
+ * // Provided by Wisdom 0.7.0. 
  * void DX12ViewHeap::CopyViews(std::uint32_t dst_index,
  *                              std::uint64_t src_ptr,
  *                              std::uint32_t src_index,

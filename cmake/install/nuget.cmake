@@ -10,7 +10,7 @@ set(CPACK_NUGET_PACKAGE_REPOSITORY_URL "https://github.com/Agrael1/Wisdom.git")
 set(CPACK_NUGET_PACKAGE_ICON "${CMAKE_SOURCE_DIR}/docs/assets/favicon.png")
 set(CPACK_NUGET_PACKAGE_REPOSITORY_TYPE git)
 set(CPACK_NUGET_PACKAGE_LICENSE_EXPRESSION "MIT")
-set(CPACK_NUGET_PACKAGE_README "README.md")
+set(CPACK_NUGET_PACKAGE_README "${CMAKE_SOURCE_DIR}/README.md")
 set(CPACK_INSTALL_SCRIPTS "${CMAKE_CURRENT_LIST_DIR}/gen-targets.cmake")
 
 # NuGet dependencies - D3D12 Agility SDK is required, DXC is optional for runtime shader compilation

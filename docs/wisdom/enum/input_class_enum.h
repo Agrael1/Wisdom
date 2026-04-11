@@ -8,7 +8,7 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef enum WisInputClass {
  *     WisInputClassPerVertex = 0,
  *     WisInputClassPerInstance = 1,
@@ -17,7 +17,7 @@
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * enum class InputClass {
  *     PerVertex = 0,
  *     PerInstance = 1,
@@ -30,7 +30,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * Input classification for vertex buffer data.
- *
+ * 
  * Values:
  * - `WisInputClassPerVertex = 0`: Vertex buffer data is vertex data.
  * - `WisInputClassPerInstance = 1`: Vertex buffer data is per instance data.

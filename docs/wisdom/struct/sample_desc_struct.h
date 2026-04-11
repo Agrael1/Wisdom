@@ -9,18 +9,18 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef struct  WisSampleDesc {
  *     WisSampleCount rate;
  *     uint32_t       sample_mask;
  *     bool           alpha_to_coverage_enable;
  * } WisSampleDesc;
- *
+ * 
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * struct  SampleDesc {
  *     wis::SampleCount rate;
  *     std::uint32_t    sample_mask;

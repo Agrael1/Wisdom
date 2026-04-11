@@ -9,19 +9,19 @@
  * \cond WIS_GEN_CODE
  * C version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * typedef struct  WisRect {
  *     int32_t  x;
  *     int32_t  y;
  *     uint32_t width;
  *     uint32_t height;
  * } WisRect;
- *
+ * 
  * ```
  * C++ version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * struct  Rect {
  *     std::int32_t  x;
  *     std::int32_t  y;

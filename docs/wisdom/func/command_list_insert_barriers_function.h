@@ -9,27 +9,27 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void wisCommandListInsertBarriers(const WisCommandList* self,
  *                                   const WisBarrierGroup* barriers);
  * ```
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void wisVKCommandListInsertBarriers(const WisVKCommandList* self,
  *                                     const WisVKBarrierGroup* barriers);
- *
- * // Provided by Wisdom 0.7.0.
+ * 
+ * // Provided by Wisdom 0.7.0. 
  * void wisDX12CommandListInsertBarriers(const WisDX12CommandList* self,
  *                                       const WisDX12BarrierGroup* barriers);
  * ```
  * </details>
- *
+ * 
  * C++ Version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void CommandList::InsertBarriers(const wis::BarrierGroup& barriers) const noexcept;
  * }
  * ```
@@ -37,10 +37,10 @@
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * void VKCommandList::InsertBarriers(const wis::VKBarrierGroup& barriers) const noexcept;
- *
- * // Provided by Wisdom 0.7.0.
+ * 
+ * // Provided by Wisdom 0.7.0. 
  * void DX12CommandList::InsertBarriers(const wis::DX12BarrierGroup& barriers) const noexcept;
  * }
  * ```
