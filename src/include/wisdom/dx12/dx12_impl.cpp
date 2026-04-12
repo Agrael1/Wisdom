@@ -133,7 +133,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyShader(WisDX12Shader* self)
     if (!shader) {
         return;
     }
-    delete shader;
+    ::operator delete(shader);
     shader = nullptr;
 }
 

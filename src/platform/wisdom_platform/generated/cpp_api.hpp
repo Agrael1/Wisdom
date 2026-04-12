@@ -115,6 +115,13 @@ public:
         };
         return surface;
     }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Checks if the Win32 surface extension is supported on the current platform.
+     * Always supported on Windows. Provided only for possible emulators.
+     * @return bool true if the extension is supported, false otherwise.
+     *
+     * */
+    WIS_NODISCARD inline bool Supported() noexcept { return (::wisDX12Win32ExtensionSupported(&_impl_storage)); }
 };
 
 struct DX12UWPExtensionDeleter {
@@ -213,6 +220,12 @@ public:
         };
         return surface;
     }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Checks if the Xlib surface extension is supported on the current platform.
+     * @return bool true if the extension is supported, false otherwise.
+     *
+     * */
+    WIS_NODISCARD inline bool Supported() noexcept { return (::wisVKXlibExtensionSupported(&_impl_storage)); }
 };
 
 struct VKXCBExtensionDeleter {
@@ -257,6 +270,12 @@ public:
         };
         return surface;
     }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Checks if the XCB surface extension is supported on the current platform.
+     * @return bool true if the extension is supported, false otherwise.
+     *
+     * */
+    WIS_NODISCARD inline bool Supported() noexcept { return (::wisVKXCBExtensionSupported(&_impl_storage)); }
 };
 
 struct VKWaylandExtensionDeleter {
@@ -305,6 +324,12 @@ public:
         };
         return surface;
     }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Checks if the Wayland surface extension is supported on the current platform.
+     * @return bool true if the extension is supported, false otherwise.
+     *
+     * */
+    WIS_NODISCARD inline bool Supported() noexcept { return (::wisVKWaylandExtensionSupported(&_impl_storage)); }
 };
 
 struct VKWin32ExtensionDeleter {
@@ -352,6 +377,13 @@ public:
         };
         return surface;
     }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Checks if the Win32 surface extension is supported on the current platform.
+     * Always supported on Windows. Provided only for possible emulators.
+     * @return bool true if the extension is supported, false otherwise.
+     *
+     * */
+    WIS_NODISCARD inline bool Supported() noexcept { return (::wisVKWin32ExtensionSupported(&_impl_storage)); }
 };
 
 } // namespace wis

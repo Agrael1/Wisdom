@@ -8,10 +8,6 @@ on:
       - 'dev/**'
     tags-ignore:
       - '**'
-  pull_request:
-    branches:
-      - master
-      - main
   workflow_call:  # Allow this workflow to be called by other workflows
   workflow_dispatch:
 

@@ -1,11 +1,36 @@
 #ifndef WIS_VK_PLATFORM_WIN32_CPP
 #define WIS_VK_PLATFORM_WIN32_CPP
 
-#if defined(WISDOM_VULKAN) && defined(WIS_PLATFORM_WIN32_PRESENT)
+#if defined(WISDOM_VULKAN)
 #    include <wisdom/vulkan/detail/vk_detail.hpp>
 #    include <wisdom/vulkan/detail/vk_utils.hpp>
 #    include <wisdom/vulkan/vk_extensions.hpp>
 #    include <wisdom_platform/generated/cpp_api.hpp>
+
+#    ifndef WISDOM_WINDOWS
+// Probably an emulator, but still support it
+typedef void* HINSTANCE;
+typedef void* HWND;
+
+// VK_KHR_win32_surface is a preprocessor guard. Do not pass it to API calls.
+#        define VK_KHR_win32_surface                1
+#        define VK_KHR_WIN32_SURFACE_EXTENSION_NAME "VK_KHR_win32_surface"
+typedef VkFlags VkWin32SurfaceCreateFlagsKHR;
+typedef struct VkWin32SurfaceCreateInfoKHR {
+    VkStructureType sType;
+    const void* pNext;
+    VkWin32SurfaceCreateFlagsKHR flags;
+    HINSTANCE hinstance;
+    HWND hwnd;
+} VkWin32SurfaceCreateInfoKHR;
+
+typedef VkResult(VKAPI_PTR* PFN_vkCreateWin32SurfaceKHR)(
+    VkInstance instance,
+    const VkWin32SurfaceCreateInfoKHR* pCreateInfo,
+    const VkAllocationCallbacks* pAllocator,
+    VkSurfaceKHR* pSurface
+);
+#    endif
 
 namespace wis::detail {
 inline WisResult VKWin32ExtensionInit(
@@ -40,6 +65,7 @@ WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKInitWin32Extension(WisVKWin32Extensio
     new (self) wis::impl::VKWin32ExtensionImpl{
         .header = {&wis::detail::VKWin32ExtensionInit},
         .instance_control_block = nullptr,
+        .vkCreateWin32SurfaceKHR = nullptr,
     };
 }
 
@@ -53,8 +79,11 @@ WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKDestroyWin32Extension(WisVKWin32Exten
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WISDOM_PLATFORM_API WisResult
-wisVKWin32ExtensionCreateSurface(WisVKWin32Extension* self, const WisWin32WindowDesc* info, WisVKSurface* surface)
+WISDOM_PLATFORM_API WisResult wisVKWin32ExtensionCreateSurface(
+    WisVKWin32Extension* self,
+    const WisWin32WindowDesc* info,
+    WisVKSurface* surface
+)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKWin32ExtensionImpl>(self);
     auto vkCreateWin32SurfaceKHR = reinterpret_cast<PFN_vkCreateWin32SurfaceKHR>(impl.vkCreateWin32SurfaceKHR);
@@ -94,5 +123,12 @@ wisVKWin32ExtensionCreateSurface(WisVKWin32Extension* self, const WisWin32Window
     return wis::detail::vk_success;
 }
 
-#endif // defined(WISDOM_VULKAN) && defined(WIS_PLATFORM_WIN32_PRESENT)
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_PLATFORM_API bool wisVKWin32ExtensionSupported(WisVKWin32Extension* self)
+{
+    auto& impl = wis::from_handle_ref<wis::impl::VKWin32ExtensionImpl>(self);
+    return impl.vkCreateWin32SurfaceKHR != nullptr;
+}
+
+#endif // defined(WISDOM_VULKAN) && defined(WISDOM_WINDOWS)
 #endif // WIS_VK_PLATFORM_WIN32_CPP

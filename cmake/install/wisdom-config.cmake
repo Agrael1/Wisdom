@@ -5,7 +5,6 @@ include("${CMAKE_CURRENT_LIST_DIR}/functions.cmake")
 
 # Detect platform and graphics APIs
 wisdom_detect_platform()
-wisdom_detect_platform_extensions()
 
 # Set DXC and DX12 Agility paths
 if(WISDOM_WINDOWS)
@@ -36,15 +35,6 @@ target_compile_definitions(wis::wisdom INTERFACE ${WISDOM_CORE_DEFINITIONS})
 endif()
 if(TARGET wis::wisdom-shared)
 target_compile_definitions(wis::wisdom-shared INTERFACE ${WISDOM_CORE_DEFINITIONS})
-endif()
-
-if(TARGET wis::wisdom-platform-headers)
-target_compile_definitions(wis::wisdom-platform-headers INTERFACE
-    $<$<BOOL:${WISDOM_PLATFORM_WIN32_PRESENT}>:WIS_PLATFORM_WIN32_PRESENT=1>
-    $<$<BOOL:${WISDOM_PLATFORM_XLIB_PRESENT}>:WISDOM_PLATFORM_XLIB_PRESENT=1>
-    $<$<BOOL:${WISDOM_PLATFORM_XCB_PRESENT}>:WISDOM_PLATFORM_XCB_PRESENT=1>
-    $<$<BOOL:${WISDOM_PLATFORM_WAYLAND_PRESENT}>:WISDOM_PLATFORM_WAYLAND_PRESENT=1>
-)
 endif()
 endif()
 

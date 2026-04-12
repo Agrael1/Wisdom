@@ -37,12 +37,6 @@ option(WISDOM_BUILD_SHARED "Build the dynamic lib." ON)
 option(WISDOM_BUILD_PLATFORM "Build unified platform extension library." ON)
 option(WISDOM_BUILD_DOCS "Build the documentation." OFF)
 
-if(WISDOM_BUILD_PLATFORM)
-  wisdom_detect_platform_extensions()
-else()
-  set(WISDOM_AVAILABLE_PLATFORMS "Disabled")
-endif()
-
 # DXC deployment options
 set(WISDOM_DXC_PATH
     ""
@@ -71,7 +65,6 @@ message(
     WISDOM_BUILD_STATIC: ${WISDOM_BUILD_STATIC}
     WISDOM_BUILD_SHARED: ${WISDOM_BUILD_SHARED}
     WISDOM_BUILD_PLATFORM: ${WISDOM_BUILD_PLATFORM}
-    WISDOM_AVAILABLE_PLATFORMS: ${WISDOM_AVAILABLE_PLATFORMS}
 
     WISDOM_VULKAN_HEADER_PATH: ${WISDOM_VULKAN_HEADER_PATH}
 

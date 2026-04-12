@@ -3304,8 +3304,11 @@ public:
      * @return Result denoting the outcome of operation.
      *
      * */
-    inline wis::Result WriteTexture(wis::DX12TextureView texture, const wis::TextureBinding& data, std::uint32_t index)
-        const noexcept
+    inline wis::Result WriteTexture(
+        wis::DX12TextureView texture,
+        const wis::TextureBinding& data,
+        std::uint32_t index
+    ) const noexcept
     {
         const WisResult wis_result = ::wisDX12DescriptorHeapWriteTexture(
             &_impl_storage,
@@ -3416,8 +3419,10 @@ public:
      * @return buffer points to wis::Buffer, which is initialized on success.
      *
      * */
-    WIS_NODISCARD inline wis::DX12Buffer CreateBuffer(const wis::BufferDesc& desc, wis::Result& out_result)
-        const noexcept
+    WIS_NODISCARD inline wis::DX12Buffer CreateBuffer(
+        const wis::BufferDesc& desc,
+        wis::Result& out_result
+    ) const noexcept
     {
         wis::DX12Buffer buffer;
         const WisResult wis_result = ::wisDX12ResourceAllocatorCreateBuffer(
@@ -3439,8 +3444,10 @@ public:
      * @return texture points to wis::Texture, which is initialized on success.
      *
      * */
-    WIS_NODISCARD inline wis::DX12Texture CreateTexture(const wis::TextureDesc& desc, wis::Result& out_result)
-        const noexcept
+    WIS_NODISCARD inline wis::DX12Texture CreateTexture(
+        const wis::TextureDesc& desc,
+        wis::Result& out_result
+    ) const noexcept
     {
         wis::DX12Texture texture;
         const WisResult wis_result = ::wisDX12ResourceAllocatorCreateTexture(
@@ -3709,8 +3716,11 @@ public:
      * @param group_count_z specifies number of groups to dispatch in Z dimension; default is 1.
      *
      * */
-    inline void Dispatch(std::uint32_t group_count_x, std::uint32_t group_count_y, std::uint32_t group_count_z)
-        const noexcept
+    inline void Dispatch(
+        std::uint32_t group_count_x,
+        std::uint32_t group_count_y,
+        std::uint32_t group_count_z
+    ) const noexcept
     {
         ::wisDX12CommandListDispatch(&_impl_storage, group_count_x, group_count_y, group_count_z);
     }
@@ -3939,8 +3949,12 @@ public:
      * @param blend_factor_a specifies blend factor for alpha channel to set.
      *
      * */
-    inline void SetBlendFactors(float blend_factor_r, float blend_factor_g, float blend_factor_b, float blend_factor_a)
-        const noexcept
+    inline void SetBlendFactors(
+        float blend_factor_r,
+        float blend_factor_g,
+        float blend_factor_b,
+        float blend_factor_a
+    ) const noexcept
     {
         ::wisDX12CommandListSetBlendFactors(
             &_impl_storage,
@@ -4074,8 +4088,10 @@ public:
      * @return queue points to wis::CommandQueue, which is initialized on success.
      *
      * */
-    WIS_NODISCARD inline wis::DX12CommandQueue CreateCommandQueue(wis::CommandQueueType type, wis::Result& out_result)
-        const noexcept
+    WIS_NODISCARD inline wis::DX12CommandQueue CreateCommandQueue(
+        wis::CommandQueueType type,
+        wis::Result& out_result
+    ) const noexcept
     {
         wis::DX12CommandQueue queue;
         const WisResult wis_result = ::wisDX12DeviceCreateCommandQueue(
@@ -4304,8 +4320,10 @@ public:
      * @return shader points to wis::Shader, which is initialized on success.
      *
      * */
-    WIS_NODISCARD inline wis::DX12Shader CreateShader(wis::span<const std::uint8_t> data, wis::Result& out_result)
-        const noexcept
+    WIS_NODISCARD inline wis::DX12Shader CreateShader(
+        wis::span<const std::uint8_t> data,
+        wis::Result& out_result
+    ) const noexcept
     {
         wis::DX12Shader shader;
         const WisResult wis_result = ::wisDX12DeviceCreateShader(
@@ -4379,10 +4397,13 @@ public:
      * @return bool Result of operation.
      *
      * */
-    WIS_NODISCARD inline bool GetFormatPresentationSupport(wis::DX12SurfaceView surface, wis::DataFormat format)
-        const noexcept
+    WIS_NODISCARD inline bool GetFormatPresentationSupport(
+        wis::DX12SurfaceView surface,
+        wis::DataFormat format
+    ) const noexcept
     {
-        return (::wisDX12DeviceGetFormatPresentationSupport(&_impl_storage, surface, static_cast<WisDataFormat>(format))
+        return (
+            ::wisDX12DeviceGetFormatPresentationSupport(&_impl_storage, surface, static_cast<WisDataFormat>(format))
         );
     }
     /**
@@ -4449,8 +4470,10 @@ public:
      * @return properties Properties of the format.
      *
      * */
-    WIS_NODISCARD inline wis::FormatProperties GetFormatProperties(wis::DataFormat format, wis::Result& out_result)
-        const noexcept
+    WIS_NODISCARD inline wis::FormatProperties GetFormatProperties(
+        wis::DataFormat format,
+        wis::Result& out_result
+    ) const noexcept
     {
         wis::FormatProperties properties;
         const WisResult wis_result = ::wisDX12DeviceGetFormatProperties(
@@ -4581,8 +4604,10 @@ public:
      * @return query points to wis::AdapterQuery, which is initialized on success.
      *
      * */
-    WIS_NODISCARD inline wis::DX12AdapterQuery QueryAdapters(wis::AdapterPreference preference, wis::Result& out_result)
-        const noexcept
+    WIS_NODISCARD inline wis::DX12AdapterQuery QueryAdapters(
+        wis::AdapterPreference preference,
+        wis::Result& out_result
+    ) const noexcept
     {
         wis::DX12AdapterQuery query;
         const WisResult wis_result = ::wisDX12InstanceQueryAdapters(
@@ -5319,8 +5344,11 @@ public:
      * @return Result denoting the outcome of operation.
      *
      * */
-    inline wis::Result WriteTexture(wis::VKTextureView texture, const wis::TextureBinding& data, std::uint32_t index)
-        const noexcept
+    inline wis::Result WriteTexture(
+        wis::VKTextureView texture,
+        const wis::TextureBinding& data,
+        std::uint32_t index
+    ) const noexcept
     {
         const WisResult wis_result = ::wisVKDescriptorHeapWriteTexture(
             &_impl_storage,
@@ -5338,8 +5366,11 @@ public:
      * @return Result denoting the outcome of operation.
      *
      * */
-    inline wis::Result WriteRWTexture(wis::VKTextureView texture, const wis::TextureBinding& data, std::uint32_t index)
-        const noexcept
+    inline wis::Result WriteRWTexture(
+        wis::VKTextureView texture,
+        const wis::TextureBinding& data,
+        std::uint32_t index
+    ) const noexcept
     {
         const WisResult wis_result = ::wisVKDescriptorHeapWriteRWTexture(
             &_impl_storage,
@@ -5449,8 +5480,10 @@ public:
      * @return texture points to wis::Texture, which is initialized on success.
      *
      * */
-    WIS_NODISCARD inline wis::VKTexture CreateTexture(const wis::TextureDesc& desc, wis::Result& out_result)
-        const noexcept
+    WIS_NODISCARD inline wis::VKTexture CreateTexture(
+        const wis::TextureDesc& desc,
+        wis::Result& out_result
+    ) const noexcept
     {
         wis::VKTexture texture;
         const WisResult wis_result = ::wisVKResourceAllocatorCreateTexture(
@@ -5716,8 +5749,11 @@ public:
      * @param group_count_z specifies number of groups to dispatch in Z dimension; default is 1.
      *
      * */
-    inline void Dispatch(std::uint32_t group_count_x, std::uint32_t group_count_y, std::uint32_t group_count_z)
-        const noexcept
+    inline void Dispatch(
+        std::uint32_t group_count_x,
+        std::uint32_t group_count_y,
+        std::uint32_t group_count_z
+    ) const noexcept
     {
         ::wisVKCommandListDispatch(&_impl_storage, group_count_x, group_count_y, group_count_z);
     }
@@ -5946,8 +5982,12 @@ public:
      * @param blend_factor_a specifies blend factor for alpha channel to set.
      *
      * */
-    inline void SetBlendFactors(float blend_factor_r, float blend_factor_g, float blend_factor_b, float blend_factor_a)
-        const noexcept
+    inline void SetBlendFactors(
+        float blend_factor_r,
+        float blend_factor_g,
+        float blend_factor_b,
+        float blend_factor_a
+    ) const noexcept
     {
         ::wisVKCommandListSetBlendFactors(
             &_impl_storage,
@@ -6081,8 +6121,10 @@ public:
      * @return queue points to wis::CommandQueue, which is initialized on success.
      *
      * */
-    WIS_NODISCARD inline wis::VKCommandQueue CreateCommandQueue(wis::CommandQueueType type, wis::Result& out_result)
-        const noexcept
+    WIS_NODISCARD inline wis::VKCommandQueue CreateCommandQueue(
+        wis::CommandQueueType type,
+        wis::Result& out_result
+    ) const noexcept
     {
         wis::VKCommandQueue queue;
         const WisResult wis_result = ::wisVKDeviceCreateCommandQueue(
@@ -6311,8 +6353,10 @@ public:
      * @return shader points to wis::Shader, which is initialized on success.
      *
      * */
-    WIS_NODISCARD inline wis::VKShader CreateShader(wis::span<const std::uint8_t> data, wis::Result& out_result)
-        const noexcept
+    WIS_NODISCARD inline wis::VKShader CreateShader(
+        wis::span<const std::uint8_t> data,
+        wis::Result& out_result
+    ) const noexcept
     {
         wis::VKShader shader;
         const WisResult wis_result = ::wisVKDeviceCreateShader(
@@ -6386,8 +6430,10 @@ public:
      * @return bool Result of operation.
      *
      * */
-    WIS_NODISCARD inline bool GetFormatPresentationSupport(wis::VKSurfaceView surface, wis::DataFormat format)
-        const noexcept
+    WIS_NODISCARD inline bool GetFormatPresentationSupport(
+        wis::VKSurfaceView surface,
+        wis::DataFormat format
+    ) const noexcept
     {
         return (::wisVKDeviceGetFormatPresentationSupport(&_impl_storage, surface, static_cast<WisDataFormat>(format)));
     }
@@ -6455,8 +6501,10 @@ public:
      * @return properties Properties of the format.
      *
      * */
-    WIS_NODISCARD inline wis::FormatProperties GetFormatProperties(wis::DataFormat format, wis::Result& out_result)
-        const noexcept
+    WIS_NODISCARD inline wis::FormatProperties GetFormatProperties(
+        wis::DataFormat format,
+        wis::Result& out_result
+    ) const noexcept
     {
         wis::FormatProperties properties;
         const WisResult wis_result = ::wisVKDeviceGetFormatProperties(
@@ -6586,8 +6634,10 @@ public:
      * @return query points to wis::AdapterQuery, which is initialized on success.
      *
      * */
-    WIS_NODISCARD inline wis::VKAdapterQuery QueryAdapters(wis::AdapterPreference preference, wis::Result& out_result)
-        const noexcept
+    WIS_NODISCARD inline wis::VKAdapterQuery QueryAdapters(
+        wis::AdapterPreference preference,
+        wis::Result& out_result
+    ) const noexcept
     {
         wis::VKAdapterQuery query;
         const WisResult wis_result = ::wisVKInstanceQueryAdapters(

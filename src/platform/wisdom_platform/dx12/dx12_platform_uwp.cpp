@@ -1,7 +1,7 @@
 #ifndef WIS_DX12_PLATFORM_UWP_CPP
 #define WIS_DX12_PLATFORM_UWP_CPP
 
-#if defined(WISDOM_DX12) && defined(WIS_PLATFORM_WIN32_PRESENT)
+#if defined(WISDOM_DX12)
 #    include <wisdom/dx12/detail/dx12_utils.hpp>
 #    include <wisdom_platform/generated/cpp_api.hpp>
 
@@ -48,6 +48,6 @@ wisDX12UWPExtensionCreateSurface(WisDX12UWPExtension* self, const WisUWPWindowDe
     return wis::detail::dx_success;
 }
 
-#endif // defined(WISDOM_DX12) && defined(WIS_PLATFORM_WIN32_PRESENT)
+#endif // defined(WISDOM_DX12)
 
 #endif // WIS_DX12_PLATFORM_UWP_CPP

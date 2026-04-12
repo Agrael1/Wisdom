@@ -15,7 +15,6 @@
       <PreprocessorDefinitions Condition="'$(WisdomForceVulkan)' == 'true'">WISDOM_FORCE_VULKAN=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(WisdomLinkage)' == 'dynamic'">WISDOM_SHARED_LIBRARY=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(WisdomLinkage)' == 'headers'">WISDOM_HEADER_ONLY=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(WisdomPlatformExtension)' == 'true'">WIS_PLATFORM_WIN32_PRESENT=1;WISDOM_PLATFORM_UWP_PRESENT=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(WisdomPlatformExtension)' == 'true' and '$(WisdomLinkage)' != 'dynamic'">WISDOM_PLATFORM_STATIC=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(WisdomPlatformExtension)' == 'true' and '$(WisdomLinkage)' == 'dynamic'">WISDOM_PLATFORM_SHARED_LIBRARY=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>

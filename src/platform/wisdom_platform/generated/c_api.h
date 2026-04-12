@@ -116,6 +116,15 @@ WISDOM_PLATFORM_API WisResult wisDX12Win32ExtensionCreateSurface(
 );
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Checks if the Win32 surface extension is supported on the current platform. Always
+ * supported on Windows. Provided only for possible emulators.
+ * @param self is a pointer to the valid WisWin32Extension instance.
+ * @return bool true if the extension is supported, false otherwise.
+ *
+ * */
+WISDOM_PLATFORM_API bool wisDX12Win32ExtensionSupported(WisDX12Win32Extension* self);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Creates a surface using UWP.
  * @param self is a pointer to the valid WisUWPExtension instance.
  * @param info UWP windowing data.
@@ -123,8 +132,11 @@ WISDOM_PLATFORM_API WisResult wisDX12Win32ExtensionCreateSurface(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_PLATFORM_API WisResult
-wisDX12UWPExtensionCreateSurface(WisDX12UWPExtension* self, const WisUWPWindowDesc* info, WisDX12Surface* surface);
+WISDOM_PLATFORM_API WisResult wisDX12UWPExtensionCreateSurface(
+    WisDX12UWPExtension* self,
+    const WisUWPWindowDesc* info,
+    WisDX12Surface* surface
+);
 
 #endif // WISDOM_DX12
 
@@ -217,8 +229,19 @@ WISDOM_PLATFORM_API void wisVKInitWin32Extension(WisVKWin32Extension* self);
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_PLATFORM_API WisResult
-wisVKXlibExtensionCreateSurface(WisVKXlibExtension* self, const WisXlibWindowDesc* info, WisVKSurface* surface);
+WISDOM_PLATFORM_API WisResult wisVKXlibExtensionCreateSurface(
+    WisVKXlibExtension* self,
+    const WisXlibWindowDesc* info,
+    WisVKSurface* surface
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Checks if the Xlib surface extension is supported on the current platform.
+ * @param self is a pointer to the valid WisXlibExtension instance.
+ * @return bool true if the extension is supported, false otherwise.
+ *
+ * */
+WISDOM_PLATFORM_API bool wisVKXlibExtensionSupported(WisVKXlibExtension* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a surface using Win32.
@@ -228,8 +251,19 @@ wisVKXlibExtensionCreateSurface(WisVKXlibExtension* self, const WisXlibWindowDes
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_PLATFORM_API WisResult
-wisVKXCBExtensionCreateSurface(WisVKXCBExtension* self, const WisXCBWindowDesc* info, WisVKSurface* surface);
+WISDOM_PLATFORM_API WisResult wisVKXCBExtensionCreateSurface(
+    WisVKXCBExtension* self,
+    const WisXCBWindowDesc* info,
+    WisVKSurface* surface
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Checks if the XCB surface extension is supported on the current platform.
+ * @param self is a pointer to the valid WisXCBExtension instance.
+ * @return bool true if the extension is supported, false otherwise.
+ *
+ * */
+WISDOM_PLATFORM_API bool wisVKXCBExtensionSupported(WisVKXCBExtension* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a surface using Wayland.
@@ -246,6 +280,14 @@ WISDOM_PLATFORM_API WisResult wisVKWaylandExtensionCreateSurface(
 );
 
 /**
+ * @brief Provided by Wisdom 0.7.0. Checks if the Wayland surface extension is supported on the current platform.
+ * @param self is a pointer to the valid WisWaylandExtension instance.
+ * @return bool true if the extension is supported, false otherwise.
+ *
+ * */
+WISDOM_PLATFORM_API bool wisVKWaylandExtensionSupported(WisVKWaylandExtension* self);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Creates a surface using Win32.
  * @param self is a pointer to the valid WisWin32Extension instance.
  * @param info Win32 windowing data.
@@ -253,8 +295,20 @@ WISDOM_PLATFORM_API WisResult wisVKWaylandExtensionCreateSurface(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_PLATFORM_API WisResult
-wisVKWin32ExtensionCreateSurface(WisVKWin32Extension* self, const WisWin32WindowDesc* info, WisVKSurface* surface);
+WISDOM_PLATFORM_API WisResult wisVKWin32ExtensionCreateSurface(
+    WisVKWin32Extension* self,
+    const WisWin32WindowDesc* info,
+    WisVKSurface* surface
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Checks if the Win32 surface extension is supported on the current platform. Always
+ * supported on Windows. Provided only for possible emulators.
+ * @param self is a pointer to the valid WisWin32Extension instance.
+ * @return bool true if the extension is supported, false otherwise.
+ *
+ * */
+WISDOM_PLATFORM_API bool wisVKWin32ExtensionSupported(WisVKWin32Extension* self);
 
 #endif // WISDOM_VULKAN
 

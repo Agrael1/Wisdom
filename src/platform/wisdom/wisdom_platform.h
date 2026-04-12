@@ -34,6 +34,7 @@ typedef struct WisDX12UWPExtension WisUWPExtension;
 #    define wisDestroyUWPExtension         wisDX12DestroyUWPExtension
 #    define wisInitUWPExtension            wisDX12InitUWPExtension
 #    define wisWin32ExtensionCreateSurface wisDX12Win32ExtensionCreateSurface
+#    define wisWin32ExtensionSupported     wisDX12Win32ExtensionSupported
 #    define wisUWPExtensionCreateSurface   wisDX12UWPExtensionCreateSurface
 
 #elif defined(WISDOM_VULKAN)
@@ -60,9 +61,13 @@ typedef struct WisVKWin32Extension WisWin32Extension;
 #    define wisDestroyWin32Extension         wisVKDestroyWin32Extension
 #    define wisInitWin32Extension            wisVKInitWin32Extension
 #    define wisXlibExtensionCreateSurface    wisVKXlibExtensionCreateSurface
+#    define wisXlibExtensionSupported        wisVKXlibExtensionSupported
 #    define wisXCBExtensionCreateSurface     wisVKXCBExtensionCreateSurface
+#    define wisXCBExtensionSupported         wisVKXCBExtensionSupported
 #    define wisWaylandExtensionCreateSurface wisVKWaylandExtensionCreateSurface
+#    define wisWaylandExtensionSupported     wisVKWaylandExtensionSupported
 #    define wisWin32ExtensionCreateSurface   wisVKWin32ExtensionCreateSurface
+#    define wisWin32ExtensionSupported       wisVKWin32ExtensionSupported
 
 #else
 #    error "No API selected for Wisdom. Define WISDOM_DX12 or WISDOM_VULKAN."
