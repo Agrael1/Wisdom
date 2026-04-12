@@ -3147,8 +3147,11 @@ WISDOM_API WisResult wisDX12CreateInstance(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisDX12InstanceQueryAdapters(const WisDX12Instance* self, WisAdapterPreference preference, WisDX12AdapterQuery* query);
+WISDOM_API WisResult wisDX12InstanceQueryAdapters(
+    const WisDX12Instance* self,
+    WisAdapterPreference preference,
+    WisDX12AdapterQuery* query
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Returns the number of adapters present on the system at the time of the query.
@@ -3167,8 +3170,11 @@ WISDOM_API size_t wisDX12AdapterQueryGetAdapterCount(const WisDX12AdapterQuery* 
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisDX12AdapterQueryGetAdapterDesc(const WisDX12AdapterQuery* self, size_t index, WisAdapterDesc* desc);
+WISDOM_API WisResult wisDX12AdapterQueryGetAdapterDesc(
+    const WisDX12AdapterQuery* self,
+    size_t index,
+    WisAdapterDesc* desc
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Checks if the adapter at given index supports presentation to given surface.
@@ -3211,8 +3217,11 @@ WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisDX12DeviceCreateCommandQueue(const WisDX12Device* self, WisCommandQueueType type, WisDX12CommandQueue* queue);
+WISDOM_API WisResult wisDX12DeviceCreateCommandQueue(
+    const WisDX12Device* self,
+    WisCommandQueueType type,
+    WisDX12CommandQueue* queue
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a command allocator to allocate command lists with.
@@ -3349,8 +3358,12 @@ WISDOM_API WisResult wisDX12DeviceCreatePipelineCache(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisDX12DeviceCreateShader(const WisDX12Device* self, const uint8_t* data, size_t size, WisDX12Shader* shader);
+WISDOM_API WisResult wisDX12DeviceCreateShader(
+    const WisDX12Device* self,
+    const uint8_t* data,
+    size_t size,
+    WisDX12Shader* shader
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a compute pipeline state object with given descriptor.
@@ -3403,8 +3416,11 @@ WISDOM_API bool wisDX12DeviceGetFormatPresentationSupport(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisDX12DeviceGetSurfaceParameters(const WisDX12Device* self, WisDX12SurfaceView surface, WisSurfaceParameters* params);
+WISDOM_API WisResult wisDX12DeviceGetSurfaceParameters(
+    const WisDX12Device* self,
+    WisDX12SurfaceView surface,
+    WisSurfaceParameters* params
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a swapchain for given surface with given descriptor.
@@ -3433,8 +3449,11 @@ WISDOM_API WisResult wisDX12DeviceCreateSwapchain(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisDX12DeviceGetFormatProperties(const WisDX12Device* self, WisDataFormat format, WisFormatProperties* properties);
+WISDOM_API WisResult wisDX12DeviceGetFormatProperties(
+    const WisDX12Device* self,
+    WisDataFormat format,
+    WisFormatProperties* properties
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Get the current value of the fence.
@@ -3471,8 +3490,11 @@ WISDOM_API WisResult wisDX12FenceSignal(const WisDX12Fence* self, uint64_t value
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisDX12CommandQueueSubmit(const WisDX12CommandQueue* self, const WisDX12CommandListView* lists, size_t list_count);
+WISDOM_API WisResult wisDX12CommandQueueSubmit(
+    const WisDX12CommandQueue* self,
+    const WisDX12CommandListView* lists,
+    size_t list_count
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Enqueue the signal to the queue, that gets executed after all the work has been
@@ -3483,8 +3505,11 @@ wisDX12CommandQueueSubmit(const WisDX12CommandQueue* self, const WisDX12CommandL
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisDX12CommandQueueSignalFence(const WisDX12CommandQueue* self, WisDX12FenceView fence, uint64_t value);
+WISDOM_API WisResult wisDX12CommandQueueSignalFence(
+    const WisDX12CommandQueue* self,
+    WisDX12FenceView fence,
+    uint64_t value
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Enqueues wait operation to the command queue. Queue then waits for the fence to be
@@ -3495,8 +3520,11 @@ wisDX12CommandQueueSignalFence(const WisDX12CommandQueue* self, WisDX12FenceView
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisDX12CommandQueueWaitFence(const WisDX12CommandQueue* self, WisDX12FenceView fence, uint64_t value);
+WISDOM_API WisResult wisDX12CommandQueueWaitFence(
+    const WisDX12CommandQueue* self,
+    WisDX12FenceView fence,
+    uint64_t value
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a buffer with given descriptor.
@@ -3621,8 +3649,11 @@ WISDOM_API WisResult wisDX12DescriptorHeapWriteRWStructuredBuffer(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisDX12DescriptorHeapWriteSampler(const WisDX12DescriptorHeap* self, const WisSamplerDesc* sampler, uint32_t index);
+WISDOM_API WisResult wisDX12DescriptorHeapWriteSampler(
+    const WisDX12DescriptorHeap* self,
+    const WisSamplerDesc* sampler,
+    uint32_t index
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Writes a descriptor to the descriptor heap.
@@ -3664,8 +3695,11 @@ WISDOM_API WisResult wisDX12DescriptorHeapWriteRWTexture(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisDX12DescriptorHeapWriteAccelerationStructure(const WisDX12DescriptorHeap* self, uint64_t address, uint32_t index);
+WISDOM_API WisResult wisDX12DescriptorHeapWriteAccelerationStructure(
+    const WisDX12DescriptorHeap* self,
+    uint64_t address,
+    uint32_t index
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Copies descriptors from one heap to another.
@@ -3768,8 +3802,10 @@ WISDOM_API WisResult wisDX12CommandAllocatorReset(const WisDX12CommandAllocator*
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisDX12CommandAllocatorCreateCommandList(const WisDX12CommandAllocator* self, WisDX12CommandList* list);
+WISDOM_API WisResult wisDX12CommandAllocatorCreateCommandList(
+    const WisDX12CommandAllocator* self,
+    WisDX12CommandList* list
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Opens the command list, so commands can be recorded to it.
@@ -4171,8 +4207,12 @@ WISDOM_API size_t wisDX12PipelineCacheGetSerializedSize(const WisDX12PipelineCac
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisDX12SwapchainPresent(const WisDX12Swapchain* self, WisPresentFlags flags, const WisRect* rects, size_t rect_count);
+WISDOM_API WisResult wisDX12SwapchainPresent(
+    const WisDX12Swapchain* self,
+    WisPresentFlags flags,
+    const WisRect* rects,
+    size_t rect_count
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Gets the index of the current backbuffer. In case of lazy indexing it may wait for
@@ -4203,8 +4243,11 @@ WISDOM_API WisResult wisDX12SwapchainUpdate(const WisDX12Swapchain* self, const 
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisDX12SwapchainGetTextures(const WisDX12Swapchain* self, WisDX12Texture* buffers, size_t buffer_count);
+WISDOM_API WisResult wisDX12SwapchainGetTextures(
+    const WisDX12Swapchain* self,
+    WisDX12Texture* buffers,
+    size_t buffer_count
+);
 
 #endif // WISDOM_DX12
 
@@ -4768,8 +4811,11 @@ WISDOM_API WisResult wisVKCreateInstance(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisVKInstanceQueryAdapters(const WisVKInstance* self, WisAdapterPreference preference, WisVKAdapterQuery* query);
+WISDOM_API WisResult wisVKInstanceQueryAdapters(
+    const WisVKInstance* self,
+    WisAdapterPreference preference,
+    WisVKAdapterQuery* query
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Returns the number of adapters present on the system at the time of the query.
@@ -4831,8 +4877,11 @@ WISDOM_API WisResult wisVKAdapterQueryCreateDevice(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisVKDeviceCreateCommandQueue(const WisVKDevice* self, WisCommandQueueType type, WisVKCommandQueue* queue);
+WISDOM_API WisResult wisVKDeviceCreateCommandQueue(
+    const WisVKDevice* self,
+    WisCommandQueueType type,
+    WisVKCommandQueue* queue
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a command allocator to allocate command lists with.
@@ -4842,8 +4891,11 @@ wisVKDeviceCreateCommandQueue(const WisVKDevice* self, WisCommandQueueType type,
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisVKDeviceCreateCommandAllocator(const WisVKDevice* self, WisCommandQueueType type, WisVKCommandAllocator* allocator);
+WISDOM_API WisResult wisVKDeviceCreateCommandAllocator(
+    const WisVKDevice* self,
+    WisCommandQueueType type,
+    WisVKCommandAllocator* allocator
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a fence for GPU-CPU and GPU-GPU synchronization.
@@ -4872,8 +4924,11 @@ WISDOM_API WisResult wisVKDeviceGetResourceAllocator(const WisVKDevice* self, Wi
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisVKDeviceCreateRootSignature(const WisVKDevice* self, const WisRootSignatureDesc* desc, WisVKRootSignature* layout);
+WISDOM_API WisResult wisVKDeviceCreateRootSignature(
+    const WisVKDevice* self,
+    const WisRootSignatureDesc* desc,
+    WisVKRootSignature* layout
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a descriptor storage with given description.
@@ -4883,8 +4938,11 @@ wisVKDeviceCreateRootSignature(const WisVKDevice* self, const WisRootSignatureDe
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisVKDeviceCreateDescriptorHeap(const WisVKDevice* self, const WisDescriptorHeapDesc* desc, WisVKDescriptorHeap* heap);
+WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(
+    const WisVKDevice* self,
+    const WisDescriptorHeapDesc* desc,
+    WisVKDescriptorHeap* heap
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a view storage with given descriptor.
@@ -4960,8 +5018,12 @@ WISDOM_API WisResult wisVKDeviceCreatePipelineCache(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisVKDeviceCreateShader(const WisVKDevice* self, const uint8_t* data, size_t size, WisVKShader* shader);
+WISDOM_API WisResult wisVKDeviceCreateShader(
+    const WisVKDevice* self,
+    const uint8_t* data,
+    size_t size,
+    WisVKShader* shader
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a compute pipeline state object with given descriptor.
@@ -5014,8 +5076,11 @@ WISDOM_API bool wisVKDeviceGetFormatPresentationSupport(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisVKDeviceGetSurfaceParameters(const WisVKDevice* self, WisVKSurfaceView surface, WisSurfaceParameters* params);
+WISDOM_API WisResult wisVKDeviceGetSurfaceParameters(
+    const WisVKDevice* self,
+    WisVKSurfaceView surface,
+    WisSurfaceParameters* params
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a swapchain for given surface with given descriptor.
@@ -5044,8 +5109,11 @@ WISDOM_API WisResult wisVKDeviceCreateSwapchain(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisVKDeviceGetFormatProperties(const WisVKDevice* self, WisDataFormat format, WisFormatProperties* properties);
+WISDOM_API WisResult wisVKDeviceGetFormatProperties(
+    const WisVKDevice* self,
+    WisDataFormat format,
+    WisFormatProperties* properties
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Get the current value of the fence.
@@ -5082,8 +5150,11 @@ WISDOM_API WisResult wisVKFenceSignal(const WisVKFence* self, uint64_t value);
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisVKCommandQueueSubmit(const WisVKCommandQueue* self, const WisVKCommandListView* lists, size_t list_count);
+WISDOM_API WisResult wisVKCommandQueueSubmit(
+    const WisVKCommandQueue* self,
+    const WisVKCommandListView* lists,
+    size_t list_count
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Enqueue the signal to the queue, that gets executed after all the work has been
@@ -5115,8 +5186,11 @@ WISDOM_API WisResult wisVKCommandQueueWaitFence(const WisVKCommandQueue* self, W
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisVKResourceAllocatorCreateBuffer(const WisVKResourceAllocator* self, const WisBufferDesc* desc, WisVKBuffer* buffer);
+WISDOM_API WisResult wisVKResourceAllocatorCreateBuffer(
+    const WisVKResourceAllocator* self,
+    const WisBufferDesc* desc,
+    WisVKBuffer* buffer
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a texture with given descriptor.
@@ -5158,8 +5232,11 @@ WISDOM_API uint64_t wisVKBufferGetGPUAddress(const WisVKBuffer* self);
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisVKTextureWriteSubresource(const WisVKTexture* self, const void* source_data, const WisTextureRegion* target_region);
+WISDOM_API WisResult wisVKTextureWriteSubresource(
+    const WisVKTexture* self,
+    const void* source_data,
+    const WisTextureRegion* target_region
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Returns the CPU descriptor handle for the descriptor heap.
@@ -5224,8 +5301,11 @@ WISDOM_API WisResult wisVKDescriptorHeapWriteRWStructuredBuffer(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisVKDescriptorHeapWriteSampler(const WisVKDescriptorHeap* self, const WisSamplerDesc* sampler, uint32_t index);
+WISDOM_API WisResult wisVKDescriptorHeapWriteSampler(
+    const WisVKDescriptorHeap* self,
+    const WisSamplerDesc* sampler,
+    uint32_t index
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Writes a descriptor to the descriptor heap.
@@ -5267,8 +5347,11 @@ WISDOM_API WisResult wisVKDescriptorHeapWriteRWTexture(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisVKDescriptorHeapWriteAccelerationStructure(const WisVKDescriptorHeap* self, uint64_t address, uint32_t index);
+WISDOM_API WisResult wisVKDescriptorHeapWriteAccelerationStructure(
+    const WisVKDescriptorHeap* self,
+    uint64_t address,
+    uint32_t index
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Copies descriptors from one heap to another.
@@ -5770,8 +5853,12 @@ WISDOM_API size_t wisVKPipelineCacheGetSerializedSize(const WisVKPipelineCache* 
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult
-wisVKSwapchainPresent(const WisVKSwapchain* self, WisPresentFlags flags, const WisRect* rects, size_t rect_count);
+WISDOM_API WisResult wisVKSwapchainPresent(
+    const WisVKSwapchain* self,
+    WisPresentFlags flags,
+    const WisRect* rects,
+    size_t rect_count
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Gets the index of the current backbuffer. In case of lazy indexing it may wait for

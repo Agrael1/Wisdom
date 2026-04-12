@@ -1,7 +1,7 @@
 #ifndef WIS_VK_PLATFORM_WAYLAND_CPP
 #define WIS_VK_PLATFORM_WAYLAND_CPP
 
-#if defined(WISDOM_VULKAN) && defined(WIS_PLATFORM_WAYLAND_PRESENT)
+#if defined(WISDOM_VULKAN)
 #    include <wisdom/vulkan/detail/vk_detail.hpp>
 #    include <wisdom/vulkan/detail/vk_utils.hpp>
 #    include <wisdom/vulkan/vk_extensions.hpp>
@@ -39,6 +39,7 @@ WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKInitWaylandExtension(WisVKWaylandExte
     new (self) wis::impl::VKWaylandExtensionImpl{
         .header = {&wis::detail::VKWaylandExtensionInit},
         .instance_control_block = nullptr,
+        .vkCreateWaylandSurfaceKHR = nullptr,
     };
 }
 
@@ -62,8 +63,8 @@ wisVKWaylandExtensionCreateSurface(WisVKWaylandExtension* self, const WisWayland
         .sType = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR,
         .pNext = nullptr,
         .flags = 0,
-        .display = static_cast<struct wl_display*>(info->display),
-        .surface = static_cast<struct wl_surface*>(info->surface),
+        .display = reinterpret_cast<struct wl_display*>(info->display),
+        .surface = reinterpret_cast<struct wl_surface*>(info->surface),
     };
 
     VkSurfaceKHR vk_surface = VK_NULL_HANDLE;
@@ -90,6 +91,13 @@ wisVKWaylandExtensionCreateSurface(WisVKWaylandExtension* self, const WisWayland
     impl.instance_control_block->AddRef(); // Surface holds a reference to the instance
 
     return wis::detail::vk_success;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_PLATFORM_API bool wisVKWaylandExtensionSupported(WisVKWaylandExtension* self)
+{
+    auto& impl = wis::from_handle_ref<wis::impl::VKWaylandExtensionImpl>(self);
+    return impl.vkCreateWaylandSurfaceKHR != nullptr;
 }
 
 #endif // defined(WISDOM_VULKAN) && defined(WIS_PLATFORM_WAYLAND_PRESENT)

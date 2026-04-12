@@ -23,7 +23,6 @@ SDLPlatform CreatePlatform()
 #elif defined(SDL_PLATFORM_LINUX)
     const char* driver = SDL_GetCurrentVideoDriver();
     if (driver && SDL_strcmp(driver, "x11") == 0) {
-#    ifdef WIS_PLATFORM_XLIB_PRESENT
         WisXlibExtension* xlib_extension = (WisXlibExtension*)malloc(sizeof(WisXlibExtension));
         if (!xlib_extension) {
             return platform;
@@ -32,9 +31,7 @@ SDLPlatform CreatePlatform()
         wisInitXlibExtension(xlib_extension);
         platform.platform_extension = &xlib_extension->header;
         platform.extension_type = SDL_PLATFORM_EXTENSION_X11;
-#    endif
     } else if (driver && SDL_strcmp(driver, "wayland") == 0) {
-#    ifdef WIS_PLATFORM_WAYLAND_PRESENT
         WisWaylandExtension* wayland_extension = (WisWaylandExtension*)malloc(sizeof(WisWaylandExtension));
         if (!wayland_extension) {
             return platform;
@@ -43,7 +40,6 @@ SDLPlatform CreatePlatform()
         wisInitWaylandExtension(wayland_extension);
         platform.platform_extension = &wayland_extension->header;
         platform.extension_type = SDL_PLATFORM_EXTENSION_WAYLAND;
-#    endif
     }
 #endif
 
@@ -71,7 +67,6 @@ WisSurface CreateSurface(const SDLPlatform* platform, SDL_Window* window)
     }
 #elif defined(SDL_PLATFORM_LINUX)
     case SDL_PLATFORM_EXTENSION_X11: {
-#    ifdef WIS_PLATFORM_XLIB_PRESENT
         void* xdisplay = (void*)
             SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_X11_DISPLAY_POINTER, NULL);
         uint64_t xwindow = (uint64_t
@@ -85,11 +80,9 @@ WisSurface CreateSurface(const SDLPlatform* platform, SDL_Window* window)
             wisXlibExtensionCreateSurface((WisXlibExtension*)platform->platform_extension, &desc, &surface);
             return surface;
         }
-#    endif
         break;
     }
     case SDL_PLATFORM_EXTENSION_WAYLAND: {
-#    ifdef WIS_PLATFORM_WAYLAND_PRESENT
         WisWaylandExtension* wayland_extension = (WisWaylandExtension*)platform->platform_extension;
         struct wl_display* display = (struct wl_display*)
             SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WAYLAND_DISPLAY_POINTER, NULL);
@@ -104,7 +97,6 @@ WisSurface CreateSurface(const SDLPlatform* platform, SDL_Window* window)
             wisWaylandExtensionCreateSurface(wayland_extension, &desc, &output);
             return output;
         }
-#    endif
         break;
     }
 #endif
@@ -124,14 +116,10 @@ void DestroyPlatform(SDLPlatform* platform)
         break;
 #elif defined(SDL_PLATFORM_LINUX)
     case SDL_PLATFORM_EXTENSION_X11:
-#    ifdef WIS_PLATFORM_XLIB_PRESENT
         wisDestroyXlibExtension((WisXlibExtension*)platform->platform_extension);
-#    endif
         break;
     case SDL_PLATFORM_EXTENSION_WAYLAND:
-#    ifdef WIS_PLATFORM_WAYLAND_PRESENT
         wisDestroyWaylandExtension((WisWaylandExtension*)platform->platform_extension);
-#    endif
         break;
 #endif
     default:

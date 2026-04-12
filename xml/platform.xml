@@ -51,20 +51,32 @@
         <ret type="Surface" name="surface" result="true" doc="points to {Surface::}, initialized on success."/>
         <arg type="XlibWindowDesc" name="info" mod="const,ref" doc="Xlib windowing data."/>
       </func>
+      <func name="Supported" version="0.7.0" for="XlibExtension" doc="Checks if the Xlib surface extension is supported on the current platform.">
+        <ret type="bool" name="supported" doc="true if the extension is supported, false otherwise."/>
+      </func>
 
       <func name="CreateSurface" version="0.7.0" for="XCBExtension" doc="Creates a surface using Win32.">
         <ret type="Surface" name="surface" result="true" doc="points to {Surface::}, initialized on success."/>
         <arg type="XCBWindowDesc" name="info" mod="const,ref" doc="XCB windowing data."/>
+      </func>
+      <func name="Supported" version="0.7.0" for="XCBExtension" doc="Checks if the XCB surface extension is supported on the current platform.">
+        <ret type="bool" name="supported" doc="true if the extension is supported, false otherwise."/>
       </func>
 
       <func name="CreateSurface" version="0.7.0" for="WaylandExtension" doc="Creates a surface using Wayland.">
         <ret type="Surface" name="surface" result="true" doc="points to {Surface::}, initialized on success."/>
         <arg type="WaylandWindowDesc" name="info" mod="const,ref" doc="Wayland windowing data."/>
       </func>
+      <func name="Supported" version="0.7.0" for="WaylandExtension" doc="Checks if the Wayland surface extension is supported on the current platform.">
+        <ret type="bool" name="supported" doc="true if the extension is supported, false otherwise."/>
+      </func>
 
       <func name="CreateSurface" version="0.7.0" for="Win32Extension" doc="Creates a surface using Win32.">
         <ret type="Surface" name="surface" result="true" doc="points to {Surface::}, initialized on success."/>
         <arg type="Win32WindowDesc" name="info" mod="const,ref" doc="Win32 windowing data."/>
+      </func>
+      <func name="Supported" version="0.7.0" for="Win32Extension" doc="Checks if the Win32 surface extension is supported on the current platform. Always supported on Windows. Provided only for possible emulators.">
+        <ret type="bool" name="supported" doc="true if the extension is supported, false otherwise."/>
       </func>
 
       <func name="CreateSurface" version="0.7.0" for="UWPExtension" doc="Creates a surface using UWP.">

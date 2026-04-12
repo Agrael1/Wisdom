@@ -1,24 +1,18 @@
 #ifndef WIS_VK_PLATFORM_XLIB_CPP
 #define WIS_VK_PLATFORM_XLIB_CPP
 
-#if defined(WISDOM_VULKAN) && defined(WIS_PLATFORM_XLIB_PRESENT)
+#if defined(WISDOM_VULKAN)
 #    include <wisdom/vulkan/detail/vk_detail.hpp>
 #    include <wisdom/vulkan/detail/vk_utils.hpp>
 #    include <wisdom/vulkan/vk_extensions.hpp>
 #    include <wisdom_platform/generated/cpp_api.hpp>
 
-// clang-format off
-#    include <X11/Xlib.h>
+// manual definitions of xlib, because xlib is really polluting.
+typedef unsigned long XID;
+typedef XID Window;
+typedef unsigned long VisualID;
+typedef struct _XDisplay Display;
 #    include <vulkan/vulkan_xlib.h>
-// clang-format on
-
-// Undefine common macros that may interfere with Vulkan function pointer declarations
-#    undef Bool
-#    undef Status
-#    undef True
-#    undef False
-#    undef None
-#    undef Always
 
 namespace wis::detail {
 inline WisResult VKXlibExtensionInit(
@@ -50,6 +44,7 @@ WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKInitXlibExtension(WisVKXlibExtension*
     new (self) wis::impl::VKXlibExtensionImpl{
         .header = {&wis::detail::VKXlibExtensionInit},
         .instance_control_block = nullptr,
+        .vkCreateXlibSurfaceKHR = nullptr,
     };
 }
 
@@ -63,8 +58,11 @@ WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKDestroyXlibExtension(WisVKXlibExtensi
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WISDOM_PLATFORM_API WisResult
-wisVKXlibExtensionCreateSurface(WisVKXlibExtension* self, const WisXlibWindowDesc* info, WisVKSurface* surface)
+WISDOM_PLATFORM_API WisResult wisVKXlibExtensionCreateSurface(
+    WisVKXlibExtension* self,
+    const WisXlibWindowDesc* info,
+    WisVKSurface* surface
+)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKXlibExtensionImpl>(self);
     auto vkCreateXlibSurfaceKHR = reinterpret_cast<PFN_vkCreateXlibSurfaceKHR>(impl.vkCreateXlibSurfaceKHR);
@@ -103,5 +101,12 @@ wisVKXlibExtensionCreateSurface(WisVKXlibExtension* self, const WisXlibWindowDes
     return wis::detail::vk_success;
 }
 
-#endif // defined(WISDOM_VULKAN) && defined(WIS_PLATFORM_XLIB_PRESENT)
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_PLATFORM_API bool wisVKXlibExtensionSupported(WisVKXlibExtension* self)
+{
+    auto& impl = wis::from_handle_ref<wis::impl::VKXlibExtensionImpl>(self);
+    return impl.vkCreateXlibSurfaceKHR != nullptr;
+}
+
+#endif // defined(WISDOM_VULKAN)
 #endif // WIS_VK_PLATFORM_XLIB_CPP

@@ -1,7 +1,7 @@
 #ifndef WIS_DX12_PLATFORM_WIN32_CPP
 #define WIS_DX12_PLATFORM_WIN32_CPP
 
-#if defined(WISDOM_DX12) && defined(WIS_PLATFORM_WIN32_PRESENT)
+#if defined(WISDOM_DX12)
 #    include <wisdom/dx12/detail/dx12_utils.hpp>
 #    include <wisdom_platform/generated/cpp_api.hpp>
 
@@ -48,6 +48,13 @@ wisDX12Win32ExtensionCreateSurface(WisDX12Win32Extension* self, const WisWin32Wi
     return wis::detail::dx_success;
 }
 
-#endif // defined(WISDOM_DX12) && defined(WIS_PLATFORM_WIN32_PRESENT)
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_PLATFORM_API bool wisDX12Win32ExtensionSupported(WisDX12Win32Extension* self)
+{
+    auto& impl = wis::from_handle_ref<wis::impl::DX12Win32ExtensionImpl>(self);
+    return impl.factory != nullptr;
+}
+
+#endif // defined(WISDOM_DX12)
 
 #endif // WIS_DX12_PLATFORM_WIN32_CPP

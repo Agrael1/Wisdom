@@ -1,11 +1,4 @@
 set(WISDOM_PLATFORM_SOURCES)
-set(WISDOM_PLATFORM_DEFINES
-    $<BUILD_INTERFACE:$<$<BOOL:${WISDOM_PLATFORM_WIN32_PRESENT}>:WIS_PLATFORM_WIN32_PRESENT=1>>
-    $<BUILD_INTERFACE:$<$<BOOL:${WISDOM_PLATFORM_WIN32_PRESENT}>:WISDOM_PLATFORM_UWP_PRESENT=1>>
-    $<BUILD_INTERFACE:$<$<BOOL:${WISDOM_PLATFORM_XLIB_PRESENT}>:WIS_PLATFORM_XLIB_PRESENT=1>>
-    $<BUILD_INTERFACE:$<$<BOOL:${WISDOM_PLATFORM_XCB_PRESENT}>:WIS_PLATFORM_XCB_PRESENT=1>>
-    $<BUILD_INTERFACE:$<$<BOOL:${WISDOM_PLATFORM_WAYLAND_PRESENT}>:WIS_PLATFORM_WAYLAND_PRESENT=1>>
-)
 
 if(WISDOM_DX12)
   list(APPEND WISDOM_PLATFORM_SOURCES
@@ -34,8 +27,7 @@ target_include_directories(
 
 target_link_libraries(wisdom-platform-headers INTERFACE wis::wisdom-headers)
 target_compile_definitions(
-  wisdom-platform-headers INTERFACE WISDOM_PLATFORM_STATIC=1
-                                    ${WISDOM_PLATFORM_DEFINES})
+  wisdom-platform-headers INTERFACE WISDOM_PLATFORM_STATIC=1)
 
 install(
   TARGETS wisdom-platform-headers
@@ -52,8 +44,7 @@ if(WISDOM_BUILD_STATIC)
   add_library(wis::wisdom-platform ALIAS wisdom-platform)
 
   target_link_libraries(wisdom-platform PRIVATE wisdom)
-  target_compile_definitions(wisdom-platform PUBLIC WISDOM_PLATFORM_STATIC=1
-                                                    ${WISDOM_PLATFORM_DEFINES})
+  target_compile_definitions(wisdom-platform PUBLIC WISDOM_PLATFORM_STATIC=1)
   target_include_directories(
     wisdom-platform PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
                            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
@@ -83,7 +74,7 @@ if(WISDOM_BUILD_SHARED)
            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
   target_compile_definitions(
     wisdom-platform-shared
-    PUBLIC WISDOM_PLATFORM_SHARED_LIBRARY=1 ${WISDOM_PLATFORM_DEFINES}
+    PUBLIC WISDOM_PLATFORM_SHARED_LIBRARY=1
     PRIVATE wisdom_platform_shared_EXPORTS=1)
 
   set_target_properties(

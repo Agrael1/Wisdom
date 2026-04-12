@@ -9,7 +9,7 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * WisResult wisUWPExtensionCreateSurface(WisUWPExtension* self,
  *                                        const WisUWPWindowDesc* info,
  *                                        WisSurface*             surface);
@@ -17,18 +17,18 @@
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- *
- * // Provided by Wisdom 0.7.0.
+ * 
+ * // Provided by Wisdom 0.7.0. 
  * WisResult wisDX12UWPExtensionCreateSurface(WisDX12UWPExtension* self,
  *                                            const WisUWPWindowDesc* info,
  *                                            WisDX12Surface*         surface);
  * ```
  * </details>
- *
+ * 
  * C++ Version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.0. 
  * WIS_NODISCARD wis::DX12Surface DX12UWPExtension::CreateSurface(const wis::UWPWindowDesc& info,
  *                                                                wis::Result&              out_result) noexcept;
  * }
@@ -41,7 +41,7 @@
  * - **this** `self` self is a pointer to the valid WisUWPExtension instance.
  * - `info` UWP windowing data.
  * - `surface` points to WisSurface, initialized on success.
- *
+ * 
  * - **return** denoting the outcome of operation.
  * \endcond
  *
