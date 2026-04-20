@@ -126,6 +126,7 @@
  * - `WISDOM_BUILD_TESTS=ON/OFF` build tests
  * - `WISDOM_BUILD_DOCS=ON/OFF` build Doxygen documentation
  * - `WISDOM_DXC_PATH=<path>` custom DXC location
+ * - `WISDOM_USE_AGILITY_SDK=OFF` download and build with Agility SDK instead of Windows SDK, this allows using latest DirectX 12 features on older Windows versions, but requires additional setup and dependencies. Default is `OFF`, which uses Windows SDK that comes with the system and DirectX-Headers.
  * - `WISDOM_VULKAN_HEADER_PATH=<path>` custom Vulkan-Headers location
  *
  * @section nuget NuGet Package

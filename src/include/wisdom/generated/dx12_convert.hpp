@@ -5,7 +5,6 @@
 #    error "This is a C++ only header"
 #endif // __cplusplus
 
-#include <d3d12.h>
 #include <D3D12MemAlloc.h>
 #include <dxgi1_6.h>
 #include "c_api.h"

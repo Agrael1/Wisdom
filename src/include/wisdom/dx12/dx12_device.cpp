@@ -9,7 +9,11 @@
 #include <wisdom/util/com_ptr.hpp>
 #include <wisdom/util/xxhash.h>
 
-#include <d3dx12/d3dx12_pipeline_state_stream.h>
+#ifdef DX12SDKVER
+#    include <d3dx12/d3dx12_pipeline_state_stream.h>
+#else
+#    include <directx/d3dx12_pipeline_state_stream.h>
+#endif
 
 #include <bit>
 #include <cassert>

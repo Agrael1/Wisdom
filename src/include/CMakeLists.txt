@@ -14,8 +14,7 @@ if(WISDOM_DX12)
     DXGI
     DXGUID
     d3d12
-    DX12Allocator
-    DX12Agility)
+    DX12Allocator)
 
   list(
     APPEND

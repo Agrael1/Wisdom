@@ -75,86 +75,29 @@ function(wisdom_detect_platform)
     endif ()
 endfunction()
 
-
-# Function for installing DirectX SDK for UWP
-function(wis_export_agility_file)
-    set(options)
-    set(oneValueArgs PATH)
-    set(multiValueArgs)
-
-    cmake_parse_arguments(wis_export_agility_file
-            "${options}" "${oneValueArgs}" "${multiValueArgs}"
-            ${ARGN})
-
-    get_property(DX12SDKVER TARGET wis::DX12Agility PROPERTY DX12SDKVER)
-
-    set(EXPORT_AGILITY "_declspec(dllexport) const unsigned D3D12SDKVersion = ${DX12SDKVER};
-						_declspec(dllexport) const char* D3D12SDKPath = \".\\\\D3D12\\\\\";"
-    )
-    file(WRITE ${wis_export_agility_file_PATH} "${EXPORT_AGILITY}")
-endfunction()
-
-function(wis_make_exports_dx PROJECT)
-    wis_export_agility_file(PATH ${CMAKE_CURRENT_BINARY_DIR}/exports.c)
-
-    target_sources(${PROJECT} PRIVATE
-            ${CMAKE_CURRENT_BINARY_DIR}/exports.c
-    )
-endfunction()
-
-function(wis_install_dx_uwp PROJECT)
-    message("Installing DirectX Agility SDK Dependency")
-    wis_export_agility_file(PATH "${CMAKE_CURRENT_BINARY_DIR}/exports.c")
-
-    target_sources(${PROJECT} PRIVATE
-            ${CMAKE_CURRENT_BINARY_DIR}/exports.c
-    )
-
-    message("DX12AgilityCore: ${DXAGILITY_DLL}")
-    set_property(SOURCE ${DXAGILITY_DLL} PROPERTY VS_DEPLOYMENT_CONTENT 1)
-    set_property(SOURCE ${DXAGILITY_DLL} PROPERTY VS_DEPLOYMENT_LOCATION "D3D12")
-    target_sources(${PROJECT} PRIVATE ${DXAGILITY_DLL})
-
-    message("DX12AgilitySDKLayers: ${DXAGILITY_DEBUG_DLL}")
-    set_property(SOURCE ${DXAGILITY_DEBUG_DLL} PROPERTY VS_DEPLOYMENT_CONTENT 1)
-    set_property(SOURCE ${DXAGILITY_DEBUG_DLL} PROPERTY VS_DEPLOYMENT_LOCATION "D3D12")
-    target_sources(${PROJECT} PRIVATE ${DXAGILITY_DEBUG_DLL})
-endfunction()
-
 # Function for installing DirectX SDK
-function(wis_install_dx_win32 PROJECT)
+function(wis_install_agility_win32 PROJECT DXAGILITY_DLL DXAGILITY_DEBUG_DLL)
     message("Installing DirectX Agility SDK Dependency")
-    wis_export_agility_file(PATH "${CMAKE_CURRENT_BINARY_DIR}/exports.c")
+    if (EXISTS ${DXAGILITY_DLL})
+        message("DX12 Agility Core found: ${DXAGILITY_DLL}")
+        get_filename_component(DXAGILITY_DLL_NAME ${DXAGILITY_DLL} NAME)
+        add_custom_command(TARGET ${PROJECT} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DXAGILITY_DLL} $<TARGET_FILE_DIR:${PROJECT}>/D3D12/${DXAGILITY_DLL_NAME}
+                COMMAND_EXPAND_LISTS
+                COMMENT "Copying DX12 Agility Core..."
+        )
+    endif()
 
-    target_sources(${PROJECT} PRIVATE
-            ${CMAKE_CURRENT_BINARY_DIR}/exports.c
-    )
-
-    get_filename_component(DXAGILITY_DLL_NAME ${DXAGILITY_DLL} NAME)
-    add_custom_command(TARGET ${PROJECT} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DXAGILITY_DLL} $<TARGET_FILE_DIR:${PROJECT}>/D3D12/${DXAGILITY_DLL_NAME}
-            COMMAND_EXPAND_LISTS
-            COMMENT "Copying DX12 Agility Core..."
-    )
-
-
-    get_filename_component(DXAGILITY_DEBUG_DLL_NAME ${DXAGILITY_DEBUG_DLL} NAME)
-    add_custom_command(TARGET ${PROJECT} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy ${DXAGILITY_DEBUG_DLL} $<TARGET_FILE_DIR:${PROJECT}>/D3D12/${DXAGILITY_DEBUG_DLL_NAME}
-            COMMAND_EXPAND_LISTS
-            COMMENT "Copying DX12 Agility SDKLayers..."
-    )
+    if (EXISTS ${DXAGILITY_DEBUG_DLL})
+        message("DX12 Agility SDKLayers found: ${DXAGILITY_DEBUG_DLL}")
+        get_filename_component(DXAGILITY_DEBUG_DLL_NAME ${DXAGILITY_DEBUG_DLL} NAME)
+        add_custom_command(TARGET ${PROJECT} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy ${DXAGILITY_DEBUG_DLL} $<TARGET_FILE_DIR:${PROJECT}>/D3D12/${DXAGILITY_DEBUG_DLL_NAME}
+                COMMAND_EXPAND_LISTS
+                COMMENT "Copying DX12 Agility SDKLayers..."
+        )
+    endif()
 endfunction()
-
-# Function for installing Wisdom Dependencies
-function(wis_install_deps PROJECT)
-    if (WIN32 AND NOT WINDOWS_STORE)
-        wis_install_dx_win32(${PROJECT})
-    elseif (WINDOWS_STORE)
-        wis_install_dx_uwp(${PROJECT})
-    endif (WIN32 AND NOT WINDOWS_STORE)
-endfunction()
-
 
 # Function for compiling shaders
 # Arguments:

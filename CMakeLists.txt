@@ -25,6 +25,8 @@ option(WISDOM_BUILD_STATIC "Build the static lib." ON)
 option(WISDOM_BUILD_SHARED "Build the dynamic lib." ON)
 option(WISDOM_BUILD_PLATFORM "Build unified platform extension library." ON)
 option(WISDOM_BUILD_DOCS "Build the documentation." OFF)
+option(WISDOM_USE_AGILITY_SDK "Download and use DirectX 12 Agility SDK." OFF)
+
 
 # DXC deployment options
 set(WISDOM_DXC_PATH
