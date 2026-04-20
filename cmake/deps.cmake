@@ -22,20 +22,6 @@ if (WISDOM_WINDOWS)
     include(${CMAKE_CURRENT_LIST_DIR}/deps/deps_win.cmake)
 endif ()
 
-# Use fmtlib
-if (WISDOM_USE_FMT)
-    find_package(fmt CONFIG QUIET)
-    if (fmt_FOUND)
-        message("fmtlib found, skipping download.")
-    else ()
-        message("Loading latest fmtlib...")
-        CPMAddPackage(
-                NAME fmt
-                GITHUB_REPOSITORY fmtlib/fmt
-                GIT_TAG 12.1.0)
-    endif ()
-endif ()
-
 # DXCompiler for HLSL compilation
 include(${CMAKE_CURRENT_LIST_DIR}/deps/dxc.cmake)
 

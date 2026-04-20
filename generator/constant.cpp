@@ -58,11 +58,11 @@ std::string Generator::MakeCConstant(const WisConstant& c, DocKind kind)
     }
 
     std::string define_name = "WIS_" + MakeUpperSnakeCase(c.name);
-    std::string st_decl = wis::format("#define {} (({}{}){})\n", define_name, type_str, mod_str, c.value);
+    std::string st_decl = std::format("#define {} (({}{}){})\n", define_name, type_str, mod_str, c.value);
 
     if (!c.doc.empty() && kind == DocKind::Full) {
         std::string version_info = MakeVersionString(c.version);
-        std::string documentation = wis::format("/// @brief {}{}\n", version_info, c.doc);
+        std::string documentation = std::format("/// @brief {}{}\n", version_info, c.doc);
         documentation = FinalizeCDocumentation(documentation, c.name);
         st_decl = documentation + st_decl;
     }
@@ -81,11 +81,11 @@ std::string Generator::MakeCPPConstant(const WisConstant& c, DocKind kind)
         type_str = "const " + type_str;
     }
 
-    std::string st_decl = wis::format("static constexpr {}{} {} = {};\n", type_str, mod_str, c.name, c.value);
+    std::string st_decl = std::format("static constexpr {}{} {} = {};\n", type_str, mod_str, c.name, c.value);
 
     if (!c.doc.empty() && kind == DocKind::Full) {
         std::string version_info = MakeVersionString(c.version);
-        std::string documentation = wis::format("/// @brief {}{}\n", version_info, c.doc);
+        std::string documentation = std::format("/// @brief {}{}\n", version_info, c.doc);
         documentation = FinalizeCPPDocumentation(documentation, c.name);
         st_decl = documentation + st_decl;
     }
@@ -101,8 +101,8 @@ std::string Generator::MakeConstantDescription(const WisConstant& c)
     }
 
     std::string type_str = GetCFullTypename(c.type, Backend::Any);
-    description += wis::format("Type: `{}`\n", type_str);
-    description += wis::format("Value: `{}`\n", c.value);
+    description += std::format("Type: `{}`\n", type_str);
+    description += std::format("Value: `{}`\n", c.value);
     return description;
 }
 
@@ -146,7 +146,7 @@ void Generator::WriteConstantDocumentation(std::filesystem::path const_output_pa
     WriteDocumentation(
         const_file_path,
         template_constant,
-        wis::format("{}Constants", active_module_name),
+        std::format("{}Constants", active_module_name),
         const_template_content,
         empty_doc,
         empty_doc,

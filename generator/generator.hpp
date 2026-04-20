@@ -8,8 +8,8 @@
 #include <string_view>
 #include <unordered_map>
 #include <unordered_set>
+#include <format>
 
-#include "../src/include/wisdom/bridge/format.hpp"
 #include "types.hpp"
 
 class Generator
@@ -214,11 +214,11 @@ public:
         if (kind == DocKind::VersionOnly) {
             if constexpr (requires { value.version; }) {
                 if (value.version.empty()) {
-                    return wis::format("{}\n", value_decl);
+                    return std::format("{}\n", value_decl);
                 }
-                return wis::format("// {}{}\n", version_info, value_decl);
+                return std::format("// {}{}\n", version_info, value_decl);
             }
-            return wis::format("{}\n", value_decl);
+            return std::format("{}\n", value_decl);
         }
 
         auto doc = value.doc;
@@ -237,22 +237,22 @@ public:
 
             if (doc.find('\n') != std::string_view::npos) {
                 pre_doc = true;
-                documentation = wis::format("/**\n@brief {}\n{}\n*/", version_info, doc);
+                documentation = std::format("/**\n@brief {}\n{}\n*/", version_info, doc);
                 ReplaceAll(documentation, "\n", "\n * ");
             } else {
-                documentation = wis::format(" ///< {}{}", version_info, doc);
+                documentation = std::format(" ///< {}{}", version_info, doc);
             }
             documentation = finalize_doc(std::move(documentation));
 
             if (!pre_doc && value_decl.length() + documentation.length() > value_comment_column_limit) {
                 pre_doc = true;
-                documentation = wis::format("/**\n@brief {}{}\n*/", version_info, doc);
+                documentation = std::format("/**\n@brief {}{}\n*/", version_info, doc);
                 ReplaceAll(documentation, "\n", "\n * ");
                 documentation = finalize_doc(std::move(documentation));
             }
         }
-        return pre_doc ? wis::format("    {}\n    {}\n", documentation, value_decl)
-                       : wis::format("{}{}\n", value_decl, documentation);
+        return pre_doc ? std::format("    {}\n    {}\n", documentation, value_decl)
+                       : std::format("{}{}\n", value_decl, documentation);
     }
 
     template <Lang lang = Lang::C, typename T>
@@ -265,7 +265,7 @@ public:
                 if constexpr (lang == Lang::C) {
                     // This arg
                     if (!type.this_type.empty()) {
-                        args += wis::format(
+                        args += std::format(
                             "@param self is a pointer to the valid {{{}::}} instance.\n",
                             type.this_type
                         );
@@ -273,16 +273,16 @@ public:
 
                     // Function arguments
                     for (auto& param : type.parameters) {
-                        args += wis::format("@param {} {}\n", param.name, param.doc);
+                        args += std::format("@param {} {}\n", param.name, param.doc);
                     }
 
                     if (type.return_type.IsRV()) {
-                        args += wis::format("@param {} {}\n", type.return_type.opt_name, type.return_type.doc);
-                        args += wis::format("@return {} {}\n", "Result", "denoting the outcome of operation.");
+                        args += std::format("@param {} {}\n", type.return_type.opt_name, type.return_type.doc);
+                        args += std::format("@return {} {}\n", "Result", "denoting the outcome of operation.");
                     } else if (type.return_type.IsDirect()) {
-                        args += wis::format("@return {} {}\n", type.return_type.type, type.return_type.doc);
+                        args += std::format("@return {} {}\n", type.return_type.type, type.return_type.doc);
                     } else if (type.return_type.IsResultOnly()) {
-                        args += wis::format("@return {} {}\n", "Result", "denoting the outcome of operation.");
+                        args += std::format("@return {} {}\n", "Result", "denoting the outcome of operation.");
                     }
                 } else {
                     // Function arguments, beware of spans
@@ -295,20 +295,20 @@ public:
                         if (param.modifier & Modifier::Span) {
                             last_was_span = true;
                         }
-                        args += wis::format("@param {} {}\n", param.name, param.doc);
+                        args += std::format("@param {} {}\n", param.name, param.doc);
                     }
 
                     auto kind = type.return_type.GetKind();
                     switch (kind) {
                     case ReturnTypeKind::Direct:
-                        args += wis::format("@return {} {}\n", type.return_type.type, type.return_type.doc);
+                        args += std::format("@return {} {}\n", type.return_type.type, type.return_type.doc);
                         break;
                     case ReturnTypeKind::ResultOnly:
-                        args += wis::format("@return {} {}\n", "Result", "denoting the outcome of operation.");
+                        args += std::format("@return {} {}\n", "Result", "denoting the outcome of operation.");
                         break;
                     case ReturnTypeKind::ResultAndValue:
-                        args += wis::format("@param {} {}\n", "out_result", "denoting the outcome of operation.");
-                        args += wis::format("@return {} {}\n", type.return_type.opt_name, type.return_type.doc);
+                        args += std::format("@param {} {}\n", "out_result", "denoting the outcome of operation.");
+                        args += std::format("@return {} {}\n", type.return_type.opt_name, type.return_type.doc);
                         break;
                     default:
                         break;
@@ -316,7 +316,7 @@ public:
                 }
             }
 
-            std::string documentation = wis::format("/**\n@brief {}{}\n{}\n", version_info, type.doc, args);
+            std::string documentation = std::format("/**\n@brief {}{}\n{}\n", version_info, type.doc, args);
             if constexpr (requires { type.doc_translates; }) {
                 documentation += type.doc_translates;
             }
@@ -330,7 +330,7 @@ public:
                 return FinalizeCDocumentation(documentation, type.name);
             }
         }
-        return wis::format("// {}", version_info);
+        return std::format("// {}", version_info);
     }
 
     template <Lang lang = Lang::C, typename T>
@@ -352,7 +352,7 @@ public:
                 attributes_inter += "&";
             }
             if (member.modifier & Modifier::Span) {
-                return wis::format(
+                return std::format(
                     "wis::span<{}>",
                     attributes_pre + GetCPPFullTypename(member.type, backend) + attributes_inter
                 );

@@ -49,7 +49,7 @@ void Generator::ParseBitmask(tinyxml2::XMLElement* type)
     if (auto* size = type->FindAttribute("version")) {
         ref.version = size->Value();
     } else {
-        throw std::runtime_error(wis::format("Enum {} is missing version attribute.", name));
+        throw std::runtime_error(std::format("Enum {} is missing version attribute.", name));
     }
 
     for (auto* impl_type = type->FirstChildElement("impl_type"); impl_type;
@@ -104,11 +104,11 @@ void Generator::ParseBitmask(tinyxml2::XMLElement* type)
 std::string Generator::MakeCBitmask(const WisBitmask& s, DocKind kind)
 {
     auto full_name = GetCFullTypename(s.name, Backend::Any);
-    std::string st_decl = wis::format("typedef enum {} {{\n", full_name);
+    std::string st_decl = std::format("typedef enum {} {{\n", full_name);
 
     if (!s.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation(s, kind);
-        st_decl = wis::format("{}\n{}", xdoc, st_decl);
+        st_decl = std::format("{}\n{}", xdoc, st_decl);
     }
 
     for (auto& m : s.values) {
@@ -116,44 +116,44 @@ std::string Generator::MakeCBitmask(const WisBitmask& s, DocKind kind)
             st_decl += MakeValueDocumentation(
                 s,
                 m,
-                wis::format("    Wis{}{} = (1u << {}),", s.name, m.name, m.value_or_bit),
+                std::format("    Wis{}{} = (1u << {}),", s.name, m.name, m.value_or_bit),
                 kind
             );
             continue;
         }
-        st_decl += MakeValueDocumentation(s, m, wis::format("    Wis{}{} = {},", s.name, m.name, m.value_or_bit), kind);
+        st_decl += MakeValueDocumentation(s, m, std::format("    Wis{}{} = {},", s.name, m.name, m.value_or_bit), kind);
     }
 
-    st_decl += wis::format("}} {};\n", full_name);
+    st_decl += std::format("}} {};\n", full_name);
     return st_decl;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeCPPBitmask(const WisBitmask& s, DocKind kind)
 {
-    std::string st_decl = wis::format("enum class {} : uint32_t {{\n", s.name);
+    std::string st_decl = std::format("enum class {} : uint32_t {{\n", s.name);
     if (!s.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation<Lang::CPP>(s, kind);
-        st_decl = wis::format("{}\n{}", xdoc, st_decl);
+        st_decl = std::format("{}\n{}", xdoc, st_decl);
     }
     for (auto& m : s.values) {
         if (m.is_bit) {
             st_decl += MakeValueDocumentation<Lang::CPP>(
                 s,
                 m,
-                wis::format("    {} = (1u << {}),", m.name, m.value_or_bit),
+                std::format("    {} = (1u << {}),", m.name, m.value_or_bit),
                 kind
             );
             continue;
         }
-        st_decl += MakeValueDocumentation<Lang::CPP>(s, m, wis::format("    {} = {},", m.name, m.value_or_bit), kind);
+        st_decl += MakeValueDocumentation<Lang::CPP>(s, m, std::format("    {} = {},", m.name, m.value_or_bit), kind);
     }
     st_decl += "};\n";
 
     if (kind == DocKind::VersionOnly) {
         return st_decl;
     }
-    st_decl += wis::format("WISDOM_DEFINE_ENUM_OPERATORS({})\n\n", s.name);
+    st_decl += std::format("WISDOM_DEFINE_ENUM_OPERATORS({})\n\n", s.name);
     return st_decl;
 }
 
@@ -179,7 +179,7 @@ std::string Generator::MakeBitmaskDescription(const WisBitmask& s)
         if (has_translate) {
             translates += ", ";
         }
-        translates += wis::format("{} as {}", impl_names[i], cvt.value);
+        translates += std::format("{} as {}", impl_names[i], cvt.value);
         has_translate = true;
     }
     if (has_translate) {
@@ -188,10 +188,10 @@ std::string Generator::MakeBitmaskDescription(const WisBitmask& s)
     description += "Values:\n";
     for (auto& m : s.values) {
         if (m.is_bit) {
-            description += wis::format("- `Wis{}{} = (1 << {})`: {}\n", s.name, m.name, m.value_or_bit, m.doc);
+            description += std::format("- `Wis{}{} = (1 << {})`: {}\n", s.name, m.name, m.value_or_bit, m.doc);
             continue;
         }
-        description += wis::format("- `Wis{}{} = {}`: {}\n", s.name, m.name, m.value_or_bit, m.doc);
+        description += std::format("- `Wis{}{} = {}`: {}\n", s.name, m.name, m.value_or_bit, m.doc);
     }
     return description;
 }
@@ -209,7 +209,7 @@ std::string Generator::MakeBitmaskConverter(const WisBitmask& s, Backend backend
     auto wisdom_type = GetCFullTypename(s.name, Backend::Any);
 
     if (cvt.direct) {
-        converters = wis::format(
+        converters = std::format(
             "constexpr inline {} {}Convert({} value) noexcept {{\n    return static_cast<{}>(value);\n}}\n\n",
             cvt.value,
             backend_tag,
@@ -217,7 +217,7 @@ std::string Generator::MakeBitmaskConverter(const WisBitmask& s, Backend backend
             cvt.value
         );
     } else {
-        converters = wis::format(
+        converters = std::format(
             "constexpr inline {} {}Convert({} value) noexcept {{\n",
             cvt.value,
             backend_tag,
@@ -225,14 +225,14 @@ std::string Generator::MakeBitmaskConverter(const WisBitmask& s, Backend backend
         );
 
         // Start with default value
-        converters += wis::format("    {} result = static_cast<{}>(0);\n", cvt.value, cvt.value);
+        converters += std::format("    {} result = static_cast<{}>(0);\n", cvt.value, cvt.value);
         if (auto nam = cvt.value.find("::"); nam != std::string::npos) {
             for (auto& m : s.values) {
                 auto convert_value = m.converts[static_cast<size_t>(backend)];
                 if (convert_value.empty()) {
                     continue;
                 }
-                converters += wis::format(
+                converters += std::format(
                     "    if (value & {}{}) {{ result = static_cast<{}>(result | {}); }}\n",
                     GetCFullTypename(s.name, backend),
                     m.name,
@@ -246,7 +246,7 @@ std::string Generator::MakeBitmaskConverter(const WisBitmask& s, Backend backend
                 if (convert_value.empty()) {
                     continue;
                 }
-                converters += wis::format(
+                converters += std::format(
                     "    if (value & {}{}) {{ result |= {}; }}\n",
                     GetCFullTypename(s.name, backend),
                     m.name,
@@ -255,12 +255,12 @@ std::string Generator::MakeBitmaskConverter(const WisBitmask& s, Backend backend
             }
         }
 
-        converters += wis::format("    return result;\n}}\n\n");
+        converters += std::format("    return result;\n}}\n\n");
     }
 
     if (cvt.convert_back) {
         if (cvt.direct) {
-            converters += wis::format(
+            converters += std::format(
                 "constexpr inline {} {}Convert({} value) noexcept {{\n    return static_cast<{}>(value);\n}}\n\n",
                 wisdom_type,
                 backend_tag,
@@ -268,20 +268,20 @@ std::string Generator::MakeBitmaskConverter(const WisBitmask& s, Backend backend
                 wisdom_type
             );
         } else {
-            converters += wis::format(
+            converters += std::format(
                 "constexpr inline {} {}Convert({} value) noexcept {{\n",
                 wisdom_type,
                 backend_tag,
                 cvt.value
             );
-            converters += wis::format("    {} result = static_cast<{}>(0);\n", wisdom_type, wisdom_type);
+            converters += std::format("    {} result = static_cast<{}>(0);\n", wisdom_type, wisdom_type);
 
             for (auto& m : s.values) {
                 auto convert_value = m.converts[static_cast<size_t>(backend)];
                 if (convert_value.empty()) {
                     continue;
                 }
-                converters += wis::format(
+                converters += std::format(
                     "    if (value & {}) {{ result = static_cast<{}>(result | {}{}); }}\n",
                     convert_value,
                     wisdom_type,
@@ -290,7 +290,7 @@ std::string Generator::MakeBitmaskConverter(const WisBitmask& s, Backend backend
                 );
             }
 
-            converters += wis::format("    return result;\n}}\n\n");
+            converters += std::format("    return result;\n}}\n\n");
         }
     }
 
@@ -304,16 +304,16 @@ void Generator::WriteBitmaskDocumentation(std::filesystem::path enum_output_path
     auto& bitmask_names = module_map.at(active_module_name).bitmasks_in_order;
     for (auto& enum_name : bitmask_names) {
         // Make a folder for enums starting with this letter
-        std::filesystem::path enum_file_path = enum_output_path / wis::format("{}_enum.h", MakeSnakeCase(enum_name));
+        std::filesystem::path enum_file_path = enum_output_path / std::format("{}_enum.h", MakeSnakeCase(enum_name));
         auto& enum_ref = bitmask_map[enum_name];
 
-        std::string enum_template_content = wis::format(
+        std::string enum_template_content = std::format(
             " * C version:\n```c\n{}```\n"
             "C++ version:\n```cpp\nnamespace wis{{\n{}}}\n```\n",
             MakeCBitmask(enum_ref, DocKind::VersionOnly),
             MakeCPPBitmask(enum_ref, DocKind::VersionOnly)
         );
-        std::string enum_description = wis::format(" * {}", MakeBitmaskDescription(enum_ref));
+        std::string enum_description = std::format(" * {}", MakeBitmaskDescription(enum_ref));
         std::string enum_refs = GetRefs(enum_name);
         ReplaceAll(enum_template_content, "\n", "\n * ");
         ReplaceAll(enum_description, "\n", "\n * ");

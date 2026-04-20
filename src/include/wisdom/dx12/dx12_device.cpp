@@ -1,7 +1,6 @@
 #ifndef WIS_DX12_DEVICE_CPP
 #define WIS_DX12_DEVICE_CPP
 
-#include <wisdom/bridge/format.hpp>
 #include <wisdom/dx12/detail/dx12_detail.hpp>
 #include <wisdom/dx12/detail/dx12_utils.hpp>
 #include <wisdom/generated/cpp_api.hpp>
@@ -31,8 +30,11 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyDevice(WisDX12Device* self)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisDX12DeviceCreateCommandQueue(const WisDX12Device* self, WisCommandQueueType type, WisDX12CommandQueue* queue)
+WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandQueue(
+    const WisDX12Device* self,
+    WisCommandQueueType type,
+    WisDX12CommandQueue* queue
+)
 {
     auto& device = wis::from_handle_ref<const wis::impl::DX12DeviceImpl>(self);
 
@@ -64,8 +66,11 @@ wisDX12DeviceCreateCommandQueue(const WisDX12Device* self, WisCommandQueueType t
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisDX12DeviceCreateCommandAllocator(const WisDX12Device* self, WisCommandQueueType type, WisDX12CommandAllocator* list)
+WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateCommandAllocator(
+    const WisDX12Device* self,
+    WisCommandQueueType type,
+    WisDX12CommandAllocator* list
+)
 {
     WisResult result = wis::detail::dx_success;
     auto& device = wis::from_handle_ref<const wis::impl::DX12DeviceImpl>(self);
@@ -90,8 +95,11 @@ wisDX12DeviceCreateCommandAllocator(const WisDX12Device* self, WisCommandQueueTy
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisDX12DeviceCreateFence(const WisDX12Device* self, uint64_t initial_value, WisDX12Fence* fence)
+WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateFence(
+    const WisDX12Device* self,
+    uint64_t initial_value,
+    WisDX12Fence* fence
+)
 {
     WisResult result = wis::detail::dx_success;
     auto& device = wis::from_handle_ref<const wis::impl::DX12DeviceImpl>(self);
@@ -120,8 +128,10 @@ wisDX12DeviceCreateFence(const WisDX12Device* self, uint64_t initial_value, WisD
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisDX12DeviceGetResourceAllocator(const WisDX12Device* self, WisDX12ResourceAllocator* allocator)
+WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceGetResourceAllocator(
+    const WisDX12Device* self,
+    WisDX12ResourceAllocator* allocator
+)
 {
     auto& device = wis::from_handle_ref<const wis::impl::DX12DeviceImpl>(self);
 
@@ -257,7 +267,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(
 
     // Check limits
     if (push_constant_size + 2 * desc->push_descriptor_count + desc->descriptor_table_count > max_root_parameters) {
-        return wis::detail::make_result<wis::detail::Func(), "Exceeded maximum number of root parameters">(E_INVALIDARG
+        return wis::detail::make_result<wis::detail::Func(), "Exceeded maximum number of root parameters">(
+            E_INVALIDARG
         );
     }
 
@@ -287,9 +298,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(
         auto& src = desc->push_descriptors[i];
 
         if (!wis::detail::DX12IsPushable(src.type)) {
-            return wis::detail::
-                make_result<wis::detail::Func(), "Descriptor type is not pushable to DX12 root signature">(E_INVALIDARG
-                );
+            return wis::detail::make_result<
+                wis::detail::Func(),
+                "Descriptor type is not pushable to DX12 root signature">(E_INVALIDARG);
         }
 
         root_parameters_span[i] = {
@@ -357,14 +368,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateRootSignature(
 
     D3D12_VERSIONED_ROOT_SIGNATURE_DESC rsig_desc{
         .Version = D3D_ROOT_SIGNATURE_VERSION_1_2,
-        .Desc_1_2 =
-            {
-                .NumParameters = static_cast<UINT>(num_root_parameters),
-                .pParameters = root_parameters,
-                .NumStaticSamplers = 0,
-                .pStaticSamplers = nullptr,
-                .Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT,
-            },
+        .Desc_1_2 = {
+            .NumParameters = static_cast<UINT>(num_root_parameters),
+            .pParameters = root_parameters,
+            .NumStaticSamplers = 0,
+            .pStaticSamplers = nullptr,
+            .Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT,
+        },
     };
 
     wis::com_ptr<ID3DBlob> signature;
@@ -568,8 +578,12 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreatePipelineCache(
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisDX12DeviceCreateShader(const WisDX12Device* self, const uint8_t* data, size_t size, WisDX12Shader* shader)
+WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateShader(
+    const WisDX12Device* self,
+    const uint8_t* data,
+    size_t size,
+    WisDX12Shader* shader
+)
 {
     if (!data || size == 0) {
         return wis::detail::make_result<wis::detail::Func(), "Shader bytecode data is null or empty">(E_INVALIDARG);
@@ -581,7 +595,8 @@ wisDX12DeviceCreateShader(const WisDX12Device* self, const uint8_t* data, size_t
         operator new(wis::aligned_size(size, 8ull) + sizeof(wis::detail::DX12ShaderHeader), std::nothrow)
     )};
     if (!shader_header) {
-        return wis::detail::make_result<wis::detail::Func(), "Out of memory while creating shader header">(E_OUTOFMEMORY
+        return wis::detail::make_result<wis::detail::Func(), "Out of memory while creating shader header">(
+            E_OUTOFMEMORY
         );
     }
 
@@ -650,7 +665,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateComputePipeline(
     wis::com_ptr<ID3D12PipelineState> pipeline_state;
 
     // Calculate hash of pipeline state description for caching purposes
-    wchar_t name_buffer[256] = {};
+    static constexpr std::size_t hash_input_size = 256;
+    wchar_t name_buffer[hash_input_size] = {};
 
     if (cache) {
         // Get root signature hash
@@ -670,7 +686,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateComputePipeline(
         XXH128_hash_t pso_hash = XXH3_128bits(rehash_input, sizeof(rehash_input));
 
         // convert hash to hex string for use as pipeline cache key
-        wis::format_to(name_buffer, L"CPSO_{:016x}{:016x}", pso_hash.low64, pso_hash.high64);
+        std::swprintf(name_buffer, hash_input_size, L"CPSO_%016llx%016llx", pso_hash.low64, pso_hash.high64);
 
         // Try to load pipeline from cache first if available
         HRESULT hr = cache->LoadPipeline(
@@ -979,7 +995,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(
     };
     wis::com_ptr<ID3D12PipelineState> pipeline_state;
 
-    wchar_t name_buffer[128] = {};
+    static constexpr std::size_t hash_input_size = 256;
+    wchar_t name_buffer[hash_input_size] = {};
     if (cache) {
         uint32_t name_offset = 0; // max 7
         struct RehashInput {
@@ -1011,10 +1028,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(
         rehash_input.multiview_mask = desc->render_attachments.view_mask;
 
         // Hash pso stream
-        wis::span<const uint8_t> pso_stream_bytes{// start after bytecodes
-                                                  reinterpret_cast<const uint8_t*>(&stream.flags),
-                                                  // end at the end of the struct
-                                                  reinterpret_cast<const uint8_t*>(&stream + 1)
+        wis::span<const uint8_t> pso_stream_bytes{
+            // start after bytecodes
+            reinterpret_cast<const uint8_t*>(&stream.flags),
+            // end at the end of the struct
+            reinterpret_cast<const uint8_t*>(&stream + 1)
         };
         XXH128_hash_t stream_hash = XXH3_128bits(pso_stream_bytes.data(), pso_stream_bytes.size());
         rehash_input.pso_hash[0] = stream_hash.low64;
@@ -1024,7 +1042,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(
         XXH128_hash_t pso_hash = XXH3_128bits(&rehash_input, sizeof(rehash_input));
 
         // convert hash to hex string for use as pipeline cache key
-        wis::format_to(name_buffer + name_offset, L"PSO_{:016x}{:016x}", pso_hash.low64, pso_hash.high64);
+        std::swprintf(
+            name_buffer + name_offset,
+            hash_input_size - name_offset,
+            L"PSO_%016llx%016llx",
+            pso_hash.low64,
+            pso_hash.high64
+        );
 
         // Try to load pipeline from cache first if available
         HRESULT hr = cache->LoadPipeline(
@@ -1087,8 +1111,11 @@ WIS_EXTERN_C WISDOM_API bool wisDX12DeviceGetFormatPresentationSupport(
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisDX12DeviceGetSurfaceParameters(const WisDX12Device* self, WisDX12SurfaceView surface, WisSurfaceParameters* params)
+WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceGetSurfaceParameters(
+    const WisDX12Device* self,
+    WisDX12SurfaceView surface,
+    WisSurfaceParameters* params
+)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::DX12DeviceImpl>(self);
     *params = {
@@ -1196,8 +1223,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateSwapchain(
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisDX12DeviceGetFormatProperties(const WisDX12Device* self, WisDataFormat format, WisFormatProperties* properties)
+WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceGetFormatProperties(
+    const WisDX12Device* self,
+    WisDataFormat format,
+    WisFormatProperties* properties
+)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::DX12DeviceImpl>(self);
     D3D12_FEATURE_DATA_FORMAT_SUPPORT formatSupport = {.Format = wis::detail::DX12Convert(format)};

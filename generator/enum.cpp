@@ -49,7 +49,7 @@ void Generator::ParseEnum(tinyxml2::XMLElement* type)
     if (auto* size = type->FindAttribute("version")) {
         ref.version = size->Value();
     } else {
-        throw std::runtime_error(wis::format("Enum {} is missing version attribute.", name));
+        throw std::runtime_error(std::format("Enum {} is missing version attribute.", name));
     }
 
     for (auto* impl_type = type->FirstChildElement("impl_type"); impl_type;
@@ -99,33 +99,33 @@ void Generator::ParseEnum(tinyxml2::XMLElement* type)
 std::string Generator::MakeCEnum(const WisEnum& s, DocKind kind)
 {
     auto full_name = GetCFullTypename(s.name, Backend::Any);
-    std::string st_decl = wis::format("typedef enum {} {{\n", full_name);
+    std::string st_decl = std::format("typedef enum {} {{\n", full_name);
 
     if (!s.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation(s, kind);
-        st_decl = wis::format("{}\n{}", xdoc, st_decl);
+        st_decl = std::format("{}\n{}", xdoc, st_decl);
     }
 
     for (auto& m : s.values) {
-        st_decl += MakeValueDocumentation(s, m, wis::format("    Wis{}{} = {},", s.name, m.name, m.value), kind);
+        st_decl += MakeValueDocumentation(s, m, std::format("    Wis{}{} = {},", s.name, m.name, m.value), kind);
     }
 
-    st_decl += wis::format("}} {};\n", full_name);
+    st_decl += std::format("}} {};\n", full_name);
     return st_decl;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeCPPEnum(const WisEnum& s, DocKind kind)
 {
-    std::string st_decl = wis::format("enum class {} {{\n", s.name);
+    std::string st_decl = std::format("enum class {} {{\n", s.name);
 
     if (!s.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation<Lang::CPP>(s, kind);
-        st_decl = wis::format("{}\n{}", xdoc, st_decl);
+        st_decl = std::format("{}\n{}", xdoc, st_decl);
     }
 
     for (auto& m : s.values) {
-        st_decl += MakeValueDocumentation<Lang::CPP>(s, m, wis::format("    {} = {},", m.name, m.value), kind);
+        st_decl += MakeValueDocumentation<Lang::CPP>(s, m, std::format("    {} = {},", m.name, m.value), kind);
     }
 
     st_decl += "};\n";
@@ -139,16 +139,16 @@ void Generator::WriteEnumDocumentation(std::filesystem::path enum_output_path)
     auto& enum_names = module_map.at(active_module_name).enums_in_order;
     for (auto& enum_name : enum_names) {
         // Make a folder for enums starting with this letter
-        std::filesystem::path enum_file_path = enum_output_path / wis::format("{}_enum.h", MakeSnakeCase(enum_name));
+        std::filesystem::path enum_file_path = enum_output_path / std::format("{}_enum.h", MakeSnakeCase(enum_name));
         auto& enum_ref = enum_map[enum_name];
 
-        std::string enum_template_content = wis::format(
+        std::string enum_template_content = std::format(
             " * C version:\n```c\n{}```\n"
             "C++ version:\n```cpp\nnamespace wis{{\n{}}}\n```\n",
             MakeCEnum(enum_ref, DocKind::VersionOnly),
             MakeCPPEnum(enum_ref, DocKind::VersionOnly)
         );
-        std::string enum_description = wis::format(" * {}", MakeEnumDescription(enum_ref));
+        std::string enum_description = std::format(" * {}", MakeEnumDescription(enum_ref));
         std::string enum_refs = GetRefs(enum_name);
         ReplaceAll(enum_template_content, "\n", "\n * ");
         ReplaceAll(enum_description, "\n", "\n * ");
@@ -189,7 +189,7 @@ std::string Generator::MakeEnumDescription(const WisEnum& s)
             continue;
         }
 
-        translates += wis::format(
+        translates += std::format(
             "{} `{}` for {} implementation",
             has_translate ? ", and" : "",
             cvt.value,
@@ -203,7 +203,7 @@ std::string Generator::MakeEnumDescription(const WisEnum& s)
 
     description += "Values:\n";
     for (auto& m : s.values) {
-        description += wis::format("- `Wis{}{} = {}`: {}\n", s.name, m.name, m.value, m.doc);
+        description += std::format("- `Wis{}{} = {}`: {}\n", s.name, m.name, m.value, m.doc);
     }
     return description;
 }
@@ -220,7 +220,7 @@ std::string Generator::MakeEnumConverter(const WisEnum& s, Backend backend)
     auto wisdom_type = GetCFullTypename(s.name, Backend::Any);
 
     if (cvt.direct) {
-        converters = wis::format(
+        converters = std::format(
             "constexpr inline {} {}Convert({} value) noexcept {{\n    return static_cast<{}>(value);\n}}\n\n",
             cvt.value,
             backend_tag,
@@ -228,7 +228,7 @@ std::string Generator::MakeEnumConverter(const WisEnum& s, Backend backend)
             cvt.value
         );
     } else {
-        converters = wis::format(
+        converters = std::format(
             "constexpr inline {} {}Convert({} value) noexcept {{\n    switch(value) {{\n",
             cvt.value,
             backend_tag,
@@ -239,23 +239,23 @@ std::string Generator::MakeEnumConverter(const WisEnum& s, Backend backend)
             if (convert_value.empty()) {
                 continue;
             }
-            converters += wis::format(
+            converters += std::format(
                 "    case {}: return {};\n",
-                wis::format("{}{}", GetCFullTypename(s.name, backend), m.name),
+                std::format("{}{}", GetCFullTypename(s.name, backend), m.name),
                 convert_value
             );
         }
 
         if (!cvt.default_value.empty()) {
-            converters += wis::format("    default: return {};\n    }}\n}}\n\n", cvt.default_value);
+            converters += std::format("    default: return {};\n    }}\n}}\n\n", cvt.default_value);
         } else {
-            converters += wis::format("    default: return static_cast<{}>(0);\n    }}\n}}\n\n", cvt.value);
+            converters += std::format("    default: return static_cast<{}>(0);\n    }}\n}}\n\n", cvt.value);
         }
     }
 
     if (cvt.convert_back) {
         if (cvt.direct) {
-            converters += wis::format(
+            converters += std::format(
                 "constexpr inline {} {}Convert({} value) noexcept {{\n    return static_cast<{}>(value);\n}}\n\n",
                 wisdom_type,
                 backend_tag,
@@ -263,7 +263,7 @@ std::string Generator::MakeEnumConverter(const WisEnum& s, Backend backend)
                 wisdom_type
             );
         } else {
-            converters += wis::format(
+            converters += std::format(
                 "constexpr inline {} {}Convert({} value) noexcept {{\n",
                 wisdom_type,
                 backend_tag,
@@ -275,7 +275,7 @@ std::string Generator::MakeEnumConverter(const WisEnum& s, Backend backend)
                 if (convert_value.empty()) {
                     continue;
                 }
-                converters += wis::format(
+                converters += std::format(
                     "    if (value == {}) {{ return {}{}; }}\n",
                     convert_value,
                     wisdom_type,
@@ -283,7 +283,7 @@ std::string Generator::MakeEnumConverter(const WisEnum& s, Backend backend)
                 );
             }
 
-            converters += wis::format("    return static_cast<{}>(0);\n}}\n\n", wisdom_type);
+            converters += std::format("    return static_cast<{}>(0);\n}}\n\n", wisdom_type);
         }
     }
 

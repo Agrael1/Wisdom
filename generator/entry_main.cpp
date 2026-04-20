@@ -1,5 +1,4 @@
 #include <iostream>
-#include "../src/include/wisdom/bridge/format.hpp"
 #include "generator.hpp"
 
 constexpr inline std::string_view clang_format_exe = CLANG_FORMAT_EXECUTABLE;
@@ -17,7 +16,7 @@ void FormatFiles(std::span<const std::filesystem::path> files)
         cmd += ' ';
     }
     std::cout << "Wisdom Vk Utils: Formatting:\n" << cmd << '\n';
-    std::string command = wis::format("\"{}\" -i --style=file {}", clang_format_exe, cmd);
+    std::string command = std::format("\"{}\" -i --style=file {}", clang_format_exe, cmd);
 
     int ret = 0;
     for (uint32_t i = 0; (ret = std::system(command.c_str())) != 0 && i < repeats; ++i)

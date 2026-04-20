@@ -24,14 +24,14 @@ void Generator::ParseValidations(tinyxml2::XMLElement* validations)
             if (auto* id_attr = check->FindAttribute("id")) {
                 vcheck.id = id_attr->Value();
             } else {
-                throw std::runtime_error(wis::format("Validation for {} is missing id attribute.", name));
+                throw std::runtime_error(std::format("Validation for {} is missing id attribute.", name));
             }
 
             // Message
             if (auto* msg = check->FindAttribute("msg")) {
                 vcheck.message = msg->Value();
             } else {
-                throw std::runtime_error(wis::format("Validation for {} is missing message attribute.", name));
+                throw std::runtime_error(std::format("Validation for {} is missing message attribute.", name));
             }
 
             ref.push_back(vcheck);
@@ -43,7 +43,7 @@ void Generator::ParseValidations(tinyxml2::XMLElement* validations)
 std::string Generator::MakeValidationDescription(const Validation& v)
 {
     auto doc = FinalizeCDocumentation(std::string(v.message), v.type_name);
-    return wis::format(" * @vuid_begin{{WIS-{}-{}}} {} @vuid_end\n", GetCFullTypename(v.type_name), v.id, doc);
+    return std::format(" * @vuid_begin{{WIS-{}-{}}} {} @vuid_end\n", GetCFullTypename(v.type_name), v.id, doc);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
