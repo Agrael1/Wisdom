@@ -2,7 +2,7 @@ set(CPACK_GENERATOR NuGet)
 # Set up package metadata
 set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
 set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
-set(CPACK_PACKAGE_VENDOR "Arcom Inc.")
+set(CPACK_PACKAGE_VENDOR "Agrael")
 set(CPACK_NUGET_PACKAGE_AUTHORS "Agrael")
 set(CPACK_PACKAGE_DESCRIPTION "A Low-level thin multiplatform and extensible Graphics API layer over Vulkan and DX12")
 set(CPACK_PACKAGE_HOMEPAGE_URL "https://agrael1.github.io/Wisdom/")
@@ -13,8 +13,7 @@ set(CPACK_NUGET_PACKAGE_LICENSE_EXPRESSION "MIT")
 set(CPACK_NUGET_PACKAGE_README "README.md") # pulled from installed files
 set(CPACK_INSTALL_SCRIPTS "${CMAKE_CURRENT_LIST_DIR}/gen-targets.cmake")
 
-# NuGet dependencies - D3D12 Agility SDK is required, DXC is optional for runtime shader compilation
-set(CPACK_NUGET_PACKAGE_DEPENDENCIES "Microsoft.Direct3D.D3D12;Microsoft.Direct3D.DXC")
-set("CPACK_NUGET_PACKAGE_DEPENDENCIES_Microsoft.Direct3D.D3D12_VERSION" "${DXA_VERSION}")
+# NuGet dependencies - DXC is optional for runtime shader compilation
+set(CPACK_NUGET_PACKAGE_DEPENDENCIES "Microsoft.Direct3D.DXC")
 set("CPACK_NUGET_PACKAGE_DEPENDENCIES_Microsoft.Direct3D.DXC_VERSION" "[1.8,)")
 include(CPack)

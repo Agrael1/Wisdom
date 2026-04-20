@@ -33,6 +33,6 @@ if(WISDOM_BUILD_SHARED)
                    wis_test_compile_shaders)
 endif()
 
-if(POSTFIX STREQUAL "dx12")
-  wis_install_deps(${PROJECT_NAME})
+if(POSTFIX STREQUAL "dx12" AND WISDOM_USE_AGILITY_SDK)
+  wis_install_agility_win32(${PROJECT_NAME} ${DXAGILITY_DLL} ${DXAGILITY_DEBUG_DLL})
 endif()

@@ -192,4 +192,13 @@
 #    define WISDOM_USES_VULKAN 1
 #endif // API selection
 
+#if defined(WISDOM_DX12) && defined(DX12SDKVER)
+// That means we are using D3D12Agility SDK
+#    define WISDOM_EXPORT_AGILITY_SYMBOLS()                               \
+        _declspec(dllexport) const unsigned D3D12SDKVersion = DX12SDKVER; \
+        _declspec(dllexport) const char* D3D12SDKPath = ".\\D3D12\\"
+#else // We are using regular D3D12 headers, so we don't need to export these symbols
+#    define WISDOM_EXPORT_AGILITY_SYMBOLS() while (0)
+#endif // WISDOM_DX12 && !D3D12MA_USING_DIRECTX_HEADERS
+
 #endif // !WIS_GLOBAL_DEFINITIONS_H

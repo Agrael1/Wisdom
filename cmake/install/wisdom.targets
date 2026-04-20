@@ -25,7 +25,7 @@
       <AdditionalDependencies Condition="'$(WisdomPlatformExtension)' == 'true' and '$(WisdomLinkage)' == 'static'">$(MSBuildThisFileDirectory)..\..\lib\wisdom-platform$(LP).lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalDependencies Condition="'$(WisdomPlatformExtension)' == 'true' and '$(WisdomLinkage)' == 'dynamic'">$(MSBuildThisFileDirectory)..\..\lib\wisdom-platform-shared$(LP).lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalDependencies Condition="'$(WisdomVulkanEnabled)' == 'true'"> $(MSBuildThisFileDirectory)..\..\lib\vkma$(LP).lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalDependencies> $(MSBuildThisFileDirectory)..\..\lib\DX12Allocator$(LP).lib;$(MSBuildThisFileDirectory)..\..\lib\DX12Agility$(LP).lib;dxguid.lib;DXGI.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies> $(MSBuildThisFileDirectory)..\..\lib\DX12Allocator$(LP).lib;$(MSBuildThisFileDirectory)..\..\lib\DX12Helpers$(LP).lib;dxguid.lib;DXGI.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
 
 		<!-- Deploy DLLs for dynamic linkage - works for both Win32 and WinRT/UWP -->

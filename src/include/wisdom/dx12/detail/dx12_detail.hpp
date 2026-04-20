@@ -9,8 +9,6 @@
 #include <wisdom/generated/dx12_convert.hpp>
 #include <wisdom/util/com_ptr.hpp>
 
-#include <d3d12.h>
-
 #include <array>
 #include <bit>
 
