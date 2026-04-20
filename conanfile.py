@@ -7,8 +7,6 @@ from conan.tools.files import copy
 
 
 class WisdomConan(ConanFile):
-    """ """
-
     name = "wisdom"
     version = "0.7.0"
     package_type = "library"
@@ -31,7 +29,6 @@ class WisdomConan(ConanFile):
     }
 
     def export_sources(self):
-        """ """
         copy(
             self,
             "*",
@@ -53,28 +50,23 @@ class WisdomConan(ConanFile):
         )
 
     def config_options(self):
-        """ """
         if self.settings.os == "Windows":
             self.options.rm_safe("fPIC")
 
     def configure(self):
-        """ """
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
     def layout(self):
-        """ """
         cmake_layout(self)
 
     def generate(self):
-        """ """
         self.output.warning(
             "This recipe currently relies on the project's CPM/NuGet dependency loading during CMake configure. "
             "For Conan Center, those dependencies should be provided as Conan requirements or vendored sources."
         )
 
         tc = CMakeToolchain(self)
-        tc.generator = "Ninja"
         tc.variables["WISDOM_BUILD_EXAMPLES"] = False
         tc.variables["WISDOM_BUILD_TESTS"] = False
         tc.variables["WISDOM_BUILD_DOCS"] = False
@@ -84,18 +76,15 @@ class WisdomConan(ConanFile):
         tc.generate()
 
     def build(self):
-        """ """
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
-        """ """
         cmake = CMake(self)
         cmake.install()
 
     def package_info(self):
-        """ """
         self.cpp_info.set_property("cmake_file_name", "wisdom")
         self.cpp_info.builddirs.append("lib/cmake/wisdom")
 

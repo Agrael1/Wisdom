@@ -48,7 +48,7 @@ void Generator::ParseVariant(tinyxml2::XMLElement* type)
     if (auto* size = type->FindAttribute("version")) {
         ref.version = size->Value();
     } else {
-        throw std::runtime_error(wis::format("Struct {} is missing version attribute.", name));
+        throw std::runtime_error(std::format("Struct {} is missing version attribute.", name));
     }
 
     if (auto* mod = type->FindAttribute("mod")) {
@@ -90,14 +90,14 @@ std::string Generator::MakeCVariant(const WisStruct& s, Backend backend, DocKind
 {
     auto impl_suffix = GetBackendSuffix(backend);
     auto full_name = GetCFullTypename(s.name, backend);
-    std::string st_decl = wis::format(
+    std::string st_decl = std::format(
         "typedef struct {}{} {{\n",
         s.modifier & Modifier::Nodiscard ? "WIS_NODISCARD " : "",
         full_name
     );
     if (!s.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation(s, kind);
-        st_decl = wis::format("{}\n{}", xdoc, st_decl);
+        st_decl = std::format("{}\n{}", xdoc, st_decl);
     }
 
     // Calculate maximum type length for alignment
@@ -110,7 +110,7 @@ std::string Generator::MakeCVariant(const WisStruct& s, Backend backend, DocKind
     for (auto& m : s.members) {
         st_decl += MakeValueDocumentation(s, m, MakeCMemberDeclaration(m, max_type_length, backend), kind);
     }
-    st_decl += wis::format("}} {};\n", full_name);
+    st_decl += std::format("}} {};\n", full_name);
     return st_decl;
 }
 
@@ -122,7 +122,7 @@ std::string Generator::MakeCPPVariant(const WisStruct& s, Backend backend, DocKi
     }
 
     auto impl_suffix = GetBackendSuffix(backend);
-    std::string st_decl = wis::format(
+    std::string st_decl = std::format(
         "struct {}{}{} {{\n",
         s.modifier & Modifier::Nodiscard ? "WIS_NODISCARD " : "",
         impl_suffix,
@@ -130,7 +130,7 @@ std::string Generator::MakeCPPVariant(const WisStruct& s, Backend backend, DocKi
     );
     if (!s.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation<Lang::CPP>(s, kind);
-        st_decl = wis::format("{}\n{}", xdoc, st_decl);
+        st_decl = std::format("{}\n{}", xdoc, st_decl);
     }
 
     // Calculate maximum type length for alignment
@@ -158,7 +158,7 @@ std::string Generator::MakeVariantDescription(const WisStruct& s)
 {
     std::string description;
     for (auto& m : s.members) {
-        description += wis::format("- `{}` {}\n", m.name, m.doc.empty() ? "No description." : m.doc);
+        description += std::format("- `{}` {}\n", m.name, m.doc.empty() ? "No description." : m.doc);
     }
     return description;
 }
@@ -171,7 +171,7 @@ void Generator::WriteVariantDocumentation(std::filesystem::path struct_output_pa
     for (const auto& variant_name : variant_names) {
         // Make a folder for enums starting with this letter
         std::filesystem::path variant_file_path = struct_output_path
-                                                / wis::format("{}_struct.h", MakeSnakeCase(variant_name));
+                                                / std::format("{}_struct.h", MakeSnakeCase(variant_name));
         auto& variant_ref = variant_map[variant_name];
 
         auto supports_vk = has(variant_ref.backend, Backend::Vulkan);
@@ -208,7 +208,7 @@ void Generator::WriteVariantDocumentation(std::filesystem::path struct_output_pa
 
         std::string variant_template_content = GetSpecificationCode(c_code, cimpl_code, cpp_code, cimpl_code_cpp);
 
-        std::string variant_description = wis::format(" * {}", MakeVariantDescription(variant_ref));
+        std::string variant_description = std::format(" * {}", MakeVariantDescription(variant_ref));
         std::string variant_refs = GetRefs(variant_name);
         std::string vuids = MakeValidationForType(variant_name);
 
