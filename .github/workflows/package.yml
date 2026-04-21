@@ -53,7 +53,50 @@ jobs:
         shell: pwsh
         run: |
           $format = '${{ github.event.inputs.format }}'
-          .\package.ps1 -Format $format -Clean -OutputDir './artifacts'
+          .\package.ps1 -Format $format -Configuration both -Clean -OutputDir './artifacts'
+
+      - name: Validate package contents
+        shell: pwsh
+        run: |
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          $format = '${{ github.event.inputs.format }}'
+
+          if ($format -in @('nuget', 'all')) {
+            $nugetPackage = Get-ChildItem -Path artifacts/*.nupkg | Select-Object -First 1
+            if (-not $nugetPackage) {
+              throw "NuGet package was not generated."
+            }
+
+            $nugetArchive = [System.IO.Compression.ZipFile]::OpenRead($nugetPackage.FullName)
+            try {
+              $hasAgility = $nugetArchive.Entries | Where-Object { $_.FullName -match '(?i)D3D12Core\.dll|d3d12SDKLayers\.dll|d3dx12/' }
+              if ($hasAgility) {
+                throw "NuGet package must not include Agility SDK files."
+              }
+            }
+            finally {
+              $nugetArchive.Dispose()
+            }
+          }
+
+          if ($format -in @('zip', 'all')) {
+            $zipPackage = Get-ChildItem -Path artifacts/*.zip | Select-Object -First 1
+            if (-not $zipPackage) {
+              throw "ZIP package was not generated."
+            }
+
+            $zipArchive = [System.IO.Compression.ZipFile]::OpenRead($zipPackage.FullName)
+            try {
+              $hasCore = $zipArchive.Entries | Where-Object { $_.FullName -match '(?i)D3D12Core\.dll' }
+              $hasLayers = $zipArchive.Entries | Where-Object { $_.FullName -match '(?i)d3d12SDKLayers\.dll' }
+              if (-not $hasCore -or -not $hasLayers) {
+                throw "ZIP package must include Agility SDK runtime files (D3D12Core.dll and d3d12SDKLayers.dll)."
+              }
+            }
+            finally {
+              $zipArchive.Dispose()
+            }
+          }
       
       - name: Upload NuGet Package
         uses: actions/upload-artifact@v4

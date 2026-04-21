@@ -50,7 +50,7 @@ if(WISDOM_BUILD_STATIC)
                            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
   set_target_properties(
-    wisdom-platform PROPERTIES CXX_STANDARD 20 # UNITY_BUILD ON
+    wisdom-platform PROPERTIES CXX_STANDARD 20
                                DEBUG_POSTFIX d)
 
   install(
@@ -80,7 +80,6 @@ if(WISDOM_BUILD_SHARED)
   set_target_properties(
     wisdom-platform-shared
     PROPERTIES CXX_STANDARD 20
-               # UNITY_BUILD ON
                POSITION_INDEPENDENT_CODE ON
                DEBUG_POSTFIX d)
 

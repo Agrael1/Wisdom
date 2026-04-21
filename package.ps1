@@ -61,6 +61,18 @@ $generateZip = $Format -in @('zip', 'all')
 $buildDebug = $Configuration -in @('both', 'debug')
 $buildRelease = $Configuration -in @('both', 'release')
 
+# Package-specific build roots
+$nugetDebugBuildDir = 'build/msvc-debug-nuget'
+$nugetReleaseBuildDir = 'build/msvc-release-nuget'
+$zipDebugBuildDir = 'build/msvc-debug-zip'
+$zipReleaseBuildDir = 'build/msvc-release-zip'
+
+# Package-specific install roots
+$nugetDebugInstallDir = 'install/msvc-debug-nuget'
+$nugetReleaseInstallDir = 'install/msvc-release-nuget'
+$zipDebugInstallDir = 'install/msvc-debug-zip'
+$zipReleaseInstallDir = 'install/msvc-release-zip'
+
 function Initialize-VSEnvironment {
     Write-Host "Initializing Visual Studio environment..." -ForegroundColor Cyan
 
@@ -102,6 +114,10 @@ function Resolve-NuGetExecutable {
     }
 
     $candidatePaths = @(
+        'build/msvc-release-nuget/NuGet/NuGet.exe',
+        'build/msvc-debug-nuget/NuGet/NuGet.exe',
+        'build/msvc-release-zip/NuGet/NuGet.exe',
+        'build/msvc-debug-zip/NuGet/NuGet.exe',
         'build/msvc-release/NuGet/NuGet.exe',
         'build/msvc-debug/NuGet/NuGet.exe',
         'build/NuGet/NuGet.exe'
@@ -151,19 +167,40 @@ function Invoke-CMake {
 
 function Build-Configuration {
     param(
-        [string]$Preset,
         [string]$BuildDir,
-        [string]$Config
+        [string]$Config,
+        [bool]$UseAgility,
+        [string]$InstallDir
     )
 
-    Write-Host "  Configuring $Config..." -ForegroundColor Gray
-    Invoke-CMake @('--preset', $Preset)
+    $agilityValue = if ($UseAgility) { 'ON' } else { 'OFF' }
+
+    Write-Host "  Configuring $Config (WISDOM_USE_AGILITY_SDK=$agilityValue)..." -ForegroundColor Gray
+
+    $configureArgs = @(
+        '-S', '.',
+        '-B', $BuildDir,
+        '-G', 'Ninja',
+        "-DCMAKE_BUILD_TYPE=$Config",
+        "-DCMAKE_INSTALL_PREFIX=$InstallDir",
+        '-DWISDOM_BUILD_EXAMPLES=OFF',
+        '-DWISDOM_BUILD_TESTS=OFF',
+        '-DCMAKE_UNITY_BUILD=ON',
+        "-DWISDOM_USE_AGILITY_SDK=$agilityValue",
+        '-DCPM_SOURCE_CACHE=build/_deps_cache'
+    )
+
+    if ($Config -eq 'Release') {
+        $configureArgs += '-DCMAKE_INTERPROCEDURAL_OPTIMIZATION=ON'
+    }
+
+    Invoke-CMake $configureArgs
 
     Write-Host "  Building $Config..." -ForegroundColor Gray
-    Invoke-CMake @('--build', $BuildDir, '--config', $Config)
+    Invoke-CMake @('--build', $BuildDir)
 
     Write-Host "  Installing $Config..." -ForegroundColor Gray
-    Invoke-CMake @('--install', $BuildDir, '--config', $Config)
+    Invoke-CMake @('--install', $BuildDir)
 }
 
 function New-Package {
@@ -172,7 +209,15 @@ function New-Package {
         [string]$OutputPath
     )
 
-    $buildDir = "build/msvc-release"
+    $buildDir = switch ($Generator) {
+        'NuGet' { $nugetReleaseBuildDir }
+        'ZIP' { $zipReleaseBuildDir }
+    }
+
+    if (-not (Test-Path $buildDir)) {
+        throw "$Generator build directory not found at '$buildDir'. Run without -SkipBuild or build required artifacts first."
+    }
+
     $cpackDir = Join-Path $buildDir "_CPack_Packages"
 
     # Clean CPack staging directory to prevent cross-contamination between formats
@@ -189,7 +234,7 @@ function New-Package {
 
     # Select the appropriate config file based on generator
     # NuGet: excludes DXC (users get it from Microsoft.Direct3D.DXC package)
-    # ZIP: includes everything for standalone usage
+    # ZIP: includes DXC and Agility SDK for standalone usage
     $configFile = switch ($Generator) {
         'NuGet' { '../../cmake/install/multi-config-nuget.cmake' }
         'ZIP'   { '../../cmake/install/multi-config.cmake' }
@@ -229,8 +274,14 @@ function New-Package {
 
 $totalSteps = 0
 if (-not $SkipBuild) {
-    if ($buildDebug) { $totalSteps++ }
-    if ($buildRelease) { $totalSteps++ }
+    if ($generateNuGet) {
+        if ($buildDebug) { $totalSteps++ }
+        if ($buildRelease) { $totalSteps++ }
+    }
+    if ($generateZip) {
+        if ($buildDebug) { $totalSteps++ }
+        if ($buildRelease) { $totalSteps++ }
+    }
 }
 if ($generateNuGet) { $totalSteps++ }
 if ($generateZip) { $totalSteps++ }
@@ -258,23 +309,46 @@ $OutputDir = Resolve-Path $OutputDir
 # Clean if requested
 if ($Clean) {
     Write-Host "Cleaning build directories..." -ForegroundColor Yellow
-    @('build/msvc-debug', 'build/msvc-release') | ForEach-Object {
+    @(
+        $nugetDebugBuildDir,
+        $nugetReleaseBuildDir,
+        $zipDebugBuildDir,
+        $zipReleaseBuildDir,
+        'build/msvc-debug',
+        'build/msvc-release'
+    ) | ForEach-Object {
         if (Test-Path $_) { Remove-Item -Recurse -Force $_ }
     }
 }
 
 # Build
 if (-not $SkipBuild) {
-    if ($buildDebug) {
-        $currentStep++
-        Write-Host "`n[$currentStep/$totalSteps] Building Debug configuration..." -ForegroundColor Yellow
-        Build-Configuration -Preset 'win-msvc-debug-lib' -BuildDir 'build/msvc-debug' -Config 'Debug'
+    if ($generateNuGet) {
+        if ($buildDebug) {
+            $currentStep++
+            Write-Host "`n[$currentStep/$totalSteps] Building Debug configuration for NuGet (without Agility SDK)..." -ForegroundColor Yellow
+            Build-Configuration -BuildDir $nugetDebugBuildDir -Config 'Debug' -UseAgility $false -InstallDir $nugetDebugInstallDir
+        }
+
+        if ($buildRelease) {
+            $currentStep++
+            Write-Host "`n[$currentStep/$totalSteps] Building Release configuration for NuGet (without Agility SDK)..." -ForegroundColor Yellow
+            Build-Configuration -BuildDir $nugetReleaseBuildDir -Config 'Release' -UseAgility $false -InstallDir $nugetReleaseInstallDir
+        }
     }
 
-    if ($buildRelease) {
-        $currentStep++
-        Write-Host "`n[$currentStep/$totalSteps] Building Release configuration..." -ForegroundColor Yellow
-        Build-Configuration -Preset 'win-msvc-lib' -BuildDir 'build/msvc-release' -Config 'Release'
+    if ($generateZip) {
+        if ($buildDebug) {
+            $currentStep++
+            Write-Host "`n[$currentStep/$totalSteps] Building Debug configuration for ZIP (with Agility SDK)..." -ForegroundColor Yellow
+            Build-Configuration -BuildDir $zipDebugBuildDir -Config 'Debug' -UseAgility $true -InstallDir $zipDebugInstallDir
+        }
+
+        if ($buildRelease) {
+            $currentStep++
+            Write-Host "`n[$currentStep/$totalSteps] Building Release configuration for ZIP (with Agility SDK)..." -ForegroundColor Yellow
+            Build-Configuration -BuildDir $zipReleaseBuildDir -Config 'Release' -UseAgility $true -InstallDir $zipReleaseInstallDir
+        }
     }
 }
 

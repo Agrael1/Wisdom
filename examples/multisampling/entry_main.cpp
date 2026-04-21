@@ -14,6 +14,10 @@
 
 #include <sdl_backend_cpp.h>
 
+// Export the symbols for the Agility SDK. 
+// This is required when linking against the Agility SDK on Windows.
+WISDOM_EXPORT_AGILITY_SYMBOLS();
+
 #define FRAMES_IN_FLIGHT 2
 #define SWAPCHAIN_FRAMES 3
 

@@ -48,6 +48,8 @@
  * Some additional pages:
  * - @ref contributing_page "Contributing" - Contribution guidelines and how to get involved
  * - @ref why_page "Why Wisdom?" - Explanation of the motivation and goals behind the project
+ * - @ref agility_page "Agility SDK" - Information about using the Agility SDK for DirectX 12 features on older Windows
+ * versions
  *
  * @section features_sec Key Features
  *

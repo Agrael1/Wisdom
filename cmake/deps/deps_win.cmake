@@ -95,6 +95,14 @@ else()
     target_compile_definitions(DX12Helpers INTERFACE
             D3D12MA_USING_DIRECTX_HEADERS=1
     )
+    install(DIRECTORY ${dxheaders_SOURCE_DIR}/include/directx DESTINATION include)
+    install(
+        TARGETS DirectX-Headers DirectX-Guids DX12Helpers
+        EXPORT wisdom-targets
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 endif()
 
 
