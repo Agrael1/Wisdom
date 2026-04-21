@@ -116,7 +116,6 @@ if(WISDOM_BUILD_SHARED)
     wisdom-shared
     PROPERTIES CXX_STANDARD 20
                POSITION_INDEPENDENT_CODE ON
-               # UNITY_BUILD ON
                DEBUG_POSTFIX d)
 
   include(GenerateExportHeader)
