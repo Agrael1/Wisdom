@@ -80,6 +80,70 @@ if (WIN32)
     endfunction(_ww_load_nuget_dependency)
 endif()
 
+# Function to download the latest DXC release from GitHub API
+function(_ww_load_latest_dxc)
+    if (dxc_SOURCE_DIR)
+        message(STATUS "DXC already downloaded, skipping.")
+        return()
+    endif ()
+
+    set(DXC_API_FILE "${CMAKE_CURRENT_BINARY_DIR}/dxc_latest_api.json")
+    file(DOWNLOAD 
+        "https://api.github.com/repos/microsoft/DirectXShaderCompiler/releases/latest" 
+        "${DXC_API_FILE}"
+        STATUS api_status
+    )
+
+    list(GET api_status 0 api_err)
+    if(api_err)
+        message(WARNING "Wisdom: Failed to query DXC latest release from GitHub API: ${api_status}")
+    endif()
+
+    file(READ "${DXC_API_FILE}" DXC_JSON)
+
+    # Take the first URL that ends with .zip (Windows release) from the JSON response
+    if(DXC_JSON AND DXC_JSON MATCHES "\"browser_download_url\":[ \t\r\n]*\"([^\"]+\\.zip)\"")
+        set(DXC_WINDOWS_LINK "${CMAKE_MATCH_1}")
+    else()
+        message(WARNING "Wisdom: Could not parse DXC zip URL from GitHub API response.")
+        set(DXC_WINDOWS_LINK "https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.9.2602/dxc_2026_02_20.zip")
+    endif()
+
+    # Take the first URL that ends with .tar.gz (Linux release) from the JSON response
+    if(DXC_JSON AND DXC_JSON MATCHES "\"browser_download_url\":[ \t\r\n]*\"([^\"]+\\.tar\\.gz)\"")
+        set(DXC_LINUX_LINK "${CMAKE_MATCH_1}")
+    else()
+        message(WARNING "Wisdom: Could not parse DXC tar.gz URL from GitHub API response.")
+        set(DXC_LINUX_LINK "https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.9.2602/linux_dxc_2026_02_20.x86_64.tar.gz")
+    endif()
+
+    if (WISDOM_WINDOWS)
+        set(DXC_LINK ${DXC_WINDOWS_LINK})
+    else ()
+        set(DXC_LINK ${DXC_LINUX_LINK})
+    endif ()
+
+    
+    # Download DXC using CPM
+    include(FetchContent)
+    FetchContent_Declare(
+        dxc
+        URL "${DXC_LINK}"
+    )
+    FetchContent_MakeAvailable(dxc)
+    set(dxc_SOURCE_DIR ${dxc_SOURCE_DIR} CACHE INTERNAL "")
+
+    if (WIN32)
+        set(DXC_EXECUTABLE
+                ${dxc_SOURCE_DIR}/bin/x64/dxc.exe
+                CACHE INTERNAL "")
+    else ()
+        set(DXC_EXECUTABLE
+                ${dxc_SOURCE_DIR}/bin/dxc
+                CACHE INTERNAL "")
+    endif ()
+endfunction()
+
 
 # Function to detect platform and set relevant variables
 function(wisdom_detect_platform)
@@ -158,6 +222,69 @@ function(wisdom_detect_platform)
     endif ()
 endfunction()
 
+
+
+# Function to load DXC
+# Arguments:
+#   DOWNLOAD_LATEST: Download the latest DXC from GitHub
+#   DXC_PATH: Custom path to DXC installation (should contain bin/dxc.exe or bin/dxc)
+function(wis_load_dxc)
+    set(options DOWNLOAD_LATEST)
+    set(oneValueArgs DXC_PATH)
+    set(multiValueArgs)
+    cmake_parse_arguments(wis_load_dxc "${options}" "${oneValueArgs}"
+            "${multiValueArgs}" ${ARGN})
+
+    # If DXC is already configured, skip loading
+    if (DXC_EXECUTABLE)
+        return()
+    endif()
+
+    # Error if none of the above are available
+
+    # Option 1: DOWNLOAD_LATEST (highest priority)
+    if (wis_load_dxc_DOWNLOAD_LATEST)
+        message(STATUS "DOWNLOAD_LATEST option enabled, downloading latest DXC from GitHub")
+        _ww_load_latest_dxc()
+        return()
+    endif()
+
+    # Option 2: Custom DXC path (DXC_PATH)
+    if (WISDOM_DXC_PATH)
+        # Verify that the executable exists
+        if (NOT EXISTS ${DXC_EXECUTABLE})
+            message(WARNING "Custom DXC executable not found at: ${DXC_EXECUTABLE}")
+            message(FATAL_ERROR "Please verify WISDOM_DXC_PATH is correct")
+        else ()
+            message(STATUS "Found custom DXC executable: ${DXC_EXECUTABLE}")
+        endif ()
+
+        message(STATUS "Using custom DXC path: ${WISDOM_DXC_PATH}")
+        if (WIN32)
+            set(DXC_EXECUTABLE "${WISDOM_DXC_PATH}/bin/dxc.exe" CACHE INTERNAL "")
+        else ()
+            set(DXC_EXECUTABLE "${WISDOM_DXC_PATH}/bin/dxc" CACHE INTERNAL "")
+        endif ()
+        return()
+    endif()
+
+    # Option 3: Try to use Vulkan SDK's DXC (if WISDOM_VULKAN is enabled and no custom path)
+    if (WISDOM_VULKAN AND Vulkan_dxc_EXECUTABLE)
+        # Use Vulkan SDK's DXC
+        find_program(DXCOMPILER dxc HINTS ${Vulkan_dxc_EXECUTABLE} ENV VULKAN_SDK PATH_SUFFIXES bin)
+
+        if (DXCOMPILER)
+            message(STATUS "Found Vulkan SDK DXC: ${DXCOMPILER}")
+            set(DXC_EXECUTABLE ${DXCOMPILER} CACHE INTERNAL "")
+        else ()
+            message(FATAL_ERROR "Vulkan SDK DXC not found in Vulkan SDK")
+        endif ()
+    endif()
+
+    # Error if DXC_EXECUTABLE is still not set
+    message(FATAL_ERROR "DXC executable not found. Please configure DXC using wis_load_dxc() with either DOWNLOAD_LATEST or DXC_PATH options, or ensure that the Vulkan SDK is installed and contains DXC.")
+endfunction()
+
 # Function for compiling shaders
 # Arguments:
 #	DXC: Path to the DXC executable (default: stored in ${DXC_EXECUTABLE} then in PATH)
@@ -176,12 +303,13 @@ function(wis_compile_shader)
     cmake_parse_arguments(wis_compile_shader "${options}" "${oneValueArgs}"
             "${multiValueArgs}" ${ARGN})
 
-    if (NOT wis_compile_shader_DXC)
-        if (NOT DXC_EXECUTABLE)
-            find_program(wis_compile_shader_DXC dxc)
+    if (NOT wis_compile_shader_DXC OR NOT EXISTS ${wis_compile_shader_DXC})
+        if (DXC_EXECUTABLE)
+            set (wis_compile_shader_DXC ${DXC_EXECUTABLE})
         else ()
-            set(wis_compile_shader_DXC ${DXC_EXECUTABLE})
-        endif ()
+            message(FATAL_ERROR "wis_compile_shader: DXC not found. "
+                "Please configure DXC using wis_load_dxc(), or provide a valid DXC path via DXC argument.")
+        endif()
     endif ()
 
     if (NOT wis_compile_shader_TARGET)

@@ -7,6 +7,13 @@
 #    include <cstring>
 
 namespace wis {
+/// @brief Tag type for in-place construction (for C++11 and later)
+struct in_place_t {
+};
+
+/// @brief Constant for in-place construction (for C++11 and later)
+static constexpr in_place_t in_place{};
+
 namespace impl {
 
 /// @brief Implements class for querying the internal implementation
@@ -27,7 +34,7 @@ public:
 
     /// @brief Default constructor, zeros the storage
     template <typename... Args>
-    Implements(std::in_place_t in_place, Args&&... args) noexcept
+    Implements(wis::in_place_t in_place, Args&&... args) noexcept
     {
         (void)in_place;
         // explicitly start life of Impl in our storage

@@ -25,14 +25,10 @@ option(WISDOM_BUILD_STATIC "Build the static lib." ON)
 option(WISDOM_BUILD_SHARED "Build the dynamic lib." ON)
 option(WISDOM_BUILD_PLATFORM "Build unified platform extension library." ON)
 option(WISDOM_BUILD_DOCS "Build the documentation." OFF)
-option(WISDOM_USE_AGILITY_SDK "Download and use DirectX 12 Agility SDK." OFF)
-option(WISDOM_DOWNLOAD_DXC "Download and use DXC for shader compilation. OFF means use one provided with Vulkan SDK." OFF)
+option(WISDOM_USE_AGILITY_SDK "Download and use DirectX 12 Agility SDK." OFF) # TODO: ON
 
 
 # DXC deployment options
-set(WISDOM_DXC_PATH
-    ""
-    CACHE PATH "Path to custom DXC installation (optional)")
 set(WISDOM_VULKAN_HEADER_PATH
     ""
     CACHE PATH "Path to custom Vulkan Headers (optional)")
@@ -58,12 +54,7 @@ message(
     WISDOM_BUILD_PLATFORM: ${WISDOM_BUILD_PLATFORM}
     WISDOM_USE_AGILITY_SDK: ${WISDOM_USE_AGILITY_SDK}
 
-    WISDOM_VULKAN_HEADER_PATH: ${WISDOM_VULKAN_HEADER_PATH}
-
-    DXC Configuration:
-      Custom Path: ${WISDOM_DXC_PATH}
-      Executable: ${DXC_EXECUTABLE}
-        ")
+    WISDOM_VULKAN_HEADER_PATH: ${WISDOM_VULKAN_HEADER_PATH}")
 
 if(WISDOM_BUILD_EXAMPLES AND WISDOM_BUILD_TESTS)
   add_subdirectory(generator)
@@ -97,4 +88,19 @@ configure_package_config_file(
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/wisdom-config-version.cmake
               ${CMAKE_CURRENT_BINARY_DIR}/wisdom-config.cmake
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/wisdom)
-include(cmake/install/nuget.cmake)
+
+# Set up package metadata
+set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
+set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
+set(CPACK_PACKAGE_VENDOR "Agrael")
+set(CPACK_NUGET_PACKAGE_AUTHORS "Agrael")
+set(CPACK_PACKAGE_DESCRIPTION "A Low-level thin multiplatform and extensible Graphics API layer over Vulkan and DX12")
+set(CPACK_PACKAGE_HOMEPAGE_URL "https://agrael1.github.io/Wisdom/")
+set(CPACK_NUGET_PACKAGE_REPOSITORY_URL "https://github.com/Agrael1/Wisdom.git")
+set(CPACK_NUGET_PACKAGE_ICON "favicon.png") # pulled from installed files
+set(CPACK_NUGET_PACKAGE_REPOSITORY_TYPE git)
+set(CPACK_NUGET_PACKAGE_LICENSE_EXPRESSION "MIT")
+set(CPACK_NUGET_PACKAGE_README "README.md") # pulled from installed files
+set(CPACK_PROJECT_CONFIG_FILE "${CMAKE_CURRENT_LIST_DIR}/cmake/install/cpack-options.cmake")
+
+include(CPack)

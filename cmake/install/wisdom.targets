@@ -5,12 +5,13 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\..\include\;$(MSBuildThisFileDirectory)..\..\include\dxma;$(MSBuildThisFileDirectory)..\..\include\d3dx12;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\..\include\;$(MSBuildThisFileDirectory)..\..\include\dxma;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="'$(WisdomVulkanEnabled)' == 'true'">$(MSBuildThisFileDirectory)..\..\include\vkma;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalIncludeDirectories Condition="Exists('$(WisdomVulkanSDKPath)')">$(WisdomVulkanSDKPath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
 
-      <PreprocessorDefinitions Condition="'$(WisdomVulkanEnabled)' == 'true'">WISDOM_VULKAN=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions>WISDOM_DX12=1;WISDOM_WINDOWS=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(WisdomVulkanEnabled)' == 'true'">
+        WISDOM_VULKAN=1;VK_USE_PLATFORM_WIN32_KHR=1;VMA_EXTERNAL_MEMORY_WIN32=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WISDOM_DX12=1;WISDOM_WINDOWS=1;D3D12MA_USING_DIRECTX_HEADERS=1;NOMINMAX=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
 
       <PreprocessorDefinitions Condition="'$(WisdomForceVulkan)' == 'true'">WISDOM_FORCE_VULKAN=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(WisdomLinkage)' == 'dynamic'">WISDOM_SHARED_LIBRARY=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -20,29 +21,29 @@
     </ClCompile>
 
     <Link>
-      <AdditionalDependencies Condition="'$(WisdomLinkage)' == 'static'">$(MSBuildThisFileDirectory)..\..\lib\wisdom$(LP).lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalDependencies Condition="'$(WisdomLinkage)' == 'dynamic'">$(MSBuildThisFileDirectory)..\..\lib\wisdom-shared$(LP).lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalDependencies Condition="'$(WisdomPlatformExtension)' == 'true' and '$(WisdomLinkage)' == 'static'">$(MSBuildThisFileDirectory)..\..\lib\wisdom-platform$(LP).lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalDependencies Condition="'$(WisdomPlatformExtension)' == 'true' and '$(WisdomLinkage)' == 'dynamic'">$(MSBuildThisFileDirectory)..\..\lib\wisdom-platform-shared$(LP).lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalDependencies Condition="'$(WisdomVulkanEnabled)' == 'true'"> $(MSBuildThisFileDirectory)..\..\lib\vkma$(LP).lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalDependencies> $(MSBuildThisFileDirectory)..\..\lib\DX12Allocator$(LP).lib;$(MSBuildThisFileDirectory)..\..\lib\DX12Helpers$(LP).lib;dxguid.lib;DXGI.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(WisdomLinkage)' == 'static'">$(MSBuildThisFileDirectory)..\..\lib\native\x64\wisdom$(LP).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(WisdomLinkage)' == 'dynamic'">$(MSBuildThisFileDirectory)..\..\lib\native\x64\wisdom-shared$(LP).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(WisdomPlatformExtension)' == 'true' and '$(WisdomLinkage)' == 'static'">$(MSBuildThisFileDirectory)..\..\lib\native\x64\wisdom-platform$(LP).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(WisdomPlatformExtension)' == 'true' and '$(WisdomLinkage)' == 'dynamic'">$(MSBuildThisFileDirectory)..\..\lib\native\x64\wisdom-platform-shared$(LP).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies Condition="'$(WisdomVulkanEnabled)' == 'true'"> $(MSBuildThisFileDirectory)..\..\lib\native\x64\vkma$(LP).lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies> $(MSBuildThisFileDirectory)..\..\lib\native\x64\DX12Allocator$(LP).lib;$(MSBuildThisFileDirectory)..\..\lib\native\x64\DirectX-Headers$(LP).lib;$(MSBuildThisFileDirectory)..\..\lib\native\x64\DirectX-Guids$(LP).lib;dxguid.lib;DXGI.lib;d3d12.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-
-		<!-- Deploy DLLs for dynamic linkage - works for both Win32 and WinRT/UWP -->
-		<ItemGroup Condition="'$(WisdomLinkage)' == 'dynamic'">
-			<None Include="$(MSBuildThisFileDirectory)..\..\bin\wisdom-shared$(LP).dll">
-				<Link>wisdom-shared$(LP).dll</Link>
-				<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-				<!-- WinRT/UWP specific: include in app package -->
-				<DeploymentContent>true</DeploymentContent>
-			</None>
-      <None Condition="'$(WisdomPlatformExtension)' == 'true'" Include="$(MSBuildThisFileDirectory)..\..\bin\wisdom-platform-shared$(LP).dll">
-        <Link>wisdom-platform-shared$(LP).dll</Link>
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <!-- WinRT/UWP specific: include in app package -->
-        <DeploymentContent>true</DeploymentContent>
-      </None>
-		</ItemGroup>
-
   </ItemDefinitionGroup>
+
+  <!-- Deploy DLLs for dynamic linkage - works for both Win32 and WinRT/UWP -->
+  <ItemGroup Condition="'$(WisdomLinkage)' == 'dynamic'">
+    <None Include="$(MSBuildThisFileDirectory)..\..\lib\native\x64\wisdom-shared$(LP).dll">
+      <Link>wisdom-shared$(LP).dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <!-- WinRT/UWP specific: include in app package -->
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Condition="'$(WisdomPlatformExtension)' == 'true'" Include="$(MSBuildThisFileDirectory)..\..\lib\native\x64\wisdom-platform-shared$(LP).dll">
+      <Link>wisdom-platform-shared$(LP).dll</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <!-- WinRT/UWP specific: include in app package -->
+      <DeploymentContent>true</DeploymentContent>
+    </None>
+  </ItemGroup>
+
 </Project>

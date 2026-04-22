@@ -37,6 +37,7 @@ else()
             D3D12MA_USING_DIRECTX_HEADERS=1
     )
     install(DIRECTORY ${dxheaders_SOURCE_DIR}/include/directx DESTINATION include)
+    install(DIRECTORY ${dxheaders_SOURCE_DIR}/include/dxguids DESTINATION include)
     install(
         TARGETS DirectX-Headers DirectX-Guids DX12Helpers
         EXPORT wisdom-targets
