@@ -82,7 +82,7 @@ class DX12Win32Extension
 {
 public:
     DX12Win32Extension() noexcept
-        : ImplType(std::in_place)
+        : ImplType(wis::in_place)
     {
         ::wisDX12InitWin32Extension(GetStorage());
     }
@@ -136,7 +136,7 @@ class DX12UWPExtension
 {
 public:
     DX12UWPExtension() noexcept
-        : ImplType(std::in_place)
+        : ImplType(wis::in_place)
     {
         ::wisDX12InitUWPExtension(GetStorage());
     }
@@ -190,7 +190,7 @@ class VKXlibExtension
 {
 public:
     VKXlibExtension() noexcept
-        : ImplType(std::in_place)
+        : ImplType(wis::in_place)
     {
         ::wisVKInitXlibExtension(GetStorage());
     }
@@ -240,7 +240,7 @@ class VKXCBExtension
 {
 public:
     VKXCBExtension() noexcept
-        : ImplType(std::in_place)
+        : ImplType(wis::in_place)
     {
         ::wisVKInitXCBExtension(GetStorage());
     }
@@ -291,7 +291,7 @@ class VKWaylandExtension
 {
 public:
     VKWaylandExtension() noexcept
-        : ImplType(std::in_place)
+        : ImplType(wis::in_place)
     {
         ::wisVKInitWaylandExtension(GetStorage());
     }
@@ -344,7 +344,7 @@ class VKWin32Extension
 {
 public:
     VKWin32Extension() noexcept
-        : ImplType(std::in_place)
+        : ImplType(wis::in_place)
     {
         ::wisVKInitWin32Extension(GetStorage());
     }

@@ -93,6 +93,7 @@ class WisdomConan(ConanFile):
         tc.variables["WISDOM_BUILD_SHARED"] = self.options.get_safe("shared") and not is_header_only
         tc.variables["WISDOM_BUILD_PLATFORM"] = self.options.build_platform
         tc.variables["WISDOM_USE_AGILITY_SDK"] = False
+        tc.variables["WISDOM_DOWNLOAD_DXC"] = False
         tc.variables["CMAKE_UNITY_BUILD"] = True
         tc.generate()
 

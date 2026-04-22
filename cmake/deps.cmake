@@ -22,9 +22,6 @@ if (WISDOM_WINDOWS)
     include(${CMAKE_CURRENT_LIST_DIR}/deps/deps_win.cmake)
 endif ()
 
-# DXCompiler for HLSL compilation
-include(${CMAKE_CURRENT_LIST_DIR}/deps/dxc.cmake)
-
 # Vulkan dependencies
 if (WISDOM_VULKAN)
     include(${CMAKE_CURRENT_LIST_DIR}/deps/deps_vulkan.cmake)

@@ -29,6 +29,7 @@ endif()
 
 # compile shaders from folder shaders and put them in the binary output
 # directory
+wis_load_dxc(DOWNLOAD_LATEST)
 
 add_custom_target(wis_test_compile_shaders)
 file(GLOB SHADERS ${CMAKE_CURRENT_SOURCE_DIR}/shaders/*)

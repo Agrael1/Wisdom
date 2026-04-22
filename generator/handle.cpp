@@ -197,7 +197,7 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, Backend backend, DocKin
     std::string ctor_decl;
     // Use constructor from base
     if (s.extends != Extends::None) {
-        ctor_decl += std::format("{}{}() noexcept\n:ImplType(std::in_place)\n{{\n    ", impl_string, s.name);
+        ctor_decl += std::format("{}{}() noexcept\n:ImplType(wis::in_place)\n{{\n    ", impl_string, s.name);
     } else {
         ctor_decl += "    using ImplType::ImplType;\n";
     }
