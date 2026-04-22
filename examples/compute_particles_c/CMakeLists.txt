@@ -34,5 +34,5 @@ if(WISDOM_BUILD_SHARED)
 endif()
 
 if(POSTFIX STREQUAL "dx12" AND WISDOM_USE_AGILITY_SDK)
-  wis_install_agility_win32(${PROJECT_NAME} ${DXAGILITY_DLL} ${DXAGILITY_DEBUG_DLL})
+  wis_install_agility_win32(TARGET ${PROJECT_NAME})
 endif()

@@ -274,7 +274,7 @@
  * - The Agility SDK breaks the Conan package, because it is not available as a Conan package and it requires manual
  * installation and setup. This makes it difficult to maintain and use in a consistent way across different
  * environments.
- * - The Agility SDK is not required for most users, as the Windows SDK provides access to the latest DirectX 12
+ * - The Agility SDK is not required for the build, as the Windows SDK provides access to the latest DirectX 12
  * features on Windows 11 and Windows 10 (with the latest updates). For users who need to support older Windows
  * versions, the Agility SDK can still be used by enabling the `WISDOM_USE_AGILITY_SDK` CMake option and following the
  * setup instructions below.
@@ -284,47 +284,62 @@
  *
  * @section using_agility_sec Using the Agility SDK with Wisdom
  *
- * If you need to use the Agility SDK for your DirectX 12 development on Windows, you can enable it by following these
- * steps:
+ * Because the Agility SDK can be tricky to set up (requiring specific DLL placement and symbol exports), Wisdom
+ * provides different usage paths depending on how you consume the library.
  *
- * - Install the Agility SDK from the official Microsoft website:
- * https://devblogs.microsoft.com/directx/directx12agility/
- * - *OR* If you are using CMake and sources, define `WISDOM_USE_AGILITY_SDK=ON` before including the library. This will
- * enable the use of the Agility SDK in your project and allow you to access the latest DirectX 12 features.
- * - *OR* If you use distributed binaries, Agility SDK is included in the package.
+ * @subsection path_nuget NuGet
+ * If you are consuming Wisdom via NuGet, install the `Microsoft.Direct3D.D3D12` package to use the Agility SDK. Wisdom
+ * does not bundle it for NuGet to avoid issues with UWP builds (Windows App Certification Kit). The NuGet package
+ * should handle copying the required DLLs to the output directory.
  *
- * On NuGet, the Agility SDK comes under `Microsoft.Direct3D.D3D12` package, so you need to install it in your project
- * to use the Agility SDK with Wisdom.
+ * @subsection path_cmake CMake
+ * If you are using CMake, Wisdom provides several helpers depending on your integration method:
  *
- * Next, you need to ensure, that you copy the Agility SDK DLLs (`D3D12Core.dll` and `D3DSDKLayers.dll`) to your output
- * directory under `/D3D12/` folder. You can do this manually, or you can add a post-build step in your project settings
- * to copy the DLLs automatically. NuGet package should do this for you, but if you are using CMake and sources, you
- * need to set this up yourself. You can use provided CMake function `wis_install_agility_win32` to copy the DLLs to your
- * output directory.
- * 
- * And finally, you need to export the symbols for the Agility SDK in your code. This is required when linking against
- * the Agility SDK on Windows, as it uses a different set of symbols than the Windows SDK. You can do this by adding the
- * following line to your code:
- * 
- * ```c
+ * - **Sources (FetchContent / CPM)**: Set the CMake option `WISDOM_USE_AGILITY_SDK=ON` before integrating the library.
+ * Wisdom will handle the SDK download and link it automatically.
+ * - **.ZIP Distribution**: The Agility SDK is included automatically.
+ * - **Conan Package (Future)**: You will need to explicitly call the CMake function `wis_load_agility_sdk()` provided
+ * by Wisdom, or handle it yourself.
+ *
+ * **Installing the DLLs & Exporting Symbols in CMake**:
+ * To run your application, the Agility SDK DLLs (`D3D12Core.dll` and `D3DSDKLayers.dll`) must be copied to your output
+ * directory. Wisdom provides a CMake helper for this:
+ * ```cmake
+ * wis_install_agility_win32(YOUR_TARGET_NAME PATCH_EXE)
+ * ```
+ * If you pass the `PATCH_EXE` argument, Wisdom will automatically call `wis_patch_agility_executable()` to export the
+ * required Agility SDK symbols directly in the compiled binary. **If you do this, you do not need to use any C++
+ * macros.**
+ *
+ * @subsection path_manual Non-CMake / Manual Integration
+ * If you are using Conan with a build system other than CMake, or integrating manually:
+ * 1. Ensure the Agility SDK is downloaded.
+ * 2. Copy the DLLs to your output directory.
+ * 3. Export the symbols using the C++ macros described below.
+ *
+ * @section exporting_symbols_sec Exporting Symbols (C++ Macros)
+ *
+ * If you did **not** use the CMake `PATCH_EXE` method to automatically export symbols, you must export them in your
+ * source code (usually in `main.cpp`).
+ *
+ * - **When Wisdom loads Agility via CMake** (`WISDOM_USE_AGILITY_SDK=ON` or `.zip`): Use the standard macro.
+ * ```cpp
  * WISDOM_EXPORT_AGILITY_SYMBOLS();
  * ```
- * 
- * `WISDOM_EXPORT_AGILITY_SYMBOLS` requires defined `DX12SDKVER`. This macro is defined from sources/.zip distribution when
- * `WISDOM_USE_AGILITY_SDK` is enabled, but if you are using custom SDK or NuGet you will need another macro.
- * 
- * `WISDOM_EXPORT_AGILITY_CUSTOM(SDK_VER)` is a helper macro that allows you to use custom SDK version.
- * Otherwise you can directly export symbols in your executable the way Agility SDK documentation describes:
- * https://devblogs.microsoft.com/directx/gettingstarted-dx12agility/
- * 
+ *
+ * - **When integrating manually** (or using NuGet / Conan without CMake): Use the custom macro with your specific SDK
+ * version.
+ * ```cpp
+ * WISDOM_EXPORT_AGILITY_CUSTOM(619); // Replace 619 with your Agility SDK version
+ * ```
+ *
+ * Alternatively, you can directly export the symbols using the `extern "C" __declspec(dllexport)` approach as
+ * documented by Microsoft.
+ *
  * @section agility_conclusion_sec Conclusion
- * Wisdom Library automatically uses the Agility SDK, when it is enabled.
- * .zip distribution includes the Agility SDK, so you don't have to worry about it if you are using that. If you are
- * using CMake and sources, you can enable it with a single CMake option, but you need to set up the DLL copying
- * yourself. On NuGet, you need to install the `Microsoft.Direct3D.D3D12` package and ensure the DLLs are copied to your
- * output directory.
- * 
- * It is not easy to set up, but sometimes it is necessary to support older Windows versions, so we provide the option
- * to use it. If you don't need to, you can just ignore it and use the Windows SDK that comes with your system, which
- * should work fine for most users.
+ *
+ * Providing these helpers drastically simplifies the setup compared to the manual Agility SDK installation process.
+ * While the multiple paths may seem complex at a glance, formatting them by package manager/method ensures that whether
+ * you use FetchContent, Conan, NuGet, or manual integration, there is a clear and accessible route to access modern
+ * DirectX 12 features.
  */

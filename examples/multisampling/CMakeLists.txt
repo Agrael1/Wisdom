@@ -14,5 +14,6 @@ target_compile_definitions(${PROJECT_NAME}-cpp PUBLIC ${ADD_DEFINITIONS})
 add_dependencies(${PROJECT_NAME}-cpp copy_sdl wis_test_compile_shaders)
 
 if(POSTFIX STREQUAL "dx12" AND WISDOM_USE_AGILITY_SDK)
-  wis_install_agility_win32(${PROJECT_NAME}-cpp ${DXAGILITY_DLL} ${DXAGILITY_DEBUG_DLL})
+  wis_install_agility_win32(TARGET ${PROJECT_NAME}-cpp
+    PATCH_EXE ON)
 endif()

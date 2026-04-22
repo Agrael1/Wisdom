@@ -26,6 +26,7 @@ option(WISDOM_BUILD_SHARED "Build the dynamic lib." ON)
 option(WISDOM_BUILD_PLATFORM "Build unified platform extension library." ON)
 option(WISDOM_BUILD_DOCS "Build the documentation." OFF)
 option(WISDOM_USE_AGILITY_SDK "Download and use DirectX 12 Agility SDK." OFF)
+option(WISDOM_DOWNLOAD_DXC "Download and use DXC for shader compilation. OFF means use one provided with Vulkan SDK." OFF)
 
 
 # DXC deployment options
@@ -55,6 +56,7 @@ message(
     WISDOM_BUILD_STATIC: ${WISDOM_BUILD_STATIC}
     WISDOM_BUILD_SHARED: ${WISDOM_BUILD_SHARED}
     WISDOM_BUILD_PLATFORM: ${WISDOM_BUILD_PLATFORM}
+    WISDOM_USE_AGILITY_SDK: ${WISDOM_USE_AGILITY_SDK}
 
     WISDOM_VULKAN_HEADER_PATH: ${WISDOM_VULKAN_HEADER_PATH}
 
