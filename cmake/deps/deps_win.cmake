@@ -1,78 +1,19 @@
 if (WISDOM_USE_AGILITY_SDK)
-    include(${CMAKE_CURRENT_LIST_DIR}/nuget.cmake)
+    wis_load_agility_sdk()
 
-    _ww_find_nuget()
-
-    # DirectX 12 Agility SDK
-    message("Setting up DirectX 12 Agility...")
-    _ww_load_nuget_dependency(${NUGET_EXE} "Microsoft.Direct3D.D3D12" DXA
-            ${CMAKE_CURRENT_BINARY_DIR})
-    
-    string(REGEX MATCH "([0-9]+)\\.([0-9]+)\\.([0-9]+)$" VERSION_MATCH ${DXA_DIR})
-    
-    message("Agility version: ${CMAKE_MATCH_1}.${CMAKE_MATCH_2}.${CMAKE_MATCH_3}")
-    set(DXA_VERSION
-            ${CMAKE_MATCH_1}.${CMAKE_MATCH_2}.${CMAKE_MATCH_3}
-            CACHE INTERNAL "")
-    set(VERSION_MINOR
-            ${CMAKE_MATCH_2}
-            CACHE INTERNAL "")
-    
-    set(DXA_HEADERS ${DXA_DIR}/build/native/include)
-    set(DXA_SRC ${DXA_DIR}/build/native/src)
-    set(DXA_BIN ${DXA_DIR}/build/native/bin/x64)
-    set(DXAGILITY_DLL
-            ${DXA_BIN}/D3D12Core.dll
-            CACHE INTERNAL "")
-    set(DXAGILITY_DEBUG_DLL
-            ${DXA_BIN}/d3d12SDKLayers.dll
-            CACHE INTERNAL "")
-    
-    add_library(DX12AgilityCore MODULE IMPORTED GLOBAL)
-    set_property(TARGET DX12AgilityCore PROPERTY IMPORTED_LOCATION
-            ${DXAGILITY_DLL})
-    
-    add_library(DX12AgilitySDKLayers MODULE IMPORTED GLOBAL)
-    set_property(TARGET DX12AgilitySDKLayers PROPERTY IMPORTED_LOCATION
-            ${DXAGILITY_DEBUG_DLL})
-    
-    # Header interface library
-    add_library(DX12Helpers STATIC)
+    # Create helpers library
+    add_library(DX12Helpers INTERFACE)
     add_library(wis::DX12Helpers ALIAS DX12Helpers)
-    
-    target_include_directories(
-            DX12Helpers SYSTEM BEFORE
-            PUBLIC $<BUILD_INTERFACE:${DXA_HEADERS}> $<INSTALL_INTERFACE:include/d3dx12>
-            PRIVATE $<BUILD_INTERFACE:${DXA_HEADERS}/d3dx12>)
-    target_sources(DX12Helpers
-            PRIVATE ${DXA_SRC}/d3dx12/d3dx12_property_format_table.cpp)
-    target_compile_definitions(DX12Helpers PUBLIC
-            DX12SDKVER=${VERSION_MINOR}
-    )
+
+    target_link_libraries(DX12Helpers INTERFACE
+            DX12Agility)
     install(
-            TARGETS DX12Helpers
-            EXPORT wisdom-targets
-            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-            PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-    
-    install(
-            IMPORTED_RUNTIME_ARTIFACTS
-            DX12AgilityCore
-            DX12AgilitySDKLayers
-            RUNTIME
-            DESTINATION
-            ${CMAKE_INSTALL_BINDIR}
-            LIBRARY
-            DESTINATION
-            ${CMAKE_INSTALL_BINDIR})
-    
-    install(DIRECTORY ${DXA_HEADERS}/ DESTINATION include/d3dx12)
-    
-    set_target_properties(DX12Helpers PROPERTIES
-            DEBUG_POSTFIX d
-    )
+        TARGETS DX12Helpers
+        EXPORT wisdom-targets
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 else()
     message("DirectX 12 Agility SDK not enabled. Using Headers instead.")
 
