@@ -38,8 +38,11 @@ WIS_EXTERN_C WISDOM_PLATFORM_API void wisDX12DestroyWin32Extension(WisDX12Win32E
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_PLATFORM_API WisResult
-wisDX12Win32ExtensionCreateSurface(WisDX12Win32Extension* self, const WisWin32WindowDesc* info, WisDX12Surface* surface)
+WIS_EXTERN_C WISDOM_PLATFORM_API WisResult wisDX12Win32ExtensionCreateSurface(
+    WisDX12Win32Extension* self,
+    const WisWin32WindowDesc* info,
+    WisDX12Surface* surface
+)
 {
     new (surface) wis::impl::DX12SurfaceImpl{
         .surface = info->hwnd,

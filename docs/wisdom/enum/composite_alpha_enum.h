@@ -45,7 +45,8 @@
  * - `WisCompositeAlphaPostMultiplied = 2`: The alpha channel, if it exists, is respected and used in compositing. The
  * postmultiplied alpha format is expected.
  * - `WisCompositeAlphaInherit = 3`: The alpha channel, if it exists, is respected and used in compositing based on the
- * platform's default behavior. \endcond
+ * platform's default behavior.
+ * \endcond
  *
  *
  * @section WisCompositeAlpha_see_also See Also

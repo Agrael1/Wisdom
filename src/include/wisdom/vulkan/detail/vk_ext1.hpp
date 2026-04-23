@@ -190,7 +190,8 @@ public:
                 static_cast<uint32_t>(descriptor_heap_properties.minSamplerHeapReservedRangeWithEmbedded),
                 features.sampler_desc_size
             );
-            features.descriptor_heap_alignment = static_cast<uint32_t>(descriptor_heap_properties.resourceHeapAlignment
+            features.descriptor_heap_alignment = static_cast<uint32_t>(
+                descriptor_heap_properties.resourceHeapAlignment
             );
             features.sampler_heap_alignment = static_cast<uint32_t>(descriptor_heap_properties.samplerHeapAlignment);
             features.max_descriptor_heap_size = descriptor_heap_properties.maxResourceHeapSize;
@@ -206,46 +207,6 @@ public:
         );
         features.max_vertex_bindings = static_cast<uint8_t>(device_properties.properties.limits.maxVertexInputBindings);
         features.multiple_viewports = device_properties.properties.limits.maxViewports > 1 ? 1 : 0;
-
-        if (features.host_image_copy) {
-            // Host image copy support
-            auto& host_image_copy_properties = *collector.GetEnabledPropertyStruct<
-                VkPhysicalDeviceHostImageCopyPropertiesEXT>(
-                VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_HOST_IMAGE_COPY_PROPERTIES_EXT
-            );
-
-            static constexpr std::size_t reasonable_layout_count = 32;
-            VkImageLayout dst_layouts[reasonable_layout_count]{};
-            std::unique_ptr<VkImageLayout[]> dynamic_dst_layouts;
-            wis::span<VkImageLayout> dst_layout_span;
-
-            if (host_image_copy_properties.copyDstLayoutCount > reasonable_layout_count) {
-                dynamic_dst_layouts = std::make_unique<VkImageLayout[]>(host_image_copy_properties.copyDstLayoutCount);
-                dst_layout_span = wis::span<VkImageLayout>{
-                    dynamic_dst_layouts.get(),
-                    host_image_copy_properties.copyDstLayoutCount
-                };
-            } else {
-                dst_layout_span = wis::span<VkImageLayout>{dst_layouts, host_image_copy_properties.copyDstLayoutCount};
-            }
-
-            // We are not interested in src layouts.
-            host_image_copy_properties.pCopyDstLayouts = dst_layout_span.data();
-            device_properties.pNext = &host_image_copy_properties;
-
-            auto& atable = device_impl.device_header->header.shared_header->header.adapter_table;
-            auto adapter = device_impl.physical_device;
-
-            atable.vkGetPhysicalDeviceProperties2(adapter, &device_properties);
-
-            for (uint32_t i = 0; i < host_image_copy_properties.copyDstLayoutCount; ++i) {
-                WisTextureState dst_layout = VKConvertToTextureState(dst_layout_span[i]);
-                if (dst_layout == WisTextureStateUndefined) {
-                    continue; // Unsupported layout, skip
-                }
-                features.supported_image_layout_transitions |= (1 << static_cast<uint32_t>(dst_layout_span[i]));
-            }
-        }
 
         // Nothing to initialize for now
         return wis::detail::vk_success;

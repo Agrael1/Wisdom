@@ -16,8 +16,12 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroySwapchain(WisDX12Swapchain* self)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisDX12SwapchainPresent(const WisDX12Swapchain* self, WisPresentFlags flags, const WisRect* rects, size_t rect_count)
+WIS_EXTERN_C WISDOM_API WisResult wisDX12SwapchainPresent(
+    const WisDX12Swapchain* self,
+    WisPresentFlags flags,
+    const WisRect* rects,
+    size_t rect_count
+)
 {
     auto& swapchain = wis::from_handle_ref<const wis::impl::DX12SwapchainImpl>(self);
     UINT dx_flags = swapchain.vsync ? 0 : swapchain.flags & DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
@@ -64,8 +68,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12SwapchainGetCurrentIndex(const WisDX12S
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisDX12SwapchainUpdate(const WisDX12Swapchain* self, const WisSwapchainUpdateDesc* desc)
+WIS_EXTERN_C WISDOM_API WisResult wisDX12SwapchainUpdate(
+    const WisDX12Swapchain* self,
+    const WisSwapchainUpdateDesc* desc
+)
 {
     auto& swapchain = wis::from_handle_ref<const wis::impl::DX12SwapchainImpl>(self);
 
@@ -98,8 +104,11 @@ wisDX12SwapchainUpdate(const WisDX12Swapchain* self, const WisSwapchainUpdateDes
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisDX12SwapchainGetTextures(const WisDX12Swapchain* self, WisDX12Texture* buffers, size_t buffer_count)
+WIS_EXTERN_C WISDOM_API WisResult wisDX12SwapchainGetTextures(
+    const WisDX12Swapchain* self,
+    WisDX12Texture* buffers,
+    size_t buffer_count
+)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::DX12SwapchainImpl>(self);
     if (buffer_count < impl.backbuffer_count) {

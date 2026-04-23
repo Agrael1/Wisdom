@@ -132,15 +132,19 @@ inline std::array<uint32_t, WisCommandQueueTypeCount> VKGetSortedQueueFamilies(
 
             // Scenario B: We found a shared G+C queue, but now we found a DISTINCT Compute queue.
             // Overwrite the previous choice! This is how you get Async Compute.
-            else if ((props_span[current].queueFamilyProperties.queueFlags & VK_QUEUE_GRAPHICS_BIT)
-                     && !(flags & VK_QUEUE_GRAPHICS_BIT)) {
+            else if (
+                (props_span[current].queueFamilyProperties.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+                && !(flags & VK_QUEUE_GRAPHICS_BIT)
+            ) {
                 qcom[WisCommandQueueTypeCompute] = i;
             }
 
             // Scenario C: We have found another G+C, but it is different from WisCommandQueueTypeGraphics (probably
             // impossible)
-            else if ((props_span[current].queueFamilyProperties.queueFlags & VK_QUEUE_GRAPHICS_BIT)
-                     && qcom[WisCommandQueueTypeGraphics] != i) {
+            else if (
+                (props_span[current].queueFamilyProperties.queueFlags & VK_QUEUE_GRAPHICS_BIT)
+                && qcom[WisCommandQueueTypeGraphics] != i
+            ) {
                 qcom[WisCommandQueueTypeCompute] = i;
             }
         }
@@ -458,8 +462,11 @@ WIS_EXTERN_C WISDOM_API size_t wisVKAdapterQueryGetAdapterCount(const WisVKAdapt
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisVKAdapterQueryGetAdapterDesc(const WisVKAdapterQuery* self, size_t index, WisAdapterDesc* desc)
+WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryGetAdapterDesc(
+    const WisVKAdapterQuery* self,
+    size_t index,
+    WisAdapterDesc* desc
+)
 {
     const auto& impl = *wis::from_handle<const wis::impl::VKAdapterQueryImpl>(self);
     if (index >= impl.adapter_count) {
@@ -700,7 +707,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKAdapterQueryCreateDevice(
     }
     control_block_size += sizeof(std::binary_semaphore) * semaphore_count;
 
-    std::unique_ptr<std::byte[]> header_storage{static_cast<std::byte*>(operator new(control_block_size, std::nothrow))
+    std::unique_ptr<std::byte[]> header_storage{
+        static_cast<std::byte*>(operator new(control_block_size, std::nothrow))
     };
     if (!header_storage) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to allocate memory for Vulkan device header">(

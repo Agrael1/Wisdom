@@ -203,6 +203,7 @@ void Generator::WriteStructDocumentation(std::filesystem::path struct_output_pat
         std::filesystem::path struct_file_path = struct_output_path
                                                / std::format("{}_struct.h", MakeSnakeCase(struct_name));
         auto& struct_ref = struct_map[struct_name];
+        files.push_back(struct_file_path);
 
         std::string struct_template_content = std::format(
             " * C version:\n```c\n{}```\n"

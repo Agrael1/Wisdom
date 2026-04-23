@@ -1,3 +1,2 @@
 # Ignore third-party headers that crash the parser
 src/include/wisdom/util/xxhash.h
-docs/*

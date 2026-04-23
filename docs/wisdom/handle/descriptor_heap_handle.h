@@ -27,5 +27,6 @@
  * wisDescriptorHeapWriteConstantBuffer, wisDescriptorHeapWriteStructuredBuffer,
  * wisDescriptorHeapWriteRWStructuredBuffer, wisDescriptorHeapWriteSampler, wisDescriptorHeapWriteTexture,
  * wisDescriptorHeapWriteRWTexture, wisDescriptorHeapWriteAccelerationStructure, wisDescriptorHeapCopyDescriptors,
- * wisCommandListSetDescriptorHeaps \endcond
+ * wisCommandListSetDescriptorHeaps
+ * \endcond
  */

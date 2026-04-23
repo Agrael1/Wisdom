@@ -43,7 +43,8 @@
  * - `WisAdapterPreferenceMinConsumption = 1`: List the adapters from low power consumption to high. DirectX 12:
  * Integrated, Discrete, External, Software. Vulkan: Integrated GPU, Discrete GPU, Virtual GPU, CPU.
  * - `WisAdapterPreferencePerformance = 2`: List the adapters from high performance to low. DirectX 12: External,
- * Discrete, Integrated, Software. Vulkan: Discrete GPU, Integrated GPU, Virtual GPU, CPU. \endcond
+ * Discrete, Integrated, Software. Vulkan: Discrete GPU, Integrated GPU, Virtual GPU, CPU.
+ * \endcond
  *
  * GPU order @wis_may vary between the implementations due to differing heuristics.
  *

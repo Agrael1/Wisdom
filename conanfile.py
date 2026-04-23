@@ -1,9 +1,6 @@
 import os
 from conan import ConanFile
-from conan.tools.cmake import CMake
-from conan.tools.cmake import cmake_layout
-from conan.tools.cmake import CMakeToolchain
-from conan.tools.files import collect_libs
+from conan.tools.cmake import CMake, cmake_layout, CMakeToolchain, CMakeDeps
 from conan.tools.files import copy, load
 
 
@@ -42,6 +39,10 @@ class WisdomConan(ConanFile):
             self.output.warning(f"Could not read version file: {e}")
             self.version = "0.0.0"
 
+    def requirements(self):
+        #self.requires("d3d12-memory-allocator/3.0.1", transitive_headers=True)
+        pass
+
     def export_sources(self):
         copy(
             self,
@@ -78,6 +79,9 @@ class WisdomConan(ConanFile):
         cmake_layout(self)
 
     def generate(self):
+        deps = CMakeDeps(self)
+        deps.generate()
+
         self.output.warning(
             "This recipe currently relies on the project's CPM/NuGet dependency loading during CMake configure. "
             "For Conan Center, those dependencies should be provided as Conan requirements or vendored sources."
@@ -95,6 +99,7 @@ class WisdomConan(ConanFile):
         tc.variables["WISDOM_USE_AGILITY_SDK"] = False
         tc.variables["WISDOM_DOWNLOAD_DXC"] = False
         tc.variables["CMAKE_UNITY_BUILD"] = True
+        tc.user_presets_path = ""
         tc.generate()
 
     def build(self):

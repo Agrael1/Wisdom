@@ -58,7 +58,8 @@
  * - `depth_clip_enable` specifies depth clip enable. Default is true.
  * - `line_rasterization` specifies line rasterization mode. Default is `WisLineRasterizationDefault`.
  * - `conservative_rasterization` indicates conservative rasterization mode. Default is
- * `WisConservativeRasterizationOff`. \endcond
+ * `WisConservativeRasterizationOff`.
+ * \endcond
  *
  * @section WisRasterizerDesc_descr Description
  * <hr>

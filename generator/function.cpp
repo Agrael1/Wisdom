@@ -718,6 +718,8 @@ void Generator::WriteFunctionDocumentation(std::filesystem::path func_output_pat
         );
         auto func_doc_path = func_output_path / std::format("{}_function.h", MakeSnakeCase(full_func_name.substr(3)));
 
+        files.push_back(func_doc_path);
+
         auto supports_vk = has(func_def.backend, Backend::Vulkan);
         auto supports_dx = has(func_def.backend, Backend::DX12);
 
@@ -777,6 +779,7 @@ void Generator::WriteDelegateDocumentation(std::filesystem::path func_output_pat
         auto delegate_doc_path = func_output_path
                                / std::format("{}_delegate.h", MakeSnakeCase(full_delegate_name.substr(3)));
         auto& delegate_def = delegate_map[delegate_name];
+        files.push_back(delegate_doc_path);
 
         std::string regular_code = MakeCDelegate(delegate_def, DocKind::VersionOnly);
         std::string regular_code_cpp = MakeCPPDelegate(delegate_def, DocKind::VersionOnly);

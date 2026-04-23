@@ -35,8 +35,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKCommandAllocatorReset(const WisVKCommandA
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisVKCommandAllocatorCreateCommandList(const WisVKCommandAllocator* self, WisVKCommandList* list)
+WIS_EXTERN_C WISDOM_API WisResult wisVKCommandAllocatorCreateCommandList(
+    const WisVKCommandAllocator* self,
+    WisVKCommandList* list
+)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKCommandAllocatorImpl>(self);
     auto& header = impl.command_pool_header->header;

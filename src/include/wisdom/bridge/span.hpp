@@ -76,7 +76,8 @@ struct contract_violation_error : std::logic_error {
 inline void contract_violation(const char* msg) { throw contract_violation_error(msg); }
 
 #elif defined(TCB_SPAN_TERMINATE_ON_CONTRACT_VIOLATION)
-[[noreturn]] inline void contract_violation(const char* /*unused*/
+[[noreturn]] inline void contract_violation(
+    const char* /*unused*/
 )
 {
     std::terminate();
@@ -446,8 +447,10 @@ public:
         return {data() + (size() - count), count};
     }
 
-    TCB_SPAN_CONSTEXPR11 span<element_type, dynamic_extent> subspan(size_type offset, size_type count = dynamic_extent)
-        const
+    TCB_SPAN_CONSTEXPR11 span<element_type, dynamic_extent> subspan(
+        size_type offset,
+        size_type count = dynamic_extent
+    ) const
     {
         TCB_SPAN_EXPECT(offset <= size() && (count == dynamic_extent || offset + count <= size()));
         return {data() + offset, count == dynamic_extent ? size() - offset : count};

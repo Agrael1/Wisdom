@@ -7,9 +7,9 @@
 #include <wisdom/util/allocation.hpp>
 
 #ifdef DX12SDKVER
-#include <d3dx12/d3dx12_resource_helpers.h>
+#    include <d3dx12/d3dx12_resource_helpers.h>
 #else
-#include <directx/d3dx12_resource_helpers.h>
+#    include <directx/d3dx12_resource_helpers.h>
 #endif
 
 //----------------------------------------------------------------------------------------------------------------------

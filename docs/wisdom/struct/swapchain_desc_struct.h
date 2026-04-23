@@ -52,7 +52,8 @@
  * - `scaling` describes swapchain scaling mode.
  * - `flags` describes swapchain flags. Describe additional options for the swapchain.
  * - `composite_alpha` defines composite alpha mode. Describe how the alpha channel of the swapchain images is treated
- * during compositing. \endcond
+ * during compositing.
+ * \endcond
  *
  * @section WisSwapchainDesc_descr Description
  * <hr>

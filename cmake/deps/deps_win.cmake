@@ -17,6 +17,14 @@ if (WISDOM_USE_AGILITY_SDK)
 else()
     message("DirectX 12 Agility SDK not enabled. Using Headers instead.")
 
+    # Create helpers library
+    add_library(DX12Helpers INTERFACE)
+    add_library(wis::DX12Helpers ALIAS DX12Helpers)
+
+    target_compile_definitions(DX12Helpers INTERFACE
+            D3D12MA_USING_DIRECTX_HEADERS=1
+    )
+
     # Guaranteed backwards compatibility. 
     # Using origin/main to ensure we get the latest headers, 
     # which are compatible with the latest SDKs.
@@ -26,25 +34,21 @@ else()
             GIT_TAG origin/main
     )
 
-    # Create helpers library
-    add_library(DX12Helpers INTERFACE)
-    add_library(wis::DX12Helpers ALIAS DX12Helpers)
-
     target_link_libraries(DX12Helpers INTERFACE
             DirectX-Headers
             DirectX-Guids)
-    target_compile_definitions(DX12Helpers INTERFACE
-            D3D12MA_USING_DIRECTX_HEADERS=1
-    )
+
     install(DIRECTORY ${dxheaders_SOURCE_DIR}/include/directx DESTINATION include)
     install(DIRECTORY ${dxheaders_SOURCE_DIR}/include/dxguids DESTINATION include)
     install(
-        TARGETS DirectX-Headers DirectX-Guids DX12Helpers
+        TARGETS DirectX-Headers DirectX-Guids
         EXPORT wisdom-targets
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
         PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+    install(TARGETS DX12Helpers EXPORT wisdom-targets)
 endif()
 
 

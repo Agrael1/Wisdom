@@ -45,7 +45,8 @@
  * - `WisDepthStencilFlagsReadOnlyDepth = (1 << 2)`: Depth part is read only. Texture @wis_must be in either read state,
  * depending on the format.
  * - `WisDepthStencilFlagsReadOnlyStencil = (1 << 3)`: Stencil part is read only. Texture @wis_must be in either read
- * state, depending on the format. \endcond
+ * state, depending on the format.
+ * \endcond
  *
  *
  * @section WisDepthStencilFlags_see_also See Also

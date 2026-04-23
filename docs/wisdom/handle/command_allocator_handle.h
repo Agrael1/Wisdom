@@ -24,5 +24,6 @@
  * \cond WIS_GEN_REFS
  * @see Functions:
  * wisDestroyCommandAllocator, wisDeviceCreateCommandAllocator, wisCommandAllocatorReset,
- * wisCommandAllocatorCreateCommandList \endcond
+ * wisCommandAllocatorCreateCommandList
+ * \endcond
  */

@@ -36,7 +36,8 @@
  * Values:
  * - `WisPresentFlagsNone = 0`: No flags set. Swapchain is regular.
  * - `WisPresentFlagsTimeoutOnBlock = (1 << 0)`: Fail present if the presentation engine is busy. If not set, the
- * implementation @wis_may choose to block until the presentation engine is available. \endcond
+ * implementation @wis_may choose to block until the presentation engine is available.
+ * \endcond
  *
  *
  * @section WisPresentFlags_see_also See Also

@@ -33,13 +33,12 @@ inline VkImageViewCreateInfo VKGetSRVDesc(const WisTextureBinding& binding) noex
         .pNext = nullptr,
         .flags = 0,
         .format = wis::detail::VKConvert(binding.format),
-        .components =
-            {
-                .r = wis::detail::VKConvert(binding.component_mapping.r),
-                .g = wis::detail::VKConvert(binding.component_mapping.g),
-                .b = wis::detail::VKConvert(binding.component_mapping.b),
-                .a = wis::detail::VKConvert(binding.component_mapping.a),
-            },
+        .components = {
+            .r = wis::detail::VKConvert(binding.component_mapping.r),
+            .g = wis::detail::VKConvert(binding.component_mapping.g),
+            .b = wis::detail::VKConvert(binding.component_mapping.b),
+            .a = wis::detail::VKConvert(binding.component_mapping.a),
+        },
     };
     auto aspect_flags = VKGetAspectFlags(binding);
 
@@ -352,8 +351,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDescriptorHeapWriteRWStructuredBuffer(
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisVKDescriptorHeapWriteSampler(const WisVKDescriptorHeap* self, const WisSamplerDesc* sampler, uint32_t index)
+WIS_EXTERN_C WISDOM_API WisResult wisVKDescriptorHeapWriteSampler(
+    const WisVKDescriptorHeap* self,
+    const WisSamplerDesc* sampler,
+    uint32_t index
+)
 {
     auto& heap = wis::from_handle_ref<const wis::impl::VKDescriptorHeapImpl>(self);
     auto& table = heap.device_header->header.device_table;
@@ -477,8 +479,11 @@ WISDOM_API WisResult wisVKDescriptorHeapWriteRWTexture(
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisVKDescriptorHeapWriteAccelerationStructure(const WisVKDescriptorHeap* self, uint64_t address, uint32_t index)
+WIS_EXTERN_C WISDOM_API WisResult wisVKDescriptorHeapWriteAccelerationStructure(
+    const WisVKDescriptorHeap* self,
+    uint64_t address,
+    uint32_t index
+)
 {
     auto& heap = wis::from_handle_ref<const wis::impl::VKDescriptorHeapImpl>(self);
     auto& table = heap.device_header->header.device_table;

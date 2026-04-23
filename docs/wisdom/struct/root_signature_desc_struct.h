@@ -44,7 +44,8 @@
  * `WisRootSignatureDesc::push_descriptors` array.
  * - `descriptor_tables` points to an array of WisDescriptorTable.
  * - `descriptor_table_count` specifies the number of the number of descriptor tables in the
- * `WisRootSignatureDesc::descriptor_tables` array. \endcond
+ * `WisRootSignatureDesc::descriptor_tables` array.
+ * \endcond
  *
  * @section WisRootSignatureDesc_descr Description
  * <hr>

@@ -30,8 +30,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CommandAllocatorReset(const WisDX12Comm
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisDX12CommandAllocatorCreateCommandList(const WisDX12CommandAllocator* self, WisDX12CommandList* list)
+WIS_EXTERN_C WISDOM_API WisResult wisDX12CommandAllocatorCreateCommandList(
+    const WisDX12CommandAllocator* self,
+    WisDX12CommandList* list
+)
 {
     auto& [allocator, device, type] = wis::from_handle_ref<const wis::impl::DX12CommandAllocatorImpl>(self);
 

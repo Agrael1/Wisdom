@@ -21,8 +21,11 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyCommandQueue(WisVKCommandQueue* self)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisVKCommandQueueSubmit(const WisVKCommandQueue* self, const WisVKCommandListView* lists, size_t count)
+WIS_EXTERN_C WISDOM_API WisResult wisVKCommandQueueSubmit(
+    const WisVKCommandQueue* self,
+    const WisVKCommandListView* lists,
+    size_t count
+)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKCommandQueueImpl>(self);
 
@@ -43,8 +46,11 @@ wisVKCommandQueueSubmit(const WisVKCommandQueue* self, const WisVKCommandListVie
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisVKCommandQueueSignalFence(const WisVKCommandQueue* self, WisVKFenceView fence, uint64_t value)
+WIS_EXTERN_C WISDOM_API WisResult wisVKCommandQueueSignalFence(
+    const WisVKCommandQueue* self,
+    WisVKFenceView fence,
+    uint64_t value
+)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKCommandQueueImpl>(self);
     VkQueue queue = impl.queue;
@@ -69,8 +75,11 @@ wisVKCommandQueueSignalFence(const WisVKCommandQueue* self, WisVKFenceView fence
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisVKCommandQueueWaitFence(const WisVKCommandQueue* self, WisVKFenceView fence, uint64_t value)
+WIS_EXTERN_C WISDOM_API WisResult wisVKCommandQueueWaitFence(
+    const WisVKCommandQueue* self,
+    WisVKFenceView fence,
+    uint64_t value
+)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKCommandQueueImpl>(self);
     VkQueue queue = impl.queue;

@@ -79,8 +79,12 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroySwapchain(WisVKSwapchain* self)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisVKSwapchainPresent(const WisVKSwapchain* self, WisPresentFlags flags, const WisRect* rects, size_t rect_count)
+WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainPresent(
+    const WisVKSwapchain* self,
+    WisPresentFlags flags,
+    const WisRect* rects,
+    size_t rect_count
+)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKSwapchainImpl>(self);
 
@@ -158,8 +162,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainUpdate(const WisVKSwapchain* sel
 
     VkFormat new_format = wis::detail::VKConvert(desc->format);
     bool size_changed = desc->width != 0 && desc->height != 0
-                     && (desc->width != create_info.imageExtent.width || desc->height != create_info.imageExtent.height
-                     );
+                     && (desc->width != create_info.imageExtent.width
+                         || desc->height != create_info.imageExtent.height);
     bool format_changed = desc->format != WisDataFormatUnknown && new_format != create_info.imageFormat;
     bool count_changed = desc->image_count != 0 && desc->image_count != create_info.minImageCount;
     bool vsync_changed = desc->vsync != (create_info.presentMode == VK_PRESENT_MODE_FIFO_KHR);
@@ -173,8 +177,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainUpdate(const WisVKSwapchain* sel
             } else if (std::ranges::find(modes, VK_PRESENT_MODE_FIFO_RELAXED_KHR) != std::end(modes)) {
                 present_mode = VK_PRESENT_MODE_FIFO_RELAXED_KHR;
             }
-        } else if (std::ranges::find(modes, VK_PRESENT_MODE_MAILBOX_KHR) != std::end(modes)
-                   && (create_info.imageArrayLayers == 1)) {
+        } else if (
+            std::ranges::find(modes, VK_PRESENT_MODE_MAILBOX_KHR) != std::end(modes)
+            && (create_info.imageArrayLayers == 1)
+        ) {
             present_mode = VK_PRESENT_MODE_MAILBOX_KHR;
         }
     }
@@ -295,8 +301,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainUpdate(const WisVKSwapchain* sel
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisVKSwapchainGetTextures(const WisVKSwapchain* self, WisVKTexture* buffers, size_t buffer_count)
+WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainGetTextures(
+    const WisVKSwapchain* self,
+    WisVKTexture* buffers,
+    size_t buffer_count
+)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKSwapchainImpl>(self);
 

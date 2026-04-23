@@ -80,8 +80,11 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyInstance(WisDX12Instance* self)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisDX12InstanceQueryAdapters(const WisDX12Instance* self, WisAdapterPreference preference, WisDX12AdapterQuery* query)
+WIS_EXTERN_C WISDOM_API WisResult wisDX12InstanceQueryAdapters(
+    const WisDX12Instance* self,
+    WisAdapterPreference preference,
+    WisDX12AdapterQuery* query
+)
 {
     const auto& instance_impl = wis::from_handle_ref<const wis::impl::DX12InstanceImpl>(self);
     wis::com_ptr<IDXGIFactory6> factory_ref{instance_impl.factory}; // hold a reference

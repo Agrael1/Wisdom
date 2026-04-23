@@ -24,5 +24,6 @@
  * \cond WIS_GEN_REFS
  * @see Functions:
  * wisDestroySwapchain, wisDeviceCreateSwapchain, wisSwapchainPresent, wisSwapchainGetCurrentIndex, wisSwapchainUpdate,
- * wisSwapchainGetTextures \endcond
+ * wisSwapchainGetTextures
+ * \endcond
  */

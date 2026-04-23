@@ -46,7 +46,8 @@
  * of depth slices.
  * - `plane_slice` indicates base depth slice of the subresource. Used only for 2D textures (YUV).
  * - `plane_slice_count` indicates number of depth slices in the subresource. Used only for 2D textures (YUV). Max value
- * is 3. \endcond
+ * is 3.
+ * \endcond
  *
  * @section WisSubresourceRange_descr Description
  * <hr>

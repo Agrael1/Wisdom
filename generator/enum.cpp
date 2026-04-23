@@ -142,6 +142,8 @@ void Generator::WriteEnumDocumentation(std::filesystem::path enum_output_path)
         std::filesystem::path enum_file_path = enum_output_path / std::format("{}_enum.h", MakeSnakeCase(enum_name));
         auto& enum_ref = enum_map[enum_name];
 
+        files.push_back(enum_file_path);
+
         std::string enum_template_content = std::format(
             " * C version:\n```c\n{}```\n"
             "C++ version:\n```cpp\nnamespace wis{{\n{}}}\n```\n",
