@@ -464,7 +464,6 @@ Viewport is considered from Top Left corner.">
       <!-- Memory -->
       <member type="bool" name="gpu_upload_supported" doc="describes if GPU upload memory type is supported. This memory type allows mapping the memory and writing to it from CPU, while being accessible from GPU. It is usually implemented as write-combined memory on integrated GPUs and as a part of shared system memory on discrete GPUs."/>
       <member type="bool" name="host_image_copy_supported" doc="indicates if host image copy is supported. This feature allows copying data directly from CPU memory to optimal tiled image layout on GPU, without the need for an intermediate staging buffer. It is supported on Windows 10 22H2 and later with WDDM 3.0 or later. On Vulkan it requires `VK_EXT_host_image_copy` extension."/>
-      <member type="u64" name="gpu_upload_heap_budget" doc="specifies heap budget for GPU upload memory type in bytes. This is an approximate value of how much memory of this type can be allocated, and it can change over time depending on the system state."/>
     </type>
 
     <type name="FormatProperties" category="struct" version="0.7.0" doc="Data format properties. Used to query support and capabilities of specific data formats.">
