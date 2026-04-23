@@ -734,12 +734,31 @@ WIS_EXTERN_C WISDOM_API void wisVKDeviceQueryProperties(const WisVKDevice* self,
             const VkPhysicalDeviceMemoryProperties* mem_props;
             vmaGetMemoryProperties(header.allocator, &mem_props);
 
+            // Find largest VRAM heap.
+            uint64_t largest_vram_heap_size = 0;
+            uint32_t largest_vram_heap_index = 0;
+            for (uint32_t i = 0; i < mem_props->memoryHeapCount; ++i) {
+                if (mem_props->memoryHeaps[i].flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) {
+                    auto heap_size = mem_props->memoryHeaps[i].size;
+                    if (heap_size > largest_vram_heap_size) {
+                        largest_vram_heap_size = heap_size;
+                        largest_vram_heap_index = i;
+                    }
+                }
+            }
+
+            // Scan memory types to find one that is HOST_VISIBLE, HOST_COHERENT and DEVICE_LOCAL, and belongs to the
+            // largest VRAM heap.
+            props->gpu_upload_supported = false;
             for (uint32_t i = 0; i < mem_props->memoryTypeCount; ++i) {
+                if ((mem_props->memoryTypes[i].heapIndex != largest_vram_heap_index)) {
+                    continue;
+                }
+
                 const VkMemoryPropertyFlags flags = mem_props->memoryTypes[i].propertyFlags;
                 if ((flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) && (flags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
                     && (flags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)) {
                     props->gpu_upload_supported = true;
-                    props->gpu_upload_heap_budget = mem_props->memoryHeaps[mem_props->memoryTypes[i].heapIndex].size;
                     break;
                 }
             }
@@ -1621,9 +1640,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateSwapchain(
             } else if ((tearing = std::ranges::count(modes, VK_PRESENT_MODE_FIFO_RELAXED_KHR) > 0)) {
                 present_mode = VK_PRESENT_MODE_FIFO_RELAXED_KHR;
             }
-        } else if (
-            std::ranges::count(modes, VK_PRESENT_MODE_MAILBOX_KHR) > 0 && !(desc->flags & WisSwapchainFlagsStereo)
-        ) {
+        } else if (std::ranges::count(modes, VK_PRESENT_MODE_MAILBOX_KHR) > 0
+                   && !(desc->flags & WisSwapchainFlagsStereo)) {
             present_mode = VK_PRESENT_MODE_MAILBOX_KHR;
         }
     }

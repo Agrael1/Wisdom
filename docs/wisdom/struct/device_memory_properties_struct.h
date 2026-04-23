@@ -17,7 +17,6 @@
  *     void*                next_in_chain;
  *     bool                 gpu_upload_supported;
  *     bool                 host_image_copy_supported;
- *     uint64_t             gpu_upload_heap_budget;
  * } WisDeviceMemoryProperties;
  *
  * ```
@@ -30,7 +29,6 @@
  *     void*                  next_in_chain;
  *     bool                   gpu_upload_supported;
  *     bool                   host_image_copy_supported;
- *     std::uint64_t          gpu_upload_heap_budget;
  * };
  * }
  * ```
@@ -49,28 +47,27 @@
  * from CPU memory to optimal tiled image layout on GPU, without the need for an intermediate staging buffer. It is
  * supported on Windows 10 22H2 and later with WDDM 3.0 or later. On Vulkan it requires `VK_EXT_host_image_copy`
  * extension.
- * - `gpu_upload_heap_budget` specifies heap budget for GPU upload memory type in bytes. This is an approximate value of
- * how much memory of this type can be allocated, and it can change over time depending on the system state.
  * \endcond
  *
  * @section WisDeviceMemoryProperties_descr Description
  * <hr>
  *
- * `gpu_upload_heap_budget` is a metric of how much memory of the GPU upload type can be allocated, but it is not a hard
- * limit. It is possible that allocations of this type may fail even if the total allocated memory is below this budget,
- * due to fragmentation or other factors. Conversely, it may be possible to allocate more memory than this budget in
- * some cases. This value should be used as a guideline for how much memory of this type to allocate, rather than a
- * strict limit.
- *
- * `gpu_upload_heap_budget` has 3 possible states:
- * - If the device does not support GPU upload memory type, this value will be 0.
- * - If the device supports GPU upload memory, but the ReBAR is not enabled, this value will be 0 on DirectX 12 and a
- * small value on Vulkan (e.g., 256MB), representing the portion of shared system memory that is accessible to the GPU.
- * The value is exposed even if ReBAR is not enabled, because in some cases allocation such a small amount may be
- * beneficial, because it may be faster to access than regular Upload Heap.
- * - If the device supports GPU upload memory and ReBAR is enabled, this value will be either equal to the size of
- * dedicated video memory or a nearby value, depending on how the system allocates memory for the GPU upload type. This
- * means that whole video memory is accessible by CPU and uploads can be done without staging buffers.
+ * `gpu_upload_supported` means that the device has a memory type that is both HOST_VISIBLE and DEVICE_LOCAL. That
+ * allows writes to memory directly using CPU mapping.
+ * `host_image_copy_supported` means that the device supports copying data directly from CPU memory to optimal tiled
+ * image layout on GPU, without the need for an intermediate staging buffer. This can improve performance and reduce
+ * memory usage when uploading textures from CPU to GPU.
+ * 
+ * DirectX 12 supports both of these feature simultaneusly. That means that on DirectX 12, if `gpu_upload_supported` is
+ * true, then `host_image_copy_supported` will also be true. On Vulkan, these features are independent and may be
+ * supported separately. On Vulkan, `host_image_copy_supported` requires the `VK_EXT_host_image_copy` extension, while
+ * `gpu_upload_supported` depends on the presence of a memory type that is both HOST_VISIBLE and DEVICE_LOCAL.
+ * 
+ * If `gpu_upload_supported` is true, `WisMemoryTypeGPUUpload` memory type can be used for resource allocation. This
+ * memory type allows mapping the memory and writing to it from CPU, while being accessible from GPU.
+ * 
+ * If `host_image_copy_supported` is true, `wisTextureWriteSubresource` function can be used to write texture data
+ * directly from CPU memory to optimal tiled image layout on GPU.
  *
  * \cond WIS_GEN_WIS_IDS
  * \endcond
