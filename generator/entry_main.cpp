@@ -10,19 +10,25 @@ void FormatFiles(std::span<const std::filesystem::path> files)
     if (clang_format_exe.empty()) {
         return;
     }
-    std::string cmd;
-    for (auto f : files) {
-        cmd += f.string();
-        cmd += ' ';
-    }
-    std::cout << "Wisdom Vk Utils: Formatting:\n" << cmd << '\n';
-    std::string command = std::format("\"{}\" -i --style=file {}", clang_format_exe, cmd);
 
-    int ret = 0;
-    for (uint32_t i = 0; (ret = std::system(command.c_str())) != 0 && i < repeats; ++i)
-        ;
-    if (ret != 0) {
-        std::cout << "Wisdom Vk Utils: failed to format files with error <" << ret << ">\n";
+    // break into chunks of 16 files to avoid command line length limits on some platforms
+    for (size_t i = 0; i < files.size(); i += 16) {
+        auto chunk_end = std::min(16ull, files.size() - i);
+
+        std::string cmd;
+        for (auto f : files.subspan(i, chunk_end)) {
+            cmd += f.string();
+            cmd += ' ';
+        }
+        std::cout << "Wisdom Vk Utils: Formatting:\n" << cmd << '\n';
+        std::string command = std::format("\"{}\" -i --style=file {}", clang_format_exe, cmd);
+
+        int ret = 0;
+        for (uint32_t i = 0; (ret = std::system(command.c_str())) != 0 && i < repeats; ++i)
+            ;
+        if (ret != 0) {
+            std::cout << "Wisdom Vk Utils: failed to format files with error <" << ret << ">\n";
+        }
     }
 }
 

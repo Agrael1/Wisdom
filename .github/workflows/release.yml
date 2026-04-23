@@ -220,7 +220,7 @@ jobs:
       - name: Build and Package
         shell: pwsh
         run: |
-          .\package.ps1 -Format all -Configuration both -Clean -OutputDir './artifacts'
+          .\scripts\package.ps1 -Format all -Configuration both -Clean -OutputDir './artifacts'
 
       - name: Validate package contents
         shell: pwsh

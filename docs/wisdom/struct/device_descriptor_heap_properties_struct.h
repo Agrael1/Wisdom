@@ -67,7 +67,8 @@
  * - `render_target_with_ms_increment_size` defines size of a single render target view descriptor in the descriptor
  * heap with multisample targets enabled. Used for calculating render target view descriptor offsets.
  * - `depth_stencil_with_ms_increment_size` defines size of a single depth stencil view descriptor in the descriptor
- * heap with multisample targets enabled. Used for calculating depth stencil view descriptor offsets. \endcond
+ * heap with multisample targets enabled. Used for calculating depth stencil view descriptor offsets.
+ * \endcond
  *
  * @section WisDeviceDescriptorHeapProperties_descr Description
  * <hr>

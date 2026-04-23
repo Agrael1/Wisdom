@@ -24,5 +24,6 @@
  * \cond WIS_GEN_REFS
  * @see Functions:
  * wisDestroyViewHeap, wisDeviceCreateViewHeap, wisViewHeapWriteRenderTarget, wisViewHeapWriteDepthStencil,
- * wisViewHeapGetViewAddress, wisViewHeapCopyViews, wisViewHeapGetCPUHandle \endcond
+ * wisViewHeapGetViewAddress, wisViewHeapCopyViews, wisViewHeapGetCPUHandle
+ * \endcond
  */

@@ -165,7 +165,7 @@ struct VKDeviceFeatures {
     uint16_t resource_desc_size = 0;
     uint16_t sampler_desc_size = 0;
     uint16_t max_root_space = 0;
-    uint16_t supported_image_layout_transitions = 0; // bitmask of supported image layout transitions, indexed by
+
     // WisImageLayout. A bit value of 1 indicates support for the
     // transition.
     uint32_t descriptor_heap_reserved_size = 0;

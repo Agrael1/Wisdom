@@ -40,7 +40,8 @@
  * - `WisCommandQueuePriorityNormal = 0`: Normal queue priority.
  * - `WisCommandQueuePriorityHigh = 1`: High queue priority.
  * - `WisCommandQueuePriorityRealtime = 2`: Global realtime queue priority. Requires special GPU support and @wis_may
- * cause performance issues if used on unsupported hardware. \endcond
+ * cause performance issues if used on unsupported hardware.
+ * \endcond
  *
  *
  * @section WisCommandQueuePriority_see_also See Also

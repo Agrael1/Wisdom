@@ -244,8 +244,11 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyInstance(WisVKInstance* self)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisVKInstanceQueryAdapters(const WisVKInstance* self, WisAdapterPreference preference, WisVKAdapterQuery* query)
+WIS_EXTERN_C WISDOM_API WisResult wisVKInstanceQueryAdapters(
+    const WisVKInstance* self,
+    WisAdapterPreference preference,
+    WisVKAdapterQuery* query
+)
 {
     // Query can come as partially constructed from C side
     auto& instance_impl = wis::from_handle_ref<const wis::impl::VKInstanceImpl>(self);

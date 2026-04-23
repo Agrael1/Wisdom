@@ -304,13 +304,12 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DescriptorHeapWriteStructuredBuffer(
         .Format = DXGI_FORMAT_UNKNOWN, // must be UNKNOWN for structured buffers
         .ViewDimension = D3D12_SRV_DIMENSION_BUFFER,
         .Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING,
-        .Buffer =
-            {
-                .FirstElement = data->array_offset,
-                .NumElements = data->structure_count,
-                .StructureByteStride = data->stride_bytes,
-                .Flags = D3D12_BUFFER_SRV_FLAG_NONE,
-            },
+        .Buffer = {
+            .FirstElement = data->array_offset,
+            .NumElements = data->structure_count,
+            .StructureByteStride = data->stride_bytes,
+            .Flags = D3D12_BUFFER_SRV_FLAG_NONE,
+        },
     };
     heap.device->CreateShaderResourceView(
         resource,
@@ -334,13 +333,12 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DescriptorHeapWriteRWStructuredBuffer(
     D3D12_UNORDERED_ACCESS_VIEW_DESC uav_desc{
         .Format = DXGI_FORMAT_UNKNOWN, // must be UNKNOWN for structured buffers
         .ViewDimension = D3D12_UAV_DIMENSION_BUFFER,
-        .Buffer =
-            {
-                .FirstElement = data->array_offset,
-                .NumElements = data->structure_count,
-                .StructureByteStride = data->stride_bytes,
-                .Flags = D3D12_BUFFER_UAV_FLAG_NONE,
-            },
+        .Buffer = {
+            .FirstElement = data->array_offset,
+            .NumElements = data->structure_count,
+            .StructureByteStride = data->stride_bytes,
+            .Flags = D3D12_BUFFER_UAV_FLAG_NONE,
+        },
     };
     heap.device->CreateUnorderedAccessView(
         resource,
@@ -352,8 +350,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DescriptorHeapWriteRWStructuredBuffer(
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisDX12DescriptorHeapWriteSampler(const WisDX12DescriptorHeap* self, const WisSamplerDesc* sampler, uint32_t index)
+WIS_EXTERN_C WISDOM_API WisResult wisDX12DescriptorHeapWriteSampler(
+    const WisDX12DescriptorHeap* self,
+    const WisSamplerDesc* sampler,
+    uint32_t index
+)
 {
     auto& heap = wis::from_handle_ref<const wis::impl::DX12DescriptorHeapImpl>(self);
 
@@ -439,8 +440,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DescriptorHeapWriteRWTexture(
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisDX12DescriptorHeapWriteAccelerationStructure(const WisDX12DescriptorHeap* self, uint64_t address, uint32_t index)
+WIS_EXTERN_C WISDOM_API WisResult wisDX12DescriptorHeapWriteAccelerationStructure(
+    const WisDX12DescriptorHeap* self,
+    uint64_t address,
+    uint32_t index
+)
 {
     auto& heap = wis::from_handle_ref<const wis::impl::DX12DescriptorHeapImpl>(self);
     D3D12_SHADER_RESOURCE_VIEW_DESC desc{

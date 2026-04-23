@@ -43,7 +43,8 @@
  * - `WisPipelineFlagsEnablePrimitiveRestart = (1 << 1)`: Enable primitive restart for graphics pipelines. If not set,
  * primitive restart is disabled and the implementation @wis_may choose to ignore restart indices in draw calls.
  * - `WisPipelineFlagsDynamicDepthBias = (1 << 2)`: Enable dynamic depth bias for graphics pipelines. If not set, depth
- * bias is static and @wis_must be specified at pipeline creation time. \endcond
+ * bias is static and @wis_must be specified at pipeline creation time.
+ * \endcond
  *
  *
  * @section WisPipelineFlags_see_also See Also

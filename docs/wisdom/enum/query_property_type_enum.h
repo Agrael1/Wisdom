@@ -43,7 +43,8 @@
  * - `WisQueryPropertyTypeDeviceMemoryProperties = 2`: Properties of the device descriptor heap. Expects a
  * WisDeviceMemoryProperties struct.
  * - `WisQueryPropertyTypeDeviceBindingProperties = 3`: Properties of the device resource binding. Expects a
- * WisDeviceBindingProperties struct. \endcond
+ * WisDeviceBindingProperties struct.
+ * \endcond
  *
  *
  * @section WisQueryPropertyType_see_also See Also
@@ -52,5 +53,6 @@
  * \cond WIS_GEN_REFS
  * @see Structs:
  * WisQueryStructHeader, WisDeviceBindingProperties, WisDeviceDescriptorHeapProperties, WisDeviceCommandQueueProperties,
- * WisDeviceMemoryProperties \endcond
+ * WisDeviceMemoryProperties
+ * \endcond
  */

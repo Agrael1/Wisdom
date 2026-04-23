@@ -8,8 +8,7 @@
 
 namespace wis {
 /// @brief Tag type for in-place construction (for C++11 and later)
-struct in_place_t {
-};
+struct in_place_t {};
 
 /// @brief Constant for in-place construction (for C++11 and later)
 static constexpr in_place_t in_place{};

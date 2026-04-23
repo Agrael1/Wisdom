@@ -20,8 +20,11 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyPipelineCache(WisDX12PipelineCache* s
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisDX12PipelineCacheSerialize(const WisDX12PipelineCache* self, uint8_t* data, size_t data_size)
+WIS_EXTERN_C WISDOM_API WisResult wisDX12PipelineCacheSerialize(
+    const WisDX12PipelineCache* self,
+    uint8_t* data,
+    size_t data_size
+)
 {
     auto& [cache, xx] = wis::from_handle_ref<const wis::impl::DX12PipelineCacheImpl>(self);
     auto hr = cache->Serialize(data, data_size);

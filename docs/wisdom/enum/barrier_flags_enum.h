@@ -47,7 +47,8 @@
  * the specified subresource range. If set, the subresource range is ignored and the transition is applied to all
  * subresources of the resource.
  * - `WisBarrierFlagsPlanarImage = (1 << 3)`: Resource is a planar image. If the flag is not set, plane slices in
- * WisSubresourceRange are ignored. \endcond
+ * WisSubresourceRange are ignored.
+ * \endcond
  *
  *
  * @section WisBarrierFlags_see_also See Also

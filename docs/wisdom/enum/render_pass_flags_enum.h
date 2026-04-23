@@ -45,7 +45,8 @@
  * - `WisRenderPassFlagsResuming = (1 << 2)`: Render pass is resuming.
  * - `WisRenderPassFlagsAllowUAVWrites = (1 << 3)`: Allow UAV writes. If set, unordered access view (UAV) writes are
  * allowed during the render pass. If not set, UAV writes are not allowed and @wis_may result in undefined behavior if
- * attempted. \endcond
+ * attempted.
+ * \endcond
  *
  *
  * @section WisRenderPassFlags_see_also See Also

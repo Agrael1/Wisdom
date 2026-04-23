@@ -25,7 +25,13 @@ option(WISDOM_BUILD_STATIC "Build the static lib." ON)
 option(WISDOM_BUILD_SHARED "Build the dynamic lib." ON)
 option(WISDOM_BUILD_PLATFORM "Build unified platform extension library." ON)
 option(WISDOM_BUILD_DOCS "Build the documentation." OFF)
-option(WISDOM_USE_AGILITY_SDK "Download and use DirectX 12 Agility SDK." OFF) # TODO: ON
+option(WISDOM_USE_AGILITY_SDK "Download and use DirectX 12 Agility SDK." OFF)
+option(WISDOM_USE_CONAN "Use Conan to manage dependencies. Only for library builds." OFF)
+
+if (WISDOM_USE_CONAN)
+  set(CONAN_CXX_STANDARD 20)
+  include(cmake/conan.cmake)
+endif()
 
 
 # DXC deployment options
@@ -53,6 +59,7 @@ message(
     WISDOM_BUILD_SHARED: ${WISDOM_BUILD_SHARED}
     WISDOM_BUILD_PLATFORM: ${WISDOM_BUILD_PLATFORM}
     WISDOM_USE_AGILITY_SDK: ${WISDOM_USE_AGILITY_SDK}
+    WISDOM_USE_CONAN: ${WISDOM_USE_CONAN}
 
     WISDOM_VULKAN_HEADER_PATH: ${WISDOM_VULKAN_HEADER_PATH}")
 

@@ -2534,11 +2534,10 @@ struct DeviceMemoryProperties {
      * */
     bool host_image_copy_supported;
     /**
-     * @brief defines bitfield of supported initial resource state transitions for buffers and textures. If a transition
-     * is supported, the corresponding bit is set to `1`, otherwise `0`. Bit positions are the same as in
-     * wis::TextureState enum. `wis::TextureState::Undefined` is always supported.
+     * @brief specifies heap budget for GPU upload memory type in bytes. This is an approximate value of how much memory
+     * of this type can be allocated, and it can change over time depending on the system state.
      * */
-    std::uint32_t supported_initial_transitions;
+    std::uint64_t gpu_upload_heap_budget;
 };
 
 /**

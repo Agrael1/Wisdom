@@ -46,7 +46,8 @@
  * buffers is used on a different queue type. It is supported on Windows 10 22H2 and later with WDDM 3.0 or later. On
  * Vulkan it requires `VK_KHR_maintenance9` extension.
  * - `max_queue_priority` indicates an array of maximum supported priorities for each queue type. If a queue type is not
- * supported, the value is `0`. Order of queue types is the same as in WisCommandQueueType enum. \endcond
+ * supported, the value is `0`. Order of queue types is the same as in WisCommandQueueType enum.
+ * \endcond
  *
  * @section WisDeviceCommandQueueProperties_descr Description
  * <hr>

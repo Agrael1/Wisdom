@@ -485,9 +485,14 @@ WIS_EXTERN_C WISDOM_API void wisDX12DeviceQueryProperties(const WisDX12Device* s
             if (wis::detail::succeeded(
                     device.device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS16, &options16, sizeof(options16))
                 )) {
+
+                D3D12MA::Budget local_budget = {};
+                D3D12MA::Budget non_local_budget = {};
+                device.allocator->GetBudget(&local_budget, &non_local_budget);
+
                 props->gpu_upload_supported = options16.GPUUploadHeapSupported;
                 props->host_image_copy_supported = options16.GPUUploadHeapSupported;
-                props->supported_initial_transitions = 0b0001'1111'1111'1111; // All thansitions are supported
+                props->gpu_upload_heap_budget = options16.GPUUploadHeapSupported ? local_budget.BudgetBytes : 0ull;
             }
         } break;
         case WisQueryPropertyTypeDeviceBindingProperties: {

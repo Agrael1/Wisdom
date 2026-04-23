@@ -76,7 +76,8 @@
  * queue_descs array.
  * - `extensions` points to an array of extensions that are to be initialized with pointers to WisDeviceExtensionHeader.
  * - `extension_count` describes the number of the number of extensions in the wisAdapterQueryCreateDevice extensions
- * array. \endcond
+ * array.
+ * \endcond
  *
  * @section WisDeviceRequirements_descr Description
  * <hr>

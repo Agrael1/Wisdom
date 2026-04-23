@@ -291,6 +291,7 @@ void Generator::WriteHandleDocumentation(std::filesystem::path handle_output_pat
         std::filesystem::path handle_file_path = handle_output_path
                                                / std::format("{}_handle.h", MakeSnakeCase(handle_name));
         auto& handle_ref = handle_map[handle_name];
+        files.push_back(handle_file_path);
 
         std::string vk_code;
         std::string dx_code;

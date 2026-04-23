@@ -43,7 +43,8 @@
  * - `count` describes descriptor count for Array descriptors. UINT32_MAX means unbounded array. 0 means single
  * register, same as 1.
  * - `descriptor_offset` describes offset in descriptors from the heap start. Used for calculating descriptor indices
- * when binding descriptor tables. \endcond
+ * when binding descriptor tables.
+ * \endcond
  *
  * @section WisDescriptorTableEntry_descr Description
  * <hr>

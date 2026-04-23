@@ -37,7 +37,8 @@ constexpr VkSpirvResourceTypeFlagsEXT GetResourceTypeFlags(const WisDescriptorTy
     }
 }
 
-inline std::array<uint32_t, WisShaderVisibilityCount> GetMapCountPerShaderType(const WisRootSignatureDesc& desc
+inline std::array<uint32_t, WisShaderVisibilityCount> GetMapCountPerShaderType(
+    const WisRootSignatureDesc& desc
 ) noexcept
 {
     std::array<uint32_t, WisShaderVisibilityCount> counts{};
@@ -117,8 +118,11 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyDevice(WisVKDevice* self)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisVKDeviceCreateCommandQueue(const WisVKDevice* self, WisCommandQueueType type, WisVKCommandQueue* queue)
+WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandQueue(
+    const WisVKDevice* self,
+    WisCommandQueueType type,
+    WisVKCommandQueue* queue
+)
 {
     WisResult res = wis::detail::vk_success;
     auto& device = *wis::from_handle<const wis::impl::VKDeviceImpl>(self);
@@ -166,8 +170,11 @@ wisVKDeviceCreateCommandQueue(const WisVKDevice* self, WisCommandQueueType type,
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisVKDeviceCreateCommandAllocator(const WisVKDevice* self, WisCommandQueueType type, WisVKCommandAllocator* allocator)
+WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandAllocator(
+    const WisVKDevice* self,
+    WisCommandQueueType type,
+    WisVKCommandAllocator* allocator
+)
 {
     auto& device = *wis::from_handle<const wis::impl::VKDeviceImpl>(self);
     auto& table = device.device_header->header.device_table;
@@ -224,8 +231,11 @@ wisVKDeviceCreateCommandAllocator(const WisVKDevice* self, WisCommandQueueType t
     return wis::detail::vk_success;
 }
 
-WIS_EXTERN_C WISDOM_API WisResult
-wisVKDeviceCreateFence(const WisVKDevice* self, uint64_t initial_value, WisVKFence* fence)
+WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateFence(
+    const WisVKDevice* self,
+    uint64_t initial_value,
+    WisVKFence* fence
+)
 {
     WisResult res = wis::detail::vk_success;
     auto& device = *wis::from_handle<const wis::impl::VKDeviceImpl>(self);
@@ -259,8 +269,10 @@ wisVKDeviceCreateFence(const WisVKDevice* self, uint64_t initial_value, WisVKFen
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisVKDeviceGetResourceAllocator(const WisVKDevice* self, WisVKResourceAllocator* allocator)
+WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceGetResourceAllocator(
+    const WisVKDevice* self,
+    WisVKResourceAllocator* allocator
+)
 {
     auto& device = *wis::from_handle<const wis::impl::VKDeviceImpl>(self);
 
@@ -275,8 +287,11 @@ wisVKDeviceGetResourceAllocator(const WisVKDevice* self, WisVKResourceAllocator*
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisVKDeviceCreateDescriptorHeap(const WisVKDevice* self, const WisDescriptorHeapDesc* desc, WisVKDescriptorHeap* heap)
+WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(
+    const WisVKDevice* self,
+    const WisDescriptorHeapDesc* desc,
+    WisVKDescriptorHeap* heap
+)
 {
     auto& device = *wis::from_handle<const wis::impl::VKDeviceImpl>(self);
     auto& header = device.device_header->header;
@@ -434,8 +449,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateViewHeap(
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisVKDeviceCreateRootSignature(const WisVKDevice* self, const WisRootSignatureDesc* desc, WisVKRootSignature* layout)
+WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(
+    const WisVKDevice* self,
+    const WisRootSignatureDesc* desc,
+    WisVKRootSignature* layout
+)
 {
     auto& device = *wis::from_handle<const wis::impl::VKDeviceImpl>(self);
     auto& header = device.device_header->header;
@@ -476,7 +494,8 @@ wisVKDeviceCreateRootSignature(const WisVKDevice* self, const WisRootSignatureDe
     // 2. Count the number of VkDescriptorSetAndBindingMappingEXT structures
     // Hard part is to pack the tables into a contiguous arrays for each shader type
     uint32_t total_table_count = 0;
-    std::array<uint32_t, WisShaderVisibilityCount> table_counts_per_shader = wis::detail::GetMapCountPerShaderType(*desc
+    std::array<uint32_t, WisShaderVisibilityCount> table_counts_per_shader = wis::detail::GetMapCountPerShaderType(
+        *desc
     );
     std::array<wis::detail::VKMappingOffsetInfo, WisShaderVisibilityCount>
         local_offsets_per_shader = wis::detail::GetMappingOffsetPerShaderType(
@@ -513,14 +532,17 @@ wisVKDeviceCreateRootSignature(const WisVKDevice* self, const WisRootSignatureDe
         }
 
         rootsig_header->shader_mapping_offset[i] = local_offsets_per_shader[i].offset
-                                                 - (local_offsets_per_shader[i].even ? 0 : table_counts_per_shader[0]
-                                                 ); // If even, "all" maps are after
+                                                 - (local_offsets_per_shader[i].even
+                                                        ? 0
+                                                        : table_counts_per_shader[0]); // If even, "all" maps are after
         // this stage, if odd, "all" maps
         // are before this stage
 
-        rootsig_header->shader_mapping_sizes[i] = table_counts_per_shader[i]
-                                                + (local_offsets_per_shader[i].even ? 0 : table_counts_per_shader[0]
-                                                ); // If even, this stage maps + "all"
+        rootsig_header
+            ->shader_mapping_sizes[i] = table_counts_per_shader[i]
+                                      + (local_offsets_per_shader[i].even
+                                             ? 0
+                                             : table_counts_per_shader[0]); // If even, this stage maps + "all"
         // maps, if odd, only this stage maps
 
         if (!all_offset) {
@@ -606,21 +628,23 @@ wisVKDeviceCreateRootSignature(const WisVKDevice* self, const WisRootSignatureDe
             }
             heap_byte_offset = local_offset + local_count * heap_stride;
 
-            auto& mapping = mappings[local_offsets_per_shader[visibility].offset++] =
-                {.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_AND_BINDING_MAPPING_EXT,
-                 .pNext = nullptr,
-                 .descriptorSet = entry.bind_space,
-                 .firstBinding = entry.bind_register,
-                 .bindingCount = local_count,
-                 .resourceMask = wis::detail::GetResourceTypeFlags(entry.type),
-                 .source = VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_PUSH_INDEX_EXT,
-                 .sourceData =
-                     {.pushIndex = {
-                          .heapOffset = local_offset,
-                          .pushOffset = push_address_offset,
-                          .heapIndexStride = 1,
-                          .heapArrayStride = heap_stride,
-                      }}};
+            auto& mapping = mappings[local_offsets_per_shader[visibility].offset++] = {
+                .sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_AND_BINDING_MAPPING_EXT,
+                .pNext = nullptr,
+                .descriptorSet = entry.bind_space,
+                .firstBinding = entry.bind_register,
+                .bindingCount = local_count,
+                .resourceMask = wis::detail::GetResourceTypeFlags(entry.type),
+                .source = VK_DESCRIPTOR_MAPPING_SOURCE_HEAP_WITH_PUSH_INDEX_EXT,
+                .sourceData = {
+                    .pushIndex = {
+                        .heapOffset = local_offset,
+                        .pushOffset = push_address_offset,
+                        .heapIndexStride = 1,
+                        .heapArrayStride = heap_stride,
+                    }
+                }
+            };
         }
 
         root_param_offsets[root_param_index++] = push_address_offset;
@@ -706,7 +730,6 @@ WIS_EXTERN_C WISDOM_API void wisVKDeviceQueryProperties(const WisVKDevice* self,
         case WisQueryPropertyTypeDeviceMemoryProperties: {
             auto* props = static_cast<WisDeviceMemoryProperties*>(next);
             props->host_image_copy_supported = header.features.host_image_copy;
-            props->supported_initial_transitions = header.features.supported_image_layout_transitions;
 
             const VkPhysicalDeviceMemoryProperties* mem_props;
             vmaGetMemoryProperties(header.allocator, &mem_props);
@@ -716,9 +739,11 @@ WIS_EXTERN_C WISDOM_API void wisVKDeviceQueryProperties(const WisVKDevice* self,
                 if ((flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) && (flags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
                     && (flags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)) {
                     props->gpu_upload_supported = true;
+                    props->gpu_upload_heap_budget = mem_props->memoryHeaps[mem_props->memoryTypes[i].heapIndex].size;
                     break;
                 }
             }
+
         } break;
         case WisQueryPropertyTypeDeviceBindingProperties: {
             auto* props = static_cast<WisDeviceBindingProperties*>(next);
@@ -826,8 +851,12 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreatePipelineCache(
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisVKDeviceCreateShader(const WisVKDevice* self, const uint8_t* data, size_t size, WisVKShader* shader)
+WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateShader(
+    const WisVKDevice* self,
+    const uint8_t* data,
+    size_t size,
+    WisVKShader* shader
+)
 {
     auto& device = *wis::from_handle<const wis::impl::VKDeviceImpl>(self);
     auto& table = device.device_header->header.device_table;
@@ -846,15 +875,19 @@ wisVKDeviceCreateShader(const WisVKDevice* self, const uint8_t* data, size_t siz
         return wis::detail::make_result<wis::detail::Func(), "Failed to create shader module">(vr);
     }
 
-    auto& shader_impl = *new (shader
+    auto& shader_impl = *new (
+        shader
     ) wis::impl::VKShaderImpl{.shader_module = shader_handle, .device_header = device.device_header};
     device.device_header->AddRef();
     return wis::detail::vk_success;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisVKDeviceCreateComputePipeline(const WisVKDevice* self, const WisVKComputePipelineDesc* desc, WisVKPipeline* pipeline)
+WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateComputePipeline(
+    const WisVKDevice* self,
+    const WisVKComputePipelineDesc* desc,
+    WisVKPipeline* pipeline
+)
 {
     auto& device = *wis::from_handle<const wis::impl::VKDeviceImpl>(self);
     auto& table = device.device_header->header.device_table;
@@ -901,7 +934,8 @@ wisVKDeviceCreateComputePipeline(const WisVKDevice* self, const WisVKComputePipe
         return wis::detail::make_result<wis::detail::Func(), "Failed to create compute pipeline">(vr);
     }
 
-    auto& pipeline_impl = *new (pipeline
+    auto& pipeline_impl = *new (
+        pipeline
     ) wis::impl::VKPipelineImpl{.pipeline = pipeline_handle, .device_header = device.device_header};
     pipeline_impl.device_header->AddRef();
     return wis::detail::vk_success;
@@ -1358,7 +1392,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(
         return wis::detail::make_result<wis::detail::Func(), "Failed to create a graphics pipeline">(vr);
     }
 
-    auto& pipeline_impl = *new (pipeline
+    auto& pipeline_impl = *new (
+        pipeline
     ) wis::impl::VKPipelineImpl{.pipeline = pipeline_handle, .device_header = device.device_header};
     device.device_header->AddRef();
 
@@ -1366,8 +1401,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisVKDeviceGetSurfaceParameters(const WisVKDevice* self, WisVKSurfaceView surface, WisSurfaceParameters* params)
+WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceGetSurfaceParameters(
+    const WisVKDevice* self,
+    WisVKSurfaceView surface,
+    WisSurfaceParameters* params
+)
 {
     auto& device = wis::from_handle_ref<const wis::impl::VKDeviceImpl>(self);
     auto atable = device.device_header->header.shared_header->header.adapter_table;
@@ -1520,7 +1558,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateSwapchain(
     if (format_it == format_span.end()) {
         return wis::detail::make_result<
             wis::detail::Func(),
-            "The requested format is not supported for presentation on the given surface">(VK_ERROR_FORMAT_NOT_SUPPORTED
+            "The requested format is not supported for presentation on the given surface">(
+            VK_ERROR_FORMAT_NOT_SUPPORTED
         );
     }
 
@@ -1582,8 +1621,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateSwapchain(
             } else if ((tearing = std::ranges::count(modes, VK_PRESENT_MODE_FIFO_RELAXED_KHR) > 0)) {
                 present_mode = VK_PRESENT_MODE_FIFO_RELAXED_KHR;
             }
-        } else if (std::ranges::count(modes, VK_PRESENT_MODE_MAILBOX_KHR) > 0
-                   && !(desc->flags & WisSwapchainFlagsStereo)) {
+        } else if (
+            std::ranges::count(modes, VK_PRESENT_MODE_MAILBOX_KHR) > 0 && !(desc->flags & WisSwapchainFlagsStereo)
+        ) {
             present_mode = VK_PRESENT_MODE_MAILBOX_KHR;
         }
     }
@@ -1789,8 +1829,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateSwapchain(
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult
-wisVKDeviceGetFormatProperties(const WisVKDevice* self, WisDataFormat format, WisFormatProperties* properties)
+WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceGetFormatProperties(
+    const WisVKDevice* self,
+    WisDataFormat format,
+    WisFormatProperties* properties
+)
 {
     auto& device = wis::from_handle_ref<const wis::impl::VKDeviceImpl>(self);
     auto atable = device.device_header->header.shared_header->header.adapter_table;
