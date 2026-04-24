@@ -68,20 +68,21 @@ else ()
 endif ()
 
 
-add_library(DX12Allocator STATIC ${dxma_SOURCE_DIR}/include/D3D12MemAlloc.h)
-target_sources(DX12Allocator PRIVATE ${dxma_SOURCE_DIR}/src/D3D12MemAlloc.cpp)
-target_link_libraries(DX12Allocator PUBLIC DX12Helpers)
+add_library(D3D12MemoryAllocator STATIC ${dxma_SOURCE_DIR}/include/D3D12MemAlloc.h)
+add_library(GPUOpen::D3D12MemoryAllocator ALIAS D3D12MemoryAllocator)
+target_sources(D3D12MemoryAllocator PRIVATE ${dxma_SOURCE_DIR}/src/D3D12MemAlloc.cpp)
+target_link_libraries(D3D12MemoryAllocator PUBLIC DX12Helpers)
 
 target_include_directories(
-        DX12Allocator PUBLIC $<BUILD_INTERFACE:${dxma_SOURCE_DIR}/include>
+        D3D12MemoryAllocator PUBLIC $<BUILD_INTERFACE:${dxma_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/dxma>)
 
-set_target_properties(DX12Allocator PROPERTIES
+set_target_properties(D3D12MemoryAllocator PROPERTIES
         CXX_STANDARD 20
         DEBUG_POSTFIX d
 )
 install(
-        TARGETS DX12Allocator
+        TARGETS D3D12MemoryAllocator
         EXPORT wisdom-targets
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR})

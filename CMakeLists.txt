@@ -28,12 +28,6 @@ option(WISDOM_BUILD_DOCS "Build the documentation." OFF)
 option(WISDOM_USE_AGILITY_SDK "Download and use DirectX 12 Agility SDK." OFF)
 option(WISDOM_USE_CONAN "Use Conan to manage dependencies. Only for library builds." OFF)
 
-if (WISDOM_USE_CONAN)
-  set(CONAN_CXX_STANDARD 20)
-  include(cmake/conan.cmake)
-endif()
-
-
 # DXC deployment options
 set(WISDOM_VULKAN_HEADER_PATH
     ""
