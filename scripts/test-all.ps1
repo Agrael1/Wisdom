@@ -11,6 +11,7 @@ $steps = @(
     @{ Name = 'Build and run unit tests'; Script = Join-Path $scriptRoot 'test-unit.ps1' },
     @{ Name = 'Run ZIP (CMake) integration test'; Script = Join-Path $scriptRoot 'test-cmake.ps1' },
     @{ Name = 'Run NuGet integration test'; Script = Join-Path $scriptRoot 'test-nuget.ps1' }
+    @{ Name = 'Run Conan integration test'; Script = Join-Path $scriptRoot 'test-conan.ps1' }
 )
 
 function Invoke-TestStep {

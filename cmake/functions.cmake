@@ -30,24 +30,36 @@ if (WIN32)
         if (NOT WISDOM_WINDOWS)
             return()
         endif ()
-    
-        find_program(
-                NUGET_EXE
-                NAMES nuget)
-    
-        if (NOT NUGET_EXE)
-            message("NUGET.EXE not found. Downloading...")
+        
+        # Check provided with WISDOM_NUGET_PATH
+        if (WISDOM_NUGET_PATH)
             find_program(
                     NUGET_EXE
                     NAMES nuget
-                    PATHS ${CMAKE_CURRENT_BINARY_DIR}/NuGet)
-    
-            if (NOT NUGET_EXE)
-                _ww_load_nuget()
-                set(NUGET_EXE "${CMAKE_CURRENT_BINARY_DIR}/NuGet/NuGet.exe" CACHE INTERNAL "Path to NuGet.exe")
+                    PATHS ${WISDOM_NUGET_PATH})
+            if (NUGET_EXE)
+                message("NUGET.EXE found at WISDOM_NUGET_PATH: ${NUGET_EXE}")
+                return()
             endif ()
-        else ()
+        endif()
+
+        find_program(
+                NUGET_EXE
+                NAMES nuget)
+        if (NUGET_EXE)
             message("NUGET.EXE found: ${NUGET_EXE}")
+            return()
+        endif()
+
+        message("NUGET.EXE not found. Downloading...")
+        find_program(
+                NUGET_EXE
+                NAMES nuget
+                PATHS ${CMAKE_CURRENT_BINARY_DIR}/NuGet)
+    
+        if (NOT NUGET_EXE)
+            _ww_load_nuget()
+            set(NUGET_EXE "${CMAKE_CURRENT_BINARY_DIR}/NuGet/NuGet.exe" CACHE INTERNAL "Path to NuGet.exe")
         endif ()
     endfunction(_ww_find_nuget)
     
