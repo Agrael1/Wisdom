@@ -40,8 +40,11 @@ class WisdomConan(ConanFile):
             self.version = "0.0.0"
 
     def requirements(self):
-        #self.requires("d3d12-memory-allocator/3.0.1", transitive_headers=True)
-        pass
+        # If windows platform support is enabled, we need to require the D3D12 Memory Allocator
+        # Uncomment once #30026 is merged
+        #if self.settings.os == "Windows":
+            #self.requires("d3d12-memory-allocator/3.1.0", transitive_headers=True)
+        self.requires("vulkan-memory-allocator/3.3.0", transitive_headers=True)
 
     def export_sources(self):
         copy(
@@ -97,6 +100,7 @@ class WisdomConan(ConanFile):
         tc.variables["WISDOM_BUILD_SHARED"] = self.options.get_safe("shared") and not is_header_only
         tc.variables["WISDOM_BUILD_PLATFORM"] = self.options.build_platform
         tc.variables["WISDOM_USE_AGILITY_SDK"] = False
+        # tc.variables["WISDOM_USE_CONAN"] = True
         tc.variables["WISDOM_DOWNLOAD_DXC"] = False
         tc.variables["CMAKE_UNITY_BUILD"] = True
         tc.user_presets_path = ""

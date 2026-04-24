@@ -14,7 +14,7 @@ if(WISDOM_DX12)
     DXGI
     DXGUID
     d3d12
-    DX12Allocator)
+    GPUOpen::D3D12MemoryAllocator)
 
   list(
     APPEND
