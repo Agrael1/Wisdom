@@ -4,6 +4,9 @@
  *
  * @section WisAddressMode_spec Specification
  * <hr>
+ * 
+ * Possible values for texture address mode. Used in `WisSamplerDesc` to specify how texture coordinates outside the [0,
+ * 1] range are handled.
  *
  * \cond WIS_GEN_CODE
  * C version:

@@ -26,7 +26,7 @@
       <AdditionalDependencies Condition="'$(WisdomPlatformExtension)' == 'true' and '$(WisdomLinkage)' == 'static'">$(MSBuildThisFileDirectory)..\..\lib\native\x64\wisdom-platform$(LP).lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalDependencies Condition="'$(WisdomPlatformExtension)' == 'true' and '$(WisdomLinkage)' == 'dynamic'">$(MSBuildThisFileDirectory)..\..\lib\native\x64\wisdom-platform-shared$(LP).lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalDependencies Condition="'$(WisdomVulkanEnabled)' == 'true'"> $(MSBuildThisFileDirectory)..\..\lib\native\x64\vkma$(LP).lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalDependencies> $(MSBuildThisFileDirectory)..\..\lib\native\x64\DX12Allocator$(LP).lib;$(MSBuildThisFileDirectory)..\..\lib\native\x64\DirectX-Headers$(LP).lib;$(MSBuildThisFileDirectory)..\..\lib\native\x64\DirectX-Guids$(LP).lib;dxguid.lib;DXGI.lib;d3d12.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies> $(MSBuildThisFileDirectory)..\..\lib\native\x64\D3D12MemoryAllocator$(LP).lib;$(MSBuildThisFileDirectory)..\..\lib\native\x64\DirectX-Headers$(LP).lib;$(MSBuildThisFileDirectory)..\..\lib\native\x64\DirectX-Guids$(LP).lib;dxguid.lib;DXGI.lib;d3d12.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
 

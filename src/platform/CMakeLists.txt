@@ -67,7 +67,7 @@ if(WISDOM_BUILD_SHARED)
   add_library(wisdom-platform-shared SHARED ${WISDOM_PLATFORM_SOURCES})
   add_library(wis::wisdom-platform-shared ALIAS wisdom-platform-shared)
 
-  target_link_libraries(wisdom-platform-shared PRIVATE wisdom)
+  target_link_libraries(wisdom-platform-shared PRIVATE wisdom-shared)
   target_include_directories(
     wisdom-platform-shared
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
