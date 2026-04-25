@@ -186,7 +186,7 @@ void Generator::WriteCAPI(std::filesystem::path dir)
 
     bool has_independent_api = !module.enums_in_order.empty() || !module.bitmasks_in_order.empty()
                             || !module.structs_in_order.empty() || !module.constants_in_order.empty()
-                            || !module.delegates_in_order.empty();
+                            || !module.delegates_in_order.empty() || !module.functions_in_order.empty();
 
     auto path = dir / "c_api.h";
     if (!has_independent_api) {
@@ -368,7 +368,7 @@ void Generator::WriteCPPAPI(std::filesystem::path dir)
     auto& module = module_map.at(active_module_name);
     bool has_independent_api = !module.enums_in_order.empty() || !module.bitmasks_in_order.empty()
                             || !module.structs_in_order.empty() || !module.constants_in_order.empty()
-                            || !module.delegates_in_order.empty();
+                            || !module.delegates_in_order.empty() || !module.functions_in_order.empty();
 
     auto path = dir / "cpp_api.hpp";
     if (!has_independent_api) {

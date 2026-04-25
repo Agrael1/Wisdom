@@ -126,7 +126,6 @@ void Generator::WriteConstantDocumentation(std::filesystem::path const_output_pa
 {
     std::filesystem::create_directories(const_output_path);
     std::filesystem::path const_file_path = const_output_path / "constants.h";
-    files.push_back(const_file_path);
 
     std::string all_c_code;
     std::string all_cpp_code;
@@ -135,6 +134,8 @@ void Generator::WriteConstantDocumentation(std::filesystem::path const_output_pa
     if (constant_names.empty()) {
         return;
     }
+
+    files.push_back(const_file_path);
 
     for (auto& const_name : constant_names) {
         auto& const_ref = constant_map[const_name];

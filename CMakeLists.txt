@@ -33,6 +33,11 @@ set(WISDOM_VULKAN_HEADER_PATH
     ""
     CACHE PATH "Path to custom Vulkan Headers (optional)")
 
+# Conan includes Vulkan Headers.
+if (WISDOM_USE_CONAN)
+    set(WISDOM_VULKAN ON)
+endif()
+
 # Load all dependencies
 include(cmake/deps.cmake)
 include(cmake/doc.cmake)

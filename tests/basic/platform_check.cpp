@@ -52,4 +52,17 @@ TEST_CASE("check_platform_support")
     // At least one of the Linux surface extensions should be supported
     REQUIRE(xcb_supported || xlib_supported || wayland_supported);
 #endif
+
+    wisDestroyInstance(&instance);
+    REQUIRE(!wisHandleValid(&instance));
+
+    wisDestroyXCBExtension(&xcb_extension);
+    wisDestroyXlibExtension(&xlib_extension);
+    wisDestroyWaylandExtension(&wayland_extension);
+    wisDestroyWin32Extension(&win32_extension);
+
+    REQUIRE(!wisHandleValid(&xcb_extension));
+    REQUIRE(!wisHandleValid(&xlib_extension));
+    REQUIRE(!wisHandleValid(&wayland_extension));
+    REQUIRE(!wisHandleValid(&win32_extension));
 }

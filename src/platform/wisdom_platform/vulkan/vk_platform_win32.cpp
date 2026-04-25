@@ -76,6 +76,7 @@ WIS_EXTERN_C WISDOM_PLATFORM_API void wisVKDestroyWin32Extension(WisVKWin32Exten
     if (impl.instance_control_block) {
         wis::detail::VKReleaseInstance(impl.instance_control_block);
     }
+    impl.header.init_fptr = nullptr;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

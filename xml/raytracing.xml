@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<registry>
+  <module name="Raytracing" version="0.7.1" base_dir="extensions/raytracing/raytracing" doc_dir="raytracing">
+
+    <handles>
+      <handle name="RaytracingExtension" extends="Device" version="0.7.1" doc="Extension handle for raytracing.">
+        <impl for="vk" size="5"/>
+        <impl for="dx" size="2"/>
+      </handle>
+    </handles>
+
+    <functions>
+      <func name="Supported" version="0.7.1" for="RaytracingExtension" doc="Checks if raytracing is supported on the current device.">
+        <ret type="bool" name="supported" doc="true if raytracing is supported, false otherwise."/>
+      </func>
+    </functions>
+    
+  </module>
+</registry>
