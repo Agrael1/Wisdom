@@ -10,8 +10,8 @@
  *  Vulkan Version:
  * ```c
  * // Provided by Wisdom 0.7.0.
- * WIS_DEFINE_HANDLE(WisVKPipeline,2);
- * WIS_DEFINE_HANDLE_VIEW(WisVKPipeline,1);
+ * WIS_DEFINE_HANDLE(WisVKPipeline,3);
+ * WIS_DEFINE_HANDLE_VIEW(WisVKPipeline,2);
  * ```
  *  DX12 Version:
  * ```c

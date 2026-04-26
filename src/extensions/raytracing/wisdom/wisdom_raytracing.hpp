@@ -24,7 +24,14 @@ namespace wis {
 // Handles
 //==============================================================
 
+using AccelerationStructure = wis::DX12AccelerationStructure;
 using RaytracingExtension = wis::DX12RaytracingExtension;
+
+//==============================================================
+// Variants
+//==============================================================
+
+using AccelerationStructureDesc = wis::DX12AccelerationStructureDesc;
 
 } // namespace wis
 
@@ -36,7 +43,14 @@ namespace wis {
 // Handles
 //==============================================================
 
+using AccelerationStructure = wis::VKAccelerationStructure;
 using RaytracingExtension = wis::VKRaytracingExtension;
+
+//==============================================================
+// Variants
+//==============================================================
+
+using AccelerationStructureDesc = wis::VKAccelerationStructureDesc;
 
 } // namespace wis
 #else

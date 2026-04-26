@@ -16,6 +16,12 @@ struct VKRaytracingExtensionImpl {
     impl::VKRaytracingPipelineTable* rt_table;
 };
 
+struct VKAccelerationStructureImpl {
+    VkAccelerationStructureKHR acceleration_structure;
+    VkDeviceAddress device_address;
+    detail::VKBufferControlBlock* buffer_control_block;
+};
+
 } // namespace impl
 } // namespace wis
 

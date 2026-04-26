@@ -1,8 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <registry>
   <module name="Raytracing" version="0.7.1" base_dir="extensions/raytracing/raytracing" doc_dir="raytracing">
+    <types>
+      <!--Enums-->
+      <type name="AccelerationStructureLevel" category="enum" version="0.7.1" doc="Enumeration for the level of an acceleration structure in raytracing.">
+        <impl_type for="vk" name="VkAccelerationStructureTypeKHR"/>
+        <value name="TopLevel" value="0" doc="Top-level acceleration structure, which contains instances of bottom-level structures.">
+          <impl name="vk" value="VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR"/>
+        </value>
+        <value name="BottomLevel" value="1" doc="Bottom-level acceleration structure, which contains geometry data such as triangles or AABBs.">
+          <impl name="vk" value="VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR"/>
+        </value>
+      </type>
+
+      <type name="AccelerationStructureDesc" category="variant" version="0.7.1" doc="Structure describing the properties of an acceleration structure.">
+        <member type="AccelerationStructureLevel" name="level" doc="The level of the acceleration structure (top-level or bottom-level)."/>
+        <member type="u64" name="offset" doc="The offset in bytes from the start of the buffer where the acceleration structure is located."/>
+        <member type="u64" name="size" doc="The size of the acceleration structure in bytes."/>
+      </type>
+    </types>
 
     <handles>
+      <handle name="AccelerationStructure" version="0.7.1" doc="Handle for an acceleration structure used in raytracing.">
+        <impl for="vk" size="4"/>
+        <impl for="dx" size="2"/>
+      </handle>
       <handle name="RaytracingExtension" extends="Device" version="0.7.1" doc="Extension handle for raytracing.">
         <impl for="vk" size="5"/>
         <impl for="dx" size="2"/>
@@ -13,7 +35,17 @@
       <func name="Supported" version="0.7.1" for="RaytracingExtension" doc="Checks if raytracing is supported on the current device.">
         <ret type="bool" name="supported" doc="true if raytracing is supported, false otherwise."/>
       </func>
+
+      <func name="CreateAccelerationStructure" version="0.7.1" for="RaytracingExtension" doc="Creates an acceleration structure based on the provided description.">
+        <ret type="AccelerationStructure" result="true" name="acceleration_structure" doc="The created acceleration structure handle."/>
+        <arg type="Buffer" name="buffer" mod="ref" doc="The buffer to write the acceleration structure data to."/>
+        <arg type="AccelerationStructureDesc" name="desc" mod="const,ref" doc="The description of the acceleration structure to create."/>
+      </func>
+
+      <func name="GetGPUAddress" version="0.7.1" for="AccelerationStructure" doc="Retrieves the GPU address of the acceleration structure.">
+        <ret type="u64" name="gpu_address" doc="The GPU address of the acceleration structure."/>
+      </func>
     </functions>
-    
+
   </module>
 </registry>

@@ -8,7 +8,7 @@
  * <hr>
  *
  * \cond WIS_GEN_CODE
- *  *  C Version:
+ *  C Version:
  * ```c
  * // Provided by Wisdom 0.7.1.
  * bool wisRaytracingExtensionSupported(WisRaytracingExtension* self);
@@ -26,33 +26,40 @@
  *
  * C++ Version:
  * ```cpp
- * namespace wis
+ * namespace wis{
+ * // Provided by Wisdom 0.7.1.
+ * WIS_NODISCARD bool RaytracingExtension::Supported() noexcept;
+ * }
  * ```
  * <details>
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
- * namespace wis
+ * namespace wis{
+ * // Provided by Wisdom 0.7.1.
+ * WIS_NODISCARD bool VKRaytracingExtension::Supported() noexcept;
+ *
+ * // Provided by Wisdom 0.7.1.
+ * WIS_NODISCARD bool DX12RaytracingExtension::Supported() noexcept;
+ * }
  * ```
  * </details>
- *
  * \endcond
  *
  * @section wisRaytracingExtensionSupported_memb Parameters
  * <hr>
  * \cond WIS_GEN_DESC
- *  * - **this** `self` self is a pointer to the valid WisRaytracingExtension instance.
+ * - **this** `self` self is a pointer to the valid WisRaytracingExtension instance.
  *
  * - **return** true if raytracing is supported, false otherwise.
- *
  * \endcond
  *
  * @section wisRaytracingExtensionSupported_descr Description
  * <hr>
- * 
+ *
  * This function must be called after device creation, where the handle is passed to the `WisDeviceRequirements` when
- * creating the device. It checks if raytracing is supported on the current device and returns a boolean value indicating the
- * result.
- * 
+ * creating the device. It checks if raytracing is supported on the current device and returns a boolean value
+ * indicating the result.
+ *
  * The result is not cached, so the call may be expensive. It is recommended to call this function once and cache the
  * result if you need to check for raytracing support multiple times.
  *

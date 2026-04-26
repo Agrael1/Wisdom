@@ -46,6 +46,7 @@ TEST_CASE("check_rt_support")
             wisDestroyDevice(&device);
             break;
         }
+        wisDestroyDevice(&device);
     }
 
     printf("Raytracing supported: %s\n", supported ? "Yes" : "No");

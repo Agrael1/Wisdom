@@ -35,7 +35,7 @@
  *
  * @section wisDestroyRaytracingExtension_descr Description
  * <hr>
- * 
+ *
  * \note WisRaytracingExtension references device. That means the device resources will not be released until the
  * extension is destroyed.
  *

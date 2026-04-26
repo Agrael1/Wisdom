@@ -14,7 +14,7 @@
         <view size="1"/>
       </handle>
       <handle name="Buffer" version="0.7.0" doc="Class representing a GPU buffer resource.">
-        <impl for="vk" size="4"/>
+        <impl for="vk" size="5"/>
         <impl for="dx" size="3"/>
         <view size="1"/>
       </handle>
@@ -32,7 +32,7 @@
         <impl for="dx" size="6"/>
       </handle>
       <handle name="Pipeline" version="0.7.0" doc="Class representing a GPU pipeline state object, which encapsulates the state of the GPU pipeline and allows to execute draw and dispatch calls with it.">
-        <impl for="vk" size="2"/>
+        <impl for="vk" size="3"/>
         <impl for="dx" size="1"/>
         <view size="1"/>
       </handle>

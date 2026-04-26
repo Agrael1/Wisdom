@@ -13,6 +13,12 @@ struct DX12RaytracingExtensionImpl {
     DX12DeviceExtensionHeader header;
     ID3D12Device* device;
 };
+
+struct DX12AccelerationStructureImpl {
+    D3D12_GPU_VIRTUAL_ADDRESS gpu_address;
+    ID3D12Resource* resource;
+};
+
 } // namespace impl
 } // namespace wis
 

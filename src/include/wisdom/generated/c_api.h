@@ -2643,7 +2643,7 @@ WIS_DEFINE_HANDLE(WisDX12ViewHeap, 6);
  * GPU pipeline and allows to execute draw and dispatch calls with it.
  *
  * */
-WIS_DEFINE_HANDLE(WisDX12Pipeline, 1);
+WIS_DEFINE_HANDLE(WisDX12Pipeline, 2);
 WIS_DEFINE_HANDLE_VIEW(WisDX12Pipeline, 1);
 
 static inline WisDX12PipelineView wisGetDX12PipelineView(const WisDX12Pipeline* handle)
@@ -4264,7 +4264,7 @@ static inline WisVKTextureView wisGetVKTextureView(const WisVKTexture* handle)
  * @brief Provided by Wisdom 0.7.0. Class representing a GPU buffer resource.
  *
  * */
-WIS_DEFINE_HANDLE(WisVKBuffer, 4);
+WIS_DEFINE_HANDLE(WisVKBuffer, 5);
 WIS_DEFINE_HANDLE_VIEW(WisVKBuffer, 1);
 
 static inline WisVKBufferView wisGetVKBufferView(const WisVKBuffer* handle)
@@ -4307,7 +4307,7 @@ WIS_DEFINE_HANDLE(WisVKViewHeap, 3);
  * GPU pipeline and allows to execute draw and dispatch calls with it.
  *
  * */
-WIS_DEFINE_HANDLE(WisVKPipeline, 2);
+WIS_DEFINE_HANDLE(WisVKPipeline, 3);
 WIS_DEFINE_HANDLE_VIEW(WisVKPipeline, 1);
 
 static inline WisVKPipelineView wisGetVKPipelineView(const WisVKPipeline* handle)

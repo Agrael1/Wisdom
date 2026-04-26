@@ -57,15 +57,15 @@
  * `host_image_copy_supported` means that the device supports copying data directly from CPU memory to optimal tiled
  * image layout on GPU, without the need for an intermediate staging buffer. This can improve performance and reduce
  * memory usage when uploading textures from CPU to GPU.
- * 
+ *
  * DirectX 12 supports both of these feature simultaneusly. That means that on DirectX 12, if `gpu_upload_supported` is
  * true, then `host_image_copy_supported` will also be true. On Vulkan, these features are independent and may be
  * supported separately. On Vulkan, `host_image_copy_supported` requires the `VK_EXT_host_image_copy` extension, while
  * `gpu_upload_supported` depends on the presence of a memory type that is both HOST_VISIBLE and DEVICE_LOCAL.
- * 
+ *
  * If `gpu_upload_supported` is true, `WisMemoryTypeGPUUpload` memory type can be used for resource allocation. This
  * memory type allows mapping the memory and writing to it from CPU, while being accessible from GPU.
- * 
+ *
  * If `host_image_copy_supported` is true, `wisTextureWriteSubresource` function can be used to write texture data
  * directly from CPU memory to optimal tiled image layout on GPU.
  *

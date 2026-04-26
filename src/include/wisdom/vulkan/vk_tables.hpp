@@ -324,6 +324,8 @@ struct VKMainDevice {
     PFN_vkGetMemoryWin32HandleKHR vkGetMemoryWin32HandleKHR;
 #endif //_WIN32
 
+    PFN_vkDestroyAccelerationStructureKHR vkDestroyAccelerationStructureKHR;
+
 public:
     bool Init(VkDevice device, PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr) noexcept
     {
@@ -408,6 +410,7 @@ public:
 #ifdef _WIN32
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkGetMemoryWin32HandleKHR);
 #endif //_WIN32
+        ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkDestroyAccelerationStructureKHR);
         return true;
     }
 };

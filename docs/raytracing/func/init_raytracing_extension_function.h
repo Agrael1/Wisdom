@@ -57,10 +57,10 @@
  *
  * @section wisInitRaytracingExtension_descr Description
  * <hr>
- * 
+ *
  * Passing an uninitialized handle to `WisDeviceRequirements` when creating a device will not enable raytracing features
  * on the device.
- * 
+ *
  * \note WisRaytracingExtension references device. That means the device resources will not be released until the
  * extension is destroyed.
  *
