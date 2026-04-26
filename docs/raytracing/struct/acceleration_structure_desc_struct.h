@@ -79,6 +79,11 @@
  * @section WisAccelerationStructureDesc_descr Description
  * <hr>
  *
+ * `size` of the acceleration structure can be queried using `wisRaytracingExtensionGetBottomLevelStructureInfo`
+ * function, which provides the necessary size based on the build description of the acceleration structure.
+ *
+ * `offset` allows for creating multiple acceleration structures within the same buffer by specifying different offsets
+ * for each structure. It @wis_must be aligned to `AccelerationStructureAlignment`.
  * \cond WIS_GEN_WIS_IDS
  * \endcond
  *

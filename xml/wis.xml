@@ -33,7 +33,7 @@
       </handle>
       <handle name="Pipeline" version="0.7.0" doc="Class representing a GPU pipeline state object, which encapsulates the state of the GPU pipeline and allows to execute draw and dispatch calls with it.">
         <impl for="vk" size="3"/>
-        <impl for="dx" size="1"/>
+        <impl for="dx" size="2"/>
         <view size="1"/>
       </handle>
       <handle name="Shader" version="0.7.0" doc="Class representing a GPU shader module, which contains shader code and allows to create pipeline state objects with it.">

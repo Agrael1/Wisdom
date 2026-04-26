@@ -39,6 +39,7 @@ typedef struct WisDX12AccelerationStructureDesc WisAccelerationStructureDesc;
 #    define wisDestroyRaytracingExtension                     wisDX12DestroyRaytracingExtension
 #    define wisInitRaytracingExtension                        wisDX12InitRaytracingExtension
 #    define wisRaytracingExtensionSupported                   wisDX12RaytracingExtensionSupported
+#    define wisRaytracingExtensionGetBottomLevelStructureInfo wisDX12RaytracingExtensionGetBottomLevelStructureInfo
 #    define wisRaytracingExtensionCreateAccelerationStructure wisDX12RaytracingExtensionCreateAccelerationStructure
 #    define wisAccelerationStructureGetGPUAddress             wisDX12AccelerationStructureGetGPUAddress
 
@@ -65,6 +66,7 @@ typedef struct WisVKAccelerationStructureDesc WisAccelerationStructureDesc;
 #    define wisDestroyRaytracingExtension                     wisVKDestroyRaytracingExtension
 #    define wisInitRaytracingExtension                        wisVKInitRaytracingExtension
 #    define wisRaytracingExtensionSupported                   wisVKRaytracingExtensionSupported
+#    define wisRaytracingExtensionGetBottomLevelStructureInfo wisVKRaytracingExtensionGetBottomLevelStructureInfo
 #    define wisRaytracingExtensionCreateAccelerationStructure wisVKRaytracingExtensionCreateAccelerationStructure
 #    define wisAccelerationStructureGetGPUAddress             wisVKAccelerationStructureGetGPUAddress
 

@@ -1185,6 +1185,7 @@ namespace wis{{ namespace detail {{
 
 #include "c_api.h"
 #include <vulkan/vulkan.h>
+#include <vk_mem_alloc.h>
 
 namespace wis{{ namespace detail {{
 )",

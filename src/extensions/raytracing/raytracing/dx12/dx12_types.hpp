@@ -11,7 +11,7 @@ namespace detail {} // namespace detail
 namespace impl {
 struct DX12RaytracingExtensionImpl {
     DX12DeviceExtensionHeader header;
-    ID3D12Device* device;
+    ID3D12Device10* device;
 };
 
 struct DX12AccelerationStructureImpl {

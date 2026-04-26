@@ -5,6 +5,7 @@
 #    error "This is a C++ only header"
 #endif // __cplusplus
 
+#include <vk_mem_alloc.h>
 #include <vulkan/vulkan.h>
 #include "c_api.h"
 

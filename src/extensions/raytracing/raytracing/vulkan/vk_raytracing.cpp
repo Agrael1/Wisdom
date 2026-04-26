@@ -1,6 +1,7 @@
 #ifndef WIS_VK_RAYTRACING_CPP
 #define WIS_VK_RAYTRACING_CPP
 
+#include <wisdom/generated/vk_convert.hpp>
 #include <wisdom/vulkan/detail/vk_detail.hpp>
 #include <wisdom/vulkan/detail/vk_utils.hpp>
 #include <wisdom/vulkan/vk_extensions.hpp>
@@ -85,6 +86,41 @@ inline WisResult VKRaytracingExtensionInit(
     }
 
     return wis::detail::vk_success;
+}
+
+[[nodiscard]] inline constexpr VkAccelerationStructureGeometryKHR VKCreateGeometryDesc(
+    const WisAcceleratedGeometryDesc& desc
+) noexcept
+{
+    VkAccelerationStructureGeometryKHR out{
+        .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR,
+        .geometryType = VKConvert(desc.type),
+        .flags = VKConvert(desc.flags)
+    };
+    switch (desc.type) {
+    case WisGeometryTypeTriangles:
+        out.geometry.triangles = {
+            .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_TRIANGLES_DATA_KHR,
+            .vertexFormat = VKConvert(desc.vertex_format),
+            .vertexData = {.deviceAddress = desc.vertex_or_aabb_buffer_address},
+            .vertexStride = desc.vertex_or_aabb_stride,
+            .maxVertex = desc.vertex_count,
+            .indexType = VKConvert(desc.index_format),
+            .indexData = {.deviceAddress = desc.index_buffer_address},
+            .transformData = {.deviceAddress = desc.transform_matrix_address}
+        };
+        break;
+    case WisGeometryTypeAABBs:
+        out.geometry.aabbs = {
+            .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_AABBS_DATA_KHR,
+            .data = {.deviceAddress = desc.vertex_or_aabb_buffer_address},
+            .stride = desc.vertex_or_aabb_stride
+        };
+        break;
+    default:
+        break;
+    }
+    return out;
 }
 } // namespace wis::detail
 
@@ -183,6 +219,85 @@ WIS_EXTERN_C WISDOM_RAYTRACING_API void wisVKDestroyAccelerationStructure(WisVKA
 WIS_EXTERN_C WISDOM_RAYTRACING_API uint64_t wisVKAccelerationStructureGetGPUAddress(WisVKAccelerationStructure* self)
 {
     return wis::from_handle_ref<wis::impl::VKAccelerationStructureImpl>(self).device_address;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_RAYTRACING_API WisResult wisVKRaytracingExtensionGetBottomLevelStructureInfo(
+    WisVKRaytracingExtension* self,
+    const WisBottomLevelStructureBuildDesc* build_desc,
+    WisStructureAllocationInfo* info
+)
+{
+    static constexpr size_t max_preallocated_descs = 32;
+    VkAccelerationStructureGeometryKHR geometry_descs[max_preallocated_descs];
+    uint32_t primitive_counts[max_preallocated_descs];
+    std::unique_ptr<VkAccelerationStructureGeometryKHR[]> dynamic_descs;
+    wis::span<VkAccelerationStructureGeometryKHR> geometry_desc_span;
+    wis::span<uint32_t> primitive_counts_span;
+    if (build_desc->geometry_count > max_preallocated_descs) {
+        dynamic_descs = std::unique_ptr<VkAccelerationStructureGeometryKHR[]>{
+            static_cast<VkAccelerationStructureGeometryKHR*>(::operator new(
+                sizeof(VkAccelerationStructureGeometryKHR) * build_desc->geometry_count
+                    + sizeof(uint32_t) * build_desc->geometry_count,
+                std::nothrow
+            ))
+        };
+        if (!dynamic_descs) {
+            return wis::detail::make_result<wis::detail::Func(), "Failed to allocate memory for geometry descriptions">(
+                VK_ERROR_OUT_OF_HOST_MEMORY
+            );
+        }
+        geometry_desc_span = {dynamic_descs.get(), build_desc->geometry_count};
+        primitive_counts_span = {
+            reinterpret_cast<uint32_t*>(dynamic_descs.get() + build_desc->geometry_count),
+            build_desc->geometry_count
+        };
+    } else {
+        geometry_desc_span = {geometry_descs, build_desc->geometry_count};
+        primitive_counts_span = {primitive_counts, build_desc->geometry_count};
+    }
+
+    // Fill geometry descriptions
+    if (build_desc->geometries) {
+        for (uint32_t i = 0; i < build_desc->geometry_count; ++i) {
+            geometry_desc_span[i] = wis::detail::VKCreateGeometryDesc(build_desc->geometries[i]);
+            primitive_counts_span[i] = build_desc->geometries[i].triangle_or_aabb_count;
+        }
+    } else if (build_desc->indirect_geometries) {
+        for (uint32_t i = 0; i < build_desc->geometry_count; ++i) {
+            geometry_desc_span[i] = wis::detail::VKCreateGeometryDesc(*build_desc->indirect_geometries[i]);
+            primitive_counts_span[i] = build_desc->indirect_geometries[i]->triangle_or_aabb_count;
+        }
+    }
+
+    VkAccelerationStructureBuildGeometryInfoKHR build_info{
+        .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR,
+        .type = VK_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL_KHR,
+        .flags = wis::detail::VKConvert(build_desc->flags),
+        .mode = VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR,
+        .geometryCount = build_desc->geometry_count,
+        .pGeometries = geometry_desc_span.data(),
+    };
+    VkAccelerationStructureBuildSizesInfoKHR build_sizes_info{
+        .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR,
+    };
+
+    auto& impl = wis::from_handle_ref<wis::impl::VKRaytracingExtensionImpl>(self);
+    impl.rt_table->vkGetAccelerationStructureBuildSizesKHR(
+        impl.device,
+        VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR,
+        &build_info,
+        primitive_counts_span.data(),
+        &build_sizes_info
+    );
+
+    constexpr static size_t alignment = 256; // 256 is a common alignment requirement for acceleration structures
+    *info = {
+        wis::aligned_size(build_sizes_info.buildScratchSize, alignment),
+        wis::aligned_size(build_sizes_info.accelerationStructureSize, alignment),
+        wis::aligned_size(build_sizes_info.updateScratchSize, alignment)
+    };
+    return wis::detail::vk_success;
 }
 
 #endif

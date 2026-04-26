@@ -24,6 +24,122 @@ enum class AccelerationStructureLevel {
     BottomLevel = 1, ///< Bottom-level acceleration structure, which contains geometry data such as triangles or AABBs.
 };
 
+/**
+ * @brief Provided by Wisdom 0.7.1. Enumeration for the type of geometry in a bottom-level acceleration structure.
+ *
+ * */
+enum class GeometryType {
+    Triangles = 0, ///< Triangles geometry type. Used for triangle meshes.
+    AABBs = 1, ///< Axis Aligned Bounding Boxes geometry type. Used for bounding volume hierarchies.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Bitmask for geometry flags in raytracing.
+ *
+ * */
+enum class GeometryFlags : uint32_t {
+    None = 0, ///< No flags set. Geometry is regular.
+    Opaque = (1u << 0), ///< Geometry is opaque. Used for opaque geometry.
+    NoDuplicateAnyHitInvocation = (1u << 1), ///< Geometry has no duplicate any hit invocation.
+};
+WISDOM_DEFINE_ENUM_OPERATORS(GeometryFlags)
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Acceleration structure flags for additional acceleration structure features
+ *
+ * */
+enum class AccelerationStructureFlags : uint32_t {
+    None = 0, ///< No flags set. Acceleration structure is regular.
+    AllowUpdate = (1u << 0), ///< Acceleration structure is allowed to be updated.
+    AllowCompaction = (1u << 1), ///< Acceleration structure is allowed to be compacted.
+    PreferFastTrace = (1u << 2), ///< Acceleration structure is preferred to be fast traced.
+    PreferFastBuild = (1u << 3), ///< Acceleration structure is preferred to be fast built.
+    MinimizeMemory = (1u << 4), ///< Acceleration structure is minimized for memory usage.
+    PerformUpdate = (1u << 5), ///< Acceleration structure build is performed as an update. Only used for update builds.
+};
+WISDOM_DEFINE_ENUM_OPERATORS(AccelerationStructureFlags)
+
+//==============================================================
+// Structs
+//==============================================================
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Structure describing the single geometry instance.
+ *
+ * */
+struct AcceleratedGeometryDesc {
+    wis::GeometryType type; ///< The type of geometry (triangles or AABBs).
+    wis::GeometryFlags flags; ///< The geometry flags for this geometry instance.
+    /**
+     * @brief The GPU address of the vertex buffer for this geometry instance.
+     * */
+    std::uint64_t vertex_or_aabb_buffer_address;
+    /**
+     * @brief The GPU address of the index buffer for this geometry instance. Only used for triangles geometry type.
+     * */
+    std::uint64_t index_buffer_address;
+    /**
+     * @brief The GPU address of the transform matrix (float [3][4]) for this geometry instance. Only used for triangles
+     * geometry type.
+     * */
+    std::uint64_t transform_matrix_address;
+    std::uint32_t vertex_or_aabb_stride; ///< The stride in bytes between vertices or AABBs in the buffer.
+    /**
+     * @brief The number of vertices in the vertex buffer. Only used for triangles geometry type.
+     * */
+    std::uint32_t vertex_count;
+    std::uint32_t triangle_or_aabb_count; ///< For triangles it is equal to (index_count/3) and count for AABBs.
+    /**
+     * @brief The format of the vertex data in the vertex buffer. Only used for triangles geometry type.
+     * */
+    wis::DataFormat vertex_format;
+    /**
+     * @brief The format of the index data in the index buffer. Only used for triangles geometry type.
+     * */
+    wis::IndexType index_format;
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Structure describing the allocation information for an acceleration structure.
+ *
+ * */
+struct StructureAllocationInfo {
+    std::uint64_t structure_size; ///< The size of the acceleration structure in bytes.
+    std::uint64_t scratch_size; ///< The size of the scratch buffer needed to build the acceleration structure in bytes.
+    std::uint64_t update_size; ///< The size of the scratch buffer needed to update the acceleration structure in bytes.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Structure describing the build description for a bottom-level acceleration
+ * structure.
+ *
+ * */
+struct BottomLevelStructureBuildDesc {
+    wis::AccelerationStructureFlags flags; ///< The build flags for the acceleration structure build.
+    /**
+     * @brief The number of geometry instances in the bottom-level acceleration structure.
+     * */
+    std::uint32_t geometry_count;
+    /**
+     * @brief The array of geometry descriptions for the bottom-level acceleration structure. Has higher precedence over
+     * `wis::BottomLevelStructureBuildDesc::indirect_geometries`.
+     * */
+    const wis::AcceleratedGeometryDesc* geometries;
+    /**
+     * @brief The array of geometry descriptions for indirect build of the bottom-level acceleration structure.
+     * */
+    const wis::AcceleratedGeometryDesc** indirect_geometries;
+};
+
+//==============================================================
+// Constants
+//==============================================================
+
+/// @brief Provided by Wisdom 0.7.1. Alignment in bytes for acceleration structure buffers. Acceleration structures must
+/// be allocated with this alignment and offset of the acceleration structure within the buffer must also be aligned to
+/// this value.
+static constexpr std::uint32_t AccelerationStructureAlignment = 256;
+
 } // namespace wis
 
 #ifdef WISDOM_DX12
@@ -98,6 +214,32 @@ public:
      *
      * */
     WIS_NODISCARD inline bool Supported() noexcept { return (::wisDX12RaytracingExtensionSupported(&_impl_storage)); }
+    /**
+     * @brief Provided by Wisdom 0.7.1. Retrieves the allocation information for a bottom-level acceleration structure
+     * based on the provided build description.
+     * @param build_desc The build description for the bottom-level acceleration structure.
+     * @param out_result denoting the outcome of operation.
+     * @return info The allocation information for the bottom-level acceleration structure.
+     *
+     * */
+    WIS_NODISCARD inline wis::StructureAllocationInfo GetBottomLevelStructureInfo(
+        const wis::BottomLevelStructureBuildDesc& build_desc,
+        wis::Result& out_result
+    ) noexcept
+    {
+        wis::StructureAllocationInfo info;
+        const WisResult wis_result = ::wisDX12RaytracingExtensionGetBottomLevelStructureInfo(
+            &_impl_storage,
+            reinterpret_cast<const WisBottomLevelStructureBuildDesc*>(&build_desc),
+            reinterpret_cast<WisStructureAllocationInfo*>(&info)
+        );
+        out_result = wis::Result{
+            static_cast<wis::Status>(wis_result.status),
+            wis_result.platform_code,
+            wis_result.error
+        };
+        return info;
+    }
     /**
      * @brief Provided by Wisdom 0.7.1. Creates an acceleration structure based on the provided description.
      * @param buffer The buffer to write the acceleration structure data to.
@@ -202,6 +344,32 @@ public:
      *
      * */
     WIS_NODISCARD inline bool Supported() noexcept { return (::wisVKRaytracingExtensionSupported(&_impl_storage)); }
+    /**
+     * @brief Provided by Wisdom 0.7.1. Retrieves the allocation information for a bottom-level acceleration structure
+     * based on the provided build description.
+     * @param build_desc The build description for the bottom-level acceleration structure.
+     * @param out_result denoting the outcome of operation.
+     * @return info The allocation information for the bottom-level acceleration structure.
+     *
+     * */
+    WIS_NODISCARD inline wis::StructureAllocationInfo GetBottomLevelStructureInfo(
+        const wis::BottomLevelStructureBuildDesc& build_desc,
+        wis::Result& out_result
+    ) noexcept
+    {
+        wis::StructureAllocationInfo info;
+        const WisResult wis_result = ::wisVKRaytracingExtensionGetBottomLevelStructureInfo(
+            &_impl_storage,
+            reinterpret_cast<const WisBottomLevelStructureBuildDesc*>(&build_desc),
+            reinterpret_cast<WisStructureAllocationInfo*>(&info)
+        );
+        out_result = wis::Result{
+            static_cast<wis::Status>(wis_result.status),
+            wis_result.platform_code,
+            wis_result.error
+        };
+        return info;
+    }
     /**
      * @brief Provided by Wisdom 0.7.1. Creates an acceleration structure based on the provided description.
      * @param buffer The buffer to write the acceleration structure data to.

@@ -13,10 +13,92 @@
         </value>
       </type>
 
+      <type name="GeometryType" category="enum" version="0.7.1" doc="Enumeration for the type of geometry in a bottom-level acceleration structure.">
+        <impl_type for="vk" name="VkGeometryTypeKHR"/>
+        <impl_type for="dx" name="D3D12_RAYTRACING_GEOMETRY_TYPE"/>
+        <value name="Triangles" value="0" doc="Triangles geometry type. Used for triangle meshes.">
+          <impl name="vk" value="VK_GEOMETRY_TYPE_TRIANGLES_KHR"/>
+          <impl name="dx" value="D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES"/>
+        </value>
+        <value name="AABBs" value="1" doc="Axis Aligned Bounding Boxes geometry type. Used for bounding volume hierarchies.">
+          <impl name="vk" value="VK_GEOMETRY_TYPE_AABBS_KHR"/>
+          <impl name="dx" value="D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS"/>
+        </value>
+      </type>
+
+      <!--Bitmasks-->
+      <type name="GeometryFlags" category="bitmask" version="0.7.1" doc="Bitmask for geometry flags in raytracing.">
+        <impl_type for="dx" name="D3D12_RAYTRACING_GEOMETRY_FLAGS"/>
+        <impl_type for="vk" name="VkGeometryFlagsKHR"/>
+        <value name="None" value="0" doc="No flags set. Geometry is regular."/>
+        <value name="Opaque" bit="0" doc="Geometry is opaque. Used for opaque geometry.">
+          <impl name="dx" value="D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE"/>
+          <impl name="vk" value="VK_GEOMETRY_OPAQUE_BIT_KHR"/>
+        </value>
+        <value name="NoDuplicateAnyHitInvocation" bit="1" doc="Geometry has no duplicate any hit invocation.">
+          <impl name="dx" value="D3D12_RAYTRACING_GEOMETRY_FLAG_NO_DUPLICATE_ANYHIT_INVOCATION"/>
+          <impl name="vk" value="VK_GEOMETRY_NO_DUPLICATE_ANY_HIT_INVOCATION_BIT_KHR"/>
+        </value>
+      </type>
+
+      <type name="AccelerationStructureFlags" category="bitmask" version="0.7.1" doc="Acceleration structure flags for additional acceleration structure features">
+        <impl_type for="dx" name="D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS"/>
+        <impl_type for="vk" name="VkBuildAccelerationStructureFlagsKHR"/>
+        <value name="None" value="0" doc="No flags set. Acceleration structure is regular."/>
+        <value name="AllowUpdate" bit="0" doc="Acceleration structure is allowed to be updated.">
+          <impl name="dx" value="D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE"/>
+          <impl name="vk" value="VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_UPDATE_BIT_KHR"/>
+        </value>
+        <value name="AllowCompaction" bit="1" doc="Acceleration structure is allowed to be compacted.">
+          <impl name="dx" value="D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_COMPACTION"/>
+          <impl name="vk" value="VK_BUILD_ACCELERATION_STRUCTURE_ALLOW_COMPACTION_BIT_KHR"/>
+        </value>
+        <value name="PreferFastTrace" bit="2" doc="Acceleration structure is preferred to be fast traced.">
+          <impl name="dx" value="D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE"/>
+          <impl name="vk" value="VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_TRACE_BIT_KHR"/>
+        </value>
+        <value name="PreferFastBuild" bit="3" doc="Acceleration structure is preferred to be fast built.">
+          <impl name="dx" value="D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_BUILD"/>
+          <impl name="vk" value="VK_BUILD_ACCELERATION_STRUCTURE_PREFER_FAST_BUILD_BIT_KHR"/>
+        </value>
+        <value name="MinimizeMemory" bit="4" doc="Acceleration structure is minimized for memory usage.">
+          <impl name="dx" value="D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_MINIMIZE_MEMORY"/>
+          <impl name="vk" value="VK_BUILD_ACCELERATION_STRUCTURE_LOW_MEMORY_BIT_KHR"/>
+        </value>
+        <value name="PerformUpdate" bit="5" doc="Acceleration structure build is performed as an update. Only used for update builds."/>
+      </type>
+
+      <!--Structs-->
       <type name="AccelerationStructureDesc" category="variant" version="0.7.1" doc="Structure describing the properties of an acceleration structure.">
         <member type="AccelerationStructureLevel" name="level" doc="The level of the acceleration structure (top-level or bottom-level)."/>
         <member type="u64" name="offset" doc="The offset in bytes from the start of the buffer where the acceleration structure is located."/>
         <member type="u64" name="size" doc="The size of the acceleration structure in bytes."/>
+      </type>
+
+      <type name="AcceleratedGeometryDesc" category="struct" version="0.7.1" doc="Structure describing the single geometry instance.">
+        <member type="GeometryType" name="type" doc="The type of geometry (triangles or AABBs)."/>
+        <member type="GeometryFlags" name="flags" doc="The geometry flags for this geometry instance."/>
+        <member type="u64" name="vertex_or_aabb_buffer_address" doc="The GPU address of the vertex buffer for this geometry instance."/>
+        <member type="u64" name="index_buffer_address" doc="The GPU address of the index buffer for this geometry instance. Only used for triangles geometry type."/>
+        <member type="u64" name="transform_matrix_address" doc="The GPU address of the transform matrix (float [3][4]) for this geometry instance. Only used for triangles geometry type."/>
+        <member type="u32" name="vertex_or_aabb_stride" doc="The stride in bytes between vertices or AABBs in the buffer."/>
+        <member type="u32" name="vertex_count" doc="The number of vertices in the vertex buffer. Only used for triangles geometry type."/>
+        <member type="u32" name="triangle_or_aabb_count" doc="For triangles it is equal to (index_count/3) and count for AABBs."/>
+        <member type="DataFormat" name="vertex_format" doc="The format of the vertex data in the vertex buffer. Only used for triangles geometry type."/>
+        <member type="IndexType" name="index_format" doc="The format of the index data in the index buffer. Only used for triangles geometry type."/>
+      </type>
+
+      <type name="StructureAllocationInfo" category="struct" version="0.7.1" doc="Structure describing the allocation information for an acceleration structure.">
+        <member type="u64" name="structure_size" doc="The size of the acceleration structure in bytes."/>
+        <member type="u64" name="scratch_size" doc="The size of the scratch buffer needed to build the acceleration structure in bytes."/>
+        <member type="u64" name="update_size" doc="The size of the scratch buffer needed to update the acceleration structure in bytes."/>
+      </type>
+
+      <type name="BottomLevelStructureBuildDesc" category="struct" version="0.7.1" doc="Structure describing the build description for a bottom-level acceleration structure.">
+        <member type="AccelerationStructureFlags" name="flags" doc="The build flags for the acceleration structure build."/>
+        <member type="u32" name="geometry_count" doc="The number of geometry instances in the bottom-level acceleration structure."/>
+        <member type="AcceleratedGeometryDesc" name="geometries" mod="const,ptr" doc="The array of geometry descriptions for the bottom-level acceleration structure. Has higher precedence over {BottomLevelStructureBuildDesc::indirect_geometries}."/>
+        <member type="AcceleratedGeometryDesc" name="indirect_geometries" mod="const,pp" doc="The array of geometry descriptions for indirect build of the bottom-level acceleration structure."/>
       </type>
     </types>
 
@@ -36,6 +118,11 @@
         <ret type="bool" name="supported" doc="true if raytracing is supported, false otherwise."/>
       </func>
 
+      <func name="GetBottomLevelStructureInfo" version="0.7.1" for="RaytracingExtension" doc="Retrieves the allocation information for a bottom-level acceleration structure based on the provided build description.">
+        <ret type="StructureAllocationInfo" name="info" result="true" doc="The allocation information for the bottom-level acceleration structure."/>
+        <arg type="BottomLevelStructureBuildDesc" name="build_desc" mod="const,ref" doc="The build description for the bottom-level acceleration structure."/>
+      </func>
+
       <func name="CreateAccelerationStructure" version="0.7.1" for="RaytracingExtension" doc="Creates an acceleration structure based on the provided description.">
         <ret type="AccelerationStructure" result="true" name="acceleration_structure" doc="The created acceleration structure handle."/>
         <arg type="Buffer" name="buffer" mod="ref" doc="The buffer to write the acceleration structure data to."/>
@@ -46,6 +133,9 @@
         <ret type="u64" name="gpu_address" doc="The GPU address of the acceleration structure."/>
       </func>
     </functions>
-
+    
+    <constants>
+      <value type="u32" name="AccelerationStructureAlignment" value="256" version="0.7.1" doc="Alignment in bytes for acceleration structure buffers. Acceleration structures must be allocated with this alignment and offset of the acceleration structure within the buffer must also be aligned to this value."/>
+    </constants>
   </module>
 </registry>

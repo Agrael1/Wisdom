@@ -80,9 +80,54 @@ TEST_CASE("check_rt_acceleration_structure")
     wis::ResourceAllocator allocator = device.GetResourceAllocator(result);
     REQUIRE(result.status == wis::Status::Ok);
 
+    wis::Buffer vertex_buffer = allocator.CreateBuffer(
+        {
+            .size_bytes = 3 * sizeof(float) * 3,
+            .usage_flags = wis::BufferUsageFlags::VertexBuffer,
+            .memory_type = wis::MemoryType::Upload,
+            .memory_flags = wis::MemoryFlags::Mapped,
+        },
+        result
+    );
+    REQUIRE(result.status == wis::Status::Ok);
+
+    float* vertex_data = static_cast<float*>(vertex_buffer.Map());
+    REQUIRE(vertex_data != nullptr);
+
+    // fill in standard triangle vertices
+    vertex_data[0] = 0.0f;
+    vertex_data[1] = 0.0f;
+    vertex_data[2] = 0.0f;
+
+    vertex_data[3] = 1.0f;
+    vertex_data[4] = 0.0f;
+    vertex_data[5] = 0.0f;
+
+    vertex_data[6] = 0.0f;
+    vertex_data[7] = 1.0f;
+    vertex_data[8] = 0.0f;
+
+    wis::AcceleratedGeometryDesc geometry_desc{
+        .type = wis::GeometryType::Triangles,
+        .flags = wis::GeometryFlags::Opaque,
+        .vertex_or_aabb_buffer_address = vertex_buffer.GetGPUAddress(),
+        .vertex_or_aabb_stride = 3 * sizeof(float),
+        .vertex_count = 3,
+        .triangle_or_aabb_count = 1,
+        .vertex_format = wis::DataFormat::RGB32Float,
+    };
+    wis::BottomLevelStructureBuildDesc blas_build_desc{
+        .flags = wis::AccelerationStructureFlags::None,
+        .geometry_count = 1,
+        .geometries = &geometry_desc,
+    };
+    wis::StructureAllocationInfo alloc_info = rt_extension.GetBottomLevelStructureInfo(blas_build_desc, result);
+    REQUIRE(result.status == wis::Status::Ok);
+    REQUIRE(alloc_info.structure_size > 0);
+
     wis::Buffer rtas_buffer = allocator.CreateBuffer(
         {
-            .size_bytes = 1024,
+            .size_bytes = alloc_info.structure_size,
             .usage_flags = wis::BufferUsageFlags::AccelerationStructureBuffer,
         },
         result
@@ -91,7 +136,7 @@ TEST_CASE("check_rt_acceleration_structure")
 
     wis::Buffer scratch_buffer = allocator.CreateBuffer(
         {
-            .size_bytes = 1024,
+            .size_bytes = alloc_info.scratch_size,
             .usage_flags = wis::BufferUsageFlags::StorageBuffer,
         },
         result
