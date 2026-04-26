@@ -14,7 +14,7 @@
         <view size="1"/>
       </handle>
       <handle name="Buffer" version="0.7.0" doc="Class representing a GPU buffer resource.">
-        <impl for="vk" size="5"/>
+        <impl for="vk" size="4"/>
         <impl for="dx" size="3"/>
         <view size="1"/>
       </handle>

@@ -114,9 +114,7 @@ WIS_EXTERN_C WISDOM_RAYTRACING_API WisResult wisDX12RaytracingExtensionCreateAcc
     
     new (acceleration_structure) wis::impl::DX12AccelerationStructureImpl{
         .gpu_address = address + desc->offset,
-        .resource = buffer_impl.resource,
     };
-    buffer_impl.resource->AddRef();
     return wis::detail::dx_success;
 }
 
@@ -124,10 +122,6 @@ WIS_EXTERN_C WISDOM_RAYTRACING_API WisResult wisDX12RaytracingExtensionCreateAcc
 WIS_EXTERN_C WISDOM_RAYTRACING_API void wisDX12DestroyAccelerationStructure(WisDX12AccelerationStructure* self)
 {
     auto& impl = wis::from_handle_ref<wis::impl::DX12AccelerationStructureImpl>(self);
-    if (impl.resource) {
-        impl.resource->Release();
-        impl.resource = nullptr;
-    }
     impl.gpu_address = 0;
 }
 

@@ -73,9 +73,11 @@
  * @section wisRaytracingExtensionCreateAccelerationStructure_descr Description
  * <hr>
  *
- * The resulting acceleration structure stores reference to provided buffer, extending its lifetime to that of the
- * acceleration structure. The buffer @wis_must be created with `WisBufferUsageFlagsAccelerationStructureBuffer` usage
- * flag.
+ * The resulting acceleration structure does not reference the provided buffer. The buffer @wis_must be created with
+ * `WisBufferUsageFlagsAccelerationStructureBuffer` usage flag.
+ * 
+ * @warning The resulting acceleration structure does not hold a reference to a device or buffer. The caller is
+ * responsible for ensuring that the buffer and device remain valid until the acceleration structure is destroyed.
  *
  * \cond WIS_GEN_WIS_IDS
  * \endcond

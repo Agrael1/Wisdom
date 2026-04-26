@@ -161,13 +161,6 @@ WIS_EXTERN_C WISDOM_RAYTRACING_API WisResult wisVKRaytracingExtensionCreateAccel
     auto& impl = wis::from_handle_ref<wis::impl::VKRaytracingExtensionImpl>(self);
     auto& buffer_impl = wis::from_handle_ref<wis::impl::VKBufferImpl>(buffer);
 
-    if (!buffer_impl.buffer_header) {
-        return wis::detail::make_result<
-            wis::detail::Func(),
-            "Provided buffer is not suitable for acceleration structure creation, did you forget to add "
-            "WisBufferUsageFlagsAccelerationStructureBuffer?">(VK_ERROR_UNKNOWN);
-    }
-
     // Build acceleration structure using the provided description
     // This is a simplified example, actual implementation would involve more detailed handling of the description
     VkAccelerationStructureCreateInfoKHR create_info{
@@ -193,9 +186,10 @@ WIS_EXTERN_C WISDOM_RAYTRACING_API WisResult wisVKRaytracingExtensionCreateAccel
     auto& as_impl = *new (acceleration_structure) wis::impl::VKAccelerationStructureImpl{
         .acceleration_structure = as_handle,
         .device_address = impl.rt_table->vkGetAccelerationStructureDeviceAddressKHR(impl.device, &info),
-        .buffer_control_block = buffer_impl.buffer_header,
+        .device = impl.device,
+        .vkDestroyAccelerationStructureKHR = impl.rt_table->vkDestroyAccelerationStructureKHR
     };
-    buffer_impl.buffer_header->AddRef(); // Hold reference to device control block for acceleration structure
+    // Don't ref
     return wis::detail::vk_success;
 }
 
@@ -204,14 +198,8 @@ WIS_EXTERN_C WISDOM_RAYTRACING_API void wisVKDestroyAccelerationStructure(WisVKA
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKAccelerationStructureImpl>(self);
     if (impl.acceleration_structure != VK_NULL_HANDLE) {
-        impl.buffer_control_block->header.device_table->vkDestroyAccelerationStructureKHR(
-            impl.buffer_control_block->header.device,
-            impl.acceleration_structure,
-            nullptr
-        );
+        impl.vkDestroyAccelerationStructureKHR(impl.device, impl.acceleration_structure, nullptr);
         impl.acceleration_structure = VK_NULL_HANDLE;
-
-        wis::detail::VKReleaseBuffer(impl.buffer_control_block); // Release reference to device control block
     }
 }
 

@@ -26,7 +26,6 @@ struct VKSurfaceControlBlock;
 struct VKQueueFamilyExtras;
 struct VKSwapchainControlBlock;
 struct VKRenderTargetView;
-struct VKBufferControlBlock;
 } // namespace detail
 
 namespace impl {
@@ -117,7 +116,6 @@ struct VKBufferImpl {
     VmaAllocation allocation;
     void* mapped_ptr;
     detail::VKDeviceControlBlock* device_header;
-    detail::VKBufferControlBlock* buffer_header; // only for buffers for AS
 };
 
 struct VKTextureImpl {

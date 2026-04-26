@@ -387,19 +387,6 @@ struct alignas(void*) VKRootSignatureControlBlock {
 };
 
 //----------------------------------------------------------------------------------------------------------------------
-struct VKBufferHeader {
-    VkBuffer buffer;
-    VmaAllocation allocation;
-    void* mapped_ptr;
-    VkDevice device;
-    detail::VKDeviceControlBlock* device_header;
-    impl::VKMainDevice* device_table;
-};
-
-//----------------------------------------------------------------------------------------------------------------------
-struct VKBufferControlBlock : public VKControlBlock<VKBufferHeader> {};
-
-//----------------------------------------------------------------------------------------------------------------------
 struct VKRenderTargetView {
     VkImageView view = VK_NULL_HANDLE;
     uint16_t width = 0, height = 0;
@@ -564,27 +551,6 @@ inline void VKReleaseSwapchain(VkSwapchainKHR swap, VKSwapchainControlBlock* hea
         VKReleaseDevice(header->header.device_header);
         VKReleaseSurface(header->header.surface_header);
         ::operator delete(header);
-    }
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-inline void VKReleaseBuffer(VKBufferControlBlock* header) noexcept
-{
-    if (header && header->Release() == 1) {
-        auto& header_ref = header->header;
-
-        // get allocator
-        VmaAllocator allocator = header_ref.device_header->header.allocator;
-
-        if (header_ref.mapped_ptr) {
-            vmaUnmapMemory(allocator, header_ref.allocation);
-        }
-        vmaDestroyBuffer(allocator, header_ref.buffer, header_ref.allocation);
-
-        header_ref.buffer = VK_NULL_HANDLE;
-
-        wis::detail::VKReleaseDevice(header_ref.device_header);
-        delete header;
     }
 }
 

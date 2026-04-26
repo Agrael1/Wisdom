@@ -2,6 +2,7 @@
  * @struct WisAccelerationStructure
  * @ingroup Handles Raytracing
  *
+ * The view type handle for an acceleration structure.
  *
  * @section WisAccelerationStructure_spec Specification
  * <hr>

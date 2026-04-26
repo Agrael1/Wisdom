@@ -34,8 +34,10 @@
  * @section wisDestroyAccelerationStructure_descr Description
  * <hr>
  *
- * Destroys the given acceleration structure, releasing any associated resources. After this call, the acceleration
- * structure handle will no longer be valid and should not be used.
+ * @warning The handle does not reference the underlying buffer or device.
+ * The caller is responsible for ensuring that the buffer and device remain valid until the acceleration structure is
+ * destroyed. For Top Level Acceleration Structures, the caller @wis_must ensure that the acceleration structure is not
+ * in use by any command.
  *
  * \cond WIS_GEN_WIS_IDS
  * \endcond
