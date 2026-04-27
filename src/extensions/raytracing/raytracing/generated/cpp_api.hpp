@@ -56,6 +56,7 @@ enum class AccelerationStructureFlags : uint32_t {
     PreferFastBuild = (1u << 3), ///< Acceleration structure is preferred to be fast built.
     MinimizeMemory = (1u << 4), ///< Acceleration structure is minimized for memory usage.
     PerformUpdate = (1u << 5), ///< Acceleration structure build is performed as an update. Only used for update builds.
+    IndirectInput = (1u << 6), ///< Acceleration structure build uses indirect input.
 };
 WISDOM_DEFINE_ENUM_OPERATORS(AccelerationStructureFlags)
 
@@ -121,14 +122,30 @@ struct BottomLevelStructureBuildDesc {
      * */
     std::uint32_t geometry_count;
     /**
-     * @brief The array of geometry descriptions for the bottom-level acceleration structure. Has higher precedence over
-     * `wis::BottomLevelStructureBuildDesc::indirect_geometries`.
+     * @brief The array of geometry descriptions for the bottom-level acceleration structure.
      * */
     const wis::AcceleratedGeometryDesc* geometries;
     /**
-     * @brief The array of geometry descriptions for indirect build of the bottom-level acceleration structure.
+     * @brief The array of geometry descriptions for indirect build of the bottom-level acceleration structure. This
+     * input is ignored unless `wis::AccelerationStructureFlags::IndirectInput` is specified.
      * */
     const wis::AcceleratedGeometryDesc** indirect_geometries;
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Structure describing the build description for a top-level acceleration structure.
+ *
+ * */
+struct TopLevelStructureBuildDesc {
+    wis::AccelerationStructureFlags flags; ///< The build flags for the acceleration structure build.
+    /**
+     * @brief The number of instances in the top-level acceleration structure.
+     * */
+    std::uint32_t instance_count;
+    /**
+     * @brief The GPU address of the instance buffer for the top-level acceleration structure.
+     * */
+    std::uint64_t instance_buffer_address;
 };
 
 //==============================================================
@@ -231,6 +248,32 @@ public:
         const WisResult wis_result = ::wisDX12RaytracingExtensionGetBottomLevelStructureInfo(
             &_impl_storage,
             reinterpret_cast<const WisBottomLevelStructureBuildDesc*>(&build_desc),
+            reinterpret_cast<WisStructureAllocationInfo*>(&info)
+        );
+        out_result = wis::Result{
+            static_cast<wis::Status>(wis_result.status),
+            wis_result.platform_code,
+            wis_result.error
+        };
+        return info;
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.1. Retrieves the allocation information for a top-level acceleration structure
+     * based on the provided build description.
+     * @param build_desc The build description for the bottom-level acceleration structure.
+     * @param out_result denoting the outcome of operation.
+     * @return info The allocation information for the bottom-level acceleration structure.
+     *
+     * */
+    WIS_NODISCARD inline wis::StructureAllocationInfo GetTopLevelStructureInfo(
+        const wis::TopLevelStructureBuildDesc& build_desc,
+        wis::Result& out_result
+    ) noexcept
+    {
+        wis::StructureAllocationInfo info;
+        const WisResult wis_result = ::wisDX12RaytracingExtensionGetTopLevelStructureInfo(
+            &_impl_storage,
+            reinterpret_cast<const WisTopLevelStructureBuildDesc*>(&build_desc),
             reinterpret_cast<WisStructureAllocationInfo*>(&info)
         );
         out_result = wis::Result{
@@ -361,6 +404,32 @@ public:
         const WisResult wis_result = ::wisVKRaytracingExtensionGetBottomLevelStructureInfo(
             &_impl_storage,
             reinterpret_cast<const WisBottomLevelStructureBuildDesc*>(&build_desc),
+            reinterpret_cast<WisStructureAllocationInfo*>(&info)
+        );
+        out_result = wis::Result{
+            static_cast<wis::Status>(wis_result.status),
+            wis_result.platform_code,
+            wis_result.error
+        };
+        return info;
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.1. Retrieves the allocation information for a top-level acceleration structure
+     * based on the provided build description.
+     * @param build_desc The build description for the bottom-level acceleration structure.
+     * @param out_result denoting the outcome of operation.
+     * @return info The allocation information for the bottom-level acceleration structure.
+     *
+     * */
+    WIS_NODISCARD inline wis::StructureAllocationInfo GetTopLevelStructureInfo(
+        const wis::TopLevelStructureBuildDesc& build_desc,
+        wis::Result& out_result
+    ) noexcept
+    {
+        wis::StructureAllocationInfo info;
+        const WisResult wis_result = ::wisVKRaytracingExtensionGetTopLevelStructureInfo(
+            &_impl_storage,
+            reinterpret_cast<const WisTopLevelStructureBuildDesc*>(&build_desc),
             reinterpret_cast<WisStructureAllocationInfo*>(&info)
         );
         out_result = wis::Result{

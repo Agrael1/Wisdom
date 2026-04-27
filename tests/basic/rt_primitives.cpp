@@ -121,13 +121,23 @@ TEST_CASE("check_rt_acceleration_structure")
         .geometry_count = 1,
         .geometries = &geometry_desc,
     };
+    wis::TopLevelStructureBuildDesc tlas_build_desc{
+        .flags = wis::AccelerationStructureFlags::AllowUpdate,
+        .instance_count = 1,
+    };
+    
     wis::StructureAllocationInfo alloc_info = rt_extension.GetBottomLevelStructureInfo(blas_build_desc, result);
     REQUIRE(result.status == wis::Status::Ok);
     REQUIRE(alloc_info.structure_size > 0);
 
+    wis::StructureAllocationInfo tlas_alloc_info = rt_extension.GetTopLevelStructureInfo(tlas_build_desc, result);
+    REQUIRE(result.status == wis::Status::Ok);
+    REQUIRE(tlas_alloc_info.structure_size > 0);
+    REQUIRE(tlas_alloc_info.update_size > 0);
+
     wis::Buffer rtas_buffer = allocator.CreateBuffer(
         {
-            .size_bytes = alloc_info.structure_size,
+            .size_bytes = alloc_info.structure_size + tlas_alloc_info.structure_size,
             .usage_flags = wis::BufferUsageFlags::AccelerationStructureBuffer,
         },
         result
@@ -136,7 +146,7 @@ TEST_CASE("check_rt_acceleration_structure")
 
     wis::Buffer scratch_buffer = allocator.CreateBuffer(
         {
-            .size_bytes = alloc_info.scratch_size,
+            .size_bytes = alloc_info.scratch_size + tlas_alloc_info.scratch_size,
             .usage_flags = wis::BufferUsageFlags::StorageBuffer,
         },
         result
@@ -149,13 +159,26 @@ TEST_CASE("check_rt_acceleration_structure")
         {
             .level = wis::AccelerationStructureLevel::BottomLevel,
             .offset = 0,
-            .size = 1024,
+            .size = alloc_info.structure_size,
         },
         result
     );
     REQUIRE(result.status == wis::Status::Ok);
 
-    uint64_t gpu_address = blas.GetGPUAddress();
-    REQUIRE(gpu_address != 0);
+    wis::AccelerationStructure tlas = rt_extension.CreateAccelerationStructure(
+        rtas_buffer,
+        {
+            .level = wis::AccelerationStructureLevel::TopLevel,
+            .offset = alloc_info.structure_size,
+            .size = tlas_alloc_info.structure_size,
+        },
+        result
+    );
+    REQUIRE(result.status == wis::Status::Ok);
+
+    uint64_t blas_gpu_address = blas.GetGPUAddress();
+    REQUIRE(blas_gpu_address != 0);
+    uint64_t tlas_gpu_address = tlas.GetGPUAddress();
+    REQUIRE(tlas_gpu_address != 0);
 }
 

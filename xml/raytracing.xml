@@ -66,6 +66,7 @@
           <impl name="vk" value="VK_BUILD_ACCELERATION_STRUCTURE_LOW_MEMORY_BIT_KHR"/>
         </value>
         <value name="PerformUpdate" bit="5" doc="Acceleration structure build is performed as an update. Only used for update builds."/>
+        <value name="IndirectInput" bit="6" doc="Acceleration structure build uses indirect input."/>
       </type>
 
       <!--Structs-->
@@ -97,8 +98,14 @@
       <type name="BottomLevelStructureBuildDesc" category="struct" version="0.7.1" doc="Structure describing the build description for a bottom-level acceleration structure.">
         <member type="AccelerationStructureFlags" name="flags" doc="The build flags for the acceleration structure build."/>
         <member type="u32" name="geometry_count" doc="The number of geometry instances in the bottom-level acceleration structure."/>
-        <member type="AcceleratedGeometryDesc" name="geometries" mod="const,ptr" doc="The array of geometry descriptions for the bottom-level acceleration structure. Has higher precedence over {BottomLevelStructureBuildDesc::indirect_geometries}."/>
-        <member type="AcceleratedGeometryDesc" name="indirect_geometries" mod="const,pp" doc="The array of geometry descriptions for indirect build of the bottom-level acceleration structure."/>
+        <member type="AcceleratedGeometryDesc" name="geometries" mod="const,ptr" doc="The array of geometry descriptions for the bottom-level acceleration structure."/>
+        <member type="AcceleratedGeometryDesc" name="indirect_geometries" mod="const,pp" doc="The array of geometry descriptions for indirect build of the bottom-level acceleration structure. This input is ignored unless {AccelerationStructureFlags::IndirectInput} is specified."/>
+      </type>
+      
+      <type name="TopLevelStructureBuildDesc" category="struct" version="0.7.1" doc="Structure describing the build description for a top-level acceleration structure.">
+        <member type="AccelerationStructureFlags" name="flags" doc="The build flags for the acceleration structure build."/>
+        <member type="u32" name="instance_count" doc="The number of instances in the top-level acceleration structure."/>
+        <member type="u64" name="instance_buffer_address" doc="The GPU address of the instance buffer for the top-level acceleration structure."/>
       </type>
     </types>
 
@@ -121,6 +128,11 @@
       <func name="GetBottomLevelStructureInfo" version="0.7.1" for="RaytracingExtension" doc="Retrieves the allocation information for a bottom-level acceleration structure based on the provided build description.">
         <ret type="StructureAllocationInfo" name="info" result="true" doc="The allocation information for the bottom-level acceleration structure."/>
         <arg type="BottomLevelStructureBuildDesc" name="build_desc" mod="const,ref" doc="The build description for the bottom-level acceleration structure."/>
+      </func>
+      
+      <func name="GetTopLevelStructureInfo" version="0.7.1" for="RaytracingExtension" doc="Retrieves the allocation information for a top-level acceleration structure based on the provided build description.">
+        <ret type="StructureAllocationInfo" name="info" result="true" doc="The allocation information for the bottom-level acceleration structure."/>
+        <arg type="TopLevelStructureBuildDesc" name="build_desc" mod="const,ref" doc="The build description for the bottom-level acceleration structure."/>
       </func>
 
       <func name="CreateAccelerationStructure" version="0.7.1" for="RaytracingExtension" doc="Creates an acceleration structure based on the provided description.">

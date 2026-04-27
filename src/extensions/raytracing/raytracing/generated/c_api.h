@@ -64,6 +64,7 @@ typedef enum WisAccelerationStructureFlags {
      * @brief Acceleration structure build is performed as an update. Only used for update builds.
      * */
     WisAccelerationStructureFlagsPerformUpdate = (1u << 5),
+    WisAccelerationStructureFlagsIndirectInput = (1u << 6), ///< Acceleration structure build uses indirect input.
 } WisAccelerationStructureFlags;
 
 //==============================================================
@@ -128,15 +129,28 @@ typedef struct WisBottomLevelStructureBuildDesc {
      * */
     uint32_t geometry_count;
     /**
-     * @brief The array of geometry descriptions for the bottom-level acceleration structure. Has higher precedence over
-     * `WisBottomLevelStructureBuildDesc::indirect_geometries`.
+     * @brief The array of geometry descriptions for the bottom-level acceleration structure.
      * */
     const WisAcceleratedGeometryDesc* geometries;
     /**
-     * @brief The array of geometry descriptions for indirect build of the bottom-level acceleration structure.
+     * @brief The array of geometry descriptions for indirect build of the bottom-level acceleration structure. This
+     * input is ignored unless `WisAccelerationStructureFlagsIndirectInput` is specified.
      * */
     const WisAcceleratedGeometryDesc** indirect_geometries;
 } WisBottomLevelStructureBuildDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Structure describing the build description for a top-level acceleration structure.
+ *
+ * */
+typedef struct WisTopLevelStructureBuildDesc {
+    WisAccelerationStructureFlags flags; ///< The build flags for the acceleration structure build.
+    uint32_t instance_count; ///< The number of instances in the top-level acceleration structure.
+    /**
+     * @brief The GPU address of the instance buffer for the top-level acceleration structure.
+     * */
+    uint64_t instance_buffer_address;
+} WisTopLevelStructureBuildDesc;
 
 //==============================================================
 // Constants
@@ -214,6 +228,21 @@ WISDOM_RAYTRACING_API bool wisDX12RaytracingExtensionSupported(WisDX12Raytracing
 WISDOM_RAYTRACING_API WisResult wisDX12RaytracingExtensionGetBottomLevelStructureInfo(
     WisDX12RaytracingExtension* self,
     const WisBottomLevelStructureBuildDesc* build_desc,
+    WisStructureAllocationInfo* info
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Retrieves the allocation information for a top-level acceleration structure based on
+ * the provided build description.
+ * @param self is a pointer to the valid WisRaytracingExtension instance.
+ * @param build_desc The build description for the bottom-level acceleration structure.
+ * @param info The allocation information for the bottom-level acceleration structure.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_RAYTRACING_API WisResult wisDX12RaytracingExtensionGetTopLevelStructureInfo(
+    WisDX12RaytracingExtension* self,
+    const WisTopLevelStructureBuildDesc* build_desc,
     WisStructureAllocationInfo* info
 );
 
@@ -310,6 +339,21 @@ WISDOM_RAYTRACING_API bool wisVKRaytracingExtensionSupported(WisVKRaytracingExte
 WISDOM_RAYTRACING_API WisResult wisVKRaytracingExtensionGetBottomLevelStructureInfo(
     WisVKRaytracingExtension* self,
     const WisBottomLevelStructureBuildDesc* build_desc,
+    WisStructureAllocationInfo* info
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Retrieves the allocation information for a top-level acceleration structure based on
+ * the provided build description.
+ * @param self is a pointer to the valid WisRaytracingExtension instance.
+ * @param build_desc The build description for the bottom-level acceleration structure.
+ * @param info The allocation information for the bottom-level acceleration structure.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_RAYTRACING_API WisResult wisVKRaytracingExtensionGetTopLevelStructureInfo(
+    WisVKRaytracingExtension* self,
+    const WisTopLevelStructureBuildDesc* build_desc,
     WisStructureAllocationInfo* info
 );
 

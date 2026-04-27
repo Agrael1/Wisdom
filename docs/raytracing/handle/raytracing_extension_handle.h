@@ -26,6 +26,7 @@
  * \cond WIS_GEN_REFS
  * @see Functions:
  * wisDestroyRaytracingExtension, wisInitRaytracingExtension, wisRaytracingExtensionSupported,
- * wisRaytracingExtensionGetBottomLevelStructureInfo, wisRaytracingExtensionCreateAccelerationStructure
+ * wisRaytracingExtensionGetBottomLevelStructureInfo, wisRaytracingExtensionGetTopLevelStructureInfo,
+ * wisRaytracingExtensionCreateAccelerationStructure
  * \endcond
  */

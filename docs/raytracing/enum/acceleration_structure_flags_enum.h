@@ -17,6 +17,7 @@
  *     WisAccelerationStructureFlagsPreferFastBuild = (1u << 3),
  *     WisAccelerationStructureFlagsMinimizeMemory = (1u << 4),
  *     WisAccelerationStructureFlagsPerformUpdate = (1u << 5),
+ *     WisAccelerationStructureFlagsIndirectInput = (1u << 6),
  * } WisAccelerationStructureFlags;
  * ```
  * C++ version:
@@ -31,6 +32,7 @@
  *     PreferFastBuild = (1u << 3),
  *     MinimizeMemory = (1u << 4),
  *     PerformUpdate = (1u << 5),
+ *     IndirectInput = (1u << 6),
  * };
  * }
  * ```
@@ -53,6 +55,7 @@
  * - `WisAccelerationStructureFlagsMinimizeMemory = (1 << 4)`: Acceleration structure is minimized for memory usage.
  * - `WisAccelerationStructureFlagsPerformUpdate = (1 << 5)`: Acceleration structure build is performed as an update.
  * Only used for update builds.
+ * - `WisAccelerationStructureFlagsIndirectInput = (1 << 6)`: Acceleration structure build uses indirect input.
  * \endcond
  *
  *
@@ -61,6 +64,6 @@
  *
  * \cond WIS_GEN_REFS
  * @see Structs:
- * WisBottomLevelStructureBuildDesc
+ * WisBottomLevelStructureBuildDesc, WisTopLevelStructureBuildDesc
  * \endcond
  */

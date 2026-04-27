@@ -189,7 +189,6 @@ WIS_EXTERN_C WISDOM_RAYTRACING_API WisResult wisVKRaytracingExtensionCreateAccel
         .device = impl.device,
         .vkDestroyAccelerationStructureKHR = impl.rt_table->vkDestroyAccelerationStructureKHR
     };
-    // Don't ref
     return wis::detail::vk_success;
 }
 
@@ -246,12 +245,12 @@ WIS_EXTERN_C WISDOM_RAYTRACING_API WisResult wisVKRaytracingExtensionGetBottomLe
     }
 
     // Fill geometry descriptions
-    if (build_desc->geometries) {
+    if (!(build_desc->flags & WisAccelerationStructureFlagsIndirectInput)) {
         for (uint32_t i = 0; i < build_desc->geometry_count; ++i) {
             geometry_desc_span[i] = wis::detail::VKCreateGeometryDesc(build_desc->geometries[i]);
             primitive_counts_span[i] = build_desc->geometries[i].triangle_or_aabb_count;
         }
-    } else if (build_desc->indirect_geometries) {
+    } else {
         for (uint32_t i = 0; i < build_desc->geometry_count; ++i) {
             geometry_desc_span[i] = wis::detail::VKCreateGeometryDesc(*build_desc->indirect_geometries[i]);
             primitive_counts_span[i] = build_desc->indirect_geometries[i]->triangle_or_aabb_count;
@@ -279,11 +278,58 @@ WIS_EXTERN_C WISDOM_RAYTRACING_API WisResult wisVKRaytracingExtensionGetBottomLe
         &build_sizes_info
     );
 
-    constexpr static size_t alignment = 256; // 256 is a common alignment requirement for acceleration structures
     *info = {
-        wis::aligned_size(build_sizes_info.buildScratchSize, alignment),
-        wis::aligned_size(build_sizes_info.accelerationStructureSize, alignment),
-        wis::aligned_size(build_sizes_info.updateScratchSize, alignment)
+        wis::aligned_size(build_sizes_info.buildScratchSize, wis::AccelerationStructureAlignment),
+        wis::aligned_size(build_sizes_info.accelerationStructureSize, wis::AccelerationStructureAlignment),
+        wis::aligned_size(build_sizes_info.updateScratchSize, wis::AccelerationStructureAlignment)
+    };
+    return wis::detail::vk_success;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_RAYTRACING_API WisResult wisVKRaytracingExtensionGetTopLevelStructureInfo(
+    WisVKRaytracingExtension* self,
+    const WisTopLevelStructureBuildDesc* build_desc,
+    WisStructureAllocationInfo* info
+)
+{
+    auto& impl = wis::from_handle_ref<wis::impl::VKRaytracingExtensionImpl>(self);
+    VkAccelerationStructureGeometryKHR geometry{
+        .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_KHR,
+        .geometryType = VK_GEOMETRY_TYPE_INSTANCES_KHR,
+        .geometry = {
+            .instances = {
+                .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_GEOMETRY_INSTANCES_DATA_KHR,
+                .arrayOfPointers = VkBool32(build_desc->flags & WisAccelerationStructureFlagsIndirectInput > 0),
+                .data = {.deviceAddress = build_desc->instance_buffer_address}
+            }
+        },
+    };
+    VkAccelerationStructureBuildGeometryInfoKHR build_info{
+        .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_GEOMETRY_INFO_KHR,
+        .type = VK_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL_KHR,
+        .flags = wis::detail::VKConvert(build_desc->flags),
+        .mode = VK_BUILD_ACCELERATION_STRUCTURE_MODE_BUILD_KHR,
+        .geometryCount = 1u,
+        .pGeometries = &geometry,
+    };
+    VkAccelerationStructureBuildSizesInfoKHR build_sizes_info{
+        .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_BUILD_SIZES_INFO_KHR,
+    };
+
+    uint32_t max_instance_count = build_desc->instance_count;
+    impl.rt_table->vkGetAccelerationStructureBuildSizesKHR(
+        impl.device,
+        VK_ACCELERATION_STRUCTURE_BUILD_TYPE_DEVICE_KHR,
+        &build_info,
+        &max_instance_count,
+        &build_sizes_info
+    );
+
+    *info = {
+        wis::aligned_size(build_sizes_info.buildScratchSize, wis::AccelerationStructureAlignment),
+        wis::aligned_size(build_sizes_info.accelerationStructureSize, wis::AccelerationStructureAlignment),
+        wis::aligned_size(build_sizes_info.updateScratchSize, wis::AccelerationStructureAlignment)
     };
     return wis::detail::vk_success;
 }

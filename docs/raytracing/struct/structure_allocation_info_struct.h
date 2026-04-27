@@ -48,6 +48,6 @@
  * <hr>
  * \cond WIS_GEN_REFS
  * @see Functions:
- * wisRaytracingExtensionGetBottomLevelStructureInfo
+ * wisRaytracingExtensionGetBottomLevelStructureInfo, wisRaytracingExtensionGetTopLevelStructureInfo
  * \endcond
  */

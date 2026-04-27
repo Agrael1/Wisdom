@@ -50,10 +50,7 @@ inline WisResult DX12RaytracingExtensionInit(
     case WisGeometryTypeAABBs:
         geometry.AABBs = {
             .AABBCount = desc.triangle_or_aabb_count,
-            .AABBs = {
-                .StartAddress = desc.vertex_or_aabb_buffer_address,
-                .StrideInBytes = desc.vertex_or_aabb_stride
-            }
+            .AABBs = {.StartAddress = desc.vertex_or_aabb_buffer_address, .StrideInBytes = desc.vertex_or_aabb_stride}
         };
         break;
     default:
@@ -106,12 +103,12 @@ WIS_EXTERN_C WISDOM_RAYTRACING_API WisResult wisDX12RaytracingExtensionCreateAcc
 )
 {
     auto& buffer_impl = wis::from_handle_ref<wis::impl::DX12BufferImpl>(buffer);
-    auto address = buffer_impl.resource->GetGPUVirtualAddress(); // AddRef buffer to ensure it lives as long as the acceleration
-                                                        // structure
+    auto address = buffer_impl.resource->GetGPUVirtualAddress(); // AddRef buffer to ensure it lives as long as the
+                                                                 // acceleration structure
     if (address == 0) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to get GPU virtual address of the buffer">(E_FAIL);
     }
-    
+
     new (acceleration_structure) wis::impl::DX12AccelerationStructureImpl{
         .gpu_address = address + desc->offset,
     };
@@ -126,7 +123,8 @@ WIS_EXTERN_C WISDOM_RAYTRACING_API void wisDX12DestroyAccelerationStructure(WisD
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_RAYTRACING_API uint64_t wisDX12AccelerationStructureGetGPUAddress(WisDX12AccelerationStructure* self)
+WIS_EXTERN_C WISDOM_RAYTRACING_API uint64_t
+wisDX12AccelerationStructureGetGPUAddress(WisDX12AccelerationStructure* self)
 {
     return wis::from_handle_ref<wis::impl::DX12AccelerationStructureImpl>(self).gpu_address;
 }
@@ -164,11 +162,11 @@ WIS_EXTERN_C WISDOM_RAYTRACING_API WisResult wisDX12RaytracingExtensionGetBottom
     }
 
     // Convert geometry descriptions
-    if (build_desc->geometries) {
+    if (!(build_desc->flags & WisAccelerationStructureFlagsIndirectInput)) {
         for (uint32_t i = 0; i < build_desc->geometry_count; ++i) {
-            geometry_descs[i] = wis::detail::DX12CreateGeometryDesc(build_desc->geometries[i]); 
+            geometry_descs[i] = wis::detail::DX12CreateGeometryDesc(build_desc->geometries[i]);
         }
-    } else if (build_desc->indirect_geometries) {
+    } else {
         for (uint32_t i = 0; i < build_desc->geometry_count; ++i) {
             geometry_descs[i] = wis::detail::DX12CreateGeometryDesc(*build_desc->indirect_geometries[i]);
         }
@@ -179,17 +177,58 @@ WIS_EXTERN_C WISDOM_RAYTRACING_API WisResult wisDX12RaytracingExtensionGetBottom
     *info = {
         wis::aligned_size(
             uint64_t(prebuild_info.ScratchDataSizeInBytes),
-            uint64_t(D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BYTE_ALIGNMENT)
+            uint64_t(wis::AccelerationStructureAlignment)
         ),
         wis::aligned_size(
             uint64_t(prebuild_info.ResultDataMaxSizeInBytes),
-            uint64_t(D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BYTE_ALIGNMENT)
+            uint64_t(wis::AccelerationStructureAlignment)
         ),
         wis::aligned_size(
             uint64_t(prebuild_info.UpdateScratchDataSizeInBytes),
-            uint64_t(D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BYTE_ALIGNMENT)
+            uint64_t(wis::AccelerationStructureAlignment)
         )
     };
+    return wis::detail::dx_success;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_RAYTRACING_API WisResult wisDX12RaytracingExtensionGetTopLevelStructureInfo(
+    WisDX12RaytracingExtension* self,
+    const WisTopLevelStructureBuildDesc* build_desc,
+    WisStructureAllocationInfo* info
+)
+{
+    auto& impl = wis::from_handle_ref<wis::impl::DX12RaytracingExtensionImpl>(self);
+    D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS inputs{
+        .Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL,
+        .Flags = wis::detail::DX12Convert(build_desc->flags),
+        .NumDescs = build_desc->instance_count,
+        .DescsLayout = build_desc->flags & WisAccelerationStructureFlagsIndirectInput ? D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS
+                                                  : D3D12_ELEMENTS_LAYOUT_ARRAY,
+        .InstanceDescs = build_desc->instance_buffer_address
+    };
+    D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO prebuild_info = {};
+    impl.device->GetRaytracingAccelerationStructurePrebuildInfo(&inputs, &prebuild_info);
+
+    static_assert(
+        wis::AccelerationStructureAlignment >= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BYTE_ALIGNMENT,
+        "DX12 requires at least 256-byte alignment for acceleration structures"
+    );
+    *info = {
+        wis::aligned_size(
+            uint32_t(prebuild_info.ScratchDataSizeInBytes),
+            uint32_t(wis::AccelerationStructureAlignment)
+        ),
+        wis::aligned_size(
+            uint32_t(prebuild_info.ResultDataMaxSizeInBytes),
+            uint32_t(wis::AccelerationStructureAlignment)
+        ),
+        wis::aligned_size(
+            uint32_t(prebuild_info.UpdateScratchDataSizeInBytes),
+            uint32_t(wis::AccelerationStructureAlignment)
+        )
+    };
+
     return wis::detail::dx_success;
 }
 
