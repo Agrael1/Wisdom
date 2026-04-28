@@ -27,6 +27,6 @@
  * @see Functions:
  * wisDestroyRaytracingExtension, wisInitRaytracingExtension, wisRaytracingExtensionSupported,
  * wisRaytracingExtensionGetBottomLevelStructureInfo, wisRaytracingExtensionGetTopLevelStructureInfo,
- * wisRaytracingExtensionCreateAccelerationStructure
+ * wisRaytracingExtensionCreateAccelerationStructures, wisRaytracingExtensionDestroyAccelerationStructures
  * \endcond
  */

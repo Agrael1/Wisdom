@@ -24,7 +24,7 @@
  * <hr>
  * \cond WIS_GEN_REFS
  * @see Functions:
- * wisDestroyAccelerationStructure, wisRaytracingExtensionCreateAccelerationStructure,
- * wisAccelerationStructureGetGPUAddress
+ * wisDestroyAccelerationStructure, wisRaytracingExtensionCreateAccelerationStructures,
+ * wisRaytracingExtensionDestroyAccelerationStructures, wisAccelerationStructureGetGPUAddress
  * \endcond
  */

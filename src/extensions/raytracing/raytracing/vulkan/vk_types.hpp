@@ -19,7 +19,7 @@ struct VKRaytracingExtensionImpl {
 struct VKAccelerationStructureImpl {
     VkAccelerationStructureKHR acceleration_structure;
     VkDeviceAddress device_address;
-    VkDevice device;
+    detail::VKBufferControlBlock* buffer_control_block;
     PFN_vkDestroyAccelerationStructureKHR vkDestroyAccelerationStructureKHR;
 };
 

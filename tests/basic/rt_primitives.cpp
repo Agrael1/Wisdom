@@ -125,7 +125,7 @@ TEST_CASE("check_rt_acceleration_structure")
         .flags = wis::AccelerationStructureFlags::AllowUpdate,
         .instance_count = 1,
     };
-    
+
     wis::StructureAllocationInfo alloc_info = rt_extension.GetBottomLevelStructureInfo(blas_build_desc, result);
     REQUIRE(result.status == wis::Status::Ok);
     REQUIRE(alloc_info.structure_size > 0);
@@ -154,31 +154,24 @@ TEST_CASE("check_rt_acceleration_structure")
     REQUIRE(result.status == wis::Status::Ok);
 
     // we won't update the as
-    wis::AccelerationStructure blas = rt_extension.CreateAccelerationStructure(
-        rtas_buffer,
+    wis::AccelerationStructure rtas[2];
+    wis::AccelerationStructureDesc descs[]{
         {
             .level = wis::AccelerationStructureLevel::BottomLevel,
             .offset = 0,
             .size = alloc_info.structure_size,
         },
-        result
-    );
-    REQUIRE(result.status == wis::Status::Ok);
-
-    wis::AccelerationStructure tlas = rt_extension.CreateAccelerationStructure(
-        rtas_buffer,
         {
             .level = wis::AccelerationStructureLevel::TopLevel,
             .offset = alloc_info.structure_size,
             .size = tlas_alloc_info.structure_size,
-        },
-        result
-    );
+        }
+    };
+    result = rt_extension.CreateAccelerationStructures(rtas_buffer, descs, rtas);
     REQUIRE(result.status == wis::Status::Ok);
 
-    uint64_t blas_gpu_address = blas.GetGPUAddress();
+    uint64_t blas_gpu_address = rtas[0].GetGPUAddress();
     REQUIRE(blas_gpu_address != 0);
-    uint64_t tlas_gpu_address = tlas.GetGPUAddress();
+    uint64_t tlas_gpu_address = rtas[1].GetGPUAddress();
     REQUIRE(tlas_gpu_address != 0);
 }
-

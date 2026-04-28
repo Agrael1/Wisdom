@@ -284,32 +284,42 @@ public:
         return info;
     }
     /**
-     * @brief Provided by Wisdom 0.7.1. Creates an acceleration structure based on the provided description.
+     * @brief Provided by Wisdom 0.7.1. Creates a batch of acceleration structures based on the provided descriptions.
      * @param buffer The buffer to write the acceleration structure data to.
-     * @param desc The description of the acceleration structure to create.
-     * @param out_result denoting the outcome of operation.
-     * @return acceleration_structure The created acceleration structure handle.
+     * @param structures The descriptions of the acceleration structures to create.
+     * @param acceleration_structures The created acceleration structure handle.
+     * @return Result denoting the outcome of operation.
      *
      * */
-    WIS_NODISCARD inline wis::DX12AccelerationStructure CreateAccelerationStructure(
+    inline wis::Result CreateAccelerationStructures(
         wis::DX12Buffer& buffer,
-        const wis::DX12AccelerationStructureDesc& desc,
-        wis::Result& out_result
+        wis::span<const wis::DX12AccelerationStructureDesc> structures,
+        wis::DX12AccelerationStructure* acceleration_structures
     ) noexcept
     {
-        wis::DX12AccelerationStructure acceleration_structure;
-        const WisResult wis_result = ::wisDX12RaytracingExtensionCreateAccelerationStructure(
+        const WisResult wis_result = ::wisDX12RaytracingExtensionCreateAccelerationStructures(
             &_impl_storage,
             reinterpret_cast<WisDX12Buffer*>(&buffer),
-            reinterpret_cast<const WisDX12AccelerationStructureDesc*>(&desc),
-            acceleration_structure.GetStorage()
+            reinterpret_cast<const WisDX12AccelerationStructureDesc*>(structures.data()),
+            structures.size(),
+            reinterpret_cast<WisDX12AccelerationStructure*>(acceleration_structures)
         );
-        out_result = wis::Result{
-            static_cast<wis::Status>(wis_result.status),
-            wis_result.platform_code,
-            wis_result.error
-        };
-        return acceleration_structure;
+        return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.1. Destroys a batch of acceleration structures.
+     * @param acceleration_structures The acceleration structures to destroy.
+     *
+     * */
+    inline void DestroyAccelerationStructures(
+        wis::span<wis::DX12AccelerationStructure> acceleration_structures
+    ) noexcept
+    {
+        ::wisDX12RaytracingExtensionDestroyAccelerationStructures(
+            &_impl_storage,
+            reinterpret_cast<WisDX12AccelerationStructure*>(acceleration_structures.data()),
+            acceleration_structures.size()
+        );
     }
 };
 
@@ -440,32 +450,40 @@ public:
         return info;
     }
     /**
-     * @brief Provided by Wisdom 0.7.1. Creates an acceleration structure based on the provided description.
+     * @brief Provided by Wisdom 0.7.1. Creates a batch of acceleration structures based on the provided descriptions.
      * @param buffer The buffer to write the acceleration structure data to.
-     * @param desc The description of the acceleration structure to create.
-     * @param out_result denoting the outcome of operation.
-     * @return acceleration_structure The created acceleration structure handle.
+     * @param structures The descriptions of the acceleration structures to create.
+     * @param acceleration_structures The created acceleration structure handle.
+     * @return Result denoting the outcome of operation.
      *
      * */
-    WIS_NODISCARD inline wis::VKAccelerationStructure CreateAccelerationStructure(
+    inline wis::Result CreateAccelerationStructures(
         wis::VKBuffer& buffer,
-        const wis::VKAccelerationStructureDesc& desc,
-        wis::Result& out_result
+        wis::span<const wis::VKAccelerationStructureDesc> structures,
+        wis::VKAccelerationStructure* acceleration_structures
     ) noexcept
     {
-        wis::VKAccelerationStructure acceleration_structure;
-        const WisResult wis_result = ::wisVKRaytracingExtensionCreateAccelerationStructure(
+        const WisResult wis_result = ::wisVKRaytracingExtensionCreateAccelerationStructures(
             &_impl_storage,
             reinterpret_cast<WisVKBuffer*>(&buffer),
-            reinterpret_cast<const WisVKAccelerationStructureDesc*>(&desc),
-            acceleration_structure.GetStorage()
+            reinterpret_cast<const WisVKAccelerationStructureDesc*>(structures.data()),
+            structures.size(),
+            reinterpret_cast<WisVKAccelerationStructure*>(acceleration_structures)
         );
-        out_result = wis::Result{
-            static_cast<wis::Status>(wis_result.status),
-            wis_result.platform_code,
-            wis_result.error
-        };
-        return acceleration_structure;
+        return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.1. Destroys a batch of acceleration structures.
+     * @param acceleration_structures The acceleration structures to destroy.
+     *
+     * */
+    inline void DestroyAccelerationStructures(wis::span<wis::VKAccelerationStructure> acceleration_structures) noexcept
+    {
+        ::wisVKRaytracingExtensionDestroyAccelerationStructures(
+            &_impl_storage,
+            reinterpret_cast<WisVKAccelerationStructure*>(acceleration_structures.data()),
+            acceleration_structures.size()
+        );
     }
 };
 

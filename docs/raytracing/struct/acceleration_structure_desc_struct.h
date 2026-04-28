@@ -91,6 +91,6 @@
  * <hr>
  * \cond WIS_GEN_REFS
  * @see Functions:
- * wisRaytracingExtensionCreateAccelerationStructure
+ * wisRaytracingExtensionCreateAccelerationStructures
  * \endcond
  */

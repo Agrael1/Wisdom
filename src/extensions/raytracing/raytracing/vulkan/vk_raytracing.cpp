@@ -151,45 +151,84 @@ WIS_EXTERN_C WISDOM_RAYTRACING_API bool wisVKRaytracingExtensionSupported(WisVKR
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_RAYTRACING_API WisResult wisVKRaytracingExtensionCreateAccelerationStructure(
+WIS_EXTERN_C WISDOM_RAYTRACING_API WisResult wisVKRaytracingExtensionCreateAccelerationStructures(
     WisVKRaytracingExtension* self,
     WisVKBuffer* buffer,
-    const WisVKAccelerationStructureDesc* desc,
-    WisVKAccelerationStructure* acceleration_structure
+    const WisVKAccelerationStructureDesc* structures,
+    size_t structure_count,
+    WisVKAccelerationStructure* acceleration_structures
 )
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKRaytracingExtensionImpl>(self);
     auto& buffer_impl = wis::from_handle_ref<wis::impl::VKBufferImpl>(buffer);
 
-    // Build acceleration structure using the provided description
-    // This is a simplified example, actual implementation would involve more detailed handling of the description
-    VkAccelerationStructureCreateInfoKHR create_info{
-        .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR,
-        .pNext = nullptr,
-        .createFlags = 0,
-        .buffer = buffer_impl.buffer,
-        .offset = desc->offset,
-        .size = desc->size,
-        .type = wis::detail::VKConvert(desc->level),
-    };
-    VkAccelerationStructureKHR as_handle = VK_NULL_HANDLE;
-    VkResult vr = impl.rt_table->vkCreateAccelerationStructureKHR(impl.device, &create_info, nullptr, &as_handle);
-    if (!wis::detail::succeeded(vr)) {
-        return wis::detail::make_result<wis::detail::Func(), "Failed to create acceleration structure">(vr);
+    for (size_t i = 0; i < structure_count; ++i) {
+        // Build acceleration structure using the provided description
+        // This is a simplified example, actual implementation would involve more detailed handling of the description
+        VkAccelerationStructureCreateInfoKHR create_info{
+            .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_CREATE_INFO_KHR,
+            .pNext = nullptr,
+            .createFlags = 0,
+            .buffer = buffer_impl.buffer,
+            .offset = structures[i].offset,
+            .size = structures[i].size,
+            .type = wis::detail::VKConvert(structures[i].level),
+        };
+        VkAccelerationStructureKHR as_handle = VK_NULL_HANDLE;
+        VkResult vr = impl.rt_table->vkCreateAccelerationStructureKHR(impl.device, &create_info, nullptr, &as_handle);
+        if (!wis::detail::succeeded(vr)) {
+            return wis::detail::make_result<wis::detail::Func(), "Failed to create acceleration structure">(vr);
+        }
+
+        VkAccelerationStructureDeviceAddressInfoKHR info{
+            .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR,
+            .accelerationStructure = as_handle
+        };
+
+        new (acceleration_structures + i) wis::impl::VKAccelerationStructureImpl{
+            .acceleration_structure = as_handle,
+            .device_address = impl.rt_table->vkGetAccelerationStructureDeviceAddressKHR(impl.device, &info),
+            .buffer_control_block = buffer_impl.buffer_header,
+            .vkDestroyAccelerationStructureKHR = impl.rt_table->vkDestroyAccelerationStructureKHR
+        };
     }
 
-    VkAccelerationStructureDeviceAddressInfoKHR info{
-        .sType = VK_STRUCTURE_TYPE_ACCELERATION_STRUCTURE_DEVICE_ADDRESS_INFO_KHR,
-        .accelerationStructure = as_handle
-    };
+    // Ref count up the buffer to ensure it lives as long as the acceleration structures
+    buffer_impl.buffer_header->m_ref_cnt.fetch_add(structure_count, std::memory_order_relaxed);
 
-    auto& as_impl = *new (acceleration_structure) wis::impl::VKAccelerationStructureImpl{
-        .acceleration_structure = as_handle,
-        .device_address = impl.rt_table->vkGetAccelerationStructureDeviceAddressKHR(impl.device, &info),
-        .device = impl.device,
-        .vkDestroyAccelerationStructureKHR = impl.rt_table->vkDestroyAccelerationStructureKHR
-    };
     return wis::detail::vk_success;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+WISDOM_RAYTRACING_API void wisVKRaytracingExtensionDestroyAccelerationStructures(
+    WisVKRaytracingExtension* self,
+    WisVKAccelerationStructure* acceleration_structures,
+    size_t structure_count
+)
+{
+    wis::detail::VKBufferControlBlock* current_block = nullptr;
+    std::size_t sub_ref_count = 0;
+
+    for (size_t i = 0; i < structure_count; ++i) {
+        auto& impl = wis::from_handle_ref<wis::impl::VKAccelerationStructureImpl>(acceleration_structures + i);
+        if (impl.acceleration_structure == VK_NULL_HANDLE) {
+            continue;
+        }
+
+        if (impl.buffer_control_block != current_block) {
+            // If we have a previous block, release it
+            if (current_block) {
+                current_block->m_ref_cnt.fetch_sub(sub_ref_count - 1, std::memory_order_release);
+                wis::detail::VKReleaseBuffer(current_block);
+            }
+
+            current_block = impl.buffer_control_block;
+            sub_ref_count = 1;
+        } else {
+            // If it's the same block, just decrease the sub ref count
+            sub_ref_count++;
+        }
+    }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -197,8 +236,14 @@ WIS_EXTERN_C WISDOM_RAYTRACING_API void wisVKDestroyAccelerationStructure(WisVKA
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKAccelerationStructureImpl>(self);
     if (impl.acceleration_structure != VK_NULL_HANDLE) {
-        impl.vkDestroyAccelerationStructureKHR(impl.device, impl.acceleration_structure, nullptr);
+        impl.vkDestroyAccelerationStructureKHR(
+            impl.buffer_control_block->header.device,
+            impl.acceleration_structure,
+            nullptr
+        );
         impl.acceleration_structure = VK_NULL_HANDLE;
+
+        wis::detail::VKReleaseBuffer(impl.buffer_control_block);
     }
 }
 

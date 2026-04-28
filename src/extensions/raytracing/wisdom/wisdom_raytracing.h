@@ -35,14 +35,15 @@ typedef struct WisDX12AccelerationStructureDesc WisAccelerationStructureDesc;
 // Functions
 //==============================================================
 
-#    define wisDestroyAccelerationStructure                   wisDX12DestroyAccelerationStructure
-#    define wisDestroyRaytracingExtension                     wisDX12DestroyRaytracingExtension
-#    define wisInitRaytracingExtension                        wisDX12InitRaytracingExtension
-#    define wisRaytracingExtensionSupported                   wisDX12RaytracingExtensionSupported
-#    define wisRaytracingExtensionGetBottomLevelStructureInfo wisDX12RaytracingExtensionGetBottomLevelStructureInfo
-#    define wisRaytracingExtensionGetTopLevelStructureInfo    wisDX12RaytracingExtensionGetTopLevelStructureInfo
-#    define wisRaytracingExtensionCreateAccelerationStructure wisDX12RaytracingExtensionCreateAccelerationStructure
-#    define wisAccelerationStructureGetGPUAddress             wisDX12AccelerationStructureGetGPUAddress
+#    define wisDestroyAccelerationStructure                     wisDX12DestroyAccelerationStructure
+#    define wisDestroyRaytracingExtension                       wisDX12DestroyRaytracingExtension
+#    define wisInitRaytracingExtension                          wisDX12InitRaytracingExtension
+#    define wisRaytracingExtensionSupported                     wisDX12RaytracingExtensionSupported
+#    define wisRaytracingExtensionGetBottomLevelStructureInfo   wisDX12RaytracingExtensionGetBottomLevelStructureInfo
+#    define wisRaytracingExtensionGetTopLevelStructureInfo      wisDX12RaytracingExtensionGetTopLevelStructureInfo
+#    define wisRaytracingExtensionCreateAccelerationStructures  wisDX12RaytracingExtensionCreateAccelerationStructures
+#    define wisRaytracingExtensionDestroyAccelerationStructures wisDX12RaytracingExtensionDestroyAccelerationStructures
+#    define wisAccelerationStructureGetGPUAddress               wisDX12AccelerationStructureGetGPUAddress
 
 #elif defined(WISDOM_VULKAN)
 
@@ -63,14 +64,15 @@ typedef struct WisVKAccelerationStructureDesc WisAccelerationStructureDesc;
 // Functions
 //==============================================================
 
-#    define wisDestroyAccelerationStructure                   wisVKDestroyAccelerationStructure
-#    define wisDestroyRaytracingExtension                     wisVKDestroyRaytracingExtension
-#    define wisInitRaytracingExtension                        wisVKInitRaytracingExtension
-#    define wisRaytracingExtensionSupported                   wisVKRaytracingExtensionSupported
-#    define wisRaytracingExtensionGetBottomLevelStructureInfo wisVKRaytracingExtensionGetBottomLevelStructureInfo
-#    define wisRaytracingExtensionGetTopLevelStructureInfo    wisVKRaytracingExtensionGetTopLevelStructureInfo
-#    define wisRaytracingExtensionCreateAccelerationStructure wisVKRaytracingExtensionCreateAccelerationStructure
-#    define wisAccelerationStructureGetGPUAddress             wisVKAccelerationStructureGetGPUAddress
+#    define wisDestroyAccelerationStructure                     wisVKDestroyAccelerationStructure
+#    define wisDestroyRaytracingExtension                       wisVKDestroyRaytracingExtension
+#    define wisInitRaytracingExtension                          wisVKInitRaytracingExtension
+#    define wisRaytracingExtensionSupported                     wisVKRaytracingExtensionSupported
+#    define wisRaytracingExtensionGetBottomLevelStructureInfo   wisVKRaytracingExtensionGetBottomLevelStructureInfo
+#    define wisRaytracingExtensionGetTopLevelStructureInfo      wisVKRaytracingExtensionGetTopLevelStructureInfo
+#    define wisRaytracingExtensionCreateAccelerationStructures  wisVKRaytracingExtensionCreateAccelerationStructures
+#    define wisRaytracingExtensionDestroyAccelerationStructures wisVKRaytracingExtensionDestroyAccelerationStructures
+#    define wisAccelerationStructureGetGPUAddress               wisVKAccelerationStructureGetGPUAddress
 
 #else
 #    error "No API selected for Wisdom. Define WISDOM_DX12 or WISDOM_VULKAN."

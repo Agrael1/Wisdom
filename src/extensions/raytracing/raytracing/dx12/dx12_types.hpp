@@ -16,6 +16,7 @@ struct DX12RaytracingExtensionImpl {
 
 struct DX12AccelerationStructureImpl {
     D3D12_GPU_VIRTUAL_ADDRESS gpu_address;
+    ID3D12Resource* resource;
 };
 
 } // namespace impl

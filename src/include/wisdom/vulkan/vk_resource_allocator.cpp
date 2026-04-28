@@ -155,11 +155,37 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateBuffer(
         }
     }
 
+    wis::detail::VKBufferControlBlock* buffer_header = nullptr;
+    if (desc->usage_flags & WisBufferUsageFlagsAccelerationStructureBuffer) {
+        // Shared buffer for AS needs to be tracked separately
+        buffer_header = new (std::nothrow) wis::detail::VKBufferControlBlock{};
+        if (!buffer_header) {
+            if (mapped_ptr) {
+                vmaUnmapMemory(allocator.allocator, allocation_handle);
+            }
+            vmaDestroyBuffer(allocator.allocator, buffer_handle, allocation_handle);
+            return wis::detail::make_result<wis::detail::Func(), "Failed to allocate memory for buffer control block">(
+                VK_ERROR_OUT_OF_HOST_MEMORY
+            );
+        }
+
+        buffer_header->header = {
+            .buffer = buffer_handle,
+            .allocation = allocation_handle,
+            .mapped_ptr = mapped_ptr,
+            .device = allocator.device_header->header.device,
+            .device_header = allocator.device_header,
+            .device_table = &allocator.device_header->header.device_table,
+        };
+    }
+
+
     auto& impl = *new (buffer) wis::impl::VKBufferImpl{
         .buffer = buffer_handle,
         .allocation = allocation_handle,
         .mapped_ptr = mapped_ptr,
         .device_header = allocator.device_header,
+        .buffer_header = buffer_header,
     };
 
     impl.device_header->AddRef();

@@ -247,19 +247,34 @@ WISDOM_RAYTRACING_API WisResult wisDX12RaytracingExtensionGetTopLevelStructureIn
 );
 
 /**
- * @brief Provided by Wisdom 0.7.1. Creates an acceleration structure based on the provided description.
+ * @brief Provided by Wisdom 0.7.1. Creates a batch of acceleration structures based on the provided descriptions.
  * @param self is a pointer to the valid WisRaytracingExtension instance.
  * @param buffer The buffer to write the acceleration structure data to.
- * @param desc The description of the acceleration structure to create.
- * @param acceleration_structure The created acceleration structure handle.
+ * @param structures The descriptions of the acceleration structures to create.
+ * @param structure_count The number of acceleration structures to create.
+ * @param acceleration_structures The created acceleration structure handle.
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_RAYTRACING_API WisResult wisDX12RaytracingExtensionCreateAccelerationStructure(
+WISDOM_RAYTRACING_API WisResult wisDX12RaytracingExtensionCreateAccelerationStructures(
     WisDX12RaytracingExtension* self,
     WisDX12Buffer* buffer,
-    const WisDX12AccelerationStructureDesc* desc,
-    WisDX12AccelerationStructure* acceleration_structure
+    const WisDX12AccelerationStructureDesc* structures,
+    size_t structure_count,
+    WisDX12AccelerationStructure* acceleration_structures
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Destroys a batch of acceleration structures.
+ * @param self is a pointer to the valid WisRaytracingExtension instance.
+ * @param acceleration_structures The acceleration structures to destroy.
+ * @param structure_count The number of acceleration structures to destroy.
+ *
+ * */
+WISDOM_RAYTRACING_API void wisDX12RaytracingExtensionDestroyAccelerationStructures(
+    WisDX12RaytracingExtension* self,
+    WisDX12AccelerationStructure* acceleration_structures,
+    size_t structure_count
 );
 
 /**
@@ -358,19 +373,34 @@ WISDOM_RAYTRACING_API WisResult wisVKRaytracingExtensionGetTopLevelStructureInfo
 );
 
 /**
- * @brief Provided by Wisdom 0.7.1. Creates an acceleration structure based on the provided description.
+ * @brief Provided by Wisdom 0.7.1. Creates a batch of acceleration structures based on the provided descriptions.
  * @param self is a pointer to the valid WisRaytracingExtension instance.
  * @param buffer The buffer to write the acceleration structure data to.
- * @param desc The description of the acceleration structure to create.
- * @param acceleration_structure The created acceleration structure handle.
+ * @param structures The descriptions of the acceleration structures to create.
+ * @param structure_count The number of acceleration structures to create.
+ * @param acceleration_structures The created acceleration structure handle.
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_RAYTRACING_API WisResult wisVKRaytracingExtensionCreateAccelerationStructure(
+WISDOM_RAYTRACING_API WisResult wisVKRaytracingExtensionCreateAccelerationStructures(
     WisVKRaytracingExtension* self,
     WisVKBuffer* buffer,
-    const WisVKAccelerationStructureDesc* desc,
-    WisVKAccelerationStructure* acceleration_structure
+    const WisVKAccelerationStructureDesc* structures,
+    size_t structure_count,
+    WisVKAccelerationStructure* acceleration_structures
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Destroys a batch of acceleration structures.
+ * @param self is a pointer to the valid WisRaytracingExtension instance.
+ * @param acceleration_structures The acceleration structures to destroy.
+ * @param structure_count The number of acceleration structures to destroy.
+ *
+ * */
+WISDOM_RAYTRACING_API void wisVKRaytracingExtensionDestroyAccelerationStructures(
+    WisVKRaytracingExtension* self,
+    WisVKAccelerationStructure* acceleration_structures,
+    size_t structure_count
 );
 
 /**

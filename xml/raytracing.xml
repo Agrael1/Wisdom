@@ -135,10 +135,16 @@
         <arg type="TopLevelStructureBuildDesc" name="build_desc" mod="const,ref" doc="The build description for the bottom-level acceleration structure."/>
       </func>
 
-      <func name="CreateAccelerationStructure" version="0.7.1" for="RaytracingExtension" doc="Creates an acceleration structure based on the provided description.">
-        <ret type="AccelerationStructure" result="true" name="acceleration_structure" doc="The created acceleration structure handle."/>
+      <func name="CreateAccelerationStructures" version="0.7.1" for="RaytracingExtension" doc="Creates a batch of acceleration structures based on the provided descriptions.">
+        <ret type="Result" name="result"/>
         <arg type="Buffer" name="buffer" mod="ref" doc="The buffer to write the acceleration structure data to."/>
-        <arg type="AccelerationStructureDesc" name="desc" mod="const,ref" doc="The description of the acceleration structure to create."/>
+        <arg type="AccelerationStructureDesc" name="structures" mod="const,span" doc="The descriptions of the acceleration structures to create."/>
+        <arg type="size" name="structure_count" doc="The number of acceleration structures to create."/>
+        <arg type="AccelerationStructure" name="acceleration_structures" mod="ptr" doc="The created acceleration structure handle."/>
+      </func>
+      <func name="DestroyAccelerationStructures" version="0.7.1" for="RaytracingExtension" doc="Destroys a batch of acceleration structures.">
+        <arg type="AccelerationStructure" name="acceleration_structures" mod="span" doc="The acceleration structures to destroy."/>
+        <arg type="size" name="structure_count" doc="The number of acceleration structures to destroy."/>
       </func>
 
       <func name="GetGPUAddress" version="0.7.1" for="AccelerationStructure" doc="Retrieves the GPU address of the acceleration structure.">

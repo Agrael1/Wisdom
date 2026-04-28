@@ -95,11 +95,12 @@ WIS_EXTERN_C WISDOM_RAYTRACING_API bool wisDX12RaytracingExtensionSupported(WisD
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_RAYTRACING_API WisResult wisDX12RaytracingExtensionCreateAccelerationStructure(
+WIS_EXTERN_C WISDOM_RAYTRACING_API WisResult wisDX12RaytracingExtensionCreateAccelerationStructures(
     WisDX12RaytracingExtension* self,
     WisDX12Buffer* buffer,
-    const WisDX12AccelerationStructureDesc* desc,
-    WisDX12AccelerationStructure* acceleration_structure
+    const WisDX12AccelerationStructureDesc* structures,
+    size_t structure_count,
+    WisDX12AccelerationStructure* acceleration_structures
 )
 {
     auto& buffer_impl = wis::from_handle_ref<wis::impl::DX12BufferImpl>(buffer);
@@ -109,10 +110,26 @@ WIS_EXTERN_C WISDOM_RAYTRACING_API WisResult wisDX12RaytracingExtensionCreateAcc
         return wis::detail::make_result<wis::detail::Func(), "Failed to get GPU virtual address of the buffer">(E_FAIL);
     }
 
-    new (acceleration_structure) wis::impl::DX12AccelerationStructureImpl{
-        .gpu_address = address + desc->offset,
-    };
+    for (size_t i = 0; i < structure_count; ++i) {
+        new (acceleration_structures + i) wis::impl::DX12AccelerationStructureImpl{
+            .gpu_address = address + structures[i].offset,
+            .resource = buffer_impl.resource
+        };
+        buffer_impl.resource->AddRef(); // Unfortuately no better way to add references
+    }
     return wis::detail::dx_success;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+WISDOM_RAYTRACING_API void wisDX12RaytracingExtensionDestroyAccelerationStructures(
+    WisDX12RaytracingExtension* self,
+    WisDX12AccelerationStructure* acceleration_structures,
+    size_t structure_count
+)
+{
+    for (size_t i = 0; i < structure_count; ++i) {
+        wisDX12DestroyAccelerationStructure(acceleration_structures + i);
+    }
 }
 
 //----------------------------------------------------------------------------------------------------------------------
