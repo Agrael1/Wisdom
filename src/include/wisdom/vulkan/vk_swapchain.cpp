@@ -344,6 +344,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKSwapchainGetTextures(
 
         new (&tex) wis::impl::VKTextureImpl{
             .image = image,
+            .width = static_cast<uint16_t>(impl.swapchain_header->header.create_info.imageExtent.width),
+            .height = static_cast<uint16_t>(impl.swapchain_header->header.create_info.imageExtent.height),
+            .depth_or_array_size = static_cast<uint16_t>(impl.swapchain_header->header.create_info.imageArrayLayers),
             .owned_by_swapchain = true,
         };
     }
