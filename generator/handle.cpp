@@ -87,6 +87,40 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
             create.modifier = Modifier::Construct;
             create.version = version;
             create.doc = create_doc;
+
+            if (auto* init = type->FirstChildElement("init")) {
+                if (auto* vers = init->FindAttribute("version")) {
+                    create.version = vers->Value();
+                }
+
+                if (auto* doc = init->FindAttribute("doc")) {
+                    create.doc = doc->Value();
+                }
+
+                // Parse parameters
+                for (auto* param = init->FirstChildElement("arg"); param; param = param->NextSiblingElement("arg")) {
+                    auto& p = create.parameters.emplace_back();
+                    p.type = param->FindAttribute("type")->Value();
+
+                    if (auto* name_attr = param->FindAttribute("name")) {
+                        p.name = name_attr->Value();
+                    } else {
+                        throw std::runtime_error(std::format("Function {} has a parameter with no name.", create_name));
+                    }
+                    if (auto* def = param->FindAttribute("default")) {
+                        p.default_value = def->Value();
+                    }
+                    if (auto* mod = param->FindAttribute("mod")) {
+                        p.modifier = GetModifiers(mod->Value());
+                    }
+                    if (auto* doc = param->FindAttribute("doc")) {
+                        p.doc = doc->Value();
+                    }
+                    create.FilterBackend(GetTypeBackendSupport(p.type));
+                    TryMakeRef(p.type, create_key);
+                }
+            }
+
             create.FilterBackend(ref.GetBackend());
             type_map[iref] = TypeKind::Function;
             module_map[active_module_name].functions_in_order.emplace_back(create_key);
@@ -196,9 +230,7 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, Backend backend, DocKin
 
     std::string ctor_decl;
     // Use constructor from base
-    if (s.extends != Extends::None) {
-        ctor_decl += std::format("{}{}() noexcept\n:ImplType(wis::in_place)\n{{\n    ", impl_string, s.name);
-    } else {
+    if (s.extends == Extends::None) {
         ctor_decl += "    using ImplType::ImplType;\n";
     }
     std::string st_decl2 = "public:\n";
@@ -242,7 +274,49 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, Backend backend, DocKin
             continue;
         }
         if (func_ref.modifier & Modifier::Construct) {
-            ctor_decl += std::format("        ::{}(GetStorage());\n    }}\n", c_name);
+            // Build the init function parameter list for the constructor
+            std::string params;
+            std::string args = "GetStorage(), " + GetFunctionCallParameters(func_ref, backend);
+            bool last_was_span = false;
+            for (size_t i = 0; i < func_ref.parameters.size(); ++i) {
+                if (last_was_span) {
+                    last_was_span = false;
+                    continue;
+                }
+
+                const auto& p = func_ref.parameters[i];
+                if (p.modifier & Modifier::Span) {
+                    last_was_span = true;
+                }
+
+                std::string type_str = GetMemberTypeString<Lang::CPP>(p, backend);
+                params += std::format("{} {}", type_str, p.name);
+
+                // edge case for spans - if last argument was a span, skip the next one (the size)
+                // That means we need to check if i<func.parameters.size()-2 for the comma
+                bool span_last = (p.modifier & Modifier::Span) != 0 && (i == func_ref.parameters.size() - 2);
+
+                if (i < func_ref.parameters.size() - 1 && !span_last) {
+                    params += ",\n";
+                }
+            }
+
+            ctor_decl += std::format(
+                "    {}{}({}) noexcept\n"
+                "    :ImplType(wis::in_place)\n"
+                "    {{\n"
+                "        ::{}({});\n"
+                "    }}\n",
+                impl_string,
+                s.name,
+                params,
+                c_name,
+                args
+            );
+
+            if (func_ref.parameters.empty()) {
+                ctor_decl += std::format("    {}{}(){{}}\n", impl_string, s.name);
+            }
             continue;
         }
 

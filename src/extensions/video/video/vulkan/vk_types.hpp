@@ -1,0 +1,30 @@
+#ifndef WIS_VK_VIDEO_TYPES_HPP
+#define WIS_VK_VIDEO_TYPES_HPP
+#ifndef __cplusplus
+#    error "This header requires C++"
+#endif // __cplusplus
+
+//#include <raytracing/vulkan/vk_tables.hpp>
+
+namespace wis {
+//----------------------------------------------------------------------------------------------------------------------
+namespace impl {
+struct VKVideoDecodingExtensionImpl {
+    VKDeviceExtensionHeader header;
+    WisVideoCodecFlags supported_codecs;
+    VkDevice device;
+    detail::VKDeviceControlBlock* device_control_block;
+};
+
+} // namespace impl
+} // namespace wis
+
+// Include implementation for header-only mode
+#ifdef WISDOM_HEADER_ONLY
+#    if !WIS_HAS_CPP20 && !defined(WISDOM_LANG_DISABLE_CHECK)
+#        error "C++20 is required to build wisdom as header-only library"
+#    endif // !WIS_HAS_CPP20
+#    include "vk_video.cpp"
+
+#endif // WISDOM_HEADER_ONLY
+#endif // WIS_VK_VIDEO_TYPES_HPP

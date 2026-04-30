@@ -151,6 +151,7 @@ public:
     void TryMakeRef(std::string_view type, std::string_view from);
     void TryMakeRef(std::string_view type, FunctionKey from);
     std::string GetRefs(std::string_view for_type);
+    std::string GetFunctionCallParameters(const WisFunction& func, Backend backend);
 
     static Backend ParseBackend(std::string_view backend) noexcept;
     static ImplOs GetImplOs(std::string_view os) noexcept;

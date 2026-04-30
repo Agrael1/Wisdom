@@ -1931,3 +1931,49 @@ std::string Generator::GetRefs(std::string_view for_type)
     }
     return refs;
 }
+
+std::string Generator::GetFunctionCallParameters(const WisFunction& func, Backend backend) {
+    constexpr static std::string_view arg_prefix = ",\n    ";
+    std::string body;
+    for (size_t i = 0; i < func.parameters.size(); ++i) {
+        auto& p = func.parameters[i];
+
+        if (p.modifier & Modifier::Span) {
+            body += std::format(
+                "reinterpret_cast<{}>({}.data()), {}.size()",
+                GetMemberTypeString<Lang::C>(p, backend),
+                p.name,
+                p.name
+            );
+            i++; // skip next parameter (the size)
+            if (i < func.parameters.size() - 1) {
+                body += arg_prefix;
+            }
+            continue;
+        }
+
+        switch (GetType(p.type)) {
+        case TypeKind::Enum:
+        case TypeKind::Bitmask:
+            body += std::format("static_cast<{}>({})", GetMemberTypeString<Lang::C>(p, backend), p.name);
+            break;
+        case TypeKind::None:
+        case TypeKind::View:
+        case TypeKind::Base:
+            body += p.name;
+            break;
+        default:
+            if (p.modifier & Modifier::Reference) {
+                body += std::format("reinterpret_cast<{}>(&{})", GetMemberTypeString<Lang::C>(p, backend), p.name);
+                break;
+            }
+            body += std::format("reinterpret_cast<{}>({})", GetMemberTypeString<Lang::C>(p, backend), p.name);
+            break;
+        }
+
+        if (i < func.parameters.size() - 1) {
+            body += arg_prefix;
+        }
+    }
+    return body;
+}

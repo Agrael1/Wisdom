@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<registry>
+  <module name="Video" version="0.7.1" base_dir="extensions/video/video" doc_dir="video">
+    <types>
+      <!--Enums-->
+
+
+      <!--Bitmasks-->
+      <type name="VideoCodecFlags" category="bitmask" version="0.7.1" doc="Video codec flags. Used to request and check supported codecs.">
+        <value name="None" value="0" doc="No video is requested. The extension will not initialize."/>
+        <value name="H264" bit="0" doc="H.264 video codec."/>
+        <value name="H265" bit="1" doc="H.265 video codec."/>
+        <value name="AV1" bit="2" doc="AV1 video codec."/>
+        <value name="VP9" bit="3" doc="VP9 video codec."/>
+      </type>
+
+      <!--Structs-->
+    </types>
+
+    <handles>
+      <handle name="VideoDecodingExtension" extends="Device" version="0.7.1" doc="Handle for the video decoding extension. Used  to manage video decoding resources and operations.">
+        <impl for="vk" size="4"/>
+        <impl for="dx" size="2"/>
+        <init version="0.7.1" doc="Initializes {VideoDecodingExtension::} with a request of codecs.">
+          <arg type="VideoCodecFlags" name="request_codecs" doc="Bitmask of requested video codecs. The extension will attempt to initialize with support for these codecs."/> 
+        </init>
+      </handle>
+    </handles>
+
+    <functions>
+      <func name="Supported" version="0.7.1" for="VideoDecodingExtension" doc="Checks if video decode is supported on the current device.">
+        <ret type="bool" name="supported" doc="true if raytracing is supported, false otherwise."/>
+      </func>
+    </functions>
+
+  </module>
+</registry>

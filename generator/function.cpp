@@ -388,7 +388,18 @@ std::string Generator::MakeCPPFunctionProto(
         }
         max_arg_length = std::max(max_arg_length, type_str.length());
     }
-
+    if ((func.modifier & Modifier::Construct) != 0) {
+        return std::format(
+            "{}{}{}{}({}{}){} noexcept;\n",
+            func_prefix,
+            xclass_code,
+            func_prefix,
+            std::string_view(xclass_code.begin(), xclass_code.end() - 2),
+            params,
+            post_return,
+            func.modifier & Modifier::Const ? " const" : ""
+        );
+    }
     return std::format(
         "{}{} {}{}{}({}{}){} noexcept;\n",
         pre_decl,
@@ -468,49 +479,6 @@ std::string Generator::MakeCPPFunctionImpl(
     std::string body = "{\n";
 
     constexpr static std::string_view arg_prefix = ",\n    ";
-    auto set_params = [&]() {
-        for (size_t i = 0; i < func.parameters.size(); ++i) {
-            auto& p = func.parameters[i];
-
-            if (p.modifier & Modifier::Span) {
-                body += std::format(
-                    "reinterpret_cast<{}>({}.data()), {}.size()",
-                    GetMemberTypeString<Lang::C>(p, backend),
-                    p.name,
-                    p.name
-                );
-                i++; // skip next parameter (the size)
-                if (i < func.parameters.size() - 1) {
-                    body += arg_prefix;
-                }
-                continue;
-            }
-
-            switch (GetType(p.type)) {
-            case TypeKind::Enum:
-            case TypeKind::Bitmask:
-                body += std::format("static_cast<{}>({})", GetMemberTypeString<Lang::C>(p, backend), p.name);
-                break;
-            case TypeKind::None:
-            case TypeKind::View:
-            case TypeKind::Base:
-                body += p.name;
-                break;
-            default:
-                if (p.modifier & Modifier::Reference) {
-                    body += std::format("reinterpret_cast<{}>(&{})", GetMemberTypeString<Lang::C>(p, backend), p.name);
-                    break;
-                }
-                body += std::format("reinterpret_cast<{}>({})", GetMemberTypeString<Lang::C>(p, backend), p.name);
-                break;
-            }
-
-            if (i < func.parameters.size() - 1) {
-                body += arg_prefix;
-            }
-        }
-    };
-
     switch (func.return_type.GetKind()) {
     case ReturnTypeKind::ResultAndValue: {
         auto ret_value_name = func.return_type.opt_name.empty()
@@ -530,7 +498,7 @@ std::string Generator::MakeCPPFunctionImpl(
             body += arg_prefix;
         }
 
-        set_params();
+        body += GetFunctionCallParameters(func, backend);
 
         auto ret_type = GetType(func.return_type.type);
 
@@ -557,7 +525,7 @@ std::string Generator::MakeCPPFunctionImpl(
         if (func.parameters.size() > 0 && !func.this_type.empty()) {
             body += arg_prefix;
         }
-        set_params();
+        body += GetFunctionCallParameters(func, backend);
         body += ");\n";
         body += "    return wis::Result{ static_cast<wis::Status>(wis_result.status), wis_result.platform_code, "
                 "wis_result.error };\n";
@@ -595,7 +563,7 @@ std::string Generator::MakeCPPFunctionImpl(
         if (func.parameters.size() > 0 && !func.this_type.empty()) {
             body += arg_prefix;
         }
-        set_params();
+        body += GetFunctionCallParameters(func, backend);
         body += "));\n";
     } break;
     case ReturnTypeKind::Void: {
@@ -604,7 +572,7 @@ std::string Generator::MakeCPPFunctionImpl(
         if (func.parameters.size() > 0 && !func.this_type.empty()) {
             body += arg_prefix;
         }
-        set_params();
+        body += GetFunctionCallParameters(func, backend);
         body += ");\n";
     } break;
     default:
