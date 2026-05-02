@@ -20,6 +20,27 @@ inline WisResult DX12VideoDecodingExtensionInit(
     if (!impl.supported_codecs) {
         return wis::detail::dx_success; // Nothing requested
     }
+    wis::com_ptr<ID3D12VideoDevice> videoDevice;
+    HRESULT hr = impl.device->QueryInterface(IID_ID3D12VideoDevice, videoDevice.put_void_unchecked());
+
+    if (!wis::detail::succeeded(hr) || !videoDevice) {
+        impl.supported_codecs = {};
+        return wis::detail::dx_success;
+    }
+
+    D3D12_FEATURE_DATA_VIDEO_DECODE_PROFILE_COUNT profileCountData = {};
+    profileCountData.NodeIndex = 0; // 0 for single-GPU setups
+
+    hr = videoDevice->CheckFeatureSupport(
+        D3D12_FEATURE_VIDEO_DECODE_PROFILE_COUNT,
+        &profileCountData,
+        sizeof(profileCountData)
+    );
+
+    if (SUCCEEDED(hr) && profileCountData.ProfileCount > 0) {
+        impl.supported_codecs = {};
+        return wis::detail::dx_success;
+    }
 
     if (impl.device) {
         impl.device->Release();
@@ -53,32 +74,21 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisDX12DestroyVideoDecodingExtension(WisDX12V
     impl.header = {nullptr};
 }
 
-WIS_EXTERN_C WISDOM_VIDEO_API bool wisDX12VideoDecodingExtensionSupported(WisDX12VideoDecodingExtension* self)
+WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisDX12VideoDecodingExtensionQueryCodecCaps(
+    WisDX12VideoDecodingExtension* self,
+    const WisVideoCodecDesc* codec_desc,
+    WisVideoDecodeInfo* decode_info
+)
 {
     auto& impl = wis::from_handle_ref<wis::impl::DX12VideoDecodingExtensionImpl>(self);
-    wis::com_ptr<ID3D12VideoDevice> videoDevice;
-    HRESULT hr = impl.device->QueryInterface(IID_ID3D12VideoDevice, videoDevice.put_void_unchecked());
 
-    if (FAILED(hr) || !videoDevice) {
-        // The device does not support the D3D12 Video API at all
-        return false;
+    switch (codec_desc->codec_profile) {
+    case WisStdCodecProfileH264Baseline: {
+
+    } break;
     }
 
-    D3D12_FEATURE_DATA_VIDEO_DECODE_PROFILE_COUNT profileCountData = {};
-    profileCountData.NodeIndex = 0; // 0 for single-GPU setups
-
-    hr = videoDevice->CheckFeatureSupport(
-        D3D12_FEATURE_VIDEO_DECODE_PROFILE_COUNT,
-        &profileCountData,
-        sizeof(profileCountData)
-    );
-
-    if (SUCCEEDED(hr) && profileCountData.ProfileCount > 0) {
-        // The GPU supports at least one hardware decoding profile!
-        return true;
-    }
-
-    return false;
+    return wis::detail::dx_success;
 }
 
 #endif // WIS_DX12_VIDEO_CPP

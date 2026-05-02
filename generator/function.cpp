@@ -486,7 +486,7 @@ std::string Generator::MakeCPPFunctionImpl(
                                 : std::string(func.return_type.opt_name);
 
         // Prepare out parameter
-        body += std::format("    {} {};\n", GetMemberTypeString<Lang::CPP>(func.return_type, backend), ret_value_name);
+        body += std::format("    {} {}{{}};\n", GetMemberTypeString<Lang::CPP>(func.return_type, backend), ret_value_name);
 
         body += std::format(
             "    const WisResult wis_result = ::{}({}",

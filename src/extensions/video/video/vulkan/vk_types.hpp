@@ -4,7 +4,7 @@
 #    error "This header requires C++"
 #endif // __cplusplus
 
-//#include <raytracing/vulkan/vk_tables.hpp>
+#include <video/vulkan/vk_tables.hpp>
 
 namespace wis {
 //----------------------------------------------------------------------------------------------------------------------
@@ -13,7 +13,9 @@ struct VKVideoDecodingExtensionImpl {
     VKDeviceExtensionHeader header;
     WisVideoCodecFlags supported_codecs;
     VkDevice device;
+    VkPhysicalDevice adapter;
     detail::VKDeviceControlBlock* device_control_block;
+    impl::VKVideoTable* video_table;
 };
 
 } // namespace impl

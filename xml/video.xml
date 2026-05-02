@@ -3,7 +3,30 @@
   <module name="Video" version="0.7.1" base_dir="extensions/video/video" doc_dir="video">
     <types>
       <!--Enums-->
+      <type name="StdCodecProfile" category="enum" version="0.7.1" doc="Standard codec profiles. Used to specify the profile of a video codec implementation.">
+        <!--AVC-->
+        <value name="H264Baseline" value="0" doc="H.264 Baseline profile. Suitable for low-complexity applications such as video conferencing and mobile streaming."/>
+        <value name="H264Main" value="1" doc="H.264 Main profile. Offers better compression efficiency than Baseline, suitable for standard-definition video streaming and broadcast."/>
+        <value name="H264High" value="2" doc="H.264 High profile. Provides the best compression efficiency among H.264 profiles, suitable for high-definition video streaming and Blu-ray discs."/>
+        <value name="H264HighPredictive" value="3" doc="H.264 High Predictive profile. An extension of the High profile that adds support for additional features, such as improved error resilience and better performance."/>
 
+        <!--HEVC-->
+        <value name="H265Main" value="32" doc="H.265 Main profile. Suitable for standard-definition video streaming and broadcast."/>
+        <value name="H265Main10" value="33" doc="H.265 Main 10 profile. Adds support for 10-bit video, providing better color depth and improved compression efficiency compared to the Main profile."/>
+        <value name="H265FormatRangeExt" value="34" doc="H.265 Format Range Extensions profile. Adds support for additional features such as higher bit depths, wider color gamut, and improved compression efficiency, suitable for high-quality video streaming and broadcast."/>
+        <value name="H265SCCExt" value="35" doc="H.265 Screen Content Coding Extensions profile. Designed for screen content coding, offering improved compression efficiency for computer-generated content such as screen sharing and remote desktop applications."/>
+
+        <!--AV1-->
+        <value name="AV1Main" value="64" doc="AV1 Main profile. Suitable for a wide range of applications, including web streaming and video conferencing."/>
+        <value name="AV1High" value="65" doc="AV1 High profile. Adds support for additional features such as higher bit depths and improved compression efficiency, suitable for high-quality video streaming and broadcast."/>
+        <value name="AV1Professional" value="66" doc="AV1 Professional profile. Designed for professional video production and post-production workflows, offering support for high bit depths, wide color gamut, and advanced features."/>
+
+        <!--VP9-->
+        <value name="VP9Profile0" value="96" doc="VP9 Profile 0. Supports 8-bit video with 4:2:0 chroma subsampling, suitable for web streaming and general-purpose video applications."/>
+        <value name="VP9Profile1" value="97" doc="VP9 Profile 1. Adds support for 8-bit video with 4:2:2 and 4:4:4 chroma subsampling, suitable for professional video production and post-production workflows that require higher color fidelity."/>
+        <value name="VP9Profile2" value="98" doc="VP9 Profile 2. Adds support for 10-bit and 12-bit video with 4:2:0 chroma subsampling."/>
+        <value name="VP9Profile3" value="99" doc="VP9 Profile 3. Adds support for 10-bit and 12-bit video with 4:2:2 and 4:4:4 chroma subsampling."/>
+      </type>
 
       <!--Bitmasks-->
       <type name="VideoCodecFlags" category="bitmask" version="0.7.1" doc="Video codec flags. Used to request and check supported codecs.">
@@ -14,22 +37,66 @@
         <value name="VP9" bit="3" doc="VP9 video codec."/>
       </type>
 
+      <type name="ComponentBitDepth" category="bitmask" version="0.7.1" doc="Bit depth flags for video components. Used to specify supported bit depths for video decoding.">
+        <impl_type for="vk" name="VkVideoComponentBitDepthFlagsKHR "/>
+        <value name="None" value="0" doc="No bit depth is specified.">
+          <impl name="vk" value="VK_VIDEO_COMPONENT_BIT_DEPTH_INVALID_KHR"/>
+        </value>
+        <value name="Bit8" bit="0" doc="8-bit video component.">
+          <impl name="vk" value="VK_VIDEO_COMPONENT_BIT_DEPTH_8_BIT_KHR"/>
+        </value>
+        <value name="Bit10" bit="1" doc="10-bit video component.">
+          <impl name="vk" value="VK_VIDEO_COMPONENT_BIT_DEPTH_10_BIT_KHR"/>
+        </value>
+        <value name="Bit12" bit="2" doc="12-bit video component.">
+          <impl name="vk" value="VK_VIDEO_COMPONENT_BIT_DEPTH_12_BIT_KHR"/>
+        </value>
+      </type>
+
+      <type name="ChromaSubsampling" category="bitmask" version="0.7.1" doc="Chroma subsampling flags for video components. Used to specify supported chroma subsampling formats for video decoding.">
+        <impl_type for="vk" name="VkVideoChromaSubsamplingFlagsKHR "/>
+        <value name="None" value="0" doc="No chroma subsampling is specified.">
+          <impl name="vk" value="VK_VIDEO_CHROMA_SUBSAMPLING_INVALID_KHR"/>
+        </value>
+        <value name="C420" bit="1" doc="4:2:0 chroma subsampling format.">
+          <impl name="vk" value="VK_VIDEO_CHROMA_SUBSAMPLING_420_BIT_KHR "/>
+        </value>
+        <value name="C422" bit="2" doc="4:2:2 chroma subsampling format.">
+          <impl name="vk" value="VK_VIDEO_CHROMA_SUBSAMPLING_422_BIT_KHR "/>
+        </value>
+        <value name="C444" bit="3" doc="4:4:4 chroma subsampling format.">
+          <impl name="vk" value="VK_VIDEO_CHROMA_SUBSAMPLING_444_BIT_KHR "/>
+        </value>
+      </type>
+
+
       <!--Structs-->
+      <type name="VideoCodecDesc" category="struct" version="0.7.1" doc="Information about a supported video codec.">
+        <member type="StdCodecProfile" name="codec_profile" doc="The video codec to query capabilities for."/>
+        <member type="ComponentBitDepth" name="bit_depth" doc="Supported bit depths for this codec, represented as a bitmask of ComponentBitDepth flags."/>
+        <member type="ChromaSubsampling" name="chroma_subsampling" doc="Supported chroma subsampling formats for this codec, represented as a bitmask of ChromaSubsampling flags."/>
+      </type>
+
+      <type name="VideoDecodeInfo" category="struct" version="0.7.1" doc="Information about a video decode operation.">
+        <member type="u32" name="max_width" doc="Max width of the video frame in pixels."/>
+        <member type="u32" name="max_height" doc="Max height of the video frame in pixels."/>
+      </type>
     </types>
 
     <handles>
       <handle name="VideoDecodingExtension" extends="Device" version="0.7.1" doc="Handle for the video decoding extension. Used  to manage video decoding resources and operations.">
-        <impl for="vk" size="4"/>
+        <impl for="vk" size="5"/>
         <impl for="dx" size="2"/>
         <init version="0.7.1" doc="Initializes {VideoDecodingExtension::} with a request of codecs.">
-          <arg type="VideoCodecFlags" name="request_codecs" doc="Bitmask of requested video codecs. The extension will attempt to initialize with support for these codecs."/> 
+          <arg type="VideoCodecFlags" name="request_codecs" doc="Bitmask of requested video codecs. The extension will attempt to initialize with support for these codecs."/>
         </init>
       </handle>
     </handles>
 
     <functions>
-      <func name="Supported" version="0.7.1" for="VideoDecodingExtension" doc="Checks if video decode is supported on the current device.">
-        <ret type="bool" name="supported" doc="true if raytracing is supported, false otherwise."/>
+      <func name="QueryCodecCaps" version="0.7.1" for="VideoDecodingExtension" doc="Checks if video decode is supported on the current device.">
+        <ret type="VideoDecodeInfo" result="true" name="decode_info" doc="Information about the video decode capabilities of the current device, including maximum supported video frame dimensions."/>
+        <arg type="VideoCodecDesc" name="codec_desc" mod="const,ref" doc="Information about the video codec to query capabilities for. The 'codec' field should specify the codec to check, and the function will fill in the supported bit depths and chroma subsampling formats for that codec."/>
       </func>
     </functions>
 

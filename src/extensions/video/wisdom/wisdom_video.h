@@ -28,9 +28,9 @@ typedef struct WisDX12VideoDecodingExtension WisVideoDecodingExtension;
 // Functions
 //==============================================================
 
-#    define wisDestroyVideoDecodingExtension   wisDX12DestroyVideoDecodingExtension
-#    define wisInitVideoDecodingExtension      wisDX12InitVideoDecodingExtension
-#    define wisVideoDecodingExtensionSupported wisDX12VideoDecodingExtensionSupported
+#    define wisDestroyVideoDecodingExtension        wisDX12DestroyVideoDecodingExtension
+#    define wisInitVideoDecodingExtension           wisDX12InitVideoDecodingExtension
+#    define wisVideoDecodingExtensionQueryCodecCaps wisDX12VideoDecodingExtensionQueryCodecCaps
 
 #elif defined(WISDOM_VULKAN)
 
@@ -44,9 +44,9 @@ typedef struct WisVKVideoDecodingExtension WisVideoDecodingExtension;
 // Functions
 //==============================================================
 
-#    define wisDestroyVideoDecodingExtension   wisVKDestroyVideoDecodingExtension
-#    define wisInitVideoDecodingExtension      wisVKInitVideoDecodingExtension
-#    define wisVideoDecodingExtensionSupported wisVKVideoDecodingExtensionSupported
+#    define wisDestroyVideoDecodingExtension        wisVKDestroyVideoDecodingExtension
+#    define wisInitVideoDecodingExtension           wisVKInitVideoDecodingExtension
+#    define wisVideoDecodingExtensionQueryCodecCaps wisVKVideoDecodingExtensionQueryCodecCaps
 
 #else
 #    error "No API selected for Wisdom. Define WISDOM_DX12 or WISDOM_VULKAN."
