@@ -16,8 +16,9 @@
  *     WisStdCodecProfileH264HighPredictive = 3,
  *     WisStdCodecProfileH265Main = 32,
  *     WisStdCodecProfileH265Main10 = 33,
- *     WisStdCodecProfileH265FormatRangeExt = 34,
- *     WisStdCodecProfileH265SCCExt = 35,
+ *     WisStdCodecProfileH265Main12 = 34,
+ *     WisStdCodecProfileH265Main16 = 35,
+ *     WisStdCodecProfileH265FormatRangeExt = 36,
  *     WisStdCodecProfileAV1Main = 64,
  *     WisStdCodecProfileAV1High = 65,
  *     WisStdCodecProfileAV1Professional = 66,
@@ -38,8 +39,9 @@
  *     H264HighPredictive = 3,
  *     H265Main = 32,
  *     H265Main10 = 33,
- *     H265FormatRangeExt = 34,
- *     H265SCCExt = 35,
+ *     H265Main12 = 34,
+ *     H265Main16 = 35,
+ *     H265FormatRangeExt = 36,
  *     AV1Main = 64,
  *     AV1High = 65,
  *     AV1Professional = 66,
@@ -70,12 +72,14 @@
  * broadcast.
  * - `WisStdCodecProfileH265Main10 = 33`: H.265 Main 10 profile. Adds support for 10-bit video, providing better color
  * depth and improved compression efficiency compared to the Main profile.
- * - `WisStdCodecProfileH265FormatRangeExt = 34`: H.265 Format Range Extensions profile. Adds support for additional
+ * - `WisStdCodecProfileH265Main12 = 34`: H.265 Main 12 profile. Adds support for 12-bit video, offering even greater
+ * color depth and improved compression efficiency compared to the Main 10 profile.
+ * - `WisStdCodecProfileH265Main16 = 35`: H.265 Main 16 profile. Adds support for 16-bit video, providing the highest
+ * color depth and best compression efficiency among the Main profiles, suitable for professional video production and
+ * post-production workflows.
+ * - `WisStdCodecProfileH265FormatRangeExt = 36`: H.265 Format Range Extensions profile. Adds support for additional
  * features such as higher bit depths, wider color gamut, and improved compression efficiency, suitable for high-quality
  * video streaming and broadcast.
- * - `WisStdCodecProfileH265SCCExt = 35`: H.265 Screen Content Coding Extensions profile. Designed for screen content
- * coding, offering improved compression efficiency for computer-generated content such as screen sharing and remote
- * desktop applications.
  * - `WisStdCodecProfileAV1Main = 64`: AV1 Main profile. Suitable for a wide range of applications, including web
  * streaming and video conferencing.
  * - `WisStdCodecProfileAV1High = 65`: AV1 High profile. Adds support for additional features such as higher bit depths

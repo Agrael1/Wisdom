@@ -615,6 +615,39 @@ typedef enum WisDataFormat {
      * a 4-bit A component in bits 12..15.
      * */
     WisDataFormatBGRA4Unorm = 115,
+    /**
+     * @brief Provided by Wisdom 0.7.1.
+     * NV12 video format.
+     * A two-plane format with a single 8-bit Y plane followed by an interleaved UV plane, where the U and V components
+     * are subsampled by a factor of 2 in both dimensions. The Y plane contains the luma (brightness) information, while
+     * the UV plane contains the chroma (color) information. This format is commonly used for video encoding and
+     * decoding applications.
+     * */
+    WisDataFormatNV12 = 256,
+    /**
+     * @brief Provided by Wisdom 0.7.1.
+     * P010 video format.
+     * A two-plane format similar to NV12, but with 10 bits per channel instead of 8. The Y plane contains 10-bit luma
+     * information, and the UV plane contains interleaved 10-bit chroma information. This format is used for
+     * high-quality video encoding and decoding, providing improved color fidelity compared to NV12.
+     * */
+    WisDataFormatP010 = 257,
+    /**
+     * @brief Provided by Wisdom 0.7.1.
+     * P012 video format.
+     * A two-plane format similar to P010, but with 12 bits per channel instead of 10. The Y plane contains 12-bit luma
+     * information, and the UV plane contains interleaved 12-bit chroma information. This format is used for
+     * professional video applications that require higher color fidelity and dynamic range than P010.
+     * */
+    WisDataFormatP012 = 258,
+    /**
+     * @brief Provided by Wisdom 0.7.1.
+     * P016 video format.
+     * A two-plane format similar to P010, but with 16 bits per channel instead of 10. The Y plane contains 16-bit luma
+     * information, and the UV plane contains interleaved 16-bit chroma information. This format is used for
+     * professional video applications that require the highest color fidelity and dynamic range.
+     * */
+    WisDataFormatP016 = 259,
 } WisDataFormat;
 
 /**
@@ -4264,7 +4297,7 @@ static inline WisVKTextureView wisGetVKTextureView(const WisVKTexture* handle)
  * @brief Provided by Wisdom 0.7.0. Class representing a GPU buffer resource.
  *
  * */
-WIS_DEFINE_HANDLE(WisVKBuffer, 5);
+WIS_DEFINE_HANDLE(WisVKBuffer, 4);
 WIS_DEFINE_HANDLE_VIEW(WisVKBuffer, 1);
 
 static inline WisVKBufferView wisGetVKBufferView(const WisVKBuffer* handle)

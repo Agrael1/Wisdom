@@ -48,15 +48,21 @@ enum class StdCodecProfile {
      * */
     H265Main10 = 33,
     /**
+     * @brief H.265 Main 12 profile. Adds support for 12-bit video, offering even greater color depth and improved
+     * compression efficiency compared to the Main 10 profile.
+     * */
+    H265Main12 = 34,
+    /**
+     * @brief H.265 Main 16 profile. Adds support for 16-bit video, providing the highest color depth and best
+     * compression efficiency among the Main profiles, suitable for professional video production and post-production
+     * workflows.
+     * */
+    H265Main16 = 35,
+    /**
      * @brief H.265 Format Range Extensions profile. Adds support for additional features such as higher bit depths,
      * wider color gamut, and improved compression efficiency, suitable for high-quality video streaming and broadcast.
      * */
-    H265FormatRangeExt = 34,
-    /**
-     * @brief H.265 Screen Content Coding Extensions profile. Designed for screen content coding, offering improved
-     * compression efficiency for computer-generated content such as screen sharing and remote desktop applications.
-     * */
-    H265SCCExt = 35,
+    H265FormatRangeExt = 36,
     /**
      * @brief AV1 Main profile. Suitable for a wide range of applications, including web streaming and video
      * conferencing.
@@ -112,6 +118,7 @@ enum class ComponentBitDepth : uint32_t {
     Bit8 = (1u << 0), ///< 8-bit video component.
     Bit10 = (1u << 1), ///< 10-bit video component.
     Bit12 = (1u << 2), ///< 12-bit video component.
+    Bit16 = (1u << 3), ///< 16-bit video component.
 };
 WISDOM_DEFINE_ENUM_OPERATORS(ComponentBitDepth)
 
@@ -139,13 +146,13 @@ WISDOM_DEFINE_ENUM_OPERATORS(ChromaSubsampling)
 struct VideoCodecDesc {
     wis::StdCodecProfile codec_profile; ///< The video codec to query capabilities for.
     /**
-     * @brief Supported bit depths for this codec, represented as a bitmask of ComponentBitDepth flags.
+     * @brief The data format of the video frames for this codec. This field is used to specify the expected format of
+     * the video frames that will be decoded using this codec, and can influence the supported bit depths and chroma
+     * subsampling formats.
      * */
-    wis::ComponentBitDepth bit_depth;
-    /**
-     * @brief Supported chroma subsampling formats for this codec, represented as a bitmask of ChromaSubsampling flags.
-     * */
-    wis::ChromaSubsampling chroma_subsampling;
+    wis::DataFormat data_format;
+    std::uint32_t width; ///< Max width of the video frame in pixels.
+    std::uint32_t height; ///< Max height of the video frame in pixels.
 };
 
 /**

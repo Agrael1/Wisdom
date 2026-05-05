@@ -613,6 +613,39 @@ enum class DataFormat {
      * a 4-bit A component in bits 12..15.
      * */
     BGRA4Unorm = 115,
+    /**
+     * @brief Provided by Wisdom 0.7.1.
+     * NV12 video format.
+     * A two-plane format with a single 8-bit Y plane followed by an interleaved UV plane, where the U and V components
+     * are subsampled by a factor of 2 in both dimensions. The Y plane contains the luma (brightness) information, while
+     * the UV plane contains the chroma (color) information. This format is commonly used for video encoding and
+     * decoding applications.
+     * */
+    NV12 = 256,
+    /**
+     * @brief Provided by Wisdom 0.7.1.
+     * P010 video format.
+     * A two-plane format similar to NV12, but with 10 bits per channel instead of 8. The Y plane contains 10-bit luma
+     * information, and the UV plane contains interleaved 10-bit chroma information. This format is used for
+     * high-quality video encoding and decoding, providing improved color fidelity compared to NV12.
+     * */
+    P010 = 257,
+    /**
+     * @brief Provided by Wisdom 0.7.1.
+     * P012 video format.
+     * A two-plane format similar to P010, but with 12 bits per channel instead of 10. The Y plane contains 12-bit luma
+     * information, and the UV plane contains interleaved 12-bit chroma information. This format is used for
+     * professional video applications that require higher color fidelity and dynamic range than P010.
+     * */
+    P012 = 258,
+    /**
+     * @brief Provided by Wisdom 0.7.1.
+     * P016 video format.
+     * A two-plane format similar to P010, but with 16 bits per channel instead of 10. The Y plane contains 16-bit luma
+     * information, and the UV plane contains interleaved 16-bit chroma information. This format is used for
+     * professional video applications that require the highest color fidelity and dynamic range.
+     * */
+    P016 = 259,
 };
 
 /**
@@ -2926,7 +2959,7 @@ public:
      * */
     WIS_NODISCARD inline std::uint32_t GetCurrentIndex(wis::Result& out_result) const noexcept
     {
-        std::uint32_t index;
+        std::uint32_t index{};
         const WisResult wis_result = ::wisDX12SwapchainGetCurrentIndex(
             &_impl_storage,
             reinterpret_cast<uint32_t*>(&index)
@@ -3418,7 +3451,7 @@ public:
         wis::Result& out_result
     ) const noexcept
     {
-        wis::DX12Buffer buffer;
+        wis::DX12Buffer buffer{};
         const WisResult wis_result = ::wisDX12ResourceAllocatorCreateBuffer(
             &_impl_storage,
             reinterpret_cast<const WisBufferDesc*>(&desc),
@@ -3443,7 +3476,7 @@ public:
         wis::Result& out_result
     ) const noexcept
     {
-        wis::DX12Texture texture;
+        wis::DX12Texture texture{};
         const WisResult wis_result = ::wisDX12ResourceAllocatorCreateTexture(
             &_impl_storage,
             reinterpret_cast<const WisTextureDesc*>(&desc),
@@ -3994,7 +4027,7 @@ public:
      * */
     WIS_NODISCARD inline wis::DX12CommandList CreateCommandList(wis::Result& out_result) const noexcept
     {
-        wis::DX12CommandList list;
+        wis::DX12CommandList list{};
         const WisResult wis_result = ::wisDX12CommandAllocatorCreateCommandList(&_impl_storage, list.GetStorage());
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
@@ -4087,7 +4120,7 @@ public:
         wis::Result& out_result
     ) const noexcept
     {
-        wis::DX12CommandQueue queue;
+        wis::DX12CommandQueue queue{};
         const WisResult wis_result = ::wisDX12DeviceCreateCommandQueue(
             &_impl_storage,
             static_cast<WisCommandQueueType>(type),
@@ -4112,7 +4145,7 @@ public:
         wis::Result& out_result
     ) const noexcept
     {
-        wis::DX12CommandAllocator allocator;
+        wis::DX12CommandAllocator allocator{};
         const WisResult wis_result = ::wisDX12DeviceCreateCommandAllocator(
             &_impl_storage,
             static_cast<WisCommandQueueType>(type),
@@ -4134,7 +4167,7 @@ public:
      * */
     WIS_NODISCARD inline wis::DX12Fence CreateFence(std::uint64_t initial_value, wis::Result& out_result) const noexcept
     {
-        wis::DX12Fence fence;
+        wis::DX12Fence fence{};
         const WisResult wis_result = ::wisDX12DeviceCreateFence(&_impl_storage, initial_value, fence.GetStorage());
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
@@ -4151,7 +4184,7 @@ public:
      * */
     WIS_NODISCARD inline wis::DX12ResourceAllocator GetResourceAllocator(wis::Result& out_result) const noexcept
     {
-        wis::DX12ResourceAllocator allocator;
+        wis::DX12ResourceAllocator allocator{};
         const WisResult wis_result = ::wisDX12DeviceGetResourceAllocator(&_impl_storage, allocator.GetStorage());
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
@@ -4172,7 +4205,7 @@ public:
         wis::Result& out_result
     ) const noexcept
     {
-        wis::DX12RootSignature layout;
+        wis::DX12RootSignature layout{};
         const WisResult wis_result = ::wisDX12DeviceCreateRootSignature(
             &_impl_storage,
             reinterpret_cast<const WisRootSignatureDesc*>(&desc),
@@ -4197,7 +4230,7 @@ public:
         wis::Result& out_result
     ) const noexcept
     {
-        wis::DX12DescriptorHeap heap;
+        wis::DX12DescriptorHeap heap{};
         const WisResult wis_result = ::wisDX12DeviceCreateDescriptorHeap(
             &_impl_storage,
             reinterpret_cast<const WisDescriptorHeapDesc*>(&desc),
@@ -4226,7 +4259,7 @@ public:
         wis::Result& out_result
     ) const noexcept
     {
-        wis::DX12ViewHeap heap;
+        wis::DX12ViewHeap heap{};
         const WisResult wis_result = ::wisDX12DeviceCreateViewHeap(
             &_impl_storage,
             static_cast<WisViewHeapType>(type),
@@ -4293,7 +4326,7 @@ public:
         wis::Result& out_result
     ) const noexcept
     {
-        wis::DX12PipelineCache cache;
+        wis::DX12PipelineCache cache{};
         const WisResult wis_result = ::wisDX12DeviceCreatePipelineCache(
             &_impl_storage,
             reinterpret_cast<const uint8_t*>(initial_data.data()),
@@ -4319,7 +4352,7 @@ public:
         wis::Result& out_result
     ) const noexcept
     {
-        wis::DX12Shader shader;
+        wis::DX12Shader shader{};
         const WisResult wis_result = ::wisDX12DeviceCreateShader(
             &_impl_storage,
             reinterpret_cast<const uint8_t*>(data.data()),
@@ -4345,7 +4378,7 @@ public:
         wis::Result& out_result
     ) const noexcept
     {
-        wis::DX12Pipeline pipeline;
+        wis::DX12Pipeline pipeline{};
         const WisResult wis_result = ::wisDX12DeviceCreateComputePipeline(
             &_impl_storage,
             reinterpret_cast<const WisDX12ComputePipelineDesc*>(&desc),
@@ -4370,7 +4403,7 @@ public:
         wis::Result& out_result
     ) const noexcept
     {
-        wis::DX12Pipeline pipeline;
+        wis::DX12Pipeline pipeline{};
         const WisResult wis_result = ::wisDX12DeviceCreateGraphicsPipeline(
             &_impl_storage,
             reinterpret_cast<const WisDX12GraphicsPipelineDesc*>(&desc),
@@ -4412,7 +4445,7 @@ public:
         wis::Result& out_result
     ) const noexcept
     {
-        wis::SurfaceParameters params;
+        wis::SurfaceParameters params{};
         const WisResult wis_result = ::wisDX12DeviceGetSurfaceParameters(
             &_impl_storage,
             surface,
@@ -4442,7 +4475,7 @@ public:
         wis::Result& out_result
     ) const noexcept
     {
-        wis::DX12Swapchain swapchain;
+        wis::DX12Swapchain swapchain{};
         const WisResult wis_result = ::wisDX12DeviceCreateSwapchain(
             &_impl_storage,
             reinterpret_cast<const WisDX12Surface*>(&surface),
@@ -4469,7 +4502,7 @@ public:
         wis::Result& out_result
     ) const noexcept
     {
-        wis::FormatProperties properties;
+        wis::FormatProperties properties{};
         const WisResult wis_result = ::wisDX12DeviceGetFormatProperties(
             &_impl_storage,
             static_cast<WisDataFormat>(format),
@@ -4517,7 +4550,7 @@ public:
      * */
     WIS_NODISCARD inline wis::AdapterDesc GetAdapterDesc(std::size_t index, wis::Result& out_result) const noexcept
     {
-        wis::AdapterDesc desc;
+        wis::AdapterDesc desc{};
         const WisResult wis_result = ::wisDX12AdapterQueryGetAdapterDesc(
             &_impl_storage,
             index,
@@ -4558,7 +4591,7 @@ public:
         wis::Result& out_result
     ) const noexcept
     {
-        wis::DX12Device device;
+        wis::DX12Device device{};
         const WisResult wis_result = ::wisDX12AdapterQueryCreateDevice(
             &_impl_storage,
             index,
@@ -4603,7 +4636,7 @@ public:
         wis::Result& out_result
     ) const noexcept
     {
-        wis::DX12AdapterQuery query;
+        wis::DX12AdapterQuery query{};
         const WisResult wis_result = ::wisDX12InstanceQueryAdapters(
             &_impl_storage,
             static_cast<WisAdapterPreference>(preference),
@@ -4634,7 +4667,7 @@ WIS_NODISCARD inline wis::DX12Instance DX12CreateInstance(
     wis::Result& out_result
 ) noexcept
 {
-    wis::DX12Instance instance;
+    wis::DX12Instance instance{};
     const WisResult wis_result = ::wisDX12CreateInstance(
         reinterpret_cast<const WisDebugDesc*>(debug_desc),
         reinterpret_cast<WisDX12InstanceExtensionHeader**>(extensions.data()),
@@ -4970,7 +5003,7 @@ public:
      * */
     WIS_NODISCARD inline std::uint32_t GetCurrentIndex(wis::Result& out_result) const noexcept
     {
-        std::uint32_t index;
+        std::uint32_t index{};
         const WisResult wis_result = ::wisVKSwapchainGetCurrentIndex(
             &_impl_storage,
             reinterpret_cast<uint32_t*>(&index)
@@ -5454,7 +5487,7 @@ public:
      * */
     WIS_NODISCARD inline wis::VKBuffer CreateBuffer(const wis::BufferDesc& desc, wis::Result& out_result) const noexcept
     {
-        wis::VKBuffer buffer;
+        wis::VKBuffer buffer{};
         const WisResult wis_result = ::wisVKResourceAllocatorCreateBuffer(
             &_impl_storage,
             reinterpret_cast<const WisBufferDesc*>(&desc),
@@ -5479,7 +5512,7 @@ public:
         wis::Result& out_result
     ) const noexcept
     {
-        wis::VKTexture texture;
+        wis::VKTexture texture{};
         const WisResult wis_result = ::wisVKResourceAllocatorCreateTexture(
             &_impl_storage,
             reinterpret_cast<const WisTextureDesc*>(&desc),
@@ -6027,7 +6060,7 @@ public:
      * */
     WIS_NODISCARD inline wis::VKCommandList CreateCommandList(wis::Result& out_result) const noexcept
     {
-        wis::VKCommandList list;
+        wis::VKCommandList list{};
         const WisResult wis_result = ::wisVKCommandAllocatorCreateCommandList(&_impl_storage, list.GetStorage());
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
@@ -6120,7 +6153,7 @@ public:
         wis::Result& out_result
     ) const noexcept
     {
-        wis::VKCommandQueue queue;
+        wis::VKCommandQueue queue{};
         const WisResult wis_result = ::wisVKDeviceCreateCommandQueue(
             &_impl_storage,
             static_cast<WisCommandQueueType>(type),
@@ -6145,7 +6178,7 @@ public:
         wis::Result& out_result
     ) const noexcept
     {
-        wis::VKCommandAllocator allocator;
+        wis::VKCommandAllocator allocator{};
         const WisResult wis_result = ::wisVKDeviceCreateCommandAllocator(
             &_impl_storage,
             static_cast<WisCommandQueueType>(type),
@@ -6167,7 +6200,7 @@ public:
      * */
     WIS_NODISCARD inline wis::VKFence CreateFence(std::uint64_t initial_value, wis::Result& out_result) const noexcept
     {
-        wis::VKFence fence;
+        wis::VKFence fence{};
         const WisResult wis_result = ::wisVKDeviceCreateFence(&_impl_storage, initial_value, fence.GetStorage());
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
@@ -6184,7 +6217,7 @@ public:
      * */
     WIS_NODISCARD inline wis::VKResourceAllocator GetResourceAllocator(wis::Result& out_result) const noexcept
     {
-        wis::VKResourceAllocator allocator;
+        wis::VKResourceAllocator allocator{};
         const WisResult wis_result = ::wisVKDeviceGetResourceAllocator(&_impl_storage, allocator.GetStorage());
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
@@ -6205,7 +6238,7 @@ public:
         wis::Result& out_result
     ) const noexcept
     {
-        wis::VKRootSignature layout;
+        wis::VKRootSignature layout{};
         const WisResult wis_result = ::wisVKDeviceCreateRootSignature(
             &_impl_storage,
             reinterpret_cast<const WisRootSignatureDesc*>(&desc),
@@ -6230,7 +6263,7 @@ public:
         wis::Result& out_result
     ) const noexcept
     {
-        wis::VKDescriptorHeap heap;
+        wis::VKDescriptorHeap heap{};
         const WisResult wis_result = ::wisVKDeviceCreateDescriptorHeap(
             &_impl_storage,
             reinterpret_cast<const WisDescriptorHeapDesc*>(&desc),
@@ -6259,7 +6292,7 @@ public:
         wis::Result& out_result
     ) const noexcept
     {
-        wis::VKViewHeap heap;
+        wis::VKViewHeap heap{};
         const WisResult wis_result = ::wisVKDeviceCreateViewHeap(
             &_impl_storage,
             static_cast<WisViewHeapType>(type),
@@ -6326,7 +6359,7 @@ public:
         wis::Result& out_result
     ) const noexcept
     {
-        wis::VKPipelineCache cache;
+        wis::VKPipelineCache cache{};
         const WisResult wis_result = ::wisVKDeviceCreatePipelineCache(
             &_impl_storage,
             reinterpret_cast<const uint8_t*>(initial_data.data()),
@@ -6352,7 +6385,7 @@ public:
         wis::Result& out_result
     ) const noexcept
     {
-        wis::VKShader shader;
+        wis::VKShader shader{};
         const WisResult wis_result = ::wisVKDeviceCreateShader(
             &_impl_storage,
             reinterpret_cast<const uint8_t*>(data.data()),
@@ -6378,7 +6411,7 @@ public:
         wis::Result& out_result
     ) const noexcept
     {
-        wis::VKPipeline pipeline;
+        wis::VKPipeline pipeline{};
         const WisResult wis_result = ::wisVKDeviceCreateComputePipeline(
             &_impl_storage,
             reinterpret_cast<const WisVKComputePipelineDesc*>(&desc),
@@ -6403,7 +6436,7 @@ public:
         wis::Result& out_result
     ) const noexcept
     {
-        wis::VKPipeline pipeline;
+        wis::VKPipeline pipeline{};
         const WisResult wis_result = ::wisVKDeviceCreateGraphicsPipeline(
             &_impl_storage,
             reinterpret_cast<const WisVKGraphicsPipelineDesc*>(&desc),
@@ -6443,7 +6476,7 @@ public:
         wis::Result& out_result
     ) const noexcept
     {
-        wis::SurfaceParameters params;
+        wis::SurfaceParameters params{};
         const WisResult wis_result = ::wisVKDeviceGetSurfaceParameters(
             &_impl_storage,
             surface,
@@ -6473,7 +6506,7 @@ public:
         wis::Result& out_result
     ) const noexcept
     {
-        wis::VKSwapchain swapchain;
+        wis::VKSwapchain swapchain{};
         const WisResult wis_result = ::wisVKDeviceCreateSwapchain(
             &_impl_storage,
             reinterpret_cast<const WisVKSurface*>(&surface),
@@ -6500,7 +6533,7 @@ public:
         wis::Result& out_result
     ) const noexcept
     {
-        wis::FormatProperties properties;
+        wis::FormatProperties properties{};
         const WisResult wis_result = ::wisVKDeviceGetFormatProperties(
             &_impl_storage,
             static_cast<WisDataFormat>(format),
@@ -6548,7 +6581,7 @@ public:
      * */
     WIS_NODISCARD inline wis::AdapterDesc GetAdapterDesc(std::size_t index, wis::Result& out_result) const noexcept
     {
-        wis::AdapterDesc desc;
+        wis::AdapterDesc desc{};
         const WisResult wis_result = ::wisVKAdapterQueryGetAdapterDesc(
             &_impl_storage,
             index,
@@ -6589,7 +6622,7 @@ public:
         wis::Result& out_result
     ) const noexcept
     {
-        wis::VKDevice device;
+        wis::VKDevice device{};
         const WisResult wis_result = ::wisVKAdapterQueryCreateDevice(
             &_impl_storage,
             index,
@@ -6633,7 +6666,7 @@ public:
         wis::Result& out_result
     ) const noexcept
     {
-        wis::VKAdapterQuery query;
+        wis::VKAdapterQuery query{};
         const WisResult wis_result = ::wisVKInstanceQueryAdapters(
             &_impl_storage,
             static_cast<WisAdapterPreference>(preference),
@@ -6664,7 +6697,7 @@ WIS_NODISCARD inline wis::VKInstance VKCreateInstance(
     wis::Result& out_result
 ) noexcept
 {
-    wis::VKInstance instance;
+    wis::VKInstance instance{};
     const WisResult wis_result = ::wisVKCreateInstance(
         reinterpret_cast<const WisDebugDesc*>(debug_desc),
         reinterpret_cast<WisVKInstanceExtensionHeader**>(extensions.data()),

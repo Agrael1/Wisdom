@@ -78,6 +78,10 @@
  *     WisDataFormatBC7RGBAUnorm = 98,
  *     WisDataFormatBC7RGBAUnormSrgb = 99,
  *     WisDataFormatBGRA4Unorm = 115,
+ * // Provided by Wisdom 0.7.1.     WisDataFormatNV12 = 256,
+ * // Provided by Wisdom 0.7.1.     WisDataFormatP010 = 257,
+ * // Provided by Wisdom 0.7.1.     WisDataFormatP012 = 258,
+ * // Provided by Wisdom 0.7.1.     WisDataFormatP016 = 259,
  * } WisDataFormat;
  * ```
  * C++ version:
@@ -153,6 +157,10 @@
  *     BC7RGBAUnorm = 98,
  *     BC7RGBAUnormSrgb = 99,
  *     BGRA4Unorm = 115,
+ * // Provided by Wisdom 0.7.1.     NV12 = 256,
+ * // Provided by Wisdom 0.7.1.     P010 = 257,
+ * // Provided by Wisdom 0.7.1.     P012 = 258,
+ * // Provided by Wisdom 0.7.1.     P016 = 259,
  * };
  * }
  * ```
@@ -472,6 +480,23 @@
  * a 4-bit G component in bits 4..7,
  * a 4-bit R component in bits 8..11,
  * a 4-bit A component in bits 12..15.
+ * - `WisDataFormatNV12 = 256`: NV12 video format.
+ * A two-plane format with a single 8-bit Y plane followed by an interleaved UV plane, where the U and V components are
+ * subsampled by a factor of 2 in both dimensions. The Y plane contains the luma (brightness) information, while the UV
+ * plane contains the chroma (color) information. This format is commonly used for video encoding and decoding
+ * applications.
+ * - `WisDataFormatP010 = 257`: P010 video format.
+ * A two-plane format similar to NV12, but with 10 bits per channel instead of 8. The Y plane contains 10-bit luma
+ * information, and the UV plane contains interleaved 10-bit chroma information. This format is used for high-quality
+ * video encoding and decoding, providing improved color fidelity compared to NV12.
+ * - `WisDataFormatP012 = 258`: P012 video format.
+ * A two-plane format similar to P010, but with 12 bits per channel instead of 10. The Y plane contains 12-bit luma
+ * information, and the UV plane contains interleaved 12-bit chroma information. This format is used for professional
+ * video applications that require higher color fidelity and dynamic range than P010.
+ * - `WisDataFormatP016 = 259`: P016 video format.
+ * A two-plane format similar to P010, but with 16 bits per channel instead of 10. The Y plane contains 16-bit luma
+ * information, and the UV plane contains interleaved 16-bit chroma information. This format is used for professional
+ * video applications that require the highest color fidelity and dynamic range.
  * \endcond
  *
  *

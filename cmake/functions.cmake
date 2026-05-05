@@ -515,15 +515,15 @@ function(wis_load_agility_sdk)
 endfunction()
 
 # Function for patching executable to export DX12 Agility symbols on Windows
-function(wis_patch_agility_executable TARGET)
+function(wis_patch_agility_executable TARGET EXPORT_PATH)
     if (NOT WISDOM_WINDOWS)
         return()
     endif()
 
-    get_target_property(target_type ${TARGET_NAME} TYPE)
+    get_target_property(target_type ${TARGET} TYPE)
 
-    if(target_type NOT STREQUAL "EXECUTABLE")
-        message(FATAL_ERROR "Target ${TARGET_NAME} is not an executable. DX12 Agility patching can only be applied to executables.")
+    if(NOT target_type STREQUAL "EXECUTABLE")
+        message(FATAL_ERROR "Target ${TARGET} is not an executable. DX12 Agility patching can only be applied to executables.")
     endif()
 
     # Check if the DX12Agility target is available
@@ -536,10 +536,10 @@ function(wis_patch_agility_executable TARGET)
     set(EXPORT_AGILITY "_declspec(dllexport) const unsigned D3D12SDKVersion = ${DX12SDKVER};
 						_declspec(dllexport) const char* D3D12SDKPath = \".\\\\D3D12\\\\\";"
     )
-    file(WRITE ${wis_export_agility_file_PATH} "${EXPORT_AGILITY}")
+    file(WRITE ${EXPORT_PATH} "${EXPORT_AGILITY}")
 
     # Add the generated file to the target sources to ensure it's compiled and linked into the executable
-    target_sources(${TARGET} PRIVATE ${wis_export_agility_file_PATH})
+    target_sources(${TARGET} PRIVATE ${EXPORT_PATH})
 endfunction()
 
 # Function for installing DirectX SDK
@@ -552,21 +552,21 @@ function(wis_install_agility_win32)
 
     # Check if project is an executable
     if (NOT TARGET ${wis_install_agility_win32_TARGET})
-        message(FATAL_ERROR "Target ${PROJECT} not found")
+        message(FATAL_ERROR "Target ${wis_install_agility_win32_TARGET} not found")
     endif()
 
-    get_target_property(target_type ${TARGET_NAME} TYPE)
+    get_target_property(target_type ${wis_install_agility_win32_TARGET} TYPE)
 
-    if(target_type NOT STREQUAL "EXECUTABLE")
-        message(FATAL_ERROR "Target ${TARGET_NAME} is not an executable. DX12 Agility patching can only be applied to executables.")
+    if(NOT target_type STREQUAL "EXECUTABLE")
+        message(FATAL_ERROR "Target ${wis_install_agility_win32_TARGET} is not an executable. DX12 Agility patching can only be applied to executables.")
     endif()
 
     message("Installing DirectX Agility SDK Dependency")
     if (EXISTS ${DXAGILITY_DLL})
         message("DX12 Agility Core found: ${DXAGILITY_DLL}")
         get_filename_component(DXAGILITY_DLL_NAME ${DXAGILITY_DLL} NAME)
-        add_custom_command(TARGET ${PROJECT} POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DXAGILITY_DLL} $<TARGET_FILE_DIR:${PROJECT}>/D3D12/${DXAGILITY_DLL_NAME}
+        add_custom_command(TARGET ${wis_install_agility_win32_TARGET} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DXAGILITY_DLL} $<TARGET_FILE_DIR:${wis_install_agility_win32_TARGET}>/D3D12/${DXAGILITY_DLL_NAME}
                 COMMAND_EXPAND_LISTS
                 COMMENT "Copying DX12 Agility Core..."
         )
@@ -575,15 +575,18 @@ function(wis_install_agility_win32)
     if (EXISTS ${DXAGILITY_DEBUG_DLL})
         message("DX12 Agility SDKLayers found: ${DXAGILITY_DEBUG_DLL}")
         get_filename_component(DXAGILITY_DEBUG_DLL_NAME ${DXAGILITY_DEBUG_DLL} NAME)
-        add_custom_command(TARGET ${PROJECT} POST_BUILD
-                COMMAND ${CMAKE_COMMAND} -E copy ${DXAGILITY_DEBUG_DLL} $<TARGET_FILE_DIR:${PROJECT}>/D3D12/${DXAGILITY_DEBUG_DLL_NAME}
+        add_custom_command(TARGET ${wis_install_agility_win32_TARGET} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy ${DXAGILITY_DEBUG_DLL} $<TARGET_FILE_DIR:${wis_install_agility_win32_TARGET}>/D3D12/${DXAGILITY_DEBUG_DLL_NAME}
                 COMMAND_EXPAND_LISTS
                 COMMENT "Copying DX12 Agility SDKLayers..."
         )
     endif()
 
     if (wis_install_agility_win32_PATCH_EXE)
-        wis_patch_agility_executable(${wis_install_agility_win32_TARGET})
+        wis_patch_agility_executable(
+            ${wis_install_agility_win32_TARGET} 
+            ${CMAKE_CURRENT_BINARY_DIR}/export_agility.c
+        )
     endif()
 endfunction()
 

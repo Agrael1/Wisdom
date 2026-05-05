@@ -50,7 +50,5 @@
  * <hr>
  *
  * \cond WIS_GEN_REFS
- * @see Structs:
- * WisVideoCodecDesc
  * \endcond
  */

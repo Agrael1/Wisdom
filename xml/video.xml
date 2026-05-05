@@ -13,8 +13,9 @@
         <!--HEVC-->
         <value name="H265Main" value="32" doc="H.265 Main profile. Suitable for standard-definition video streaming and broadcast."/>
         <value name="H265Main10" value="33" doc="H.265 Main 10 profile. Adds support for 10-bit video, providing better color depth and improved compression efficiency compared to the Main profile."/>
-        <value name="H265FormatRangeExt" value="34" doc="H.265 Format Range Extensions profile. Adds support for additional features such as higher bit depths, wider color gamut, and improved compression efficiency, suitable for high-quality video streaming and broadcast."/>
-        <value name="H265SCCExt" value="35" doc="H.265 Screen Content Coding Extensions profile. Designed for screen content coding, offering improved compression efficiency for computer-generated content such as screen sharing and remote desktop applications."/>
+        <value name="H265Main12" value="34" doc="H.265 Main 12 profile. Adds support for 12-bit video, offering even greater color depth and improved compression efficiency compared to the Main 10 profile."/>
+        <value name="H265Main16" value="35" doc="H.265 Main 16 profile. Adds support for 16-bit video, providing the highest color depth and best compression efficiency among the Main profiles, suitable for professional video production and post-production workflows."/>
+        <value name="H265FormatRangeExt" value="36" doc="H.265 Format Range Extensions profile. Adds support for additional features such as higher bit depths, wider color gamut, and improved compression efficiency, suitable for high-quality video streaming and broadcast."/>
 
         <!--AV1-->
         <value name="AV1Main" value="64" doc="AV1 Main profile. Suitable for a wide range of applications, including web streaming and video conferencing."/>
@@ -51,6 +52,7 @@
         <value name="Bit12" bit="2" doc="12-bit video component.">
           <impl name="vk" value="VK_VIDEO_COMPONENT_BIT_DEPTH_12_BIT_KHR"/>
         </value>
+        <value name="Bit16" bit="3" doc="16-bit video component."/>
       </type>
 
       <type name="ChromaSubsampling" category="bitmask" version="0.7.1" doc="Chroma subsampling flags for video components. Used to specify supported chroma subsampling formats for video decoding.">
@@ -73,8 +75,9 @@
       <!--Structs-->
       <type name="VideoCodecDesc" category="struct" version="0.7.1" doc="Information about a supported video codec.">
         <member type="StdCodecProfile" name="codec_profile" doc="The video codec to query capabilities for."/>
-        <member type="ComponentBitDepth" name="bit_depth" doc="Supported bit depths for this codec, represented as a bitmask of ComponentBitDepth flags."/>
-        <member type="ChromaSubsampling" name="chroma_subsampling" doc="Supported chroma subsampling formats for this codec, represented as a bitmask of ChromaSubsampling flags."/>
+        <member type="DataFormat" name="data_format" doc="The data format of the video frames for this codec. This field is used to specify the expected format of the video frames that will be decoded using this codec, and can influence the supported bit depths and chroma subsampling formats."/>
+        <member type="u32" name="width" doc="Max width of the video frame in pixels."/>
+        <member type="u32" name="height" doc="Max height of the video frame in pixels."/>
       </type>
 
       <type name="VideoDecodeInfo" category="struct" version="0.7.1" doc="Information about a video decode operation.">

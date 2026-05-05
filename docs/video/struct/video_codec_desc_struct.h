@@ -11,9 +11,10 @@
  * ```c
  * // Provided by Wisdom 0.7.1.
  * typedef struct  WisVideoCodecDesc {
- *     WisStdCodecProfile   codec_profile;
- *     WisComponentBitDepth bit_depth;
- *     WisChromaSubsampling chroma_subsampling;
+ *     WisStdCodecProfile codec_profile;
+ *     WisDataFormat      data_format;
+ *     uint32_t           width;
+ *     uint32_t           height;
  * } WisVideoCodecDesc;
  *
  * ```
@@ -22,9 +23,10 @@
  * namespace wis{
  * // Provided by Wisdom 0.7.1.
  * struct  VideoCodecDesc {
- *     wis::StdCodecProfile   codec_profile;
- *     wis::ComponentBitDepth bit_depth;
- *     wis::ChromaSubsampling chroma_subsampling;
+ *     wis::StdCodecProfile codec_profile;
+ *     wis::DataFormat      data_format;
+ *     std::uint32_t        width;
+ *     std::uint32_t        height;
  * };
  * }
  * ```
@@ -34,9 +36,11 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - `codec_profile` The video codec to query capabilities for.
- * - `bit_depth` Supported bit depths for this codec, represented as a bitmask of ComponentBitDepth flags.
- * - `chroma_subsampling` Supported chroma subsampling formats for this codec, represented as a bitmask of
- * ChromaSubsampling flags.
+ * - `data_format` The data format of the video frames for this codec. This field is used to specify the expected format
+ * of the video frames that will be decoded using this codec, and can influence the supported bit depths and chroma
+ * subsampling formats.
+ * - `width` Max width of the video frame in pixels.
+ * - `height` Max height of the video frame in pixels.
  * \endcond
  *
  * @section WisVideoCodecDesc_descr Description

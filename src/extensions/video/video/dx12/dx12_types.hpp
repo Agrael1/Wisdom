@@ -4,6 +4,8 @@
 #    error "This header requires C++"
 #endif // __cplusplus
 
+struct ID3D12VideoDevice;
+
 namespace wis {
 //----------------------------------------------------------------------------------------------------------------------
 namespace detail {} // namespace detail
@@ -12,7 +14,7 @@ namespace impl {
 struct DX12VideoDecodingExtensionImpl {
     DX12DeviceExtensionHeader header;
     WisVideoCodecFlags supported_codecs;
-    ID3D12Device10* device;
+    ID3D12VideoDevice* device;
 };
 
 

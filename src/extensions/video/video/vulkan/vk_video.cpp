@@ -91,6 +91,8 @@ inline WisResult VKVideoDecodingExtensionInit(
 }
 } // namespace wis::detail
 
+
+
 WIS_EXTERN_C WISDOM_VIDEO_API void wisVKInitVideoDecodingExtension(
     WisVKVideoDecodingExtension* self,
     WisVideoCodecFlags request_codecs
@@ -145,9 +147,9 @@ WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionQueryCodecCap
 
     VkVideoProfileInfoKHR profile_info{
         .sType = VK_STRUCTURE_TYPE_VIDEO_PROFILE_INFO_KHR,
-        .chromaSubsampling = wis::detail::VKConvert(codec_desc->chroma_subsampling),
-        .lumaBitDepth = wis::detail::VKConvert(codec_desc->bit_depth),
-        .chromaBitDepth = wis::detail::VKConvert(codec_desc->bit_depth),
+        //.chromaSubsampling = wis::detail::VKConvert(codec_desc->chroma_subsampling),
+        //.lumaBitDepth = wis::detail::VKConvert(codec_desc->bit_depth),
+        //.chromaBitDepth = wis::detail::VKConvert(codec_desc->bit_depth),
     };
     uint32_t codec_type = codec_desc->codec_profile / 32; // Codec profiles are defined with step of 32
     switch (1 << codec_type) {
@@ -198,9 +200,6 @@ WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionQueryCodecCap
             break;
         case WisStdCodecProfileH265FormatRangeExt:
             info.stdProfileIdc = STD_VIDEO_H265_PROFILE_IDC_FORMAT_RANGE_EXTENSIONS;
-            break;
-        case WisStdCodecProfileH265SCCExt:
-            info.stdProfileIdc = STD_VIDEO_H265_PROFILE_IDC_SCC_EXTENSIONS;
             break;
         default:
             info.stdProfileIdc = STD_VIDEO_H265_PROFILE_IDC_INVALID;

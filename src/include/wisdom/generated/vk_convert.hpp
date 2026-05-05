@@ -149,6 +149,14 @@ constexpr inline VkFormat VKConvert(WisDataFormat value) noexcept
         return VK_FORMAT_BC7_SRGB_BLOCK;
     case WisDataFormatBGRA4Unorm:
         return VK_FORMAT_A4R4G4B4_UNORM_PACK16;
+    case WisDataFormatNV12:
+        return VK_FORMAT_G8_B8R8_2PLANE_420_UNORM;
+    case WisDataFormatP010:
+        return VK_FORMAT_G10X6_B10X6R10X6_2PLANE_420_UNORM_3PACK16;
+    case WisDataFormatP012:
+        return VK_FORMAT_G12X4_B12X4R12X4_2PLANE_420_UNORM_3PACK16;
+    case WisDataFormatP016:
+        return VK_FORMAT_G16_B16R16_2PLANE_420_UNORM;
     default:
         return static_cast<VkFormat>(0);
     }

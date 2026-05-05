@@ -47,111 +47,16 @@ class Application
     }
 
 public:
-    Application()
-        : video_extension{wis::VideoCodecFlags::AV1 | wis::VideoCodecFlags::H264 | wis::VideoCodecFlags::H265 | wis::VideoCodecFlags::VP9}
-        , device{CreateDevice()}
-    {
-        wis::Result result{};
-
-        constexpr wis::ComponentBitDepth bit_depths[] = {
-            wis::ComponentBitDepth::Bit8,
-            wis::ComponentBitDepth::Bit10,
-            wis::ComponentBitDepth::Bit12,
-        };
-        constexpr wis::ChromaSubsampling chroma_subsamplings[] = {
-            wis::ChromaSubsampling::C420,
-            wis::ChromaSubsampling::C422,
-            wis::ChromaSubsampling::C444,
-        };
-        constexpr wis::StdCodecProfile profiles[] = {
-            wis::StdCodecProfile::H264Baseline,
-            wis::StdCodecProfile::H264Main,
-            wis::StdCodecProfile::H264High,
-            wis::StdCodecProfile::H264HighPredictive,
-            wis::StdCodecProfile::H265Main,
-            wis::StdCodecProfile::H265Main10,
-            wis::StdCodecProfile::H265FormatRangeExt,
-            wis::StdCodecProfile::H265SCCExt,
-            wis::StdCodecProfile::AV1Main,
-            wis::StdCodecProfile::AV1High,
-            wis::StdCodecProfile::AV1Professional,
-            wis::StdCodecProfile::VP9Profile0,
-            wis::StdCodecProfile::VP9Profile1,
-            wis::StdCodecProfile::VP9Profile2,
-            wis::StdCodecProfile::VP9Profile3,
-        };
-        constexpr std::string_view profile_strs[] = {
-            "H.264 Baseline",
-            "H.264 Main",
-            "H.264 High",
-            "H.264 High Predictive",
-            "H.265 Main",
-            "H.265 Main 10",
-            "H.265 Format Range Extension",
-            "H.265 Screen Content Coding Extension",
-            "AV1 Main",
-            "AV1 High",
-            "AV1 Professional",
-            "VP9 Profile 0",
-            "VP9 Profile 1",
-            "VP9 Profile 2",
-            "VP9 Profile 3",
-        };
-        static_assert(
-            std::size(profiles) == std::size(profile_strs),
-            "Profiles and profile strings arrays must be of the same size"
-        );
-
-        constexpr std::string_view bit_depth_strs[] = {
-            "8-bit",
-            "10-bit",
-            "12-bit",
-        };
-        constexpr std::string_view chroma_subsampling_strs[] = {
-            "4:2:0",
-            "4:2:2",
-            "4:4:4",
-        };
-
-        for (uint32_t i = 0; i < std::size(profile_strs); i++) {
-            auto codec = profiles[i];
-            auto codec_str = profile_strs[i];
-
-            for (uint32_t j = 0; j < std::size(bit_depth_strs); j++) {
-                auto bit_depth = bit_depths[j];
-                auto bit_depth_str = bit_depth_strs[j];
-
-
-                for (uint32_t k = 0; k < std::size(chroma_subsampling_strs); k++) {
-                    auto caps = video_extension.QueryCodecCaps(
-                        {
-                            .codec_profile = codec,
-                            .bit_depth = bit_depth,
-                            .chroma_subsampling = chroma_subsamplings[k],
-                        },
-                        result
-                    );
-                    auto str = std::format(
-                        "Codec: {}; Bit Depth: {}; Chroma Subsampling: {}; Max Resolution: {}x{}; {}",
-                        codec_str,
-                        bit_depth_str,
-                        chroma_subsampling_strs[k],
-                        caps.max_width,
-                        caps.max_height,
-                        caps.max_width != 0 && caps.max_height != 0 ? "Supported" : "Not Supported"
-                    );
-                    std::printf("%s\n", str.c_str());
-                }
-                std::printf("\n");
-            }
-            std::printf("\n");
-        }
-    }
+    Application() { CreateDevice(); }
 
 private:
     wis::Device CreateDevice()
     {
         wis::Device device{};
+        wis::VideoDecodingExtension video_extension{
+            wis::VideoCodecFlags::AV1 | wis::VideoCodecFlags::H264 | wis::VideoCodecFlags::H265
+            | wis::VideoCodecFlags::VP9
+        };
         wis::Result result{};
 
         wis::DebugDesc debug_desc = {
@@ -192,16 +97,99 @@ private:
                     adapter_desc.device_id
                 );
 
-                break;
+                PrintCapabilities(video_extension);
             }
         }
 
         return device;
     }
 
-private:
-    wis::VideoDecodingExtension video_extension;
-    wis::Device device;
+    void PrintCapabilities(wis::VideoDecodingExtension& video_extension)
+    {
+        wis::Result result{};
+
+        constexpr wis::DataFormat formats[] = {
+            wis::DataFormat::NV12,
+            wis::DataFormat::P010,
+            wis::DataFormat::P012,
+            wis::DataFormat::P016,
+        };
+        constexpr wis::StdCodecProfile profiles[] = {
+            wis::StdCodecProfile::H264Baseline,
+            wis::StdCodecProfile::H264Main,
+            wis::StdCodecProfile::H264High,
+            wis::StdCodecProfile::H264HighPredictive,
+            wis::StdCodecProfile::H265Main,
+            wis::StdCodecProfile::H265Main10,
+            wis::StdCodecProfile::H265Main12,
+            wis::StdCodecProfile::H265Main16,
+            wis::StdCodecProfile::H265FormatRangeExt,
+            wis::StdCodecProfile::AV1Main,
+            wis::StdCodecProfile::AV1High,
+            wis::StdCodecProfile::AV1Professional,
+            wis::StdCodecProfile::VP9Profile0,
+            wis::StdCodecProfile::VP9Profile1,
+            wis::StdCodecProfile::VP9Profile2,
+            wis::StdCodecProfile::VP9Profile3,
+        };
+        constexpr std::string_view profile_strs[] = {
+            "H.264 Baseline",
+            "H.264 Main",
+            "H.264 High",
+            "H.264 High Predictive",
+            "H.265 Main",
+            "H.265 Main 10",
+            "H.265 Main 12",
+            "H.265 Main 16",
+            "H.265 Format Range Extension",
+            "AV1 Main",
+            "AV1 High",
+            "AV1 Professional",
+            "VP9 Profile 0",
+            "VP9 Profile 1",
+            "VP9 Profile 2",
+            "VP9 Profile 3",
+        };
+        static_assert(
+            std::size(profiles) == std::size(profile_strs),
+            "Profiles and profile strings arrays must be of the same size"
+        );
+
+        constexpr std::string_view format_strs[] = {
+            "NV12",
+            "P010",
+            "P012",
+            "P016",
+        };
+
+        for (uint32_t i = 0; i < std::size(profile_strs); i++) {
+            auto codec = profiles[i];
+            auto codec_str = profile_strs[i];
+
+            for (uint32_t j = 0; j < std::size(format_strs); j++) {
+                auto format = formats[j];
+                auto format_str = format_strs[j];
+
+                auto caps = video_extension.QueryCodecCaps(
+                    {
+                        .codec_profile = codec,
+                        .data_format = format,
+                        .width = 1920,
+                        .height = 1080,
+                    },
+                    result
+                );
+                auto str = std::format(
+                    "Codec: {}; Format: {}; {}",
+                    codec_str,
+                    format_str,
+                    result.status == wis::Status::Ok ? "Supported" : "Not Supported"
+                );
+                std::printf("%s\n", str.c_str());
+            }
+            std::printf("\n");
+        }
+    }
 };
 
 int main()
