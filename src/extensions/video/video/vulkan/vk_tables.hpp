@@ -11,6 +11,7 @@ namespace wis {
 namespace impl {
 struct VKVideoTable {
     PFN_vkGetPhysicalDeviceVideoCapabilitiesKHR vkGetPhysicalDeviceVideoCapabilitiesKHR;
+    PFN_vkGetPhysicalDeviceVideoFormatPropertiesKHR vkGetPhysicalDeviceVideoFormatPropertiesKHR;
 
 public:
     bool Init(
@@ -21,6 +22,7 @@ public:
     ) noexcept
     {
         ASSIGN_INSTANCE_PROC_ADDR_CHECK(instance, vkGetPhysicalDeviceVideoCapabilitiesKHR);
+        ASSIGN_INSTANCE_PROC_ADDR_CHECK(instance, vkGetPhysicalDeviceVideoFormatPropertiesKHR);
         // ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkCreateAccelerationStructureKHR);
         return true;
     }

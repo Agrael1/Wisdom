@@ -1,6 +1,7 @@
 #ifndef WIS_VK_VIDEO_CPP
 #define WIS_VK_VIDEO_CPP
 
+#include <wisdom/generated/vk_convert.hpp>
 #include <wisdom/vulkan/detail/vk_detail.hpp>
 #include <wisdom/vulkan/detail/vk_utils.hpp>
 #include <wisdom/vulkan/vk_extensions.hpp>
@@ -89,9 +90,71 @@ inline WisResult VKVideoDecodingExtensionInit(
 
     return wis::detail::vk_success;
 }
+
+struct VKVideoFormatInfo {
+    VkFormat vk_format = VK_FORMAT_UNDEFINED;
+    VkVideoComponentBitDepthFlagsKHR bit_depth = 0;
+    VkVideoChromaSubsamplingFlagsKHR chroma_subsampling = 0;
+};
+
+template <WisDataFormat Format>
+struct VKVideoFormatMapping {
+    constexpr static VKVideoFormatInfo info{};
+};
+
+template <>
+struct VKVideoFormatMapping<WisDataFormatNV12> {
+    static constexpr VKVideoFormatInfo info{
+        .vk_format = VKConvert(WisDataFormatNV12),
+        .bit_depth = VKConvert(WisComponentBitDepthBit8),
+        .chroma_subsampling = VKConvert(WisChromaSubsamplingC420),
+    };
+};
+
+template <>
+struct VKVideoFormatMapping<WisDataFormatP010> {
+    static constexpr VKVideoFormatInfo info{
+        .vk_format = VKConvert(WisDataFormatP010),
+        .bit_depth = VKConvert(WisComponentBitDepthBit10),
+        .chroma_subsampling = VKConvert(WisChromaSubsamplingC420),
+    };
+};
+
+template <>
+struct VKVideoFormatMapping<WisDataFormatP012> {
+    static constexpr VKVideoFormatInfo info{
+        .vk_format = VKConvert(WisDataFormatP012),
+        .bit_depth = VKConvert(WisComponentBitDepthBit12),
+        .chroma_subsampling = VKConvert(WisChromaSubsamplingC420),
+    };
+};
+
+template <>
+struct VKVideoFormatMapping<WisDataFormatP016> {
+    static constexpr VKVideoFormatInfo info{
+        .vk_format = VKConvert(WisDataFormatP016),
+        .bit_depth = VKConvert(WisComponentBitDepthBit16),
+        .chroma_subsampling = VKConvert(WisChromaSubsamplingC420),
+    };
+};
+
+inline constexpr VKVideoFormatInfo VKGetFormatInfo(WisDataFormat format) noexcept
+{
+    switch (format) {
+    case WisDataFormatNV12:
+        return VKVideoFormatMapping<WisDataFormatNV12>::info;
+    case WisDataFormatP010:
+        return VKVideoFormatMapping<WisDataFormatP010>::info;
+    case WisDataFormatP012:
+        return VKVideoFormatMapping<WisDataFormatP012>::info;
+    case WisDataFormatP016:
+        return VKVideoFormatMapping<WisDataFormatP016>::info;
+    default:
+        return {}; // Unsupported format
+    }
+}
+
 } // namespace wis::detail
-
-
 
 WIS_EXTERN_C WISDOM_VIDEO_API void wisVKInitVideoDecodingExtension(
     WisVKVideoDecodingExtension* self,
@@ -145,11 +208,20 @@ WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionQueryCodecCap
         VkVideoDecodeVP9ProfileInfoKHR>
         decode_profile_infos;
 
+    auto format_info = wis::detail::VKGetFormatInfo(codec_desc->data_format);
+    if (format_info.bit_depth == 0 || format_info.chroma_subsampling == 0) {
+        return wis::detail::make_result<
+            wis::detail::Func(),
+            "Unsupported data format. Please provide a supported data format for video decoding.">(
+            VK_ERROR_FEATURE_NOT_PRESENT
+        );
+    }
+
     VkVideoProfileInfoKHR profile_info{
         .sType = VK_STRUCTURE_TYPE_VIDEO_PROFILE_INFO_KHR,
-        //.chromaSubsampling = wis::detail::VKConvert(codec_desc->chroma_subsampling),
-        //.lumaBitDepth = wis::detail::VKConvert(codec_desc->bit_depth),
-        //.chromaBitDepth = wis::detail::VKConvert(codec_desc->bit_depth),
+        .chromaSubsampling = format_info.chroma_subsampling,
+        .lumaBitDepth = format_info.bit_depth,
+        .chromaBitDepth = format_info.bit_depth,
     };
     uint32_t codec_type = codec_desc->codec_profile / 32; // Codec profiles are defined with step of 32
     switch (1 << codec_type) {
@@ -175,7 +247,9 @@ WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionQueryCodecCap
             info.stdProfileIdc = STD_VIDEO_H264_PROFILE_IDC_HIGH_444_PREDICTIVE;
             break;
         default:
-            info.stdProfileIdc = STD_VIDEO_H264_PROFILE_IDC_INVALID;
+            return wis::detail::make_result<
+                wis::detail::Func(),
+                "Profile is not supported by Vulkan video decoding extension.">(VK_ERROR_FEATURE_NOT_PRESENT);
             break;
         }
 
@@ -202,8 +276,9 @@ WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionQueryCodecCap
             info.stdProfileIdc = STD_VIDEO_H265_PROFILE_IDC_FORMAT_RANGE_EXTENSIONS;
             break;
         default:
-            info.stdProfileIdc = STD_VIDEO_H265_PROFILE_IDC_INVALID;
-            break;
+            return wis::detail::make_result<
+                wis::detail::Func(),
+                "Profile is not supported by Vulkan video decoding extension.">(VK_ERROR_FEATURE_NOT_PRESENT);
         }
 
         profile_info.videoCodecOperation = VK_VIDEO_CODEC_OPERATION_DECODE_H265_BIT_KHR;
@@ -229,7 +304,9 @@ WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionQueryCodecCap
             info.stdProfile = STD_VIDEO_AV1_PROFILE_PROFESSIONAL;
             break;
         default:
-            info.stdProfile = STD_VIDEO_AV1_PROFILE_INVALID;
+            return wis::detail::make_result<
+                wis::detail::Func(),
+                "Profile is not supported by Vulkan video decoding extension.">(VK_ERROR_FEATURE_NOT_PRESENT);
             break;
         }
         info.filmGrainSupport = VK_TRUE;
@@ -259,7 +336,9 @@ WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionQueryCodecCap
             info.stdProfile = STD_VIDEO_VP9_PROFILE_3;
             break;
         default:
-            info.stdProfile = STD_VIDEO_VP9_PROFILE_INVALID;
+            return wis::detail::make_result<
+                wis::detail::Func(),
+                "Profile is not supported by Vulkan video decoding extension.">(VK_ERROR_FEATURE_NOT_PRESENT);
             break;
         }
 
@@ -268,7 +347,6 @@ WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionQueryCodecCap
         decode_caps.pNext = &cap;
     } break;
     default:
-        *decode_info = {}; // Clear output info
         return wis::detail::make_result<
             wis::detail::Func(),
             "Unsupported codec. Please provide a valid codec profile.">(VK_ERROR_UNKNOWN);
@@ -276,17 +354,64 @@ WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionQueryCodecCap
 
     auto vr = impl.video_table->vkGetPhysicalDeviceVideoCapabilitiesKHR(impl.adapter, &profile_info, &video_caps);
     if (vr != VK_SUCCESS) {
-        *decode_info = {}; // Clear output info
-        return wis::detail::make_result<wis::detail::Func(), "Failed to query video capabilities">(vr);
+        return wis::detail::make_result<wis::detail::Func(), "Unsupported codec parameter combination.">(vr);
     }
 
     // Fill out the decode info based on the queried capabilities
-    *decode_info = {
-        .max_width = video_caps.maxCodedExtent.width,
-        .max_height = video_caps.maxCodedExtent.height,
+    VkVideoProfileListInfoKHR profile_list_info{
+        .sType = VK_STRUCTURE_TYPE_VIDEO_PROFILE_LIST_INFO_KHR,
+        .pNext = &profile_info,
+        .profileCount = 1,
+        .pProfiles = &profile_info,
     };
+    VkPhysicalDeviceVideoFormatInfoKHR video_format_info{
+        .sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_FORMAT_INFO_KHR,
+        .pNext = &profile_list_info,
+        .imageUsage = VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR | VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR
+    };
+    uint32_t format_count = 0;
+    vr = impl.video_table
+             ->vkGetPhysicalDeviceVideoFormatPropertiesKHR(impl.adapter, &video_format_info, &format_count, nullptr);
 
-    return wis::detail::vk_success;
+    if (vr != VK_SUCCESS) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to query supported video formats.">(vr);
+    }
+
+    static constexpr uint32_t reasonable_format_count = 16;
+    VkVideoFormatPropertiesKHR reasonable_formats[reasonable_format_count];
+    wis::span<VkVideoFormatPropertiesKHR> format_props{reasonable_formats, format_count};
+    std::unique_ptr<VkVideoFormatPropertiesKHR[]> dynamic_formats;
+    if (format_count > reasonable_format_count) {
+        dynamic_formats = wis::make_unique<VkVideoFormatPropertiesKHR[]>(format_count);
+        if (!dynamic_formats) {
+            return wis::detail::make_result<
+                wis::detail::Func(),
+                "Failed to allocate memory for video format properties.">(VK_ERROR_OUT_OF_HOST_MEMORY);
+        }
+
+        format_props = wis::span(dynamic_formats.get(), format_count);
+    }
+    vr = impl.video_table->vkGetPhysicalDeviceVideoFormatPropertiesKHR(
+        impl.adapter,
+        &video_format_info,
+        &format_count,
+        format_props.data()
+    );
+
+    if (vr != VK_SUCCESS) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to query supported video formats.">(vr);
+    }
+
+    // Check if any of the supported formats match the requested format
+    for (const auto& prop : format_props) {
+        if (prop.format == format_info.vk_format) {
+            return wis::detail::vk_success;
+        }
+    }
+
+    return wis::detail::make_result<wis::detail::Func(), "Requested Format is not supported for selected codec.">(
+        VK_ERROR_FORMAT_NOT_SUPPORTED
+    );
 }
 
 #endif // WIS_VK_VIDEO_CPP
