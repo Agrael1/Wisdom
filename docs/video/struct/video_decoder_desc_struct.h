@@ -11,8 +11,8 @@
  * ```c
  * // Provided by Wisdom 0.7.1.
  * typedef struct  WisVideoDecoderDesc {
- *     uint32_t           max_width;
- *     uint32_t           max_height;
+ *     uint32_t           width;
+ *     uint32_t           height;
  *     WisDataFormat      image_format;
  *     WisStdCodecProfile codec_profile;
  *     uint32_t           decode_picture_buffer_count;
@@ -24,8 +24,8 @@
  * namespace wis{
  * // Provided by Wisdom 0.7.1.
  * struct  VideoDecoderDesc {
- *     std::uint32_t        max_width;
- *     std::uint32_t        max_height;
+ *     std::uint32_t        width;
+ *     std::uint32_t        height;
  *     wis::DataFormat      image_format;
  *     wis::StdCodecProfile codec_profile;
  *     std::uint32_t        decode_picture_buffer_count;
@@ -37,8 +37,8 @@
  * @section WisVideoDecoderDesc_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- * - `max_width` Max width of the video frame in pixels.
- * - `max_height` Max height of the video frame in pixels.
+ * - `width` Width of the video frame in pixels.
+ * - `height` Height of the video frame in pixels.
  * - `image_format` The data format of the output video frames. This field specifies the expected format of the decoded
  * video frames that will be produced by the video decoder, and can influence the supported bit depths and chroma
  * subsampling formats.

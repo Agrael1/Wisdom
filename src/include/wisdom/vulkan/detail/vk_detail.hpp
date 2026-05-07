@@ -13,6 +13,7 @@
 #include <array>
 #include <atomic>
 #include <semaphore>
+#include <utility>
 
 namespace wis::impl {
 struct VKSwapchainImpl;
@@ -21,11 +22,11 @@ struct VKSwapchainImpl;
 namespace wis::detail {
 template <typename HandleType, typename F>
 struct VKScopeGuard {
+    HandleType handle;
     F f;
-    HandleType handle; 
 
     VKScopeGuard(HandleType handle, F&& f) noexcept
-        : handle(handle) 
+        : handle(handle)
         , f(std::forward<F>(f))
     {}
     ~VKScopeGuard() noexcept
@@ -47,7 +48,6 @@ VKScopeGuard<HandleType, F> VKMakeScopeGuard(HandleType handle, F&& f) noexcept
 {
     return VKScopeGuard<HandleType, F>(handle, std::forward<F>(f));
 }
-
 
 //----------------------------------------------------------------------------------------------------------------------
 /**

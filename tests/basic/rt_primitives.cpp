@@ -6,15 +6,6 @@ void log_callback_rt(wis::Severity severity, const char* message, uint64_t devic
 {
     const char* severity_str = "";
     switch (severity) {
-    case wis::Severity::Verbose:
-        severity_str = "VERBOSE";
-        break;
-    case wis::Severity::Info:
-        severity_str = "INFO";
-        break;
-    case wis::Severity::Warning:
-        severity_str = "WARNING";
-        break;
     case wis::Severity::Error:
         severity_str = "ERROR";
         printf("[%s] %s\n", severity_str, message);
@@ -25,10 +16,8 @@ void log_callback_rt(wis::Severity severity, const char* message, uint64_t devic
         FAIL();
         break;
     default:
-        severity_str = "UNKNOWN";
-        break;
+        return;
     }
-    printf("[%s] %s\n", severity_str, message);
 }
 
 TEST_CASE("check_rt_acceleration_structure")

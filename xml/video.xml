@@ -75,14 +75,14 @@
       <!--Structs-->
       <type name="VideoCodecDesc" category="struct" version="0.7.1" doc="Information about a supported video codec.">
         <member type="StdCodecProfile" name="codec_profile" doc="The video codec to query capabilities for."/>
-        <member type="DataFormat" name="data_format" doc="The data format of the video frames for this codec. This field is used to specify the expected format of the video frames that will be decoded using this codec, and can influence the supported bit depths and chroma subsampling formats."/>
+        <member type="DataFormat" name="image_format" doc="The data format of the video frames for this codec. This field is used to specify the expected format of the video frames that will be decoded using this codec, and can influence the supported bit depths and chroma subsampling formats."/>
         <member type="u32" name="width" doc="Max width of the video frame in pixels."/>
         <member type="u32" name="height" doc="Max height of the video frame in pixels."/>
       </type>
 
       <type name="VideoDecoderDesc" category="struct" version="0.7.1" doc="Information about a video decode operation.">
-        <member type="u32" name="max_width" doc="Max width of the video frame in pixels."/>
-        <member type="u32" name="max_height" doc="Max height of the video frame in pixels."/>
+        <member type="u32" name="width" doc="Width of the video frame in pixels."/>
+        <member type="u32" name="height" doc="Height of the video frame in pixels."/>
         <member type="DataFormat" name="image_format" doc="The data format of the output video frames. This field specifies the expected format of the decoded video frames that will be produced by the video decoder, and can influence the supported bit depths and chroma subsampling formats."/>
         <member type="StdCodecProfile" name="codec_profile" doc="The video codec profile that the decoder will use for decoding. This field specifies the profile of the video codec that the decoder will use for decoding video frames, and can influence the supported bit depths and chroma subsampling formats."/>
         <member type="u32" name="decode_picture_buffer_count" doc="The number of decode buffers that the decoder will use for decoding video frames."/> 

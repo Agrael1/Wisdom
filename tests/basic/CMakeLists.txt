@@ -1,4 +1,4 @@
-set(TEST_SOURCES "relaxed_destruction_order.cpp" "rt_basic.cpp" "rt_primitives.cpp")
+set(TEST_SOURCES "relaxed_destruction_order.cpp" "rt_basic.cpp" "rt_primitives.cpp" "video.cpp")
 
 if(WISDOM_DX12)
   wis_add_test(test-basic "${TEST_SOURCES}" "dx12")

@@ -208,12 +208,12 @@ wisDX12VideoDecodingExtensionQueryCodecCaps(WisDX12VideoDecodingExtension* self,
     D3D12_FEATURE_DATA_VIDEO_DECODE_SUPPORT decode_support{
         .Width = codec_desc->width,
         .Height = codec_desc->height,
-        .DecodeFormat = wis::detail::DX12Convert(codec_desc->data_format),
+        .DecodeFormat = wis::detail::DX12Convert(codec_desc->image_format),
     };
 
     WisResult decode_profile_result = wis::detail::DX12GetDecodeProfile(
         codec_desc->codec_profile,
-        codec_desc->data_format,
+        codec_desc->image_format,
         &decode_support.Configuration.DecodeProfile
     );
 
@@ -268,8 +268,8 @@ WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisDX12VideoDecodingExtensionCreateDecod
     // Create heap for decoder.
     D3D12_VIDEO_DECODER_HEAP_DESC heap_desc{
         .Configuration = dx_decoder_desc.Configuration,
-        .DecodeWidth = decoder_desc->max_width,
-        .DecodeHeight = decoder_desc->max_height,
+        .DecodeWidth = decoder_desc->width,
+        .DecodeHeight = decoder_desc->height,
         .Format = wis::detail::DX12Convert(decoder_desc->image_format),
         .MaxDecodePictureBufferCount = decoder_desc->decode_picture_buffer_count,
     };
@@ -291,6 +291,7 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisDX12DestroyVideoDecoder(WisDX12VideoDecode
 {
     auto& impl = wis::from_handle_ref<wis::impl::DX12VideoDecoderImpl>(self);
     if (impl.decoder) {
+        impl.decoder_heap->Release();
         impl.decoder->Release();
         impl.decoder = nullptr;
     }

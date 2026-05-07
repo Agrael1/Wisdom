@@ -196,28 +196,28 @@ using VKVideoProfileInfoStruct = std::variant<
 template <bool WithCaps>
 using VKVideoResult = std::conditional_t<
     WithCaps,
-    std::tuple<WisResult, VKVideoProfileInfoStruct, VkVideoProfileInfoKHR, VKVideoCapsStruct, VkVideoCapabilitiesKHR>,
-    std::tuple<WisResult, VKVideoProfileInfoStruct, VkVideoProfileInfoKHR>>;
+    std::tuple<VKVideoProfileInfoStruct, VkVideoProfileInfoKHR, VKVideoCapsStruct, VkVideoCapabilitiesKHR>,
+    std::tuple<VKVideoProfileInfoStruct, VkVideoProfileInfoKHR>>;
 
 template <bool WithCaps>
-inline VKVideoResult<WithCaps> VKFillVideoStructs(
+inline WisResult VKFillVideoStructs(
     const impl::VKVideoTable& video_table,
     VkDevice device,
     WisDataFormat data_format,
-    WisStdCodecProfile codec_profile
+    WisStdCodecProfile codec_profile,
+    VKVideoResult<WithCaps>& result
 ) noexcept
 {
-    VKVideoResult<WithCaps> result{};
     auto format_info = VKGetFormatInfo(data_format);
     if (format_info.bit_depth == 0 || format_info.chroma_subsampling == 0) {
-        std::get<0>(result) = wis::detail::make_result<
-            wis::detail::Func(),
-            "Unsupported data format. Please provide a supported data format for video decoding.">(
-            VK_ERROR_FEATURE_NOT_PRESENT
-        );
-        return result;
+        return WisResult{
+            .status = WisStatusError,
+            .platform_code = VK_ERROR_FEATURE_NOT_PRESENT,
+            .error = "VKFillVideoStructs: Unsupported data format. Please provide a supported data format for video "
+                     "decoding.",
+        };
     }
-    VkVideoProfileInfoKHR& profile_info = std::get<2>(result) = VkVideoProfileInfoKHR{
+    VkVideoProfileInfoKHR& profile_info = std::get<1>(result) = VkVideoProfileInfoKHR{
         .sType = VK_STRUCTURE_TYPE_VIDEO_PROFILE_INFO_KHR,
         .chromaSubsampling = format_info.chroma_subsampling,
         .lumaBitDepth = format_info.bit_depth,
@@ -225,7 +225,7 @@ inline VKVideoResult<WithCaps> VKFillVideoStructs(
     };
 
     if constexpr (WithCaps) {
-        std::get<4>(result) = VkVideoCapabilitiesKHR{
+        std::get<3>(result) = VkVideoCapabilitiesKHR{
             .sType = VK_STRUCTURE_TYPE_VIDEO_CAPABILITIES_KHR,
             .pNext = nullptr,
         };
@@ -235,13 +235,13 @@ inline VKVideoResult<WithCaps> VKFillVideoStructs(
     switch (1 << codec_type) {
     case WisVideoCodecFlagsH264: {
         if constexpr (WithCaps) {
-            auto& cap = std::get<3>(result).emplace<VkVideoDecodeH264CapabilitiesKHR>(
+            auto& cap = std::get<2>(result).template emplace<VkVideoDecodeH264CapabilitiesKHR>(
                 VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_CAPABILITIES_KHR
             );
-            std::get<4>(result).pNext = &cap;
+            std::get<3>(result).pNext = &cap;
         }
 
-        auto& info = std::get<1>(result).emplace<VkVideoDecodeH264ProfileInfoKHR>(
+        auto& info = std::get<0>(result).template emplace<VkVideoDecodeH264ProfileInfoKHR>(
             VK_STRUCTURE_TYPE_VIDEO_DECODE_H264_PROFILE_INFO_KHR
         );
 
@@ -259,25 +259,26 @@ inline VKVideoResult<WithCaps> VKFillVideoStructs(
             info.stdProfileIdc = STD_VIDEO_H264_PROFILE_IDC_HIGH_444_PREDICTIVE;
             break;
         default:
-            std::get<0>(result) = wis::detail::make_result<
-                wis::detail::Func(),
-                "Profile is not supported by Vulkan video decoding extension.">(VK_ERROR_FEATURE_NOT_PRESENT);
-            return result;
+            return WisResult{
+                .status = WisStatusError,
+                .platform_code = VK_ERROR_FEATURE_NOT_PRESENT,
+                .error = "VKFillVideoStructs: Profile is not supported by Vulkan video decoding extension.",
+            };
         }
 
         profile_info.videoCodecOperation = VK_VIDEO_CODEC_OPERATION_DECODE_H264_BIT_KHR;
         profile_info.pNext = &info;
-        return result;
+        return wis::detail::vk_success;
     }
     case WisVideoCodecFlagsH265: {
         if constexpr (WithCaps) {
-            auto& cap = std::get<3>(result).emplace<VkVideoDecodeH265CapabilitiesKHR>(
+            auto& cap = std::get<2>(result).template emplace<VkVideoDecodeH265CapabilitiesKHR>(
                 VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_CAPABILITIES_KHR
             );
-            std::get<4>(result).pNext = &cap;
+            std::get<3>(result).pNext = &cap;
         }
 
-        auto& info = std::get<1>(result).emplace<VkVideoDecodeH265ProfileInfoKHR>(
+        auto& info = std::get<0>(result).template emplace<VkVideoDecodeH265ProfileInfoKHR>(
             VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_PROFILE_INFO_KHR
         );
 
@@ -292,25 +293,26 @@ inline VKVideoResult<WithCaps> VKFillVideoStructs(
             info.stdProfileIdc = STD_VIDEO_H265_PROFILE_IDC_FORMAT_RANGE_EXTENSIONS;
             break;
         default:
-            std::get<0>(result) = wis::detail::make_result<
-                wis::detail::Func(),
-                "Profile is not supported by Vulkan video decoding extension.">(VK_ERROR_FEATURE_NOT_PRESENT);
-            return result;
+            return WisResult{
+                .status = WisStatusError,
+                .platform_code = VK_ERROR_FEATURE_NOT_PRESENT,
+                .error = "VKFillVideoStructs: Profile is not supported by Vulkan video decoding extension.",
+            };
         }
 
         profile_info.videoCodecOperation = VK_VIDEO_CODEC_OPERATION_DECODE_H265_BIT_KHR;
         profile_info.pNext = &info;
-        return result;
+        return wis::detail::vk_success;
     }
     case WisVideoCodecFlagsAV1: {
         if constexpr (WithCaps) {
-            auto& cap = std::get<3>(result).emplace<VkVideoDecodeAV1CapabilitiesKHR>(
+            auto& cap = std::get<2>(result).template emplace<VkVideoDecodeAV1CapabilitiesKHR>(
                 VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_CAPABILITIES_KHR
             );
-            std::get<4>(result).pNext = &cap;
+            std::get<3>(result).pNext = &cap;
         }
 
-        auto& info = std::get<1>(result).emplace<VkVideoDecodeAV1ProfileInfoKHR>(
+        auto& info = std::get<0>(result).template emplace<VkVideoDecodeAV1ProfileInfoKHR>(
             VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_PROFILE_INFO_KHR
         );
 
@@ -325,25 +327,26 @@ inline VKVideoResult<WithCaps> VKFillVideoStructs(
             info.stdProfile = STD_VIDEO_AV1_PROFILE_PROFESSIONAL;
             break;
         default:
-            std::get<0>(result) = wis::detail::make_result<
-                wis::detail::Func(),
-                "Profile is not supported by Vulkan video decoding extension.">(VK_ERROR_FEATURE_NOT_PRESENT);
-            return result;
+            return WisResult{
+                .status = WisStatusError,
+                .platform_code = VK_ERROR_FEATURE_NOT_PRESENT,
+                .error = "VKFillVideoStructs: Profile is not supported by Vulkan video decoding extension.",
+            };
         }
         info.filmGrainSupport = VK_TRUE;
         profile_info.videoCodecOperation = VK_VIDEO_CODEC_OPERATION_DECODE_AV1_BIT_KHR;
         profile_info.pNext = &info;
-        return result;
+        return wis::detail::vk_success;
     }
     case WisVideoCodecFlagsVP9: {
         if constexpr (WithCaps) {
-            auto& cap = std::get<3>(result).emplace<VkVideoDecodeVP9CapabilitiesKHR>(
+            auto& cap = std::get<2>(result).template emplace<VkVideoDecodeVP9CapabilitiesKHR>(
                 VK_STRUCTURE_TYPE_VIDEO_DECODE_VP9_CAPABILITIES_KHR
             );
-            std::get<4>(result).pNext = &cap;
+            std::get<3>(result).pNext = &cap;
         }
 
-        auto& info = std::get<1>(result).emplace<VkVideoDecodeVP9ProfileInfoKHR>(
+        auto& info = std::get<0>(result).template emplace<VkVideoDecodeVP9ProfileInfoKHR>(
             VK_STRUCTURE_TYPE_VIDEO_DECODE_VP9_PROFILE_INFO_KHR
         );
 
@@ -361,23 +364,24 @@ inline VKVideoResult<WithCaps> VKFillVideoStructs(
             info.stdProfile = STD_VIDEO_VP9_PROFILE_3;
             break;
         default:
-            std::get<0>(result) = wis::detail::make_result<
-                wis::detail::Func(),
-                "Profile is not supported by Vulkan video decoding extension.">(VK_ERROR_FEATURE_NOT_PRESENT);
-            return result;
+            return WisResult{
+                .status = WisStatusError,
+                .platform_code = VK_ERROR_FEATURE_NOT_PRESENT,
+                .error = "VKFillVideoStructs: Profile is not supported by Vulkan video decoding extension.",
+            };
         }
 
         profile_info.videoCodecOperation = VK_VIDEO_CODEC_OPERATION_DECODE_VP9_BIT_KHR;
         profile_info.pNext = &info;
-        return result;
+        return wis::detail::vk_success;
     }
     default:
-        std::get<0>(result) = wis::detail::make_result<
-            wis::detail::Func(),
-            "Unsupported codec. Please provide a valid codec profile.">(VK_ERROR_UNKNOWN);
-        break;
+        return WisResult{
+            .status = WisStatusError,
+            .platform_code = VK_ERROR_FEATURE_NOT_PRESENT,
+            .error = "VKFillVideoStructs: Unsupported codec. Please provide a valid codec profile.",
+        };
     }
-    return result;
 }
 
 } // namespace wis::detail
@@ -415,12 +419,20 @@ wisVKVideoDecodingExtensionQueryCodecCaps(WisVKVideoDecodingExtension* self, con
         .sType = VK_STRUCTURE_TYPE_VIDEO_DECODE_CAPABILITIES_KHR,
     };
 
-    auto [res, profile_info_struct, profile_info, caps_struct, video_caps] = wis::detail::VKFillVideoStructs<true>(
+    wis::detail::VKVideoResult<true> fill_result{};
+    auto res = wis::detail::VKFillVideoStructs<true>(
         *impl.video_table,
         impl.device,
-        codec_desc->data_format,
-        codec_desc->codec_profile
+        codec_desc->image_format,
+        codec_desc->codec_profile,
+        fill_result
     );
+    if (!wis::detail::succeeded(VkResult(res.platform_code))) {
+        return res;
+    }
+
+    auto& [profile_struct, profile_info, cap_struct, video_caps] = fill_result;
+    decode_caps.pNext = video_caps.pNext;
     video_caps.pNext = &decode_caps;
 
     auto vr = impl.video_table->vkGetPhysicalDeviceVideoCapabilitiesKHR(impl.adapter, &profile_info, &video_caps);
@@ -438,7 +450,7 @@ wisVKVideoDecodingExtensionQueryCodecCaps(WisVKVideoDecodingExtension* self, con
     // Fill out the decode info based on the queried capabilities
     VkVideoProfileListInfoKHR profile_list_info{
         .sType = VK_STRUCTURE_TYPE_VIDEO_PROFILE_LIST_INFO_KHR,
-        .pNext = &profile_info,
+        .pNext = nullptr,
         .profileCount = 1,
         .pProfiles = &profile_info,
     };
@@ -469,6 +481,12 @@ wisVKVideoDecodingExtensionQueryCodecCaps(WisVKVideoDecodingExtension* self, con
 
         format_props = wis::span(dynamic_formats.get(), format_count);
     }
+    for (auto& prop : format_props) {
+        prop = {
+            .sType = VK_STRUCTURE_TYPE_VIDEO_FORMAT_PROPERTIES_KHR,
+        };
+    }
+
     vr = impl.video_table->vkGetPhysicalDeviceVideoFormatPropertiesKHR(
         impl.adapter,
         &video_format_info,
@@ -481,7 +499,7 @@ wisVKVideoDecodingExtensionQueryCodecCaps(WisVKVideoDecodingExtension* self, con
     }
 
     // Check if any of the supported formats match the requested format
-    VkFormat requested_vk_format = wis::detail::VKConvert(codec_desc->data_format);
+    VkFormat requested_vk_format = wis::detail::VKConvert(codec_desc->image_format);
     for (const auto& prop : format_props) {
         if (prop.format == requested_vk_format) {
             return wis::detail::vk_success;
@@ -503,15 +521,19 @@ WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionCreateDecoder
     auto& impl = wis::from_handle_ref<const wis::impl::VKVideoDecodingExtensionImpl>(self);
     auto& device_header = impl.device_control_block->header;
 
-    auto [result, profile_internal, profile_info] = wis::detail::VKFillVideoStructs<false>(
+    wis::detail::VKVideoResult<false> fill_result{};
+    auto result = wis::detail::VKFillVideoStructs<false>(
         *impl.video_table,
         impl.device,
         decoder_desc->image_format,
-        decoder_desc->codec_profile
+        decoder_desc->codec_profile,
+        fill_result
     );
     if (!wis::detail::succeeded(VkResult(result.platform_code))) {
         return result;
     }
+
+    auto& [profile_struct, profile_info] = fill_result;
 
     VkExtensionProperties std_header_version = wis::detail::VKGetStdHeaderVersion(decoder_desc->codec_profile);
     VkVideoSessionCreateInfoKHR create_info{
@@ -524,8 +546,8 @@ WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionCreateDecoder
         .pictureFormat = wis::detail::VKConvert(decoder_desc->image_format),
         .maxCodedExtent =
             {
-                .width = decoder_desc->max_width,
-                .height = decoder_desc->max_height,
+                .width = decoder_desc->width,
+                .height = decoder_desc->height,
             },
         .referencePictureFormat = wis::detail::VKConvert(decoder_desc->image_format),
         .maxDpbSlots = decoder_desc->decode_picture_buffer_count,
@@ -581,10 +603,12 @@ WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionCreateDecoder
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_VIDEO_API void wisVKDestroyVideoDecoder(WisVKVideoDecoder* self) {
+WIS_EXTERN_C WISDOM_VIDEO_API void wisVKDestroyVideoDecoder(WisVKVideoDecoder* self)
+{
     auto& impl = wis::from_handle_ref<wis::impl::VKVideoDecoderImpl>(self);
     if (impl.video_session != VK_NULL_HANDLE) {
-        impl.video_table->vkDestroyVideoSessionKHR(impl.device_control_block->header.device, impl.video_session, nullptr);
+        impl.video_table
+            ->vkDestroyVideoSessionKHR(impl.device_control_block->header.device, impl.video_session, nullptr);
         impl.video_session = VK_NULL_HANDLE;
     }
 }

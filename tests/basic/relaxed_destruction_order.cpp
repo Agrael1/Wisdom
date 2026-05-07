@@ -6,24 +6,15 @@ void log_callback(WisSeverity severity, const char* message, uint64_t device, vo
 {
     const char* severity_str = "";
     switch (severity) {
-    case WisSeverityVerbose:
-        severity_str = "VERBOSE";
-        break;
-    case WisSeverityInfo:
-        severity_str = "INFO";
-        break;
-    case WisSeverityWarning:
-        severity_str = "WARNING";
-        break;
     case WisSeverityError:
         severity_str = "ERROR";
         break;
     case WisSeverityFatal:
         severity_str = "FATAL";
+        FAIL("Fatal message in log: " << (message ? message : ""));
         break;
     default:
-        severity_str = "UNKNOWN";
-        break;
+        return;
     }
     printf("[%s] %s\n", severity_str, message);
 }

@@ -6,10 +6,10 @@ function(wis_add_test TARGET SOURCES IMPL)
   add_executable(${TEST_TARGET} ${SOURCES})
 
   if(WISDOM_BUILD_STATIC) # Link against static library if built
-    target_link_libraries(${TEST_TARGET} PUBLIC wis::wisdom wis::wisdom-platform wis::wisdom-raytracing
+    target_link_libraries(${TEST_TARGET} PUBLIC wis::wisdom wis::wisdom-platform wis::wisdom-raytracing wis::wisdom-video
                                                 Catch2::Catch2WithMain)
   else()
-    target_link_libraries(${TEST_TARGET} PUBLIC wis::wisdom-headers wis::wisdom-platform-headers wis::wisdom-raytracing-headers
+    target_link_libraries(${TEST_TARGET} PUBLIC wis::wisdom-headers wis::wisdom-platform-headers wis::wisdom-raytracing-headers wis::wisdom-video-headers
                                                 Catch2::Catch2WithMain)
   endif()
 

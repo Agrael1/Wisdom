@@ -150,7 +150,7 @@ typedef struct WisVideoCodecDesc {
      * the video frames that will be decoded using this codec, and can influence the supported bit depths and chroma
      * subsampling formats.
      * */
-    WisDataFormat data_format;
+    WisDataFormat image_format;
     uint32_t width; ///< Max width of the video frame in pixels.
     uint32_t height; ///< Max height of the video frame in pixels.
 } WisVideoCodecDesc;
@@ -160,8 +160,8 @@ typedef struct WisVideoCodecDesc {
  *
  * */
 typedef struct WisVideoDecoderDesc {
-    uint32_t max_width; ///< Max width of the video frame in pixels.
-    uint32_t max_height; ///< Max height of the video frame in pixels.
+    uint32_t width; ///< Width of the video frame in pixels.
+    uint32_t height; ///< Height of the video frame in pixels.
     /**
      * @brief The data format of the output video frames. This field specifies the expected format of the decoded video
      * frames that will be produced by the video decoder, and can influence the supported bit depths and chroma
