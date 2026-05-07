@@ -76,41 +76,14 @@ inline constexpr WisChromaSubsampling DX12GetChromaSubsampling(WisDataFormat for
         return {};
     }
 }
-} // namespace wis::detail
 
-WIS_EXTERN_C WISDOM_VIDEO_API void wisDX12InitVideoDecodingExtension(
-    WisDX12VideoDecodingExtension* self,
-    WisVideoCodecFlags request_codecs
-)
+inline constexpr WisResult DX12GetDecodeProfile(
+    WisStdCodecProfile codec_profile,
+    WisDataFormat data_format,
+    GUID* decode_profile
+) noexcept
 {
-    new (self) wis::impl::DX12VideoDecodingExtensionImpl{
-        .header = {&wis::detail::DX12VideoDecodingExtensionInit},
-        .supported_codecs = request_codecs,
-        .device = nullptr
-    };
-}
-
-WIS_EXTERN_C WISDOM_VIDEO_API void wisDX12DestroyVideoDecodingExtension(WisDX12VideoDecodingExtension* self)
-{
-    auto& impl = wis::from_handle_ref<wis::impl::DX12VideoDecodingExtensionImpl>(self);
-    if (impl.device) {
-        impl.device->Release();
-        impl.device = nullptr;
-    }
-    impl.header = {nullptr};
-}
-
-WIS_EXTERN_C WISDOM_VIDEO_API WisResult
-wisDX12VideoDecodingExtensionQueryCodecCaps(WisDX12VideoDecodingExtension* self, const WisVideoCodecDesc* codec_desc)
-{
-    auto& impl = wis::from_handle_ref<wis::impl::DX12VideoDecodingExtensionImpl>(self);
-    D3D12_FEATURE_DATA_VIDEO_DECODE_SUPPORT decode_support{
-        .Width = codec_desc->width,
-        .Height = codec_desc->height,
-        .DecodeFormat = wis::detail::DX12Convert(codec_desc->data_format),
-    };
-
-    switch (codec_desc->codec_profile) {
+    switch (codec_profile) {
     case WisStdCodecProfileH264HighPredictive:
         return wis::detail::make_result<
             wis::detail::Func(),
@@ -119,73 +92,73 @@ wisDX12VideoDecodingExtensionQueryCodecCaps(WisDX12VideoDecodingExtension* self,
     case WisStdCodecProfileH264Main:
     case WisStdCodecProfileH264Baseline:
     case WisStdCodecProfileH264High:
-        decode_support.Configuration.DecodeProfile = D3D12_VIDEO_DECODE_PROFILE_H264;
+        *decode_profile = D3D12_VIDEO_DECODE_PROFILE_H264;
         break;
     case WisStdCodecProfileH265Main:
-        decode_support.Configuration.DecodeProfile = D3D12_VIDEO_DECODE_PROFILE_HEVC_MAIN;
+        *decode_profile = D3D12_VIDEO_DECODE_PROFILE_HEVC_MAIN;
         break;
     case WisStdCodecProfileH265Main10: {
-        auto subsampling = wis::detail::DX12GetChromaSubsampling(codec_desc->data_format);
+        auto subsampling = wis::detail::DX12GetChromaSubsampling(data_format);
         switch (subsampling) {
         default:
         case WisChromaSubsamplingC420:
-            decode_support.Configuration.DecodeProfile = D3D12_VIDEO_DECODE_PROFILE_HEVC_MAIN10;
+            *decode_profile = D3D12_VIDEO_DECODE_PROFILE_HEVC_MAIN10;
             break;
         case WisChromaSubsamplingC422:
-            decode_support.Configuration.DecodeProfile = D3D12_VIDEO_DECODE_PROFILE_HEVC_MAIN10_422;
+            *decode_profile = D3D12_VIDEO_DECODE_PROFILE_HEVC_MAIN10_422;
             break;
         case WisChromaSubsamplingC444:
-            decode_support.Configuration.DecodeProfile = D3D12_VIDEO_DECODE_PROFILE_HEVC_MAIN10_444;
+            *decode_profile = D3D12_VIDEO_DECODE_PROFILE_HEVC_MAIN10_444;
             break;
         }
     } break;
     case WisStdCodecProfileH265Main12: {
-        auto subsampling = wis::detail::DX12GetChromaSubsampling(codec_desc->data_format);
+        auto subsampling = wis::detail::DX12GetChromaSubsampling(data_format);
         switch (subsampling) {
         default:
         case WisChromaSubsamplingC420:
-            decode_support.Configuration.DecodeProfile = D3D12_VIDEO_DECODE_PROFILE_HEVC_MAIN12;
+            *decode_profile = D3D12_VIDEO_DECODE_PROFILE_HEVC_MAIN12;
             break;
         case WisChromaSubsamplingC422:
-            decode_support.Configuration.DecodeProfile = D3D12_VIDEO_DECODE_PROFILE_HEVC_MAIN12_422;
+            *decode_profile = D3D12_VIDEO_DECODE_PROFILE_HEVC_MAIN12_422;
             break;
         case WisChromaSubsamplingC444:
-            decode_support.Configuration.DecodeProfile = D3D12_VIDEO_DECODE_PROFILE_HEVC_MAIN12_444;
+            *decode_profile = D3D12_VIDEO_DECODE_PROFILE_HEVC_MAIN12_444;
             break;
         }
     } break;
     case WisStdCodecProfileH265Main16:
-        decode_support.Configuration.DecodeProfile = D3D12_VIDEO_DECODE_PROFILE_HEVC_MAIN16;
+        *decode_profile = D3D12_VIDEO_DECODE_PROFILE_HEVC_MAIN16;
         break;
     case WisStdCodecProfileH265FormatRangeExt:
-        decode_support.Configuration.DecodeProfile = D3D12_VIDEO_DECODE_PROFILE_HEVC_MAIN10_EXT;
+        *decode_profile = D3D12_VIDEO_DECODE_PROFILE_HEVC_MAIN10_EXT;
         break;
     case WisStdCodecProfileVP9Profile0:
-        decode_support.Configuration.DecodeProfile = D3D12_VIDEO_DECODE_PROFILE_VP9;
+        *decode_profile = D3D12_VIDEO_DECODE_PROFILE_VP9;
         break;
     case WisStdCodecProfileVP9Profile2:
-        decode_support.Configuration.DecodeProfile = D3D12_VIDEO_DECODE_PROFILE_VP9_10BIT_PROFILE2;
+        *decode_profile = D3D12_VIDEO_DECODE_PROFILE_VP9_10BIT_PROFILE2;
         break;
     case WisStdCodecProfileAV1Main:
-        decode_support.Configuration.DecodeProfile = D3D12_VIDEO_DECODE_PROFILE_AV1_PROFILE0;
+        *decode_profile = D3D12_VIDEO_DECODE_PROFILE_AV1_PROFILE0;
         break;
     case WisStdCodecProfileAV1High:
-        decode_support.Configuration.DecodeProfile = D3D12_VIDEO_DECODE_PROFILE_AV1_PROFILE1;
+        *decode_profile = D3D12_VIDEO_DECODE_PROFILE_AV1_PROFILE1;
         break;
     case WisStdCodecProfileAV1Professional: {
-        auto bit_depth = wis::detail::DX12GetBitDepth(codec_desc->data_format);
-        auto subsampling = wis::detail::DX12GetChromaSubsampling(codec_desc->data_format);
+        auto bit_depth = wis::detail::DX12GetBitDepth(data_format);
+        auto subsampling = wis::detail::DX12GetChromaSubsampling(data_format);
 
         switch (bit_depth) {
         case WisComponentBitDepthBit8:
         case WisComponentBitDepthBit10:
-            decode_support.Configuration.DecodeProfile = D3D12_VIDEO_DECODE_PROFILE_AV1_PROFILE2;
+            *decode_profile = D3D12_VIDEO_DECODE_PROFILE_AV1_PROFILE2;
             break;
         case WisComponentBitDepthBit12:
             if (subsampling == WisChromaSubsamplingC420) {
-                decode_support.Configuration.DecodeProfile = D3D12_VIDEO_DECODE_PROFILE_AV1_12BIT_PROFILE2_420;
+                *decode_profile = D3D12_VIDEO_DECODE_PROFILE_AV1_12BIT_PROFILE2_420;
             } else {
-                decode_support.Configuration.DecodeProfile = D3D12_VIDEO_DECODE_PROFILE_AV1_12BIT_PROFILE2;
+                *decode_profile = D3D12_VIDEO_DECODE_PROFILE_AV1_12BIT_PROFILE2;
             }
             break;
         default:
@@ -198,6 +171,54 @@ wisDX12VideoDecodingExtensionQueryCodecCaps(WisDX12VideoDecodingExtension* self,
         return wis::detail::make_result<wis::detail::Func(), "Provided profile configuration is unsupported.">(
             E_NOTIMPL
         );
+    }
+    return wis::detail::dx_success;
+}
+} // namespace wis::detail
+
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_VIDEO_API void wisDX12InitVideoDecodingExtension(
+    WisDX12VideoDecodingExtension* self,
+    WisVideoCodecFlags request_codecs
+)
+{
+    new (self) wis::impl::DX12VideoDecodingExtensionImpl{
+        .header = {&wis::detail::DX12VideoDecodingExtensionInit},
+        .supported_codecs = request_codecs,
+        .device = nullptr
+    };
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_VIDEO_API void wisDX12DestroyVideoDecodingExtension(WisDX12VideoDecodingExtension* self)
+{
+    auto& impl = wis::from_handle_ref<wis::impl::DX12VideoDecodingExtensionImpl>(self);
+    if (impl.device) {
+        impl.device->Release();
+        impl.device = nullptr;
+    }
+    impl.header = {nullptr};
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_VIDEO_API WisResult
+wisDX12VideoDecodingExtensionQueryCodecCaps(WisDX12VideoDecodingExtension* self, const WisVideoCodecDesc* codec_desc)
+{
+    auto& impl = wis::from_handle_ref<wis::impl::DX12VideoDecodingExtensionImpl>(self);
+    D3D12_FEATURE_DATA_VIDEO_DECODE_SUPPORT decode_support{
+        .Width = codec_desc->width,
+        .Height = codec_desc->height,
+        .DecodeFormat = wis::detail::DX12Convert(codec_desc->data_format),
+    };
+
+    WisResult decode_profile_result = wis::detail::DX12GetDecodeProfile(
+        codec_desc->codec_profile,
+        codec_desc->data_format,
+        &decode_support.Configuration.DecodeProfile
+    );
+
+    if (!wis::detail::succeeded(decode_profile_result.platform_code)) {
+        return decode_profile_result;
     }
 
     // clang-format off
@@ -219,4 +240,59 @@ wisDX12VideoDecodingExtensionQueryCodecCaps(WisDX12VideoDecodingExtension* self,
     return wis::detail::dx_success;
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisDX12VideoDecodingExtensionCreateDecoder(
+    const WisDX12VideoDecodingExtension* self,
+    const WisVideoDecoderDesc* decoder_desc,
+    WisDX12VideoDecoder* video_decoder
+)
+{
+    auto& impl = wis::from_handle_ref<const wis::impl::DX12VideoDecodingExtensionImpl>(self);
+
+    D3D12_VIDEO_DECODER_DESC dx_decoder_desc{};
+    WisResult decode_profile_result = wis::detail::DX12GetDecodeProfile(
+        decoder_desc->codec_profile,
+        decoder_desc->image_format,
+        &dx_decoder_desc.Configuration.DecodeProfile
+    );
+    if (!wis::detail::succeeded(decode_profile_result.platform_code)) {
+        return decode_profile_result;
+    }
+
+    wis::com_ptr<ID3D12VideoDecoder> decoder;
+    auto hr = impl.device->CreateVideoDecoder(&dx_decoder_desc, IID_ID3D12VideoDecoder, decoder.put_void_unchecked());
+    if (!wis::detail::succeeded(hr) || !decoder) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to create video decoder.">(hr);
+    }
+
+    // Create heap for decoder.
+    D3D12_VIDEO_DECODER_HEAP_DESC heap_desc{
+        .Configuration = dx_decoder_desc.Configuration,
+        .DecodeWidth = decoder_desc->max_width,
+        .DecodeHeight = decoder_desc->max_height,
+        .Format = wis::detail::DX12Convert(decoder_desc->image_format),
+        .MaxDecodePictureBufferCount = decoder_desc->decode_picture_buffer_count,
+    };
+    wis::com_ptr<ID3D12VideoDecoderHeap> decoder_heap;
+    hr = impl.device->CreateVideoDecoderHeap(&heap_desc, IID_ID3D12VideoDecoderHeap, decoder_heap.put_void_unchecked());
+    if (!wis::detail::succeeded(hr) || !decoder) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to create video decoder heap.">(hr);
+    }
+
+    new (video_decoder) wis::impl::DX12VideoDecoderImpl{
+        .decoder = decoder.detach(),
+        .decoder_heap = decoder_heap.detach(),
+    };
+    return wis::detail::dx_success;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_VIDEO_API void wisDX12DestroyVideoDecoder(WisDX12VideoDecoder* self)
+{
+    auto& impl = wis::from_handle_ref<wis::impl::DX12VideoDecoderImpl>(self);
+    if (impl.decoder) {
+        impl.decoder->Release();
+        impl.decoder = nullptr;
+    }
+}
 #endif // WIS_DX12_VIDEO_CPP

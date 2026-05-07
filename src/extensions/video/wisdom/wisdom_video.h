@@ -22,15 +22,18 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 // Handles
 //==============================================================
 
+typedef struct WisDX12VideoDecoder WisVideoDecoder;
 typedef struct WisDX12VideoDecodingExtension WisVideoDecodingExtension;
 
 //==============================================================
 // Functions
 //==============================================================
 
+#    define wisDestroyVideoDecoder                  wisDX12DestroyVideoDecoder
 #    define wisDestroyVideoDecodingExtension        wisDX12DestroyVideoDecodingExtension
 #    define wisInitVideoDecodingExtension           wisDX12InitVideoDecodingExtension
 #    define wisVideoDecodingExtensionQueryCodecCaps wisDX12VideoDecodingExtensionQueryCodecCaps
+#    define wisVideoDecodingExtensionCreateDecoder  wisDX12VideoDecodingExtensionCreateDecoder
 
 #elif defined(WISDOM_VULKAN)
 
@@ -38,15 +41,18 @@ typedef struct WisDX12VideoDecodingExtension WisVideoDecodingExtension;
 // Handles
 //==============================================================
 
+typedef struct WisVKVideoDecoder WisVideoDecoder;
 typedef struct WisVKVideoDecodingExtension WisVideoDecodingExtension;
 
 //==============================================================
 // Functions
 //==============================================================
 
+#    define wisDestroyVideoDecoder                  wisVKDestroyVideoDecoder
 #    define wisDestroyVideoDecodingExtension        wisVKDestroyVideoDecodingExtension
 #    define wisInitVideoDecodingExtension           wisVKInitVideoDecodingExtension
 #    define wisVideoDecodingExtensionQueryCodecCaps wisVKVideoDecodingExtensionQueryCodecCaps
+#    define wisVideoDecodingExtensionCreateDecoder  wisVKVideoDecodingExtensionCreateDecoder
 
 #else
 #    error "No API selected for Wisdom. Define WISDOM_DX12 or WISDOM_VULKAN."

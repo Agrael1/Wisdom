@@ -5,6 +5,8 @@
 #endif // __cplusplus
 
 struct ID3D12VideoDevice;
+struct ID3D12VideoDecoder;
+struct ID3D12VideoDecoderHeap;
 
 namespace wis {
 //----------------------------------------------------------------------------------------------------------------------
@@ -16,7 +18,10 @@ struct DX12VideoDecodingExtensionImpl {
     WisVideoCodecFlags supported_codecs;
     ID3D12VideoDevice* device;
 };
-
+struct DX12VideoDecoderImpl {
+    ID3D12VideoDecoder* decoder;
+    ID3D12VideoDecoderHeap* decoder_heap;
+};
 
 } // namespace impl
 } // namespace wis

@@ -12,6 +12,9 @@ namespace impl {
 struct VKVideoTable {
     PFN_vkGetPhysicalDeviceVideoCapabilitiesKHR vkGetPhysicalDeviceVideoCapabilitiesKHR;
     PFN_vkGetPhysicalDeviceVideoFormatPropertiesKHR vkGetPhysicalDeviceVideoFormatPropertiesKHR;
+    PFN_vkCreateVideoSessionKHR vkCreateVideoSessionKHR;
+    PFN_vkDestroyVideoSessionKHR vkDestroyVideoSessionKHR;
+    PFN_vkGetVideoSessionMemoryRequirementsKHR vkGetVideoSessionMemoryRequirementsKHR;
 
 public:
     bool Init(
@@ -23,7 +26,9 @@ public:
     {
         ASSIGN_INSTANCE_PROC_ADDR_CHECK(instance, vkGetPhysicalDeviceVideoCapabilitiesKHR);
         ASSIGN_INSTANCE_PROC_ADDR_CHECK(instance, vkGetPhysicalDeviceVideoFormatPropertiesKHR);
-        // ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkCreateAccelerationStructureKHR);
+        ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkCreateVideoSessionKHR);
+        ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkDestroyVideoSessionKHR);
+        ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkGetVideoSessionMemoryRequirementsKHR);
         return true;
     }
 };

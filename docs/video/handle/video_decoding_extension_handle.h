@@ -23,6 +23,7 @@
  * <hr>
  * \cond WIS_GEN_REFS
  * @see Functions:
- * wisDestroyVideoDecodingExtension, wisInitVideoDecodingExtension, wisVideoDecodingExtensionQueryCodecCaps
+ * wisDestroyVideoDecodingExtension, wisInitVideoDecodingExtension, wisVideoDecodingExtensionQueryCodecCaps,
+ * wisVideoDecodingExtensionCreateDecoder
  * \endcond
  */

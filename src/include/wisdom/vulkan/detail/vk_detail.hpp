@@ -19,6 +19,36 @@ struct VKSwapchainImpl;
 }
 
 namespace wis::detail {
+template <typename HandleType, typename F>
+struct VKScopeGuard {
+    F f;
+    HandleType handle; 
+
+    VKScopeGuard(HandleType handle, F&& f) noexcept
+        : handle(handle) 
+        , f(std::forward<F>(f))
+    {}
+    ~VKScopeGuard() noexcept
+    {
+        if (handle) {
+            f();
+        }
+    }
+
+    // Prevent copying
+    VKScopeGuard(const VKScopeGuard&) = delete;
+    VKScopeGuard& operator=(const VKScopeGuard&) = delete;
+
+    HandleType release() noexcept { return std::exchange(handle, nullptr); }
+};
+
+template <typename HandleType, typename F>
+VKScopeGuard<HandleType, F> VKMakeScopeGuard(HandleType handle, F&& f) noexcept
+{
+    return VKScopeGuard<HandleType, F>(handle, std::forward<F>(f));
+}
+
+
 //----------------------------------------------------------------------------------------------------------------------
 /**
  * @brief A control block structure that manages reference counting for Vulkan objects. This template struct is designed

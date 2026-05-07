@@ -103,6 +103,6 @@
  *
  * \cond WIS_GEN_REFS
  * @see Structs:
- * WisVideoCodecDesc
+ * WisVideoCodecDesc, WisVideoDecoderDesc
  * \endcond
  */

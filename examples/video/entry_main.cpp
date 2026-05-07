@@ -60,8 +60,8 @@ private:
         wis::Result result{};
 
         wis::DebugDesc debug_desc = {
-            //.enable_debug_layer = true,
-            //.callback = log_callback,
+            .enable_debug_layer = true,
+            .callback = log_callback,
         };
 
         wis::Instance instance = wis::CreateInstance(&debug_desc, {}, result);
@@ -98,6 +98,21 @@ private:
                 );
 
                 PrintCapabilities(video_extension);
+                wis::VideoDecoder decoder = video_extension.CreateDecoder(
+                    {
+                        .max_width = 1920,
+                        .max_height = 1080,
+                        .image_format = wis::DataFormat::NV12,
+                        .codec_profile = wis::StdCodecProfile::H264Main,
+                    },
+                    result
+                );
+
+                if (check_result(result, "CreateDecoder")) {
+                    std::printf("Successfully created video decoder.\n");
+                } else {
+                    std::printf("Failed to create video decoder.\n");
+                }
             }
         }
 

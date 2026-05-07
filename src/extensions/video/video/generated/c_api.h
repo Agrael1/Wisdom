@@ -159,18 +159,48 @@ typedef struct WisVideoCodecDesc {
  * @brief Provided by Wisdom 0.7.1. Information about a video decode operation.
  *
  * */
-typedef struct WisVideoDecodeInfo {
+typedef struct WisVideoDecoderDesc {
     uint32_t max_width; ///< Max width of the video frame in pixels.
     uint32_t max_height; ///< Max height of the video frame in pixels.
-} WisVideoDecodeInfo;
+    /**
+     * @brief The data format of the output video frames. This field specifies the expected format of the decoded video
+     * frames that will be produced by the video decoder, and can influence the supported bit depths and chroma
+     * subsampling formats.
+     * */
+    WisDataFormat image_format;
+    /**
+     * @brief The video codec profile that the decoder will use for decoding. This field specifies the profile of the
+     * video codec that the decoder will use for decoding video frames, and can influence the supported bit depths and
+     * chroma subsampling formats.
+     * */
+    WisStdCodecProfile codec_profile;
+    /**
+     * @brief The number of decode buffers that the decoder will use for decoding video frames.
+     * */
+    uint32_t decode_picture_buffer_count;
+} WisVideoDecoderDesc;
 
 #ifdef WISDOM_DX12
+/**
+ * @brief Provided by Wisdom 0.7.1. Handle for a video decoder. Represents a video decoder instance that can be used to
+ * decode video frames.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12VideoDecoder, 2);
+
 /**
  * @brief Provided by Wisdom 0.7.1. Handle for the video decoding extension. Used  to manage video decoding resources
  * and operations.
  *
  * */
 WIS_DEFINE_DX12_DEVICE_EXT_HANDLE(WisDX12VideoDecodingExtension, 2);
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Destroys a WisVideoDecoder handle.
+ * @param self is a pointer to the valid WisVideoDecoder instance.
+ *
+ * */
+WISDOM_VIDEO_API void wisDX12DestroyVideoDecoder(WisDX12VideoDecoder* self);
 
 /**
  * @brief Provided by Wisdom 0.7.1. Destroys a WisVideoDecodingExtension handle.
@@ -202,15 +232,43 @@ WISDOM_VIDEO_API void wisDX12InitVideoDecodingExtension(
 WISDOM_VIDEO_API WisResult
 wisDX12VideoDecodingExtensionQueryCodecCaps(WisDX12VideoDecodingExtension* self, const WisVideoCodecDesc* codec_desc);
 
+/**
+ * @brief Provided by Wisdom 0.7.1. Creates a video decoder instance.
+ * @param self is a pointer to the valid WisVideoDecodingExtension instance.
+ * @param decoder_desc Information about the video decoder to create.
+ * @param video_decoder Output parameter that holds the created video decoder handle if the operation is successful.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_VIDEO_API WisResult wisDX12VideoDecodingExtensionCreateDecoder(
+    const WisDX12VideoDecodingExtension* self,
+    const WisVideoDecoderDesc* decoder_desc,
+    WisDX12VideoDecoder* video_decoder
+);
+
 #endif // WISDOM_DX12
 
 #ifdef WISDOM_VULKAN
+/**
+ * @brief Provided by Wisdom 0.7.1. Handle for a video decoder. Represents a video decoder instance that can be used to
+ * decode video frames.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisVKVideoDecoder, 3);
+
 /**
  * @brief Provided by Wisdom 0.7.1. Handle for the video decoding extension. Used  to manage video decoding resources
  * and operations.
  *
  * */
 WIS_DEFINE_VK_DEVICE_EXT_HANDLE(WisVKVideoDecodingExtension, 5);
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Destroys a WisVideoDecoder handle.
+ * @param self is a pointer to the valid WisVideoDecoder instance.
+ *
+ * */
+WISDOM_VIDEO_API void wisVKDestroyVideoDecoder(WisVKVideoDecoder* self);
 
 /**
  * @brief Provided by Wisdom 0.7.1. Destroys a WisVideoDecodingExtension handle.
@@ -241,6 +299,20 @@ WISDOM_VIDEO_API void wisVKInitVideoDecodingExtension(
  * */
 WISDOM_VIDEO_API WisResult
 wisVKVideoDecodingExtensionQueryCodecCaps(WisVKVideoDecodingExtension* self, const WisVideoCodecDesc* codec_desc);
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Creates a video decoder instance.
+ * @param self is a pointer to the valid WisVideoDecodingExtension instance.
+ * @param decoder_desc Information about the video decoder to create.
+ * @param video_decoder Output parameter that holds the created video decoder handle if the operation is successful.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionCreateDecoder(
+    const WisVKVideoDecodingExtension* self,
+    const WisVideoDecoderDesc* decoder_desc,
+    WisVKVideoDecoder* video_decoder
+);
 
 #endif // WISDOM_VULKAN
 

@@ -80,13 +80,20 @@
         <member type="u32" name="height" doc="Max height of the video frame in pixels."/>
       </type>
 
-      <type name="VideoDecodeInfo" category="struct" version="0.7.1" doc="Information about a video decode operation.">
+      <type name="VideoDecoderDesc" category="struct" version="0.7.1" doc="Information about a video decode operation.">
         <member type="u32" name="max_width" doc="Max width of the video frame in pixels."/>
         <member type="u32" name="max_height" doc="Max height of the video frame in pixels."/>
+        <member type="DataFormat" name="image_format" doc="The data format of the output video frames. This field specifies the expected format of the decoded video frames that will be produced by the video decoder, and can influence the supported bit depths and chroma subsampling formats."/>
+        <member type="StdCodecProfile" name="codec_profile" doc="The video codec profile that the decoder will use for decoding. This field specifies the profile of the video codec that the decoder will use for decoding video frames, and can influence the supported bit depths and chroma subsampling formats."/>
+        <member type="u32" name="decode_picture_buffer_count" doc="The number of decode buffers that the decoder will use for decoding video frames."/> 
       </type>
     </types>
 
     <handles>
+      <handle name="VideoDecoder" version="0.7.1" doc="Handle for a video decoder. Represents a video decoder instance that can be used to decode video frames.">
+        <impl for="vk" size="3"/>
+        <impl for="dx" size="2"/>
+      </handle>
       <handle name="VideoDecodingExtension" extends="Device" version="0.7.1" doc="Handle for the video decoding extension. Used  to manage video decoding resources and operations.">
         <impl for="vk" size="5"/>
         <impl for="dx" size="2"/>
@@ -98,8 +105,12 @@
 
     <functions>
       <func name="QueryCodecCaps" version="0.7.1" for="VideoDecodingExtension" doc="Checks if video decode is supported on the current device.">
-        <ret type="Result" doc="Result of the query operation. Will return 'Success' if video decode is supported for the specified codec, or an appropriate error code if not."/>
+        <ret type="Result" doc="Result of the query operation. Returns 'Success' if video decode is supported for the specified codec, or an appropriate error code if not."/>
         <arg type="VideoCodecDesc" name="codec_desc" mod="const,ref" doc="Information about the video codec to query capabilities for. The 'codec' field should specify the codec to check, and the function will fill in the supported bit depths and chroma subsampling formats for that codec."/>
+      </func>
+      <func name="CreateDecoder" version="0.7.1" for="VideoDecodingExtension" mod="const" doc="Creates a video decoder instance.">
+        <ret type="VideoDecoder" result="true" name="video_decoder" doc="Output parameter that holds the created video decoder handle if the operation is successful."/>
+        <arg type="VideoDecoderDesc" name="decoder_desc" mod="const,ref" doc="Information about the video decoder to create."/>
       </func>
     </functions>
 

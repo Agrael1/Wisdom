@@ -17,6 +17,11 @@ struct VKVideoDecodingExtensionImpl {
     detail::VKDeviceControlBlock* device_control_block;
     impl::VKVideoTable* video_table;
 };
+struct VKVideoDecoderImpl {
+    VkVideoSessionKHR video_session;
+    detail::VKDeviceControlBlock* device_control_block;
+    impl::VKVideoTable* video_table;
+};
 
 } // namespace impl
 } // namespace wis

@@ -159,9 +159,25 @@ struct VideoCodecDesc {
  * @brief Provided by Wisdom 0.7.1. Information about a video decode operation.
  *
  * */
-struct VideoDecodeInfo {
+struct VideoDecoderDesc {
     std::uint32_t max_width; ///< Max width of the video frame in pixels.
     std::uint32_t max_height; ///< Max height of the video frame in pixels.
+    /**
+     * @brief The data format of the output video frames. This field specifies the expected format of the decoded video
+     * frames that will be produced by the video decoder, and can influence the supported bit depths and chroma
+     * subsampling formats.
+     * */
+    wis::DataFormat image_format;
+    /**
+     * @brief The video codec profile that the decoder will use for decoding. This field specifies the profile of the
+     * video codec that the decoder will use for decoding video frames, and can influence the supported bit depths and
+     * chroma subsampling formats.
+     * */
+    wis::StdCodecProfile codec_profile;
+    /**
+     * @brief The number of decode buffers that the decoder will use for decoding video frames.
+     * */
+    std::uint32_t decode_picture_buffer_count;
 };
 
 } // namespace wis
@@ -170,6 +186,23 @@ struct VideoDecodeInfo {
 #    include <video/dx12/dx12_types.hpp>
 
 namespace wis {
+struct DX12VideoDecoderDeleter {
+    void operator()(WisDX12VideoDecoder* handle) noexcept { ::wisDX12DestroyVideoDecoder(handle); }
+};
+/**
+ * @brief Provided by Wisdom 0.7.1. Handle for a video decoder. Represents a video decoder instance that can be used to
+ * decode video frames.
+ *
+ * */
+class DX12VideoDecoder
+    : public wis::impl::Implements<wis::impl::DX12VideoDecoderImpl, WisDX12VideoDecoder, wis::DX12VideoDecoderDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+};
+
 struct DX12VideoDecodingExtensionDeleter {
     void operator()(WisDX12VideoDecodingExtension* handle) noexcept { ::wisDX12DestroyVideoDecodingExtension(handle); }
 };
@@ -209,6 +242,32 @@ public:
         );
         return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     }
+    /**
+     * @brief Provided by Wisdom 0.7.1. Creates a video decoder instance.
+     * @param decoder_desc Information about the video decoder to create.
+     * @param out_result denoting the outcome of operation.
+     * @return video_decoder Output parameter that holds the created video decoder handle if the operation is
+     * successful.
+     *
+     * */
+    WIS_NODISCARD inline wis::DX12VideoDecoder CreateDecoder(
+        const wis::VideoDecoderDesc& decoder_desc,
+        wis::Result& out_result
+    ) const noexcept
+    {
+        wis::DX12VideoDecoder video_decoder{};
+        const WisResult wis_result = ::wisDX12VideoDecodingExtensionCreateDecoder(
+            &_impl_storage,
+            reinterpret_cast<const WisVideoDecoderDesc*>(&decoder_desc),
+            video_decoder.GetStorage()
+        );
+        out_result = wis::Result{
+            static_cast<wis::Status>(wis_result.status),
+            wis_result.platform_code,
+            wis_result.error
+        };
+        return video_decoder;
+    }
 };
 
 } // namespace wis
@@ -218,6 +277,23 @@ public:
 #    include <video/vulkan/vk_types.hpp>
 
 namespace wis {
+struct VKVideoDecoderDeleter {
+    void operator()(WisVKVideoDecoder* handle) noexcept { ::wisVKDestroyVideoDecoder(handle); }
+};
+/**
+ * @brief Provided by Wisdom 0.7.1. Handle for a video decoder. Represents a video decoder instance that can be used to
+ * decode video frames.
+ *
+ * */
+class VKVideoDecoder
+    : public wis::impl::Implements<wis::impl::VKVideoDecoderImpl, WisVKVideoDecoder, wis::VKVideoDecoderDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+};
+
 struct VKVideoDecodingExtensionDeleter {
     void operator()(WisVKVideoDecodingExtension* handle) noexcept { ::wisVKDestroyVideoDecodingExtension(handle); }
 };
@@ -256,6 +332,32 @@ public:
             reinterpret_cast<const WisVideoCodecDesc*>(&codec_desc)
         );
         return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.1. Creates a video decoder instance.
+     * @param decoder_desc Information about the video decoder to create.
+     * @param out_result denoting the outcome of operation.
+     * @return video_decoder Output parameter that holds the created video decoder handle if the operation is
+     * successful.
+     *
+     * */
+    WIS_NODISCARD inline wis::VKVideoDecoder CreateDecoder(
+        const wis::VideoDecoderDesc& decoder_desc,
+        wis::Result& out_result
+    ) const noexcept
+    {
+        wis::VKVideoDecoder video_decoder{};
+        const WisResult wis_result = ::wisVKVideoDecodingExtensionCreateDecoder(
+            &_impl_storage,
+            reinterpret_cast<const WisVideoDecoderDesc*>(&decoder_desc),
+            video_decoder.GetStorage()
+        );
+        out_result = wis::Result{
+            static_cast<wis::Status>(wis_result.status),
+            wis_result.platform_code,
+            wis_result.error
+        };
+        return video_decoder;
     }
 };
 
