@@ -178,11 +178,8 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisVKDestroyVideoDecodingExtension(WisVKVideo
     impl.header = {nullptr};
 }
 
-WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionQueryCodecCaps(
-    WisVKVideoDecodingExtension* self,
-    const WisVideoCodecDesc* codec_desc,
-    WisVideoDecodeInfo* decode_info
-)
+WIS_EXTERN_C WISDOM_VIDEO_API WisResult
+wisVKVideoDecodingExtensionQueryCodecCaps(WisVKVideoDecodingExtension* self, const WisVideoCodecDesc* codec_desc)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKVideoDecodingExtensionImpl>(self);
     VkVideoDecodeCapabilitiesKHR decode_caps{
@@ -355,6 +352,14 @@ WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionQueryCodecCap
     auto vr = impl.video_table->vkGetPhysicalDeviceVideoCapabilitiesKHR(impl.adapter, &profile_info, &video_caps);
     if (vr != VK_SUCCESS) {
         return wis::detail::make_result<wis::detail::Func(), "Unsupported codec parameter combination.">(vr);
+    }
+
+    // Check size
+    if (codec_desc->width > video_caps.maxCodedExtent.width
+        || codec_desc->height > video_caps.maxCodedExtent.height) {
+        return wis::detail::make_result<
+            wis::detail::Func(),
+            "Requested resolution exceeds the maximum supported coded extent.">(VK_ERROR_FEATURE_NOT_PRESENT);
     }
 
     // Fill out the decode info based on the queried capabilities

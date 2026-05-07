@@ -196,16 +196,11 @@ WISDOM_VIDEO_API void wisDX12InitVideoDecodingExtension(
  * @param self is a pointer to the valid WisVideoDecodingExtension instance.
  * @param codec_desc Information about the video codec to query capabilities for. The 'codec' field should specify the
  * codec to check, and the function will fill in the supported bit depths and chroma subsampling formats for that codec.
- * @param decode_info Information about the video decode capabilities of the current device, including maximum supported
- * video frame dimensions.
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_VIDEO_API WisResult wisDX12VideoDecodingExtensionQueryCodecCaps(
-    WisDX12VideoDecodingExtension* self,
-    const WisVideoCodecDesc* codec_desc,
-    WisVideoDecodeInfo* decode_info
-);
+WISDOM_VIDEO_API WisResult
+wisDX12VideoDecodingExtensionQueryCodecCaps(WisDX12VideoDecodingExtension* self, const WisVideoCodecDesc* codec_desc);
 
 #endif // WISDOM_DX12
 
@@ -241,16 +236,11 @@ WISDOM_VIDEO_API void wisVKInitVideoDecodingExtension(
  * @param self is a pointer to the valid WisVideoDecodingExtension instance.
  * @param codec_desc Information about the video codec to query capabilities for. The 'codec' field should specify the
  * codec to check, and the function will fill in the supported bit depths and chroma subsampling formats for that codec.
- * @param decode_info Information about the video decode capabilities of the current device, including maximum supported
- * video frame dimensions.
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionQueryCodecCaps(
-    WisVKVideoDecodingExtension* self,
-    const WisVideoCodecDesc* codec_desc,
-    WisVideoDecodeInfo* decode_info
-);
+WISDOM_VIDEO_API WisResult
+wisVKVideoDecodingExtensionQueryCodecCaps(WisVKVideoDecodingExtension* self, const WisVideoCodecDesc* codec_desc);
 
 #endif // WISDOM_VULKAN
 

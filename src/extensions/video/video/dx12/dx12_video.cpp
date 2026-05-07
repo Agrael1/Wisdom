@@ -100,11 +100,8 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisDX12DestroyVideoDecodingExtension(WisDX12V
     impl.header = {nullptr};
 }
 
-WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisDX12VideoDecodingExtensionQueryCodecCaps(
-    WisDX12VideoDecodingExtension* self,
-    const WisVideoCodecDesc* codec_desc,
-    WisVideoDecodeInfo* decode_info
-)
+WIS_EXTERN_C WISDOM_VIDEO_API WisResult
+wisDX12VideoDecodingExtensionQueryCodecCaps(WisDX12VideoDecodingExtension* self, const WisVideoCodecDesc* codec_desc)
 {
     auto& impl = wis::from_handle_ref<wis::impl::DX12VideoDecodingExtensionImpl>(self);
     D3D12_FEATURE_DATA_VIDEO_DECODE_SUPPORT decode_support{

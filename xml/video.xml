@@ -98,7 +98,7 @@
 
     <functions>
       <func name="QueryCodecCaps" version="0.7.1" for="VideoDecodingExtension" doc="Checks if video decode is supported on the current device.">
-        <ret type="VideoDecodeInfo" result="true" name="decode_info" doc="Information about the video decode capabilities of the current device, including maximum supported video frame dimensions."/>
+        <ret type="Result" doc="Result of the query operation. Will return 'Success' if video decode is supported for the specified codec, or an appropriate error code if not."/>
         <arg type="VideoCodecDesc" name="codec_desc" mod="const,ref" doc="Information about the video codec to query capabilities for. The 'codec' field should specify the codec to check, and the function will fill in the supported bit depths and chroma subsampling formats for that codec."/>
       </func>
     </functions>

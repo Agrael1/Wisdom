@@ -198,28 +198,16 @@ public:
      * @param codec_desc Information about the video codec to query capabilities for. The 'codec' field should specify
      * the codec to check, and the function will fill in the supported bit depths and chroma subsampling formats for
      * that codec.
-     * @param out_result denoting the outcome of operation.
-     * @return decode_info Information about the video decode capabilities of the current device, including maximum
-     * supported video frame dimensions.
+     * @return Result denoting the outcome of operation.
      *
      * */
-    WIS_NODISCARD inline wis::VideoDecodeInfo QueryCodecCaps(
-        const wis::VideoCodecDesc& codec_desc,
-        wis::Result& out_result
-    ) noexcept
+    inline wis::Result QueryCodecCaps(const wis::VideoCodecDesc& codec_desc) noexcept
     {
-        wis::VideoDecodeInfo decode_info{};
         const WisResult wis_result = ::wisDX12VideoDecodingExtensionQueryCodecCaps(
             &_impl_storage,
-            reinterpret_cast<const WisVideoCodecDesc*>(&codec_desc),
-            reinterpret_cast<WisVideoDecodeInfo*>(&decode_info)
+            reinterpret_cast<const WisVideoCodecDesc*>(&codec_desc)
         );
-        out_result = wis::Result{
-            static_cast<wis::Status>(wis_result.status),
-            wis_result.platform_code,
-            wis_result.error
-        };
-        return decode_info;
+        return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     }
 };
 
@@ -258,28 +246,16 @@ public:
      * @param codec_desc Information about the video codec to query capabilities for. The 'codec' field should specify
      * the codec to check, and the function will fill in the supported bit depths and chroma subsampling formats for
      * that codec.
-     * @param out_result denoting the outcome of operation.
-     * @return decode_info Information about the video decode capabilities of the current device, including maximum
-     * supported video frame dimensions.
+     * @return Result denoting the outcome of operation.
      *
      * */
-    WIS_NODISCARD inline wis::VideoDecodeInfo QueryCodecCaps(
-        const wis::VideoCodecDesc& codec_desc,
-        wis::Result& out_result
-    ) noexcept
+    inline wis::Result QueryCodecCaps(const wis::VideoCodecDesc& codec_desc) noexcept
     {
-        wis::VideoDecodeInfo decode_info{};
         const WisResult wis_result = ::wisVKVideoDecodingExtensionQueryCodecCaps(
             &_impl_storage,
-            reinterpret_cast<const WisVideoCodecDesc*>(&codec_desc),
-            reinterpret_cast<WisVideoDecodeInfo*>(&decode_info)
+            reinterpret_cast<const WisVideoCodecDesc*>(&codec_desc)
         );
-        out_result = wis::Result{
-            static_cast<wis::Status>(wis_result.status),
-            wis_result.platform_code,
-            wis_result.error
-        };
-        return decode_info;
+        return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     }
 };
 

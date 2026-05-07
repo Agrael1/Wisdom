@@ -11,21 +11,18 @@
  * ```c
  * // Provided by Wisdom 0.7.1.
  * WisResult wisVideoDecodingExtensionQueryCodecCaps(WisVideoDecodingExtension* self,
- *                                                   const WisVideoCodecDesc*   codec_desc,
- *                                                   WisVideoDecodeInfo*        decode_info);
+ *                                                   const WisVideoCodecDesc*   codec_desc);
  * ```
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
  * // Provided by Wisdom 0.7.1.
  * WisResult wisVKVideoDecodingExtensionQueryCodecCaps(WisVKVideoDecodingExtension* self,
- *                                                     const WisVideoCodecDesc*     codec_desc,
- *                                                     WisVideoDecodeInfo*          decode_info);
+ *                                                     const WisVideoCodecDesc*     codec_desc);
  *
  * // Provided by Wisdom 0.7.1.
  * WisResult wisDX12VideoDecodingExtensionQueryCodecCaps(WisDX12VideoDecodingExtension* self,
- *                                                       const WisVideoCodecDesc*       codec_desc,
- *                                                       WisVideoDecodeInfo*            decode_info);
+ *                                                       const WisVideoCodecDesc*       codec_desc);
  * ```
  * </details>
  *
@@ -33,9 +30,7 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.1.
- * WIS_NODISCARD wis::VideoDecodeInfo VideoDecodingExtension::QueryCodecCaps(const wis::VideoCodecDesc& codec_desc,
- *                                                                           wis::Result&               out_result)
- * noexcept;
+ * wis::Result VideoDecodingExtension::QueryCodecCaps(const wis::VideoCodecDesc& codec_desc) noexcept;
  * }
  * ```
  * <details>
@@ -43,14 +38,10 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.1.
- * WIS_NODISCARD wis::VideoDecodeInfo VKVideoDecodingExtension::QueryCodecCaps(const wis::VideoCodecDesc& codec_desc,
- *                                                                             wis::Result&               out_result)
- * noexcept;
+ * wis::Result VKVideoDecodingExtension::QueryCodecCaps(const wis::VideoCodecDesc& codec_desc) noexcept;
  *
  * // Provided by Wisdom 0.7.1.
- * WIS_NODISCARD wis::VideoDecodeInfo DX12VideoDecodingExtension::QueryCodecCaps(const wis::VideoCodecDesc& codec_desc,
- *                                                                               wis::Result&               out_result)
- * noexcept;
+ * wis::Result DX12VideoDecodingExtension::QueryCodecCaps(const wis::VideoCodecDesc& codec_desc) noexcept;
  * }
  * ```
  * </details>
@@ -62,8 +53,6 @@
  * - **this** `self` self is a pointer to the valid WisVideoDecodingExtension instance.
  * - `codec_desc` Information about the video codec to query capabilities for. The 'codec' field @wis_should specify the
  * codec to check, and the function will fill in the supported bit depths and chroma subsampling formats for that codec.
- * - `decode_info` Information about the video decode capabilities of the current device, including maximum supported
- * video frame dimensions.
  *
  * - **return** denoting the outcome of operation.
  * \endcond

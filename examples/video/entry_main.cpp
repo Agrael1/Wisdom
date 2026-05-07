@@ -170,14 +170,13 @@ private:
                 auto format = formats[j];
                 auto format_str = format_strs[j];
 
-                auto caps = video_extension.QueryCodecCaps(
+                result = video_extension.QueryCodecCaps(
                     {
                         .codec_profile = codec,
                         .data_format = format,
                         .width = 1920,
                         .height = 1080,
-                    },
-                    result
+                    }
                 );
                 auto str = std::format(
                     "Codec: {}; Format: {}; {}",
