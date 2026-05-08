@@ -15,6 +15,7 @@ struct VKVideoTable {
     PFN_vkCreateVideoSessionKHR vkCreateVideoSessionKHR;
     PFN_vkDestroyVideoSessionKHR vkDestroyVideoSessionKHR;
     PFN_vkGetVideoSessionMemoryRequirementsKHR vkGetVideoSessionMemoryRequirementsKHR;
+    PFN_vkBindVideoSessionMemoryKHR vkBindVideoSessionMemoryKHR;
 
 public:
     bool Init(
@@ -29,6 +30,7 @@ public:
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkCreateVideoSessionKHR);
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkDestroyVideoSessionKHR);
         ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkGetVideoSessionMemoryRequirementsKHR);
+        ASSIGN_DEVICE_PROC_ADDR_CHECK(device, vkBindVideoSessionMemoryKHR);
         return true;
     }
 };

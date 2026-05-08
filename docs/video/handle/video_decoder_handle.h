@@ -10,7 +10,7 @@
  *  Vulkan Version:
  * ```c
  * // Provided by Wisdom 0.7.1.
- * WIS_DEFINE_HANDLE(WisVKVideoDecoder,3);
+ * WIS_DEFINE_HANDLE(WisVKVideoDecoder,4);
  * ```
  *  DX12 Version:
  * ```c

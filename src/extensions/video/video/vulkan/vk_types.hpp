@@ -7,6 +7,9 @@
 #include <video/vulkan/vk_tables.hpp>
 
 namespace wis {
+namespace detail {
+struct VKVideoDecodingControlBlock;
+}
 //----------------------------------------------------------------------------------------------------------------------
 namespace impl {
 struct VKVideoDecodingExtensionImpl {
@@ -14,13 +17,12 @@ struct VKVideoDecodingExtensionImpl {
     WisVideoCodecFlags supported_codecs;
     VkDevice device;
     VkPhysicalDevice adapter;
-    detail::VKDeviceControlBlock* device_control_block;
-    impl::VKVideoTable* video_table;
+    detail::VKVideoDecodingControlBlock* decoding_control_block;
 };
 struct VKVideoDecoderImpl {
     VkVideoSessionKHR video_session;
-    detail::VKDeviceControlBlock* device_control_block;
-    impl::VKVideoTable* video_table;
+    VmaAllocation video_memory;
+    detail::VKVideoDecodingControlBlock* decoding_control_block;
 };
 
 } // namespace impl

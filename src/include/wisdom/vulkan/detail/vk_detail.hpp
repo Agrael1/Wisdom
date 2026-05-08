@@ -40,7 +40,8 @@ struct VKScopeGuard {
     VKScopeGuard(const VKScopeGuard&) = delete;
     VKScopeGuard& operator=(const VKScopeGuard&) = delete;
 
-    HandleType release() noexcept { return std::exchange(handle, nullptr); }
+    HandleType* PutUnchecked() noexcept { return &handle; }
+    HandleType Release() noexcept { return std::exchange(handle, nullptr); }
 };
 
 template <typename HandleType, typename F>

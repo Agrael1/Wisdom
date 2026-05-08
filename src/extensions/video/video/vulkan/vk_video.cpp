@@ -11,6 +11,25 @@
 #include <variant>
 
 namespace wis::detail {
+//----------------------------------------------------------------------------------------------------------------------
+struct VKVideoDecodingHeader {
+    impl::VKVideoTable video_table;
+    detail::VKDeviceControlBlock* device_control_block;
+};
+
+//----------------------------------------------------------------------------------------------------------------------
+struct VKVideoDecodingControlBlock : public VKControlBlock<VKVideoDecodingHeader> {};
+
+//----------------------------------------------------------------------------------------------------------------------
+inline void VKReleaseVideoDecoding(VKVideoDecodingControlBlock* block) noexcept
+{
+    if (block && block->Release() == 1) {
+        std::atomic_thread_fence(std::memory_order_acquire);
+        VKReleaseDevice(block->header.device_control_block);
+        delete block;
+    }
+}
+
 inline WisResult VKVideoDecodingExtensionInit(
     VKDeviceExtensionHeader* self,
     impl::VKDeviceImpl* device_impl,
@@ -59,19 +78,20 @@ inline WisResult VKVideoDecodingExtensionInit(
             impl.supported_codecs = WisVideoCodecFlags(impl.supported_codecs & ~WisVideoCodecFlagsVP9);
         }
     } else {
-        if (impl.device_control_block) {
-            // Delete everything here
-            delete impl.video_table;
-            wis::detail::VKReleaseDevice(impl.device_control_block);
+        if (impl.decoding_control_block) {
+            wis::detail::VKReleaseVideoDecoding(impl.decoding_control_block);
         }
         if (!impl.supported_codecs) {
             return wis::detail::vk_success; // Nothing requested
         }
 
         auto& aheader = device_impl->device_header->header.shared_header->header;
-        auto table = wis::make_unique<impl::VKVideoTable>();
-        if (!table
-            || !table->Init(
+        auto video_header = wis::make_unique<VKVideoDecodingControlBlock>();
+        video_header->header.device_control_block = device_impl->device_header;
+
+        auto& table = video_header->header.video_table;
+        if (!video_header
+            || !table.Init(
                 device_impl->device,
                 aheader.global_table.vkGetDeviceProcAddr,
                 aheader.instance,
@@ -83,9 +103,8 @@ inline WisResult VKVideoDecodingExtensionInit(
 
         impl.device = device_impl->device;
         impl.adapter = device_impl->physical_device;
-        impl.device_control_block = device_impl->device_header;
-        impl.video_table = table.release();
-        impl.device_control_block->AddRef(); // extension holds a reference to the device control block
+        impl.decoding_control_block = video_header.release();
+        device_impl->device_header->AddRef(); // extension holds a reference to the device control block
     }
 
     return wis::detail::vk_success;
@@ -402,10 +421,8 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisVKInitVideoDecodingExtension(
 WIS_EXTERN_C WISDOM_VIDEO_API void wisVKDestroyVideoDecodingExtension(WisVKVideoDecodingExtension* self)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKVideoDecodingExtensionImpl>(self);
-    if (impl.device_control_block) {
-        delete impl.video_table;
-        wis::detail::VKReleaseDevice(impl.device_control_block);
-        impl.device_control_block = nullptr;
+    if (impl.decoding_control_block) {
+        VKReleaseVideoDecoding(impl.decoding_control_block);
     }
     impl.header = {nullptr};
 }
@@ -415,13 +432,14 @@ WIS_EXTERN_C WISDOM_VIDEO_API WisResult
 wisVKVideoDecodingExtensionQueryCodecCaps(WisVKVideoDecodingExtension* self, const WisVideoCodecDesc* codec_desc)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKVideoDecodingExtensionImpl>(self);
+    auto& video_table = impl.decoding_control_block->header.video_table;
     VkVideoDecodeCapabilitiesKHR decode_caps{
         .sType = VK_STRUCTURE_TYPE_VIDEO_DECODE_CAPABILITIES_KHR,
     };
 
     wis::detail::VKVideoResult<true> fill_result{};
     auto res = wis::detail::VKFillVideoStructs<true>(
-        *impl.video_table,
+        video_table,
         impl.device,
         codec_desc->image_format,
         codec_desc->codec_profile,
@@ -435,7 +453,7 @@ wisVKVideoDecodingExtensionQueryCodecCaps(WisVKVideoDecodingExtension* self, con
     decode_caps.pNext = video_caps.pNext;
     video_caps.pNext = &decode_caps;
 
-    auto vr = impl.video_table->vkGetPhysicalDeviceVideoCapabilitiesKHR(impl.adapter, &profile_info, &video_caps);
+    auto vr = video_table.vkGetPhysicalDeviceVideoCapabilitiesKHR(impl.adapter, &profile_info, &video_caps);
     if (vr != VK_SUCCESS) {
         return wis::detail::make_result<wis::detail::Func(), "Unsupported codec parameter combination.">(vr);
     }
@@ -460,8 +478,8 @@ wisVKVideoDecodingExtensionQueryCodecCaps(WisVKVideoDecodingExtension* self, con
         .imageUsage = VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR | VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR
     };
     uint32_t format_count = 0;
-    vr = impl.video_table
-             ->vkGetPhysicalDeviceVideoFormatPropertiesKHR(impl.adapter, &video_format_info, &format_count, nullptr);
+    vr = video_table
+             .vkGetPhysicalDeviceVideoFormatPropertiesKHR(impl.adapter, &video_format_info, &format_count, nullptr);
 
     if (vr != VK_SUCCESS) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to query supported video formats.">(vr);
@@ -487,7 +505,7 @@ wisVKVideoDecodingExtensionQueryCodecCaps(WisVKVideoDecodingExtension* self, con
         };
     }
 
-    vr = impl.video_table->vkGetPhysicalDeviceVideoFormatPropertiesKHR(
+    vr = video_table.vkGetPhysicalDeviceVideoFormatPropertiesKHR(
         impl.adapter,
         &video_format_info,
         &format_count,
@@ -519,11 +537,13 @@ WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionCreateDecoder
 )
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKVideoDecodingExtensionImpl>(self);
-    auto& device_header = impl.device_control_block->header;
+    auto& video_header = impl.decoding_control_block->header;
+    auto& device_header = video_header.device_control_block->header;
+    auto& video_table = video_header.video_table;
 
     wis::detail::VKVideoResult<false> fill_result{};
     auto result = wis::detail::VKFillVideoStructs<false>(
-        *impl.video_table,
+        video_table,
         impl.device,
         decoder_desc->image_format,
         decoder_desc->codec_profile,
@@ -556,17 +576,16 @@ WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionCreateDecoder
     };
 
     VkVideoSessionKHR video_session = VK_NULL_HANDLE;
-    auto vr = impl.video_table->vkCreateVideoSessionKHR(impl.device, &create_info, nullptr, &video_session);
+    auto vr = video_table.vkCreateVideoSessionKHR(impl.device, &create_info, nullptr, &video_session);
     if (vr != VK_SUCCESS) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to create video session.">(vr);
     }
     auto session_guard = wis::detail::VKMakeScopeGuard(video_session, [&]() {
-        impl.video_table->vkDestroyVideoSessionKHR(impl.device, video_session, nullptr);
+        video_table.vkDestroyVideoSessionKHR(impl.device, video_session, nullptr);
     });
 
     uint32_t memory_req_count = 0;
-    vr = impl.video_table
-             ->vkGetVideoSessionMemoryRequirementsKHR(impl.device, video_session, &memory_req_count, nullptr);
+    vr = video_table.vkGetVideoSessionMemoryRequirementsKHR(impl.device, video_session, &memory_req_count, nullptr);
 
     if (vr != VK_SUCCESS) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to query video session memory requirements.">(vr);
@@ -591,13 +610,73 @@ WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionCreateDecoder
         };
     }
 
-    vr = impl.video_table
-             ->vkGetVideoSessionMemoryRequirementsKHR(impl.device, video_session, &memory_req_count, reqs.data());
+    vr = video_table.vkGetVideoSessionMemoryRequirementsKHR(impl.device, video_session, &memory_req_count, reqs.data());
     if (vr != VK_SUCCESS) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to query video session memory requirements.">(vr);
     }
 
-    // TODO: Allocate the memory
+    VmaAllocation top_allocation = VK_NULL_HANDLE;
+    VkBindVideoSessionMemoryInfoKHR bind_infos[reasonable_req_count];
+    auto bind_guard = wis::detail::VKMakeScopeGuard(top_allocation, [&]() {
+        VmaAllocation xtop_allocation = top_allocation;
+        while (xtop_allocation) {
+            VmaAllocationInfo alloc_info{};
+            vmaGetAllocationInfo(device_header.allocator, xtop_allocation, &alloc_info);
+
+            VmaAllocation next_allocation = static_cast<VmaAllocation>(alloc_info.pUserData);
+            vmaFreeMemory(device_header.allocator, xtop_allocation);
+            xtop_allocation = next_allocation;
+        }
+    });
+
+    for (uint32_t j = 0; j < memory_req_count / reasonable_req_count; j++) {
+        uint32_t batch_start = j * reasonable_req_count;
+        uint32_t batch_size = std::min(reasonable_req_count, memory_req_count - batch_start);
+
+        for (uint32_t i = 0; i < batch_size; i++) {
+            // Allocate the memory
+            VmaAllocationCreateInfo alloc_info{
+                .usage = VMA_MEMORY_USAGE_UNKNOWN,
+            };
+            VmaAllocation allocation = VK_NULL_HANDLE;
+            VmaAllocationInfo alloc_info_out{};
+            vr = vmaAllocateMemory(
+                device_header.allocator,
+                &reqs[batch_start + i].memoryRequirements,
+                &alloc_info,
+                &allocation,
+                &alloc_info_out
+            );
+            if (vr != VK_SUCCESS) {
+                return wis::detail::make_result<wis::detail::Func(), "Failed to allocate memory for video session.">(
+                    vr
+                );
+            }
+
+            bind_infos[i] = {
+                .sType = VK_STRUCTURE_TYPE_BIND_VIDEO_SESSION_MEMORY_INFO_KHR,
+                .pNext = nullptr,
+                .memoryBindIndex = reqs[batch_start + i].memoryBindIndex,
+                .memory = alloc_info_out.deviceMemory,
+                .memoryOffset = alloc_info_out.offset,
+                .memorySize = alloc_info_out.size,
+            };
+
+            // Chain the allocation together
+            if (top_allocation) {
+                vmaSetAllocationUserData(device_header.allocator, top_allocation, static_cast<void*>(allocation));
+            }
+            top_allocation = allocation;
+        }
+        video_table.vkBindVideoSessionMemoryKHR(impl.device, video_session, batch_size, bind_infos);
+    }
+
+    new (video_decoder) wis::impl::VKVideoDecoderImpl{
+        .video_session = session_guard.Release(),
+        .video_memory = bind_guard.Release(),
+        .decoding_control_block = impl.decoding_control_block,
+    };
+    impl.decoding_control_block->AddRef(); // video decoder holds a reference to the device control block
 
     return wis::detail::vk_success;
 }
@@ -607,8 +686,22 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisVKDestroyVideoDecoder(WisVKVideoDecoder* s
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKVideoDecoderImpl>(self);
     if (impl.video_session != VK_NULL_HANDLE) {
-        impl.video_table
-            ->vkDestroyVideoSessionKHR(impl.device_control_block->header.device, impl.video_session, nullptr);
+        auto& device_header = impl.decoding_control_block->header.device_control_block->header;
+        auto& video_table = impl.decoding_control_block->header.video_table;
+        video_table.vkDestroyVideoSessionKHR(device_header.device, impl.video_session, nullptr);
+
+        // Free the memory allocations
+        VmaAllocation xtop_allocation = impl.video_memory;
+        while (xtop_allocation) {
+            VmaAllocationInfo alloc_info{};
+            vmaGetAllocationInfo(device_header.allocator, xtop_allocation, &alloc_info);
+
+            VmaAllocation next_allocation = static_cast<VmaAllocation>(alloc_info.pUserData);
+            vmaFreeMemory(device_header.allocator, xtop_allocation);
+            xtop_allocation = next_allocation;
+        }
+
+        wis::detail::VKReleaseVideoDecoding(impl.decoding_control_block);
         impl.video_session = VK_NULL_HANDLE;
     }
 }

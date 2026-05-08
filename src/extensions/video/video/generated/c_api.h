@@ -254,7 +254,7 @@ WISDOM_VIDEO_API WisResult wisDX12VideoDecodingExtensionCreateDecoder(
  * decode video frames.
  *
  * */
-WIS_DEFINE_HANDLE(WisVKVideoDecoder, 3);
+WIS_DEFINE_HANDLE(WisVKVideoDecoder, 4);
 
 /**
  * @brief Provided by Wisdom 0.7.1. Handle for the video decoding extension. Used  to manage video decoding resources

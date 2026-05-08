@@ -91,7 +91,7 @@
 
     <handles>
       <handle name="VideoDecoder" version="0.7.1" doc="Handle for a video decoder. Represents a video decoder instance that can be used to decode video frames.">
-        <impl for="vk" size="3"/>
+        <impl for="vk" size="4"/>
         <impl for="dx" size="2"/>
       </handle>
       <handle name="VideoDecodingExtension" extends="Device" version="0.7.1" doc="Handle for the video decoding extension. Used  to manage video decoding resources and operations.">
