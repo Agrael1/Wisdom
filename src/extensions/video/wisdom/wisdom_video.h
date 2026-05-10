@@ -22,6 +22,8 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 // Handles
 //==============================================================
 
+typedef struct WisDX12VideoDecodeCommandList WisVideoDecodeCommandList;
+typedef struct WisDX12VideoDecoderParameters WisVideoDecoderParameters;
 typedef struct WisDX12VideoDecoder WisVideoDecoder;
 typedef struct WisDX12VideoDecodingExtension WisVideoDecodingExtension;
 
@@ -29,11 +31,16 @@ typedef struct WisDX12VideoDecodingExtension WisVideoDecodingExtension;
 // Functions
 //==============================================================
 
-#    define wisDestroyVideoDecoder                  wisDX12DestroyVideoDecoder
-#    define wisDestroyVideoDecodingExtension        wisDX12DestroyVideoDecodingExtension
-#    define wisInitVideoDecodingExtension           wisDX12InitVideoDecodingExtension
-#    define wisVideoDecodingExtensionQueryCodecCaps wisDX12VideoDecodingExtensionQueryCodecCaps
-#    define wisVideoDecodingExtensionCreateDecoder  wisDX12VideoDecodingExtensionCreateDecoder
+#    define wisDestroyVideoDecodeCommandList           wisDX12DestroyVideoDecodeCommandList
+#    define wisDestroyVideoDecoderParameters           wisDX12DestroyVideoDecoderParameters
+#    define wisDestroyVideoDecoder                     wisDX12DestroyVideoDecoder
+#    define wisDestroyVideoDecodingExtension           wisDX12DestroyVideoDecodingExtension
+#    define wisInitVideoDecodingExtension              wisDX12InitVideoDecodingExtension
+#    define wisVideoDecodingExtensionQueryCodecCaps    wisDX12VideoDecodingExtensionQueryCodecCaps
+#    define wisVideoDecodingExtensionCreateDecoder     wisDX12VideoDecodingExtensionCreateDecoder
+#    define wisVideoDecodingExtensionCreateCommandList wisDX12VideoDecodingExtensionCreateCommandList
+#    define wisVideoDecodeCommandListBegin             wisDX12VideoDecodeCommandListBegin
+#    define wisVideoDecodeCommandListEnd               wisDX12VideoDecodeCommandListEnd
 
 #elif defined(WISDOM_VULKAN)
 
@@ -41,6 +48,8 @@ typedef struct WisDX12VideoDecodingExtension WisVideoDecodingExtension;
 // Handles
 //==============================================================
 
+typedef struct WisVKVideoDecodeCommandList WisVideoDecodeCommandList;
+typedef struct WisVKVideoDecoderParameters WisVideoDecoderParameters;
 typedef struct WisVKVideoDecoder WisVideoDecoder;
 typedef struct WisVKVideoDecodingExtension WisVideoDecodingExtension;
 
@@ -48,11 +57,16 @@ typedef struct WisVKVideoDecodingExtension WisVideoDecodingExtension;
 // Functions
 //==============================================================
 
-#    define wisDestroyVideoDecoder                  wisVKDestroyVideoDecoder
-#    define wisDestroyVideoDecodingExtension        wisVKDestroyVideoDecodingExtension
-#    define wisInitVideoDecodingExtension           wisVKInitVideoDecodingExtension
-#    define wisVideoDecodingExtensionQueryCodecCaps wisVKVideoDecodingExtensionQueryCodecCaps
-#    define wisVideoDecodingExtensionCreateDecoder  wisVKVideoDecodingExtensionCreateDecoder
+#    define wisDestroyVideoDecodeCommandList           wisVKDestroyVideoDecodeCommandList
+#    define wisDestroyVideoDecoderParameters           wisVKDestroyVideoDecoderParameters
+#    define wisDestroyVideoDecoder                     wisVKDestroyVideoDecoder
+#    define wisDestroyVideoDecodingExtension           wisVKDestroyVideoDecodingExtension
+#    define wisInitVideoDecodingExtension              wisVKInitVideoDecodingExtension
+#    define wisVideoDecodingExtensionQueryCodecCaps    wisVKVideoDecodingExtensionQueryCodecCaps
+#    define wisVideoDecodingExtensionCreateDecoder     wisVKVideoDecodingExtensionCreateDecoder
+#    define wisVideoDecodingExtensionCreateCommandList wisVKVideoDecodingExtensionCreateCommandList
+#    define wisVideoDecodeCommandListBegin             wisVKVideoDecodeCommandListBegin
+#    define wisVideoDecodeCommandListEnd               wisVKVideoDecodeCommandListEnd
 
 #else
 #    error "No API selected for Wisdom. Define WISDOM_DX12 or WISDOM_VULKAN."

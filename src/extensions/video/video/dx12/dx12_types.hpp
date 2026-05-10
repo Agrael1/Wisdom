@@ -7,6 +7,7 @@
 struct ID3D12VideoDevice;
 struct ID3D12VideoDecoder;
 struct ID3D12VideoDecoderHeap;
+struct ID3D12VideoDecodeCommandList3;
 
 namespace wis {
 //----------------------------------------------------------------------------------------------------------------------
@@ -22,6 +23,13 @@ struct DX12VideoDecoderImpl {
     ID3D12VideoDecoder* decoder;
     ID3D12VideoDecoderHeap* decoder_heap;
 };
+struct DX12VideoDecoderParametersImpl {
+    void* filler;
+};
+struct DX12VideoDecodeCommandListImpl {
+    ID3D12VideoDecodeCommandList3* command_list;
+    ID3D12CommandAllocator* allocator;
+};
 
 } // namespace impl
 } // namespace wis
@@ -32,6 +40,7 @@ struct DX12VideoDecoderImpl {
 #        error "C++20 is required to build wisdom as header-only library"
 #    endif // !WIS_HAS_CPP20
 #    include "dx12_video.cpp"
+#    include "dx12_video_list.cpp"
 
 #endif // WISDOM_HEADER_ONLY
 #endif // WIS_DX12_VIDEO_TYPES_HPP

@@ -296,4 +296,41 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisDX12DestroyVideoDecoder(WisDX12VideoDecode
         impl.decoder = nullptr;
     }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisDX12VideoDecodingExtensionCreateCommandList(
+    WisDX12VideoDecodingExtension* self,
+    const WisDX12CommandAllocator* command_allocator,
+    WisDX12VideoDecodeCommandList* command_list
+)
+{
+    auto& [allocator, device, type] = wis::from_handle_ref<const wis::impl::DX12CommandAllocatorImpl>(command_allocator);
+    if (type != WisCommandQueueTypeVideoDecode) {
+        return wis::detail::make_result<wis::detail::Func(), "Provided command allocator is not for video decoding.">(
+            E_INVALIDARG
+        );
+    }
+
+    wis::com_ptr<ID3D12VideoDecodeCommandList3> dx_command_list;
+    auto hr = device->CreateCommandList1(
+        0,
+        wis::detail::DX12Convert(type),
+        D3D12_COMMAND_LIST_FLAG_NONE,
+        IID_ID3D12VideoDecodeCommandList3,
+        dx_command_list.put_void_unchecked()
+    );
+
+    if (!wis::detail::succeeded(hr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to create command list">(hr);
+    }
+
+    auto& internal = *new (command_list) wis::impl::DX12VideoDecodeCommandListImpl{
+        .command_list = dx_command_list.detach(),
+        .allocator = allocator,
+    };
+    internal.allocator->AddRef();
+
+    return wis::detail::dx_success;
+}
+
 #endif // WIS_DX12_VIDEO_CPP

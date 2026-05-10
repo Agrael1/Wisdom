@@ -182,6 +182,20 @@ typedef struct WisVideoDecoderDesc {
 
 #ifdef WISDOM_DX12
 /**
+ * @brief Provided by Wisdom 0.7.1. Handle for a video command list. Represents a command list that can be used to
+ * record video decode commands.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12VideoDecodeCommandList, 2);
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Handle for video decoder parameters. Represents the parameters and capabilities of a
+ * video decoder, such as supported codecs, bit depths, and chroma subsampling formats.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12VideoDecoderParameters, 2);
+
+/**
  * @brief Provided by Wisdom 0.7.1. Handle for a video decoder. Represents a video decoder instance that can be used to
  * decode video frames.
  *
@@ -194,6 +208,20 @@ WIS_DEFINE_HANDLE(WisDX12VideoDecoder, 2);
  *
  * */
 WIS_DEFINE_DX12_DEVICE_EXT_HANDLE(WisDX12VideoDecodingExtension, 2);
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Destroys a WisVideoDecodeCommandList handle.
+ * @param self is a pointer to the valid WisVideoDecodeCommandList instance.
+ *
+ * */
+WISDOM_VIDEO_API void wisDX12DestroyVideoDecodeCommandList(WisDX12VideoDecodeCommandList* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Destroys a WisVideoDecoderParameters handle.
+ * @param self is a pointer to the valid WisVideoDecoderParameters instance.
+ *
+ * */
+WISDOM_VIDEO_API void wisDX12DestroyVideoDecoderParameters(WisDX12VideoDecoderParameters* self);
 
 /**
  * @brief Provided by Wisdom 0.7.1. Destroys a WisVideoDecoder handle.
@@ -246,9 +274,55 @@ WISDOM_VIDEO_API WisResult wisDX12VideoDecodingExtensionCreateDecoder(
     WisDX12VideoDecoder* video_decoder
 );
 
+/**
+ * @brief Provided by Wisdom 0.7.1. Creates a video command list instance.
+ * @param self is a pointer to the valid WisVideoDecodingExtension instance.
+ * @param command_allocator The command allocator that the command list will use for memory management of command
+ * buffers. It @wis_must be created with the same WisDevice as the extension and have `WisCommandQueueTypeVideoDecode`
+ * or `WisCommandQueueTypeVideoEncode` specified.
+ * @param command_list Output parameter that holds the created video command list handle if the operation is successful.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_VIDEO_API WisResult wisDX12VideoDecodingExtensionCreateCommandList(
+    WisDX12VideoDecodingExtension* self,
+    const WisDX12CommandAllocator* command_allocator,
+    WisDX12VideoDecodeCommandList* command_list
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Opens the command list, so commands can be recorded to it.
+ * @param self is a pointer to the valid WisVideoDecodeCommandList instance.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_VIDEO_API WisResult wisDX12VideoDecodeCommandListBegin(const WisDX12VideoDecodeCommandList* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Closes the command list, so it can be executed on the command queue.
+ * @param self is a pointer to the valid WisVideoDecodeCommandList instance.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_VIDEO_API WisResult wisDX12VideoDecodeCommandListEnd(const WisDX12VideoDecodeCommandList* self);
+
 #endif // WISDOM_DX12
 
 #ifdef WISDOM_VULKAN
+/**
+ * @brief Provided by Wisdom 0.7.1. Handle for a video command list. Represents a command list that can be used to
+ * record video decode commands.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisVKVideoDecodeCommandList, 7);
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Handle for video decoder parameters. Represents the parameters and capabilities of a
+ * video decoder, such as supported codecs, bit depths, and chroma subsampling formats.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisVKVideoDecoderParameters, 4);
+
 /**
  * @brief Provided by Wisdom 0.7.1. Handle for a video decoder. Represents a video decoder instance that can be used to
  * decode video frames.
@@ -262,6 +336,20 @@ WIS_DEFINE_HANDLE(WisVKVideoDecoder, 4);
  *
  * */
 WIS_DEFINE_VK_DEVICE_EXT_HANDLE(WisVKVideoDecodingExtension, 5);
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Destroys a WisVideoDecodeCommandList handle.
+ * @param self is a pointer to the valid WisVideoDecodeCommandList instance.
+ *
+ * */
+WISDOM_VIDEO_API void wisVKDestroyVideoDecodeCommandList(WisVKVideoDecodeCommandList* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Destroys a WisVideoDecoderParameters handle.
+ * @param self is a pointer to the valid WisVideoDecoderParameters instance.
+ *
+ * */
+WISDOM_VIDEO_API void wisVKDestroyVideoDecoderParameters(WisVKVideoDecoderParameters* self);
 
 /**
  * @brief Provided by Wisdom 0.7.1. Destroys a WisVideoDecoder handle.
@@ -313,6 +401,38 @@ WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionCreateDecoder(
     const WisVideoDecoderDesc* decoder_desc,
     WisVKVideoDecoder* video_decoder
 );
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Creates a video command list instance.
+ * @param self is a pointer to the valid WisVideoDecodingExtension instance.
+ * @param command_allocator The command allocator that the command list will use for memory management of command
+ * buffers. It @wis_must be created with the same WisDevice as the extension and have `WisCommandQueueTypeVideoDecode`
+ * or `WisCommandQueueTypeVideoEncode` specified.
+ * @param command_list Output parameter that holds the created video command list handle if the operation is successful.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionCreateCommandList(
+    WisVKVideoDecodingExtension* self,
+    const WisVKCommandAllocator* command_allocator,
+    WisVKVideoDecodeCommandList* command_list
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Opens the command list, so commands can be recorded to it.
+ * @param self is a pointer to the valid WisVideoDecodeCommandList instance.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_VIDEO_API WisResult wisVKVideoDecodeCommandListBegin(const WisVKVideoDecodeCommandList* self);
+
+/**
+ * @brief Provided by Wisdom 0.7.0. Closes the command list, so it can be executed on the command queue.
+ * @param self is a pointer to the valid WisVideoDecodeCommandList instance.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_VIDEO_API WisResult wisVKVideoDecodeCommandListEnd(const WisVKVideoDecodeCommandList* self);
 
 #endif // WISDOM_VULKAN
 

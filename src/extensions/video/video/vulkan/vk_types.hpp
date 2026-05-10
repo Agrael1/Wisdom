@@ -19,10 +19,29 @@ struct VKVideoDecodingExtensionImpl {
     VkPhysicalDevice adapter;
     detail::VKVideoDecodingControlBlock* decoding_control_block;
 };
+
 struct VKVideoDecoderImpl {
     VkVideoSessionKHR video_session;
     VmaAllocation video_memory;
     detail::VKVideoDecodingControlBlock* decoding_control_block;
+};
+
+struct VKVideoDecoderParametersImpl {
+    VkVideoSessionParametersKHR video_session_parameters;
+    detail::VKVideoDecodingControlBlock* decoding_control_block;
+};
+
+struct VKVideoDecodeCommandListImpl {
+    VkCommandBuffer command_buffer;
+    impl::VKMainCommandList* command_list_table;
+    detail::VKCommandPoolControlBlock* command_pool_header;
+
+    detail::VKQueueFamilyExtras* queue_indices;
+    uint32_t maintenance9          : 1;
+    WisCommandQueueType queue_type : 31;
+
+    mutable uint32_t scratch_memory_size;
+    mutable uint8_t* scratch_memory;
 };
 
 } // namespace impl
@@ -34,6 +53,7 @@ struct VKVideoDecoderImpl {
 #        error "C++20 is required to build wisdom as header-only library"
 #    endif // !WIS_HAS_CPP20
 #    include "vk_video.cpp"
+#    include "vk_video_list.cpp"
 
 #endif // WISDOM_HEADER_ONLY
 #endif // WIS_VK_VIDEO_TYPES_HPP

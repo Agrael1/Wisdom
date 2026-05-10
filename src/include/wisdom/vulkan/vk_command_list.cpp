@@ -307,13 +307,9 @@ WIS_EXTERN_C WISDOM_API void wisVKCommandListInsertBarriers(
     const WisVKBarrierGroup* barriers
 )
 {
-    // clang-format off
-    if (barriers->buffer_barrier_count +
-            barriers->texture_barrier_count +
-            barriers->global_barrier_count == 0) {
+    if (barriers->buffer_barrier_count + barriers->texture_barrier_count + barriers->global_barrier_count == 0) {
         return;
     }
-    // clang-format on
 
     auto& impl = wis::from_handle_ref<const wis::impl::VKCommandListImpl>(self);
     auto& device_header = impl.command_pool_header->header;

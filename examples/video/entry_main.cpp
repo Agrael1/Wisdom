@@ -58,7 +58,23 @@ public:
     Application()
         : _device(CreateDevice())
         , _video_decoder(CreateDecoder())
-    {}
+    {
+        wis::Result result{};
+
+        _video_queue = _device.CreateCommandQueue(wis::CommandQueueType::VideoDecode, result);
+        if (!check_result(result, "CreateCommandQueue")) {
+            return;
+        }
+
+        _video_command_allocator = _device.CreateCommandAllocator(wis::CommandQueueType::VideoDecode, result);
+        if (!check_result(result, "CreateCommandAllocator")) {
+            return;
+        }
+        _vcmd = _video_extension.CreateCommandList(_video_command_allocator, result);
+        if (!check_result(result, "CreateVideoDecodeCommandList")) {
+            return;
+        }
+    }
 
 private:
     wis::Device CreateDevice()
@@ -151,6 +167,9 @@ private:
     wis::VideoDecodingExtension _video_extension{wis::VideoCodecFlags::AV1};
     wis::Device _device;
     wis::VideoDecoder _video_decoder;
+    wis::CommandQueue _video_queue;
+    wis::CommandAllocator _video_command_allocator;
+    wis::VideoDecodeCommandList _vcmd;
 };
 
 int main()

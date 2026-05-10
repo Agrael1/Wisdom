@@ -2,14 +2,18 @@ set(WISDOM_VIDEO_SOURCES)
 
 if(WISDOM_DX12)
   list(APPEND WISDOM_VIDEO_SOURCES
-       "video/dx12/dx12_video.cpp")
+       "video/dx12/dx12_video.cpp"
+       "video/dx12/dx12_video_list.cpp"
+  )
 endif()
 
 if(WISDOM_VULKAN)
   list(
     APPEND
     WISDOM_VIDEO_SOURCES
-    "video/vulkan/vk_video.cpp")
+    "video/vulkan/vk_video.cpp"
+    "video/vulkan/vk_video_list.cpp"
+  )
 endif()
 
 # Platform header target

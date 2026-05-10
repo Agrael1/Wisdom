@@ -705,4 +705,44 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisVKDestroyVideoDecoder(WisVKVideoDecoder* s
         impl.video_session = VK_NULL_HANDLE;
     }
 }
+
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionCreateCommandList(
+    WisVKVideoDecodingExtension* self,
+    const WisVKCommandAllocator* command_allocator,
+    WisVKVideoDecodeCommandList* command_list
+)
+{
+    auto& impl = wis::from_handle_ref<const wis::impl::VKCommandAllocatorImpl>(command_allocator);
+    auto& header = impl.command_pool_header->header;
+    auto& device_header = header.device_header->header;
+
+    // Create command buffer
+    VkCommandBufferAllocateInfo alloc_info{
+        .sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+        .pNext = nullptr,
+        .commandPool = impl.command_pool,
+        .level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+        .commandBufferCount = 1,
+    };
+
+    VkCommandBuffer command_buffer = VK_NULL_HANDLE;
+    VkResult vr = device_header.device_table.vkAllocateCommandBuffers(header.device, &alloc_info, &command_buffer);
+    if (!wis::detail::succeeded(vr)) {
+        return wis::detail::make_result<wis::detail::Func(), "Failed to allocate Vulkan command buffer">(vr);
+    }
+
+    // Fill command list impl
+    auto& list_impl = *new (command_list) wis::impl::VKVideoDecodeCommandListImpl{
+        .command_buffer = command_buffer,
+        .command_list_table = &device_header.command_list_table, // point to main command list table for faster access
+
+        .command_pool_header = impl.command_pool_header,
+
+        .queue_indices = header.device_header->header.queue_family_extras.data(),
+        .maintenance9 = device_header.features.maintenance9, // copy maintenance9 support from command allocator
+    };
+    list_impl.command_pool_header->AddRef(); // hold reference to command pool header for command list impl
+    return wis::detail::vk_success;
+}
 #endif // WIS_VK_VIDEO_CPP

@@ -90,6 +90,14 @@
     </types>
 
     <handles>
+      <handle name="VideoDecodeCommandList" version="0.7.1" doc="Handle for a video command list. Represents a command list that can be used to record video decode commands.">
+        <impl for="vk" size="7"/>
+        <impl for="dx" size="2"/>
+      </handle>
+      <handle name="VideoDecoderParameters" version="0.7.1" doc="Handle for video decoder parameters. Represents the parameters and capabilities of a video decoder, such as supported codecs, bit depths, and chroma subsampling formats.">
+        <impl for="vk" size="4"/>
+        <impl for="dx" size="2"/>
+      </handle>
       <handle name="VideoDecoder" version="0.7.1" doc="Handle for a video decoder. Represents a video decoder instance that can be used to decode video frames.">
         <impl for="vk" size="4"/>
         <impl for="dx" size="2"/>
@@ -112,6 +120,20 @@
         <ret type="VideoDecoder" result="true" name="video_decoder" doc="Output parameter that holds the created video decoder handle if the operation is successful."/>
         <arg type="VideoDecoderDesc" name="decoder_desc" mod="const,ref" doc="Information about the video decoder to create."/>
       </func>
+      <func name="CreateCommandList" version="0.7.1" for="VideoDecodingExtension" doc="Creates a video command list instance.">
+        <ret type="VideoDecodeCommandList" result="true" name="command_list" doc="Output parameter that holds the created video command list handle if the operation is successful."/>
+        <arg type="CommandAllocator" name="command_allocator" mod="const,ref" doc="The command allocator that the command list will use for memory management of command buffers. It @wis_must be created with the same {Device::} as the extension and have {CommandQueueType::VideoDecode} or {CommandQueueType::VideoEncode} specified."/>
+      </func>
+      
+      <!--Video Decode Command List-->
+      <func for="VideoDecodeCommandList" name="Begin" version="0.7.0" mod="const" doc="Opens the command list, so commands can be recorded to it.">
+        <ret type="Result" name="result" doc="Result of operation."/>
+      </func>
+      <func for="VideoDecodeCommandList" name="End" version="0.7.0" mod="const" doc="Closes the command list, so it can be executed on the command queue.">
+        <ret type="Result" name="result" doc="Result of operation."/>
+      </func>
+      
+      
     </functions>
 
   </module>

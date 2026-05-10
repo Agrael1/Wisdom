@@ -186,6 +186,64 @@ struct VideoDecoderDesc {
 #    include <video/dx12/dx12_types.hpp>
 
 namespace wis {
+struct DX12VideoDecodeCommandListDeleter {
+    void operator()(WisDX12VideoDecodeCommandList* handle) noexcept { ::wisDX12DestroyVideoDecodeCommandList(handle); }
+};
+/**
+ * @brief Provided by Wisdom 0.7.1. Handle for a video command list. Represents a command list that can be used to
+ * record video decode commands.
+ *
+ * */
+class DX12VideoDecodeCommandList : public wis::impl::Implements<
+                                       wis::impl::DX12VideoDecodeCommandListImpl,
+                                       WisDX12VideoDecodeCommandList,
+                                       wis::DX12VideoDecodeCommandListDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+    /**
+     * @brief Provided by Wisdom 0.7.0. Opens the command list, so commands can be recorded to it.
+     * @return Result denoting the outcome of operation.
+     *
+     * */
+    inline wis::Result Begin() const noexcept
+    {
+        const WisResult wis_result = ::wisDX12VideoDecodeCommandListBegin(&_impl_storage);
+        return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Closes the command list, so it can be executed on the command queue.
+     * @return Result denoting the outcome of operation.
+     *
+     * */
+    inline wis::Result End() const noexcept
+    {
+        const WisResult wis_result = ::wisDX12VideoDecodeCommandListEnd(&_impl_storage);
+        return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
+    }
+};
+
+struct DX12VideoDecoderParametersDeleter {
+    void operator()(WisDX12VideoDecoderParameters* handle) noexcept { ::wisDX12DestroyVideoDecoderParameters(handle); }
+};
+/**
+ * @brief Provided by Wisdom 0.7.1. Handle for video decoder parameters. Represents the parameters and capabilities of a
+ * video decoder, such as supported codecs, bit depths, and chroma subsampling formats.
+ *
+ * */
+class DX12VideoDecoderParameters : public wis::impl::Implements<
+                                       wis::impl::DX12VideoDecoderParametersImpl,
+                                       WisDX12VideoDecoderParameters,
+                                       wis::DX12VideoDecoderParametersDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+};
+
 struct DX12VideoDecoderDeleter {
     void operator()(WisDX12VideoDecoder* handle) noexcept { ::wisDX12DestroyVideoDecoder(handle); }
 };
@@ -268,6 +326,34 @@ public:
         };
         return video_decoder;
     }
+    /**
+     * @brief Provided by Wisdom 0.7.1. Creates a video command list instance.
+     * @param command_allocator The command allocator that the command list will use for memory management of command
+     * buffers. It @wis_must be created with the same wis::Device as the extension and have
+     * `wis::CommandQueueType::VideoDecode` or `wis::CommandQueueType::VideoEncode` specified.
+     * @param out_result denoting the outcome of operation.
+     * @return command_list Output parameter that holds the created video command list handle if the operation is
+     * successful.
+     *
+     * */
+    WIS_NODISCARD inline wis::DX12VideoDecodeCommandList CreateCommandList(
+        const wis::DX12CommandAllocator& command_allocator,
+        wis::Result& out_result
+    ) noexcept
+    {
+        wis::DX12VideoDecodeCommandList command_list{};
+        const WisResult wis_result = ::wisDX12VideoDecodingExtensionCreateCommandList(
+            &_impl_storage,
+            reinterpret_cast<const WisDX12CommandAllocator*>(&command_allocator),
+            command_list.GetStorage()
+        );
+        out_result = wis::Result{
+            static_cast<wis::Status>(wis_result.status),
+            wis_result.platform_code,
+            wis_result.error
+        };
+        return command_list;
+    }
 };
 
 } // namespace wis
@@ -277,6 +363,64 @@ public:
 #    include <video/vulkan/vk_types.hpp>
 
 namespace wis {
+struct VKVideoDecodeCommandListDeleter {
+    void operator()(WisVKVideoDecodeCommandList* handle) noexcept { ::wisVKDestroyVideoDecodeCommandList(handle); }
+};
+/**
+ * @brief Provided by Wisdom 0.7.1. Handle for a video command list. Represents a command list that can be used to
+ * record video decode commands.
+ *
+ * */
+class VKVideoDecodeCommandList : public wis::impl::Implements<
+                                     wis::impl::VKVideoDecodeCommandListImpl,
+                                     WisVKVideoDecodeCommandList,
+                                     wis::VKVideoDecodeCommandListDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+    /**
+     * @brief Provided by Wisdom 0.7.0. Opens the command list, so commands can be recorded to it.
+     * @return Result denoting the outcome of operation.
+     *
+     * */
+    inline wis::Result Begin() const noexcept
+    {
+        const WisResult wis_result = ::wisVKVideoDecodeCommandListBegin(&_impl_storage);
+        return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.0. Closes the command list, so it can be executed on the command queue.
+     * @return Result denoting the outcome of operation.
+     *
+     * */
+    inline wis::Result End() const noexcept
+    {
+        const WisResult wis_result = ::wisVKVideoDecodeCommandListEnd(&_impl_storage);
+        return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
+    }
+};
+
+struct VKVideoDecoderParametersDeleter {
+    void operator()(WisVKVideoDecoderParameters* handle) noexcept { ::wisVKDestroyVideoDecoderParameters(handle); }
+};
+/**
+ * @brief Provided by Wisdom 0.7.1. Handle for video decoder parameters. Represents the parameters and capabilities of a
+ * video decoder, such as supported codecs, bit depths, and chroma subsampling formats.
+ *
+ * */
+class VKVideoDecoderParameters : public wis::impl::Implements<
+                                     wis::impl::VKVideoDecoderParametersImpl,
+                                     WisVKVideoDecoderParameters,
+                                     wis::VKVideoDecoderParametersDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
+};
+
 struct VKVideoDecoderDeleter {
     void operator()(WisVKVideoDecoder* handle) noexcept { ::wisVKDestroyVideoDecoder(handle); }
 };
@@ -358,6 +502,34 @@ public:
             wis_result.error
         };
         return video_decoder;
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.1. Creates a video command list instance.
+     * @param command_allocator The command allocator that the command list will use for memory management of command
+     * buffers. It @wis_must be created with the same wis::Device as the extension and have
+     * `wis::CommandQueueType::VideoDecode` or `wis::CommandQueueType::VideoEncode` specified.
+     * @param out_result denoting the outcome of operation.
+     * @return command_list Output parameter that holds the created video command list handle if the operation is
+     * successful.
+     *
+     * */
+    WIS_NODISCARD inline wis::VKVideoDecodeCommandList CreateCommandList(
+        const wis::VKCommandAllocator& command_allocator,
+        wis::Result& out_result
+    ) noexcept
+    {
+        wis::VKVideoDecodeCommandList command_list{};
+        const WisResult wis_result = ::wisVKVideoDecodingExtensionCreateCommandList(
+            &_impl_storage,
+            reinterpret_cast<const WisVKCommandAllocator*>(&command_allocator),
+            command_list.GetStorage()
+        );
+        out_result = wis::Result{
+            static_cast<wis::Status>(wis_result.status),
+            wis_result.platform_code,
+            wis_result.error
+        };
+        return command_list;
     }
 };
 
