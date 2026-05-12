@@ -80,6 +80,9 @@ void Generator::ParseStruct(tinyxml2::XMLElement* type)
         if (auto* doc = member->FindAttribute("doc")) {
             m.doc = doc->Value();
         }
+        if (auto* bits = member->FindAttribute("bits")) {
+            m.bits = std::stoul(bits->Value());
+        }
     }
 }
 
@@ -164,6 +167,10 @@ std::string Generator::MakeCMemberDeclaration(const WisStructMember& member, siz
     size_t padding = align_width > type_string.length() ? align_width - type_string.length() : 0;
     std::string padded_type = type_string + std::string(padding, ' ');
 
+    if (member.bits > 0) {
+        return std::format("    {} {} : {}{};", padded_type, member.name, member.bits, array_modifier);
+    }
+
     return std::format("    {} {}{};", padded_type, member.name, array_modifier);
 }
 
@@ -179,6 +186,11 @@ std::string Generator::MakeCPPMemberDeclaration(const WisStructMember& member, s
     // Pad the type string to align_width
     size_t padding = align_width > type_string.length() ? align_width - type_string.length() : 0;
     std::string padded_type = type_string + std::string(padding, ' ');
+
+    // Bitfield
+    if (member.bits > 0) {
+        return std::format("    {} {} : {};", padded_type, member.name, member.bits);
+    }
 
     return std::format("    {} {};", padded_type, member.name);
 }

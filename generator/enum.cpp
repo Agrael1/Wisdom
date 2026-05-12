@@ -76,7 +76,7 @@ void Generator::ParseEnum(tinyxml2::XMLElement* type)
         auto& m = ref.values.emplace_back();
 
         m.name = member->FindAttribute("name")->Value();
-        m.value = std::stoll(member->FindAttribute("value")->Value());
+        m.value = member->FindAttribute("value")->Value();
         if (auto* doc = member->FindAttribute("doc")) {
             m.doc = doc->Value();
         }

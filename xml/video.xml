@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <registry>
   <module name="Video" version="0.7.1" base_dir="extensions/video/video" doc_dir="video">
+    <includes>
+      <include>video/std_video_av1.xml</include>
+    </includes>
     <types>
       <!--Enums-->
       <type name="StdCodecProfile" category="enum" version="0.7.1" doc="Standard codec profiles. Used to specify the profile of a video codec implementation.">
@@ -85,21 +88,34 @@
         <member type="u32" name="height" doc="Height of the video frame in pixels."/>
         <member type="DataFormat" name="image_format" doc="The data format of the output video frames. This field specifies the expected format of the decoded video frames that will be produced by the video decoder, and can influence the supported bit depths and chroma subsampling formats."/>
         <member type="StdCodecProfile" name="codec_profile" doc="The video codec profile that the decoder will use for decoding. This field specifies the profile of the video codec that the decoder will use for decoding video frames, and can influence the supported bit depths and chroma subsampling formats."/>
-        <member type="u32" name="decode_picture_buffer_count" doc="The number of decode buffers that the decoder will use for decoding video frames."/> 
+        <member type="u32" name="decode_picture_buffer_count" doc="The number of decode buffers that the decoder will use for decoding video frames."/>
+      </type>
+
+      <type name="VideoDecodeInputDesc" category="variant" version="0.7.1" doc="Variant type for video decode input descriptions. Used to specify the type of input data for a video decode operation.">
+
+        <!--Bitstream-->
+        <member type="BufferView" name="bitstream_buffer" doc="Input description for a video decode operation that uses a bitstream buffer as input. The buffer view should contain the compressed video data to be decoded."/>
+        <member type="u64" name="offset" doc="Offset in the buffer where the bistream data is located."/>
+        <member type="u64" name="size" doc="Size of the bitstream data in bytes."/>
+
+        <!--Reference frames TODO-->
+
+        <!--Frame Argument-->
+
       </type>
     </types>
 
     <handles>
-      <handle name="VideoDecodeCommandList" version="0.7.1" doc="Handle for a video command list. Represents a command list that can be used to record video decode commands.">
-        <impl for="vk" size="7"/>
-        <impl for="dx" size="2"/>
-      </handle>
       <handle name="VideoDecoderParameters" version="0.7.1" doc="Handle for video decoder parameters. Represents the parameters and capabilities of a video decoder, such as supported codecs, bit depths, and chroma subsampling formats.">
         <impl for="vk" size="4"/>
         <impl for="dx" size="2"/>
       </handle>
       <handle name="VideoDecoder" version="0.7.1" doc="Handle for a video decoder. Represents a video decoder instance that can be used to decode video frames.">
         <impl for="vk" size="4"/>
+        <impl for="dx" size="2"/>
+      </handle>
+      <handle name="VideoDecodeCommandList" version="0.7.1" doc="Handle for a video command list. Represents a command list that can be used to record video decode commands.">
+        <impl for="vk" size="7"/>
         <impl for="dx" size="2"/>
       </handle>
       <handle name="VideoDecodingExtension" extends="Device" version="0.7.1" doc="Handle for the video decoding extension. Used  to manage video decoding resources and operations.">
@@ -124,7 +140,7 @@
         <ret type="VideoDecodeCommandList" result="true" name="command_list" doc="Output parameter that holds the created video command list handle if the operation is successful."/>
         <arg type="CommandAllocator" name="command_allocator" mod="const,ref" doc="The command allocator that the command list will use for memory management of command buffers. It @wis_must be created with the same {Device::} as the extension and have {CommandQueueType::VideoDecode} or {CommandQueueType::VideoEncode} specified."/>
       </func>
-      
+
       <!--Video Decode Command List-->
       <func for="VideoDecodeCommandList" name="Begin" version="0.7.0" mod="const" doc="Opens the command list, so commands can be recorded to it.">
         <ret type="Result" name="result" doc="Result of operation."/>
@@ -132,8 +148,12 @@
       <func for="VideoDecodeCommandList" name="End" version="0.7.0" mod="const" doc="Closes the command list, so it can be executed on the command queue.">
         <ret type="Result" name="result" doc="Result of operation."/>
       </func>
-      
-      
+      <func for="VideoDecodeCommandList" name="DecodeFrame" version="0.7.0" mod="const" doc="Records a video decode command to the command list.">
+        <arg type="VideoDecoder" name="decoder" mod="const,ref" doc="The video decoder that will be used for decoding the video frame."/>
+        <arg type="VideoDecodeInputDesc" name="input_desc" mod="const,ref" doc="Description of the input data for the video decode operation. This field specifies the type and location of the input data that will be used for decoding the video frame."/>
+      </func>
+
+
     </functions>
 
   </module>

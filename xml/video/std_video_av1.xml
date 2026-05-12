@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="utf-8"?>
+<registry>
+  <types>
+    <!--Enums-->
+    <type name="StdVideoAV1Profile" category="enum" version="0.7.1" doc="AV1 profiles as defined in the AV1 Bitstream Specification section 6.4.1.">
+        <value name="Main" value="0" doc="Main profile (8-bit or 10-bit color, 4:0:0 or 4:2:0)."/>
+        <value name="High" value="1" doc="High profile (adds 8-bit or 10-bit 4:4:4)."/>
+        <value name="Professional" value="2" doc="Professional profile (adds 12-bit color, and 4:2:2)."/>
+        <value name="Invalid" value="0x7FFFFFFF" doc="Invalid profile."/>
+    </type>
+
+    <type name="StdVideoAV1Level" category="enum" version="0.7.1" doc="AV1 levels as defined in the AV1 Bitstream Specification Annex A.3.">
+        <value name="Level2_0" value="0" doc="Level 2.0"/>
+        <value name="Level2_1" value="1" doc="Level 2.1"/>
+        <value name="Level2_2" value="2" doc="Level 2.2"/>
+        <value name="Level2_3" value="3" doc="Level 2.3"/>
+        <value name="Level3_0" value="4" doc="Level 3.0"/>
+        <value name="Level3_1" value="5" doc="Level 3.1"/>
+        <value name="Level3_2" value="6" doc="Level 3.2"/>
+        <value name="Level3_3" value="7" doc="Level 3.3"/>
+        <value name="Level4_0" value="8" doc="Level 4.0"/>
+        <value name="Level4_1" value="9" doc="Level 4.1"/>
+        <value name="Level4_2" value="10" doc="Level 4.2"/>
+        <value name="Level4_3" value="11" doc="Level 4.3"/>
+        <value name="Level5_0" value="12" doc="Level 5.0"/>
+        <value name="Level5_1" value="13" doc="Level 5.1"/>
+        <value name="Level5_2" value="14" doc="Level 5.2"/>
+        <value name="Level5_3" value="15" doc="Level 5.3"/>
+        <value name="Level6_0" value="16" doc="Level 6.0"/>
+        <value name="Level6_1" value="17" doc="Level 6.1"/>
+        <value name="Level6_2" value="18" doc="Level 6.2"/>
+        <value name="Level6_3" value="19" doc="Level 6.3"/>
+        <value name="Level7_0" value="20" doc="Level 7.0"/>
+        <value name="Level7_1" value="21" doc="Level 7.1"/>
+        <value name="Level7_2" value="22" doc="Level 7.2"/>
+        <value name="Level7_3" value="23" doc="Level 7.3"/>
+        <value name="Invalid" value="0x7FFFFFFF" doc="Invalid level."/>
+    </type>
+
+    <type name="StdVideoAV1FrameType" category="enum" version="0.7.1" doc="Specifies the AV1 frame type (AV1 Bitstream Specification Section 6.8.2).">
+        <value name="Key" value="0" doc="A key frame contains only intra-coded blocks and is fully decipherable."/>
+        <value name="Inter" value="1" doc="An inter frame may contain intra-coded blocks and inter-coded blocks."/>
+        <value name="IntraOnly" value="2" doc="An intra-only frame contains only intra-coded blocks but acts otherwise as an inter frame."/>
+        <value name="Switch" value="3" doc="A switch frame is an inter frame that can be used as a switching point for adaptive streaming."/>
+        <value name="Invalid" value="0x7FFFFFFF" doc="Invalid frame type."/>
+    </type>
+
+    <type name="StdVideoAV1ReferenceName" category="enum" version="0.7.1" doc="Names of the reference frames used in AV1 (AV1 Bitstream Specification Section 6.1).">
+        <value name="IntraFrame" value="0" doc="Intra frame reference."/>
+        <value name="LastFrame" value="1" doc="LAST_FRAME (1)."/>
+        <value name="Last2Frame" value="2" doc="LAST2_FRAME (2)."/>
+        <value name="Last3Frame" value="3" doc="LAST3_FRAME (3)."/>
+        <value name="GoldenFrame" value="4" doc="GOLDEN_FRAME (4)."/>
+        <value name="BwdrefFrame" value="5" doc="BWDREF_FRAME (5)."/>
+        <value name="Altref2Frame" value="6" doc="ALTREF2_FRAME (6)."/>
+        <value name="AltrefFrame" value="7" doc="ALTREF_FRAME (7)."/>
+        <value name="Invalid" value="0x7FFFFFFF" doc="Invalid reference name."/>
+    </type>
+
+    <type name="StdVideoAV1InterpolationFilter" category="enum" version="0.7.1" doc="Interpolation filter types (AV1 Bitstream Specification Section 6.8.9).">
+        <value name="Eighttap" value="0" doc="Eight-tap filter."/>
+        <value name="EighttapSmooth" value="1" doc="Eight-tap smooth filter."/>
+        <value name="EighttapSharp" value="2" doc="Eight-tap sharp filter."/>
+        <value name="Bilinear" value="3" doc="Bilinear filter."/>
+        <value name="Switchable" value="4" doc="Switchable interpolation filter at the block level."/>
+        <value name="Invalid" value="0x7FFFFFFF" doc="Invalid filter."/>
+    </type>
+
+    <type name="StdVideoAV1TxMode" category="enum" version="0.7.1" doc="Transform mode (AV1 Bitstream Specification Section 6.8.21).">
+        <value name="Only4x4" value="0" doc="Only 4x4 transforms."/>
+        <value name="Largest" value="1" doc="Largest allowed transform for the partition."/>
+        <value name="Select" value="2" doc="Select the transform mode."/>
+        <value name="Invalid" value="0x7FFFFFFF" doc="Invalid TxMode."/>
+    </type>
+
+    <type name="StdVideoAV1FrameRestorationType" category="enum" version="0.7.1" doc="Loop restoration types (AV1 Bitstream Specification Section 6.10.15).">
+        <value name="None" value="0" doc="No loop restoration."/>
+        <value name="Wiener" value="1" doc="Wiener filter loop restoration."/>
+        <value name="Sgrproj" value="2" doc="Self-guided filter loop restoration."/>
+        <value name="Switchable" value="3" doc="Switchable between Wiener and Sgrproj."/>
+        <value name="Invalid" value="0x7FFFFFFF" doc="Invalid restoration type."/>
+    </type>
+
+    <type name="StdVideoAV1ColorPrimaries" category="enum" version="0.7.1" doc="AV1 color primaries mapping to ISO/IEC 23000-2 / CICP.">
+        <value name="Bt709" value="1" doc="Rec. ITU-R BT.709-6."/>
+        <value name="Unspecified" value="2" doc="Image characteristics are unknown or unspecified."/>
+        <value name="Bt470M" value="4" doc="Rec. ITU-R BT.470-6 System M (historical)."/>
+        <value name="Bt470BG" value="5" doc="Rec. ITU-R BT.470-6 System B, G (historical)."/>
+        <value name="Bt601" value="6" doc="Rec. ITU-R BT.601-7 525."/>
+        <value name="Smpte240" value="7" doc="SMPTE 240M."/>
+        <value name="GenericFilm" value="8" doc="Generic film (color filters using Illuminant C)."/>
+        <value name="Bt2020" value="9" doc="Rec. ITU-R BT.2020-2."/>
+        <value name="Xyz" value="10" doc="SMPTE ST 428-1."/>
+        <value name="Smpte431" value="11" doc="SMPTE RP 431-2."/>
+        <value name="Smpte432" value="12" doc="SMPTE EG 432-1."/>
+        <value name="Ebu3213" value="22" doc="EBU Tech. 3213-E."/>
+        <value name="Invalid" value="0x7FFFFFFF" doc="Invalid."/>
+    </type>
+
+    <type name="StdVideoAV1TransferCharacteristics" category="enum" version="0.7.1" doc="Transfer characteristics for AV1.">
+        <value name="Reserved0" value="0" doc=""/>
+        <value name="Bt709" value="1" doc="Rec. ITU-R BT.709-6."/>
+        <value name="Unspecified" value="2" doc="Unspecified."/>
+        <value name="Reserved3" value="3" doc=""/>
+        <value name="Bt470M" value="4" doc="Rec. ITU-R BT.470-6 System M (historical)."/>
+        <value name="Bt470BG" value="5" doc="Rec. ITU-R BT.470-6 System B, G (historical)."/>
+        <value name="Bt601" value="6" doc="Rec. ITU-R BT.601-7."/>
+        <value name="Smpte240" value="7" doc="SMPTE 240M."/>
+        <value name="Linear" value="8" doc="Linear transfer characteristics."/>
+        <value name="Log100" value="9" doc="Logarithmic transfer characteristic (100:1 range)."/>
+        <value name="Log100Sqrt10" value="10" doc="Logarithmic transfer characteristic (100 * Sqrt(10) : 1 range)."/>
+        <value name="Iec61966" value="11" doc="IEC 61966-2-4."/>
+        <value name="Bt1361" value="12" doc="Rec. ITU-R BT.1361-0 extended colour gamut system (historical)."/>
+        <value name="Srgb" value="13" doc="IEC 61966-2-1 sRGB."/>
+        <value name="Bt2020_10Bit" value="14" doc="Rec. ITU-R BT.2020-2 (10-bit system)."/>
+        <value name="Bt2020_12Bit" value="15" doc="Rec. ITU-R BT.2020-2 (12-bit system)."/>
+        <value name="Smpte2084" value="16" doc="SMPTE ST 2084 (PQ)."/>
+        <value name="Smpte428" value="17" doc="SMPTE ST 428-1."/>
+        <value name="Hlg" value="18" doc="ARIB STD-B67 (HLG)."/>
+        <value name="Invalid" value="0x7FFFFFFF" doc=""/>
+    </type>
+
+    <type name="StdVideoAV1MatrixCoefficients" category="enum" version="0.7.1" doc="AV1 matrix coefficients mapping to CICP.">
+        <value name="Identity" value="0" doc="Identity matrix."/>
+        <value name="Bt709" value="1" doc="Rec. ITU-R BT.709-6."/>
+        <value name="Unspecified" value="2" doc="Matrix characteristics are unspecified."/>
+        <value name="Reserved3" value="3" doc=""/>
+        <value name="Fcc" value="4" doc="FCC Title 47 Code of Federal Regulations."/>
+        <value name="Bt470BG" value="5" doc="Rec. ITU-R BT.470-6 System B, G (historical)."/>
+        <value name="Bt601" value="6" doc="Rec. ITU-R BT.601-7."/>
+        <value name="Smpte240" value="7" doc="SMPTE 240M."/>
+        <value name="SmpteYcgco" value="8" doc="YCgCo."/>
+        <value name="Bt2020Ncl" value="9" doc="Bt2020 non-constant luminance."/>
+        <value name="Bt2020Cl" value="10" doc="Bt2020 constant luminance."/>
+        <value name="Smpte2085" value="11" doc="SMPTE ST 2085."/>
+        <value name="ChromatNcl" value="12" doc="Chromaticity-derived non-constant luminance."/>
+        <value name="ChromatCl" value="13" doc="Chromaticity-derived constant luminance."/>
+        <value name="Ictcp" value="14" doc="Rec. ITU-R BT.2100-0 ICtCp."/>
+        <value name="Invalid" value="0x7FFFFFFF" doc=""/>
+    </type>
+
+    <type name="StdVideoAV1ChromaSamplePosition" category="enum" version="0.7.1" doc="AV1 chroma sample position (AV1 Bitstream Specification Section 6.4.2).">
+        <value name="Unknown" value="0" doc="Unknown chroma sample position."/>
+        <value name="Vertical" value="1" doc="Horizontally co-located with luma, vertically shifted by 0.5."/>
+        <value name="Colocated" value="2" doc="Co-located with luma."/>
+        <value name="Reserved" value="3" doc=""/>
+        <value name="Invalid" value="0x7FFFFFFF" doc=""/>
+    </type>
+    
+    <!--Structs-->
+    <type name="StdVideoAV1ColorConfigFlags" category="struct" version="0.7.1" doc="Color configuration flags (AV1 Bitstream Specification 6.4.2).">
+        <member type="u32" name="mono_chrome" bits="1" doc="Indicates if the video does not contain U and V color planes."/>
+        <member type="u32" name="color_range" bits="1" doc="Flag indicating if full color range is used."/>
+        <member type="u32" name="separate_uv_delta_q" bits="1" doc="Flag indicating U and V planes have separate delta quantization."/>
+        <member type="u32" name="color_description_present_flag" bits="1" doc="Indicates if color description is present."/>
+        <member type="u32" name="reserved" bits="28"/>
+    </type>
+
+    <type name="StdVideoAV1ColorConfig" category="struct" version="0.7.1" doc="AV1 Color Configuration (AV1 Bitstream Specification Section 6.4.2).">
+        <member type="StdVideoAV1ColorConfigFlags" name="flags" doc="Color configuration flags."/>
+        <member type="u8" name="BitDepth" doc="Bit depth of the color samples (8, 10, or 12)."/>
+        <member type="u8" name="subsampling_x" doc="Chroma subsampling x."/>
+        <member type="u8" name="subsampling_y" doc="Chroma subsampling y."/>
+        <member type="u8" name="reserved1"/>
+        <member type="StdVideoAV1ColorPrimaries" name="color_primaries" doc="Color primaries."/>
+        <member type="StdVideoAV1TransferCharacteristics" name="transfer_characteristics" doc="Transfer characteristics."/>
+        <member type="StdVideoAV1MatrixCoefficients" name="matrix_coefficients" doc="Matrix coefficients."/>
+        <member type="StdVideoAV1ChromaSamplePosition" name="chroma_sample_position" doc="Chroma sample position."/>
+    </type>
+
+    <type name="StdVideoAV1TimingInfoFlags" category="struct" version="0.7.1" doc="AV1 Timing Info flags.">
+        <member type="u32" name="equal_picture_interval" bits="1" doc="Indicates if pictures should be displayed with equal intervals."/>
+        <member type="u32" name="reserved" bits="31"/>
+    </type>
+
+    <type name="StdVideoAV1TimingInfo" category="struct" version="0.7.1" doc="AV1 Timing Info (AV1 Bitstream Specification Section 6.4.3).">
+        <member type="StdVideoAV1TimingInfoFlags" name="flags" doc="Timing flags."/>
+        <member type="u32" name="num_units_in_display_tick" doc="Number of units in a display tick."/>
+        <member type="u32" name="time_scale" doc="Time scale."/>
+        <member type="u32" name="num_ticks_per_picture_minus_1" doc="Ticks per picture minus 1."/>
+    </type>
+
+    <type name="StdVideoAV1LoopFilterFlags" category="struct" version="0.7.1" doc="Loop filter flags (AV1 Bitstream Specification Section 6.8.10).">
+        <member type="u32" name="loop_filter_delta_enabled" bits="1" doc="Indicates whether the filter level depends on the mode and reference frame used to predict a block."/>
+        <member type="u32" name="loop_filter_delta_update" bits="1" doc="Indicates whether additional syntax elements are present that specify which mode and reference frame deltas are to be updated."/>
+        <member type="u32" name="reserved" bits="30"/>
+    </type>
+
+    <type name="StdVideoAV1LoopFilter" category="struct" version="0.7.1" doc="AV1 Loop Filter Parameters (AV1 Bitstream Specification Section 6.8.10).">
+        <member type="StdVideoAV1LoopFilterFlags" name="flags" doc="Loop filter flags."/>
+        <member type="u8" name="loop_filter_level" array="4" doc="Array containing loop filter strength values."/>
+        <member type="u8" name="loop_filter_sharpness" doc="Loop filter sharpness."/>
+        <member type="u8" name="update_ref_delta" doc="Indicates that the loop filter ref deltas are to be updated."/>
+        <member type="i8" name="loop_filter_ref_deltas" array="8" doc="Loop filter reference deltas."/>
+        <member type="u8" name="update_mode_delta" doc="Indicates that the loop filter mode deltas are to be updated."/>
+        <member type="i8" name="loop_filter_mode_deltas" array="2" doc="Loop filter mode deltas."/>
+    </type>
+
+    <type name="StdVideoAV1QuantizationFlags" category="struct" version="0.7.1" doc="Quantization flags (AV1 Bitstream Specification Section 6.8.11).">
+        <member type="u32" name="using_qmatrix" bits="1" doc="Specifies whether the quantizer matrix should be used."/>
+        <member type="u32" name="diff_uv_delta" bits="1" doc="Specifies whether the U and V delta quantizer values are transmitted separately."/>
+        <member type="u32" name="reserved" bits="30"/>
+    </type>
+
+    <type name="StdVideoAV1Quantization" category="struct" version="0.7.1" doc="AV1 Quantization Parameters (AV1 Bitstream Specification Section 6.8.11).">
+        <member type="StdVideoAV1QuantizationFlags" name="flags" doc="Quantization flags."/>
+        <member type="u8" name="base_q_idx" doc="Indicates the base frame qindex."/>
+        <member type="i8" name="DeltaQYDc" doc="Y DC quantizer relative to base_q_idx."/>
+        <member type="i8" name="DeltaQUDc" doc="U DC quantizer relative to base_q_idx."/>
+        <member type="i8" name="DeltaQUAc" doc="U AC quantizer relative to base_q_idx."/>
+        <member type="i8" name="DeltaQVDc" doc="V DC quantizer relative to base_q_idx."/>
+        <member type="i8" name="DeltaQVAc" doc="V AC quantizer relative to base_q_idx."/>
+        <member type="u8" name="qm_y" doc="Specifies the level in the quantizer matrix that should be used for luma plane decoding."/>
+        <member type="u8" name="qm_u" doc="Specifies the level in the quantizer matrix that should be used for chroma U plane decoding."/>
+        <member type="u8" name="qm_v" doc="Specifies the level in the quantizer matrix that should be used for chroma V plane decoding."/>
+    </type>
+
+    <type name="StdVideoAV1Segmentation" category="struct" version="0.7.1" doc="AV1 Segmentation Parameters (AV1 Bitstream Specification Section 6.8.13).">
+        <member type="u8" name="FeatureEnabled" array="8" doc="Array specifying whether the feature is enabled for a segment."/>
+        <member type="i16" name="FeatureData" array="8*8" doc="Array specifying the feature data for a segment feature."/>
+    </type>
+
+    <type name="StdVideoAV1TileInfoFlags" category="struct" version="0.7.1" doc="AV1 Tile Info Flags (AV1 Bitstream Specification Section 6.8.14).">
+        <member type="u32" name="uniform_tile_spacing_flag" bits="1" doc="Indicates that the tiles are uniformly spaced across the picture."/>
+        <member type="u32" name="reserved" bits="31"/>
+    </type>
+
+    <type name="StdVideoAV1TileInfo" category="struct" version="0.7.1" doc="AV1 Tile Information (AV1 Bitstream Specification Section 6.8.14).">
+        <member type="StdVideoAV1TileInfoFlags" name="flags" doc="Tile info flags."/>
+        <member type="u8" name="TileCols" doc="Number of tiles across the picture."/>
+        <member type="u8" name="TileRows" doc="Number of tiles down the picture."/>
+        <member type="u16" name="context_update_tile_id" doc="Specifies which tile to use for the CDF update."/>
+        <member type="u8" name="tile_size_bytes_minus_1" doc="Specifies the number of bytes needed to code each tile size."/>
+        <member type="u8" name="reserved1" array="7"/>
+        <member type="u16" name="pMiColStarts" mod="const,ptr" doc="Pointer to an array specifying the start column (in MI units) for each tile column."/>
+        <member type="u16" name="pMiRowStarts" mod="const,ptr" doc="Pointer to an array specifying the start row (in MI units) for each tile row."/>
+        <member type="u16" name="pWidthInSbsMinus1" mod="const,ptr" doc="Pointer to an array of tile widths in superblocks minus 1."/>
+        <member type="u16" name="pHeightInSbsMinus1" mod="const,ptr" doc="Pointer to an array of tile heights in superblocks minus 1."/>
+    </type>
+
+    <type name="StdVideoAV1CDEF" category="struct" version="0.7.1" doc="AV1 Constrained Directional Enhancement Filter (CDEF) parameters (AV1 Bitstream Specification Section 6.8.19).">
+        <member type="u8" name="cdef_damping_minus_3" doc="Controls the amount of damping in the deringing filter."/>
+        <member type="u8" name="cdef_bits" doc="Specifies the number of bits needed to specify the CDEF filter strength."/>
+        <member type="u8" name="cdef_y_pri_strength" array="8" doc="Primary filter strength for Y."/>
+        <member type="u8" name="cdef_y_sec_strength" array="8" doc="Secondary filter strength for Y."/>
+        <member type="u8" name="cdef_uv_pri_strength" array="8" doc="Primary filter strength for UV."/>
+        <member type="u8" name="cdef_uv_sec_strength" array="8" doc="Secondary filter strength for UV."/>
+    </type>
+
+    <type name="StdVideoAV1LoopRestoration" category="struct" version="0.7.1" doc="AV1 Loop Restoration parameters (AV1 Bitstream Specification Section 6.8.20).">
+        <member type="StdVideoAV1FrameRestorationType" name="FrameRestorationType" array="3" doc="Array specifying the loop restoration type for each plane (Y, U, V)."/>
+        <member type="u16" name="LoopRestorationSize" array="3" doc="Array specifying the size of loop restoration units for each plane."/>
+    </type>
+
+    <type name="StdVideoAV1GlobalMotion" category="struct" version="0.7.1" doc="AV1 Global Motion parameters (AV1 Bitstream Specification Section 6.8.17).">
+        <member type="u8" name="GmType" array="8" doc="Array specifying the global motion type for each reference frame."/>
+        <member type="i32" name="gm_params" array="8*6" doc="Array of global motion parameters."/>
+    </type>
+
+    <type name="StdVideoAV1FilmGrainFlags" category="struct" version="0.7.1" doc="AV1 Film Grain Flags (AV1 Bitstream Specification Section 6.8.24).">
+        <member type="u32" name="chroma_scaling_from_luma" bits="1" doc="Flag indicating that chroma scaling is derived from luma."/>
+        <member type="u32" name="overlap_flag" bits="1" doc="Flag indicating overlapping film grain blocks."/>
+        <member type="u32" name="clip_to_restricted_range" bits="1" doc="Flag indicating clipping to restricted range."/>
+        <member type="u32" name="update_grain" bits="1" doc="Flag indicating the film grain parameters are updated in this frame."/>
+        <member type="u32" name="reserved" bits="28"/>
+    </type>
+
+    <type name="StdVideoAV1FilmGrain" category="struct" version="0.7.1" doc="AV1 Film Grain parameters (AV1 Bitstream Specification Section 6.8.24).">
+        <member type="StdVideoAV1FilmGrainFlags" name="flags" doc="Film grain flags."/>
+        <member type="u8" name="grain_scaling_minus_8" doc="Shift value for the film grain scale calculation."/>
+        <member type="u8" name="ar_coeff_lag" doc="Number of auto-regressive coefficients."/>
+        <member type="u8" name="ar_coeff_shift_minus_6" doc="Shift value for auto-regressive coefficients."/>
+        <member type="u8" name="grain_scale_shift" doc="Specifies how much the Gaussian random numbers should be scaled down."/>
+        <member type="u16" name="grain_seed" doc="Specifies the seed for the pseudo-random number generator."/>
+        <member type="u8" name="film_grain_params_ref_idx" doc="Specifies the reference frame index to obtain the film grain parameters from."/>
+        <member type="u8" name="num_y_points" doc="Number of points for luma scaling."/>
+        <member type="u8" name="point_y_value" array="14" doc="Luma point values."/>
+        <member type="u8" name="point_y_scaling" array="14" doc="Luma point scaling."/>
+        <member type="u8" name="num_cb_points" doc="Number of points for Cb scaling."/>
+        <member type="u8" name="point_cb_value" array="10" doc="Cb point values."/>
+        <member type="u8" name="point_cb_scaling" array="10" doc="Cb point scaling."/>
+        <member type="u8" name="num_cr_points" doc="Number of points for Cr scaling."/>
+        <member type="u8" name="point_cr_value" array="10" doc="Cr point values."/>
+        <member type="u8" name="point_cr_scaling" array="10" doc="Cr point scaling."/>
+        <member type="i8" name="ar_coeffs_y_plus_128" array="24" doc="Auto-regressive coefficients for Y."/>
+        <member type="i8" name="ar_coeffs_cb_plus_128" array="25" doc="Auto-regressive coefficients for Cb."/>
+        <member type="i8" name="ar_coeffs_cr_plus_128" array="25" doc="Auto-regressive coefficients for Cr."/>
+        <member type="u8" name="cb_mult" doc="Cb multiplier for chroma scaling from luma."/>
+        <member type="u8" name="cb_luma_mult" doc="Cb luma multiplier for chroma scaling from luma."/>
+        <member type="u16" name="cb_offset" doc="Cb offset for chroma scaling from luma."/>
+        <member type="u8" name="cr_mult" doc="Cr multiplier for chroma scaling from luma."/>
+        <member type="u8" name="cr_luma_mult" doc="Cr luma multiplier for chroma scaling from luma."/>
+        <member type="u16" name="cr_offset" doc="Cr offset for chroma scaling from luma."/>
+    </type>
+
+    <type name="StdVideoAV1SequenceHeaderFlags" category="struct" version="0.7.1" doc="AV1 Sequence Header flags (AV1 Bitstream Specification Section 5.5).">
+        <member type="u32" name="still_picture" bits="1" doc="Specifies if the video sequence contains a single still picture."/>
+        <member type="u32" name="reduced_still_picture_header" bits="1" doc="Specifies if reduced header parameters are used for a still picture."/>
+        <member type="u32" name="use_128x128_superblock" bits="1" doc="Specifies if superblocks are 128x128 or 64x64."/>
+        <member type="u32" name="enable_filter_intra" bits="1" doc="Specifies if the filter intra predictor can be used."/>
+        <member type="u32" name="enable_intra_edge_filter" bits="1" doc="Specifies if intra edge filtering can be used."/>
+        <member type="u32" name="enable_interintra_compound" bits="1" doc="Specifies if inter-intra compound prediction can be used."/>
+        <member type="u32" name="enable_masked_compound" bits="1" doc="Specifies if masked compound prediction can be used."/>
+        <member type="u32" name="enable_warped_motion" bits="1" doc="Specifies if warped motion can be used."/>
+        <member type="u32" name="enable_dual_filter" bits="1" doc="Specifies if dual interpolation filters can be used."/>
+        <member type="u32" name="enable_order_hint" bits="1" doc="Specifies if order hints are used."/>
+        <member type="u32" name="enable_jnt_comp" bits="1" doc="Specifies if the distance weights process is used for compound prediction."/>
+        <member type="u32" name="enable_ref_frame_mvs" bits="1" doc="Specifies if reference frame motion vectors are present."/>
+        <member type="u32" name="frame_id_numbers_present_flag" bits="1" doc="Specifies if frame ID numbers are present."/>
+        <member type="u32" name="enable_superres" bits="1" doc="Specifies if the superresolution feature can be used."/>
+        <member type="u32" name="enable_cdef" bits="1" doc="Specifies if the CDEF filtering process can be used."/>
+        <member type="u32" name="enable_restoration" bits="1" doc="Specifies if loop restoration can be used."/>
+        <member type="u32" name="film_grain_params_present" bits="1" doc="Specifies if film grain parameters are present."/>
+        <member type="u32" name="timing_info_present_flag" bits="1" doc="Specifies if timing info is present."/>
+        <member type="u32" name="initial_display_delay_present_flag" bits="1" doc="Specifies if the initial display delay info is present."/>
+        <member type="u32" name="reserved" bits="13"/>
+    </type>
+
+    <type name="StdVideoAV1SequenceHeader" category="struct" version="0.7.1" doc="AV1 Sequence Header OBU parameters (AV1 Bitstream Specification Section 5.5).">
+        <member type="StdVideoAV1SequenceHeaderFlags" name="flags" doc="Sequence header flags."/>
+        <member type="StdVideoAV1Profile" name="seq_profile" doc="AV1 profile."/>
+        <member type="u8" name="frame_width_bits_minus_1" doc="Number of bits used to specify the frame width minus 1."/>
+        <member type="u8" name="frame_height_bits_minus_1" doc="Number of bits used to specify the frame height minus 1."/>
+        <member type="u16" name="max_frame_width_minus_1" doc="Maximum frame width minus 1."/>
+        <member type="u16" name="max_frame_height_minus_1" doc="Maximum frame height minus 1."/>
+        <member type="u8" name="delta_frame_id_length_minus_2" doc="Specifies the number of bits used to encode delta_frame_id."/>
+        <member type="u8" name="additional_frame_id_length_minus_1" doc="Used to calculate the number of bits used to encode frame_id."/>
+        <member type="u8" name="order_hint_bits_minus_1" doc="Used to compute OrderHintBits."/>
+        <member type="u8" name="seq_force_integer_mv" doc="Equal to 1: motion vectors will always be integers."/>
+        <member type="u8" name="seq_force_screen_content_tools" doc="Screen content tools setting."/>
+        <member type="u8" name="reserved1" array="5"/>
+        <member type="StdVideoAV1ColorConfig" name="pColorConfig" mod="const,ptr" doc="Pointer to color configuration parameters."/>
+        <member type="StdVideoAV1TimingInfo" name="pTimingInfo" mod="const,ptr" doc="Pointer to timing info parameters."/>
+    </type>
+
+    <type name="StdVideoDecodeAV1PictureInfoFlags" category="struct" version="0.7.1" doc="Flags for AV1 decode picture info (from Uncompressed Header).">
+        <member type="u32" name="error_resilient_mode" bits="1" doc="Indicates error resilient mode is enabled."/>
+        <member type="u32" name="disable_cdf_update" bits="1" doc="Indicates CDF update is disabled."/>
+        <member type="u32" name="use_superres" bits="1" doc="Indicates superresolution is enabled for this frame."/>
+        <member type="u32" name="render_and_frame_size_different" bits="1" doc="Indicates actual frame size and render frame size are different."/>
+        <member type="u32" name="allow_screen_content_tools" bits="1" doc="Indicates screen content tools are allowed."/>
+        <member type="u32" name="is_filter_switchable" bits="1" doc="Indicates whether interpolation filter is switchable."/>
+        <member type="u32" name="force_integer_mv" bits="1" doc="Indicates whether motion vectors must be forced to integer."/>
+        <member type="u32" name="frame_size_override_flag" bits="1" doc="Indicates if frame size override is set."/>
+        <member type="u32" name="buffer_removal_time_present_flag" bits="1" doc="Indicates whether buffer removal time is present."/>
+        <member type="u32" name="allow_intrabc" bits="1" doc="Indicates if intra block copy is allowed."/>
+        <member type="u32" name="frame_refs_short_signaling" bits="1" doc="Indicates if reference frames are completely decided by last_frame_idx."/>
+        <member type="u32" name="allow_high_precision_mv" bits="1" doc="Indicates whether high precision motion vectors are allowed."/>
+        <member type="u32" name="is_motion_mode_switchable" bits="1" doc="Indicates whether motion mode is switchable."/>
+        <member type="u32" name="use_ref_frame_mvs" bits="1" doc="Indicates whether reference frame MVs are used."/>
+        <member type="u32" name="disable_frame_end_update_cdf" bits="1" doc="Specifies whether the frame end CDF update is skipped."/>
+        <member type="u32" name="allow_warped_motion" bits="1" doc="Indicates whether warped motion is allowed for this frame."/>
+        <member type="u32" name="reduced_tx_set" bits="1" doc="Indicates whether the frame uses a reduced transform set."/>
+        <member type="u32" name="reference_select" bits="1" doc="Specifies that the mode info for inter blocks contains the syntax element comp_mode."/>
+        <member type="u32" name="skip_mode_present" bits="1" doc="Specifies whether skip mode is allowed."/>
+        <member type="u32" name="delta_q_present" bits="1" doc="Specifies whether a delta q index is present for the frame."/>
+        <member type="u32" name="delta_lf_present" bits="1" doc="Specifies whether delta loop filter values are present."/>
+        <member type="u32" name="delta_lf_multi" bits="1" doc="Specifies whether independent delta loop filter values are used."/>
+        <member type="u32" name="segmentation_enabled" bits="1" doc="Indicates if segmentation is enabled."/>
+        <member type="u32" name="segmentation_update_map" bits="1" doc="Indicates if segmentation map is updated."/>
+        <member type="u32" name="segmentation_temporal_update" bits="1" doc="Indicates if temporal segmentation is updated."/>
+        <member type="u32" name="segmentation_update_data" bits="1" doc="Indicates if segmentation feature data is updated."/>
+        <member type="u32" name="UsesLr" bits="1" doc="Indicates if loop restoration is used."/>
+        <member type="u32" name="usesChromaLr" bits="1" doc="Indicates if loop restoration is used for chroma."/>
+        <member type="u32" name="apply_grain" bits="1" doc="Indicates if film grain should be applied."/>
+        <member type="u32" name="reserved" bits="3"/>
+    </type>
+
+    <type name="StdVideoDecodeAV1PictureInfo" category="struct" version="0.7.1" doc="Information provided by the application to the video decoder for each AV1 picture (Khronos Video extensions).">
+        <member type="StdVideoDecodeAV1PictureInfoFlags" name="flags" doc="Decode picture info flags."/>
+        <member type="StdVideoAV1FrameType" name="frame_type" doc="Frame type: Key, Inter, Intra-only, or Switch."/>
+        <member type="u32" name="current_frame_id" doc="Specifies the frame ID for the current frame."/>
+        <member type="u8" name="OrderHint" doc="Order hint of the current frame used for motion vector scaling."/>
+        <member type="u8" name="primary_ref_frame" doc="Index of the reference frame containing the CDF values to be loaded at the start of the frame."/>
+        <member type="u8" name="refresh_frame_flags" doc="An 8-bit mask that specifies which reference frame slots will be updated with the current frame."/>
+        <member type="u8" name="reserved1"/>
+        <member type="StdVideoAV1InterpolationFilter" name="interpolation_filter" doc="Specifies the filter selection used for performing inter prediction."/>
+        <member type="StdVideoAV1TxMode" name="TxMode" doc="Specifies how the transform size is determined."/>
+        <member type="u8" name="delta_q_res" doc="Specifies the left shift to be applied to decoded delta q values."/>
+        <member type="u8" name="delta_lf_res" doc="Specifies the left shift to be applied to decoded delta loop filter values."/>
+        <member type="u8" name="SkipModeFrame" array="2" doc="Specifies the indices of the reference frames to be used for skip mode."/>
+        <member type="u8" name="coded_denom" doc="Denominator for frame size calculation if superres is enabled."/>
+        <member type="u8" name="reserved2" array="3"/>
+        <member type="u8" name="OrderHints" array="8" doc="Order hints of the decoded reference frames."/>
+        <member type="u32" name="expectedFrameId" array="8" doc="Expected frame IDs for reference frames."/>
+        <member type="StdVideoAV1TileInfo" name="pTileInfo" mod="const,ptr" doc="Pointer to AV1 tile information."/>
+        <member type="StdVideoAV1Quantization" name="pQuantization" mod="const,ptr" doc="Pointer to standard quantization matrices and values."/>
+        <member type="StdVideoAV1Segmentation" name="pSegmentation" mod="const,ptr" doc="Pointer to segmentation parameter information."/>
+        <member type="StdVideoAV1LoopFilter" name="pLoopFilter" mod="const,ptr" doc="Pointer to loop filter parameters."/>
+        <member type="StdVideoAV1CDEF" name="pCDEF" mod="const,ptr" doc="Pointer to CDEF parameters."/>
+        <member type="StdVideoAV1LoopRestoration" name="pLoopRestoration" mod="const,ptr" doc="Pointer to loop restoration parameters."/>
+        <member type="StdVideoAV1GlobalMotion" name="pGlobalMotion" mod="const,ptr" doc="Pointer to global motion parameters."/>
+        <member type="StdVideoAV1FilmGrain" name="pFilmGrain" mod="const,ptr" doc="Pointer to film grain synthesis parameters."/>
+    </type>
+
+    <type name="StdVideoDecodeAV1ReferenceInfoFlags" category="struct" version="0.7.1" doc="Flags for AV1 Decode Reference Information.">
+        <member type="u32" name="disable_frame_end_update_cdf" bits="1" doc="Reference originally had disabled frame end CDF update."/>
+        <member type="u32" name="segmentation_enabled" bits="1" doc="Reference originally had segmentation enabled."/>
+        <member type="u32" name="reserved" bits="30"/>
+    </type>
+
+    <type name="StdVideoDecodeAV1ReferenceInfo" category="struct" version="0.7.1" doc="Information provided by the application about an AV1 reference frame.">
+        <member type="StdVideoDecodeAV1ReferenceInfoFlags" name="flags" doc="Reference information flags."/>
+        <member type="u8" name="frame_type" doc="Frame type of the reference frame."/>
+        <member type="u8" name="RefFrameSignBias" doc="Specifies the direction of the reference frame relative to other references used in motion vector derivation."/>
+        <member type="u8" name="OrderHint" doc="Order hint of the reference frame."/>
+        <member type="u8" name="SavedOrderHints" array="8" doc="Saved order hints when this reference frame was decoded."/>
+    </type>
+
+  </types>
+</registry>

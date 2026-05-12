@@ -7,8 +7,10 @@
 #include <video/generated/cpp_api.hpp>
 #include <video/generated/vk_convert.hpp>
 
+#include <vk_video/vulkan_video_codec_av1std_decode.h>
+
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API void wisVKDestroyVideoDecodeCommandList(WisVKVideoDecodeCommandList* self)
+WIS_EXTERN_C WISDOM_VIDEO_API void wisVKDestroyVideoDecodeCommandList(WisVKVideoDecodeCommandList* self)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKVideoDecodeCommandListImpl>(self);
     if (impl.command_buffer != VK_NULL_HANDLE) {
@@ -22,7 +24,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyVideoDecodeCommandList(WisVKVideoDecode
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisVKVideoDecodeCommandListBegin(const WisVKVideoDecodeCommandList* self)
+WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisVKVideoDecodeCommandListBegin(const WisVKVideoDecodeCommandList* self)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKVideoDecodeCommandListImpl>(self);
 
@@ -40,7 +42,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKVideoDecodeCommandListBegin(const WisVKVi
 }
 
 //---------------------------------------------------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisVKVideoDecodeCommandListEnd(const WisVKVideoDecodeCommandList* self)
+WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisVKVideoDecodeCommandListEnd(const WisVKVideoDecodeCommandList* self)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKVideoDecodeCommandListImpl>(self);
     auto vr = impl.command_list_table->vkEndCommandBuffer(impl.command_buffer);
@@ -48,6 +50,46 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKVideoDecodeCommandListEnd(const WisVKVide
         return wis::detail::make_result<wis::detail::Func(), "Failed to end Vulkan command buffer recording">(vr);
     }
     return wis::detail::vk_success;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_VIDEO_API void wisVKVideoDecodeCommandListDecodeFrame(
+    const WisVKVideoDecodeCommandList* command_list,
+    const WisVKVideoDecoder* decoder,
+    const WisVKVideoDecodeInputDesc* input_desc
+)
+{
+    auto& impl = wis::from_handle_ref<const wis::impl::VKVideoDecodeCommandListImpl>(command_list);
+    auto& decoder_impl = wis::from_handle_ref<const wis::impl::VKVideoDecoderImpl>(decoder);
+
+    // Begin video coding scope
+    VkVideoBeginCodingInfoKHR beginInfo = {
+        .sType = VK_STRUCTURE_TYPE_VIDEO_BEGIN_CODING_INFO_KHR,
+        .pNext = nullptr,
+        .flags = 0,
+        .videoSession = decoder_impl.video_session,
+        //.videoSessionParameters = your_parameters_obj,
+
+        .referenceSlotCount = 0,
+        .pReferenceSlots = nullptr
+    };
+    impl.command_list_table->vkCmdBeginVideoCodingKHR(impl.command_buffer, nullptr);
+
+    // Convert decode info to Vulkan structures
+    VkVideoDecodeInfoKHR vk_decode_info{
+        .sType = VK_STRUCTURE_TYPE_VIDEO_DECODE_INFO_KHR,
+        .pNext = nullptr,
+        .flags = 0,
+    };
+    impl.command_list_table->vkCmdDecodeVideoKHR(impl.command_buffer, &vk_decode_info);
+
+    // End video coding scope
+    VkVideoEndCodingInfoKHR end_info = {
+        .sType = VK_STRUCTURE_TYPE_VIDEO_END_CODING_INFO_KHR,
+        .pNext = nullptr,
+        .flags = 0
+    };
+    impl.command_list_table->vkCmdEndVideoCodingKHR(impl.command_buffer, &end_info);
 }
 
 #endif // WIS_VK_VIDEO_CPP

@@ -193,6 +193,11 @@ struct VKMainCommandList {
     PFN_vkCmdBindVertexBuffers3KHR vkCmdBindVertexBuffers3KHR;
     PFN_vkCmdBindIndexBuffer3KHR vkCmdBindIndexBuffer3KHR;
 
+    // Video decode functions (placed here, for lesser space consumption)
+    PFN_vkCmdBeginVideoCodingKHR vkCmdBeginVideoCodingKHR;
+    PFN_vkCmdDecodeVideoKHR vkCmdDecodeVideoKHR;
+    PFN_vkCmdEndVideoCodingKHR vkCmdEndVideoCodingKHR;
+
 public:
     bool Init(VkDevice device, PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr) noexcept
     {
@@ -232,6 +237,11 @@ public:
 
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkCmdBindVertexBuffers3KHR);
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkCmdBindIndexBuffer3KHR);
+
+        ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkCmdBeginVideoCodingKHR);
+        ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkCmdDecodeVideoKHR);
+        ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkCmdEndVideoCodingKHR);
+
         return true;
     }
 };

@@ -1,6 +1,9 @@
 #include <wisdom/wisdom.hpp>
 #include <wisdom/wisdom_video.hpp>
+#include "avif_demux.hpp"
 #include <format>
+#include <fstream>
+#include <vector>
 
 static bool check_result(wis::Result result, const char* where)
 {
@@ -27,7 +30,6 @@ class Application
     void log_callback(wis::Severity severity, const char* message, uint64_t)
     {
         if (!_device.IsValid()) {
-            // Avoid logging messages before instance creation
             return;
         }
 
@@ -93,13 +95,11 @@ private:
             return device;
         }
 
-        // Query adapters
         wis::AdapterQuery adapters = instance.QueryAdapters(wis::AdapterPreference::Performance, result);
         if (!check_result(result, "QueryAdapters")) {
             return device;
         }
 
-        // Cycle through adapters and create device
         wis::DeviceExtensionHeader* extensions[] = {&_video_extension};
         wis::CommandQueueDesc queue_descs[] = {
             {wis::CommandQueueType::VideoDecode, wis::CommandQueuePriority::Normal},
@@ -112,7 +112,6 @@ private:
         for (size_t i = 0; i < adapters.GetAdapterCount(); ++i) {
             device = adapters.CreateDevice(i, requirements, result);
             if (result.status == wis::Status::Ok) {
-                // Get adapter description for logging purposes
                 wis::AdapterDesc adapter_desc = adapters.GetAdapterDesc(i, result);
                 std::printf(
                     "Successfully created device for adapter: %s, vendor_id: %u, device_id: %u\n",
@@ -142,7 +141,6 @@ private:
         if (!check_result(result, "CreateDecoder")) {
             return video_decoder;
         }
-        //assert(video_decoder.IsValid() && "Failed to create video decoder for AV1 Main profile with NV12 format");
         return video_decoder;
     }
     void PrintCapability()
@@ -175,5 +173,29 @@ private:
 int main()
 {
     Application app;
+
+    std::ifstream avif_file("assets/avif_sample.avif", std::ios::binary);
+    if (!avif_file) {
+        std::printf("Failed to open AVIF file\n");
+        return -1;
+    }
+
+    std::vector<uint8_t> avif_data((std::istreambuf_iterator<char>(avif_file)), std::istreambuf_iterator<char>());
+
+    AvifDemuxer demuxer;
+    if (!demuxer.Load({avif_data.data(), avif_data.size()})) {
+        std::printf("Failed to load AVIF file\n");
+        return -1;
+    }
+
+    std::printf("AVIF image loaded. Width: %u, Height: %u, Frames: %u\n", demuxer.GetWidth(), demuxer.GetHeight(), demuxer.GetImageCount());
+
+    for (uint32_t i = 0; i < demuxer.GetImageCount(); ++i) {
+        auto frame_data = demuxer.GetFrameData(i);
+        std::printf("Frame %u size: %zu bytes\n", i, frame_data.size());
+        
+        // TODO: Pass frame_data to VideoDecoder...
+    }
+
     return 0;
 }

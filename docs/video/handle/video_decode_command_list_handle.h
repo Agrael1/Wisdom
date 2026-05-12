@@ -24,6 +24,6 @@
  * \cond WIS_GEN_REFS
  * @see Functions:
  * wisDestroyVideoDecodeCommandList, wisVideoDecodingExtensionCreateCommandList, wisVideoDecodeCommandListBegin,
- * wisVideoDecodeCommandListEnd
+ * wisVideoDecodeCommandListEnd, wisVideoDecodeCommandListDecodeFrame
  * \endcond
  */

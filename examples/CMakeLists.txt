@@ -48,6 +48,13 @@ add_custom_target(
 
 include(cmake/deps.cmake)
 
+# Copy assets folder
+add_custom_target(
+  copy_assets
+  COMMAND ${CMAKE_COMMAND} -E echo "Copying assets to example binaries..."
+  COMMAND ${CMAKE_COMMAND} -E copy_directory
+          ${CMAKE_CURRENT_SOURCE_DIR}/assets ${EXAMPLE_BIN_OUTPUT}/assets)
+
 add_example_suite(backend)
 add_example_suite(compute_particles_c)
 add_example_suite(hello_triangle)
