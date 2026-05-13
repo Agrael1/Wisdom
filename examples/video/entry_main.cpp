@@ -1,9 +1,9 @@
 #include <wisdom/wisdom.hpp>
 #include <wisdom/wisdom_video.hpp>
-#include "avif_demux.hpp"
 #include <format>
 #include <fstream>
 #include <vector>
+#include "avif_demux.hpp"
 
 static bool check_result(wis::Result result, const char* where)
 {
@@ -76,6 +76,22 @@ public:
         if (!check_result(result, "CreateVideoDecodeCommandList")) {
             return;
         }
+    }
+
+public:
+    int Run()
+    {
+        wis::Result result{};
+        std::ifstream avif_file("assets/avif_sample.avif", std::ios::binary);
+        if (!avif_file) {
+            std::printf("Failed to open AVIF file\n");
+            return -1;
+        }
+
+        std::vector<uint8_t> avif_data((std::istreambuf_iterator<char>(avif_file)), std::istreambuf_iterator<char>());
+
+        AvifDemuxer demuxer;
+        return 0;
     }
 
 private:
@@ -173,29 +189,5 @@ private:
 int main()
 {
     Application app;
-
-    std::ifstream avif_file("assets/avif_sample.avif", std::ios::binary);
-    if (!avif_file) {
-        std::printf("Failed to open AVIF file\n");
-        return -1;
-    }
-
-    std::vector<uint8_t> avif_data((std::istreambuf_iterator<char>(avif_file)), std::istreambuf_iterator<char>());
-
-    AvifDemuxer demuxer;
-    if (!demuxer.Load({avif_data.data(), avif_data.size()})) {
-        std::printf("Failed to load AVIF file\n");
-        return -1;
-    }
-
-    std::printf("AVIF image loaded. Width: %u, Height: %u, Frames: %u\n", demuxer.GetWidth(), demuxer.GetHeight(), demuxer.GetImageCount());
-
-    for (uint32_t i = 0; i < demuxer.GetImageCount(); ++i) {
-        auto frame_data = demuxer.GetFrameData(i);
-        std::printf("Frame %u size: %zu bytes\n", i, frame_data.size());
-        
-        // TODO: Pass frame_data to VideoDecoder...
-    }
-
-    return 0;
+    return app.Run();
 }

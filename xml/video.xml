@@ -99,9 +99,8 @@
         <member type="u64" name="size" doc="Size of the bitstream data in bytes."/>
 
         <!--Reference frames TODO-->
-
+        
         <!--Frame Argument-->
-
       </type>
     </types>
 
@@ -112,7 +111,7 @@
       </handle>
       <handle name="VideoDecoder" version="0.7.1" doc="Handle for a video decoder. Represents a video decoder instance that can be used to decode video frames.">
         <impl for="vk" size="4"/>
-        <impl for="dx" size="2"/>
+        <impl for="dx" size="3"/>
       </handle>
       <handle name="VideoDecodeCommandList" version="0.7.1" doc="Handle for a video command list. Represents a command list that can be used to record video decode commands.">
         <impl for="vk" size="7"/>
@@ -140,6 +139,12 @@
         <ret type="VideoDecodeCommandList" result="true" name="command_list" doc="Output parameter that holds the created video command list handle if the operation is successful."/>
         <arg type="CommandAllocator" name="command_allocator" mod="const,ref" doc="The command allocator that the command list will use for memory management of command buffers. It @wis_must be created with the same {Device::} as the extension and have {CommandQueueType::VideoDecode} or {CommandQueueType::VideoEncode} specified."/>
       </func>
+      
+      <!--Video Decoder -->
+      <func for="VideoDecoder" name="CreateParameters" version="0.7.1" mod="const" doc="Creates parameters from provided sequence header or parameter set.">
+        <ret type="VideoDecoderParameters" name="decoder_parameters" result="true" doc="Output parameter that holds the created video decoder parameters handle if the operation is successful."/>
+        <arg type="void" name="sequence_parameters" mod="const,ptr" doc="Pointer to the sequence header or parameter set data. The format and content of this data should be appropriate for the codec being used, and should contain the necessary information to initialize the video decoder parameters."/>
+      </func>
 
       <!--Video Decode Command List-->
       <func for="VideoDecodeCommandList" name="Begin" version="0.7.0" mod="const" doc="Opens the command list, so commands can be recorded to it.">
@@ -150,6 +155,7 @@
       </func>
       <func for="VideoDecodeCommandList" name="DecodeFrame" version="0.7.0" mod="const" doc="Records a video decode command to the command list.">
         <arg type="VideoDecoder" name="decoder" mod="const,ref" doc="The video decoder that will be used for decoding the video frame."/>
+        <arg type="VideoDecoderParameters" name="decoder_parameters" mod="const,ref" doc="Input description for a video decode operation that uses video decoder parameters as input. The video decoder parameters should be created from the sequence header or parameter set data for the video stream, and should contain the necessary information to initialize the video decoder for decoding the video frames."/>
         <arg type="VideoDecodeInputDesc" name="input_desc" mod="const,ref" doc="Description of the input data for the video decode operation. This field specifies the type and location of the input data that will be used for decoding the video frame."/>
       </func>
 

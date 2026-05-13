@@ -3,6 +3,7 @@
 
 #include <wisdom/dx12/detail/dx12_utils.hpp>
 #include <wisdom/generated/dx12_convert.hpp>
+#include <video/dx12/detail/dx12_detail.hpp>
 #include <video/generated/cpp_api.hpp>
 
 #ifndef DX12SDKVER
@@ -282,6 +283,7 @@ WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisDX12VideoDecodingExtensionCreateDecod
     new (video_decoder) wis::impl::DX12VideoDecoderImpl{
         .decoder = decoder.detach(),
         .decoder_heap = decoder_heap.detach(),
+        .codec = static_cast<WisVideoCodecFlags>(1 << (decoder_desc->codec_profile / 32)),
     };
     return wis::detail::dx_success;
 }
@@ -298,13 +300,69 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisDX12DestroyVideoDecoder(WisDX12VideoDecode
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisDX12VideoDecoderCreateParameters(
+    const WisDX12VideoDecoder* self,
+    const void* sequence_parameters,
+    WisDX12VideoDecoderParameters* decoder_parameters
+)
+{
+    auto& impl = wis::from_handle_ref<const wis::impl::DX12VideoDecoderImpl>(self);
+    void* allocation = nullptr;
+
+    switch (impl.codec) {
+    case WisVideoCodecFlagsAV1: {
+        auto& sequence_header = wis::from_handle_ref<const WisStdVideoAV1SequenceHeader>(sequence_parameters);
+        std::unique_ptr<wis::detail::DX12AV1DecoderParameters>
+            params = wis::make_unique<wis::detail::DX12AV1DecoderParameters>(sequence_header);
+        if (!params) {
+            return wis::detail::make_result<wis::detail::Func(), "Failed to allocate memory for decoder parameters.">(
+                E_OUTOFMEMORY
+            );
+        }
+
+        allocation = params.release();
+        break;
+    }
+
+    default:
+        return wis::detail::make_result<
+            wis::detail::Func(),
+            "Creating video decoder parameters for the specified codec is not yet implemented.">(E_NOTIMPL);
+    }
+
+    new (decoder_parameters) wis::impl::DX12VideoDecoderParametersImpl{
+        .filler = allocation,
+        .codec = impl.codec,
+    };
+    return wis::detail::dx_success;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_VIDEO_API void wisDX12DestroyVideoDecoderParameters(WisDX12VideoDecoderParameters* self)
+{
+    auto& impl = wis::from_handle_ref<wis::impl::DX12VideoDecoderParametersImpl>(self);
+    if (impl.filler) {
+        switch (impl.codec) {
+        case WisVideoCodecFlagsAV1:
+            delete static_cast<wis::detail::DX12AV1DecoderParameters*>(impl.filler);
+            break;
+        default:
+            break;
+        }
+    }
+    impl.filler = nullptr;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisDX12VideoDecodingExtensionCreateCommandList(
     WisDX12VideoDecodingExtension* self,
     const WisDX12CommandAllocator* command_allocator,
     WisDX12VideoDecodeCommandList* command_list
 )
 {
-    auto& [allocator, device, type] = wis::from_handle_ref<const wis::impl::DX12CommandAllocatorImpl>(command_allocator);
+    auto& [allocator, device, type] = wis::from_handle_ref<const wis::impl::DX12CommandAllocatorImpl>(
+        command_allocator
+    );
     if (type != WisCommandQueueTypeVideoDecode) {
         return wis::detail::make_result<wis::detail::Func(), "Provided command allocator is not for video decoding.">(
             E_INVALIDARG

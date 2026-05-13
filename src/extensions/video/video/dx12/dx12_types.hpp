@@ -22,9 +22,11 @@ struct DX12VideoDecodingExtensionImpl {
 struct DX12VideoDecoderImpl {
     ID3D12VideoDecoder* decoder;
     ID3D12VideoDecoderHeap* decoder_heap;
+    WisVideoCodecFlags codec;
 };
 struct DX12VideoDecoderParametersImpl {
     void* filler;
+    WisVideoCodecFlags codec;
 };
 struct DX12VideoDecodeCommandListImpl {
     ID3D12VideoDecodeCommandList3* command_list;

@@ -45,6 +45,7 @@ typedef struct WisDX12VideoDecodeInputDesc WisVideoDecodeInputDesc;
 #    define wisVideoDecodingExtensionQueryCodecCaps    wisDX12VideoDecodingExtensionQueryCodecCaps
 #    define wisVideoDecodingExtensionCreateDecoder     wisDX12VideoDecodingExtensionCreateDecoder
 #    define wisVideoDecodingExtensionCreateCommandList wisDX12VideoDecodingExtensionCreateCommandList
+#    define wisVideoDecoderCreateParameters            wisDX12VideoDecoderCreateParameters
 #    define wisVideoDecodeCommandListBegin             wisDX12VideoDecodeCommandListBegin
 #    define wisVideoDecodeCommandListEnd               wisDX12VideoDecodeCommandListEnd
 #    define wisVideoDecodeCommandListDecodeFrame       wisDX12VideoDecodeCommandListDecodeFrame
@@ -78,6 +79,7 @@ typedef struct WisVKVideoDecodeInputDesc WisVideoDecodeInputDesc;
 #    define wisVideoDecodingExtensionQueryCodecCaps    wisVKVideoDecodingExtensionQueryCodecCaps
 #    define wisVideoDecodingExtensionCreateDecoder     wisVKVideoDecodingExtensionCreateDecoder
 #    define wisVideoDecodingExtensionCreateCommandList wisVKVideoDecodingExtensionCreateCommandList
+#    define wisVideoDecoderCreateParameters            wisVKVideoDecoderCreateParameters
 #    define wisVideoDecodeCommandListBegin             wisVKVideoDecodeCommandListBegin
 #    define wisVideoDecodeCommandListEnd               wisVKVideoDecodeCommandListEnd
 #    define wisVideoDecodeCommandListDecodeFrame       wisVKVideoDecodeCommandListDecodeFrame

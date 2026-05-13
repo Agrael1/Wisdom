@@ -23,6 +23,7 @@ struct VKVideoDecodingExtensionImpl {
 struct VKVideoDecoderImpl {
     VkVideoSessionKHR video_session;
     VmaAllocation video_memory;
+    WisVideoCodecFlags codec;
     detail::VKVideoDecodingControlBlock* decoding_control_block;
 };
 

@@ -826,7 +826,7 @@ WIS_DEFINE_HANDLE(WisDX12VideoDecoderParameters, 2);
  * decode video frames.
  *
  * */
-WIS_DEFINE_HANDLE(WisDX12VideoDecoder, 2);
+WIS_DEFINE_HANDLE(WisDX12VideoDecoder, 3);
 
 /**
  * @brief Provided by Wisdom 0.7.1. Handle for a video command list. Represents a command list that can be used to
@@ -939,6 +939,23 @@ WISDOM_VIDEO_API WisResult wisDX12VideoDecodingExtensionCreateCommandList(
 );
 
 /**
+ * @brief Provided by Wisdom 0.7.1. Creates parameters from provided sequence header or parameter set.
+ * @param self is a pointer to the valid WisVideoDecoder instance.
+ * @param sequence_parameters Pointer to the sequence header or parameter set data. The format and content of this data
+ * should be appropriate for the codec being used, and should contain the necessary information to initialize the video
+ * decoder parameters.
+ * @param decoder_parameters Output parameter that holds the created video decoder parameters handle if the operation is
+ * successful.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_VIDEO_API WisResult wisDX12VideoDecoderCreateParameters(
+    const WisDX12VideoDecoder* self,
+    const void* sequence_parameters,
+    WisDX12VideoDecoderParameters* decoder_parameters
+);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Opens the command list, so commands can be recorded to it.
  * @param self is a pointer to the valid WisVideoDecodeCommandList instance.
  * @return Result denoting the outcome of operation.
@@ -958,6 +975,9 @@ WISDOM_VIDEO_API WisResult wisDX12VideoDecodeCommandListEnd(const WisDX12VideoDe
  * @brief Provided by Wisdom 0.7.0. Records a video decode command to the command list.
  * @param self is a pointer to the valid WisVideoDecodeCommandList instance.
  * @param decoder The video decoder that will be used for decoding the video frame.
+ * @param decoder_parameters Input description for a video decode operation that uses video decoder parameters as input.
+ * The video decoder parameters should be created from the sequence header or parameter set data for the video stream,
+ * and should contain the necessary information to initialize the video decoder for decoding the video frames.
  * @param input_desc Description of the input data for the video decode operation. This field specifies the type and
  * location of the input data that will be used for decoding the video frame.
  *
@@ -965,6 +985,7 @@ WISDOM_VIDEO_API WisResult wisDX12VideoDecodeCommandListEnd(const WisDX12VideoDe
 WISDOM_VIDEO_API void wisDX12VideoDecodeCommandListDecodeFrame(
     const WisDX12VideoDecodeCommandList* self,
     const WisDX12VideoDecoder* decoder,
+    const WisDX12VideoDecoderParameters* decoder_parameters,
     const WisDX12VideoDecodeInputDesc* input_desc
 );
 
@@ -1096,6 +1117,23 @@ WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionCreateCommandList(
 );
 
 /**
+ * @brief Provided by Wisdom 0.7.1. Creates parameters from provided sequence header or parameter set.
+ * @param self is a pointer to the valid WisVideoDecoder instance.
+ * @param sequence_parameters Pointer to the sequence header or parameter set data. The format and content of this data
+ * should be appropriate for the codec being used, and should contain the necessary information to initialize the video
+ * decoder parameters.
+ * @param decoder_parameters Output parameter that holds the created video decoder parameters handle if the operation is
+ * successful.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WISDOM_VIDEO_API WisResult wisVKVideoDecoderCreateParameters(
+    const WisVKVideoDecoder* self,
+    const void* sequence_parameters,
+    WisVKVideoDecoderParameters* decoder_parameters
+);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Opens the command list, so commands can be recorded to it.
  * @param self is a pointer to the valid WisVideoDecodeCommandList instance.
  * @return Result denoting the outcome of operation.
@@ -1115,6 +1153,9 @@ WISDOM_VIDEO_API WisResult wisVKVideoDecodeCommandListEnd(const WisVKVideoDecode
  * @brief Provided by Wisdom 0.7.0. Records a video decode command to the command list.
  * @param self is a pointer to the valid WisVideoDecodeCommandList instance.
  * @param decoder The video decoder that will be used for decoding the video frame.
+ * @param decoder_parameters Input description for a video decode operation that uses video decoder parameters as input.
+ * The video decoder parameters should be created from the sequence header or parameter set data for the video stream,
+ * and should contain the necessary information to initialize the video decoder for decoding the video frames.
  * @param input_desc Description of the input data for the video decode operation. This field specifies the type and
  * location of the input data that will be used for decoding the video frame.
  *
@@ -1122,6 +1163,7 @@ WISDOM_VIDEO_API WisResult wisVKVideoDecodeCommandListEnd(const WisVKVideoDecode
 WISDOM_VIDEO_API void wisVKVideoDecodeCommandListDecodeFrame(
     const WisVKVideoDecodeCommandList* self,
     const WisVKVideoDecoder* decoder,
+    const WisVKVideoDecoderParameters* decoder_parameters,
     const WisVKVideoDecodeInputDesc* input_desc
 );
 

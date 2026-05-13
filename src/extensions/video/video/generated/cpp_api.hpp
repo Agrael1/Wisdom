@@ -871,6 +871,34 @@ public:
     using ImplType::ImplType;
 
 public:
+    /**
+     * @brief Provided by Wisdom 0.7.1. Creates parameters from provided sequence header or parameter set.
+     * @param sequence_parameters Pointer to the sequence header or parameter set data. The format and content of this
+     * data should be appropriate for the codec being used, and should contain the necessary information to initialize
+     * the video decoder parameters.
+     * @param out_result denoting the outcome of operation.
+     * @return decoder_parameters Output parameter that holds the created video decoder parameters handle if the
+     * operation is successful.
+     *
+     * */
+    WIS_NODISCARD inline wis::DX12VideoDecoderParameters CreateParameters(
+        const void* sequence_parameters,
+        wis::Result& out_result
+    ) const noexcept
+    {
+        wis::DX12VideoDecoderParameters decoder_parameters{};
+        const WisResult wis_result = ::wisDX12VideoDecoderCreateParameters(
+            &_impl_storage,
+            sequence_parameters,
+            decoder_parameters.GetStorage()
+        );
+        out_result = wis::Result{
+            static_cast<wis::Status>(wis_result.status),
+            wis_result.platform_code,
+            wis_result.error
+        };
+        return decoder_parameters;
+    }
 };
 
 struct DX12VideoDecodeCommandListDeleter {
@@ -913,18 +941,24 @@ public:
     /**
      * @brief Provided by Wisdom 0.7.0. Records a video decode command to the command list.
      * @param decoder The video decoder that will be used for decoding the video frame.
+     * @param decoder_parameters Input description for a video decode operation that uses video decoder parameters as
+     * input. The video decoder parameters should be created from the sequence header or parameter set data for the
+     * video stream, and should contain the necessary information to initialize the video decoder for decoding the video
+     * frames.
      * @param input_desc Description of the input data for the video decode operation. This field specifies the type and
      * location of the input data that will be used for decoding the video frame.
      *
      * */
     inline void DecodeFrame(
         const wis::DX12VideoDecoder& decoder,
+        const wis::DX12VideoDecoderParameters& decoder_parameters,
         const wis::DX12VideoDecodeInputDesc& input_desc
     ) const noexcept
     {
         ::wisDX12VideoDecodeCommandListDecodeFrame(
             &_impl_storage,
             reinterpret_cast<const WisDX12VideoDecoder*>(&decoder),
+            reinterpret_cast<const WisDX12VideoDecoderParameters*>(&decoder_parameters),
             reinterpret_cast<const WisDX12VideoDecodeInputDesc*>(&input_desc)
         );
     }
@@ -1081,6 +1115,34 @@ public:
     using ImplType::ImplType;
 
 public:
+    /**
+     * @brief Provided by Wisdom 0.7.1. Creates parameters from provided sequence header or parameter set.
+     * @param sequence_parameters Pointer to the sequence header or parameter set data. The format and content of this
+     * data should be appropriate for the codec being used, and should contain the necessary information to initialize
+     * the video decoder parameters.
+     * @param out_result denoting the outcome of operation.
+     * @return decoder_parameters Output parameter that holds the created video decoder parameters handle if the
+     * operation is successful.
+     *
+     * */
+    WIS_NODISCARD inline wis::VKVideoDecoderParameters CreateParameters(
+        const void* sequence_parameters,
+        wis::Result& out_result
+    ) const noexcept
+    {
+        wis::VKVideoDecoderParameters decoder_parameters{};
+        const WisResult wis_result = ::wisVKVideoDecoderCreateParameters(
+            &_impl_storage,
+            sequence_parameters,
+            decoder_parameters.GetStorage()
+        );
+        out_result = wis::Result{
+            static_cast<wis::Status>(wis_result.status),
+            wis_result.platform_code,
+            wis_result.error
+        };
+        return decoder_parameters;
+    }
 };
 
 struct VKVideoDecodeCommandListDeleter {
@@ -1123,18 +1185,24 @@ public:
     /**
      * @brief Provided by Wisdom 0.7.0. Records a video decode command to the command list.
      * @param decoder The video decoder that will be used for decoding the video frame.
+     * @param decoder_parameters Input description for a video decode operation that uses video decoder parameters as
+     * input. The video decoder parameters should be created from the sequence header or parameter set data for the
+     * video stream, and should contain the necessary information to initialize the video decoder for decoding the video
+     * frames.
      * @param input_desc Description of the input data for the video decode operation. This field specifies the type and
      * location of the input data that will be used for decoding the video frame.
      *
      * */
     inline void DecodeFrame(
         const wis::VKVideoDecoder& decoder,
+        const wis::VKVideoDecoderParameters& decoder_parameters,
         const wis::VKVideoDecodeInputDesc& input_desc
     ) const noexcept
     {
         ::wisVKVideoDecodeCommandListDecodeFrame(
             &_impl_storage,
             reinterpret_cast<const WisVKVideoDecoder*>(&decoder),
+            reinterpret_cast<const WisVKVideoDecoderParameters*>(&decoder_parameters),
             reinterpret_cast<const WisVKVideoDecodeInputDesc*>(&input_desc)
         );
     }
