@@ -141,6 +141,7 @@ function(_ww_load_latest_dxc)
     FetchContent_Declare(
         dxc
         URL "${DXC_LINK}"
+        DOWNLOAD_EXTRACT_TIMESTAMP TRUE
     )
     FetchContent_MakeAvailable(dxc)
     set(dxc_SOURCE_DIR ${dxc_SOURCE_DIR} CACHE INTERNAL "")

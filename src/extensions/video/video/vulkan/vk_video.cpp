@@ -420,7 +420,7 @@ inline WisResult VKCreateDecoderParametersAV1(
 
     VkVideoSessionParametersCreateInfoKHR parameters_info{
         .sType = VK_STRUCTURE_TYPE_VIDEO_SESSION_PARAMETERS_CREATE_INFO_KHR,
-        .pNext = nullptr,
+        .pNext = &av1_parameters_info,
         .flags = 0,
         .videoSessionParametersTemplate = VK_NULL_HANDLE,
         .videoSession = impl.video_session,
@@ -709,6 +709,9 @@ WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionCreateDecoder
     new (video_decoder) wis::impl::VKVideoDecoderImpl{
         .video_session = session_guard.Release(),
         .video_memory = bind_guard.Release(),
+
+        // Codec profiles are defined with step of 32, so this gives us the codec type
+        .codec =  WisVideoCodecFlags(1u << (decoder_desc->codec_profile / 32u)), 
         .decoding_control_block = impl.decoding_control_block,
     };
     impl.decoding_control_block->AddRef(); // video decoder holds a reference to the device control block
