@@ -128,6 +128,7 @@
       <handle name="VideoDecodeCommandList" version="0.7.1" doc="Handle for a video command list. Represents a command list that can be used to record video decode commands.">
         <impl for="vk" size="7"/>
         <impl for="dx" size="4"/>
+        <view type="CommandList"/>
       </handle>
       <handle name="VideoDecodingExtension" extends="Device" version="0.7.1" doc="Handle for the video decoding extension. Used  to manage video decoding resources and operations.">
         <impl for="vk" size="5"/>

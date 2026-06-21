@@ -1583,6 +1583,13 @@ public:
     using ImplType::ImplType;
 
 public:
+    WIS_NODISCARD DX12CommandListView GetView() const noexcept
+    {
+        DX12CommandListView v;
+        std::memcpy(&v, &_impl_storage, sizeof(v));
+        return v;
+    }
+    WIS_NODISCARD operator DX12CommandListView() const noexcept { return GetView(); }
     /**
      * @brief Provided by Wisdom 0.7.0. Opens the command list, so commands can be recorded to it.
      * @return Result denoting the outcome of operation.
@@ -1835,6 +1842,13 @@ public:
     using ImplType::ImplType;
 
 public:
+    WIS_NODISCARD VKCommandListView GetView() const noexcept
+    {
+        VKCommandListView v;
+        std::memcpy(&v, &_impl_storage, sizeof(v));
+        return v;
+    }
+    WIS_NODISCARD operator VKCommandListView() const noexcept { return GetView(); }
     /**
      * @brief Provided by Wisdom 0.7.0. Opens the command list, so commands can be recorded to it.
      * @return Result denoting the outcome of operation.

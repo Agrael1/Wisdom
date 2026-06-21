@@ -131,6 +131,11 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
         bool has_view = false;
         for (auto* impl = type->FirstChildElement("view"); impl; impl = impl->NextSiblingElement("view")) {
             has_view = true;
+            auto voverride = impl->FindAttribute("type");
+            if (voverride) {
+                ref.view_override = voverride->Value();
+            }
+
             auto impl_for = impl->FindAttribute("for");
             if (!impl_for) {
                 // if "for" attribute is missing, we can assume it's for both
@@ -145,9 +150,9 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
 
             uint32_t size = impl->UnsignedAttribute("size", 0);
             if (backend == Backend::DX12) {
-                ref.sizes[0] = size;
+                ref.view_sizes[0] = size;
             } else if (backend == Backend::Vulkan) {
-                ref.sizes[1] = size;
+                ref.view_sizes[1] = size;
             }
         }
 
@@ -176,21 +181,23 @@ std::string Generator::MakeCHandle(const WisHandle& s, Backend backend, DocKind 
         std::string xdoc = MakeTypeDocumentation(s, kind);
         st_decl = std::format("{}\n{}", xdoc, st_decl);
     }
-    if (s.GetViewSize(backend) > 0) {
+    if (s.GetViewSize(backend) > 0 && s.view_override.empty()) {
         std::string view_decl = std::format("WIS_DEFINE_HANDLE_VIEW({},{});\n", full_name, s.GetViewSize(backend));
         st_decl += view_decl;
     }
 
-    if (kind == DocKind::Full && s.GetViewSize(backend) > 0) {
+    if (kind == DocKind::Full && (s.GetViewSize(backend) > 0 || !s.view_override.empty())) {
         // Add view extraction function
+        auto view_name = s.view_override.empty() ? full_name : GetCFullTypename(s.view_override, backend);
+
         st_decl += std::format(
             "\nstatic inline {}View wisGet{}{}View(const {}* handle){{\n",
-            full_name,
+            view_name,
             impl_string,
             s.name,
             full_name
         );
-        st_decl += std::format("    {}View v;\n", full_name);
+        st_decl += std::format("    {}View v;\n", view_name);
         st_decl += "    memcpy(&v, handle, sizeof(v));\n"
                    "    return v;\n}\n";
     }
@@ -235,8 +242,9 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, Backend backend, DocKin
     }
     std::string st_decl2 = "public:\n";
 
-    if (s.GetViewSize(backend) > 0) {
+    if (s.GetViewSize(backend) > 0 || !s.view_override.empty()) {
         // Strict aliasing rules prevent us from doing a simple cast, so we have to memcpy the data to a new view struct
+        auto view_name = s.view_override.empty() ? s.name : s.view_override;
         st_decl2 += std::format(
             "    WIS_NODISCARD {}{}View GetView() const noexcept {{\n"
             "        {}{}View v;\n"
@@ -244,9 +252,9 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, Backend backend, DocKin
             "        return v;\n"
             "    }}\n",
             impl_string,
-            s.name,
+            view_name,
             impl_string,
-            s.name
+            view_name
         );
 
         // add conversion operator to view
@@ -255,7 +263,7 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, Backend backend, DocKin
             "        return GetView();\n"
             "    }}\n",
             impl_string,
-            s.name
+            view_name
         );
     }
 

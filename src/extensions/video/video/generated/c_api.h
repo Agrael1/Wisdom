@@ -1476,6 +1476,13 @@ WIS_DEFINE_HANDLE(WisDX12VideoDecoder, 3);
  * */
 WIS_DEFINE_HANDLE(WisDX12VideoDecodeCommandList, 4);
 
+static inline WisDX12CommandListView wisGetDX12VideoDecodeCommandListView(const WisDX12VideoDecodeCommandList* handle)
+{
+    WisDX12CommandListView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
+
 /**
  * @brief Provided by Wisdom 0.7.1. Handle for the video decoding extension. Used  to manage video decoding resources
  * and operations.
@@ -1676,6 +1683,13 @@ WIS_DEFINE_HANDLE(WisVKVideoDecoder, 6);
  *
  * */
 WIS_DEFINE_HANDLE(WisVKVideoDecodeCommandList, 7);
+
+static inline WisVKCommandListView wisGetVKVideoDecodeCommandListView(const WisVKVideoDecodeCommandList* handle)
+{
+    WisVKCommandListView v;
+    memcpy(&v, handle, sizeof(v));
+    return v;
+}
 
 /**
  * @brief Provided by Wisdom 0.7.1. Handle for the video decoding extension. Used  to manage video decoding resources

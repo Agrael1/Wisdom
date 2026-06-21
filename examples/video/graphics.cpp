@@ -29,7 +29,8 @@ std::optional<Graphics> Graphics::Create(
     wis::StdCodecProfile codec_profile,
     wis::DataFormat output_format,
     uint32_t width,
-    uint32_t height)
+    uint32_t height
+)
 {
     std::optional<Graphics> out;
     out.emplace();
@@ -46,7 +47,7 @@ std::optional<Graphics> Graphics::Create(
         .callback = log_callback,
     };
 
-    wis::InstanceExtensionHeader* instance_exts[] = { g.platform.Extension() };
+    wis::InstanceExtensionHeader* instance_exts[] = {g.platform.Extension()};
     wis::Result result;
     wis::Instance instance = wis::CreateInstance(&debug_desc, wis::span{instance_exts}, result);
     if (!check_result(result, "CreateInstance")) {
@@ -55,16 +56,16 @@ std::optional<Graphics> Graphics::Create(
     }
 
     g.video_ext = wis::VideoDecodingExtension(wis::VideoCodecFlags::H265);
-    wis::DeviceExtensionHeader* device_exts[] = { &g.video_ext };
+    wis::DeviceExtensionHeader* device_exts[] = {&g.video_ext};
 
     wis::CommandQueueDesc queue_descs[] = {
-        { wis::CommandQueueType::Graphics, wis::CommandQueuePriority::High },
-        { wis::CommandQueueType::VideoDecode, wis::CommandQueuePriority::Normal },
+        {wis::CommandQueueType::Graphics, wis::CommandQueuePriority::High},
+        {wis::CommandQueueType::VideoDecode, wis::CommandQueuePriority::Normal},
     };
 
     wis::DeviceRequirements requirements{};
-    requirements.queue_descs = { queue_descs, 2 };
-    requirements.extensions = { device_exts, 1 };
+    requirements.queue_descs = {queue_descs, 2};
+    requirements.extensions = {device_exts, 1};
 
     wis::AdapterQuery adapters = instance.QueryAdapters(wis::AdapterPreference::Performance, result);
     if (!check_result(result, "QueryAdapters")) {
@@ -155,7 +156,22 @@ int Graphics::Frame()
         return -1;
     }
 
-    std::printf("Video decode command list recorded successfully\n");
-    std::printf("Video decode pipeline validated successfully\n");
+    wis::CommandListView cmd_view = video_cl;
+    result = video_queue.Submit({&cmd_view, 1});
+    if (!check_result(result, "VideoQueue::Submit")) {
+        return -1;
+    }
+
+    result = video_queue.SignalFence(fence.GetView(), 1);
+    if (!check_result(result, "VideoQueue::SignalFence")) {
+        return -1;
+    }
+
+    result = fence.Wait(1, UINT64_MAX);
+    if (!check_result(result, "Fence::Wait")) {
+        return -1;
+    }
+
+    std::printf("Video decode command list submitted and completed\n");
     return 0;
 }

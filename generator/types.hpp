@@ -189,6 +189,7 @@ struct WisHandle {
     Extends extends = Extends::None; // handle for extension
     std::array<uint32_t, 2> sizes{};
     std::array<uint32_t, 2> view_sizes{};
+    std::string_view view_override; // optional
 
     std::list<std::string> functions; // must be string to hold destructors
 
