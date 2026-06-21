@@ -24,13 +24,11 @@ struct DX12VideoDecoderImpl {
     ID3D12VideoDecoderHeap* decoder_heap;
     WisVideoCodecFlags codec;
 };
-struct DX12VideoDecoderParametersImpl {
-    void* filler;
-    WisVideoCodecFlags codec;
-};
 struct DX12VideoDecodeCommandListImpl {
     ID3D12VideoDecodeCommandList3* command_list;
     ID3D12CommandAllocator* allocator;
+    mutable uint32_t scratch_memory_size;
+    mutable uint8_t* scratch_memory;
 };
 
 } // namespace impl

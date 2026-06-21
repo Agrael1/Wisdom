@@ -22,7 +22,6 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 // Handles
 //==============================================================
 
-typedef struct WisDX12VideoDecoderParameters WisVideoDecoderParameters;
 typedef struct WisDX12VideoDecoder WisVideoDecoder;
 typedef struct WisDX12VideoDecodeCommandList WisVideoDecodeCommandList;
 typedef struct WisDX12VideoDecodingExtension WisVideoDecodingExtension;
@@ -32,12 +31,13 @@ typedef struct WisDX12VideoDecodingExtension WisVideoDecodingExtension;
 //==============================================================
 
 typedef struct WisDX12VideoDecodeInputDesc WisVideoDecodeInputDesc;
+typedef struct WisDX12VideoDecodeOutputDesc WisVideoDecodeOutputDesc;
+typedef struct WisDX12VideoDecodePictureDesc WisVideoDecodePictureDesc;
 
 //==============================================================
 // Functions
 //==============================================================
 
-#    define wisDestroyVideoDecoderParameters           wisDX12DestroyVideoDecoderParameters
 #    define wisDestroyVideoDecoder                     wisDX12DestroyVideoDecoder
 #    define wisDestroyVideoDecodeCommandList           wisDX12DestroyVideoDecodeCommandList
 #    define wisDestroyVideoDecodingExtension           wisDX12DestroyVideoDecodingExtension
@@ -45,9 +45,9 @@ typedef struct WisDX12VideoDecodeInputDesc WisVideoDecodeInputDesc;
 #    define wisVideoDecodingExtensionQueryCodecCaps    wisDX12VideoDecodingExtensionQueryCodecCaps
 #    define wisVideoDecodingExtensionCreateDecoder     wisDX12VideoDecodingExtensionCreateDecoder
 #    define wisVideoDecodingExtensionCreateCommandList wisDX12VideoDecodingExtensionCreateCommandList
-#    define wisVideoDecoderCreateParameters            wisDX12VideoDecoderCreateParameters
 #    define wisVideoDecodeCommandListBegin             wisDX12VideoDecodeCommandListBegin
 #    define wisVideoDecodeCommandListEnd               wisDX12VideoDecodeCommandListEnd
+#    define wisVideoDecodeCommandListInsertBarriers    wisDX12VideoDecodeCommandListInsertBarriers
 #    define wisVideoDecodeCommandListDecodeFrame       wisDX12VideoDecodeCommandListDecodeFrame
 
 #elif defined(WISDOM_VULKAN)
@@ -56,7 +56,6 @@ typedef struct WisDX12VideoDecodeInputDesc WisVideoDecodeInputDesc;
 // Handles
 //==============================================================
 
-typedef struct WisVKVideoDecoderParameters WisVideoDecoderParameters;
 typedef struct WisVKVideoDecoder WisVideoDecoder;
 typedef struct WisVKVideoDecodeCommandList WisVideoDecodeCommandList;
 typedef struct WisVKVideoDecodingExtension WisVideoDecodingExtension;
@@ -66,12 +65,13 @@ typedef struct WisVKVideoDecodingExtension WisVideoDecodingExtension;
 //==============================================================
 
 typedef struct WisVKVideoDecodeInputDesc WisVideoDecodeInputDesc;
+typedef struct WisVKVideoDecodeOutputDesc WisVideoDecodeOutputDesc;
+typedef struct WisVKVideoDecodePictureDesc WisVideoDecodePictureDesc;
 
 //==============================================================
 // Functions
 //==============================================================
 
-#    define wisDestroyVideoDecoderParameters           wisVKDestroyVideoDecoderParameters
 #    define wisDestroyVideoDecoder                     wisVKDestroyVideoDecoder
 #    define wisDestroyVideoDecodeCommandList           wisVKDestroyVideoDecodeCommandList
 #    define wisDestroyVideoDecodingExtension           wisVKDestroyVideoDecodingExtension
@@ -79,9 +79,9 @@ typedef struct WisVKVideoDecodeInputDesc WisVideoDecodeInputDesc;
 #    define wisVideoDecodingExtensionQueryCodecCaps    wisVKVideoDecodingExtensionQueryCodecCaps
 #    define wisVideoDecodingExtensionCreateDecoder     wisVKVideoDecodingExtensionCreateDecoder
 #    define wisVideoDecodingExtensionCreateCommandList wisVKVideoDecodingExtensionCreateCommandList
-#    define wisVideoDecoderCreateParameters            wisVKVideoDecoderCreateParameters
 #    define wisVideoDecodeCommandListBegin             wisVKVideoDecodeCommandListBegin
 #    define wisVideoDecodeCommandListEnd               wisVKVideoDecodeCommandListEnd
+#    define wisVideoDecodeCommandListInsertBarriers    wisVKVideoDecodeCommandListInsertBarriers
 #    define wisVideoDecodeCommandListDecodeFrame       wisVKVideoDecodeCommandListDecodeFrame
 
 #else

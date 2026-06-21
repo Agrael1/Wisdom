@@ -1640,8 +1640,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateSwapchain(
             } else if ((tearing = std::ranges::count(modes, VK_PRESENT_MODE_FIFO_RELAXED_KHR) > 0)) {
                 present_mode = VK_PRESENT_MODE_FIFO_RELAXED_KHR;
             }
-        } else if (std::ranges::count(modes, VK_PRESENT_MODE_MAILBOX_KHR) > 0
-                   && !(desc->flags & WisSwapchainFlagsStereo)) {
+        } else if (
+            std::ranges::count(modes, VK_PRESENT_MODE_MAILBOX_KHR) > 0 && !(desc->flags & WisSwapchainFlagsStereo)
+        ) {
             present_mode = VK_PRESENT_MODE_MAILBOX_KHR;
         }
     }

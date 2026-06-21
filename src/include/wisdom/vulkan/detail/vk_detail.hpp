@@ -6,13 +6,16 @@
 
 #include <wisdom/bridge/span.hpp>
 #include <wisdom/generated/c_api.h>
+#include <wisdom/generated/vk_convert.hpp>
 #include <wisdom/vulkan/vk_tables.hpp>
 
 #include <vk_mem_alloc.h>
 
 #include <array>
 #include <atomic>
+#include <bit>
 #include <semaphore>
+#include <algorithm>
 #include <utility>
 
 namespace wis::impl {
@@ -457,6 +460,8 @@ inline constexpr WisTextureState VKConvertToTextureState(VkImageLayout layout) n
         return WisTextureStateVideoDecodeRead;
     case VK_IMAGE_LAYOUT_VIDEO_DECODE_DST_KHR:
         return WisTextureStateVideoDecodeWrite;
+    case VK_IMAGE_LAYOUT_VIDEO_DECODE_DPB_KHR:
+        return WisTextureStateVideoDecodeDPB;
     }
 }
 
@@ -477,6 +482,35 @@ inline constexpr VkImageAspectFlags VKAspectFlags(VkFormat format) noexcept
     default:
         return VK_IMAGE_ASPECT_COLOR_BIT;
     }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+inline constexpr VkImageAspectFlags VKExtractAspectFlags(
+    WisSubresourceRange subresource,
+    WisBarrierFlags flags
+) noexcept
+{
+    VkImageAspectFlags aspect_flags = 0;
+    if (flags & WisBarrierFlagsDepthResource) {
+        aspect_flags |= VK_IMAGE_ASPECT_DEPTH_BIT;
+    }
+    if (flags & WisBarrierFlagsStencilResource) {
+        aspect_flags |= VK_IMAGE_ASPECT_STENCIL_BIT;
+    }
+    if (aspect_flags != 0) {
+        // If depth or stencil specified, ignore plane slice and return early
+        // since depth/stencil views of multi-planar formats are not allowed to have a plane slice.
+        return aspect_flags;
+    }
+
+    if ((flags & WisBarrierFlagsPlanarImage) == 0) {
+        return VK_IMAGE_ASPECT_COLOR_BIT; // If not a planar image, return color aspect for simplicity.
+    }
+
+    for (uint16_t plane = subresource.plane_slice; plane < subresource.plane_slice_count; ++plane) {
+        aspect_flags |= VK_IMAGE_ASPECT_PLANE_0_BIT << plane;
+    }
+    return aspect_flags;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -585,6 +619,245 @@ inline void VKReleaseSwapchain(VkSwapchainKHR swap, VKSwapchainControlBlock* hea
     }
 }
 
+//----------------------------------------------------------------------------------------------------------------------
+// Barrier helper constants
+constexpr static uint32_t vk_max_barrier_size = std::max(
+    {sizeof(VkBufferMemoryBarrier), sizeof(VkImageMemoryBarrier2), sizeof(VkMemoryBarrier2)}
+);
+constexpr static uint32_t vk_static_barrier_size = WIS_TRANSIENT_MAX_BARRIER_COUNT * vk_max_barrier_size;
+
+template <typename Impl>
+inline uint8_t* VKAllocateScratchSpace(const Impl& impl, uint32_t new_size)
+{
+    if (new_size > impl.scratch_memory_size) {
+        delete[] impl.scratch_memory;
+        impl.scratch_memory = new (std::nothrow) uint8_t[new_size];
+        impl.scratch_memory_size = impl.scratch_memory ? new_size : 0;
+    }
+    return impl.scratch_memory;
+}
+
+template <typename Impl>
+inline std::array<wis::span<uint8_t>, 3> VKAllocateBarriers(
+    const Impl& impl,
+    uint8_t* local_scratch,
+    const WisVKBarrierGroup& barriers
+)
+{
+    std::array<wis::span<uint8_t>, 3> spans;
+    std::size_t needed_size = barriers.buffer_barrier_count * sizeof(VkBufferMemoryBarrier2)
+                            + barriers.texture_barrier_count * sizeof(VkImageMemoryBarrier2)
+                            + barriers.global_barrier_count * sizeof(VkMemoryBarrier2);
+
+    if (needed_size <= vk_static_barrier_size) {
+        spans[0] = {local_scratch, barriers.buffer_barrier_count * sizeof(VkBufferMemoryBarrier2)};
+        spans[1] = {spans[0].end(), barriers.texture_barrier_count * sizeof(VkImageMemoryBarrier2)};
+        spans[2] = {spans[1].end(), barriers.global_barrier_count * sizeof(VkMemoryBarrier2)};
+        return spans;
+    }
+
+    std::size_t sizes[] = {
+        barriers.buffer_barrier_count * sizeof(VkBufferMemoryBarrier2),
+        barriers.texture_barrier_count * sizeof(VkImageMemoryBarrier2),
+        barriers.global_barrier_count * sizeof(VkMemoryBarrier2),
+        0,
+        0,
+        0
+    };
+
+    sizes[3] = sizes[0] + sizes[1];
+    sizes[4] = sizes[1] + sizes[2];
+    sizes[5] = sizes[0] + sizes[2];
+
+    uint32_t closest_size = 0;
+    int index = -1;
+    for (int i = std::size(sizes) - 1; i >= 0; --i) {
+        if (sizes[i] > vk_static_barrier_size) {
+            continue;
+        }
+        if (vk_static_barrier_size - sizes[i] < vk_static_barrier_size - closest_size) {
+            closest_size = sizes[i];
+            index = i;
+        }
+    }
+
+    uint32_t allocated_size = needed_size - closest_size;
+    auto* allocated_data = VKAllocateScratchSpace(impl, allocated_size);
+
+    switch (index) {
+    default:
+    case -1:
+        spans[0] = {allocated_data, barriers.buffer_barrier_count * sizeof(VkBufferMemoryBarrier2)};
+        spans[1] = {spans[0].end(), barriers.texture_barrier_count * sizeof(VkImageMemoryBarrier2)};
+        spans[2] = {spans[1].end(), barriers.global_barrier_count * sizeof(VkMemoryBarrier2)};
+        return spans;
+    case 0:
+        spans[0] = {local_scratch, barriers.buffer_barrier_count * sizeof(VkBufferMemoryBarrier2)};
+        spans[1] = {allocated_data, barriers.texture_barrier_count * sizeof(VkImageMemoryBarrier2)};
+        spans[2] = {spans[1].end(), barriers.global_barrier_count * sizeof(VkMemoryBarrier2)};
+        return spans;
+    case 1:
+        spans[0] = {allocated_data, barriers.buffer_barrier_count * sizeof(VkBufferMemoryBarrier2)};
+        spans[1] = {local_scratch, barriers.texture_barrier_count * sizeof(VkImageMemoryBarrier2)};
+        spans[2] = {spans[0].end(), barriers.global_barrier_count * sizeof(VkMemoryBarrier2)};
+        return spans;
+    case 2:
+        spans[0] = {allocated_data, barriers.buffer_barrier_count * sizeof(VkBufferMemoryBarrier2)};
+        spans[1] = {spans[0].end(), barriers.texture_barrier_count * sizeof(VkImageMemoryBarrier2)};
+        spans[2] = {local_scratch, barriers.global_barrier_count * sizeof(VkMemoryBarrier2)};
+        return spans;
+    case 3:
+        spans[0] = {local_scratch, barriers.buffer_barrier_count * sizeof(VkBufferMemoryBarrier2)};
+        spans[1] = {spans[0].end(), barriers.texture_barrier_count * sizeof(VkImageMemoryBarrier2)};
+        spans[2] = {allocated_data, barriers.global_barrier_count * sizeof(VkMemoryBarrier2)};
+        return spans;
+    case 4:
+        spans[0] = {allocated_data, barriers.buffer_barrier_count * sizeof(VkBufferMemoryBarrier2)};
+        spans[1] = {local_scratch, barriers.texture_barrier_count * sizeof(VkImageMemoryBarrier2)};
+        spans[2] = {spans[1].end(), barriers.global_barrier_count * sizeof(VkMemoryBarrier2)};
+        return spans;
+    case 5:
+        spans[0] = {local_scratch, barriers.buffer_barrier_count * sizeof(VkBufferMemoryBarrier2)};
+        spans[1] = {allocated_data, barriers.texture_barrier_count * sizeof(VkImageMemoryBarrier2)};
+        spans[2] = {spans[0].end(), barriers.global_barrier_count * sizeof(VkMemoryBarrier2)};
+        return spans;
+    }
+}
+
+template <typename Impl>
+inline void VKInsertBarriers(const Impl& impl, const WisVKBarrierGroup* barriers)
+{
+    if (barriers->buffer_barrier_count + barriers->texture_barrier_count + barriers->global_barrier_count == 0) {
+        return;
+    }
+
+    uint8_t local_scratch[vk_static_barrier_size]{};
+
+    auto [buffer_span, texture_span, global_span] = VKAllocateBarriers(impl, local_scratch, *barriers);
+
+    wis::span<VkBufferMemoryBarrier2> buffer_barriers_span{
+        reinterpret_cast<VkBufferMemoryBarrier2*>(buffer_span.data()),
+        barriers->buffer_barrier_count
+    };
+    uint32_t real_buffer_barrier_count = barriers->buffer_barrier_count;
+
+    for (size_t i = 0; i < barriers->buffer_barrier_count; i++) {
+        const auto& src = barriers->buffer_barriers[i];
+
+        auto q1 = VK_QUEUE_FAMILY_IGNORED;
+        auto q2 = VK_QUEUE_FAMILY_IGNORED;
+        if (src.queue_type_before != src.queue_type_after) {
+            if (impl.maintenance9) {
+                real_buffer_barrier_count--;
+                continue;
+            }
+            q1 = impl.queue_indices[src.queue_type_before].family_index;
+            q2 = impl.queue_indices[src.queue_type_after].family_index;
+        }
+
+        buffer_barriers_span[i] = {
+            .sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2,
+            .pNext = nullptr,
+            .srcStageMask = VKConvert(src.sync_before),
+            .srcAccessMask = VKConvert(src.access_before),
+            .dstStageMask = VKConvert(src.sync_after),
+            .dstAccessMask = VKConvert(src.access_after),
+            .srcQueueFamilyIndex = q1,
+            .dstQueueFamilyIndex = q2,
+            .buffer = std::bit_cast<VkBuffer>(src.buffer),
+            .offset = src.offset,
+            .size = src.size,
+        };
+    }
+
+    wis::span<VkImageMemoryBarrier2> texture_barriers_span{
+        reinterpret_cast<VkImageMemoryBarrier2*>(texture_span.data()),
+        barriers->texture_barrier_count
+    };
+    uint32_t real_texture_barrier_count = barriers->texture_barrier_count;
+
+    for (size_t i = 0; i < barriers->texture_barrier_count; i++) {
+        const auto& src = barriers->texture_barriers[i];
+        auto q1 = VK_QUEUE_FAMILY_IGNORED;
+        auto q2 = VK_QUEUE_FAMILY_IGNORED;
+
+        if (src.queue_type_before != src.queue_type_after) {
+            if (impl.maintenance9
+                && (impl.queue_indices[src.queue_type_before].compatible_to_families
+                    & (1 << impl.queue_indices[src.queue_type_after].family_index))) {
+                if (src.queue_type_before == impl.queue_type) {
+                    real_texture_barrier_count--;
+                    continue;
+                }
+            } else {
+                q1 = impl.queue_indices[src.queue_type_before].family_index;
+                q2 = impl.queue_indices[src.queue_type_after].family_index;
+            }
+        }
+
+        texture_barriers_span[i] = {
+            .sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2,
+            .pNext = nullptr,
+            .srcStageMask = VKConvert(src.sync_before),
+            .srcAccessMask = VKConvert(src.access_before),
+            .dstStageMask = VKConvert(src.sync_after),
+            .dstAccessMask = VKConvert(src.access_after),
+            .oldLayout = VKConvert(src.state_before),
+            .newLayout = VKConvert(src.state_after),
+            .srcQueueFamilyIndex = q1,
+            .dstQueueFamilyIndex = q2,
+            .image = std::bit_cast<VkImage>(src.texture)
+        };
+
+        auto aspect_flags = VKExtractAspectFlags(src.subresource_range, src.flags);
+        if (src.flags & WisBarrierFlagsWholeRange) {
+            texture_barriers_span[i].subresourceRange = {
+                .aspectMask = aspect_flags,
+                .baseMipLevel = 0,
+                .levelCount = VK_REMAINING_MIP_LEVELS,
+                .baseArrayLayer = 0,
+                .layerCount = VK_REMAINING_ARRAY_LAYERS,
+            };
+        } else {
+            texture_barriers_span[i].subresourceRange = {
+                .aspectMask = aspect_flags,
+                .baseMipLevel = src.subresource_range.base_mip_level,
+                .levelCount = src.subresource_range.mip_level_count,
+                .baseArrayLayer = src.subresource_range.base_array_layer,
+                .layerCount = src.subresource_range.array_layer_count,
+            };
+        }
+    }
+
+    wis::span<VkMemoryBarrier2> global_barriers_span{
+        reinterpret_cast<VkMemoryBarrier2*>(global_span.data()),
+        barriers->global_barrier_count
+    };
+
+    for (size_t i = 0; i < barriers->global_barrier_count; i++) {
+        const auto& src = barriers->global_barriers[i];
+        global_barriers_span[i] = {
+            .sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER_2,
+            .pNext = nullptr,
+            .srcStageMask = VKConvert(src.sync_before),
+            .srcAccessMask = VKConvert(src.access_before),
+            .dstStageMask = VKConvert(src.sync_after),
+            .dstAccessMask = VKConvert(src.access_after),
+        };
+    }
+
+    VkDependencyInfo dependency_info{
+        .sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO,
+        .pNext = nullptr,
+        .memoryBarrierCount = static_cast<uint32_t>(barriers->global_barrier_count),
+        .pMemoryBarriers = global_barriers_span.data(),
+        .bufferMemoryBarrierCount = real_buffer_barrier_count,
+        .pBufferMemoryBarriers = buffer_barriers_span.data(),
+        .imageMemoryBarrierCount = real_texture_barrier_count,
+        .pImageMemoryBarriers = texture_barriers_span.data(),
+    };
+    impl.command_list_table->vkCmdPipelineBarrier2(impl.command_buffer, &dependency_info);
+}
 } // namespace wis::detail
 
 #endif // WIS_VK_DETAIL_HPP

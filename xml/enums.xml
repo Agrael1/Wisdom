@@ -1003,6 +1003,10 @@ Support of this memory must be queried.">
         <impl name="dx" value="D3D12_BARRIER_LAYOUT_RESOLVE_DEST"/>
         <impl name="vk" value="VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL"/>
       </value>
+      <value name="VideoDecodeDPB" value="17" doc="Video Decode DPB (Decoded Picture Buffer) state. Used for reference frame storage during video decoding. Vulkan only, maps to the same video decode read on other APIs.">
+        <impl name="dx" value="D3D12_BARRIER_LAYOUT_VIDEO_DECODE_READ"/>
+        <impl name="vk" value="VK_IMAGE_LAYOUT_VIDEO_DECODE_DPB_KHR"/>
+      </value>
     </type>
 
     <type name="ShaderIntermediate" category="enum" version="0.7.0" doc="Intermediate shader representation.">

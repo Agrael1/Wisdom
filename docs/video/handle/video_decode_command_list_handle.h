@@ -15,7 +15,7 @@
  *  DX12 Version:
  * ```c
  * // Provided by Wisdom 0.7.1.
- * WIS_DEFINE_HANDLE(WisDX12VideoDecodeCommandList,2);
+ * WIS_DEFINE_HANDLE(WisDX12VideoDecodeCommandList,4);
  * ```
  * \endcond
  *
@@ -24,6 +24,6 @@
  * \cond WIS_GEN_REFS
  * @see Functions:
  * wisDestroyVideoDecodeCommandList, wisVideoDecodingExtensionCreateCommandList, wisVideoDecodeCommandListBegin,
- * wisVideoDecodeCommandListEnd, wisVideoDecodeCommandListDecodeFrame
+ * wisVideoDecodeCommandListEnd, wisVideoDecodeCommandListInsertBarriers, wisVideoDecodeCommandListDecodeFrame
  * \endcond
  */

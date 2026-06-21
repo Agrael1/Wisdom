@@ -416,6 +416,8 @@ constexpr inline VkImageLayout VKConvert(WisTextureState value) noexcept
         return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
     case WisTextureStateResolveRenderTargetDst:
         return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    case WisTextureStateVideoDecodeDPB:
+        return VK_IMAGE_LAYOUT_VIDEO_DECODE_DPB_KHR;
     default:
         return static_cast<VkImageLayout>(0);
     }

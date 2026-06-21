@@ -1,9 +1,9 @@
 #ifndef WIS_DX12_VIDEO_COMMAND_LIST_CPP
 #define WIS_DX12_VIDEO_COMMAND_LIST_CPP
 
+#include <wisdom/dx12/detail/dx12_detail.hpp>
 #include <wisdom/dx12/detail/dx12_utils.hpp>
 #include <wisdom/generated/dx12_convert.hpp>
-#include <video/dx12/detail/dx12_detail.hpp>
 #include <video/generated/cpp_api.hpp>
 
 #ifndef DX12SDKVER
@@ -14,30 +14,7 @@
 #include <dxva.h>
 #include <bit>
 
-namespace wis::detail {
-inline DXVA_PicParams_AV1 ConvertToDXVAPicParamsAV1(
-    const WisStdVideoDecodeAV1PictureInfo& params,
-    const wis::detail::DX12AV1DecoderParameters& seq_hdr
-) noexcept
-{
-    DXVA_PicParams_AV1 dxva{
-        .width = seq_hdr.width,
-        .height = seq_hdr.height,
-
-        .max_width = seq_hdr.max_width,
-        .max_height = seq_hdr.max_height,
-
-        .bitdepth = seq_hdr.bitdepth,
-        .seq_profile = seq_hdr.seq_profile,
-        .coding = {.CodingParamToolFlags = seq_hdr.coding.CodingParamToolFlags},
-        .format = {.FormatAndPictureInfoFlags = seq_hdr.format.FormatAndPictureInfoFlags},
-
-        .order_hint_bits = seq_hdr.order_hint_bits,
-    };
-
-    return dxva;
-}
-} // namespace wis::detail
+// Barrier helper functions moved to wis::detail in dx12_detail.hpp
 
 //----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisDX12VideoDecodeCommandListBegin(const WisDX12VideoDecodeCommandList* self)
@@ -70,48 +47,62 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisDX12DestroyVideoDecodeCommandList(WisDX12V
     if (impl.command_list) {
         impl.command_list->Release();
         impl.allocator->Release();
+        delete[] impl.scratch_memory;
         impl.command_list = nullptr;
     }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_VIDEO_API void wisDX12VideoDecodeCommandListInsertBarriers(
+    const WisDX12VideoDecodeCommandList* self,
+    const WisDX12BarrierGroup* barriers
+)
+{
+    auto& impl = wis::from_handle_ref<const wis::impl::DX12VideoDecodeCommandListImpl>(self);
+    wis::detail::DX12InsertBarriers(impl, impl.command_list, barriers, WisCommandQueueTypeVideoDecode);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_VIDEO_API void wisDX12VideoDecodeCommandListDecodeFrame(
     const WisDX12VideoDecodeCommandList* command_list,
     const WisDX12VideoDecoder* decoder,
-    const WisDX12VideoDecoderParameters* decoder_parameters,
-    const WisDX12VideoDecodeInputDesc* input_desc
+    const WisDX12VideoDecodeInputDesc* input_desc,
+    const WisDX12VideoDecodeOutputDesc* output_desc,
+    const WisDX12VideoDecodePictureDesc* picture_desc
 )
 {
     auto& impl = wis::from_handle_ref<const wis::impl::DX12VideoDecodeCommandListImpl>(command_list);
     auto& decoder_impl = wis::from_handle_ref<const wis::impl::DX12VideoDecoderImpl>(decoder);
-    auto& params = wis::from_handle_ref<const wis::impl::DX12VideoDecoderParametersImpl>(decoder_parameters);
 
-    // TODO: Add frame header
-    DXVA_PicParams_AV1 dxva_pic_params = wis::detail::ConvertToDXVAPicParamsAV1(
-        {},
-        *static_cast<const wis::detail::DX12AV1DecoderParameters*>(params.filler)
-    );
+    // Output stream arguments
+    D3D12_VIDEO_DECODE_OUTPUT_STREAM_ARGUMENTS1 output_args{
+        .pOutputTexture2D = std::bit_cast<ID3D12Resource*>(output_desc->output_texture),
+        .OutputSubresource = output_desc->subresource,
+    };
 
-    // TODO: Add WisDX12VideoDecodeOutputDesc to the function signature which will provide the
-    // target texture (pSurface), subresource indexes, and color space conversion parameters.
-    D3D12_VIDEO_DECODE_OUTPUT_STREAM_ARGUMENTS1 output_args{};
+    // Codec-specific frame arguments
+    D3D12_VIDEO_DECODE_FRAME_ARGUMENT frame_args[8]{};
+    uint32_t frame_arg_count = 0;
 
-    // TODO: Add WisDX12VideoDecoderParameters to the function signature. WisDX12VideoDecoderParameters will
-    // contain the sequence headers, picture info, and other codec-specific configuration. These standard (Std)
-    // structs will need to be converted to DXVA structures (e.g., DXVA_PicParams_AV1) and passed in FrameArguments.
+    if (picture_desc->codec >= WisStdCodecProfileAV1Main && picture_desc->codec <= WisStdCodecProfileAV1Professional) {
+        // AV1: no standard DX12 frame arguments defined yet via D3D12_VIDEO_DECODE_FRAME_ARGUMENT
+        // The decode parameters are passed via the std picture info struct directly
+        (void)picture_desc->av1_picture_info;
+    } else if (
+        picture_desc->codec >= WisStdCodecProfileH265Main && picture_desc->codec <= WisStdCodecProfileH265FormatRangeExt
+    ) {
+        // H.265 frame arguments if needed
+        (void)picture_desc->h265_picture_info;
+    }
+
+    // Input stream arguments
     D3D12_VIDEO_DECODE_INPUT_STREAM_ARGUMENTS input_args{
-        .NumFrameArguments = 1,
-        .FrameArguments = {{
-            .Type = D3D12_VIDEO_DECODE_ARGUMENT_TYPE_PICTURE_PARAMETERS,
-            .Size = sizeof(DXVA_PicParams_AV1),
-            .pData = &dxva_pic_params,
-        }},
         .ReferenceFrames =
             {
-                .NumTexture2Ds = 0, // TODO: Fill from output descriptor and/or parameters
-                .ppTexture2Ds = nullptr, // TODO: Fill from output descriptor and/or parameters
-                .pSubresources = nullptr, // TODO: Fill from output descriptor and/or parameters
-                .ppHeaps = nullptr, // TODO: Fill from output descriptor and/or parameters
+                .NumTexture2Ds = 0,
+                .ppTexture2Ds = nullptr,
+                .pSubresources = nullptr,
+                .ppHeaps = nullptr,
             },
         .CompressedBitstream =
             {

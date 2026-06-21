@@ -3,6 +3,7 @@
   <module name="Video" version="0.7.1" base_dir="extensions/video/video" doc_dir="video">
     <includes>
       <include>video/std_video_av1.xml</include>
+      <include>video/std_video_h265.xml</include>
     </includes>
     <types>
       <!--Enums-->
@@ -102,20 +103,31 @@
         
         <!--Frame Argument-->
       </type>
+
+      <type name="VideoDecodeOutputDesc" category="variant" version="0.7.1" doc="Description of the output for a video decode operation. Specifies the target texture for decoded video frames.">
+        <member type="TextureView" name="output_texture" doc="The texture that will receive the decoded video frame."/>
+        <member type="DataFormat" name="format" doc="The data format of the output texture."/>
+        <member type="u32" name="subresource" doc="The subresource index of the texture to decode into."/>
+      </type>
+
+      <type name="VideoDecodePictureDesc" category="variant" version="0.7.1" doc="Variant type for video decode picture descriptions. Specifies the codec-specific parameters for a video decode operation.">
+        <member type="StdCodecProfile" name="codec" doc="The codec profile of the current frame. Determines which picture info struct is valid."/>
+        <member type="StdVideoDecodeAV1PictureInfo" name="av1_picture_info" mod="const,ptr" doc="AV1 picture information (valid when codec is an AV1 profile)."/>
+        <member type="StdVideoDecodeH265PictureInfo" name="h265_picture_info" mod="const,ptr" doc="H.265 picture information (valid when codec is an H.265 profile)."/>
+        <member type="StdVideoDecodeAV1ReferenceInfo" name="av1_reference_info" mod="const,ptr" doc="AV1 reference information array (valid when codec is an AV1 profile)."/>
+        <member type="StdVideoDecodeH265ReferenceInfo" name="h265_reference_info" mod="const,ptr" doc="H.265 reference information array (valid when codec is an H.265 profile)."/>
+        <member type="u32" name="reference_frame_count" doc="Number of reference frames for this decode operation."/>
+      </type>
     </types>
 
     <handles>
-      <handle name="VideoDecoderParameters" version="0.7.1" doc="Handle for video decoder parameters. Represents the parameters and capabilities of a video decoder, such as supported codecs, bit depths, and chroma subsampling formats.">
-        <impl for="vk" size="4"/>
-        <impl for="dx" size="2"/>
-      </handle>
       <handle name="VideoDecoder" version="0.7.1" doc="Handle for a video decoder. Represents a video decoder instance that can be used to decode video frames.">
-        <impl for="vk" size="4"/>
+        <impl for="vk" size="6"/>
         <impl for="dx" size="3"/>
       </handle>
       <handle name="VideoDecodeCommandList" version="0.7.1" doc="Handle for a video command list. Represents a command list that can be used to record video decode commands.">
         <impl for="vk" size="7"/>
-        <impl for="dx" size="2"/>
+        <impl for="dx" size="4"/>
       </handle>
       <handle name="VideoDecodingExtension" extends="Device" version="0.7.1" doc="Handle for the video decoding extension. Used  to manage video decoding resources and operations.">
         <impl for="vk" size="5"/>
@@ -140,12 +152,6 @@
         <arg type="CommandAllocator" name="command_allocator" mod="const,ref" doc="The command allocator that the command list will use for memory management of command buffers. It @wis_must be created with the same {Device::} as the extension and have {CommandQueueType::VideoDecode} or {CommandQueueType::VideoEncode} specified."/>
       </func>
       
-      <!--Video Decoder -->
-      <func for="VideoDecoder" name="CreateParameters" version="0.7.1" mod="const" doc="Creates parameters from provided sequence header or parameter set.">
-        <ret type="VideoDecoderParameters" name="decoder_parameters" result="true" doc="Output parameter that holds the created video decoder parameters handle if the operation is successful."/>
-        <arg type="void" name="sequence_parameters" mod="const,ptr" doc="Pointer to the sequence header or parameter set data. The format and content of this data should be appropriate for the codec being used, and should contain the necessary information to initialize the video decoder parameters."/>
-      </func>
-
       <!--Video Decode Command List-->
       <func for="VideoDecodeCommandList" name="Begin" version="0.7.0" mod="const" doc="Opens the command list, so commands can be recorded to it.">
         <ret type="Result" name="result" doc="Result of operation."/>
@@ -153,10 +159,14 @@
       <func for="VideoDecodeCommandList" name="End" version="0.7.0" mod="const" doc="Closes the command list, so it can be executed on the command queue.">
         <ret type="Result" name="result" doc="Result of operation."/>
       </func>
-      <func for="VideoDecodeCommandList" name="DecodeFrame" version="0.7.0" mod="const" doc="Records a video decode command to the command list.">
+      <func for="VideoDecodeCommandList" name="InsertBarriers" version="0.7.1" mod="const" doc="Inserts one or more barriers on the current video decode command list. Supports buffer, texture, and global barriers with video decode specific states.">
+        <arg type="BarrierGroup" name="barriers" mod="const,ref" doc="specifies a pointer to an array of barriers to insert."/>
+      </func>
+      <func for="VideoDecodeCommandList" name="DecodeFrame" version="0.7.1" mod="const" doc="Records a video decode command to the command list.">
         <arg type="VideoDecoder" name="decoder" mod="const,ref" doc="The video decoder that will be used for decoding the video frame."/>
-        <arg type="VideoDecoderParameters" name="decoder_parameters" mod="const,ref" doc="Input description for a video decode operation that uses video decoder parameters as input. The video decoder parameters should be created from the sequence header or parameter set data for the video stream, and should contain the necessary information to initialize the video decoder for decoding the video frames."/>
-        <arg type="VideoDecodeInputDesc" name="input_desc" mod="const,ref" doc="Description of the input data for the video decode operation. This field specifies the type and location of the input data that will be used for decoding the video frame."/>
+        <arg type="VideoDecodeInputDesc" name="input_desc" mod="const,ref" doc="Description of the input data for the video decode operation."/>
+        <arg type="VideoDecodeOutputDesc" name="output_desc" mod="const,ref" doc="Description of the output texture for the decoded video frame."/>
+        <arg type="VideoDecodePictureDesc" name="picture_desc" mod="const,ref" doc="Codec-specific picture information for the decode operation."/>
       </func>
 
 

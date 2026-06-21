@@ -214,6 +214,101 @@ typedef enum WisStdVideoAV1ChromaSamplePosition {
 } WisStdVideoAV1ChromaSamplePosition;
 
 /**
+ * @brief Provided by Wisdom 0.7.1. H.265 chroma format identifiers as defined in HEVC spec Table 6-1.
+ *
+ * */
+typedef enum WisStdVideoH265ChromaFormatIdc {
+    WisStdVideoH265ChromaFormatIdcMonochrome = 0, ///< Monochrome (4:0:0).
+    WisStdVideoH265ChromaFormatIdcCr420 = 1, ///< 4:2:0 chroma format.
+    WisStdVideoH265ChromaFormatIdcCr422 = 2, ///< 4:2:2 chroma format.
+    WisStdVideoH265ChromaFormatIdcCr444 = 3, ///< 4:4:4 chroma format.
+    WisStdVideoH265ChromaFormatIdcInvalid = 0x7FFFFFFF, ///< Invalid chroma format.
+} WisStdVideoH265ChromaFormatIdc;
+
+/**
+ * @brief Provided by Wisdom 0.7.1. H.265 profile identifiers as defined in HEVC spec Annex A.
+ *
+ * */
+typedef enum WisStdVideoH265ProfileIdc {
+    WisStdVideoH265ProfileIdcMain = 1, ///< Main profile.
+    WisStdVideoH265ProfileIdcMain10 = 2, ///< Main 10 profile.
+    WisStdVideoH265ProfileIdcMainStillPicture = 3, ///< Main Still Picture profile.
+    WisStdVideoH265ProfileIdcFormatRangeExtensions = 4, ///< Format Range Extensions profile.
+    WisStdVideoH265ProfileIdcSccExtensions = 9, ///< Screen Content Coding Extensions profile.
+    WisStdVideoH265ProfileIdcInvalid = 0x7FFFFFFF, ///< Invalid profile.
+} WisStdVideoH265ProfileIdc;
+
+/**
+ * @brief Provided by Wisdom 0.7.1. H.265 level identifiers as defined in HEVC spec Annex A.
+ *
+ * */
+typedef enum WisStdVideoH265LevelIdc {
+    WisStdVideoH265LevelIdcLevel1_0 = 0, ///< Level 1.0
+    WisStdVideoH265LevelIdcLevel2_0 = 1, ///< Level 2.0
+    WisStdVideoH265LevelIdcLevel2_1 = 2, ///< Level 2.1
+    WisStdVideoH265LevelIdcLevel3_0 = 3, ///< Level 3.0
+    WisStdVideoH265LevelIdcLevel3_1 = 4, ///< Level 3.1
+    WisStdVideoH265LevelIdcLevel4_0 = 5, ///< Level 4.0
+    WisStdVideoH265LevelIdcLevel4_1 = 6, ///< Level 4.1
+    WisStdVideoH265LevelIdcLevel5_0 = 7, ///< Level 5.0
+    WisStdVideoH265LevelIdcLevel5_1 = 8, ///< Level 5.1
+    WisStdVideoH265LevelIdcLevel5_2 = 9, ///< Level 5.2
+    WisStdVideoH265LevelIdcLevel6_0 = 10, ///< Level 6.0
+    WisStdVideoH265LevelIdcLevel6_1 = 11, ///< Level 6.1
+    WisStdVideoH265LevelIdcLevel6_2 = 12, ///< Level 6.2
+    WisStdVideoH265LevelIdcInvalid = 0x7FFFFFFF, ///< Invalid level.
+} WisStdVideoH265LevelIdc;
+
+/**
+ * @brief Provided by Wisdom 0.7.1. H.265 slice types as defined in HEVC spec Table 7-7.
+ *
+ * */
+typedef enum WisStdVideoH265SliceType {
+    WisStdVideoH265SliceTypeB = 0, ///< B slice (bi-predictive).
+    WisStdVideoH265SliceTypeP = 1, ///< P slice (predictive).
+    WisStdVideoH265SliceTypeI = 2, ///< I slice (intra).
+    WisStdVideoH265SliceTypeInvalid = 0x7FFFFFFF, ///< Invalid slice type.
+} WisStdVideoH265SliceType;
+
+/**
+ * @brief Provided by Wisdom 0.7.1. H.265 picture types for decode reference info.
+ *
+ * */
+typedef enum WisStdVideoH265PictureType {
+    WisStdVideoH265PictureTypeP = 0, ///< P picture.
+    WisStdVideoH265PictureTypeB = 1, ///< B picture.
+    WisStdVideoH265PictureTypeI = 2, ///< I picture.
+    WisStdVideoH265PictureTypeIdr = 3, ///< IDR picture.
+    WisStdVideoH265PictureTypeInvalid = 0x7FFFFFFF, ///< Invalid picture type.
+} WisStdVideoH265PictureType;
+
+/**
+ * @brief Provided by Wisdom 0.7.1. H.265 aspect ratio identifiers as defined in HEVC spec Table E-1.
+ *
+ * */
+typedef enum WisStdVideoH265AspectRatioIdc {
+    WisStdVideoH265AspectRatioIdcUnspecified = 0, ///< Unspecified aspect ratio.
+    WisStdVideoH265AspectRatioIdcSquare = 1, ///< Square (1:1).
+    WisStdVideoH265AspectRatioIdcRatio12_11 = 2, ///< 12:11
+    WisStdVideoH265AspectRatioIdcRatio10_11 = 3, ///< 10:11
+    WisStdVideoH265AspectRatioIdcRatio16_11 = 4, ///< 16:11
+    WisStdVideoH265AspectRatioIdcRatio40_33 = 5, ///< 40:33
+    WisStdVideoH265AspectRatioIdcRatio24_11 = 6, ///< 24:11
+    WisStdVideoH265AspectRatioIdcRatio20_11 = 7, ///< 20:11
+    WisStdVideoH265AspectRatioIdcRatio32_11 = 8, ///< 32:11
+    WisStdVideoH265AspectRatioIdcRatio80_33 = 9, ///< 80:33
+    WisStdVideoH265AspectRatioIdcRatio18_11 = 10, ///< 18:11
+    WisStdVideoH265AspectRatioIdcRatio15_11 = 11, ///< 15:11
+    WisStdVideoH265AspectRatioIdcRatio64_33 = 12, ///< 64:33
+    WisStdVideoH265AspectRatioIdcRatio160_99 = 13, ///< 160:99
+    WisStdVideoH265AspectRatioIdcRatio4_3 = 14, ///< 4:3
+    WisStdVideoH265AspectRatioIdcRatio3_2 = 15, ///< 3:2
+    WisStdVideoH265AspectRatioIdcRatio2_1 = 16, ///< 2:1
+    WisStdVideoH265AspectRatioIdcExtendedSar = 255, ///< Extended SAR.
+    WisStdVideoH265AspectRatioIdcInvalid = 0x7FFFFFFF, ///< Invalid aspect ratio.
+} WisStdVideoH265AspectRatioIdc;
+
+/**
  * @brief Provided by Wisdom 0.7.1. Standard codec profiles. Used to specify the profile of a video codec
  * implementation.
  *
@@ -773,6 +868,559 @@ typedef struct WisStdVideoDecodeAV1ReferenceInfo {
 } WisStdVideoDecodeAV1ReferenceInfo;
 
 /**
+ * @brief Provided by Wisdom 0.7.1. HRD flags (HEVC spec E.2.2).
+ *
+ * */
+typedef struct WisStdVideoH265HrdFlags {
+    uint32_t nal_hrd_parameters_present_flag : 1; ///< Specifies that NAL HRD parameters are present.
+    uint32_t vcl_hrd_parameters_present_flag : 1; ///< Specifies that VCL HRD parameters are present.
+    uint32_t sub_pic_hrd_params_present_flag : 1; ///< Specifies that sub-picture HRD parameters are present.
+    /**
+     * @brief Specifies that sub-picture CPB parameters are present in the pic timing SEI.
+     * */
+    uint32_t sub_pic_cpb_params_in_pic_timing_sei_flag : 1;
+    uint32_t fixed_pic_rate_general_flag    : 8; ///< An 8-bit flag per sub-layer indicating fixed picture rate.
+    uint32_t fixed_pic_rate_within_cvs_flag : 8; ///< An 8-bit flag per sub-layer indicating fixed pic rate within CVS.
+    uint32_t low_delay_hrd_flag             : 8; ///< An 8-bit flag per sub-layer indicating low delay HRD.
+    uint32_t reserved                       : 4;
+} WisStdVideoH265HrdFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.1. VPS flags (HEVC spec 7.4.3.1.1).
+ *
+ * */
+typedef struct WisStdVideoH265VpsFlags {
+    uint32_t vps_temporal_id_nesting_flag : 1; ///< Specifies that all referenced PPs have temporal_id equal to 0.
+    uint32_t vps_sub_layer_ordering_info_present_flag : 1; ///< Specifies that ordering info is present for sub-layers.
+    uint32_t vps_timing_info_present_flag             : 1; ///< Specifies that timing info is present.
+    uint32_t vps_poc_proportional_to_timing_flag      : 1; ///< Specifies that POC is proportional to timing.
+    uint32_t reserved                                 : 28;
+} WisStdVideoH265VpsFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Profile tier level flags (HEVC spec 7.4.3.1.1).
+ *
+ * */
+typedef struct WisStdVideoH265ProfileTierLevelFlags {
+    uint32_t general_tier_flag                  : 1; ///< Specifies the tier for the profile (0 = Main, 1 = High).
+    uint32_t general_progressive_source_flag    : 1; ///< Specifies that the source is progressive.
+    uint32_t general_interlaced_source_flag     : 1; ///< Specifies that the source is interlaced.
+    uint32_t general_non_packed_constraint_flag : 1; ///< Specifies that the source is non-packed.
+    uint32_t general_frame_only_constraint_flag : 1; ///< Specifies that the source is frame-only.
+    uint32_t reserved                           : 27;
+} WisStdVideoH265ProfileTierLevelFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.1. SPS VUI flags (HEVC spec E.2.1).
+ *
+ * */
+typedef struct WisStdVideoH265SpsVuiFlags {
+    uint32_t aspect_ratio_info_present_flag          : 1;
+    uint32_t overscan_info_present_flag              : 1;
+    uint32_t overscan_appropriate_flag               : 1;
+    uint32_t video_signal_type_present_flag          : 1;
+    uint32_t video_full_range_flag                   : 1;
+    uint32_t colour_description_present_flag         : 1;
+    uint32_t chroma_loc_info_present_flag            : 1;
+    uint32_t neutral_chroma_indication_flag          : 1;
+    uint32_t field_seq_flag                          : 1;
+    uint32_t frame_field_info_present_flag           : 1;
+    uint32_t default_display_window_flag             : 1;
+    uint32_t vui_timing_info_present_flag            : 1;
+    uint32_t vui_poc_proportional_to_timing_flag     : 1;
+    uint32_t vui_hrd_parameters_present_flag         : 1;
+    uint32_t bitstream_restriction_flag              : 1;
+    uint32_t tiles_fixed_structure_flag              : 1;
+    uint32_t motion_vectors_over_pic_boundaries_flag : 1;
+    uint32_t restricted_ref_pic_lists_flag           : 1;
+    uint32_t reserved                                : 14;
+} WisStdVideoH265SpsVuiFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.1. SPS flags (HEVC spec 7.4.3.2.1).
+ *
+ * */
+typedef struct WisStdVideoH265SpsFlags {
+    uint32_t sps_temporal_id_nesting_flag                    : 1;
+    uint32_t separate_colour_plane_flag                      : 1;
+    uint32_t conformance_window_flag                         : 1;
+    uint32_t sps_sub_layer_ordering_info_present_flag        : 1;
+    uint32_t scaling_list_enabled_flag                       : 1;
+    uint32_t sps_scaling_list_data_present_flag              : 1;
+    uint32_t amp_enabled_flag                                : 1;
+    uint32_t sample_adaptive_offset_enabled_flag             : 1;
+    uint32_t pcm_enabled_flag                                : 1;
+    uint32_t pcm_loop_filter_disabled_flag                   : 1;
+    uint32_t long_term_ref_pics_present_flag                 : 1;
+    uint32_t sps_temporal_mvp_enabled_flag                   : 1;
+    uint32_t strong_intra_smoothing_enabled_flag             : 1;
+    uint32_t vui_parameters_present_flag                     : 1;
+    uint32_t sps_extension_present_flag                      : 1;
+    uint32_t sps_range_extension_flag                        : 1;
+    uint32_t transform_skip_rotation_enabled_flag            : 1;
+    uint32_t transform_skip_context_enabled_flag             : 1;
+    uint32_t implicit_rdpcm_enabled_flag                     : 1;
+    uint32_t explicit_rdpcm_enabled_flag                     : 1;
+    uint32_t extended_precision_processing_flag              : 1;
+    uint32_t intra_smoothing_disabled_flag                   : 1;
+    uint32_t high_precision_offsets_enabled_flag             : 1;
+    uint32_t persistent_rice_adaptation_enabled_flag         : 1;
+    uint32_t cabac_bypass_alignment_enabled_flag             : 1;
+    uint32_t sps_scc_extension_flag                          : 1;
+    uint32_t sps_curr_pic_ref_enabled_flag                   : 1;
+    uint32_t palette_mode_enabled_flag                       : 1;
+    uint32_t sps_palette_predictor_initializers_present_flag : 1;
+    uint32_t intra_boundary_filtering_disabled_flag          : 1;
+    uint32_t reserved                                        : 2;
+} WisStdVideoH265SpsFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Short-term reference picture set flags (HEVC spec 7.4.8).
+ *
+ * */
+typedef struct WisStdVideoH265ShortTermRefPicSetFlags {
+    uint32_t inter_ref_pic_set_prediction_flag : 1; ///< Specifies that inter ref pic set prediction is used.
+    uint32_t delta_rps_sign                    : 1; ///< Sign of the delta RPS.
+    uint32_t reserved                          : 30;
+} WisStdVideoH265ShortTermRefPicSetFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.1. PPS flags (HEVC spec 7.4.3.3.1).
+ *
+ * */
+typedef struct WisStdVideoH265PpsFlags {
+    uint32_t dependent_slice_segments_enabled_flag           : 1;
+    uint32_t output_flag_present_flag                        : 1;
+    uint32_t sign_data_hiding_enabled_flag                   : 1;
+    uint32_t cabac_init_present_flag                         : 1;
+    uint32_t constrained_intra_pred_flag                     : 1;
+    uint32_t transform_skip_enabled_flag                     : 1;
+    uint32_t cu_qp_delta_enabled_flag                        : 1;
+    uint32_t pps_slice_chroma_qp_offsets_present_flag        : 1;
+    uint32_t weighted_pred_flag                              : 1;
+    uint32_t weighted_bipred_flag                            : 1;
+    uint32_t transquant_bypass_enabled_flag                  : 1;
+    uint32_t tiles_enabled_flag                              : 1;
+    uint32_t entropy_coding_sync_enabled_flag                : 1;
+    uint32_t uniform_spacing_flag                            : 1;
+    uint32_t loop_filter_across_tiles_enabled_flag           : 1;
+    uint32_t pps_loop_filter_across_slices_enabled_flag      : 1;
+    uint32_t deblocking_filter_control_present_flag          : 1;
+    uint32_t deblocking_filter_override_enabled_flag         : 1;
+    uint32_t pps_deblocking_filter_disabled_flag             : 1;
+    uint32_t pps_scaling_list_data_present_flag              : 1;
+    uint32_t lists_modification_present_flag                 : 1;
+    uint32_t slice_segment_header_extension_present_flag     : 1;
+    uint32_t pps_extension_present_flag                      : 1;
+    uint32_t cross_component_prediction_enabled_flag         : 1;
+    uint32_t chroma_qp_offset_list_enabled_flag              : 1;
+    uint32_t pps_curr_pic_ref_enabled_flag                   : 1;
+    uint32_t residual_adaptive_colour_transform_enabled_flag : 1;
+    uint32_t pps_slice_act_qp_offsets_present_flag           : 1;
+    uint32_t pps_palette_predictor_initializers_present_flag : 1;
+    uint32_t monochrome_palette_flag                         : 1;
+    uint32_t pps_range_extension_flag                        : 1;
+    uint32_t reserved                                        : 1;
+} WisStdVideoH265PpsFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Decode picture info flags for H.265.
+ *
+ * */
+typedef struct WisStdVideoDecodeH265PictureInfoFlags {
+    uint32_t IrapPicFlag                     : 1; ///< Specifies that the picture is an IRAP picture.
+    uint32_t IdrPicFlag                      : 1; ///< Specifies that the picture is an IDR picture.
+    uint32_t IsReference                     : 1; ///< Specifies that the picture is a reference picture.
+    uint32_t short_term_ref_pic_set_sps_flag : 1; ///< Specifies that the short-term ref pic set is from SPS.
+    uint32_t reserved                        : 28;
+} WisStdVideoDecodeH265PictureInfoFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Reference info flags for H.265.
+ *
+ * */
+typedef struct WisStdVideoDecodeH265ReferenceInfoFlags {
+    uint32_t used_for_long_term_reference : 1; ///< Specifies that the reference is used for long-term reference.
+    uint32_t unused_for_reference         : 1; ///< Specifies that the reference is unused for reference.
+    uint32_t reserved                     : 30;
+} WisStdVideoDecodeH265ReferenceInfoFlags;
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Decoded picture buffer management parameters (HEVC spec 7.4.3.1.1).
+ *
+ * */
+typedef struct WisStdVideoH265DecPicBufMgr {
+    uint32_t max_latency_increase_plus1[7]; ///< Specifies max latency increase for each sub-layer.
+    uint8_t max_dec_pic_buffering_minus1[7]; ///< Specifies max decoded picture buffering minus 1 for each sub-layer.
+    uint8_t max_num_reorder_pics[7]; ///< Specifies max number of reorder pictures for each sub-layer.
+} WisStdVideoH265DecPicBufMgr;
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Sub-layer HRD parameters (HEVC spec E.2.3).
+ *
+ * */
+typedef struct WisStdVideoH265SubLayerHrdParameters {
+    uint32_t bit_rate_value_minus1[32]; ///< Bit rate value minus 1 for each CPB.
+    uint32_t cpb_size_value_minus1[32]; ///< CPB size value minus 1 for each CPB.
+    uint32_t cpb_size_du_value_minus1[32]; ///< CPB size du value minus 1 for each CPB.
+    uint32_t bit_rate_du_value_minus1[32]; ///< Bit rate du value minus 1 for each CPB.
+    uint32_t cbr_flag; ///< Specifies constant bit rate flag for each CPB.
+} WisStdVideoH265SubLayerHrdParameters;
+
+/**
+ * @brief Provided by Wisdom 0.7.1. HRD parameters (HEVC spec E.2.2).
+ *
+ * */
+typedef struct WisStdVideoH265HrdParameters {
+    WisStdVideoH265HrdFlags flags; ///< HRD flags.
+    uint8_t tick_divisor_minus2; ///< Tick divisor minus 2.
+    /**
+     * @brief DU CPB removal delay increment length minus 1.
+     * */
+    uint8_t du_cpb_removal_delay_increment_length_minus1;
+    /**
+     * @brief DPB output delay DU length minus 1.
+     * */
+    uint8_t dpb_output_delay_du_length_minus1;
+    uint8_t bit_rate_scale; ///< Bit rate scale.
+    uint8_t cpb_size_scale; ///< CPB size scale.
+    uint8_t cpb_size_du_scale; ///< CPB size du scale.
+    /**
+     * @brief Initial CPB removal delay length minus 1.
+     * */
+    uint8_t initial_cpb_removal_delay_length_minus1;
+    /**
+     * @brief AU CPB removal delay length minus 1.
+     * */
+    uint8_t au_cpb_removal_delay_length_minus1;
+    uint8_t dpb_output_delay_length_minus1; ///< DPB output delay length minus 1.
+    uint8_t cpb_cnt_minus1[7]; ///< CPB count minus 1 for each sub-layer.
+    /**
+     * @brief Elemental duration in tc minus 1 for each sub-layer.
+     * */
+    uint16_t elemental_duration_in_tc_minus1[7];
+    uint16_t reserved[3];
+    const WisStdVideoH265SubLayerHrdParameters* pSubLayerHrdParametersNal; ///< Pointer to NAL sub-layer HRD parameters.
+    const WisStdVideoH265SubLayerHrdParameters* pSubLayerHrdParametersVcl; ///< Pointer to VCL sub-layer HRD parameters.
+} WisStdVideoH265HrdParameters;
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Profile, tier and level parameters (HEVC spec 7.4.3.1.1).
+ *
+ * */
+typedef struct WisStdVideoH265ProfileTierLevel {
+    WisStdVideoH265ProfileTierLevelFlags flags; ///< Profile tier level flags.
+    WisStdVideoH265ProfileIdc general_profile_idc; ///< General profile IDC.
+    WisStdVideoH265LevelIdc general_level_idc; ///< General level IDC.
+} WisStdVideoH265ProfileTierLevel;
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Video parameter set (HEVC spec 7.4.3.1.1).
+ *
+ * */
+typedef struct WisStdVideoH265VideoParameterSet {
+    WisStdVideoH265VpsFlags flags; ///< VPS flags.
+    uint8_t vps_video_parameter_set_id; ///< Specifies the VPS ID.
+    /**
+     * @brief Specifies the max number of temporal sub-layers minus 1.
+     * */
+    uint8_t vps_max_sub_layers_minus1;
+    uint8_t reserved1;
+    uint8_t reserved2;
+    uint32_t vps_num_units_in_tick; ///< Number of time units per tick.
+    uint32_t vps_time_scale; ///< Time scale.
+    uint32_t vps_num_ticks_poc_diff_one_minus1; ///< VPS num ticks POC diff one minus 1.
+    uint32_t reserved3;
+    const WisStdVideoH265DecPicBufMgr* pDecPicBufMgr; ///< Pointer to decoded picture buffer management info.
+    const WisStdVideoH265HrdParameters* pHrdParameters; ///< Pointer to HRD parameters.
+    const WisStdVideoH265ProfileTierLevel* pProfileTierLevel; ///< Pointer to profile tier level.
+} WisStdVideoH265VideoParameterSet;
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Scaling lists (HEVC spec 7.4.3.2.1).
+ *
+ * */
+typedef struct WisStdVideoH265ScalingLists {
+    uint8_t ScalingList4x4[6 * 16]; ///< 4x4 scaling list data (6 lists x 16 entries).
+    uint8_t ScalingList8x8[6 * 64]; ///< 8x8 scaling list data (6 lists x 64 entries).
+    uint8_t ScalingList16x16[6 * 64]; ///< 16x16 scaling list data (6 lists x 64 entries).
+    uint8_t ScalingList32x32[2 * 64]; ///< 32x32 scaling list data (2 lists x 64 entries).
+    uint8_t ScalingListDCCoef16x16[6]; ///< DC coefficients for 16x16 scaling lists.
+    uint8_t ScalingListDCCoef32x32[2]; ///< DC coefficients for 32x32 scaling lists.
+} WisStdVideoH265ScalingLists;
+
+/**
+ * @brief Provided by Wisdom 0.7.1. SPS VUI parameters (HEVC spec E.2.1).
+ *
+ * */
+typedef struct WisStdVideoH265SequenceParameterSetVui {
+    WisStdVideoH265SpsVuiFlags flags; ///< SPS VUI flags.
+    WisStdVideoH265AspectRatioIdc aspect_ratio_idc; ///< Aspect ratio IDC.
+    uint16_t sar_width; ///< SAR width.
+    uint16_t sar_height; ///< SAR height.
+    uint8_t video_format; ///< Video format.
+    uint8_t colour_primaries; ///< Colour primaries.
+    uint8_t transfer_characteristics; ///< Transfer characteristics.
+    uint8_t matrix_coeffs; ///< Matrix coefficients.
+    uint8_t chroma_sample_loc_type_top_field; ///< Chroma sample location type top field.
+    /**
+     * @brief Chroma sample location type bottom field.
+     * */
+    uint8_t chroma_sample_loc_type_bottom_field;
+    uint8_t reserved1;
+    uint8_t reserved2;
+    uint16_t def_disp_win_left_offset; ///< Default display window left offset.
+    uint16_t def_disp_win_right_offset; ///< Default display window right offset.
+    uint16_t def_disp_win_top_offset; ///< Default display window top offset.
+    uint16_t def_disp_win_bottom_offset; ///< Default display window bottom offset.
+    uint32_t vui_num_units_in_tick; ///< VUI num units in tick.
+    uint32_t vui_time_scale; ///< VUI time scale.
+    uint32_t vui_num_ticks_poc_diff_one_minus1; ///< VUI num ticks POC diff one minus 1.
+    uint16_t min_spatial_segmentation_idc; ///< Minimum spatial segmentation IDC.
+    uint16_t reserved3;
+    uint8_t max_bytes_per_pic_denom; ///< Max bytes per picture denominator.
+    uint8_t max_bits_per_min_cu_denom; ///< Max bits per min CU denominator.
+    uint8_t log2_max_mv_length_horizontal; ///< Log2 max MV length horizontal.
+    uint8_t log2_max_mv_length_vertical; ///< Log2 max MV length vertical.
+    const WisStdVideoH265HrdParameters* pHrdParameters; ///< Pointer to HRD parameters.
+} WisStdVideoH265SequenceParameterSetVui;
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Predictor palette entries for SCC (HEVC spec 7.4.3.2.1).
+ *
+ * */
+typedef struct WisStdVideoH265PredictorPaletteEntries {
+    uint16_t PredictorPaletteEntries[3 * 128]; ///< Predictor palette entries (3 components x 128 entries).
+} WisStdVideoH265PredictorPaletteEntries;
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Short-term reference picture set (HEVC spec 7.4.8).
+ *
+ * */
+typedef struct WisStdVideoH265ShortTermRefPicSet {
+    WisStdVideoH265ShortTermRefPicSetFlags flags; ///< Short-term ref pic set flags.
+    uint32_t delta_idx_minus1; ///< Delta index minus 1.
+    uint16_t use_delta_flag; ///< Use delta flag.
+    uint16_t abs_delta_rps_minus1; ///< Absolute delta RPS minus 1.
+    uint16_t used_by_curr_pic_flag; ///< Used by current picture flag.
+    uint16_t used_by_curr_pic_s0_flag; ///< Used by current picture S0 flag.
+    uint16_t used_by_curr_pic_s1_flag; ///< Used by current picture S1 flag.
+    uint16_t reserved1;
+    uint8_t reserved2;
+    uint8_t reserved3;
+    uint8_t num_negative_pics; ///< Number of negative pictures.
+    uint8_t num_positive_pics; ///< Number of positive pictures.
+    uint16_t delta_poc_s0_minus1[16]; ///< Delta POC S0 minus 1.
+    uint16_t delta_poc_s1_minus1[16]; ///< Delta POC S1 minus 1.
+} WisStdVideoH265ShortTermRefPicSet;
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Long-term reference pictures in SPS (HEVC spec 7.4.3.2.1).
+ *
+ * */
+typedef struct WisStdVideoH265LongTermRefPicsSps {
+    uint32_t used_by_curr_pic_lt_sps_flag; ///< Used by current picture LT SPS flag.
+    uint32_t lt_ref_pic_poc_lsb_sps[32]; ///< LT reference picture POC LSB SPS values.
+} WisStdVideoH265LongTermRefPicsSps;
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Sequence parameter set (HEVC spec 7.4.3.2.1).
+ *
+ * */
+typedef struct WisStdVideoH265SequenceParameterSet {
+    WisStdVideoH265SpsFlags flags; ///< SPS flags.
+    WisStdVideoH265ChromaFormatIdc chroma_format_idc; ///< Chroma format IDC.
+    uint32_t pic_width_in_luma_samples; ///< Picture width in luma samples.
+    uint32_t pic_height_in_luma_samples; ///< Picture height in luma samples.
+    uint8_t sps_video_parameter_set_id; ///< SPS video parameter set ID.
+    uint8_t sps_max_sub_layers_minus1; ///< SPS max sub-layers minus 1.
+    uint8_t sps_seq_parameter_set_id; ///< SPS sequence parameter set ID.
+    uint8_t bit_depth_luma_minus8; ///< Bit depth luma minus 8.
+    uint8_t bit_depth_chroma_minus8; ///< Bit depth chroma minus 8.
+    uint8_t log2_max_pic_order_cnt_lsb_minus4; ///< Log2 max POC LSB minus 4.
+    /**
+     * @brief Log2 min luma coding block size minus 3.
+     * */
+    uint8_t log2_min_luma_coding_block_size_minus3;
+    /**
+     * @brief Log2 diff max min luma coding block size.
+     * */
+    uint8_t log2_diff_max_min_luma_coding_block_size;
+    /**
+     * @brief Log2 min luma transform block size minus 2.
+     * */
+    uint8_t log2_min_luma_transform_block_size_minus2;
+    /**
+     * @brief Log2 diff max min luma transform block size.
+     * */
+    uint8_t log2_diff_max_min_luma_transform_block_size;
+    /**
+     * @brief Max transform hierarchy depth inter.
+     * */
+    uint8_t max_transform_hierarchy_depth_inter;
+    /**
+     * @brief Max transform hierarchy depth intra.
+     * */
+    uint8_t max_transform_hierarchy_depth_intra;
+    /**
+     * @brief Number of short-term reference picture sets.
+     * */
+    uint8_t num_short_term_ref_pic_sets;
+    /**
+     * @brief Number of long-term reference pictures in SPS.
+     * */
+    uint8_t num_long_term_ref_pics_sps;
+    /**
+     * @brief PCM sample bit depth luma minus 1.
+     * */
+    uint8_t pcm_sample_bit_depth_luma_minus1;
+    /**
+     * @brief PCM sample bit depth chroma minus 1.
+     * */
+    uint8_t pcm_sample_bit_depth_chroma_minus1;
+    /**
+     * @brief Log2 min PCM luma coding block size minus 3.
+     * */
+    uint8_t log2_min_pcm_luma_coding_block_size_minus3;
+    /**
+     * @brief Log2 diff max min PCM luma coding block size.
+     * */
+    uint8_t log2_diff_max_min_pcm_luma_coding_block_size;
+    uint8_t reserved1;
+    uint8_t reserved2;
+    uint8_t palette_max_size; ///< Palette max size for SCC.
+    /**
+     * @brief Delta palette max predictor size.
+     * */
+    uint8_t delta_palette_max_predictor_size;
+    /**
+     * @brief Motion vector resolution control IDC.
+     * */
+    uint8_t motion_vector_resolution_control_idc;
+    /**
+     * @brief Number of palette predictor initializers minus 1.
+     * */
+    uint8_t sps_num_palette_predictor_initializers_minus1;
+    uint32_t conf_win_left_offset; ///< Conformance window left offset.
+    uint32_t conf_win_right_offset; ///< Conformance window right offset.
+    uint32_t conf_win_top_offset; ///< Conformance window top offset.
+    uint32_t conf_win_bottom_offset; ///< Conformance window bottom offset.
+    const WisStdVideoH265ProfileTierLevel* pProfileTierLevel; ///< Pointer to profile tier level.
+    const WisStdVideoH265DecPicBufMgr* pDecPicBufMgr; ///< Pointer to decoded picture buffer management info.
+    const WisStdVideoH265ScalingLists* pScalingLists; ///< Pointer to scaling lists.
+    /**
+     * @brief Pointer to short-term reference picture sets.
+     * */
+    const WisStdVideoH265ShortTermRefPicSet* pShortTermRefPicSet;
+    /**
+     * @brief Pointer to long-term reference pictures in SPS.
+     * */
+    const WisStdVideoH265LongTermRefPicsSps* pLongTermRefPicsSps;
+    const WisStdVideoH265SequenceParameterSetVui* pSequenceParameterSetVui; ///< Pointer to sequence parameter set VUI.
+    const WisStdVideoH265PredictorPaletteEntries* pPredictorPaletteEntries; ///< Pointer to predictor palette entries.
+} WisStdVideoH265SequenceParameterSet;
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Picture parameter set (HEVC spec 7.4.3.3.1).
+ *
+ * */
+typedef struct WisStdVideoH265PictureParameterSet {
+    WisStdVideoH265PpsFlags flags; ///< PPS flags.
+    uint8_t pps_pic_parameter_set_id; ///< PPS ID.
+    uint8_t pps_seq_parameter_set_id; ///< PPS SPS ID.
+    uint8_t sps_video_parameter_set_id; ///< SPS VPS ID.
+    uint8_t num_extra_slice_header_bits; ///< Number of extra slice header bits.
+    /**
+     * @brief Number of ref idx L0 default active minus 1.
+     * */
+    uint8_t num_ref_idx_l0_default_active_minus1;
+    /**
+     * @brief Number of ref idx L1 default active minus 1.
+     * */
+    uint8_t num_ref_idx_l1_default_active_minus1;
+    int8_t init_qp_minus26; ///< Init QP minus 26.
+    uint8_t diff_cu_qp_delta_depth; ///< Diff CU QP delta depth.
+    int8_t pps_cb_qp_offset; ///< PPS Cb QP offset.
+    int8_t pps_cr_qp_offset; ///< PPS Cr QP offset.
+    int8_t pps_beta_offset_div2; ///< PPS beta offset div 2.
+    int8_t pps_tc_offset_div2; ///< PPS tc offset div 2.
+    /**
+     * @brief Log2 parallel merge level minus 2.
+     * */
+    uint8_t log2_parallel_merge_level_minus2;
+    /**
+     * @brief Log2 max transform skip block size minus 2.
+     * */
+    uint8_t log2_max_transform_skip_block_size_minus2;
+    uint8_t diff_cu_chroma_qp_offset_depth; ///< Diff CU chroma QP offset depth.
+    /**
+     * @brief Chroma QP offset list length minus 1.
+     * */
+    uint8_t chroma_qp_offset_list_len_minus1;
+    int8_t cb_qp_offset_list[6]; ///< Cb QP offset list.
+    int8_t cr_qp_offset_list[6]; ///< Cr QP offset list.
+    uint8_t log2_sao_offset_scale_luma; ///< Log2 SAO offset scale luma.
+    uint8_t log2_sao_offset_scale_chroma; ///< Log2 SAO offset scale chroma.
+    int8_t pps_act_y_qp_offset_plus5; ///< PPS ACT Y QP offset plus 5.
+    int8_t pps_act_cb_qp_offset_plus5; ///< PPS ACT Cb QP offset plus 5.
+    int8_t pps_act_cr_qp_offset_plus3; ///< PPS ACT Cr QP offset plus 3.
+    /**
+     * @brief Number of palette predictor initializers.
+     * */
+    uint8_t pps_num_palette_predictor_initializers;
+    uint8_t luma_bit_depth_entry_minus8; ///< Luma bit depth entry minus 8.
+    uint8_t chroma_bit_depth_entry_minus8; ///< Chroma bit depth entry minus 8.
+    uint8_t num_tile_columns_minus1; ///< Number of tile columns minus 1.
+    uint8_t num_tile_rows_minus1; ///< Number of tile rows minus 1.
+    uint8_t reserved1;
+    uint8_t reserved2;
+    /**
+     * @brief Column width minus 1 for each tile column.
+     * */
+    uint16_t column_width_minus1[19];
+    uint16_t row_height_minus1[21]; ///< Row height minus 1 for each tile row.
+    uint32_t reserved3;
+    const WisStdVideoH265ScalingLists* pScalingLists; ///< Pointer to scaling lists.
+    const WisStdVideoH265PredictorPaletteEntries* pPredictorPaletteEntries; ///< Pointer to predictor palette entries.
+} WisStdVideoH265PictureParameterSet;
+
+/**
+ * @brief Provided by Wisdom 0.7.1. H.265 decode picture info for each frame.
+ *
+ * */
+typedef struct WisStdVideoDecodeH265PictureInfo {
+    WisStdVideoDecodeH265PictureInfoFlags flags; ///< Decode picture flags.
+    uint8_t sps_video_parameter_set_id; ///< SPS VPS ID.
+    uint8_t pps_seq_parameter_set_id; ///< PPS SPS ID.
+    uint8_t pps_pic_parameter_set_id; ///< PPS ID.
+    uint8_t NumDeltaPocsOfRefRpsIdx; ///< Number of delta POCs of reference RPS index.
+    int32_t PicOrderCntVal; ///< Picture order count value.
+    /**
+     * @brief Number of bits for short-term ref pic set in slice.
+     * */
+    uint16_t NumBitsForSTRefPicSetInSlice;
+    uint16_t reserved;
+    /**
+     * @brief Short-term reference pictures before the current picture in output order.
+     * */
+    uint8_t RefPicSetStCurrBefore[8];
+    /**
+     * @brief Short-term reference pictures after the current picture in output order.
+     * */
+    uint8_t RefPicSetStCurrAfter[8];
+    uint8_t RefPicSetLtCurr[8]; ///< Long-term reference pictures currently used.
+} WisStdVideoDecodeH265PictureInfo;
+
+/**
+ * @brief Provided by Wisdom 0.7.1. H.265 reference frame info.
+ *
+ * */
+typedef struct WisStdVideoDecodeH265ReferenceInfo {
+    WisStdVideoDecodeH265ReferenceInfoFlags flags; ///< Reference info flags.
+    int32_t PicOrderCntVal; ///< Picture order count of the reference.
+} WisStdVideoDecodeH265ReferenceInfo;
+
+/**
  * @brief Provided by Wisdom 0.7.1. Information about a supported video codec.
  *
  * */
@@ -815,13 +1463,6 @@ typedef struct WisVideoDecoderDesc {
 
 #ifdef WISDOM_DX12
 /**
- * @brief Provided by Wisdom 0.7.1. Handle for video decoder parameters. Represents the parameters and capabilities of a
- * video decoder, such as supported codecs, bit depths, and chroma subsampling formats.
- *
- * */
-WIS_DEFINE_HANDLE(WisDX12VideoDecoderParameters, 2);
-
-/**
  * @brief Provided by Wisdom 0.7.1. Handle for a video decoder. Represents a video decoder instance that can be used to
  * decode video frames.
  *
@@ -833,7 +1474,7 @@ WIS_DEFINE_HANDLE(WisDX12VideoDecoder, 3);
  * record video decode commands.
  *
  * */
-WIS_DEFINE_HANDLE(WisDX12VideoDecodeCommandList, 2);
+WIS_DEFINE_HANDLE(WisDX12VideoDecodeCommandList, 4);
 
 /**
  * @brief Provided by Wisdom 0.7.1. Handle for the video decoding extension. Used  to manage video decoding resources
@@ -858,11 +1499,47 @@ typedef struct WisDX12VideoDecodeInputDesc {
 } WisDX12VideoDecodeInputDesc;
 
 /**
- * @brief Provided by Wisdom 0.7.1. Destroys a WisVideoDecoderParameters handle.
- * @param self is a pointer to the valid WisVideoDecoderParameters instance.
+ * @brief Provided by Wisdom 0.7.1. Description of the output for a video decode operation. Specifies the target texture
+ * for decoded video frames.
  *
  * */
-WISDOM_VIDEO_API void wisDX12DestroyVideoDecoderParameters(WisDX12VideoDecoderParameters* self);
+typedef struct WisDX12VideoDecodeOutputDesc {
+    WisDX12TextureView output_texture; ///< The texture that will receive the decoded video frame.
+    WisDataFormat format; ///< The data format of the output texture.
+    uint32_t subresource; ///< The subresource index of the texture to decode into.
+} WisDX12VideoDecodeOutputDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Variant type for video decode picture descriptions. Specifies the codec-specific
+ * parameters for a video decode operation.
+ *
+ * */
+typedef struct WisDX12VideoDecodePictureDesc {
+    /**
+     * @brief The codec profile of the current frame. Determines which picture info struct is valid.
+     * */
+    WisStdCodecProfile codec;
+    /**
+     * @brief AV1 picture information (valid when codec is an AV1 profile).
+     * */
+    const WisStdVideoDecodeAV1PictureInfo* av1_picture_info;
+    /**
+     * @brief H.265 picture information (valid when codec is an H.265 profile).
+     * */
+    const WisStdVideoDecodeH265PictureInfo* h265_picture_info;
+    /**
+     * @brief AV1 reference information array (valid when codec is an AV1 profile).
+     * */
+    const WisStdVideoDecodeAV1ReferenceInfo* av1_reference_info;
+    /**
+     * @brief H.265 reference information array (valid when codec is an H.265 profile).
+     * */
+    const WisStdVideoDecodeH265ReferenceInfo* h265_reference_info;
+    /**
+     * @brief Number of reference frames for this decode operation.
+     * */
+    uint32_t reference_frame_count;
+} WisDX12VideoDecodePictureDesc;
 
 /**
  * @brief Provided by Wisdom 0.7.1. Destroys a WisVideoDecoder handle.
@@ -939,23 +1616,6 @@ WISDOM_VIDEO_API WisResult wisDX12VideoDecodingExtensionCreateCommandList(
 );
 
 /**
- * @brief Provided by Wisdom 0.7.1. Creates parameters from provided sequence header or parameter set.
- * @param self is a pointer to the valid WisVideoDecoder instance.
- * @param sequence_parameters Pointer to the sequence header or parameter set data. The format and content of this data
- * should be appropriate for the codec being used, and should contain the necessary information to initialize the video
- * decoder parameters.
- * @param decoder_parameters Output parameter that holds the created video decoder parameters handle if the operation is
- * successful.
- * @return Result denoting the outcome of operation.
- *
- * */
-WISDOM_VIDEO_API WisResult wisDX12VideoDecoderCreateParameters(
-    const WisDX12VideoDecoder* self,
-    const void* sequence_parameters,
-    WisDX12VideoDecoderParameters* decoder_parameters
-);
-
-/**
  * @brief Provided by Wisdom 0.7.0. Opens the command list, so commands can be recorded to it.
  * @param self is a pointer to the valid WisVideoDecodeCommandList instance.
  * @return Result denoting the outcome of operation.
@@ -972,39 +1632,43 @@ WISDOM_VIDEO_API WisResult wisDX12VideoDecodeCommandListBegin(const WisDX12Video
 WISDOM_VIDEO_API WisResult wisDX12VideoDecodeCommandListEnd(const WisDX12VideoDecodeCommandList* self);
 
 /**
- * @brief Provided by Wisdom 0.7.0. Records a video decode command to the command list.
+ * @brief Provided by Wisdom 0.7.1. Inserts one or more barriers on the current video decode command list. Supports
+ * buffer, texture, and global barriers with video decode specific states.
+ * @param self is a pointer to the valid WisVideoDecodeCommandList instance.
+ * @param barriers specifies a pointer to an array of barriers to insert.
+ *
+ * */
+WISDOM_VIDEO_API void wisDX12VideoDecodeCommandListInsertBarriers(
+    const WisDX12VideoDecodeCommandList* self,
+    const WisDX12BarrierGroup* barriers
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Records a video decode command to the command list.
  * @param self is a pointer to the valid WisVideoDecodeCommandList instance.
  * @param decoder The video decoder that will be used for decoding the video frame.
- * @param decoder_parameters Input description for a video decode operation that uses video decoder parameters as input.
- * The video decoder parameters should be created from the sequence header or parameter set data for the video stream,
- * and should contain the necessary information to initialize the video decoder for decoding the video frames.
- * @param input_desc Description of the input data for the video decode operation. This field specifies the type and
- * location of the input data that will be used for decoding the video frame.
+ * @param input_desc Description of the input data for the video decode operation.
+ * @param output_desc Description of the output texture for the decoded video frame.
+ * @param picture_desc Codec-specific picture information for the decode operation.
  *
  * */
 WISDOM_VIDEO_API void wisDX12VideoDecodeCommandListDecodeFrame(
     const WisDX12VideoDecodeCommandList* self,
     const WisDX12VideoDecoder* decoder,
-    const WisDX12VideoDecoderParameters* decoder_parameters,
-    const WisDX12VideoDecodeInputDesc* input_desc
+    const WisDX12VideoDecodeInputDesc* input_desc,
+    const WisDX12VideoDecodeOutputDesc* output_desc,
+    const WisDX12VideoDecodePictureDesc* picture_desc
 );
 
 #endif // WISDOM_DX12
 
 #ifdef WISDOM_VULKAN
 /**
- * @brief Provided by Wisdom 0.7.1. Handle for video decoder parameters. Represents the parameters and capabilities of a
- * video decoder, such as supported codecs, bit depths, and chroma subsampling formats.
- *
- * */
-WIS_DEFINE_HANDLE(WisVKVideoDecoderParameters, 4);
-
-/**
  * @brief Provided by Wisdom 0.7.1. Handle for a video decoder. Represents a video decoder instance that can be used to
  * decode video frames.
  *
  * */
-WIS_DEFINE_HANDLE(WisVKVideoDecoder, 4);
+WIS_DEFINE_HANDLE(WisVKVideoDecoder, 6);
 
 /**
  * @brief Provided by Wisdom 0.7.1. Handle for a video command list. Represents a command list that can be used to
@@ -1036,11 +1700,47 @@ typedef struct WisVKVideoDecodeInputDesc {
 } WisVKVideoDecodeInputDesc;
 
 /**
- * @brief Provided by Wisdom 0.7.1. Destroys a WisVideoDecoderParameters handle.
- * @param self is a pointer to the valid WisVideoDecoderParameters instance.
+ * @brief Provided by Wisdom 0.7.1. Description of the output for a video decode operation. Specifies the target texture
+ * for decoded video frames.
  *
  * */
-WISDOM_VIDEO_API void wisVKDestroyVideoDecoderParameters(WisVKVideoDecoderParameters* self);
+typedef struct WisVKVideoDecodeOutputDesc {
+    WisVKTextureView output_texture; ///< The texture that will receive the decoded video frame.
+    WisDataFormat format; ///< The data format of the output texture.
+    uint32_t subresource; ///< The subresource index of the texture to decode into.
+} WisVKVideoDecodeOutputDesc;
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Variant type for video decode picture descriptions. Specifies the codec-specific
+ * parameters for a video decode operation.
+ *
+ * */
+typedef struct WisVKVideoDecodePictureDesc {
+    /**
+     * @brief The codec profile of the current frame. Determines which picture info struct is valid.
+     * */
+    WisStdCodecProfile codec;
+    /**
+     * @brief AV1 picture information (valid when codec is an AV1 profile).
+     * */
+    const WisStdVideoDecodeAV1PictureInfo* av1_picture_info;
+    /**
+     * @brief H.265 picture information (valid when codec is an H.265 profile).
+     * */
+    const WisStdVideoDecodeH265PictureInfo* h265_picture_info;
+    /**
+     * @brief AV1 reference information array (valid when codec is an AV1 profile).
+     * */
+    const WisStdVideoDecodeAV1ReferenceInfo* av1_reference_info;
+    /**
+     * @brief H.265 reference information array (valid when codec is an H.265 profile).
+     * */
+    const WisStdVideoDecodeH265ReferenceInfo* h265_reference_info;
+    /**
+     * @brief Number of reference frames for this decode operation.
+     * */
+    uint32_t reference_frame_count;
+} WisVKVideoDecodePictureDesc;
 
 /**
  * @brief Provided by Wisdom 0.7.1. Destroys a WisVideoDecoder handle.
@@ -1117,23 +1817,6 @@ WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionCreateCommandList(
 );
 
 /**
- * @brief Provided by Wisdom 0.7.1. Creates parameters from provided sequence header or parameter set.
- * @param self is a pointer to the valid WisVideoDecoder instance.
- * @param sequence_parameters Pointer to the sequence header or parameter set data. The format and content of this data
- * should be appropriate for the codec being used, and should contain the necessary information to initialize the video
- * decoder parameters.
- * @param decoder_parameters Output parameter that holds the created video decoder parameters handle if the operation is
- * successful.
- * @return Result denoting the outcome of operation.
- *
- * */
-WISDOM_VIDEO_API WisResult wisVKVideoDecoderCreateParameters(
-    const WisVKVideoDecoder* self,
-    const void* sequence_parameters,
-    WisVKVideoDecoderParameters* decoder_parameters
-);
-
-/**
  * @brief Provided by Wisdom 0.7.0. Opens the command list, so commands can be recorded to it.
  * @param self is a pointer to the valid WisVideoDecodeCommandList instance.
  * @return Result denoting the outcome of operation.
@@ -1150,21 +1833,32 @@ WISDOM_VIDEO_API WisResult wisVKVideoDecodeCommandListBegin(const WisVKVideoDeco
 WISDOM_VIDEO_API WisResult wisVKVideoDecodeCommandListEnd(const WisVKVideoDecodeCommandList* self);
 
 /**
- * @brief Provided by Wisdom 0.7.0. Records a video decode command to the command list.
+ * @brief Provided by Wisdom 0.7.1. Inserts one or more barriers on the current video decode command list. Supports
+ * buffer, texture, and global barriers with video decode specific states.
+ * @param self is a pointer to the valid WisVideoDecodeCommandList instance.
+ * @param barriers specifies a pointer to an array of barriers to insert.
+ *
+ * */
+WISDOM_VIDEO_API void wisVKVideoDecodeCommandListInsertBarriers(
+    const WisVKVideoDecodeCommandList* self,
+    const WisVKBarrierGroup* barriers
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Records a video decode command to the command list.
  * @param self is a pointer to the valid WisVideoDecodeCommandList instance.
  * @param decoder The video decoder that will be used for decoding the video frame.
- * @param decoder_parameters Input description for a video decode operation that uses video decoder parameters as input.
- * The video decoder parameters should be created from the sequence header or parameter set data for the video stream,
- * and should contain the necessary information to initialize the video decoder for decoding the video frames.
- * @param input_desc Description of the input data for the video decode operation. This field specifies the type and
- * location of the input data that will be used for decoding the video frame.
+ * @param input_desc Description of the input data for the video decode operation.
+ * @param output_desc Description of the output texture for the decoded video frame.
+ * @param picture_desc Codec-specific picture information for the decode operation.
  *
  * */
 WISDOM_VIDEO_API void wisVKVideoDecodeCommandListDecodeFrame(
     const WisVKVideoDecodeCommandList* self,
     const WisVKVideoDecoder* decoder,
-    const WisVKVideoDecoderParameters* decoder_parameters,
-    const WisVKVideoDecodeInputDesc* input_desc
+    const WisVKVideoDecodeInputDesc* input_desc,
+    const WisVKVideoDecodeOutputDesc* output_desc,
+    const WisVKVideoDecodePictureDesc* picture_desc
 );
 
 #endif // WISDOM_VULKAN

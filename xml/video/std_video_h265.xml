@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="utf-8"?>
+<registry>
+  <types>
+    <!--Enums-->
+    <type name="StdVideoH265ChromaFormatIdc" category="enum" version="0.7.1" doc="H.265 chroma format identifiers as defined in HEVC spec Table 6-1.">
+        <value name="Monochrome" value="0" doc="Monochrome (4:0:0)."/>
+        <value name="Cr420" value="1" doc="4:2:0 chroma format."/>
+        <value name="Cr422" value="2" doc="4:2:2 chroma format."/>
+        <value name="Cr444" value="3" doc="4:4:4 chroma format."/>
+        <value name="Invalid" value="0x7FFFFFFF" doc="Invalid chroma format."/>
+    </type>
+
+    <type name="StdVideoH265ProfileIdc" category="enum" version="0.7.1" doc="H.265 profile identifiers as defined in HEVC spec Annex A.">
+        <value name="Main" value="1" doc="Main profile."/>
+        <value name="Main10" value="2" doc="Main 10 profile."/>
+        <value name="MainStillPicture" value="3" doc="Main Still Picture profile."/>
+        <value name="FormatRangeExtensions" value="4" doc="Format Range Extensions profile."/>
+        <value name="SccExtensions" value="9" doc="Screen Content Coding Extensions profile."/>
+        <value name="Invalid" value="0x7FFFFFFF" doc="Invalid profile."/>
+    </type>
+
+    <type name="StdVideoH265LevelIdc" category="enum" version="0.7.1" doc="H.265 level identifiers as defined in HEVC spec Annex A.">
+        <value name="Level1_0" value="0" doc="Level 1.0"/>
+        <value name="Level2_0" value="1" doc="Level 2.0"/>
+        <value name="Level2_1" value="2" doc="Level 2.1"/>
+        <value name="Level3_0" value="3" doc="Level 3.0"/>
+        <value name="Level3_1" value="4" doc="Level 3.1"/>
+        <value name="Level4_0" value="5" doc="Level 4.0"/>
+        <value name="Level4_1" value="6" doc="Level 4.1"/>
+        <value name="Level5_0" value="7" doc="Level 5.0"/>
+        <value name="Level5_1" value="8" doc="Level 5.1"/>
+        <value name="Level5_2" value="9" doc="Level 5.2"/>
+        <value name="Level6_0" value="10" doc="Level 6.0"/>
+        <value name="Level6_1" value="11" doc="Level 6.1"/>
+        <value name="Level6_2" value="12" doc="Level 6.2"/>
+        <value name="Invalid" value="0x7FFFFFFF" doc="Invalid level."/>
+    </type>
+
+    <type name="StdVideoH265SliceType" category="enum" version="0.7.1" doc="H.265 slice types as defined in HEVC spec Table 7-7.">
+        <value name="B" value="0" doc="B slice (bi-predictive)."/>
+        <value name="P" value="1" doc="P slice (predictive)."/>
+        <value name="I" value="2" doc="I slice (intra)."/>
+        <value name="Invalid" value="0x7FFFFFFF" doc="Invalid slice type."/>
+    </type>
+
+    <type name="StdVideoH265PictureType" category="enum" version="0.7.1" doc="H.265 picture types for decode reference info.">
+        <value name="P" value="0" doc="P picture."/>
+        <value name="B" value="1" doc="B picture."/>
+        <value name="I" value="2" doc="I picture."/>
+        <value name="Idr" value="3" doc="IDR picture."/>
+        <value name="Invalid" value="0x7FFFFFFF" doc="Invalid picture type."/>
+    </type>
+
+    <type name="StdVideoH265AspectRatioIdc" category="enum" version="0.7.1" doc="H.265 aspect ratio identifiers as defined in HEVC spec Table E-1.">
+        <value name="Unspecified" value="0" doc="Unspecified aspect ratio."/>
+        <value name="Square" value="1" doc="Square (1:1)."/>
+        <value name="Ratio12_11" value="2" doc="12:11"/>
+        <value name="Ratio10_11" value="3" doc="10:11"/>
+        <value name="Ratio16_11" value="4" doc="16:11"/>
+        <value name="Ratio40_33" value="5" doc="40:33"/>
+        <value name="Ratio24_11" value="6" doc="24:11"/>
+        <value name="Ratio20_11" value="7" doc="20:11"/>
+        <value name="Ratio32_11" value="8" doc="32:11"/>
+        <value name="Ratio80_33" value="9" doc="80:33"/>
+        <value name="Ratio18_11" value="10" doc="18:11"/>
+        <value name="Ratio15_11" value="11" doc="15:11"/>
+        <value name="Ratio64_33" value="12" doc="64:33"/>
+        <value name="Ratio160_99" value="13" doc="160:99"/>
+        <value name="Ratio4_3" value="14" doc="4:3"/>
+        <value name="Ratio3_2" value="15" doc="3:2"/>
+        <value name="Ratio2_1" value="16" doc="2:1"/>
+        <value name="ExtendedSar" value="255" doc="Extended SAR."/>
+        <value name="Invalid" value="0x7FFFFFFF" doc="Invalid aspect ratio."/>
+    </type>
+
+    <!--Flags structs-->
+    <type name="StdVideoH265HrdFlags" category="struct" version="0.7.1" doc="HRD flags (HEVC spec E.2.2).">
+        <member type="u32" name="nal_hrd_parameters_present_flag" bits="1" doc="Specifies that NAL HRD parameters are present."/>
+        <member type="u32" name="vcl_hrd_parameters_present_flag" bits="1" doc="Specifies that VCL HRD parameters are present."/>
+        <member type="u32" name="sub_pic_hrd_params_present_flag" bits="1" doc="Specifies that sub-picture HRD parameters are present."/>
+        <member type="u32" name="sub_pic_cpb_params_in_pic_timing_sei_flag" bits="1" doc="Specifies that sub-picture CPB parameters are present in the pic timing SEI."/>
+        <member type="u32" name="fixed_pic_rate_general_flag" bits="8" doc="An 8-bit flag per sub-layer indicating fixed picture rate."/>
+        <member type="u32" name="fixed_pic_rate_within_cvs_flag" bits="8" doc="An 8-bit flag per sub-layer indicating fixed pic rate within CVS."/>
+        <member type="u32" name="low_delay_hrd_flag" bits="8" doc="An 8-bit flag per sub-layer indicating low delay HRD."/>
+        <member type="u32" name="reserved" bits="4"/>
+    </type>
+
+    <type name="StdVideoH265VpsFlags" category="struct" version="0.7.1" doc="VPS flags (HEVC spec 7.4.3.1.1).">
+        <member type="u32" name="vps_temporal_id_nesting_flag" bits="1" doc="Specifies that all referenced PPs have temporal_id equal to 0."/>
+        <member type="u32" name="vps_sub_layer_ordering_info_present_flag" bits="1" doc="Specifies that ordering info is present for sub-layers."/>
+        <member type="u32" name="vps_timing_info_present_flag" bits="1" doc="Specifies that timing info is present."/>
+        <member type="u32" name="vps_poc_proportional_to_timing_flag" bits="1" doc="Specifies that POC is proportional to timing."/>
+        <member type="u32" name="reserved" bits="28"/>
+    </type>
+
+    <type name="StdVideoH265ProfileTierLevelFlags" category="struct" version="0.7.1" doc="Profile tier level flags (HEVC spec 7.4.3.1.1).">
+        <member type="u32" name="general_tier_flag" bits="1" doc="Specifies the tier for the profile (0 = Main, 1 = High)."/>
+        <member type="u32" name="general_progressive_source_flag" bits="1" doc="Specifies that the source is progressive."/>
+        <member type="u32" name="general_interlaced_source_flag" bits="1" doc="Specifies that the source is interlaced."/>
+        <member type="u32" name="general_non_packed_constraint_flag" bits="1" doc="Specifies that the source is non-packed."/>
+        <member type="u32" name="general_frame_only_constraint_flag" bits="1" doc="Specifies that the source is frame-only."/>
+        <member type="u32" name="reserved" bits="27"/>
+    </type>
+
+    <type name="StdVideoH265SpsVuiFlags" category="struct" version="0.7.1" doc="SPS VUI flags (HEVC spec E.2.1).">
+        <member type="u32" name="aspect_ratio_info_present_flag" bits="1"/>
+        <member type="u32" name="overscan_info_present_flag" bits="1"/>
+        <member type="u32" name="overscan_appropriate_flag" bits="1"/>
+        <member type="u32" name="video_signal_type_present_flag" bits="1"/>
+        <member type="u32" name="video_full_range_flag" bits="1"/>
+        <member type="u32" name="colour_description_present_flag" bits="1"/>
+        <member type="u32" name="chroma_loc_info_present_flag" bits="1"/>
+        <member type="u32" name="neutral_chroma_indication_flag" bits="1"/>
+        <member type="u32" name="field_seq_flag" bits="1"/>
+        <member type="u32" name="frame_field_info_present_flag" bits="1"/>
+        <member type="u32" name="default_display_window_flag" bits="1"/>
+        <member type="u32" name="vui_timing_info_present_flag" bits="1"/>
+        <member type="u32" name="vui_poc_proportional_to_timing_flag" bits="1"/>
+        <member type="u32" name="vui_hrd_parameters_present_flag" bits="1"/>
+        <member type="u32" name="bitstream_restriction_flag" bits="1"/>
+        <member type="u32" name="tiles_fixed_structure_flag" bits="1"/>
+        <member type="u32" name="motion_vectors_over_pic_boundaries_flag" bits="1"/>
+        <member type="u32" name="restricted_ref_pic_lists_flag" bits="1"/>
+        <member type="u32" name="reserved" bits="14"/>
+    </type>
+
+    <type name="StdVideoH265SpsFlags" category="struct" version="0.7.1" doc="SPS flags (HEVC spec 7.4.3.2.1).">
+        <member type="u32" name="sps_temporal_id_nesting_flag" bits="1"/>
+        <member type="u32" name="separate_colour_plane_flag" bits="1"/>
+        <member type="u32" name="conformance_window_flag" bits="1"/>
+        <member type="u32" name="sps_sub_layer_ordering_info_present_flag" bits="1"/>
+        <member type="u32" name="scaling_list_enabled_flag" bits="1"/>
+        <member type="u32" name="sps_scaling_list_data_present_flag" bits="1"/>
+        <member type="u32" name="amp_enabled_flag" bits="1"/>
+        <member type="u32" name="sample_adaptive_offset_enabled_flag" bits="1"/>
+        <member type="u32" name="pcm_enabled_flag" bits="1"/>
+        <member type="u32" name="pcm_loop_filter_disabled_flag" bits="1"/>
+        <member type="u32" name="long_term_ref_pics_present_flag" bits="1"/>
+        <member type="u32" name="sps_temporal_mvp_enabled_flag" bits="1"/>
+        <member type="u32" name="strong_intra_smoothing_enabled_flag" bits="1"/>
+        <member type="u32" name="vui_parameters_present_flag" bits="1"/>
+        <member type="u32" name="sps_extension_present_flag" bits="1"/>
+        <member type="u32" name="sps_range_extension_flag" bits="1"/>
+        <member type="u32" name="transform_skip_rotation_enabled_flag" bits="1"/>
+        <member type="u32" name="transform_skip_context_enabled_flag" bits="1"/>
+        <member type="u32" name="implicit_rdpcm_enabled_flag" bits="1"/>
+        <member type="u32" name="explicit_rdpcm_enabled_flag" bits="1"/>
+        <member type="u32" name="extended_precision_processing_flag" bits="1"/>
+        <member type="u32" name="intra_smoothing_disabled_flag" bits="1"/>
+        <member type="u32" name="high_precision_offsets_enabled_flag" bits="1"/>
+        <member type="u32" name="persistent_rice_adaptation_enabled_flag" bits="1"/>
+        <member type="u32" name="cabac_bypass_alignment_enabled_flag" bits="1"/>
+        <member type="u32" name="sps_scc_extension_flag" bits="1"/>
+        <member type="u32" name="sps_curr_pic_ref_enabled_flag" bits="1"/>
+        <member type="u32" name="palette_mode_enabled_flag" bits="1"/>
+        <member type="u32" name="sps_palette_predictor_initializers_present_flag" bits="1"/>
+        <member type="u32" name="intra_boundary_filtering_disabled_flag" bits="1"/>
+        <member type="u32" name="reserved" bits="2"/>
+    </type>
+
+    <type name="StdVideoH265ShortTermRefPicSetFlags" category="struct" version="0.7.1" doc="Short-term reference picture set flags (HEVC spec 7.4.8).">
+        <member type="u32" name="inter_ref_pic_set_prediction_flag" bits="1" doc="Specifies that inter ref pic set prediction is used."/>
+        <member type="u32" name="delta_rps_sign" bits="1" doc="Sign of the delta RPS."/>
+        <member type="u32" name="reserved" bits="30"/>
+    </type>
+
+    <type name="StdVideoH265PpsFlags" category="struct" version="0.7.1" doc="PPS flags (HEVC spec 7.4.3.3.1).">
+        <member type="u32" name="dependent_slice_segments_enabled_flag" bits="1"/>
+        <member type="u32" name="output_flag_present_flag" bits="1"/>
+        <member type="u32" name="sign_data_hiding_enabled_flag" bits="1"/>
+        <member type="u32" name="cabac_init_present_flag" bits="1"/>
+        <member type="u32" name="constrained_intra_pred_flag" bits="1"/>
+        <member type="u32" name="transform_skip_enabled_flag" bits="1"/>
+        <member type="u32" name="cu_qp_delta_enabled_flag" bits="1"/>
+        <member type="u32" name="pps_slice_chroma_qp_offsets_present_flag" bits="1"/>
+        <member type="u32" name="weighted_pred_flag" bits="1"/>
+        <member type="u32" name="weighted_bipred_flag" bits="1"/>
+        <member type="u32" name="transquant_bypass_enabled_flag" bits="1"/>
+        <member type="u32" name="tiles_enabled_flag" bits="1"/>
+        <member type="u32" name="entropy_coding_sync_enabled_flag" bits="1"/>
+        <member type="u32" name="uniform_spacing_flag" bits="1"/>
+        <member type="u32" name="loop_filter_across_tiles_enabled_flag" bits="1"/>
+        <member type="u32" name="pps_loop_filter_across_slices_enabled_flag" bits="1"/>
+        <member type="u32" name="deblocking_filter_control_present_flag" bits="1"/>
+        <member type="u32" name="deblocking_filter_override_enabled_flag" bits="1"/>
+        <member type="u32" name="pps_deblocking_filter_disabled_flag" bits="1"/>
+        <member type="u32" name="pps_scaling_list_data_present_flag" bits="1"/>
+        <member type="u32" name="lists_modification_present_flag" bits="1"/>
+        <member type="u32" name="slice_segment_header_extension_present_flag" bits="1"/>
+        <member type="u32" name="pps_extension_present_flag" bits="1"/>
+        <member type="u32" name="cross_component_prediction_enabled_flag" bits="1"/>
+        <member type="u32" name="chroma_qp_offset_list_enabled_flag" bits="1"/>
+        <member type="u32" name="pps_curr_pic_ref_enabled_flag" bits="1"/>
+        <member type="u32" name="residual_adaptive_colour_transform_enabled_flag" bits="1"/>
+        <member type="u32" name="pps_slice_act_qp_offsets_present_flag" bits="1"/>
+        <member type="u32" name="pps_palette_predictor_initializers_present_flag" bits="1"/>
+        <member type="u32" name="monochrome_palette_flag" bits="1"/>
+        <member type="u32" name="pps_range_extension_flag" bits="1"/>
+        <member type="u32" name="reserved" bits="1"/>
+    </type>
+
+    <type name="StdVideoDecodeH265PictureInfoFlags" category="struct" version="0.7.1" doc="Decode picture info flags for H.265.">
+        <member type="u32" name="IrapPicFlag" bits="1" doc="Specifies that the picture is an IRAP picture."/>
+        <member type="u32" name="IdrPicFlag" bits="1" doc="Specifies that the picture is an IDR picture."/>
+        <member type="u32" name="IsReference" bits="1" doc="Specifies that the picture is a reference picture."/>
+        <member type="u32" name="short_term_ref_pic_set_sps_flag" bits="1" doc="Specifies that the short-term ref pic set is from SPS."/>
+        <member type="u32" name="reserved" bits="28"/>
+    </type>
+
+    <type name="StdVideoDecodeH265ReferenceInfoFlags" category="struct" version="0.7.1" doc="Reference info flags for H.265.">
+        <member type="u32" name="used_for_long_term_reference" bits="1" doc="Specifies that the reference is used for long-term reference."/>
+        <member type="u32" name="unused_for_reference" bits="1" doc="Specifies that the reference is unused for reference."/>
+        <member type="u32" name="reserved" bits="30"/>
+    </type>
+
+    <!--Structs-->
+    <type name="StdVideoH265DecPicBufMgr" category="struct" version="0.7.1" doc="Decoded picture buffer management parameters (HEVC spec 7.4.3.1.1).">
+        <member type="u32" name="max_latency_increase_plus1" array="7" doc="Specifies max latency increase for each sub-layer."/>
+        <member type="u8" name="max_dec_pic_buffering_minus1" array="7" doc="Specifies max decoded picture buffering minus 1 for each sub-layer."/>
+        <member type="u8" name="max_num_reorder_pics" array="7" doc="Specifies max number of reorder pictures for each sub-layer."/>
+    </type>
+
+    <type name="StdVideoH265SubLayerHrdParameters" category="struct" version="0.7.1" doc="Sub-layer HRD parameters (HEVC spec E.2.3).">
+        <member type="u32" name="bit_rate_value_minus1" array="32" doc="Bit rate value minus 1 for each CPB."/>
+        <member type="u32" name="cpb_size_value_minus1" array="32" doc="CPB size value minus 1 for each CPB."/>
+        <member type="u32" name="cpb_size_du_value_minus1" array="32" doc="CPB size du value minus 1 for each CPB."/>
+        <member type="u32" name="bit_rate_du_value_minus1" array="32" doc="Bit rate du value minus 1 for each CPB."/>
+        <member type="u32" name="cbr_flag" doc="Specifies constant bit rate flag for each CPB."/>
+    </type>
+
+    <type name="StdVideoH265HrdParameters" category="struct" version="0.7.1" doc="HRD parameters (HEVC spec E.2.2).">
+        <member type="StdVideoH265HrdFlags" name="flags" doc="HRD flags."/>
+        <member type="u8" name="tick_divisor_minus2" doc="Tick divisor minus 2."/>
+        <member type="u8" name="du_cpb_removal_delay_increment_length_minus1" doc="DU CPB removal delay increment length minus 1."/>
+        <member type="u8" name="dpb_output_delay_du_length_minus1" doc="DPB output delay DU length minus 1."/>
+        <member type="u8" name="bit_rate_scale" doc="Bit rate scale."/>
+        <member type="u8" name="cpb_size_scale" doc="CPB size scale."/>
+        <member type="u8" name="cpb_size_du_scale" doc="CPB size du scale."/>
+        <member type="u8" name="initial_cpb_removal_delay_length_minus1" doc="Initial CPB removal delay length minus 1."/>
+        <member type="u8" name="au_cpb_removal_delay_length_minus1" doc="AU CPB removal delay length minus 1."/>
+        <member type="u8" name="dpb_output_delay_length_minus1" doc="DPB output delay length minus 1."/>
+        <member type="u8" name="cpb_cnt_minus1" array="7" doc="CPB count minus 1 for each sub-layer."/>
+        <member type="u16" name="elemental_duration_in_tc_minus1" array="7" doc="Elemental duration in tc minus 1 for each sub-layer."/>
+        <member type="u16" name="reserved" array="3"/>
+        <member type="StdVideoH265SubLayerHrdParameters" name="pSubLayerHrdParametersNal" mod="const,ptr" doc="Pointer to NAL sub-layer HRD parameters."/>
+        <member type="StdVideoH265SubLayerHrdParameters" name="pSubLayerHrdParametersVcl" mod="const,ptr" doc="Pointer to VCL sub-layer HRD parameters."/>
+    </type>
+
+    <type name="StdVideoH265ProfileTierLevel" category="struct" version="0.7.1" doc="Profile, tier and level parameters (HEVC spec 7.4.3.1.1).">
+        <member type="StdVideoH265ProfileTierLevelFlags" name="flags" doc="Profile tier level flags."/>
+        <member type="StdVideoH265ProfileIdc" name="general_profile_idc" doc="General profile IDC."/>
+        <member type="StdVideoH265LevelIdc" name="general_level_idc" doc="General level IDC."/>
+    </type>
+
+    <type name="StdVideoH265VideoParameterSet" category="struct" version="0.7.1" doc="Video parameter set (HEVC spec 7.4.3.1.1).">
+        <member type="StdVideoH265VpsFlags" name="flags" doc="VPS flags."/>
+        <member type="u8" name="vps_video_parameter_set_id" doc="Specifies the VPS ID."/>
+        <member type="u8" name="vps_max_sub_layers_minus1" doc="Specifies the max number of temporal sub-layers minus 1."/>
+        <member type="u8" name="reserved1"/>
+        <member type="u8" name="reserved2"/>
+        <member type="u32" name="vps_num_units_in_tick" doc="Number of time units per tick."/>
+        <member type="u32" name="vps_time_scale" doc="Time scale."/>
+        <member type="u32" name="vps_num_ticks_poc_diff_one_minus1" doc="VPS num ticks POC diff one minus 1."/>
+        <member type="u32" name="reserved3"/>
+        <member type="StdVideoH265DecPicBufMgr" name="pDecPicBufMgr" mod="const,ptr" doc="Pointer to decoded picture buffer management info."/>
+        <member type="StdVideoH265HrdParameters" name="pHrdParameters" mod="const,ptr" doc="Pointer to HRD parameters."/>
+        <member type="StdVideoH265ProfileTierLevel" name="pProfileTierLevel" mod="const,ptr" doc="Pointer to profile tier level."/>
+    </type>
+
+    <type name="StdVideoH265ScalingLists" category="struct" version="0.7.1" doc="Scaling lists (HEVC spec 7.4.3.2.1).">
+        <member type="u8" name="ScalingList4x4" array="6*16" doc="4x4 scaling list data (6 lists x 16 entries)."/>
+        <member type="u8" name="ScalingList8x8" array="6*64" doc="8x8 scaling list data (6 lists x 64 entries)."/>
+        <member type="u8" name="ScalingList16x16" array="6*64" doc="16x16 scaling list data (6 lists x 64 entries)."/>
+        <member type="u8" name="ScalingList32x32" array="2*64" doc="32x32 scaling list data (2 lists x 64 entries)."/>
+        <member type="u8" name="ScalingListDCCoef16x16" array="6" doc="DC coefficients for 16x16 scaling lists."/>
+        <member type="u8" name="ScalingListDCCoef32x32" array="2" doc="DC coefficients for 32x32 scaling lists."/>
+    </type>
+
+    <type name="StdVideoH265SequenceParameterSetVui" category="struct" version="0.7.1" doc="SPS VUI parameters (HEVC spec E.2.1).">
+        <member type="StdVideoH265SpsVuiFlags" name="flags" doc="SPS VUI flags."/>
+        <member type="StdVideoH265AspectRatioIdc" name="aspect_ratio_idc" doc="Aspect ratio IDC."/>
+        <member type="u16" name="sar_width" doc="SAR width."/>
+        <member type="u16" name="sar_height" doc="SAR height."/>
+        <member type="u8" name="video_format" doc="Video format."/>
+        <member type="u8" name="colour_primaries" doc="Colour primaries."/>
+        <member type="u8" name="transfer_characteristics" doc="Transfer characteristics."/>
+        <member type="u8" name="matrix_coeffs" doc="Matrix coefficients."/>
+        <member type="u8" name="chroma_sample_loc_type_top_field" doc="Chroma sample location type top field."/>
+        <member type="u8" name="chroma_sample_loc_type_bottom_field" doc="Chroma sample location type bottom field."/>
+        <member type="u8" name="reserved1"/>
+        <member type="u8" name="reserved2"/>
+        <member type="u16" name="def_disp_win_left_offset" doc="Default display window left offset."/>
+        <member type="u16" name="def_disp_win_right_offset" doc="Default display window right offset."/>
+        <member type="u16" name="def_disp_win_top_offset" doc="Default display window top offset."/>
+        <member type="u16" name="def_disp_win_bottom_offset" doc="Default display window bottom offset."/>
+        <member type="u32" name="vui_num_units_in_tick" doc="VUI num units in tick."/>
+        <member type="u32" name="vui_time_scale" doc="VUI time scale."/>
+        <member type="u32" name="vui_num_ticks_poc_diff_one_minus1" doc="VUI num ticks POC diff one minus 1."/>
+        <member type="u16" name="min_spatial_segmentation_idc" doc="Minimum spatial segmentation IDC."/>
+        <member type="u16" name="reserved3"/>
+        <member type="u8" name="max_bytes_per_pic_denom" doc="Max bytes per picture denominator."/>
+        <member type="u8" name="max_bits_per_min_cu_denom" doc="Max bits per min CU denominator."/>
+        <member type="u8" name="log2_max_mv_length_horizontal" doc="Log2 max MV length horizontal."/>
+        <member type="u8" name="log2_max_mv_length_vertical" doc="Log2 max MV length vertical."/>
+        <member type="StdVideoH265HrdParameters" name="pHrdParameters" mod="const,ptr" doc="Pointer to HRD parameters."/>
+    </type>
+
+    <type name="StdVideoH265PredictorPaletteEntries" category="struct" version="0.7.1" doc="Predictor palette entries for SCC (HEVC spec 7.4.3.2.1).">
+        <member type="u16" name="PredictorPaletteEntries" array="3*128" doc="Predictor palette entries (3 components x 128 entries)."/>
+    </type>
+
+    <type name="StdVideoH265ShortTermRefPicSet" category="struct" version="0.7.1" doc="Short-term reference picture set (HEVC spec 7.4.8).">
+        <member type="StdVideoH265ShortTermRefPicSetFlags" name="flags" doc="Short-term ref pic set flags."/>
+        <member type="u32" name="delta_idx_minus1" doc="Delta index minus 1."/>
+        <member type="u16" name="use_delta_flag" doc="Use delta flag."/>
+        <member type="u16" name="abs_delta_rps_minus1" doc="Absolute delta RPS minus 1."/>
+        <member type="u16" name="used_by_curr_pic_flag" doc="Used by current picture flag."/>
+        <member type="u16" name="used_by_curr_pic_s0_flag" doc="Used by current picture S0 flag."/>
+        <member type="u16" name="used_by_curr_pic_s1_flag" doc="Used by current picture S1 flag."/>
+        <member type="u16" name="reserved1"/>
+        <member type="u8" name="reserved2"/>
+        <member type="u8" name="reserved3"/>
+        <member type="u8" name="num_negative_pics" doc="Number of negative pictures."/>
+        <member type="u8" name="num_positive_pics" doc="Number of positive pictures."/>
+        <member type="u16" name="delta_poc_s0_minus1" array="16" doc="Delta POC S0 minus 1."/>
+        <member type="u16" name="delta_poc_s1_minus1" array="16" doc="Delta POC S1 minus 1."/>
+    </type>
+
+    <type name="StdVideoH265LongTermRefPicsSps" category="struct" version="0.7.1" doc="Long-term reference pictures in SPS (HEVC spec 7.4.3.2.1).">
+        <member type="u32" name="used_by_curr_pic_lt_sps_flag" doc="Used by current picture LT SPS flag."/>
+        <member type="u32" name="lt_ref_pic_poc_lsb_sps" array="32" doc="LT reference picture POC LSB SPS values."/>
+    </type>
+
+    <type name="StdVideoH265SequenceParameterSet" category="struct" version="0.7.1" doc="Sequence parameter set (HEVC spec 7.4.3.2.1).">
+        <member type="StdVideoH265SpsFlags" name="flags" doc="SPS flags."/>
+        <member type="StdVideoH265ChromaFormatIdc" name="chroma_format_idc" doc="Chroma format IDC."/>
+        <member type="u32" name="pic_width_in_luma_samples" doc="Picture width in luma samples."/>
+        <member type="u32" name="pic_height_in_luma_samples" doc="Picture height in luma samples."/>
+        <member type="u8" name="sps_video_parameter_set_id" doc="SPS video parameter set ID."/>
+        <member type="u8" name="sps_max_sub_layers_minus1" doc="SPS max sub-layers minus 1."/>
+        <member type="u8" name="sps_seq_parameter_set_id" doc="SPS sequence parameter set ID."/>
+        <member type="u8" name="bit_depth_luma_minus8" doc="Bit depth luma minus 8."/>
+        <member type="u8" name="bit_depth_chroma_minus8" doc="Bit depth chroma minus 8."/>
+        <member type="u8" name="log2_max_pic_order_cnt_lsb_minus4" doc="Log2 max POC LSB minus 4."/>
+        <member type="u8" name="log2_min_luma_coding_block_size_minus3" doc="Log2 min luma coding block size minus 3."/>
+        <member type="u8" name="log2_diff_max_min_luma_coding_block_size" doc="Log2 diff max min luma coding block size."/>
+        <member type="u8" name="log2_min_luma_transform_block_size_minus2" doc="Log2 min luma transform block size minus 2."/>
+        <member type="u8" name="log2_diff_max_min_luma_transform_block_size" doc="Log2 diff max min luma transform block size."/>
+        <member type="u8" name="max_transform_hierarchy_depth_inter" doc="Max transform hierarchy depth inter."/>
+        <member type="u8" name="max_transform_hierarchy_depth_intra" doc="Max transform hierarchy depth intra."/>
+        <member type="u8" name="num_short_term_ref_pic_sets" doc="Number of short-term reference picture sets."/>
+        <member type="u8" name="num_long_term_ref_pics_sps" doc="Number of long-term reference pictures in SPS."/>
+        <member type="u8" name="pcm_sample_bit_depth_luma_minus1" doc="PCM sample bit depth luma minus 1."/>
+        <member type="u8" name="pcm_sample_bit_depth_chroma_minus1" doc="PCM sample bit depth chroma minus 1."/>
+        <member type="u8" name="log2_min_pcm_luma_coding_block_size_minus3" doc="Log2 min PCM luma coding block size minus 3."/>
+        <member type="u8" name="log2_diff_max_min_pcm_luma_coding_block_size" doc="Log2 diff max min PCM luma coding block size."/>
+        <member type="u8" name="reserved1"/>
+        <member type="u8" name="reserved2"/>
+        <member type="u8" name="palette_max_size" doc="Palette max size for SCC."/>
+        <member type="u8" name="delta_palette_max_predictor_size" doc="Delta palette max predictor size."/>
+        <member type="u8" name="motion_vector_resolution_control_idc" doc="Motion vector resolution control IDC."/>
+        <member type="u8" name="sps_num_palette_predictor_initializers_minus1" doc="Number of palette predictor initializers minus 1."/>
+        <member type="u32" name="conf_win_left_offset" doc="Conformance window left offset."/>
+        <member type="u32" name="conf_win_right_offset" doc="Conformance window right offset."/>
+        <member type="u32" name="conf_win_top_offset" doc="Conformance window top offset."/>
+        <member type="u32" name="conf_win_bottom_offset" doc="Conformance window bottom offset."/>
+        <member type="StdVideoH265ProfileTierLevel" name="pProfileTierLevel" mod="const,ptr" doc="Pointer to profile tier level."/>
+        <member type="StdVideoH265DecPicBufMgr" name="pDecPicBufMgr" mod="const,ptr" doc="Pointer to decoded picture buffer management info."/>
+        <member type="StdVideoH265ScalingLists" name="pScalingLists" mod="const,ptr" doc="Pointer to scaling lists."/>
+        <member type="StdVideoH265ShortTermRefPicSet" name="pShortTermRefPicSet" mod="const,ptr" doc="Pointer to short-term reference picture sets."/>
+        <member type="StdVideoH265LongTermRefPicsSps" name="pLongTermRefPicsSps" mod="const,ptr" doc="Pointer to long-term reference pictures in SPS."/>
+        <member type="StdVideoH265SequenceParameterSetVui" name="pSequenceParameterSetVui" mod="const,ptr" doc="Pointer to sequence parameter set VUI."/>
+        <member type="StdVideoH265PredictorPaletteEntries" name="pPredictorPaletteEntries" mod="const,ptr" doc="Pointer to predictor palette entries."/>
+    </type>
+
+    <type name="StdVideoH265PictureParameterSet" category="struct" version="0.7.1" doc="Picture parameter set (HEVC spec 7.4.3.3.1).">
+        <member type="StdVideoH265PpsFlags" name="flags" doc="PPS flags."/>
+        <member type="u8" name="pps_pic_parameter_set_id" doc="PPS ID."/>
+        <member type="u8" name="pps_seq_parameter_set_id" doc="PPS SPS ID."/>
+        <member type="u8" name="sps_video_parameter_set_id" doc="SPS VPS ID."/>
+        <member type="u8" name="num_extra_slice_header_bits" doc="Number of extra slice header bits."/>
+        <member type="u8" name="num_ref_idx_l0_default_active_minus1" doc="Number of ref idx L0 default active minus 1."/>
+        <member type="u8" name="num_ref_idx_l1_default_active_minus1" doc="Number of ref idx L1 default active minus 1."/>
+        <member type="i8" name="init_qp_minus26" doc="Init QP minus 26."/>
+        <member type="u8" name="diff_cu_qp_delta_depth" doc="Diff CU QP delta depth."/>
+        <member type="i8" name="pps_cb_qp_offset" doc="PPS Cb QP offset."/>
+        <member type="i8" name="pps_cr_qp_offset" doc="PPS Cr QP offset."/>
+        <member type="i8" name="pps_beta_offset_div2" doc="PPS beta offset div 2."/>
+        <member type="i8" name="pps_tc_offset_div2" doc="PPS tc offset div 2."/>
+        <member type="u8" name="log2_parallel_merge_level_minus2" doc="Log2 parallel merge level minus 2."/>
+        <member type="u8" name="log2_max_transform_skip_block_size_minus2" doc="Log2 max transform skip block size minus 2."/>
+        <member type="u8" name="diff_cu_chroma_qp_offset_depth" doc="Diff CU chroma QP offset depth."/>
+        <member type="u8" name="chroma_qp_offset_list_len_minus1" doc="Chroma QP offset list length minus 1."/>
+        <member type="i8" name="cb_qp_offset_list" array="6" doc="Cb QP offset list."/>
+        <member type="i8" name="cr_qp_offset_list" array="6" doc="Cr QP offset list."/>
+        <member type="u8" name="log2_sao_offset_scale_luma" doc="Log2 SAO offset scale luma."/>
+        <member type="u8" name="log2_sao_offset_scale_chroma" doc="Log2 SAO offset scale chroma."/>
+        <member type="i8" name="pps_act_y_qp_offset_plus5" doc="PPS ACT Y QP offset plus 5."/>
+        <member type="i8" name="pps_act_cb_qp_offset_plus5" doc="PPS ACT Cb QP offset plus 5."/>
+        <member type="i8" name="pps_act_cr_qp_offset_plus3" doc="PPS ACT Cr QP offset plus 3."/>
+        <member type="u8" name="pps_num_palette_predictor_initializers" doc="Number of palette predictor initializers."/>
+        <member type="u8" name="luma_bit_depth_entry_minus8" doc="Luma bit depth entry minus 8."/>
+        <member type="u8" name="chroma_bit_depth_entry_minus8" doc="Chroma bit depth entry minus 8."/>
+        <member type="u8" name="num_tile_columns_minus1" doc="Number of tile columns minus 1."/>
+        <member type="u8" name="num_tile_rows_minus1" doc="Number of tile rows minus 1."/>
+        <member type="u8" name="reserved1"/>
+        <member type="u8" name="reserved2"/>
+        <member type="u16" name="column_width_minus1" array="19" doc="Column width minus 1 for each tile column."/>
+        <member type="u16" name="row_height_minus1" array="21" doc="Row height minus 1 for each tile row."/>
+        <member type="u32" name="reserved3"/>
+        <member type="StdVideoH265ScalingLists" name="pScalingLists" mod="const,ptr" doc="Pointer to scaling lists."/>
+        <member type="StdVideoH265PredictorPaletteEntries" name="pPredictorPaletteEntries" mod="const,ptr" doc="Pointer to predictor palette entries."/>
+    </type>
+
+    <type name="StdVideoDecodeH265PictureInfo" category="struct" version="0.7.1" doc="H.265 decode picture info for each frame.">
+        <member type="StdVideoDecodeH265PictureInfoFlags" name="flags" doc="Decode picture flags."/>
+        <member type="u8" name="sps_video_parameter_set_id" doc="SPS VPS ID."/>
+        <member type="u8" name="pps_seq_parameter_set_id" doc="PPS SPS ID."/>
+        <member type="u8" name="pps_pic_parameter_set_id" doc="PPS ID."/>
+        <member type="u8" name="NumDeltaPocsOfRefRpsIdx" doc="Number of delta POCs of reference RPS index."/>
+        <member type="i32" name="PicOrderCntVal" doc="Picture order count value."/>
+        <member type="u16" name="NumBitsForSTRefPicSetInSlice" doc="Number of bits for short-term ref pic set in slice."/>
+        <member type="u16" name="reserved"/>
+        <member type="u8" name="RefPicSetStCurrBefore" array="8" doc="Short-term reference pictures before the current picture in output order."/>
+        <member type="u8" name="RefPicSetStCurrAfter" array="8" doc="Short-term reference pictures after the current picture in output order."/>
+        <member type="u8" name="RefPicSetLtCurr" array="8" doc="Long-term reference pictures currently used."/>
+    </type>
+
+    <type name="StdVideoDecodeH265ReferenceInfo" category="struct" version="0.7.1" doc="H.265 reference frame info.">
+        <member type="StdVideoDecodeH265ReferenceInfoFlags" name="flags" doc="Reference info flags."/>
+        <member type="i32" name="PicOrderCntVal" doc="Picture order count of the reference."/>
+    </type>
+
+  </types>
+</registry>

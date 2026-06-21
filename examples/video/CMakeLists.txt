@@ -5,7 +5,7 @@ set(CPP_SOURCES entry_main.cpp)
 add_executable(${PROJECT_NAME}-cpp ${CPP_SOURCES})
 target_link_libraries(
   ${PROJECT_NAME}-cpp PUBLIC wis::wisdom-headers wis::wisdom-platform-headers wis::wisdom-video-headers
-                             SDL3::SDL3 mbmff::mbmff example_backend_cpp-${POSTFIX})
+                             SDL3::SDL3 h265nal example_backend_cpp-${POSTFIX})
 set_target_properties(
   ${PROJECT_NAME}-cpp PROPERTIES CXX_STANDARD 23 RUNTIME_OUTPUT_DIRECTORY
                                                  ${EXAMPLE_BIN_OUTPUT})

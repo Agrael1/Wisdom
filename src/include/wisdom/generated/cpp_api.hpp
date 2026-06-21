@@ -974,6 +974,11 @@ enum class TextureState {
     VideoDecodeWrite = 14, ///< Video Decode Write state.
     ResolveDepthStensilDst = 15, ///< Depth Stencil Resolve Destination state.
     ResolveRenderTargetDst = 16, ///< Render Target Resolve Destination state.
+    /**
+     * @brief Video Decode DPB (Decoded Picture Buffer) state. Used for reference frame storage during video decoding.
+     * Vulkan only, maps to the same video decode read on other APIs.
+     * */
+    VideoDecodeDPB = 17,
 };
 
 /**

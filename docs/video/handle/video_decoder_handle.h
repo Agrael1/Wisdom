@@ -10,7 +10,7 @@
  *  Vulkan Version:
  * ```c
  * // Provided by Wisdom 0.7.1.
- * WIS_DEFINE_HANDLE(WisVKVideoDecoder,4);
+ * WIS_DEFINE_HANDLE(WisVKVideoDecoder,6);
  * ```
  *  DX12 Version:
  * ```c
@@ -23,7 +23,6 @@
  * <hr>
  * \cond WIS_GEN_REFS
  * @see Functions:
- * wisDestroyVideoDecoder, wisVideoDecodingExtensionCreateDecoder, wisVideoDecoderCreateParameters,
- * wisVideoDecodeCommandListDecodeFrame
+ * wisDestroyVideoDecoder, wisVideoDecodingExtensionCreateDecoder, wisVideoDecodeCommandListDecodeFrame
  * \endcond
  */

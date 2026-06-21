@@ -374,6 +374,8 @@ constexpr inline D3D12_BARRIER_LAYOUT DX12Convert(WisTextureState value) noexcep
         return D3D12_BARRIER_LAYOUT_RESOLVE_DEST;
     case WisTextureStateResolveRenderTargetDst:
         return D3D12_BARRIER_LAYOUT_RESOLVE_DEST;
+    case WisTextureStateVideoDecodeDPB:
+        return D3D12_BARRIER_LAYOUT_VIDEO_DECODE_READ;
     default:
         return static_cast<D3D12_BARRIER_LAYOUT>(0);
     }

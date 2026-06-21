@@ -9,51 +9,57 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.1.
  * void wisVideoDecodeCommandListDecodeFrame(const WisVideoDecodeCommandList* self,
  *                                           const WisVideoDecoder*           decoder,
- *                                           const WisVideoDecoderParameters* decoder_parameters,
- *                                           const WisVideoDecodeInputDesc*   input_desc);
+ *                                           const WisVideoDecodeInputDesc*   input_desc,
+ *                                           const WisVideoDecodeOutputDesc*  output_desc,
+ *                                           const WisVideoDecodePictureDesc* picture_desc);
  * ```
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.1.
  * void wisVKVideoDecodeCommandListDecodeFrame(const WisVKVideoDecodeCommandList* self,
  *                                             const WisVKVideoDecoder*           decoder,
- *                                             const WisVKVideoDecoderParameters* decoder_parameters,
- *                                             const WisVKVideoDecodeInputDesc*   input_desc);
+ *                                             const WisVKVideoDecodeInputDesc*   input_desc,
+ *                                             const WisVKVideoDecodeOutputDesc*  output_desc,
+ *                                             const WisVKVideoDecodePictureDesc* picture_desc);
  *
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.1.
  * void wisDX12VideoDecodeCommandListDecodeFrame(const WisDX12VideoDecodeCommandList* self,
  *                                               const WisDX12VideoDecoder*           decoder,
- *                                               const WisDX12VideoDecoderParameters* decoder_parameters,
- *                                               const WisDX12VideoDecodeInputDesc*   input_desc);
+ *                                               const WisDX12VideoDecodeInputDesc*   input_desc,
+ *                                               const WisDX12VideoDecodeOutputDesc*  output_desc,
+ *                                               const WisDX12VideoDecodePictureDesc* picture_desc);
  * ```
  * </details>
  *
  * C++ Version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.1.
  * void VideoDecodeCommandList::DecodeFrame(const wis::VideoDecoder&           decoder,
- *                                          const wis::VideoDecoderParameters& decoder_parameters,
- *                                          const wis::VideoDecodeInputDesc&   input_desc) const noexcept;
+ *                                          const wis::VideoDecodeInputDesc&   input_desc,
+ *                                          const wis::VideoDecodeOutputDesc&  output_desc,
+ *                                          const wis::VideoDecodePictureDesc& picture_desc) const noexcept;
  * }
  * ```
  * <details>
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.1.
  * void VKVideoDecodeCommandList::DecodeFrame(const wis::VKVideoDecoder&           decoder,
- *                                            const wis::VKVideoDecoderParameters& decoder_parameters,
- *                                            const wis::VKVideoDecodeInputDesc&   input_desc) const noexcept;
+ *                                            const wis::VKVideoDecodeInputDesc&   input_desc,
+ *                                            const wis::VKVideoDecodeOutputDesc&  output_desc,
+ *                                            const wis::VKVideoDecodePictureDesc& picture_desc) const noexcept;
  *
- * // Provided by Wisdom 0.7.0.
+ * // Provided by Wisdom 0.7.1.
  * void DX12VideoDecodeCommandList::DecodeFrame(const wis::DX12VideoDecoder&           decoder,
- *                                              const wis::DX12VideoDecoderParameters& decoder_parameters,
- *                                              const wis::DX12VideoDecodeInputDesc&   input_desc) const noexcept;
+ *                                              const wis::DX12VideoDecodeInputDesc&   input_desc,
+ *                                              const wis::DX12VideoDecodeOutputDesc&  output_desc,
+ *                                              const wis::DX12VideoDecodePictureDesc& picture_desc) const noexcept;
  * }
  * ```
  * </details>
@@ -64,12 +70,9 @@
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisVideoDecodeCommandList instance.
  * - `decoder` The video decoder that will be used for decoding the video frame.
- * - `decoder_parameters` Input description for a video decode operation that uses video decoder parameters as input.
- * The video decoder parameters @wis_should be created from the sequence header or parameter set data for the video
- * stream, and @wis_should contain the necessary information to initialize the video decoder for decoding the video
- * frames.
- * - `input_desc` Description of the input data for the video decode operation. This field specifies the type and
- * location of the input data that will be used for decoding the video frame.
+ * - `input_desc` Description of the input data for the video decode operation.
+ * - `output_desc` Description of the output texture for the decoded video frame.
+ * - `picture_desc` Codec-specific picture information for the decode operation.
  * \endcond
  *
  * @section wisVideoDecodeCommandListDecodeFrame_descr Description

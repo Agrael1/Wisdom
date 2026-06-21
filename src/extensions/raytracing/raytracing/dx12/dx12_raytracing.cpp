@@ -203,8 +203,9 @@ WIS_EXTERN_C WISDOM_RAYTRACING_API WisResult wisDX12RaytracingExtensionGetTopLev
         .Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL,
         .Flags = wis::detail::DX12Convert(build_desc->flags),
         .NumDescs = build_desc->instance_count,
-        .DescsLayout = build_desc->flags & WisAccelerationStructureFlagsIndirectInput ? D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS
-                                                  : D3D12_ELEMENTS_LAYOUT_ARRAY,
+        .DescsLayout = build_desc->flags & WisAccelerationStructureFlagsIndirectInput
+                         ? D3D12_ELEMENTS_LAYOUT_ARRAY_OF_POINTERS
+                         : D3D12_ELEMENTS_LAYOUT_ARRAY,
         .InstanceDescs = build_desc->instance_buffer_address
     };
     D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO prebuild_info = {};

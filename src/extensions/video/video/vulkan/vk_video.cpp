@@ -56,6 +56,27 @@ inline WisResult VKVideoDecodingExtensionInit(
         // Video decode queue
         coll.EnableExtension({.name = VK_KHR_VIDEO_DECODE_QUEUE_EXTENSION_NAME});
 
+        // Baseline extensions for all video decode operations
+        if (!coll.IsExtensionPresent(VK_KHR_VIDEO_MAINTENANCE_1_EXTENSION_NAME)) {
+            impl.supported_codecs = {};
+            return {};
+        }
+        coll.EnableExtension({
+            .name = VK_KHR_VIDEO_MAINTENANCE_1_EXTENSION_NAME,
+            .feature_struct = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_MAINTENANCE_1_FEATURES_KHR,
+            .feature_struct_size = sizeof(VkPhysicalDeviceVideoMaintenance1FeaturesKHR),
+        });
+
+        if (!coll.IsExtensionPresent(VK_KHR_VIDEO_MAINTENANCE_2_EXTENSION_NAME)) {
+            impl.supported_codecs = {};
+            return {};
+        }
+        coll.EnableExtension({
+            .name = VK_KHR_VIDEO_MAINTENANCE_2_EXTENSION_NAME,
+            .feature_struct = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_MAINTENANCE_2_FEATURES_KHR,
+            .feature_struct_size = sizeof(VkPhysicalDeviceVideoMaintenance2FeaturesKHR),
+        });
+
         // now for the requested codecs:
         if (impl.supported_codecs & WisVideoCodecFlagsH264) {
             coll.EnableExtension({.name = VK_KHR_VIDEO_DECODE_H264_EXTENSION_NAME});
@@ -83,6 +104,23 @@ inline WisResult VKVideoDecodingExtensionInit(
         }
         if (!impl.supported_codecs) {
             return wis::detail::vk_success; // Nothing requested
+        }
+
+        {
+            auto& maint1 = *collector->GetEnabledFeatureStruct<VkPhysicalDeviceVideoMaintenance1FeaturesKHR>(
+                VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_MAINTENANCE_1_FEATURES_KHR
+            );
+            if (!maint1.videoMaintenance1) {
+                impl.supported_codecs = {};
+                return wis::detail::vk_success;
+            }
+            auto& maint2 = *collector->GetEnabledFeatureStruct<VkPhysicalDeviceVideoMaintenance2FeaturesKHR>(
+                VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VIDEO_MAINTENANCE_2_FEATURES_KHR
+            );
+            if (!maint2.videoMaintenance2) {
+                impl.supported_codecs = {};
+                return wis::detail::vk_success;
+            }
         }
 
         auto& aheader = device_impl->device_header->header.shared_header->header;
@@ -403,41 +441,6 @@ inline WisResult VKFillVideoStructs(
     }
 }
 
-inline WisResult VKCreateDecoderParametersAV1(
-    const wis::impl::VKVideoDecoderImpl& impl,
-    const WisStdVideoAV1SequenceHeader* sequence_header,
-    VkVideoSessionParametersKHR* parameters
-)
-{
-    auto& video_header = impl.decoding_control_block->header;
-    auto& video_table = video_header.video_table;
-
-    VkVideoDecodeAV1SessionParametersCreateInfoKHR av1_parameters_info{
-        .sType = VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_SESSION_PARAMETERS_CREATE_INFO_KHR,
-        .pNext = nullptr,
-        .pStdSequenceHeader = reinterpret_cast<const ::StdVideoAV1SequenceHeader*>(sequence_header),
-    };
-
-    VkVideoSessionParametersCreateInfoKHR parameters_info{
-        .sType = VK_STRUCTURE_TYPE_VIDEO_SESSION_PARAMETERS_CREATE_INFO_KHR,
-        .pNext = &av1_parameters_info,
-        .flags = 0,
-        .videoSessionParametersTemplate = VK_NULL_HANDLE,
-        .videoSession = impl.video_session,
-    };
-    auto vr = video_table.vkCreateVideoSessionParametersKHR(
-        video_header.device_control_block->header.device,
-        &parameters_info,
-        nullptr,
-        parameters
-    );
-    if (vr != VK_SUCCESS) {
-        return wis::detail::make_result<wis::detail::Func(), "Failed to create video session parameters.">(vr);
-    }
-
-    return wis::detail::vk_success;
-}
-
 } // namespace wis::detail
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -596,7 +599,7 @@ WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionCreateDecoder
         .pNext = nullptr,
         .queueFamilyIndex = device_header.queue_families[device_header.queue_residency[WisCommandQueueTypeVideoDecode]]
                                 .family_index,
-        .flags = 0,
+        .flags = VK_VIDEO_SESSION_CREATE_INLINE_SESSION_PARAMETERS_BIT_KHR,
         .pVideoProfile = &profile_info,
         .pictureFormat = wis::detail::VKConvert(decoder_desc->image_format),
         .maxCodedExtent =
@@ -711,7 +714,7 @@ WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionCreateDecoder
         .video_memory = bind_guard.Release(),
 
         // Codec profiles are defined with step of 32, so this gives us the codec type
-        .codec =  WisVideoCodecFlags(1u << (decoder_desc->codec_profile / 32u)), 
+        .codec = WisVideoCodecFlags(1u << (decoder_desc->codec_profile / 32u)),
         .decoding_control_block = impl.decoding_control_block,
     };
     impl.decoding_control_block->AddRef(); // video decoder holds a reference to the device control block
@@ -741,60 +744,6 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisVKDestroyVideoDecoder(WisVKVideoDecoder* s
 
         wis::detail::VKReleaseVideoDecoding(impl.decoding_control_block);
         impl.video_session = VK_NULL_HANDLE;
-    }
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisVKVideoDecoderCreateParameters(
-    const WisVKVideoDecoder* self,
-    const void* sequence_header,
-    WisVKVideoDecoderParameters* parameters
-)
-{
-    auto& impl = wis::from_handle_ref<const wis::impl::VKVideoDecoderImpl>(self);
-
-    VkVideoSessionParametersKHR video_session_parameters = VK_NULL_HANDLE;
-    WisResult res = wis::detail::vk_success;
-
-    switch (impl.codec) {
-    case WisVideoCodecFlagsAV1:
-        res = wis::detail::VKCreateDecoderParametersAV1(
-            impl,
-            static_cast<const WisStdVideoAV1SequenceHeader*>(sequence_header),
-            &video_session_parameters
-        );
-        break;
-    default:
-        return wis::detail::make_result<
-            wis::detail::Func(),
-            "Unsupported codec for parameter creation. Only AV1 is supported currently.">(VK_ERROR_FEATURE_NOT_PRESENT);
-    }
-
-    if (!wis::detail::succeeded(VkResult(res.platform_code))) {
-        return res;
-    }
-
-    new (parameters) wis::impl::VKVideoDecoderParametersImpl{
-        .video_session_parameters = video_session_parameters,
-        .decoding_control_block = impl.decoding_control_block,
-    };
-    impl.decoding_control_block->AddRef();
-
-    return res;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_VIDEO_API void wisVKDestroyVideoDecoderParameters(WisVKVideoDecoderParameters* self)
-{
-    auto& impl = wis::from_handle_ref<wis::impl::VKVideoDecoderParametersImpl>(self);
-    if (impl.video_session_parameters != VK_NULL_HANDLE) {
-        auto& video_header = impl.decoding_control_block->header;
-        auto& device_header = video_header.device_control_block->header;
-        auto& video_table = video_header.video_table;
-        video_table.vkDestroyVideoSessionParametersKHR(device_header.device, impl.video_session_parameters, nullptr);
-        impl.video_session_parameters = VK_NULL_HANDLE;
-
-        wis::detail::VKReleaseVideoDecoding(impl.decoding_control_block);
     }
 }
 

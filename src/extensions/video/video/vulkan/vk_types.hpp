@@ -27,11 +27,6 @@ struct VKVideoDecoderImpl {
     detail::VKVideoDecodingControlBlock* decoding_control_block;
 };
 
-struct VKVideoDecoderParametersImpl {
-    VkVideoSessionParametersKHR video_session_parameters;
-    detail::VKVideoDecodingControlBlock* decoding_control_block;
-};
-
 struct VKVideoDecodeCommandListImpl {
     VkCommandBuffer command_buffer;
     impl::VKMainCommandList* command_list_table;
