@@ -192,21 +192,21 @@ typedef struct WisDX12AccelerationStructureDesc {
  * @param self is a pointer to the valid WisAccelerationStructure instance.
  *
  * */
-WISDOM_RAYTRACING_API void wisDX12DestroyAccelerationStructure(WisDX12AccelerationStructure* self);
+WIS_INLINE WISDOM_RAYTRACING_API void wisDX12DestroyAccelerationStructure(WisDX12AccelerationStructure* self);
 
 /**
  * @brief Provided by Wisdom 0.7.1. Destroys a WisRaytracingExtension handle.
  * @param self is a pointer to the valid WisRaytracingExtension instance.
  *
  * */
-WISDOM_RAYTRACING_API void wisDX12DestroyRaytracingExtension(WisDX12RaytracingExtension* self);
+WIS_INLINE WISDOM_RAYTRACING_API void wisDX12DestroyRaytracingExtension(WisDX12RaytracingExtension* self);
 
 /**
  * @brief Provided by Wisdom 0.7.1. Initializes a WisRaytracingExtension handle.
  * @param self is a pointer to the valid WisRaytracingExtension instance.
  *
  * */
-WISDOM_RAYTRACING_API void wisDX12InitRaytracingExtension(WisDX12RaytracingExtension* self);
+WIS_INLINE WISDOM_RAYTRACING_API void wisDX12InitRaytracingExtension(WisDX12RaytracingExtension* self);
 
 /**
  * @brief Provided by Wisdom 0.7.1. Checks if raytracing is supported on the current device.
@@ -214,7 +214,7 @@ WISDOM_RAYTRACING_API void wisDX12InitRaytracingExtension(WisDX12RaytracingExten
  * @return bool true if raytracing is supported, false otherwise.
  *
  * */
-WISDOM_RAYTRACING_API bool wisDX12RaytracingExtensionSupported(WisDX12RaytracingExtension* self);
+WIS_INLINE WISDOM_RAYTRACING_API bool wisDX12RaytracingExtensionSupported(WisDX12RaytracingExtension* self);
 
 /**
  * @brief Provided by Wisdom 0.7.1. Retrieves the allocation information for a bottom-level acceleration structure based
@@ -225,7 +225,7 @@ WISDOM_RAYTRACING_API bool wisDX12RaytracingExtensionSupported(WisDX12Raytracing
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_RAYTRACING_API WisResult wisDX12RaytracingExtensionGetBottomLevelStructureInfo(
+WIS_INLINE WISDOM_RAYTRACING_API WisResult wisDX12RaytracingExtensionGetBottomLevelStructureInfo(
     WisDX12RaytracingExtension* self,
     const WisBottomLevelStructureBuildDesc* build_desc,
     WisStructureAllocationInfo* info
@@ -240,7 +240,7 @@ WISDOM_RAYTRACING_API WisResult wisDX12RaytracingExtensionGetBottomLevelStructur
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_RAYTRACING_API WisResult wisDX12RaytracingExtensionGetTopLevelStructureInfo(
+WIS_INLINE WISDOM_RAYTRACING_API WisResult wisDX12RaytracingExtensionGetTopLevelStructureInfo(
     WisDX12RaytracingExtension* self,
     const WisTopLevelStructureBuildDesc* build_desc,
     WisStructureAllocationInfo* info
@@ -255,7 +255,7 @@ WISDOM_RAYTRACING_API WisResult wisDX12RaytracingExtensionGetTopLevelStructureIn
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_RAYTRACING_API WisResult wisDX12RaytracingExtensionCreateAccelerationStructure(
+WIS_INLINE WISDOM_RAYTRACING_API WisResult wisDX12RaytracingExtensionCreateAccelerationStructure(
     WisDX12RaytracingExtension* self,
     WisDX12Buffer* buffer,
     const WisDX12AccelerationStructureDesc* desc,
@@ -268,7 +268,7 @@ WISDOM_RAYTRACING_API WisResult wisDX12RaytracingExtensionCreateAccelerationStru
  * @return u64 The GPU address of the acceleration structure.
  *
  * */
-WISDOM_RAYTRACING_API uint64_t wisDX12AccelerationStructureGetGPUAddress(WisDX12AccelerationStructure* self);
+WIS_INLINE WISDOM_RAYTRACING_API uint64_t wisDX12AccelerationStructureGetGPUAddress(WisDX12AccelerationStructure* self);
 
 #endif // WISDOM_DX12
 
@@ -303,21 +303,21 @@ typedef struct WisVKAccelerationStructureDesc {
  * @param self is a pointer to the valid WisAccelerationStructure instance.
  *
  * */
-WISDOM_RAYTRACING_API void wisVKDestroyAccelerationStructure(WisVKAccelerationStructure* self);
+WIS_INLINE WISDOM_RAYTRACING_API void wisVKDestroyAccelerationStructure(WisVKAccelerationStructure* self);
 
 /**
  * @brief Provided by Wisdom 0.7.1. Destroys a WisRaytracingExtension handle.
  * @param self is a pointer to the valid WisRaytracingExtension instance.
  *
  * */
-WISDOM_RAYTRACING_API void wisVKDestroyRaytracingExtension(WisVKRaytracingExtension* self);
+WIS_INLINE WISDOM_RAYTRACING_API void wisVKDestroyRaytracingExtension(WisVKRaytracingExtension* self);
 
 /**
  * @brief Provided by Wisdom 0.7.1. Initializes a WisRaytracingExtension handle.
  * @param self is a pointer to the valid WisRaytracingExtension instance.
  *
  * */
-WISDOM_RAYTRACING_API void wisVKInitRaytracingExtension(WisVKRaytracingExtension* self);
+WIS_INLINE WISDOM_RAYTRACING_API void wisVKInitRaytracingExtension(WisVKRaytracingExtension* self);
 
 /**
  * @brief Provided by Wisdom 0.7.1. Checks if raytracing is supported on the current device.
@@ -325,7 +325,7 @@ WISDOM_RAYTRACING_API void wisVKInitRaytracingExtension(WisVKRaytracingExtension
  * @return bool true if raytracing is supported, false otherwise.
  *
  * */
-WISDOM_RAYTRACING_API bool wisVKRaytracingExtensionSupported(WisVKRaytracingExtension* self);
+WIS_INLINE WISDOM_RAYTRACING_API bool wisVKRaytracingExtensionSupported(WisVKRaytracingExtension* self);
 
 /**
  * @brief Provided by Wisdom 0.7.1. Retrieves the allocation information for a bottom-level acceleration structure based
@@ -336,7 +336,7 @@ WISDOM_RAYTRACING_API bool wisVKRaytracingExtensionSupported(WisVKRaytracingExte
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_RAYTRACING_API WisResult wisVKRaytracingExtensionGetBottomLevelStructureInfo(
+WIS_INLINE WISDOM_RAYTRACING_API WisResult wisVKRaytracingExtensionGetBottomLevelStructureInfo(
     WisVKRaytracingExtension* self,
     const WisBottomLevelStructureBuildDesc* build_desc,
     WisStructureAllocationInfo* info
@@ -351,7 +351,7 @@ WISDOM_RAYTRACING_API WisResult wisVKRaytracingExtensionGetBottomLevelStructureI
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_RAYTRACING_API WisResult wisVKRaytracingExtensionGetTopLevelStructureInfo(
+WIS_INLINE WISDOM_RAYTRACING_API WisResult wisVKRaytracingExtensionGetTopLevelStructureInfo(
     WisVKRaytracingExtension* self,
     const WisTopLevelStructureBuildDesc* build_desc,
     WisStructureAllocationInfo* info
@@ -366,7 +366,7 @@ WISDOM_RAYTRACING_API WisResult wisVKRaytracingExtensionGetTopLevelStructureInfo
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_RAYTRACING_API WisResult wisVKRaytracingExtensionCreateAccelerationStructure(
+WIS_INLINE WISDOM_RAYTRACING_API WisResult wisVKRaytracingExtensionCreateAccelerationStructure(
     WisVKRaytracingExtension* self,
     WisVKBuffer* buffer,
     const WisVKAccelerationStructureDesc* desc,
@@ -379,7 +379,7 @@ WISDOM_RAYTRACING_API WisResult wisVKRaytracingExtensionCreateAccelerationStruct
  * @return u64 The GPU address of the acceleration structure.
  *
  * */
-WISDOM_RAYTRACING_API uint64_t wisVKAccelerationStructureGetGPUAddress(WisVKAccelerationStructure* self);
+WIS_INLINE WISDOM_RAYTRACING_API uint64_t wisVKAccelerationStructureGetGPUAddress(WisVKAccelerationStructure* self);
 
 #endif // WISDOM_VULKAN
 

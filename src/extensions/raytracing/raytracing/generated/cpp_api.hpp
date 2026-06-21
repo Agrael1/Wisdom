@@ -244,7 +244,7 @@ public:
         wis::Result& out_result
     ) noexcept
     {
-        wis::StructureAllocationInfo info;
+        wis::StructureAllocationInfo info{};
         const WisResult wis_result = ::wisDX12RaytracingExtensionGetBottomLevelStructureInfo(
             &_impl_storage,
             reinterpret_cast<const WisBottomLevelStructureBuildDesc*>(&build_desc),
@@ -270,7 +270,7 @@ public:
         wis::Result& out_result
     ) noexcept
     {
-        wis::StructureAllocationInfo info;
+        wis::StructureAllocationInfo info{};
         const WisResult wis_result = ::wisDX12RaytracingExtensionGetTopLevelStructureInfo(
             &_impl_storage,
             reinterpret_cast<const WisTopLevelStructureBuildDesc*>(&build_desc),
@@ -297,7 +297,7 @@ public:
         wis::Result& out_result
     ) noexcept
     {
-        wis::DX12AccelerationStructure acceleration_structure;
+        wis::DX12AccelerationStructure acceleration_structure{};
         const WisResult wis_result = ::wisDX12RaytracingExtensionCreateAccelerationStructure(
             &_impl_storage,
             reinterpret_cast<WisDX12Buffer*>(&buffer),
@@ -400,7 +400,7 @@ public:
         wis::Result& out_result
     ) noexcept
     {
-        wis::StructureAllocationInfo info;
+        wis::StructureAllocationInfo info{};
         const WisResult wis_result = ::wisVKRaytracingExtensionGetBottomLevelStructureInfo(
             &_impl_storage,
             reinterpret_cast<const WisBottomLevelStructureBuildDesc*>(&build_desc),
@@ -426,7 +426,7 @@ public:
         wis::Result& out_result
     ) noexcept
     {
-        wis::StructureAllocationInfo info;
+        wis::StructureAllocationInfo info{};
         const WisResult wis_result = ::wisVKRaytracingExtensionGetTopLevelStructureInfo(
             &_impl_storage,
             reinterpret_cast<const WisTopLevelStructureBuildDesc*>(&build_desc),
@@ -453,7 +453,7 @@ public:
         wis::Result& out_result
     ) noexcept
     {
-        wis::VKAccelerationStructure acceleration_structure;
+        wis::VKAccelerationStructure acceleration_structure{};
         const WisResult wis_result = ::wisVKRaytracingExtensionCreateAccelerationStructure(
             &_impl_storage,
             reinterpret_cast<WisVKBuffer*>(&buffer),

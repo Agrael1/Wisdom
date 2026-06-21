@@ -78,28 +78,28 @@ WIS_DEFINE_DX12_INSTANCE_EXT_HANDLE(WisDX12UWPExtension, 1);
  * @param self is a pointer to the valid WisWin32Extension instance.
  *
  * */
-WISDOM_PLATFORM_API void wisDX12DestroyWin32Extension(WisDX12Win32Extension* self);
+WIS_INLINE WISDOM_PLATFORM_API void wisDX12DestroyWin32Extension(WisDX12Win32Extension* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Initializes a WisWin32Extension handle.
  * @param self is a pointer to the valid WisWin32Extension instance.
  *
  * */
-WISDOM_PLATFORM_API void wisDX12InitWin32Extension(WisDX12Win32Extension* self);
+WIS_INLINE WISDOM_PLATFORM_API void wisDX12InitWin32Extension(WisDX12Win32Extension* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisUWPExtension handle.
  * @param self is a pointer to the valid WisUWPExtension instance.
  *
  * */
-WISDOM_PLATFORM_API void wisDX12DestroyUWPExtension(WisDX12UWPExtension* self);
+WIS_INLINE WISDOM_PLATFORM_API void wisDX12DestroyUWPExtension(WisDX12UWPExtension* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Initializes a WisUWPExtension handle.
  * @param self is a pointer to the valid WisUWPExtension instance.
  *
  * */
-WISDOM_PLATFORM_API void wisDX12InitUWPExtension(WisDX12UWPExtension* self);
+WIS_INLINE WISDOM_PLATFORM_API void wisDX12InitUWPExtension(WisDX12UWPExtension* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a surface using Win32.
@@ -109,7 +109,7 @@ WISDOM_PLATFORM_API void wisDX12InitUWPExtension(WisDX12UWPExtension* self);
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_PLATFORM_API WisResult wisDX12Win32ExtensionCreateSurface(
+WIS_INLINE WISDOM_PLATFORM_API WisResult wisDX12Win32ExtensionCreateSurface(
     WisDX12Win32Extension* self,
     const WisWin32WindowDesc* info,
     WisDX12Surface* surface
@@ -122,7 +122,7 @@ WISDOM_PLATFORM_API WisResult wisDX12Win32ExtensionCreateSurface(
  * @return bool true if the extension is supported, false otherwise.
  *
  * */
-WISDOM_PLATFORM_API bool wisDX12Win32ExtensionSupported(WisDX12Win32Extension* self);
+WIS_INLINE WISDOM_PLATFORM_API bool wisDX12Win32ExtensionSupported(WisDX12Win32Extension* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a surface using UWP.
@@ -132,7 +132,7 @@ WISDOM_PLATFORM_API bool wisDX12Win32ExtensionSupported(WisDX12Win32Extension* s
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_PLATFORM_API WisResult wisDX12UWPExtensionCreateSurface(
+WIS_INLINE WISDOM_PLATFORM_API WisResult wisDX12UWPExtensionCreateSurface(
     WisDX12UWPExtension* self,
     const WisUWPWindowDesc* info,
     WisDX12Surface* surface
@@ -170,56 +170,56 @@ WIS_DEFINE_VK_INSTANCE_EXT_HANDLE(WisVKWin32Extension, 2);
  * @param self is a pointer to the valid WisXlibExtension instance.
  *
  * */
-WISDOM_PLATFORM_API void wisVKDestroyXlibExtension(WisVKXlibExtension* self);
+WIS_INLINE WISDOM_PLATFORM_API void wisVKDestroyXlibExtension(WisVKXlibExtension* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Initializes a WisXlibExtension handle.
  * @param self is a pointer to the valid WisXlibExtension instance.
  *
  * */
-WISDOM_PLATFORM_API void wisVKInitXlibExtension(WisVKXlibExtension* self);
+WIS_INLINE WISDOM_PLATFORM_API void wisVKInitXlibExtension(WisVKXlibExtension* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisXCBExtension handle.
  * @param self is a pointer to the valid WisXCBExtension instance.
  *
  * */
-WISDOM_PLATFORM_API void wisVKDestroyXCBExtension(WisVKXCBExtension* self);
+WIS_INLINE WISDOM_PLATFORM_API void wisVKDestroyXCBExtension(WisVKXCBExtension* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Initializes a WisXCBExtension handle.
  * @param self is a pointer to the valid WisXCBExtension instance.
  *
  * */
-WISDOM_PLATFORM_API void wisVKInitXCBExtension(WisVKXCBExtension* self);
+WIS_INLINE WISDOM_PLATFORM_API void wisVKInitXCBExtension(WisVKXCBExtension* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisWaylandExtension handle.
  * @param self is a pointer to the valid WisWaylandExtension instance.
  *
  * */
-WISDOM_PLATFORM_API void wisVKDestroyWaylandExtension(WisVKWaylandExtension* self);
+WIS_INLINE WISDOM_PLATFORM_API void wisVKDestroyWaylandExtension(WisVKWaylandExtension* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Initializes a WisWaylandExtension handle.
  * @param self is a pointer to the valid WisWaylandExtension instance.
  *
  * */
-WISDOM_PLATFORM_API void wisVKInitWaylandExtension(WisVKWaylandExtension* self);
+WIS_INLINE WISDOM_PLATFORM_API void wisVKInitWaylandExtension(WisVKWaylandExtension* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisWin32Extension handle.
  * @param self is a pointer to the valid WisWin32Extension instance.
  *
  * */
-WISDOM_PLATFORM_API void wisVKDestroyWin32Extension(WisVKWin32Extension* self);
+WIS_INLINE WISDOM_PLATFORM_API void wisVKDestroyWin32Extension(WisVKWin32Extension* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Initializes a WisWin32Extension handle.
  * @param self is a pointer to the valid WisWin32Extension instance.
  *
  * */
-WISDOM_PLATFORM_API void wisVKInitWin32Extension(WisVKWin32Extension* self);
+WIS_INLINE WISDOM_PLATFORM_API void wisVKInitWin32Extension(WisVKWin32Extension* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a Vulkan surface using Xlib.
@@ -229,7 +229,7 @@ WISDOM_PLATFORM_API void wisVKInitWin32Extension(WisVKWin32Extension* self);
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_PLATFORM_API WisResult wisVKXlibExtensionCreateSurface(
+WIS_INLINE WISDOM_PLATFORM_API WisResult wisVKXlibExtensionCreateSurface(
     WisVKXlibExtension* self,
     const WisXlibWindowDesc* info,
     WisVKSurface* surface
@@ -241,7 +241,7 @@ WISDOM_PLATFORM_API WisResult wisVKXlibExtensionCreateSurface(
  * @return bool true if the extension is supported, false otherwise.
  *
  * */
-WISDOM_PLATFORM_API bool wisVKXlibExtensionSupported(WisVKXlibExtension* self);
+WIS_INLINE WISDOM_PLATFORM_API bool wisVKXlibExtensionSupported(WisVKXlibExtension* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a surface using Win32.
@@ -251,7 +251,7 @@ WISDOM_PLATFORM_API bool wisVKXlibExtensionSupported(WisVKXlibExtension* self);
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_PLATFORM_API WisResult wisVKXCBExtensionCreateSurface(
+WIS_INLINE WISDOM_PLATFORM_API WisResult wisVKXCBExtensionCreateSurface(
     WisVKXCBExtension* self,
     const WisXCBWindowDesc* info,
     WisVKSurface* surface
@@ -263,7 +263,7 @@ WISDOM_PLATFORM_API WisResult wisVKXCBExtensionCreateSurface(
  * @return bool true if the extension is supported, false otherwise.
  *
  * */
-WISDOM_PLATFORM_API bool wisVKXCBExtensionSupported(WisVKXCBExtension* self);
+WIS_INLINE WISDOM_PLATFORM_API bool wisVKXCBExtensionSupported(WisVKXCBExtension* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a surface using Wayland.
@@ -273,7 +273,7 @@ WISDOM_PLATFORM_API bool wisVKXCBExtensionSupported(WisVKXCBExtension* self);
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_PLATFORM_API WisResult wisVKWaylandExtensionCreateSurface(
+WIS_INLINE WISDOM_PLATFORM_API WisResult wisVKWaylandExtensionCreateSurface(
     WisVKWaylandExtension* self,
     const WisWaylandWindowDesc* info,
     WisVKSurface* surface
@@ -285,7 +285,7 @@ WISDOM_PLATFORM_API WisResult wisVKWaylandExtensionCreateSurface(
  * @return bool true if the extension is supported, false otherwise.
  *
  * */
-WISDOM_PLATFORM_API bool wisVKWaylandExtensionSupported(WisVKWaylandExtension* self);
+WIS_INLINE WISDOM_PLATFORM_API bool wisVKWaylandExtensionSupported(WisVKWaylandExtension* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a surface using Win32.
@@ -295,7 +295,7 @@ WISDOM_PLATFORM_API bool wisVKWaylandExtensionSupported(WisVKWaylandExtension* s
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_PLATFORM_API WisResult wisVKWin32ExtensionCreateSurface(
+WIS_INLINE WISDOM_PLATFORM_API WisResult wisVKWin32ExtensionCreateSurface(
     WisVKWin32Extension* self,
     const WisWin32WindowDesc* info,
     WisVKSurface* surface
@@ -308,7 +308,7 @@ WISDOM_PLATFORM_API WisResult wisVKWin32ExtensionCreateSurface(
  * @return bool true if the extension is supported, false otherwise.
  *
  * */
-WISDOM_PLATFORM_API bool wisVKWin32ExtensionSupported(WisVKWin32Extension* self);
+WIS_INLINE WISDOM_PLATFORM_API bool wisVKWin32ExtensionSupported(WisVKWin32Extension* self);
 
 #endif // WISDOM_VULKAN
 

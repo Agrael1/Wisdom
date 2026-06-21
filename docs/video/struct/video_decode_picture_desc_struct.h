@@ -7,7 +7,7 @@
  * <hr>
  *
  * \cond WIS_GEN_CODE
- *  *  C Version:
+ *  C Version:
  * ```c
  * // Provided by Wisdom 0.7.1.
  * typedef struct WisVideoDecodePictureDesc {
@@ -48,32 +48,53 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.1.
- * struct VideoDecodePictureDesc
+ * struct VideoDecodePictureDesc {
+ *     wis::StdCodecProfile                        codec;
+ *     const wis::StdVideoDecodeAV1PictureInfo*    av1_picture_info;
+ *     const wis::StdVideoDecodeH265PictureInfo*   h265_picture_info;
+ *     const wis::StdVideoDecodeAV1ReferenceInfo*  av1_reference_info;
+ *     const wis::StdVideoDecodeH265ReferenceInfo* h265_reference_info;
+ *     std::uint32_t                               reference_frame_count;
+ * };
+ * }
  * ```
  * <details>
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.1.
- * struct VKVideoDecodePictureDesc ;
+ * struct VKVideoDecodePictureDesc {
+ *     wis::StdCodecProfile                        codec;
+ *     const wis::StdVideoDecodeAV1PictureInfo*    av1_picture_info;
+ *     const wis::StdVideoDecodeH265PictureInfo*   h265_picture_info;
+ *     const wis::StdVideoDecodeAV1ReferenceInfo*  av1_reference_info;
+ *     const wis::StdVideoDecodeH265ReferenceInfo* h265_reference_info;
+ *     std::uint32_t                               reference_frame_count;
+ * };
  *
  * // Provided by Wisdom 0.7.1.
- * struct DX12VideoDecodePictureDesc
+ * struct DX12VideoDecodePictureDesc {
+ *     wis::StdCodecProfile                        codec;
+ *     const wis::StdVideoDecodeAV1PictureInfo*    av1_picture_info;
+ *     const wis::StdVideoDecodeH265PictureInfo*   h265_picture_info;
+ *     const wis::StdVideoDecodeAV1ReferenceInfo*  av1_reference_info;
+ *     const wis::StdVideoDecodeH265ReferenceInfo* h265_reference_info;
+ *     std::uint32_t                               reference_frame_count;
+ * };
+ * }
  * ```
  * </details>
- *
  * \endcond
  *
  * @section WisVideoDecodePictureDesc_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- *  * - `codec` The codec profile of the current frame. Determines which picture info struct is valid.
+ * - `codec` The codec profile of the current frame. Determines which picture info struct is valid.
  * - `av1_picture_info` AV1 picture information (valid when codec is an AV1 profile).
  * - `h265_picture_info` H.265 picture information (valid when codec is an H.265 profile).
  * - `av1_reference_info` AV1 reference information array (valid when codec is an AV1 profile).
  * - `h265_reference_info` H.265 reference information array (valid when codec is an H.265 profile).
  * - `reference_frame_count` Number of reference frames for this decode operation.
- *
  * \endcond
  *
  * @section WisVideoDecodePictureDesc_descr Description
@@ -85,5 +106,7 @@
  * @section WisVideoDecodePictureDesc_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
+ * @see Functions:
+ * wisVideoDecodeCommandListDecodeFrame
  * \endcond
  */

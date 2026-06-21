@@ -108,7 +108,7 @@ struct WISDOM_API VKInstanceExtensionCollector {
     constexpr static std::size_t instance_ext_initial_size = 4;
 
 public:
-    VKInstanceExtensionCollector(const impl::VKMainGlobal& table, WisResult& out_result) noexcept;
+    WIS_INLINE VKInstanceExtensionCollector(const impl::VKMainGlobal& table, WisResult& out_result) noexcept;
 
 public:
     void EnableExtension(const char* name) noexcept
@@ -142,7 +142,7 @@ public:
         std::size_t count_exts;
         std::size_t count_layers;
     };
-    WIS_NODISCARD ExtReturn GetExtensionsAndLayers(WisResult& out_res) const noexcept;
+    WIS_NODISCARD WIS_INLINE ExtReturn GetExtensionsAndLayers(WisResult& out_res) const noexcept;
 
 private:
     detail::CStringSet enabled_extension_names_set;
@@ -162,7 +162,7 @@ struct WISDOM_API VKDeviceExtensionCollector {
     };
 
 public:
-    VKDeviceExtensionCollector(
+    WIS_INLINE VKDeviceExtensionCollector(
         const impl::VKMainAdapter& adapter_table,
         VkPhysicalDevice adapter,
         WisResult& res

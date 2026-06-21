@@ -1546,21 +1546,21 @@ typedef struct WisDX12VideoDecodePictureDesc {
  * @param self is a pointer to the valid WisVideoDecoder instance.
  *
  * */
-WISDOM_VIDEO_API void wisDX12DestroyVideoDecoder(WisDX12VideoDecoder* self);
+WIS_INLINE WISDOM_VIDEO_API void wisDX12DestroyVideoDecoder(WisDX12VideoDecoder* self);
 
 /**
  * @brief Provided by Wisdom 0.7.1. Destroys a WisVideoDecodeCommandList handle.
  * @param self is a pointer to the valid WisVideoDecodeCommandList instance.
  *
  * */
-WISDOM_VIDEO_API void wisDX12DestroyVideoDecodeCommandList(WisDX12VideoDecodeCommandList* self);
+WIS_INLINE WISDOM_VIDEO_API void wisDX12DestroyVideoDecodeCommandList(WisDX12VideoDecodeCommandList* self);
 
 /**
  * @brief Provided by Wisdom 0.7.1. Destroys a WisVideoDecodingExtension handle.
  * @param self is a pointer to the valid WisVideoDecodingExtension instance.
  *
  * */
-WISDOM_VIDEO_API void wisDX12DestroyVideoDecodingExtension(WisDX12VideoDecodingExtension* self);
+WIS_INLINE WISDOM_VIDEO_API void wisDX12DestroyVideoDecodingExtension(WisDX12VideoDecodingExtension* self);
 
 /**
  * @brief Provided by Wisdom 0.7.1. Initializes WisVideoDecodingExtension with a request of codecs.
@@ -1569,7 +1569,7 @@ WISDOM_VIDEO_API void wisDX12DestroyVideoDecodingExtension(WisDX12VideoDecodingE
  * these codecs.
  *
  * */
-WISDOM_VIDEO_API void wisDX12InitVideoDecodingExtension(
+WIS_INLINE WISDOM_VIDEO_API void wisDX12InitVideoDecodingExtension(
     WisDX12VideoDecodingExtension* self,
     WisVideoCodecFlags request_codecs
 );
@@ -1582,7 +1582,7 @@ WISDOM_VIDEO_API void wisDX12InitVideoDecodingExtension(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_VIDEO_API WisResult
+WIS_INLINE WISDOM_VIDEO_API WisResult
 wisDX12VideoDecodingExtensionQueryCodecCaps(WisDX12VideoDecodingExtension* self, const WisVideoCodecDesc* codec_desc);
 
 /**
@@ -1593,7 +1593,7 @@ wisDX12VideoDecodingExtensionQueryCodecCaps(WisDX12VideoDecodingExtension* self,
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_VIDEO_API WisResult wisDX12VideoDecodingExtensionCreateDecoder(
+WIS_INLINE WISDOM_VIDEO_API WisResult wisDX12VideoDecodingExtensionCreateDecoder(
     const WisDX12VideoDecodingExtension* self,
     const WisVideoDecoderDesc* decoder_desc,
     WisDX12VideoDecoder* video_decoder
@@ -1609,7 +1609,7 @@ WISDOM_VIDEO_API WisResult wisDX12VideoDecodingExtensionCreateDecoder(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_VIDEO_API WisResult wisDX12VideoDecodingExtensionCreateCommandList(
+WIS_INLINE WISDOM_VIDEO_API WisResult wisDX12VideoDecodingExtensionCreateCommandList(
     WisDX12VideoDecodingExtension* self,
     const WisDX12CommandAllocator* command_allocator,
     WisDX12VideoDecodeCommandList* command_list
@@ -1621,7 +1621,7 @@ WISDOM_VIDEO_API WisResult wisDX12VideoDecodingExtensionCreateCommandList(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_VIDEO_API WisResult wisDX12VideoDecodeCommandListBegin(const WisDX12VideoDecodeCommandList* self);
+WIS_INLINE WISDOM_VIDEO_API WisResult wisDX12VideoDecodeCommandListBegin(const WisDX12VideoDecodeCommandList* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Closes the command list, so it can be executed on the command queue.
@@ -1629,7 +1629,7 @@ WISDOM_VIDEO_API WisResult wisDX12VideoDecodeCommandListBegin(const WisDX12Video
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_VIDEO_API WisResult wisDX12VideoDecodeCommandListEnd(const WisDX12VideoDecodeCommandList* self);
+WIS_INLINE WISDOM_VIDEO_API WisResult wisDX12VideoDecodeCommandListEnd(const WisDX12VideoDecodeCommandList* self);
 
 /**
  * @brief Provided by Wisdom 0.7.1. Inserts one or more barriers on the current video decode command list. Supports
@@ -1638,7 +1638,7 @@ WISDOM_VIDEO_API WisResult wisDX12VideoDecodeCommandListEnd(const WisDX12VideoDe
  * @param barriers specifies a pointer to an array of barriers to insert.
  *
  * */
-WISDOM_VIDEO_API void wisDX12VideoDecodeCommandListInsertBarriers(
+WIS_INLINE WISDOM_VIDEO_API void wisDX12VideoDecodeCommandListInsertBarriers(
     const WisDX12VideoDecodeCommandList* self,
     const WisDX12BarrierGroup* barriers
 );
@@ -1652,7 +1652,7 @@ WISDOM_VIDEO_API void wisDX12VideoDecodeCommandListInsertBarriers(
  * @param picture_desc Codec-specific picture information for the decode operation.
  *
  * */
-WISDOM_VIDEO_API void wisDX12VideoDecodeCommandListDecodeFrame(
+WIS_INLINE WISDOM_VIDEO_API void wisDX12VideoDecodeCommandListDecodeFrame(
     const WisDX12VideoDecodeCommandList* self,
     const WisDX12VideoDecoder* decoder,
     const WisDX12VideoDecodeInputDesc* input_desc,
@@ -1747,21 +1747,21 @@ typedef struct WisVKVideoDecodePictureDesc {
  * @param self is a pointer to the valid WisVideoDecoder instance.
  *
  * */
-WISDOM_VIDEO_API void wisVKDestroyVideoDecoder(WisVKVideoDecoder* self);
+WIS_INLINE WISDOM_VIDEO_API void wisVKDestroyVideoDecoder(WisVKVideoDecoder* self);
 
 /**
  * @brief Provided by Wisdom 0.7.1. Destroys a WisVideoDecodeCommandList handle.
  * @param self is a pointer to the valid WisVideoDecodeCommandList instance.
  *
  * */
-WISDOM_VIDEO_API void wisVKDestroyVideoDecodeCommandList(WisVKVideoDecodeCommandList* self);
+WIS_INLINE WISDOM_VIDEO_API void wisVKDestroyVideoDecodeCommandList(WisVKVideoDecodeCommandList* self);
 
 /**
  * @brief Provided by Wisdom 0.7.1. Destroys a WisVideoDecodingExtension handle.
  * @param self is a pointer to the valid WisVideoDecodingExtension instance.
  *
  * */
-WISDOM_VIDEO_API void wisVKDestroyVideoDecodingExtension(WisVKVideoDecodingExtension* self);
+WIS_INLINE WISDOM_VIDEO_API void wisVKDestroyVideoDecodingExtension(WisVKVideoDecodingExtension* self);
 
 /**
  * @brief Provided by Wisdom 0.7.1. Initializes WisVideoDecodingExtension with a request of codecs.
@@ -1770,7 +1770,7 @@ WISDOM_VIDEO_API void wisVKDestroyVideoDecodingExtension(WisVKVideoDecodingExten
  * these codecs.
  *
  * */
-WISDOM_VIDEO_API void wisVKInitVideoDecodingExtension(
+WIS_INLINE WISDOM_VIDEO_API void wisVKInitVideoDecodingExtension(
     WisVKVideoDecodingExtension* self,
     WisVideoCodecFlags request_codecs
 );
@@ -1783,7 +1783,7 @@ WISDOM_VIDEO_API void wisVKInitVideoDecodingExtension(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_VIDEO_API WisResult
+WIS_INLINE WISDOM_VIDEO_API WisResult
 wisVKVideoDecodingExtensionQueryCodecCaps(WisVKVideoDecodingExtension* self, const WisVideoCodecDesc* codec_desc);
 
 /**
@@ -1794,7 +1794,7 @@ wisVKVideoDecodingExtensionQueryCodecCaps(WisVKVideoDecodingExtension* self, con
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionCreateDecoder(
+WIS_INLINE WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionCreateDecoder(
     const WisVKVideoDecodingExtension* self,
     const WisVideoDecoderDesc* decoder_desc,
     WisVKVideoDecoder* video_decoder
@@ -1810,7 +1810,7 @@ WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionCreateDecoder(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionCreateCommandList(
+WIS_INLINE WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionCreateCommandList(
     WisVKVideoDecodingExtension* self,
     const WisVKCommandAllocator* command_allocator,
     WisVKVideoDecodeCommandList* command_list
@@ -1822,7 +1822,7 @@ WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionCreateCommandList(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_VIDEO_API WisResult wisVKVideoDecodeCommandListBegin(const WisVKVideoDecodeCommandList* self);
+WIS_INLINE WISDOM_VIDEO_API WisResult wisVKVideoDecodeCommandListBegin(const WisVKVideoDecodeCommandList* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Closes the command list, so it can be executed on the command queue.
@@ -1830,7 +1830,7 @@ WISDOM_VIDEO_API WisResult wisVKVideoDecodeCommandListBegin(const WisVKVideoDeco
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_VIDEO_API WisResult wisVKVideoDecodeCommandListEnd(const WisVKVideoDecodeCommandList* self);
+WIS_INLINE WISDOM_VIDEO_API WisResult wisVKVideoDecodeCommandListEnd(const WisVKVideoDecodeCommandList* self);
 
 /**
  * @brief Provided by Wisdom 0.7.1. Inserts one or more barriers on the current video decode command list. Supports
@@ -1839,7 +1839,7 @@ WISDOM_VIDEO_API WisResult wisVKVideoDecodeCommandListEnd(const WisVKVideoDecode
  * @param barriers specifies a pointer to an array of barriers to insert.
  *
  * */
-WISDOM_VIDEO_API void wisVKVideoDecodeCommandListInsertBarriers(
+WIS_INLINE WISDOM_VIDEO_API void wisVKVideoDecodeCommandListInsertBarriers(
     const WisVKVideoDecodeCommandList* self,
     const WisVKBarrierGroup* barriers
 );
@@ -1853,7 +1853,7 @@ WISDOM_VIDEO_API void wisVKVideoDecodeCommandListInsertBarriers(
  * @param picture_desc Codec-specific picture information for the decode operation.
  *
  * */
-WISDOM_VIDEO_API void wisVKVideoDecodeCommandListDecodeFrame(
+WIS_INLINE WISDOM_VIDEO_API void wisVKVideoDecodeCommandListDecodeFrame(
     const WisVKVideoDecodeCommandList* self,
     const WisVKVideoDecoder* decoder,
     const WisVKVideoDecodeInputDesc* input_desc,

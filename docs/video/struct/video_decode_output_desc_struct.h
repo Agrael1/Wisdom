@@ -7,7 +7,7 @@
  * <hr>
  *
  * \cond WIS_GEN_CODE
- *  *  C Version:
+ *  C Version:
  * ```c
  * // Provided by Wisdom 0.7.1.
  * typedef struct WisVideoDecodeOutputDesc {
@@ -39,29 +39,41 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.1.
- * struct VideoDecodeOutputDesc
+ * struct VideoDecodeOutputDesc {
+ *     wis::TextureView output_texture;
+ *     wis::DataFormat  format;
+ *     std::uint32_t    subresource;
+ * };
+ * }
  * ```
  * <details>
  * <summary>C++ Implementation Specific Version:</summary>
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.1.
- * struct VKVideoDecodeOutputDesc ;
+ * struct VKVideoDecodeOutputDesc {
+ *     wis::VKTextureView output_texture;
+ *     wis::DataFormat    format;
+ *     std::uint32_t      subresource;
+ * };
  *
  * // Provided by Wisdom 0.7.1.
- * struct DX12VideoDecodeOutputDesc
+ * struct DX12VideoDecodeOutputDesc {
+ *     wis::DX12TextureView output_texture;
+ *     wis::DataFormat      format;
+ *     std::uint32_t        subresource;
+ * };
+ * }
  * ```
  * </details>
- *
  * \endcond
  *
  * @section WisVideoDecodeOutputDesc_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- *  * - `output_texture` The texture that will receive the decoded video frame.
+ * - `output_texture` The texture that will receive the decoded video frame.
  * - `format` The data format of the output texture.
  * - `subresource` The subresource index of the texture to decode into.
- *
  * \endcond
  *
  * @section WisVideoDecodeOutputDesc_descr Description
@@ -73,5 +85,7 @@
  * @section WisVideoDecodeOutputDesc_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
+ * @see Functions:
+ * wisVideoDecodeCommandListDecodeFrame
  * \endcond
  */

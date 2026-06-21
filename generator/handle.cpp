@@ -277,6 +277,11 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, Backend backend, DocKin
             // Build the init function parameter list for the constructor
             std::string params;
             std::string args = "GetStorage(), " + GetFunctionCallParameters(func_ref, backend);
+            if (func_ref.parameters.empty()) {
+                args.pop_back();
+                args.pop_back();
+            }
+
             bool last_was_span = false;
             for (size_t i = 0; i < func_ref.parameters.size(); ++i) {
                 if (last_was_span) {
@@ -313,10 +318,6 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, Backend backend, DocKin
                 c_name,
                 args
             );
-
-            if (func_ref.parameters.empty()) {
-                ctor_decl += std::format("    {}{}(){{}}\n", impl_string, s.name);
-            }
             continue;
         }
 

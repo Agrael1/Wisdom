@@ -102,7 +102,7 @@ public:
         wis::Result& out_result
     ) noexcept
     {
-        wis::DX12Surface surface;
+        wis::DX12Surface surface{};
         const WisResult wis_result = ::wisDX12Win32ExtensionCreateSurface(
             &_impl_storage,
             reinterpret_cast<const WisWin32WindowDesc*>(&info),
@@ -156,7 +156,7 @@ public:
         wis::Result& out_result
     ) noexcept
     {
-        wis::DX12Surface surface;
+        wis::DX12Surface surface{};
         const WisResult wis_result = ::wisDX12UWPExtensionCreateSurface(
             &_impl_storage,
             reinterpret_cast<const WisUWPWindowDesc*>(&info),
@@ -207,7 +207,7 @@ public:
      * */
     WIS_NODISCARD inline wis::VKSurface CreateSurface(const wis::XlibWindowDesc& info, wis::Result& out_result) noexcept
     {
-        wis::VKSurface surface;
+        wis::VKSurface surface{};
         const WisResult wis_result = ::wisVKXlibExtensionCreateSurface(
             &_impl_storage,
             reinterpret_cast<const WisXlibWindowDesc*>(&info),
@@ -257,7 +257,7 @@ public:
      * */
     WIS_NODISCARD inline wis::VKSurface CreateSurface(const wis::XCBWindowDesc& info, wis::Result& out_result) noexcept
     {
-        wis::VKSurface surface;
+        wis::VKSurface surface{};
         const WisResult wis_result = ::wisVKXCBExtensionCreateSurface(
             &_impl_storage,
             reinterpret_cast<const WisXCBWindowDesc*>(&info),
@@ -311,7 +311,7 @@ public:
         wis::Result& out_result
     ) noexcept
     {
-        wis::VKSurface surface;
+        wis::VKSurface surface{};
         const WisResult wis_result = ::wisVKWaylandExtensionCreateSurface(
             &_impl_storage,
             reinterpret_cast<const WisWaylandWindowDesc*>(&info),
@@ -364,7 +364,7 @@ public:
         wis::Result& out_result
     ) noexcept
     {
-        wis::VKSurface surface;
+        wis::VKSurface surface{};
         const WisResult wis_result = ::wisVKWin32ExtensionCreateSurface(
             &_impl_storage,
             reinterpret_cast<const WisWin32WindowDesc*>(&info),

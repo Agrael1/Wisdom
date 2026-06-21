@@ -211,7 +211,7 @@ void Generator::WriteCAPI(std::filesystem::path dir)
 #include "wisdom_exports.h"
 )";
 
-    auto api_macro = module.name == "Core" ? "WISDOM_API " : std::format("WISDOM_{}_API ", header_guard);
+    auto api_macro = module.name == "Core" ? "WIS_INLINE WISDOM_API " : std::format("WIS_INLINE WISDOM_{}_API ", header_guard);
 
     // Write header
     // clang-format off

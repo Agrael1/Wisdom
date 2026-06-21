@@ -30,7 +30,7 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.1.
- * void RaytracingExtension::InitRaytracingExtension() noexcept;
+ * RaytracingExtension::RaytracingExtension() noexcept;
  * }
  * ```
  * <details>
@@ -38,10 +38,10 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.1.
- * void VKRaytracingExtension::InitRaytracingExtension() noexcept;
+ * VKRaytracingExtension::VKRaytracingExtension() noexcept;
  *
  * // Provided by Wisdom 0.7.1.
- * void DX12RaytracingExtension::InitRaytracingExtension() noexcept;
+ * DX12RaytracingExtension::DX12RaytracingExtension() noexcept;
  * }
  * ```
  * </details>

@@ -1,6 +1,6 @@
 project(video-${POSTFIX})
 
-set(CPP_SOURCES entry_main.cpp)
+set(CPP_SOURCES entry_main.cpp app.cpp graphics.cpp)
 
 add_executable(${PROJECT_NAME}-cpp ${CPP_SOURCES})
 target_link_libraries(

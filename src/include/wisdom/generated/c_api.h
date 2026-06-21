@@ -3029,126 +3029,126 @@ typedef struct WisDX12IndexBufferDesc {
  * @param self is a pointer to the valid WisTexture instance.
  *
  * */
-WISDOM_API void wisDX12DestroyTexture(WisDX12Texture* self);
+WIS_INLINE WISDOM_API void wisDX12DestroyTexture(WisDX12Texture* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisBuffer handle.
  * @param self is a pointer to the valid WisBuffer instance.
  *
  * */
-WISDOM_API void wisDX12DestroyBuffer(WisDX12Buffer* self);
+WIS_INLINE WISDOM_API void wisDX12DestroyBuffer(WisDX12Buffer* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisSwapchain handle.
  * @param self is a pointer to the valid WisSwapchain instance.
  *
  * */
-WISDOM_API void wisDX12DestroySwapchain(WisDX12Swapchain* self);
+WIS_INLINE WISDOM_API void wisDX12DestroySwapchain(WisDX12Swapchain* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisSurface handle.
  * @param self is a pointer to the valid WisSurface instance.
  *
  * */
-WISDOM_API void wisDX12DestroySurface(WisDX12Surface* self);
+WIS_INLINE WISDOM_API void wisDX12DestroySurface(WisDX12Surface* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisViewHeap handle.
  * @param self is a pointer to the valid WisViewHeap instance.
  *
  * */
-WISDOM_API void wisDX12DestroyViewHeap(WisDX12ViewHeap* self);
+WIS_INLINE WISDOM_API void wisDX12DestroyViewHeap(WisDX12ViewHeap* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisPipeline handle.
  * @param self is a pointer to the valid WisPipeline instance.
  *
  * */
-WISDOM_API void wisDX12DestroyPipeline(WisDX12Pipeline* self);
+WIS_INLINE WISDOM_API void wisDX12DestroyPipeline(WisDX12Pipeline* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisShader handle.
  * @param self is a pointer to the valid WisShader instance.
  *
  * */
-WISDOM_API void wisDX12DestroyShader(WisDX12Shader* self);
+WIS_INLINE WISDOM_API void wisDX12DestroyShader(WisDX12Shader* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisPipelineCache handle.
  * @param self is a pointer to the valid WisPipelineCache instance.
  *
  * */
-WISDOM_API void wisDX12DestroyPipelineCache(WisDX12PipelineCache* self);
+WIS_INLINE WISDOM_API void wisDX12DestroyPipelineCache(WisDX12PipelineCache* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisDescriptorHeap handle.
  * @param self is a pointer to the valid WisDescriptorHeap instance.
  *
  * */
-WISDOM_API void wisDX12DestroyDescriptorHeap(WisDX12DescriptorHeap* self);
+WIS_INLINE WISDOM_API void wisDX12DestroyDescriptorHeap(WisDX12DescriptorHeap* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisRootSignature handle.
  * @param self is a pointer to the valid WisRootSignature instance.
  *
  * */
-WISDOM_API void wisDX12DestroyRootSignature(WisDX12RootSignature* self);
+WIS_INLINE WISDOM_API void wisDX12DestroyRootSignature(WisDX12RootSignature* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisResourceAllocator handle.
  * @param self is a pointer to the valid WisResourceAllocator instance.
  *
  * */
-WISDOM_API void wisDX12DestroyResourceAllocator(WisDX12ResourceAllocator* self);
+WIS_INLINE WISDOM_API void wisDX12DestroyResourceAllocator(WisDX12ResourceAllocator* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisFence handle.
  * @param self is a pointer to the valid WisFence instance.
  *
  * */
-WISDOM_API void wisDX12DestroyFence(WisDX12Fence* self);
+WIS_INLINE WISDOM_API void wisDX12DestroyFence(WisDX12Fence* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisCommandList handle.
  * @param self is a pointer to the valid WisCommandList instance.
  *
  * */
-WISDOM_API void wisDX12DestroyCommandList(WisDX12CommandList* self);
+WIS_INLINE WISDOM_API void wisDX12DestroyCommandList(WisDX12CommandList* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisCommandAllocator handle.
  * @param self is a pointer to the valid WisCommandAllocator instance.
  *
  * */
-WISDOM_API void wisDX12DestroyCommandAllocator(WisDX12CommandAllocator* self);
+WIS_INLINE WISDOM_API void wisDX12DestroyCommandAllocator(WisDX12CommandAllocator* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisCommandQueue handle.
  * @param self is a pointer to the valid WisCommandQueue instance.
  *
  * */
-WISDOM_API void wisDX12DestroyCommandQueue(WisDX12CommandQueue* self);
+WIS_INLINE WISDOM_API void wisDX12DestroyCommandQueue(WisDX12CommandQueue* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisDevice handle.
  * @param self is a pointer to the valid WisDevice instance.
  *
  * */
-WISDOM_API void wisDX12DestroyDevice(WisDX12Device* self);
+WIS_INLINE WISDOM_API void wisDX12DestroyDevice(WisDX12Device* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisAdapterQuery handle.
  * @param self is a pointer to the valid WisAdapterQuery instance.
  *
  * */
-WISDOM_API void wisDX12DestroyAdapterQuery(WisDX12AdapterQuery* self);
+WIS_INLINE WISDOM_API void wisDX12DestroyAdapterQuery(WisDX12AdapterQuery* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisInstance handle.
  * @param self is a pointer to the valid WisInstance instance.
  *
  * */
-WISDOM_API void wisDX12DestroyInstance(WisDX12Instance* self);
+WIS_INLINE WISDOM_API void wisDX12DestroyInstance(WisDX12Instance* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates the WisInstance with extensions, specified in extension array.
@@ -3161,7 +3161,7 @@ WISDOM_API void wisDX12DestroyInstance(WisDX12Instance* self);
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12CreateInstance(
+WIS_INLINE WISDOM_API WisResult wisDX12CreateInstance(
     const WisDebugDesc* debug_desc,
     WisDX12InstanceExtensionHeader** extensions,
     size_t extension_count,
@@ -3179,7 +3179,7 @@ WISDOM_API WisResult wisDX12CreateInstance(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12InstanceQueryAdapters(
+WIS_INLINE WISDOM_API WisResult wisDX12InstanceQueryAdapters(
     const WisDX12Instance* self,
     WisAdapterPreference preference,
     WisDX12AdapterQuery* query
@@ -3191,7 +3191,7 @@ WISDOM_API WisResult wisDX12InstanceQueryAdapters(
  * @return size is a number of adapters present on the system.
  *
  * */
-WISDOM_API size_t wisDX12AdapterQueryGetAdapterCount(const WisDX12AdapterQuery* self);
+WIS_INLINE WISDOM_API size_t wisDX12AdapterQueryGetAdapterCount(const WisDX12AdapterQuery* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Returns the description of the adapter at given index.
@@ -3202,7 +3202,7 @@ WISDOM_API size_t wisDX12AdapterQueryGetAdapterCount(const WisDX12AdapterQuery* 
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12AdapterQueryGetAdapterDesc(
+WIS_INLINE WISDOM_API WisResult wisDX12AdapterQueryGetAdapterDesc(
     const WisDX12AdapterQuery* self,
     size_t index,
     WisAdapterDesc* desc
@@ -3217,7 +3217,7 @@ WISDOM_API WisResult wisDX12AdapterQueryGetAdapterDesc(
  * @return bool `true` if the adapter supports presentation to the surface, `false` otherwise.
  *
  * */
-WISDOM_API bool wisDX12AdapterQueryGetSurfaceSupport(
+WIS_INLINE WISDOM_API bool wisDX12AdapterQueryGetSurfaceSupport(
     const WisDX12AdapterQuery* self,
     size_t index,
     WisDX12SurfaceView surface
@@ -3234,7 +3234,7 @@ WISDOM_API bool wisDX12AdapterQueryGetSurfaceSupport(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(
+WIS_INLINE WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(
     const WisDX12AdapterQuery* self,
     size_t index,
     const WisDX12DeviceRequirements* requirements,
@@ -3249,7 +3249,7 @@ WISDOM_API WisResult wisDX12AdapterQueryCreateDevice(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12DeviceCreateCommandQueue(
+WIS_INLINE WISDOM_API WisResult wisDX12DeviceCreateCommandQueue(
     const WisDX12Device* self,
     WisCommandQueueType type,
     WisDX12CommandQueue* queue
@@ -3263,7 +3263,7 @@ WISDOM_API WisResult wisDX12DeviceCreateCommandQueue(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12DeviceCreateCommandAllocator(
+WIS_INLINE WISDOM_API WisResult wisDX12DeviceCreateCommandAllocator(
     const WisDX12Device* self,
     WisCommandQueueType type,
     WisDX12CommandAllocator* allocator
@@ -3277,7 +3277,11 @@ WISDOM_API WisResult wisDX12DeviceCreateCommandAllocator(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12DeviceCreateFence(const WisDX12Device* self, uint64_t initial_value, WisDX12Fence* fence);
+WIS_INLINE WISDOM_API WisResult wisDX12DeviceCreateFence(
+    const WisDX12Device* self,
+    uint64_t initial_value,
+    WisDX12Fence* fence
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a resource allocator for managing GPU resources.
@@ -3286,7 +3290,10 @@ WISDOM_API WisResult wisDX12DeviceCreateFence(const WisDX12Device* self, uint64_
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12DeviceGetResourceAllocator(const WisDX12Device* self, WisDX12ResourceAllocator* allocator);
+WIS_INLINE WISDOM_API WisResult wisDX12DeviceGetResourceAllocator(
+    const WisDX12Device* self,
+    WisDX12ResourceAllocator* allocator
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a pipeline layout with given descriptor.
@@ -3296,7 +3303,7 @@ WISDOM_API WisResult wisDX12DeviceGetResourceAllocator(const WisDX12Device* self
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12DeviceCreateRootSignature(
+WIS_INLINE WISDOM_API WisResult wisDX12DeviceCreateRootSignature(
     const WisDX12Device* self,
     const WisRootSignatureDesc* desc,
     WisDX12RootSignature* layout
@@ -3310,7 +3317,7 @@ WISDOM_API WisResult wisDX12DeviceCreateRootSignature(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12DeviceCreateDescriptorHeap(
+WIS_INLINE WISDOM_API WisResult wisDX12DeviceCreateDescriptorHeap(
     const WisDX12Device* self,
     const WisDescriptorHeapDesc* desc,
     WisDX12DescriptorHeap* heap
@@ -3326,7 +3333,7 @@ WISDOM_API WisResult wisDX12DeviceCreateDescriptorHeap(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12DeviceCreateViewHeap(
+WIS_INLINE WISDOM_API WisResult wisDX12DeviceCreateViewHeap(
     const WisDX12Device* self,
     WisViewHeapType type,
     uint32_t capacity,
@@ -3340,7 +3347,7 @@ WISDOM_API WisResult wisDX12DeviceCreateViewHeap(
  * @param properties describes a pointer to one of the query structs, which is filled with device properties.
  *
  * */
-WISDOM_API void wisDX12DeviceQueryProperties(const WisDX12Device* self, void* properties);
+WIS_INLINE WISDOM_API void wisDX12DeviceQueryProperties(const WisDX12Device* self, void* properties);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Waits on multiple fences simultaneously.
@@ -3356,7 +3363,7 @@ WISDOM_API void wisDX12DeviceQueryProperties(const WisDX12Device* self, void* pr
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12DeviceWaitForMultipleFences(
+WIS_INLINE WISDOM_API WisResult wisDX12DeviceWaitForMultipleFences(
     const WisDX12Device* self,
     const WisDX12FenceView* fences,
     const uint64_t* fence_values,
@@ -3374,7 +3381,7 @@ WISDOM_API WisResult wisDX12DeviceWaitForMultipleFences(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12DeviceCreatePipelineCache(
+WIS_INLINE WISDOM_API WisResult wisDX12DeviceCreatePipelineCache(
     const WisDX12Device* self,
     const uint8_t* initial_data,
     size_t data_size,
@@ -3390,7 +3397,7 @@ WISDOM_API WisResult wisDX12DeviceCreatePipelineCache(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12DeviceCreateShader(
+WIS_INLINE WISDOM_API WisResult wisDX12DeviceCreateShader(
     const WisDX12Device* self,
     const uint8_t* data,
     size_t size,
@@ -3405,7 +3412,7 @@ WISDOM_API WisResult wisDX12DeviceCreateShader(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12DeviceCreateComputePipeline(
+WIS_INLINE WISDOM_API WisResult wisDX12DeviceCreateComputePipeline(
     const WisDX12Device* self,
     const WisDX12ComputePipelineDesc* desc,
     WisDX12Pipeline* pipeline
@@ -3419,7 +3426,7 @@ WISDOM_API WisResult wisDX12DeviceCreateComputePipeline(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(
+WIS_INLINE WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(
     const WisDX12Device* self,
     const WisDX12GraphicsPipelineDesc* desc,
     WisDX12Pipeline* pipeline
@@ -3434,7 +3441,7 @@ WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(
  * @return bool Result of operation.
  *
  * */
-WISDOM_API bool wisDX12DeviceGetFormatPresentationSupport(
+WIS_INLINE WISDOM_API bool wisDX12DeviceGetFormatPresentationSupport(
     const WisDX12Device* self,
     WisDX12SurfaceView surface,
     WisDataFormat format
@@ -3448,7 +3455,7 @@ WISDOM_API bool wisDX12DeviceGetFormatPresentationSupport(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12DeviceGetSurfaceParameters(
+WIS_INLINE WISDOM_API WisResult wisDX12DeviceGetSurfaceParameters(
     const WisDX12Device* self,
     WisDX12SurfaceView surface,
     WisSurfaceParameters* params
@@ -3465,7 +3472,7 @@ WISDOM_API WisResult wisDX12DeviceGetSurfaceParameters(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12DeviceCreateSwapchain(
+WIS_INLINE WISDOM_API WisResult wisDX12DeviceCreateSwapchain(
     const WisDX12Device* self,
     const WisDX12Surface* surface,
     const WisDX12CommandQueue* queue,
@@ -3481,7 +3488,7 @@ WISDOM_API WisResult wisDX12DeviceCreateSwapchain(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12DeviceGetFormatProperties(
+WIS_INLINE WISDOM_API WisResult wisDX12DeviceGetFormatProperties(
     const WisDX12Device* self,
     WisDataFormat format,
     WisFormatProperties* properties
@@ -3493,7 +3500,7 @@ WISDOM_API WisResult wisDX12DeviceGetFormatProperties(
  * @return u64 Value of the fence.
  *
  * */
-WISDOM_API uint64_t wisDX12FenceGetCompletedValue(const WisDX12Fence* self);
+WIS_INLINE WISDOM_API uint64_t wisDX12FenceGetCompletedValue(const WisDX12Fence* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Wait on CPU for the fence to reach a certain value.
@@ -3503,7 +3510,7 @@ WISDOM_API uint64_t wisDX12FenceGetCompletedValue(const WisDX12Fence* self);
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12FenceWait(const WisDX12Fence* self, uint64_t value, uint64_t wait_ns);
+WIS_INLINE WISDOM_API WisResult wisDX12FenceWait(const WisDX12Fence* self, uint64_t value, uint64_t wait_ns);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Signal the fence from CPU.
@@ -3512,7 +3519,7 @@ WISDOM_API WisResult wisDX12FenceWait(const WisDX12Fence* self, uint64_t value, 
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12FenceSignal(const WisDX12Fence* self, uint64_t value);
+WIS_INLINE WISDOM_API WisResult wisDX12FenceSignal(const WisDX12Fence* self, uint64_t value);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Executes the command lists.
@@ -3522,7 +3529,7 @@ WISDOM_API WisResult wisDX12FenceSignal(const WisDX12Fence* self, uint64_t value
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12CommandQueueSubmit(
+WIS_INLINE WISDOM_API WisResult wisDX12CommandQueueSubmit(
     const WisDX12CommandQueue* self,
     const WisDX12CommandListView* lists,
     size_t list_count
@@ -3537,7 +3544,7 @@ WISDOM_API WisResult wisDX12CommandQueueSubmit(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12CommandQueueSignalFence(
+WIS_INLINE WISDOM_API WisResult wisDX12CommandQueueSignalFence(
     const WisDX12CommandQueue* self,
     WisDX12FenceView fence,
     uint64_t value
@@ -3552,7 +3559,7 @@ WISDOM_API WisResult wisDX12CommandQueueSignalFence(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12CommandQueueWaitFence(
+WIS_INLINE WISDOM_API WisResult wisDX12CommandQueueWaitFence(
     const WisDX12CommandQueue* self,
     WisDX12FenceView fence,
     uint64_t value
@@ -3566,7 +3573,7 @@ WISDOM_API WisResult wisDX12CommandQueueWaitFence(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12ResourceAllocatorCreateBuffer(
+WIS_INLINE WISDOM_API WisResult wisDX12ResourceAllocatorCreateBuffer(
     const WisDX12ResourceAllocator* self,
     const WisBufferDesc* desc,
     WisDX12Buffer* buffer
@@ -3580,7 +3587,7 @@ WISDOM_API WisResult wisDX12ResourceAllocatorCreateBuffer(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12ResourceAllocatorCreateTexture(
+WIS_INLINE WISDOM_API WisResult wisDX12ResourceAllocatorCreateTexture(
     const WisDX12ResourceAllocator* self,
     const WisTextureDesc* desc,
     WisDX12Texture* texture
@@ -3592,7 +3599,7 @@ WISDOM_API WisResult wisDX12ResourceAllocatorCreateTexture(
  * @return void points to the pointer, which is filled with the address of the mapped memory on success.
  *
  * */
-WISDOM_API void* wisDX12BufferMap(const WisDX12Buffer* self);
+WIS_INLINE WISDOM_API void* wisDX12BufferMap(const WisDX12Buffer* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Gets the GPU virtual address of the buffer.
@@ -3600,7 +3607,7 @@ WISDOM_API void* wisDX12BufferMap(const WisDX12Buffer* self);
  * @return u64 Address of the buffer on GPU.
  *
  * */
-WISDOM_API uint64_t wisDX12BufferGetGPUAddress(const WisDX12Buffer* self);
+WIS_INLINE WISDOM_API uint64_t wisDX12BufferGetGPUAddress(const WisDX12Buffer* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Writes data directly to the texture subresource. Texture @wis_must be in
@@ -3612,7 +3619,7 @@ WISDOM_API uint64_t wisDX12BufferGetGPUAddress(const WisDX12Buffer* self);
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12TextureWriteSubresource(
+WIS_INLINE WISDOM_API WisResult wisDX12TextureWriteSubresource(
     const WisDX12Texture* self,
     const void* source_data,
     const WisTextureRegion* target_region
@@ -3624,7 +3631,7 @@ WISDOM_API WisResult wisDX12TextureWriteSubresource(
  * @return void CPU descriptor handle for the descriptor heap.
  *
  * */
-WISDOM_API void* wisDX12DescriptorHeapGetCPUHandle(const WisDX12DescriptorHeap* self);
+WIS_INLINE WISDOM_API void* wisDX12DescriptorHeapGetCPUHandle(const WisDX12DescriptorHeap* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Writes `WisDescriptorTypeConstantBuffer` descriptor to the descriptor heap.
@@ -3635,7 +3642,7 @@ WISDOM_API void* wisDX12DescriptorHeapGetCPUHandle(const WisDX12DescriptorHeap* 
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12DescriptorHeapWriteConstantBuffer(
+WIS_INLINE WISDOM_API WisResult wisDX12DescriptorHeapWriteConstantBuffer(
     const WisDX12DescriptorHeap* self,
     const WisConstantBufferBinding* data,
     uint32_t index
@@ -3650,7 +3657,7 @@ WISDOM_API WisResult wisDX12DescriptorHeapWriteConstantBuffer(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12DescriptorHeapWriteStructuredBuffer(
+WIS_INLINE WISDOM_API WisResult wisDX12DescriptorHeapWriteStructuredBuffer(
     const WisDX12DescriptorHeap* self,
     WisDX12BufferView buffer,
     const WisBufferBinding* data,
@@ -3666,7 +3673,7 @@ WISDOM_API WisResult wisDX12DescriptorHeapWriteStructuredBuffer(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12DescriptorHeapWriteRWStructuredBuffer(
+WIS_INLINE WISDOM_API WisResult wisDX12DescriptorHeapWriteRWStructuredBuffer(
     const WisDX12DescriptorHeap* self,
     WisDX12BufferView buffer,
     const WisBufferBinding* data,
@@ -3681,7 +3688,7 @@ WISDOM_API WisResult wisDX12DescriptorHeapWriteRWStructuredBuffer(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12DescriptorHeapWriteSampler(
+WIS_INLINE WISDOM_API WisResult wisDX12DescriptorHeapWriteSampler(
     const WisDX12DescriptorHeap* self,
     const WisSamplerDesc* sampler,
     uint32_t index
@@ -3696,7 +3703,7 @@ WISDOM_API WisResult wisDX12DescriptorHeapWriteSampler(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12DescriptorHeapWriteTexture(
+WIS_INLINE WISDOM_API WisResult wisDX12DescriptorHeapWriteTexture(
     const WisDX12DescriptorHeap* self,
     WisDX12TextureView texture,
     const WisTextureBinding* data,
@@ -3712,7 +3719,7 @@ WISDOM_API WisResult wisDX12DescriptorHeapWriteTexture(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12DescriptorHeapWriteRWTexture(
+WIS_INLINE WISDOM_API WisResult wisDX12DescriptorHeapWriteRWTexture(
     const WisDX12DescriptorHeap* self,
     WisDX12TextureView texture,
     const WisTextureBinding* data,
@@ -3727,7 +3734,7 @@ WISDOM_API WisResult wisDX12DescriptorHeapWriteRWTexture(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12DescriptorHeapWriteAccelerationStructure(
+WIS_INLINE WISDOM_API WisResult wisDX12DescriptorHeapWriteAccelerationStructure(
     const WisDX12DescriptorHeap* self,
     uint64_t address,
     uint32_t index
@@ -3743,7 +3750,7 @@ WISDOM_API WisResult wisDX12DescriptorHeapWriteAccelerationStructure(
  * @param descriptor_count indicates the number of descriptors to copy.
  *
  * */
-WISDOM_API void wisDX12DescriptorHeapCopyDescriptors(
+WIS_INLINE WISDOM_API void wisDX12DescriptorHeapCopyDescriptors(
     const WisDX12DescriptorHeap* self,
     uint32_t dst_index,
     const void* src_ptr,
@@ -3761,7 +3768,7 @@ WISDOM_API void wisDX12DescriptorHeapCopyDescriptors(
  * @return u64 CPU descriptor handle for the view heap.
  *
  * */
-WISDOM_API uint64_t wisDX12ViewHeapWriteRenderTarget(
+WIS_INLINE WISDOM_API uint64_t wisDX12ViewHeapWriteRenderTarget(
     const WisDX12ViewHeap* self,
     const WisDX12Texture* texture,
     const WisRenderTargetDesc* render_target,
@@ -3778,7 +3785,7 @@ WISDOM_API uint64_t wisDX12ViewHeapWriteRenderTarget(
  * @return u64 CPU descriptor handle for the view heap.
  *
  * */
-WISDOM_API uint64_t wisDX12ViewHeapWriteDepthStencil(
+WIS_INLINE WISDOM_API uint64_t wisDX12ViewHeapWriteDepthStencil(
     const WisDX12ViewHeap* self,
     const WisDX12Texture* texture,
     const WisRenderTargetDesc* render_target,
@@ -3792,7 +3799,7 @@ WISDOM_API uint64_t wisDX12ViewHeapWriteDepthStencil(
  * @return u64 Address of a view in heap.
  *
  * */
-WISDOM_API uint64_t wisDX12ViewHeapGetViewAddress(const WisDX12ViewHeap* self, uint32_t index);
+WIS_INLINE WISDOM_API uint64_t wisDX12ViewHeapGetViewAddress(const WisDX12ViewHeap* self, uint32_t index);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Copies views from one heap to another.
@@ -3803,7 +3810,7 @@ WISDOM_API uint64_t wisDX12ViewHeapGetViewAddress(const WisDX12ViewHeap* self, u
  * @param view_count indicates the number of views to copy.
  *
  * */
-WISDOM_API void wisDX12ViewHeapCopyViews(
+WIS_INLINE WISDOM_API void wisDX12ViewHeapCopyViews(
     const WisDX12ViewHeap* self,
     uint32_t dst_index,
     uint64_t src_ptr,
@@ -3817,7 +3824,7 @@ WISDOM_API void wisDX12ViewHeapCopyViews(
  * @return u64 CPU descriptor handle for the view heap.
  *
  * */
-WISDOM_API uint64_t wisDX12ViewHeapGetCPUHandle(const WisDX12ViewHeap* self);
+WIS_INLINE WISDOM_API uint64_t wisDX12ViewHeapGetCPUHandle(const WisDX12ViewHeap* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Resets the command allocator, so it can be reused for allocating new command lists.
@@ -3825,7 +3832,7 @@ WISDOM_API uint64_t wisDX12ViewHeapGetCPUHandle(const WisDX12ViewHeap* self);
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12CommandAllocatorReset(const WisDX12CommandAllocator* self);
+WIS_INLINE WISDOM_API WisResult wisDX12CommandAllocatorReset(const WisDX12CommandAllocator* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a command list of given type.
@@ -3834,7 +3841,7 @@ WISDOM_API WisResult wisDX12CommandAllocatorReset(const WisDX12CommandAllocator*
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12CommandAllocatorCreateCommandList(
+WIS_INLINE WISDOM_API WisResult wisDX12CommandAllocatorCreateCommandList(
     const WisDX12CommandAllocator* self,
     WisDX12CommandList* list
 );
@@ -3845,7 +3852,7 @@ WISDOM_API WisResult wisDX12CommandAllocatorCreateCommandList(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12CommandListBegin(const WisDX12CommandList* self);
+WIS_INLINE WISDOM_API WisResult wisDX12CommandListBegin(const WisDX12CommandList* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Closes the command list, so it can be executed on the command queue.
@@ -3853,7 +3860,7 @@ WISDOM_API WisResult wisDX12CommandListBegin(const WisDX12CommandList* self);
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12CommandListEnd(const WisDX12CommandList* self);
+WIS_INLINE WISDOM_API WisResult wisDX12CommandListEnd(const WisDX12CommandList* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Binds descriptor heaps to the command list, so they can be used for resource
@@ -3864,7 +3871,7 @@ WISDOM_API WisResult wisDX12CommandListEnd(const WisDX12CommandList* self);
  * @param sampler_heap describes a pointer to WisDescriptorHeap with samplers. If `nullptr`, no sampler heap is bound.
  *
  * */
-WISDOM_API void wisDX12CommandListSetDescriptorHeaps(
+WIS_INLINE WISDOM_API void wisDX12CommandListSetDescriptorHeaps(
     const WisDX12CommandList* self,
     const WisDX12DescriptorHeap* resource_heap,
     const WisDX12DescriptorHeap* sampler_heap
@@ -3878,7 +3885,7 @@ WISDOM_API void wisDX12CommandListSetDescriptorHeaps(
  * @param pipeline specifies the pipeline type to set the root signature for.
  *
  * */
-WISDOM_API void wisDX12CommandListSetRootSignature(
+WIS_INLINE WISDOM_API void wisDX12CommandListSetRootSignature(
     const WisDX12CommandList* self,
     WisDX12RootSignatureView signature,
     WisPipelineType pipeline
@@ -3891,7 +3898,10 @@ WISDOM_API void wisDX12CommandListSetRootSignature(
  * @param data specifies a pointer to WisPushConstantDataDesc, which describes the push constant data to set.
  *
  * */
-WISDOM_API void wisDX12CommandListSetPushConstants(const WisDX12CommandList* self, const WisPushConstantDataDesc* data);
+WIS_INLINE WISDOM_API void wisDX12CommandListSetPushConstants(
+    const WisDX12CommandList* self,
+    const WisPushConstantDataDesc* data
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Sets the push descriptors for the command list, so they can be used for resource
@@ -3900,7 +3910,7 @@ WISDOM_API void wisDX12CommandListSetPushConstants(const WisDX12CommandList* sel
  * @param data specifies a pointer to WisPushDescriptorDataDesc, which describes the push descriptors to set.
  *
  * */
-WISDOM_API void wisDX12CommandListSetPushDescriptor(
+WIS_INLINE WISDOM_API void wisDX12CommandListSetPushDescriptor(
     const WisDX12CommandList* self,
     const WisPushDescriptorDataDesc* data
 );
@@ -3912,7 +3922,7 @@ WISDOM_API void wisDX12CommandListSetPushDescriptor(
  * @param data specifies the root parameter index to set the descriptor table for.
  *
  * */
-WISDOM_API void wisDX12CommandListSetDescriptorTable(
+WIS_INLINE WISDOM_API void wisDX12CommandListSetDescriptorTable(
     const WisDX12CommandList* self,
     const WisDescriptorTableDataDesc* data
 );
@@ -3923,7 +3933,10 @@ WISDOM_API void wisDX12CommandListSetDescriptorTable(
  * @param barriers specifies a pointer to an array of barriers to insert.
  *
  * */
-WISDOM_API void wisDX12CommandListInsertBarriers(const WisDX12CommandList* self, const WisDX12BarrierGroup* barriers);
+WIS_INLINE WISDOM_API void wisDX12CommandListInsertBarriers(
+    const WisDX12CommandList* self,
+    const WisDX12BarrierGroup* barriers
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Sets the pipeline state object for the command list, so it can be used for draw and
@@ -3933,7 +3946,7 @@ WISDOM_API void wisDX12CommandListInsertBarriers(const WisDX12CommandList* self,
  * @param type specifies the pipeline type to set the pipeline for.
  *
  * */
-WISDOM_API void wisDX12CommandListSetPipeline(
+WIS_INLINE WISDOM_API void wisDX12CommandListSetPipeline(
     const WisDX12CommandList* self,
     WisDX12PipelineView pipeline,
     WisPipelineType type
@@ -3946,7 +3959,7 @@ WISDOM_API void wisDX12CommandListSetPipeline(
  * @param viewport_count defines number of viewports to set.
  *
  * */
-WISDOM_API void wisDX12CommandListSetViewports(
+WIS_INLINE WISDOM_API void wisDX12CommandListSetViewports(
     WisDX12CommandList* self,
     const WisViewport* viewports,
     size_t viewport_count
@@ -3962,7 +3975,11 @@ WISDOM_API void wisDX12CommandListSetViewports(
  * @param rect_count defines number of scissor rectangles to set.
  *
  * */
-WISDOM_API void wisDX12CommandListSetScissors(WisDX12CommandList* self, const WisRect* scissor_rect, size_t rect_count);
+WIS_INLINE WISDOM_API void wisDX12CommandListSetScissors(
+    WisDX12CommandList* self,
+    const WisRect* scissor_rect,
+    size_t rect_count
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Sets the primitive topology. Determines how vertices shall be processed.
@@ -3970,7 +3987,10 @@ WISDOM_API void wisDX12CommandListSetScissors(WisDX12CommandList* self, const Wi
  * @param topology describes primitive topology to set.
  *
  * */
-WISDOM_API void wisDX12CommandListSetPrimitiveTopology(WisDX12CommandList* self, WisPrimitiveTopology topology);
+WIS_INLINE WISDOM_API void wisDX12CommandListSetPrimitiveTopology(
+    WisDX12CommandList* self,
+    WisPrimitiveTopology topology
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Sets the depth bias. Determines how depth values are modified during rasterization.
@@ -3980,7 +4000,7 @@ WISDOM_API void wisDX12CommandListSetPrimitiveTopology(WisDX12CommandList* self,
  * @param slope_scaled_depth_bias defines slope-scaled depth bias to set.
  *
  * */
-WISDOM_API void wisDX12CommandListSetDepthBias(
+WIS_INLINE WISDOM_API void wisDX12CommandListSetDepthBias(
     WisDX12CommandList* self,
     float depth_bias,
     float depth_bias_clamp,
@@ -3994,7 +4014,7 @@ WISDOM_API void wisDX12CommandListSetDepthBias(
  * @param restart_value describes primitive restart value to set.
  *
  * */
-WISDOM_API void wisDX12CommandListSetPrimitiveRestartValue(
+WIS_INLINE WISDOM_API void wisDX12CommandListSetPrimitiveRestartValue(
     WisDX12CommandList* self,
     WisPrimitiveRestartValue restart_value
 );
@@ -4007,7 +4027,7 @@ WISDOM_API void wisDX12CommandListSetPrimitiveRestartValue(
  * @param group_count_z specifies number of groups to dispatch in Z dimension; default is 1.
  *
  * */
-WISDOM_API void wisDX12CommandListDispatch(
+WIS_INLINE WISDOM_API void wisDX12CommandListDispatch(
     const WisDX12CommandList* self,
     uint32_t group_count_x,
     uint32_t group_count_y,
@@ -4023,7 +4043,7 @@ WISDOM_API void wisDX12CommandListDispatch(
  * @param start_instance specifies index of the first instance to draw; default is 0.
  *
  * */
-WISDOM_API void wisDX12CommandListDraw(
+WIS_INLINE WISDOM_API void wisDX12CommandListDraw(
     const WisDX12CommandList* self,
     uint32_t vertex_count,
     uint32_t instance_count,
@@ -4041,7 +4061,7 @@ WISDOM_API void wisDX12CommandListDraw(
  * @param start_instance specifies index of the first instance to draw; default is 0.
  *
  * */
-WISDOM_API void wisDX12CommandListDrawIndexed(
+WIS_INLINE WISDOM_API void wisDX12CommandListDrawIndexed(
     const WisDX12CommandList* self,
     uint32_t index_count,
     uint32_t instance_count,
@@ -4056,14 +4076,17 @@ WISDOM_API void wisDX12CommandListDrawIndexed(
  * @param desc indicates a pointer to WisRenderPassDesc, which describes the render pass to begin.
  *
  * */
-WISDOM_API void wisDX12CommandListBeginRenderPass(const WisDX12CommandList* self, const WisRenderPassDesc* desc);
+WIS_INLINE WISDOM_API void wisDX12CommandListBeginRenderPass(
+    const WisDX12CommandList* self,
+    const WisRenderPassDesc* desc
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Ends the current render pass.
  * @param self is a pointer to the valid WisCommandList instance.
  *
  * */
-WISDOM_API void wisDX12CommandListEndRenderPass(const WisDX12CommandList* self);
+WIS_INLINE WISDOM_API void wisDX12CommandListEndRenderPass(const WisDX12CommandList* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Copies regions from one buffer to another.
@@ -4074,7 +4097,7 @@ WISDOM_API void wisDX12CommandListEndRenderPass(const WisDX12CommandList* self);
  * @param region_count defines the count of the regions.
  *
  * */
-WISDOM_API void wisDX12CommandListCopyBuffer(
+WIS_INLINE WISDOM_API void wisDX12CommandListCopyBuffer(
     const WisDX12CommandList* self,
     WisDX12BufferView dst_buffer,
     WisDX12BufferView src_buffer,
@@ -4091,7 +4114,7 @@ WISDOM_API void wisDX12CommandListCopyBuffer(
  * @param region_count defines the count of the regions.
  *
  * */
-WISDOM_API void wisDX12CommandListCopyBufferToTexture(
+WIS_INLINE WISDOM_API void wisDX12CommandListCopyBufferToTexture(
     const WisDX12CommandList* self,
     WisDX12TextureView dst_texture,
     WisDX12BufferView src_buffer,
@@ -4108,7 +4131,7 @@ WISDOM_API void wisDX12CommandListCopyBufferToTexture(
  * @param region_count defines the count of the regions.
  *
  * */
-WISDOM_API void wisDX12CommandListCopyTextureToBuffer(
+WIS_INLINE WISDOM_API void wisDX12CommandListCopyTextureToBuffer(
     const WisDX12CommandList* self,
     WisDX12BufferView dst_buffer,
     WisDX12TextureView src_texture,
@@ -4125,7 +4148,7 @@ WISDOM_API void wisDX12CommandListCopyTextureToBuffer(
  * @param region_count defines the count of the regions.
  *
  * */
-WISDOM_API void wisDX12CommandListCopyTexture(
+WIS_INLINE WISDOM_API void wisDX12CommandListCopyTexture(
     const WisDX12CommandList* self,
     WisDX12TextureView dst_texture,
     WisDX12TextureView src_texture,
@@ -4141,7 +4164,7 @@ WISDOM_API void wisDX12CommandListCopyTexture(
  * @param start_slot The start slot to set the vertex buffers to. Default is 0.
  *
  * */
-WISDOM_API void wisDX12CommandListSetVertexBuffers(
+WIS_INLINE WISDOM_API void wisDX12CommandListSetVertexBuffers(
     WisDX12CommandList* self,
     const WisDX12VertexBufferDesc* buffers,
     size_t buffer_count,
@@ -4157,7 +4180,7 @@ WISDOM_API void wisDX12CommandListSetVertexBuffers(
  * @param start_slot The start slot to set the vertex buffers to. Default is 0.
  *
  * */
-WISDOM_API void wisDX12CommandListSetVertexBuffers2(
+WIS_INLINE WISDOM_API void wisDX12CommandListSetVertexBuffers2(
     WisDX12CommandList* self,
     const WisVertexBufferAddressDesc* buffers,
     size_t buffer_count,
@@ -4172,7 +4195,7 @@ WISDOM_API void wisDX12CommandListSetVertexBuffers2(
  * `WisIndexTypeUInt16` or `WisIndexTypeUInt32`.
  *
  * */
-WISDOM_API void wisDX12CommandListSetIndexBuffer(
+WIS_INLINE WISDOM_API void wisDX12CommandListSetIndexBuffer(
     WisDX12CommandList* self,
     const WisDX12IndexBufferDesc* buffer,
     WisIndexType index_type
@@ -4187,7 +4210,7 @@ WISDOM_API void wisDX12CommandListSetIndexBuffer(
  * `WisIndexTypeUInt16` or `WisIndexTypeUInt32`.
  *
  * */
-WISDOM_API void wisDX12CommandListSetIndexBuffer2(
+WIS_INLINE WISDOM_API void wisDX12CommandListSetIndexBuffer2(
     WisDX12CommandList* self,
     const WisIndexBufferAddressDesc* buffer,
     WisIndexType index_type
@@ -4203,7 +4226,7 @@ WISDOM_API void wisDX12CommandListSetIndexBuffer2(
  * @param blend_factor_a specifies blend factor for alpha channel to set.
  *
  * */
-WISDOM_API void wisDX12CommandListSetBlendFactors(
+WIS_INLINE WISDOM_API void wisDX12CommandListSetBlendFactors(
     const WisDX12CommandList* self,
     float blend_factor_r,
     float blend_factor_g,
@@ -4220,7 +4243,11 @@ WISDOM_API void wisDX12CommandListSetBlendFactors(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12PipelineCacheSerialize(const WisDX12PipelineCache* self, uint8_t* data, size_t data_size);
+WIS_INLINE WISDOM_API WisResult wisDX12PipelineCacheSerialize(
+    const WisDX12PipelineCache* self,
+    uint8_t* data,
+    size_t data_size
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Gets the size of the data in the pipeline cache.
@@ -4228,7 +4255,7 @@ WISDOM_API WisResult wisDX12PipelineCacheSerialize(const WisDX12PipelineCache* s
  * @return size Size of the data in bytes.
  *
  * */
-WISDOM_API size_t wisDX12PipelineCacheGetSerializedSize(const WisDX12PipelineCache* self);
+WIS_INLINE WISDOM_API size_t wisDX12PipelineCacheGetSerializedSize(const WisDX12PipelineCache* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Presents the swapchain image to the screen.
@@ -4239,7 +4266,7 @@ WISDOM_API size_t wisDX12PipelineCacheGetSerializedSize(const WisDX12PipelineCac
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12SwapchainPresent(
+WIS_INLINE WISDOM_API WisResult wisDX12SwapchainPresent(
     const WisDX12Swapchain* self,
     WisPresentFlags flags,
     const WisRect* rects,
@@ -4254,7 +4281,7 @@ WISDOM_API WisResult wisDX12SwapchainPresent(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12SwapchainGetCurrentIndex(const WisDX12Swapchain* self, uint32_t* index);
+WIS_INLINE WISDOM_API WisResult wisDX12SwapchainGetCurrentIndex(const WisDX12Swapchain* self, uint32_t* index);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Resizes the swapchain buffers. If the swapchain is currently in use, it @wis_must be
@@ -4264,7 +4291,10 @@ WISDOM_API WisResult wisDX12SwapchainGetCurrentIndex(const WisDX12Swapchain* sel
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12SwapchainUpdate(const WisDX12Swapchain* self, const WisSwapchainUpdateDesc* desc);
+WIS_INLINE WISDOM_API WisResult wisDX12SwapchainUpdate(
+    const WisDX12Swapchain* self,
+    const WisSwapchainUpdateDesc* desc
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Gets the swapchain buffers. The textures are in `WisTextureStateCommon`.
@@ -4275,7 +4305,7 @@ WISDOM_API WisResult wisDX12SwapchainUpdate(const WisDX12Swapchain* self, const 
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisDX12SwapchainGetTextures(
+WIS_INLINE WISDOM_API WisResult wisDX12SwapchainGetTextures(
     const WisDX12Swapchain* self,
     WisDX12Texture* buffers,
     size_t buffer_count
@@ -4693,126 +4723,126 @@ typedef struct WisVKIndexBufferDesc {
  * @param self is a pointer to the valid WisTexture instance.
  *
  * */
-WISDOM_API void wisVKDestroyTexture(WisVKTexture* self);
+WIS_INLINE WISDOM_API void wisVKDestroyTexture(WisVKTexture* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisBuffer handle.
  * @param self is a pointer to the valid WisBuffer instance.
  *
  * */
-WISDOM_API void wisVKDestroyBuffer(WisVKBuffer* self);
+WIS_INLINE WISDOM_API void wisVKDestroyBuffer(WisVKBuffer* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisSwapchain handle.
  * @param self is a pointer to the valid WisSwapchain instance.
  *
  * */
-WISDOM_API void wisVKDestroySwapchain(WisVKSwapchain* self);
+WIS_INLINE WISDOM_API void wisVKDestroySwapchain(WisVKSwapchain* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisSurface handle.
  * @param self is a pointer to the valid WisSurface instance.
  *
  * */
-WISDOM_API void wisVKDestroySurface(WisVKSurface* self);
+WIS_INLINE WISDOM_API void wisVKDestroySurface(WisVKSurface* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisViewHeap handle.
  * @param self is a pointer to the valid WisViewHeap instance.
  *
  * */
-WISDOM_API void wisVKDestroyViewHeap(WisVKViewHeap* self);
+WIS_INLINE WISDOM_API void wisVKDestroyViewHeap(WisVKViewHeap* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisPipeline handle.
  * @param self is a pointer to the valid WisPipeline instance.
  *
  * */
-WISDOM_API void wisVKDestroyPipeline(WisVKPipeline* self);
+WIS_INLINE WISDOM_API void wisVKDestroyPipeline(WisVKPipeline* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisShader handle.
  * @param self is a pointer to the valid WisShader instance.
  *
  * */
-WISDOM_API void wisVKDestroyShader(WisVKShader* self);
+WIS_INLINE WISDOM_API void wisVKDestroyShader(WisVKShader* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisPipelineCache handle.
  * @param self is a pointer to the valid WisPipelineCache instance.
  *
  * */
-WISDOM_API void wisVKDestroyPipelineCache(WisVKPipelineCache* self);
+WIS_INLINE WISDOM_API void wisVKDestroyPipelineCache(WisVKPipelineCache* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisDescriptorHeap handle.
  * @param self is a pointer to the valid WisDescriptorHeap instance.
  *
  * */
-WISDOM_API void wisVKDestroyDescriptorHeap(WisVKDescriptorHeap* self);
+WIS_INLINE WISDOM_API void wisVKDestroyDescriptorHeap(WisVKDescriptorHeap* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisRootSignature handle.
  * @param self is a pointer to the valid WisRootSignature instance.
  *
  * */
-WISDOM_API void wisVKDestroyRootSignature(WisVKRootSignature* self);
+WIS_INLINE WISDOM_API void wisVKDestroyRootSignature(WisVKRootSignature* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisResourceAllocator handle.
  * @param self is a pointer to the valid WisResourceAllocator instance.
  *
  * */
-WISDOM_API void wisVKDestroyResourceAllocator(WisVKResourceAllocator* self);
+WIS_INLINE WISDOM_API void wisVKDestroyResourceAllocator(WisVKResourceAllocator* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisFence handle.
  * @param self is a pointer to the valid WisFence instance.
  *
  * */
-WISDOM_API void wisVKDestroyFence(WisVKFence* self);
+WIS_INLINE WISDOM_API void wisVKDestroyFence(WisVKFence* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisCommandList handle.
  * @param self is a pointer to the valid WisCommandList instance.
  *
  * */
-WISDOM_API void wisVKDestroyCommandList(WisVKCommandList* self);
+WIS_INLINE WISDOM_API void wisVKDestroyCommandList(WisVKCommandList* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisCommandAllocator handle.
  * @param self is a pointer to the valid WisCommandAllocator instance.
  *
  * */
-WISDOM_API void wisVKDestroyCommandAllocator(WisVKCommandAllocator* self);
+WIS_INLINE WISDOM_API void wisVKDestroyCommandAllocator(WisVKCommandAllocator* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisCommandQueue handle.
  * @param self is a pointer to the valid WisCommandQueue instance.
  *
  * */
-WISDOM_API void wisVKDestroyCommandQueue(WisVKCommandQueue* self);
+WIS_INLINE WISDOM_API void wisVKDestroyCommandQueue(WisVKCommandQueue* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisDevice handle.
  * @param self is a pointer to the valid WisDevice instance.
  *
  * */
-WISDOM_API void wisVKDestroyDevice(WisVKDevice* self);
+WIS_INLINE WISDOM_API void wisVKDestroyDevice(WisVKDevice* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisAdapterQuery handle.
  * @param self is a pointer to the valid WisAdapterQuery instance.
  *
  * */
-WISDOM_API void wisVKDestroyAdapterQuery(WisVKAdapterQuery* self);
+WIS_INLINE WISDOM_API void wisVKDestroyAdapterQuery(WisVKAdapterQuery* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Destroys a WisInstance handle.
  * @param self is a pointer to the valid WisInstance instance.
  *
  * */
-WISDOM_API void wisVKDestroyInstance(WisVKInstance* self);
+WIS_INLINE WISDOM_API void wisVKDestroyInstance(WisVKInstance* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates the WisInstance with extensions, specified in extension array.
@@ -4825,7 +4855,7 @@ WISDOM_API void wisVKDestroyInstance(WisVKInstance* self);
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKCreateInstance(
+WIS_INLINE WISDOM_API WisResult wisVKCreateInstance(
     const WisDebugDesc* debug_desc,
     WisVKInstanceExtensionHeader** extensions,
     size_t extension_count,
@@ -4843,7 +4873,7 @@ WISDOM_API WisResult wisVKCreateInstance(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKInstanceQueryAdapters(
+WIS_INLINE WISDOM_API WisResult wisVKInstanceQueryAdapters(
     const WisVKInstance* self,
     WisAdapterPreference preference,
     WisVKAdapterQuery* query
@@ -4855,7 +4885,7 @@ WISDOM_API WisResult wisVKInstanceQueryAdapters(
  * @return size is a number of adapters present on the system.
  *
  * */
-WISDOM_API size_t wisVKAdapterQueryGetAdapterCount(const WisVKAdapterQuery* self);
+WIS_INLINE WISDOM_API size_t wisVKAdapterQueryGetAdapterCount(const WisVKAdapterQuery* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Returns the description of the adapter at given index.
@@ -4866,7 +4896,11 @@ WISDOM_API size_t wisVKAdapterQueryGetAdapterCount(const WisVKAdapterQuery* self
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKAdapterQueryGetAdapterDesc(const WisVKAdapterQuery* self, size_t index, WisAdapterDesc* desc);
+WIS_INLINE WISDOM_API WisResult wisVKAdapterQueryGetAdapterDesc(
+    const WisVKAdapterQuery* self,
+    size_t index,
+    WisAdapterDesc* desc
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Checks if the adapter at given index supports presentation to given surface.
@@ -4877,7 +4911,7 @@ WISDOM_API WisResult wisVKAdapterQueryGetAdapterDesc(const WisVKAdapterQuery* se
  * @return bool `true` if the adapter supports presentation to the surface, `false` otherwise.
  *
  * */
-WISDOM_API bool wisVKAdapterQueryGetSurfaceSupport(
+WIS_INLINE WISDOM_API bool wisVKAdapterQueryGetSurfaceSupport(
     const WisVKAdapterQuery* self,
     size_t index,
     WisVKSurfaceView surface
@@ -4894,7 +4928,7 @@ WISDOM_API bool wisVKAdapterQueryGetSurfaceSupport(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKAdapterQueryCreateDevice(
+WIS_INLINE WISDOM_API WisResult wisVKAdapterQueryCreateDevice(
     const WisVKAdapterQuery* self,
     size_t index,
     const WisVKDeviceRequirements* requirements,
@@ -4909,7 +4943,7 @@ WISDOM_API WisResult wisVKAdapterQueryCreateDevice(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKDeviceCreateCommandQueue(
+WIS_INLINE WISDOM_API WisResult wisVKDeviceCreateCommandQueue(
     const WisVKDevice* self,
     WisCommandQueueType type,
     WisVKCommandQueue* queue
@@ -4923,7 +4957,7 @@ WISDOM_API WisResult wisVKDeviceCreateCommandQueue(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKDeviceCreateCommandAllocator(
+WIS_INLINE WISDOM_API WisResult wisVKDeviceCreateCommandAllocator(
     const WisVKDevice* self,
     WisCommandQueueType type,
     WisVKCommandAllocator* allocator
@@ -4937,7 +4971,11 @@ WISDOM_API WisResult wisVKDeviceCreateCommandAllocator(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKDeviceCreateFence(const WisVKDevice* self, uint64_t initial_value, WisVKFence* fence);
+WIS_INLINE WISDOM_API WisResult wisVKDeviceCreateFence(
+    const WisVKDevice* self,
+    uint64_t initial_value,
+    WisVKFence* fence
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a resource allocator for managing GPU resources.
@@ -4946,7 +4984,10 @@ WISDOM_API WisResult wisVKDeviceCreateFence(const WisVKDevice* self, uint64_t in
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKDeviceGetResourceAllocator(const WisVKDevice* self, WisVKResourceAllocator* allocator);
+WIS_INLINE WISDOM_API WisResult wisVKDeviceGetResourceAllocator(
+    const WisVKDevice* self,
+    WisVKResourceAllocator* allocator
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a pipeline layout with given descriptor.
@@ -4956,7 +4997,7 @@ WISDOM_API WisResult wisVKDeviceGetResourceAllocator(const WisVKDevice* self, Wi
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKDeviceCreateRootSignature(
+WIS_INLINE WISDOM_API WisResult wisVKDeviceCreateRootSignature(
     const WisVKDevice* self,
     const WisRootSignatureDesc* desc,
     WisVKRootSignature* layout
@@ -4970,7 +5011,7 @@ WISDOM_API WisResult wisVKDeviceCreateRootSignature(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(
+WIS_INLINE WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(
     const WisVKDevice* self,
     const WisDescriptorHeapDesc* desc,
     WisVKDescriptorHeap* heap
@@ -4986,7 +5027,7 @@ WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKDeviceCreateViewHeap(
+WIS_INLINE WISDOM_API WisResult wisVKDeviceCreateViewHeap(
     const WisVKDevice* self,
     WisViewHeapType type,
     uint32_t capacity,
@@ -5000,7 +5041,7 @@ WISDOM_API WisResult wisVKDeviceCreateViewHeap(
  * @param properties describes a pointer to one of the query structs, which is filled with device properties.
  *
  * */
-WISDOM_API void wisVKDeviceQueryProperties(const WisVKDevice* self, void* properties);
+WIS_INLINE WISDOM_API void wisVKDeviceQueryProperties(const WisVKDevice* self, void* properties);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Waits on multiple fences simultaneously.
@@ -5016,7 +5057,7 @@ WISDOM_API void wisVKDeviceQueryProperties(const WisVKDevice* self, void* proper
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKDeviceWaitForMultipleFences(
+WIS_INLINE WISDOM_API WisResult wisVKDeviceWaitForMultipleFences(
     const WisVKDevice* self,
     const WisVKFenceView* fences,
     const uint64_t* fence_values,
@@ -5034,7 +5075,7 @@ WISDOM_API WisResult wisVKDeviceWaitForMultipleFences(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKDeviceCreatePipelineCache(
+WIS_INLINE WISDOM_API WisResult wisVKDeviceCreatePipelineCache(
     const WisVKDevice* self,
     const uint8_t* initial_data,
     size_t data_size,
@@ -5050,7 +5091,7 @@ WISDOM_API WisResult wisVKDeviceCreatePipelineCache(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKDeviceCreateShader(
+WIS_INLINE WISDOM_API WisResult wisVKDeviceCreateShader(
     const WisVKDevice* self,
     const uint8_t* data,
     size_t size,
@@ -5065,7 +5106,7 @@ WISDOM_API WisResult wisVKDeviceCreateShader(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKDeviceCreateComputePipeline(
+WIS_INLINE WISDOM_API WisResult wisVKDeviceCreateComputePipeline(
     const WisVKDevice* self,
     const WisVKComputePipelineDesc* desc,
     WisVKPipeline* pipeline
@@ -5079,7 +5120,7 @@ WISDOM_API WisResult wisVKDeviceCreateComputePipeline(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(
+WIS_INLINE WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(
     const WisVKDevice* self,
     const WisVKGraphicsPipelineDesc* desc,
     WisVKPipeline* pipeline
@@ -5094,7 +5135,7 @@ WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(
  * @return bool Result of operation.
  *
  * */
-WISDOM_API bool wisVKDeviceGetFormatPresentationSupport(
+WIS_INLINE WISDOM_API bool wisVKDeviceGetFormatPresentationSupport(
     const WisVKDevice* self,
     WisVKSurfaceView surface,
     WisDataFormat format
@@ -5108,7 +5149,7 @@ WISDOM_API bool wisVKDeviceGetFormatPresentationSupport(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKDeviceGetSurfaceParameters(
+WIS_INLINE WISDOM_API WisResult wisVKDeviceGetSurfaceParameters(
     const WisVKDevice* self,
     WisVKSurfaceView surface,
     WisSurfaceParameters* params
@@ -5125,7 +5166,7 @@ WISDOM_API WisResult wisVKDeviceGetSurfaceParameters(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKDeviceCreateSwapchain(
+WIS_INLINE WISDOM_API WisResult wisVKDeviceCreateSwapchain(
     const WisVKDevice* self,
     const WisVKSurface* surface,
     const WisVKCommandQueue* queue,
@@ -5141,7 +5182,7 @@ WISDOM_API WisResult wisVKDeviceCreateSwapchain(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKDeviceGetFormatProperties(
+WIS_INLINE WISDOM_API WisResult wisVKDeviceGetFormatProperties(
     const WisVKDevice* self,
     WisDataFormat format,
     WisFormatProperties* properties
@@ -5153,7 +5194,7 @@ WISDOM_API WisResult wisVKDeviceGetFormatProperties(
  * @return u64 Value of the fence.
  *
  * */
-WISDOM_API uint64_t wisVKFenceGetCompletedValue(const WisVKFence* self);
+WIS_INLINE WISDOM_API uint64_t wisVKFenceGetCompletedValue(const WisVKFence* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Wait on CPU for the fence to reach a certain value.
@@ -5163,7 +5204,7 @@ WISDOM_API uint64_t wisVKFenceGetCompletedValue(const WisVKFence* self);
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKFenceWait(const WisVKFence* self, uint64_t value, uint64_t wait_ns);
+WIS_INLINE WISDOM_API WisResult wisVKFenceWait(const WisVKFence* self, uint64_t value, uint64_t wait_ns);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Signal the fence from CPU.
@@ -5172,7 +5213,7 @@ WISDOM_API WisResult wisVKFenceWait(const WisVKFence* self, uint64_t value, uint
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKFenceSignal(const WisVKFence* self, uint64_t value);
+WIS_INLINE WISDOM_API WisResult wisVKFenceSignal(const WisVKFence* self, uint64_t value);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Executes the command lists.
@@ -5182,7 +5223,7 @@ WISDOM_API WisResult wisVKFenceSignal(const WisVKFence* self, uint64_t value);
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKCommandQueueSubmit(
+WIS_INLINE WISDOM_API WisResult wisVKCommandQueueSubmit(
     const WisVKCommandQueue* self,
     const WisVKCommandListView* lists,
     size_t list_count
@@ -5197,7 +5238,11 @@ WISDOM_API WisResult wisVKCommandQueueSubmit(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKCommandQueueSignalFence(const WisVKCommandQueue* self, WisVKFenceView fence, uint64_t value);
+WIS_INLINE WISDOM_API WisResult wisVKCommandQueueSignalFence(
+    const WisVKCommandQueue* self,
+    WisVKFenceView fence,
+    uint64_t value
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Enqueues wait operation to the command queue. Queue then waits for the fence to be
@@ -5208,7 +5253,11 @@ WISDOM_API WisResult wisVKCommandQueueSignalFence(const WisVKCommandQueue* self,
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKCommandQueueWaitFence(const WisVKCommandQueue* self, WisVKFenceView fence, uint64_t value);
+WIS_INLINE WISDOM_API WisResult wisVKCommandQueueWaitFence(
+    const WisVKCommandQueue* self,
+    WisVKFenceView fence,
+    uint64_t value
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a buffer with given descriptor.
@@ -5218,7 +5267,7 @@ WISDOM_API WisResult wisVKCommandQueueWaitFence(const WisVKCommandQueue* self, W
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKResourceAllocatorCreateBuffer(
+WIS_INLINE WISDOM_API WisResult wisVKResourceAllocatorCreateBuffer(
     const WisVKResourceAllocator* self,
     const WisBufferDesc* desc,
     WisVKBuffer* buffer
@@ -5232,7 +5281,7 @@ WISDOM_API WisResult wisVKResourceAllocatorCreateBuffer(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKResourceAllocatorCreateTexture(
+WIS_INLINE WISDOM_API WisResult wisVKResourceAllocatorCreateTexture(
     const WisVKResourceAllocator* self,
     const WisTextureDesc* desc,
     WisVKTexture* texture
@@ -5244,7 +5293,7 @@ WISDOM_API WisResult wisVKResourceAllocatorCreateTexture(
  * @return void points to the pointer, which is filled with the address of the mapped memory on success.
  *
  * */
-WISDOM_API void* wisVKBufferMap(const WisVKBuffer* self);
+WIS_INLINE WISDOM_API void* wisVKBufferMap(const WisVKBuffer* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Gets the GPU virtual address of the buffer.
@@ -5252,7 +5301,7 @@ WISDOM_API void* wisVKBufferMap(const WisVKBuffer* self);
  * @return u64 Address of the buffer on GPU.
  *
  * */
-WISDOM_API uint64_t wisVKBufferGetGPUAddress(const WisVKBuffer* self);
+WIS_INLINE WISDOM_API uint64_t wisVKBufferGetGPUAddress(const WisVKBuffer* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Writes data directly to the texture subresource. Texture @wis_must be in
@@ -5264,7 +5313,7 @@ WISDOM_API uint64_t wisVKBufferGetGPUAddress(const WisVKBuffer* self);
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKTextureWriteSubresource(
+WIS_INLINE WISDOM_API WisResult wisVKTextureWriteSubresource(
     const WisVKTexture* self,
     const void* source_data,
     const WisTextureRegion* target_region
@@ -5276,7 +5325,7 @@ WISDOM_API WisResult wisVKTextureWriteSubresource(
  * @return void CPU descriptor handle for the descriptor heap.
  *
  * */
-WISDOM_API void* wisVKDescriptorHeapGetCPUHandle(const WisVKDescriptorHeap* self);
+WIS_INLINE WISDOM_API void* wisVKDescriptorHeapGetCPUHandle(const WisVKDescriptorHeap* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Writes `WisDescriptorTypeConstantBuffer` descriptor to the descriptor heap.
@@ -5287,7 +5336,7 @@ WISDOM_API void* wisVKDescriptorHeapGetCPUHandle(const WisVKDescriptorHeap* self
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKDescriptorHeapWriteConstantBuffer(
+WIS_INLINE WISDOM_API WisResult wisVKDescriptorHeapWriteConstantBuffer(
     const WisVKDescriptorHeap* self,
     const WisConstantBufferBinding* data,
     uint32_t index
@@ -5302,7 +5351,7 @@ WISDOM_API WisResult wisVKDescriptorHeapWriteConstantBuffer(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKDescriptorHeapWriteStructuredBuffer(
+WIS_INLINE WISDOM_API WisResult wisVKDescriptorHeapWriteStructuredBuffer(
     const WisVKDescriptorHeap* self,
     WisVKBufferView buffer,
     const WisBufferBinding* data,
@@ -5318,7 +5367,7 @@ WISDOM_API WisResult wisVKDescriptorHeapWriteStructuredBuffer(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKDescriptorHeapWriteRWStructuredBuffer(
+WIS_INLINE WISDOM_API WisResult wisVKDescriptorHeapWriteRWStructuredBuffer(
     const WisVKDescriptorHeap* self,
     WisVKBufferView buffer,
     const WisBufferBinding* data,
@@ -5333,7 +5382,7 @@ WISDOM_API WisResult wisVKDescriptorHeapWriteRWStructuredBuffer(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKDescriptorHeapWriteSampler(
+WIS_INLINE WISDOM_API WisResult wisVKDescriptorHeapWriteSampler(
     const WisVKDescriptorHeap* self,
     const WisSamplerDesc* sampler,
     uint32_t index
@@ -5348,7 +5397,7 @@ WISDOM_API WisResult wisVKDescriptorHeapWriteSampler(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKDescriptorHeapWriteTexture(
+WIS_INLINE WISDOM_API WisResult wisVKDescriptorHeapWriteTexture(
     const WisVKDescriptorHeap* self,
     WisVKTextureView texture,
     const WisTextureBinding* data,
@@ -5364,7 +5413,7 @@ WISDOM_API WisResult wisVKDescriptorHeapWriteTexture(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKDescriptorHeapWriteRWTexture(
+WIS_INLINE WISDOM_API WisResult wisVKDescriptorHeapWriteRWTexture(
     const WisVKDescriptorHeap* self,
     WisVKTextureView texture,
     const WisTextureBinding* data,
@@ -5379,7 +5428,7 @@ WISDOM_API WisResult wisVKDescriptorHeapWriteRWTexture(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKDescriptorHeapWriteAccelerationStructure(
+WIS_INLINE WISDOM_API WisResult wisVKDescriptorHeapWriteAccelerationStructure(
     const WisVKDescriptorHeap* self,
     uint64_t address,
     uint32_t index
@@ -5395,7 +5444,7 @@ WISDOM_API WisResult wisVKDescriptorHeapWriteAccelerationStructure(
  * @param descriptor_count indicates the number of descriptors to copy.
  *
  * */
-WISDOM_API void wisVKDescriptorHeapCopyDescriptors(
+WIS_INLINE WISDOM_API void wisVKDescriptorHeapCopyDescriptors(
     const WisVKDescriptorHeap* self,
     uint32_t dst_index,
     const void* src_ptr,
@@ -5413,7 +5462,7 @@ WISDOM_API void wisVKDescriptorHeapCopyDescriptors(
  * @return u64 CPU descriptor handle for the view heap.
  *
  * */
-WISDOM_API uint64_t wisVKViewHeapWriteRenderTarget(
+WIS_INLINE WISDOM_API uint64_t wisVKViewHeapWriteRenderTarget(
     const WisVKViewHeap* self,
     const WisVKTexture* texture,
     const WisRenderTargetDesc* render_target,
@@ -5430,7 +5479,7 @@ WISDOM_API uint64_t wisVKViewHeapWriteRenderTarget(
  * @return u64 CPU descriptor handle for the view heap.
  *
  * */
-WISDOM_API uint64_t wisVKViewHeapWriteDepthStencil(
+WIS_INLINE WISDOM_API uint64_t wisVKViewHeapWriteDepthStencil(
     const WisVKViewHeap* self,
     const WisVKTexture* texture,
     const WisRenderTargetDesc* render_target,
@@ -5444,7 +5493,7 @@ WISDOM_API uint64_t wisVKViewHeapWriteDepthStencil(
  * @return u64 Address of a view in heap.
  *
  * */
-WISDOM_API uint64_t wisVKViewHeapGetViewAddress(const WisVKViewHeap* self, uint32_t index);
+WIS_INLINE WISDOM_API uint64_t wisVKViewHeapGetViewAddress(const WisVKViewHeap* self, uint32_t index);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Copies views from one heap to another.
@@ -5455,7 +5504,7 @@ WISDOM_API uint64_t wisVKViewHeapGetViewAddress(const WisVKViewHeap* self, uint3
  * @param view_count indicates the number of views to copy.
  *
  * */
-WISDOM_API void wisVKViewHeapCopyViews(
+WIS_INLINE WISDOM_API void wisVKViewHeapCopyViews(
     const WisVKViewHeap* self,
     uint32_t dst_index,
     uint64_t src_ptr,
@@ -5469,7 +5518,7 @@ WISDOM_API void wisVKViewHeapCopyViews(
  * @return u64 CPU descriptor handle for the view heap.
  *
  * */
-WISDOM_API uint64_t wisVKViewHeapGetCPUHandle(const WisVKViewHeap* self);
+WIS_INLINE WISDOM_API uint64_t wisVKViewHeapGetCPUHandle(const WisVKViewHeap* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Resets the command allocator, so it can be reused for allocating new command lists.
@@ -5477,7 +5526,7 @@ WISDOM_API uint64_t wisVKViewHeapGetCPUHandle(const WisVKViewHeap* self);
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKCommandAllocatorReset(const WisVKCommandAllocator* self);
+WIS_INLINE WISDOM_API WisResult wisVKCommandAllocatorReset(const WisVKCommandAllocator* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Creates a command list of given type.
@@ -5486,7 +5535,10 @@ WISDOM_API WisResult wisVKCommandAllocatorReset(const WisVKCommandAllocator* sel
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKCommandAllocatorCreateCommandList(const WisVKCommandAllocator* self, WisVKCommandList* list);
+WIS_INLINE WISDOM_API WisResult wisVKCommandAllocatorCreateCommandList(
+    const WisVKCommandAllocator* self,
+    WisVKCommandList* list
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Opens the command list, so commands can be recorded to it.
@@ -5494,7 +5546,7 @@ WISDOM_API WisResult wisVKCommandAllocatorCreateCommandList(const WisVKCommandAl
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKCommandListBegin(const WisVKCommandList* self);
+WIS_INLINE WISDOM_API WisResult wisVKCommandListBegin(const WisVKCommandList* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Closes the command list, so it can be executed on the command queue.
@@ -5502,7 +5554,7 @@ WISDOM_API WisResult wisVKCommandListBegin(const WisVKCommandList* self);
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKCommandListEnd(const WisVKCommandList* self);
+WIS_INLINE WISDOM_API WisResult wisVKCommandListEnd(const WisVKCommandList* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Binds descriptor heaps to the command list, so they can be used for resource
@@ -5513,7 +5565,7 @@ WISDOM_API WisResult wisVKCommandListEnd(const WisVKCommandList* self);
  * @param sampler_heap describes a pointer to WisDescriptorHeap with samplers. If `nullptr`, no sampler heap is bound.
  *
  * */
-WISDOM_API void wisVKCommandListSetDescriptorHeaps(
+WIS_INLINE WISDOM_API void wisVKCommandListSetDescriptorHeaps(
     const WisVKCommandList* self,
     const WisVKDescriptorHeap* resource_heap,
     const WisVKDescriptorHeap* sampler_heap
@@ -5527,7 +5579,7 @@ WISDOM_API void wisVKCommandListSetDescriptorHeaps(
  * @param pipeline specifies the pipeline type to set the root signature for.
  *
  * */
-WISDOM_API void wisVKCommandListSetRootSignature(
+WIS_INLINE WISDOM_API void wisVKCommandListSetRootSignature(
     const WisVKCommandList* self,
     WisVKRootSignatureView signature,
     WisPipelineType pipeline
@@ -5540,7 +5592,10 @@ WISDOM_API void wisVKCommandListSetRootSignature(
  * @param data specifies a pointer to WisPushConstantDataDesc, which describes the push constant data to set.
  *
  * */
-WISDOM_API void wisVKCommandListSetPushConstants(const WisVKCommandList* self, const WisPushConstantDataDesc* data);
+WIS_INLINE WISDOM_API void wisVKCommandListSetPushConstants(
+    const WisVKCommandList* self,
+    const WisPushConstantDataDesc* data
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Sets the push descriptors for the command list, so they can be used for resource
@@ -5549,7 +5604,10 @@ WISDOM_API void wisVKCommandListSetPushConstants(const WisVKCommandList* self, c
  * @param data specifies a pointer to WisPushDescriptorDataDesc, which describes the push descriptors to set.
  *
  * */
-WISDOM_API void wisVKCommandListSetPushDescriptor(const WisVKCommandList* self, const WisPushDescriptorDataDesc* data);
+WIS_INLINE WISDOM_API void wisVKCommandListSetPushDescriptor(
+    const WisVKCommandList* self,
+    const WisPushDescriptorDataDesc* data
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Sets the descriptor table offset in descriptor heap for the command list, so it can
@@ -5558,7 +5616,7 @@ WISDOM_API void wisVKCommandListSetPushDescriptor(const WisVKCommandList* self, 
  * @param data specifies the root parameter index to set the descriptor table for.
  *
  * */
-WISDOM_API void wisVKCommandListSetDescriptorTable(
+WIS_INLINE WISDOM_API void wisVKCommandListSetDescriptorTable(
     const WisVKCommandList* self,
     const WisDescriptorTableDataDesc* data
 );
@@ -5569,7 +5627,10 @@ WISDOM_API void wisVKCommandListSetDescriptorTable(
  * @param barriers specifies a pointer to an array of barriers to insert.
  *
  * */
-WISDOM_API void wisVKCommandListInsertBarriers(const WisVKCommandList* self, const WisVKBarrierGroup* barriers);
+WIS_INLINE WISDOM_API void wisVKCommandListInsertBarriers(
+    const WisVKCommandList* self,
+    const WisVKBarrierGroup* barriers
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Sets the pipeline state object for the command list, so it can be used for draw and
@@ -5579,7 +5640,7 @@ WISDOM_API void wisVKCommandListInsertBarriers(const WisVKCommandList* self, con
  * @param type specifies the pipeline type to set the pipeline for.
  *
  * */
-WISDOM_API void wisVKCommandListSetPipeline(
+WIS_INLINE WISDOM_API void wisVKCommandListSetPipeline(
     const WisVKCommandList* self,
     WisVKPipelineView pipeline,
     WisPipelineType type
@@ -5592,7 +5653,7 @@ WISDOM_API void wisVKCommandListSetPipeline(
  * @param viewport_count defines number of viewports to set.
  *
  * */
-WISDOM_API void wisVKCommandListSetViewports(
+WIS_INLINE WISDOM_API void wisVKCommandListSetViewports(
     WisVKCommandList* self,
     const WisViewport* viewports,
     size_t viewport_count
@@ -5608,7 +5669,11 @@ WISDOM_API void wisVKCommandListSetViewports(
  * @param rect_count defines number of scissor rectangles to set.
  *
  * */
-WISDOM_API void wisVKCommandListSetScissors(WisVKCommandList* self, const WisRect* scissor_rect, size_t rect_count);
+WIS_INLINE WISDOM_API void wisVKCommandListSetScissors(
+    WisVKCommandList* self,
+    const WisRect* scissor_rect,
+    size_t rect_count
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Sets the primitive topology. Determines how vertices shall be processed.
@@ -5616,7 +5681,7 @@ WISDOM_API void wisVKCommandListSetScissors(WisVKCommandList* self, const WisRec
  * @param topology describes primitive topology to set.
  *
  * */
-WISDOM_API void wisVKCommandListSetPrimitiveTopology(WisVKCommandList* self, WisPrimitiveTopology topology);
+WIS_INLINE WISDOM_API void wisVKCommandListSetPrimitiveTopology(WisVKCommandList* self, WisPrimitiveTopology topology);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Sets the depth bias. Determines how depth values are modified during rasterization.
@@ -5626,7 +5691,7 @@ WISDOM_API void wisVKCommandListSetPrimitiveTopology(WisVKCommandList* self, Wis
  * @param slope_scaled_depth_bias defines slope-scaled depth bias to set.
  *
  * */
-WISDOM_API void wisVKCommandListSetDepthBias(
+WIS_INLINE WISDOM_API void wisVKCommandListSetDepthBias(
     WisVKCommandList* self,
     float depth_bias,
     float depth_bias_clamp,
@@ -5640,7 +5705,7 @@ WISDOM_API void wisVKCommandListSetDepthBias(
  * @param restart_value describes primitive restart value to set.
  *
  * */
-WISDOM_API void wisVKCommandListSetPrimitiveRestartValue(
+WIS_INLINE WISDOM_API void wisVKCommandListSetPrimitiveRestartValue(
     WisVKCommandList* self,
     WisPrimitiveRestartValue restart_value
 );
@@ -5653,7 +5718,7 @@ WISDOM_API void wisVKCommandListSetPrimitiveRestartValue(
  * @param group_count_z specifies number of groups to dispatch in Z dimension; default is 1.
  *
  * */
-WISDOM_API void wisVKCommandListDispatch(
+WIS_INLINE WISDOM_API void wisVKCommandListDispatch(
     const WisVKCommandList* self,
     uint32_t group_count_x,
     uint32_t group_count_y,
@@ -5669,7 +5734,7 @@ WISDOM_API void wisVKCommandListDispatch(
  * @param start_instance specifies index of the first instance to draw; default is 0.
  *
  * */
-WISDOM_API void wisVKCommandListDraw(
+WIS_INLINE WISDOM_API void wisVKCommandListDraw(
     const WisVKCommandList* self,
     uint32_t vertex_count,
     uint32_t instance_count,
@@ -5687,7 +5752,7 @@ WISDOM_API void wisVKCommandListDraw(
  * @param start_instance specifies index of the first instance to draw; default is 0.
  *
  * */
-WISDOM_API void wisVKCommandListDrawIndexed(
+WIS_INLINE WISDOM_API void wisVKCommandListDrawIndexed(
     const WisVKCommandList* self,
     uint32_t index_count,
     uint32_t instance_count,
@@ -5702,14 +5767,14 @@ WISDOM_API void wisVKCommandListDrawIndexed(
  * @param desc indicates a pointer to WisRenderPassDesc, which describes the render pass to begin.
  *
  * */
-WISDOM_API void wisVKCommandListBeginRenderPass(const WisVKCommandList* self, const WisRenderPassDesc* desc);
+WIS_INLINE WISDOM_API void wisVKCommandListBeginRenderPass(const WisVKCommandList* self, const WisRenderPassDesc* desc);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Ends the current render pass.
  * @param self is a pointer to the valid WisCommandList instance.
  *
  * */
-WISDOM_API void wisVKCommandListEndRenderPass(const WisVKCommandList* self);
+WIS_INLINE WISDOM_API void wisVKCommandListEndRenderPass(const WisVKCommandList* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Copies regions from one buffer to another.
@@ -5720,7 +5785,7 @@ WISDOM_API void wisVKCommandListEndRenderPass(const WisVKCommandList* self);
  * @param region_count defines the count of the regions.
  *
  * */
-WISDOM_API void wisVKCommandListCopyBuffer(
+WIS_INLINE WISDOM_API void wisVKCommandListCopyBuffer(
     const WisVKCommandList* self,
     WisVKBufferView dst_buffer,
     WisVKBufferView src_buffer,
@@ -5737,7 +5802,7 @@ WISDOM_API void wisVKCommandListCopyBuffer(
  * @param region_count defines the count of the regions.
  *
  * */
-WISDOM_API void wisVKCommandListCopyBufferToTexture(
+WIS_INLINE WISDOM_API void wisVKCommandListCopyBufferToTexture(
     const WisVKCommandList* self,
     WisVKTextureView dst_texture,
     WisVKBufferView src_buffer,
@@ -5754,7 +5819,7 @@ WISDOM_API void wisVKCommandListCopyBufferToTexture(
  * @param region_count defines the count of the regions.
  *
  * */
-WISDOM_API void wisVKCommandListCopyTextureToBuffer(
+WIS_INLINE WISDOM_API void wisVKCommandListCopyTextureToBuffer(
     const WisVKCommandList* self,
     WisVKBufferView dst_buffer,
     WisVKTextureView src_texture,
@@ -5771,7 +5836,7 @@ WISDOM_API void wisVKCommandListCopyTextureToBuffer(
  * @param region_count defines the count of the regions.
  *
  * */
-WISDOM_API void wisVKCommandListCopyTexture(
+WIS_INLINE WISDOM_API void wisVKCommandListCopyTexture(
     const WisVKCommandList* self,
     WisVKTextureView dst_texture,
     WisVKTextureView src_texture,
@@ -5787,7 +5852,7 @@ WISDOM_API void wisVKCommandListCopyTexture(
  * @param start_slot The start slot to set the vertex buffers to. Default is 0.
  *
  * */
-WISDOM_API void wisVKCommandListSetVertexBuffers(
+WIS_INLINE WISDOM_API void wisVKCommandListSetVertexBuffers(
     WisVKCommandList* self,
     const WisVKVertexBufferDesc* buffers,
     size_t buffer_count,
@@ -5803,7 +5868,7 @@ WISDOM_API void wisVKCommandListSetVertexBuffers(
  * @param start_slot The start slot to set the vertex buffers to. Default is 0.
  *
  * */
-WISDOM_API void wisVKCommandListSetVertexBuffers2(
+WIS_INLINE WISDOM_API void wisVKCommandListSetVertexBuffers2(
     WisVKCommandList* self,
     const WisVertexBufferAddressDesc* buffers,
     size_t buffer_count,
@@ -5818,7 +5883,7 @@ WISDOM_API void wisVKCommandListSetVertexBuffers2(
  * `WisIndexTypeUInt16` or `WisIndexTypeUInt32`.
  *
  * */
-WISDOM_API void wisVKCommandListSetIndexBuffer(
+WIS_INLINE WISDOM_API void wisVKCommandListSetIndexBuffer(
     WisVKCommandList* self,
     const WisVKIndexBufferDesc* buffer,
     WisIndexType index_type
@@ -5833,7 +5898,7 @@ WISDOM_API void wisVKCommandListSetIndexBuffer(
  * `WisIndexTypeUInt16` or `WisIndexTypeUInt32`.
  *
  * */
-WISDOM_API void wisVKCommandListSetIndexBuffer2(
+WIS_INLINE WISDOM_API void wisVKCommandListSetIndexBuffer2(
     WisVKCommandList* self,
     const WisIndexBufferAddressDesc* buffer,
     WisIndexType index_type
@@ -5849,7 +5914,7 @@ WISDOM_API void wisVKCommandListSetIndexBuffer2(
  * @param blend_factor_a specifies blend factor for alpha channel to set.
  *
  * */
-WISDOM_API void wisVKCommandListSetBlendFactors(
+WIS_INLINE WISDOM_API void wisVKCommandListSetBlendFactors(
     const WisVKCommandList* self,
     float blend_factor_r,
     float blend_factor_g,
@@ -5866,7 +5931,11 @@ WISDOM_API void wisVKCommandListSetBlendFactors(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKPipelineCacheSerialize(const WisVKPipelineCache* self, uint8_t* data, size_t data_size);
+WIS_INLINE WISDOM_API WisResult wisVKPipelineCacheSerialize(
+    const WisVKPipelineCache* self,
+    uint8_t* data,
+    size_t data_size
+);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Gets the size of the data in the pipeline cache.
@@ -5874,7 +5943,7 @@ WISDOM_API WisResult wisVKPipelineCacheSerialize(const WisVKPipelineCache* self,
  * @return size Size of the data in bytes.
  *
  * */
-WISDOM_API size_t wisVKPipelineCacheGetSerializedSize(const WisVKPipelineCache* self);
+WIS_INLINE WISDOM_API size_t wisVKPipelineCacheGetSerializedSize(const WisVKPipelineCache* self);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Presents the swapchain image to the screen.
@@ -5885,7 +5954,7 @@ WISDOM_API size_t wisVKPipelineCacheGetSerializedSize(const WisVKPipelineCache* 
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKSwapchainPresent(
+WIS_INLINE WISDOM_API WisResult wisVKSwapchainPresent(
     const WisVKSwapchain* self,
     WisPresentFlags flags,
     const WisRect* rects,
@@ -5900,7 +5969,7 @@ WISDOM_API WisResult wisVKSwapchainPresent(
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKSwapchainGetCurrentIndex(const WisVKSwapchain* self, uint32_t* index);
+WIS_INLINE WISDOM_API WisResult wisVKSwapchainGetCurrentIndex(const WisVKSwapchain* self, uint32_t* index);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Resizes the swapchain buffers. If the swapchain is currently in use, it @wis_must be
@@ -5910,7 +5979,7 @@ WISDOM_API WisResult wisVKSwapchainGetCurrentIndex(const WisVKSwapchain* self, u
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKSwapchainUpdate(const WisVKSwapchain* self, const WisSwapchainUpdateDesc* desc);
+WIS_INLINE WISDOM_API WisResult wisVKSwapchainUpdate(const WisVKSwapchain* self, const WisSwapchainUpdateDesc* desc);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Gets the swapchain buffers. The textures are in `WisTextureStateCommon`.
@@ -5921,7 +5990,11 @@ WISDOM_API WisResult wisVKSwapchainUpdate(const WisVKSwapchain* self, const WisS
  * @return Result denoting the outcome of operation.
  *
  * */
-WISDOM_API WisResult wisVKSwapchainGetTextures(const WisVKSwapchain* self, WisVKTexture* buffers, size_t buffer_count);
+WIS_INLINE WISDOM_API WisResult wisVKSwapchainGetTextures(
+    const WisVKSwapchain* self,
+    WisVKTexture* buffers,
+    size_t buffer_count
+);
 
 #endif // WISDOM_VULKAN
 
