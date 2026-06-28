@@ -30,6 +30,10 @@ struct DX12VideoDecodeCommandListImpl {
     mutable uint32_t scratch_memory_size;
     mutable uint8_t* scratch_memory;
 };
+struct DX12VideoDecoderParametersImpl {
+    void* filler;
+    WisVideoCodecFlags codec;
+};
 
 } // namespace impl
 } // namespace wis

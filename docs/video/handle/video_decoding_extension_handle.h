@@ -24,6 +24,7 @@
  * \cond WIS_GEN_REFS
  * @see Functions:
  * wisDestroyVideoDecodingExtension, wisInitVideoDecodingExtension, wisVideoDecodingExtensionQueryCodecCaps,
- * wisVideoDecodingExtensionCreateDecoder, wisVideoDecodingExtensionCreateCommandList
+ * wisVideoDecodingExtensionCreateDecoder, wisVideoDecodingExtensionCreateCommandList,
+ * wisVideoDecodingExtensionCreateParameters
  * \endcond
  */

@@ -22,6 +22,7 @@ static_assert(WISDOM_UWP && _WIN32, "Platform error");
 // Handles
 //==============================================================
 
+typedef struct WisDX12VideoDecoderParameters WisVideoDecoderParameters;
 typedef struct WisDX12VideoDecoder WisVideoDecoder;
 typedef struct WisDX12VideoDecodeCommandList WisVideoDecodeCommandList;
 typedef struct WisDX12VideoDecodingExtension WisVideoDecodingExtension;
@@ -38,6 +39,7 @@ typedef struct WisDX12VideoDecodePictureDesc WisVideoDecodePictureDesc;
 // Functions
 //==============================================================
 
+#    define wisDestroyVideoDecoderParameters           wisDX12DestroyVideoDecoderParameters
 #    define wisDestroyVideoDecoder                     wisDX12DestroyVideoDecoder
 #    define wisDestroyVideoDecodeCommandList           wisDX12DestroyVideoDecodeCommandList
 #    define wisDestroyVideoDecodingExtension           wisDX12DestroyVideoDecodingExtension
@@ -45,6 +47,7 @@ typedef struct WisDX12VideoDecodePictureDesc WisVideoDecodePictureDesc;
 #    define wisVideoDecodingExtensionQueryCodecCaps    wisDX12VideoDecodingExtensionQueryCodecCaps
 #    define wisVideoDecodingExtensionCreateDecoder     wisDX12VideoDecodingExtensionCreateDecoder
 #    define wisVideoDecodingExtensionCreateCommandList wisDX12VideoDecodingExtensionCreateCommandList
+#    define wisVideoDecodingExtensionCreateParameters  wisDX12VideoDecodingExtensionCreateParameters
 #    define wisVideoDecodeCommandListBegin             wisDX12VideoDecodeCommandListBegin
 #    define wisVideoDecodeCommandListEnd               wisDX12VideoDecodeCommandListEnd
 #    define wisVideoDecodeCommandListInsertBarriers    wisDX12VideoDecodeCommandListInsertBarriers
@@ -56,6 +59,7 @@ typedef struct WisDX12VideoDecodePictureDesc WisVideoDecodePictureDesc;
 // Handles
 //==============================================================
 
+typedef struct WisVKVideoDecoderParameters WisVideoDecoderParameters;
 typedef struct WisVKVideoDecoder WisVideoDecoder;
 typedef struct WisVKVideoDecodeCommandList WisVideoDecodeCommandList;
 typedef struct WisVKVideoDecodingExtension WisVideoDecodingExtension;
@@ -72,6 +76,7 @@ typedef struct WisVKVideoDecodePictureDesc WisVideoDecodePictureDesc;
 // Functions
 //==============================================================
 
+#    define wisDestroyVideoDecoderParameters           wisVKDestroyVideoDecoderParameters
 #    define wisDestroyVideoDecoder                     wisVKDestroyVideoDecoder
 #    define wisDestroyVideoDecodeCommandList           wisVKDestroyVideoDecodeCommandList
 #    define wisDestroyVideoDecodingExtension           wisVKDestroyVideoDecodingExtension
@@ -79,6 +84,7 @@ typedef struct WisVKVideoDecodePictureDesc WisVideoDecodePictureDesc;
 #    define wisVideoDecodingExtensionQueryCodecCaps    wisVKVideoDecodingExtensionQueryCodecCaps
 #    define wisVideoDecodingExtensionCreateDecoder     wisVKVideoDecodingExtensionCreateDecoder
 #    define wisVideoDecodingExtensionCreateCommandList wisVKVideoDecodingExtensionCreateCommandList
+#    define wisVideoDecodingExtensionCreateParameters  wisVKVideoDecodingExtensionCreateParameters
 #    define wisVideoDecodeCommandListBegin             wisVKVideoDecodeCommandListBegin
 #    define wisVideoDecodeCommandListEnd               wisVKVideoDecodeCommandListEnd
 #    define wisVideoDecodeCommandListInsertBarriers    wisVKVideoDecodeCommandListInsertBarriers

@@ -202,7 +202,6 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisVKVideoDecodeCommandListDecodeFrame(
         .pNext = nullptr,
         .flags = 0,
         .videoSession = decoder_impl.video_session,
-        .videoSessionParameters = VK_NULL_HANDLE,
         .referenceSlotCount = is_reference ? 1u : 0u,
         .pReferenceSlots = is_reference ? &setup_reference_slot : nullptr,
     };

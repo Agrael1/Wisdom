@@ -1461,7 +1461,53 @@ typedef struct WisVideoDecoderDesc {
     uint32_t decode_picture_buffer_count;
 } WisVideoDecoderDesc;
 
+/**
+ * @brief Provided by Wisdom 0.7.1. AV1 sequence header data used for creating decoder parameters.
+ *
+ * */
+typedef struct WisVideoDecodeAV1Desc {
+    /**
+     * @brief The AV1 sequence header containing profile, tier, level, chroma format, bit depth, and all sequence-level
+     * flags.
+     * */
+    WisStdVideoAV1SequenceHeader sequence_header;
+} WisVideoDecodeAV1Desc;
+
+/**
+ * @brief Provided by Wisdom 0.7.1. H.265 parameter set data for creating decoder parameters.
+ *
+ * */
+typedef struct WisVideoDecodeH265Desc {
+    uint32_t max_vps_count; ///< Maximum number of VPS entries the slot can hold.
+    uint32_t max_sps_count; ///< Maximum number of SPS entries the slot can hold.
+    uint32_t max_pps_count; ///< Maximum number of PPS entries the slot can hold.
+    const WisStdVideoH265VideoParameterSet* vps; ///< Pointer to an array of VPS data.
+    uint32_t vps_count; ///< Number of VPS entries.
+    const WisStdVideoH265SequenceParameterSet* sps; ///< Pointer to an array of SPS data.
+    uint32_t sps_count; ///< Number of SPS entries.
+    const WisStdVideoH265PictureParameterSet* pps; ///< Pointer to an array of PPS data.
+    uint32_t pps_count; ///< Number of PPS entries.
+} WisVideoDecodeH265Desc;
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Codec-specific variant for decoder parameter creation. Contains AV1 or H.265
+ * parameter data depending on the codec field.
+ *
+ * */
+typedef struct WisVideoDecodeParameterDesc {
+    WisStdCodecProfile codec; ///< Codec type selector. Determines which parameter set is valid.
+    const WisVideoDecodeAV1Desc* av1; ///< AV1 decoder parameters (valid when codec is an AV1 profile).
+    const WisVideoDecodeH265Desc* h265; ///< H.265 decoder parameters (valid when codec is an H.265 profile).
+} WisVideoDecodeParameterDesc;
+
 #ifdef WISDOM_DX12
+/**
+ * @brief Provided by Wisdom 0.7.1. Handle for video decoder parameters. Represents the parameters and capabilities of a
+ * video decoder, such as supported codecs, bit depths, and chroma subsampling formats.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisDX12VideoDecoderParameters, 2);
+
 /**
  * @brief Provided by Wisdom 0.7.1. Handle for a video decoder. Represents a video decoder instance that can be used to
  * decode video frames.
@@ -1549,6 +1595,13 @@ typedef struct WisDX12VideoDecodePictureDesc {
 } WisDX12VideoDecodePictureDesc;
 
 /**
+ * @brief Provided by Wisdom 0.7.1. Destroys a WisVideoDecoderParameters handle.
+ * @param self is a pointer to the valid WisVideoDecoderParameters instance.
+ *
+ * */
+WIS_INLINE WISDOM_VIDEO_API void wisDX12DestroyVideoDecoderParameters(WisDX12VideoDecoderParameters* self);
+
+/**
  * @brief Provided by Wisdom 0.7.1. Destroys a WisVideoDecoder handle.
  * @param self is a pointer to the valid WisVideoDecoder instance.
  *
@@ -1623,6 +1676,23 @@ WIS_INLINE WISDOM_VIDEO_API WisResult wisDX12VideoDecodingExtensionCreateCommand
 );
 
 /**
+ * @brief Provided by Wisdom 0.7.1. Creates decoder parameters from codec-specific parameter data.
+ * @param self is a pointer to the valid WisVideoDecodingExtension instance.
+ * @param decoder The video decoder that will use these parameters.
+ * @param params Codec-specific parameter data. Contains either AV1 or H.265 parameters depending on the codec field.
+ * @param decoder_parameters Output parameter that holds the created video decoder parameters handle if the operation is
+ * successful.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WIS_INLINE WISDOM_VIDEO_API WisResult wisDX12VideoDecodingExtensionCreateParameters(
+    const WisDX12VideoDecodingExtension* self,
+    const WisDX12VideoDecoder* decoder,
+    const WisVideoDecodeParameterDesc* params,
+    WisDX12VideoDecoderParameters* decoder_parameters
+);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Opens the command list, so commands can be recorded to it.
  * @param self is a pointer to the valid WisVideoDecodeCommandList instance.
  * @return Result denoting the outcome of operation.
@@ -1670,6 +1740,13 @@ WIS_INLINE WISDOM_VIDEO_API void wisDX12VideoDecodeCommandListDecodeFrame(
 #endif // WISDOM_DX12
 
 #ifdef WISDOM_VULKAN
+/**
+ * @brief Provided by Wisdom 0.7.1. Handle for video decoder parameters. Represents the parameters and capabilities of a
+ * video decoder, such as supported codecs, bit depths, and chroma subsampling formats.
+ *
+ * */
+WIS_DEFINE_HANDLE(WisVKVideoDecoderParameters, 4);
+
 /**
  * @brief Provided by Wisdom 0.7.1. Handle for a video decoder. Represents a video decoder instance that can be used to
  * decode video frames.
@@ -1757,6 +1834,13 @@ typedef struct WisVKVideoDecodePictureDesc {
 } WisVKVideoDecodePictureDesc;
 
 /**
+ * @brief Provided by Wisdom 0.7.1. Destroys a WisVideoDecoderParameters handle.
+ * @param self is a pointer to the valid WisVideoDecoderParameters instance.
+ *
+ * */
+WIS_INLINE WISDOM_VIDEO_API void wisVKDestroyVideoDecoderParameters(WisVKVideoDecoderParameters* self);
+
+/**
  * @brief Provided by Wisdom 0.7.1. Destroys a WisVideoDecoder handle.
  * @param self is a pointer to the valid WisVideoDecoder instance.
  *
@@ -1828,6 +1912,23 @@ WIS_INLINE WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionCreateCommandLi
     WisVKVideoDecodingExtension* self,
     const WisVKCommandAllocator* command_allocator,
     WisVKVideoDecodeCommandList* command_list
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Creates decoder parameters from codec-specific parameter data.
+ * @param self is a pointer to the valid WisVideoDecodingExtension instance.
+ * @param decoder The video decoder that will use these parameters.
+ * @param params Codec-specific parameter data. Contains either AV1 or H.265 parameters depending on the codec field.
+ * @param decoder_parameters Output parameter that holds the created video decoder parameters handle if the operation is
+ * successful.
+ * @return Result denoting the outcome of operation.
+ *
+ * */
+WIS_INLINE WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionCreateParameters(
+    const WisVKVideoDecodingExtension* self,
+    const WisVKVideoDecoder* decoder,
+    const WisVideoDecodeParameterDesc* params,
+    WisVKVideoDecoderParameters* decoder_parameters
 );
 
 /**

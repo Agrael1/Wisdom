@@ -29,7 +29,8 @@ public:
         wis::StdCodecProfile codec_profile,
         wis::DataFormat output_format,
         uint32_t width,
-        uint32_t height);
+        uint32_t height,
+        const wis::VideoDecodeH265Desc* h265_params = nullptr);
 
     int Frame();
 
@@ -42,4 +43,5 @@ private:
     wis::CommandAllocator video_alloc;
     wis::VideoDecodeCommandList video_cl;
     wis::VideoDecoder decoder;
+    wis::VideoDecoderParameters decoder_params;
 };

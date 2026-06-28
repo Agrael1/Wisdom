@@ -146,5 +146,7 @@
  * @section WisStdVideoH265PictureParameterSet_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
+ * @see Structs:
+ * WisVideoDecodeH265Desc
  * \endcond
  */

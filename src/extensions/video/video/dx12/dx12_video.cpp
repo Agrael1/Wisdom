@@ -5,6 +5,7 @@
 #include <wisdom/dx12/detail/dx12_detail.hpp>
 #include <wisdom/generated/dx12_convert.hpp>
 #include <video/generated/cpp_api.hpp>
+#include <video/dx12/detail/dx12_video_parameters.hpp>
 
 #ifndef DX12SDKVER
 #    include <directx/d3d12video.h>
@@ -297,6 +298,76 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisDX12DestroyVideoDecoder(WisDX12VideoDecode
         impl.decoder->Release();
         impl.decoder = nullptr;
     }
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisDX12VideoDecodingExtensionCreateParameters(
+    const WisDX12VideoDecodingExtension* self,
+    const WisDX12VideoDecoder* decoder,
+    const WisVideoDecodeParameterDesc* params,
+    WisDX12VideoDecoderParameters* decoder_parameters
+)
+{
+    auto& decoder_impl = wis::from_handle_ref<const wis::impl::DX12VideoDecoderImpl>(decoder);
+    void* allocation = nullptr;
+
+    switch (decoder_impl.codec) {
+    case WisVideoCodecFlagsAV1: {
+        auto& sequence_header = params->av1->sequence_header;
+        std::unique_ptr<wis::detail::DX12AV1DecoderParameters>
+            params = wis::make_unique<wis::detail::DX12AV1DecoderParameters>(sequence_header);
+        if (!params) {
+            return wis::detail::make_result<wis::detail::Func(), "Failed to allocate memory for decoder parameters.">(
+                E_OUTOFMEMORY
+            );
+        }
+
+        allocation = params.release();
+        break;
+    }
+
+    case WisVideoCodecFlagsH265: {
+        std::unique_ptr<wis::detail::DX12H265DecoderParameters>
+            h265_params = wis::make_unique<wis::detail::DX12H265DecoderParameters>(*params->h265);
+        if (!h265_params) {
+            return wis::detail::make_result<wis::detail::Func(), "Failed to allocate memory for decoder parameters.">(
+                E_OUTOFMEMORY
+            );
+        }
+        allocation = h265_params.release();
+        break;
+    }
+
+    default:
+        return wis::detail::make_result<
+            wis::detail::Func(),
+            "Creating video decoder parameters for the specified codec is not yet implemented.">(E_NOTIMPL);
+    }
+
+    new (decoder_parameters) wis::impl::DX12VideoDecoderParametersImpl{
+        .filler = allocation,
+        .codec = decoder_impl.codec,
+    };
+    return wis::detail::dx_success;
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_VIDEO_API void wisDX12DestroyVideoDecoderParameters(WisDX12VideoDecoderParameters* self)
+{
+    auto& impl = wis::from_handle_ref<wis::impl::DX12VideoDecoderParametersImpl>(self);
+    if (impl.filler) {
+        switch (impl.codec) {
+        case WisVideoCodecFlagsAV1:
+            delete static_cast<wis::detail::DX12AV1DecoderParameters*>(impl.filler);
+            break;
+        case WisVideoCodecFlagsH265:
+            delete static_cast<wis::detail::DX12H265DecoderParameters*>(impl.filler);
+            break;
+        default:
+            break;
+        }
+    }
+    impl.filler = nullptr;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

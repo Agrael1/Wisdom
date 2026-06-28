@@ -29,7 +29,8 @@ std::optional<Graphics> Graphics::Create(
     wis::StdCodecProfile codec_profile,
     wis::DataFormat output_format,
     uint32_t width,
-    uint32_t height
+    uint32_t height,
+    const wis::VideoDecodeH265Desc* h265_params
 )
 {
     std::optional<Graphics> out;
@@ -138,7 +139,32 @@ std::optional<Graphics> Graphics::Create(
         return out;
     }
 
+    {
+        wis::VideoDecodeH265Desc default_params{
+            .max_vps_count = h265_params ? h265_params->max_vps_count : 2,
+            .max_sps_count = h265_params ? h265_params->max_sps_count : 2,
+            .max_pps_count = h265_params ? h265_params->max_pps_count : 16,
+            .vps = h265_params ? h265_params->vps : nullptr,
+            .vps_count = h265_params ? h265_params->vps_count : 0,
+            .sps = h265_params ? h265_params->sps : nullptr,
+            .sps_count = h265_params ? h265_params->sps_count : 0,
+            .pps = h265_params ? h265_params->pps : nullptr,
+            .pps_count = h265_params ? h265_params->pps_count : 0,
+        };
+        wis::VideoDecodeParameterDesc param_desc{
+            .codec = codec_profile,
+            .av1 = nullptr,
+            .h265 = &default_params,
+        };
+        g.decoder_params = g.video_ext.CreateParameters(g.decoder, param_desc, result);
+        if (!check_result(result, "CreateParameters")) {
+            out.reset();
+            return out;
+        }
+    }
+
     std::printf("H.265 decoder created: %dx%d, dpb=16\n", width, height);
+    std::printf("H.265 session parameters created\n");
     return out;
 }
 

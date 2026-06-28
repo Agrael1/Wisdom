@@ -1485,6 +1485,45 @@ struct VideoDecoderDesc {
     std::uint32_t decode_picture_buffer_count;
 };
 
+/**
+ * @brief Provided by Wisdom 0.7.1. AV1 sequence header data used for creating decoder parameters.
+ *
+ * */
+struct VideoDecodeAV1Desc {
+    /**
+     * @brief The AV1 sequence header containing profile, tier, level, chroma format, bit depth, and all sequence-level
+     * flags.
+     * */
+    wis::StdVideoAV1SequenceHeader sequence_header;
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.1. H.265 parameter set data for creating decoder parameters.
+ *
+ * */
+struct VideoDecodeH265Desc {
+    std::uint32_t max_vps_count; ///< Maximum number of VPS entries the slot can hold.
+    std::uint32_t max_sps_count; ///< Maximum number of SPS entries the slot can hold.
+    std::uint32_t max_pps_count; ///< Maximum number of PPS entries the slot can hold.
+    const wis::StdVideoH265VideoParameterSet* vps; ///< Pointer to an array of VPS data.
+    std::uint32_t vps_count; ///< Number of VPS entries.
+    const wis::StdVideoH265SequenceParameterSet* sps; ///< Pointer to an array of SPS data.
+    std::uint32_t sps_count; ///< Number of SPS entries.
+    const wis::StdVideoH265PictureParameterSet* pps; ///< Pointer to an array of PPS data.
+    std::uint32_t pps_count; ///< Number of PPS entries.
+};
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Codec-specific variant for decoder parameter creation. Contains AV1 or H.265
+ * parameter data depending on the codec field.
+ *
+ * */
+struct VideoDecodeParameterDesc {
+    wis::StdCodecProfile codec; ///< Codec type selector. Determines which parameter set is valid.
+    const wis::VideoDecodeAV1Desc* av1; ///< AV1 decoder parameters (valid when codec is an AV1 profile).
+    const wis::VideoDecodeH265Desc* h265; ///< H.265 decoder parameters (valid when codec is an H.265 profile).
+};
+
 } // namespace wis
 
 #ifdef WISDOM_DX12
@@ -1547,6 +1586,25 @@ struct DX12VideoDecodePictureDesc {
      * @brief Number of reference frames for this decode operation.
      * */
     std::uint32_t reference_frame_count;
+};
+
+struct DX12VideoDecoderParametersDeleter {
+    void operator()(WisDX12VideoDecoderParameters* handle) noexcept { ::wisDX12DestroyVideoDecoderParameters(handle); }
+};
+/**
+ * @brief Provided by Wisdom 0.7.1. Handle for video decoder parameters. Represents the parameters and capabilities of a
+ * video decoder, such as supported codecs, bit depths, and chroma subsampling formats.
+ *
+ * */
+class DX12VideoDecoderParameters : public wis::impl::Implements<
+                                       wis::impl::DX12VideoDecoderParametersImpl,
+                                       WisDX12VideoDecoderParameters,
+                                       wis::DX12VideoDecoderParametersDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
 };
 
 struct DX12VideoDecoderDeleter {
@@ -1741,6 +1799,36 @@ public:
         };
         return command_list;
     }
+    /**
+     * @brief Provided by Wisdom 0.7.1. Creates decoder parameters from codec-specific parameter data.
+     * @param decoder The video decoder that will use these parameters.
+     * @param params Codec-specific parameter data. Contains either AV1 or H.265 parameters depending on the codec
+     * field.
+     * @param out_result denoting the outcome of operation.
+     * @return decoder_parameters Output parameter that holds the created video decoder parameters handle if the
+     * operation is successful.
+     *
+     * */
+    WIS_NODISCARD inline wis::DX12VideoDecoderParameters CreateParameters(
+        const wis::DX12VideoDecoder& decoder,
+        const wis::VideoDecodeParameterDesc& params,
+        wis::Result& out_result
+    ) const noexcept
+    {
+        wis::DX12VideoDecoderParameters decoder_parameters{};
+        const WisResult wis_result = ::wisDX12VideoDecodingExtensionCreateParameters(
+            &_impl_storage,
+            reinterpret_cast<const WisDX12VideoDecoder*>(&decoder),
+            reinterpret_cast<const WisVideoDecodeParameterDesc*>(&params),
+            decoder_parameters.GetStorage()
+        );
+        out_result = wis::Result{
+            static_cast<wis::Status>(wis_result.status),
+            wis_result.platform_code,
+            wis_result.error
+        };
+        return decoder_parameters;
+    }
 };
 
 } // namespace wis
@@ -1806,6 +1894,25 @@ struct VKVideoDecodePictureDesc {
      * @brief Number of reference frames for this decode operation.
      * */
     std::uint32_t reference_frame_count;
+};
+
+struct VKVideoDecoderParametersDeleter {
+    void operator()(WisVKVideoDecoderParameters* handle) noexcept { ::wisVKDestroyVideoDecoderParameters(handle); }
+};
+/**
+ * @brief Provided by Wisdom 0.7.1. Handle for video decoder parameters. Represents the parameters and capabilities of a
+ * video decoder, such as supported codecs, bit depths, and chroma subsampling formats.
+ *
+ * */
+class VKVideoDecoderParameters : public wis::impl::Implements<
+                                     wis::impl::VKVideoDecoderParametersImpl,
+                                     WisVKVideoDecoderParameters,
+                                     wis::VKVideoDecoderParametersDeleter>
+{
+public:
+    using ImplType::ImplType;
+
+public:
 };
 
 struct VKVideoDecoderDeleter {
@@ -1999,6 +2106,36 @@ public:
             wis_result.error
         };
         return command_list;
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.1. Creates decoder parameters from codec-specific parameter data.
+     * @param decoder The video decoder that will use these parameters.
+     * @param params Codec-specific parameter data. Contains either AV1 or H.265 parameters depending on the codec
+     * field.
+     * @param out_result denoting the outcome of operation.
+     * @return decoder_parameters Output parameter that holds the created video decoder parameters handle if the
+     * operation is successful.
+     *
+     * */
+    WIS_NODISCARD inline wis::VKVideoDecoderParameters CreateParameters(
+        const wis::VKVideoDecoder& decoder,
+        const wis::VideoDecodeParameterDesc& params,
+        wis::Result& out_result
+    ) const noexcept
+    {
+        wis::VKVideoDecoderParameters decoder_parameters{};
+        const WisResult wis_result = ::wisVKVideoDecodingExtensionCreateParameters(
+            &_impl_storage,
+            reinterpret_cast<const WisVKVideoDecoder*>(&decoder),
+            reinterpret_cast<const WisVideoDecodeParameterDesc*>(&params),
+            decoder_parameters.GetStorage()
+        );
+        out_result = wis::Result{
+            static_cast<wis::Status>(wis_result.status),
+            wis_result.platform_code,
+            wis_result.error
+        };
+        return decoder_parameters;
     }
 };
 

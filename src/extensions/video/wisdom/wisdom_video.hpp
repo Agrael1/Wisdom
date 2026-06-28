@@ -24,6 +24,7 @@ namespace wis {
 // Handles
 //==============================================================
 
+using VideoDecoderParameters = wis::DX12VideoDecoderParameters;
 using VideoDecoder = wis::DX12VideoDecoder;
 using VideoDecodeCommandList = wis::DX12VideoDecodeCommandList;
 using VideoDecodingExtension = wis::DX12VideoDecodingExtension;
@@ -46,6 +47,7 @@ namespace wis {
 // Handles
 //==============================================================
 
+using VideoDecoderParameters = wis::VKVideoDecoderParameters;
 using VideoDecoder = wis::VKVideoDecoder;
 using VideoDecodeCommandList = wis::VKVideoDecodeCommandList;
 using VideoDecodingExtension = wis::VKVideoDecodingExtension;

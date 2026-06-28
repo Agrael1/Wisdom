@@ -118,9 +118,33 @@
         <member type="StdVideoDecodeH265ReferenceInfo" name="h265_reference_info" mod="const,ptr" doc="H.265 reference information array (valid when codec is an H.265 profile)."/>
         <member type="u32" name="reference_frame_count" doc="Number of reference frames for this decode operation."/>
       </type>
+
+      <type name="VideoDecodeAV1Desc" category="struct" version="0.7.1" doc="AV1 sequence header data used for creating decoder parameters.">
+        <member type="StdVideoAV1SequenceHeader" name="sequence_header" doc="The AV1 sequence header containing profile, tier, level, chroma format, bit depth, and all sequence-level flags."/>
+      </type>
+      <type name="VideoDecodeH265Desc" category="struct" version="0.7.1" doc="H.265 parameter set data for creating decoder parameters.">
+        <member type="u32" name="max_vps_count" doc="Maximum number of VPS entries the slot can hold."/>
+        <member type="u32" name="max_sps_count" doc="Maximum number of SPS entries the slot can hold."/>
+        <member type="u32" name="max_pps_count" doc="Maximum number of PPS entries the slot can hold."/>
+        <member type="StdVideoH265VideoParameterSet" name="vps" mod="const,ptr" doc="Pointer to an array of VPS data."/>
+        <member type="u32" name="vps_count" doc="Number of VPS entries."/>
+        <member type="StdVideoH265SequenceParameterSet" name="sps" mod="const,ptr" doc="Pointer to an array of SPS data."/>
+        <member type="u32" name="sps_count" doc="Number of SPS entries."/>
+        <member type="StdVideoH265PictureParameterSet" name="pps" mod="const,ptr" doc="Pointer to an array of PPS data."/>
+        <member type="u32" name="pps_count" doc="Number of PPS entries."/>
+      </type>
+      <type name="VideoDecodeParameterDesc" category="struct" version="0.7.1" doc="Codec-specific variant for decoder parameter creation. Contains AV1 or H.265 parameter data depending on the codec field.">
+        <member type="StdCodecProfile" name="codec" doc="Codec type selector. Determines which parameter set is valid."/>
+        <member type="VideoDecodeAV1Desc" name="av1" mod="const,ptr" doc="AV1 decoder parameters (valid when codec is an AV1 profile)."/>
+        <member type="VideoDecodeH265Desc" name="h265" mod="const,ptr" doc="H.265 decoder parameters (valid when codec is an H.265 profile)."/>
+      </type>
     </types>
 
     <handles>
+      <handle name="VideoDecoderParameters" version="0.7.1" doc="Handle for video decoder parameters. Represents the parameters and capabilities of a video decoder, such as supported codecs, bit depths, and chroma subsampling formats.">
+        <impl for="vk" size="4"/>
+        <impl for="dx" size="2"/>
+      </handle>
       <handle name="VideoDecoder" version="0.7.1" doc="Handle for a video decoder. Represents a video decoder instance that can be used to decode video frames.">
         <impl for="vk" size="6"/>
         <impl for="dx" size="3"/>
@@ -152,6 +176,12 @@
         <ret type="VideoDecodeCommandList" result="true" name="command_list" doc="Output parameter that holds the created video command list handle if the operation is successful."/>
         <arg type="CommandAllocator" name="command_allocator" mod="const,ref" doc="The command allocator that the command list will use for memory management of command buffers. It @wis_must be created with the same {Device::} as the extension and have {CommandQueueType::VideoDecode} or {CommandQueueType::VideoEncode} specified."/>
       </func>
+      <func name="CreateParameters" version="0.7.1" for="VideoDecodingExtension" mod="const" doc="Creates decoder parameters from codec-specific parameter data.">
+        <ret type="VideoDecoderParameters" name="decoder_parameters" result="true" doc="Output parameter that holds the created video decoder parameters handle if the operation is successful."/>
+        <arg type="VideoDecoder" name="decoder" mod="const,ref" doc="The video decoder that will use these parameters."/>
+        <arg type="VideoDecodeParameterDesc" name="params" mod="const,ref" doc="Codec-specific parameter data. Contains either AV1 or H.265 parameters depending on the codec field."/>
+      </func>
+      
       
       <!--Video Decode Command List-->
       <func for="VideoDecodeCommandList" name="Begin" version="0.7.0" mod="const" doc="Opens the command list, so commands can be recorded to it.">
