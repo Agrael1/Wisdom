@@ -44,4 +44,11 @@ private:
     wis::VideoDecodeCommandList video_cl;
     wis::VideoDecoder decoder;
     wis::VideoDecoderParameters decoder_params;
+    wis::ResourceAllocator allocator;
+    wis::Texture decode_output;
+    wis::Buffer decode_input;
+    uint32_t framewidth = 0;
+    uint32_t frameheight = 0;
+    wis::StdCodecProfile codec_profile{};
+    wis::DataFormat out_format{};
 };

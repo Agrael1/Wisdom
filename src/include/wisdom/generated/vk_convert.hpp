@@ -754,6 +754,12 @@ constexpr inline VkBufferUsageFlags VKConvert(WisBufferUsageFlags value) noexcep
     if (value & WisBufferUsageFlagsShaderBindingTable) {
         result |= VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR;
     }
+    if (value & WisBufferUsageFlagsVideoDecodeDst) {
+        result |= VK_BUFFER_USAGE_VIDEO_DECODE_DST_BIT_KHR;
+    }
+    if (value & WisBufferUsageFlagsVideoDecodeSrc) {
+        result |= VK_BUFFER_USAGE_VIDEO_DECODE_SRC_BIT_KHR;
+    }
     return result;
 }
 
@@ -781,6 +787,15 @@ constexpr inline VkImageUsageFlags VKConvert(WisTextureUsageFlags value) noexcep
     if (value & WisTextureUsageFlagsHostCopy) {
         result |= VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT;
     }
+    if (value & WisTextureUsageFlagsVideoDecodeDst) {
+        result |= VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR;
+    }
+    if (value & WisTextureUsageFlagsVideoDecodeSrc) {
+        result |= VK_IMAGE_USAGE_VIDEO_DECODE_SRC_BIT_KHR;
+    }
+    if (value & WisTextureUsageFlagsVideoDecodeDpb) {
+        result |= VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR;
+    }
     return result;
 }
 
@@ -807,6 +822,15 @@ constexpr inline WisTextureUsageFlags VKConvert(VkImageUsageFlags value) noexcep
     }
     if (value & VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT) {
         result = static_cast<WisTextureUsageFlags>(result | WisTextureUsageFlagsHostCopy);
+    }
+    if (value & VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR) {
+        result = static_cast<WisTextureUsageFlags>(result | WisTextureUsageFlagsVideoDecodeDst);
+    }
+    if (value & VK_IMAGE_USAGE_VIDEO_DECODE_SRC_BIT_KHR) {
+        result = static_cast<WisTextureUsageFlags>(result | WisTextureUsageFlagsVideoDecodeSrc);
+    }
+    if (value & VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR) {
+        result = static_cast<WisTextureUsageFlags>(result | WisTextureUsageFlagsVideoDecodeDpb);
     }
     return result;
 }

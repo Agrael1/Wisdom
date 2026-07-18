@@ -21,6 +21,8 @@
  *     WisBufferUsageFlagsAccelerationStructureBuffer = (1u << 7),
  *     WisBufferUsageFlagsAccelerationStructureInput = (1u << 8),
  *     WisBufferUsageFlagsShaderBindingTable = (1u << 9),
+ *     WisBufferUsageFlagsVideoDecodeDst = (1u << 10),
+ *     WisBufferUsageFlagsVideoDecodeSrc = (1u << 11),
  * } WisBufferUsageFlags;
  * ```
  * C++ version:
@@ -39,6 +41,8 @@
  *     AccelerationStructureBuffer = (1u << 7),
  *     AccelerationStructureInput = (1u << 8),
  *     ShaderBindingTable = (1u << 9),
+ *     VideoDecodeDst = (1u << 10),
+ *     VideoDecodeSrc = (1u << 11),
  * };
  * }
  * ```
@@ -65,6 +69,8 @@
  * - `WisBufferUsageFlagsAccelerationStructureInput = (1 << 8)`: Buffer is used as a read only acceleration instance
  * input buffer.
  * - `WisBufferUsageFlagsShaderBindingTable = (1 << 9)`: Buffer is used as a shader binding table buffer.
+ * - `WisBufferUsageFlagsVideoDecodeDst = (1 << 10)`: Buffer is used as an output of the video decoding operation.
+ * - `WisBufferUsageFlagsVideoDecodeSrc = (1 << 11)`: Buffer is used as an input of the video decoding operation.
  * \endcond
  *
  *

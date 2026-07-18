@@ -47,8 +47,31 @@ if (WISDOM_BUILD_VIDEO)
             NAME h265nal
             GITHUB_REPOSITORY chemag/h265nal
             GIT_TAG master
+            DOWNLOAD_ONLY YES
             OPTIONS
             "BUILD_H265_TESTS OFF"
         )
+
+        # Patch debug flags (same as MSVC patch but for clang on Windows)
+        foreach(CMAKE_FILE
+            "${h265nal_SOURCE_DIR}/CMakeLists.txt"
+            "${h265nal_SOURCE_DIR}/src/CMakeLists.txt"
+        )
+            file(READ "${CMAKE_FILE}" _content)
+            string(REPLACE
+                "-g -O0 -Wall -Wextra -Wunused-parameter -Wshadow -Wformat -Wextra-semi -Wsign-conversion -Werror"
+                "-g -O0 -Wall -Wextra -Wunused-parameter -Wshadow -Wformat -Wextra-semi -Wsign-conversion -Werror -Wno-deprecated-declarations"
+                _content "${_content}"
+            )
+            string(REPLACE
+                "option(H265NAL_SMALL_FOOTPRINT, \"xmall footprint build\")"
+                "option(H265NAL_SMALL_FOOTPRINT \"small footprint build\")"
+                _content "${_content}"
+            )
+            file(WRITE "${CMAKE_FILE}" "${_content}")
+        endforeach()
+
+        set(BUILD_H265_TESTS OFF)
+        add_subdirectory("${h265nal_SOURCE_DIR}" "${h265nal_BINARY_DIR}")
     endif()
 endif()

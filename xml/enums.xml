@@ -1468,6 +1468,12 @@ Determine how the buffer can be used throughout its lifetime.">
       <value name="ShaderBindingTable" bit="9" doc="Buffer is used as a shader binding table buffer.">
         <impl name="vk" value="VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR"/>
       </value>
+      <value name="VideoDecodeDst" bit="10" doc="Buffer is used as an output of the video decoding operation.">
+        <impl name="vk" value="VK_BUFFER_USAGE_VIDEO_DECODE_DST_BIT_KHR"/>
+      </value>
+      <value name="VideoDecodeSrc" bit="11" doc="Buffer is used as an input of the video decoding operation.">
+        <impl name="vk" value="VK_BUFFER_USAGE_VIDEO_DECODE_SRC_BIT_KHR"/>
+      </value>
     </type>
 
     <type name="TextureUsageFlags" category="bitmask" version="0.7.0" doc="Texture usage flags.
@@ -1504,6 +1510,18 @@ Determine how the texture can be used throughout its lifetime.">
       <value name="HostCopy" bit="7" doc="Texture is used for host copy operations. Works with GPUUpload heap.">
         <impl name="dx" value="D3D12_RESOURCE_FLAG_NONE"/>
         <impl name="vk" value="VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT"/>
+      </value>
+      <value name="VideoDecodeDst" bit="6" doc="Texture is used as a destination for video decode operations.">
+        <impl name="dx" value="D3D12_RESOURCE_FLAG_NONE"/>
+        <impl name="vk" value="VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR"/>
+      </value>
+      <value name="VideoDecodeSrc" bit="8" doc="Texture is used as a source for video decode operations.">
+        <impl name="dx" value="D3D12_RESOURCE_FLAG_NONE"/>
+        <impl name="vk" value="VK_IMAGE_USAGE_VIDEO_DECODE_SRC_BIT_KHR"/>
+      </value>
+      <value name="VideoDecodeDpb" bit="9" doc="Texture is used as a DPB storage for video decode.">
+        <impl name="dx" value="D3D12_RESOURCE_FLAG_NONE"/>
+        <impl name="vk" value="VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR"/>
       </value>
     </type>
 

@@ -1309,6 +1309,8 @@ typedef enum WisBufferUsageFlags {
      * */
     WisBufferUsageFlagsAccelerationStructureInput = (1u << 8),
     WisBufferUsageFlagsShaderBindingTable = (1u << 9), ///< Buffer is used as a shader binding table buffer.
+    WisBufferUsageFlagsVideoDecodeDst = (1u << 10), ///< Buffer is used as an output of the video decoding operation.
+    WisBufferUsageFlagsVideoDecodeSrc = (1u << 11), ///< Buffer is used as an input of the video decoding operation.
 } WisBufferUsageFlags;
 
 /**
@@ -1325,6 +1327,9 @@ typedef enum WisTextureUsageFlags {
     WisTextureUsageFlagsShaderResource = (1u << 4), ///< Texture is used as a shader resource.
     WisTextureUsageFlagsUnorderedAccess = (1u << 5), ///< Texture is used as an unordered access resource.
     WisTextureUsageFlagsHostCopy = (1u << 7), ///< Texture is used for host copy operations. Works with GPUUpload heap.
+    WisTextureUsageFlagsVideoDecodeDst = (1u << 6), ///< Texture is used as a destination for video decode operations.
+    WisTextureUsageFlagsVideoDecodeSrc = (1u << 8), ///< Texture is used as a source for video decode operations.
+    WisTextureUsageFlagsVideoDecodeDpb = (1u << 9), ///< Texture is used as a DPB storage for video decode.
 } WisTextureUsageFlags;
 
 /**

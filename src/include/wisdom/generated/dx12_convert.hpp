@@ -605,6 +605,15 @@ constexpr inline D3D12_RESOURCE_FLAGS DX12Convert(WisTextureUsageFlags value) no
     if (value & WisTextureUsageFlagsHostCopy) {
         result |= D3D12_RESOURCE_FLAG_NONE;
     }
+    if (value & WisTextureUsageFlagsVideoDecodeDst) {
+        result |= D3D12_RESOURCE_FLAG_NONE;
+    }
+    if (value & WisTextureUsageFlagsVideoDecodeSrc) {
+        result |= D3D12_RESOURCE_FLAG_NONE;
+    }
+    if (value & WisTextureUsageFlagsVideoDecodeDpb) {
+        result |= D3D12_RESOURCE_FLAG_NONE;
+    }
     return result;
 }
 
@@ -631,6 +640,15 @@ constexpr inline WisTextureUsageFlags DX12Convert(D3D12_RESOURCE_FLAGS value) no
     }
     if (value & D3D12_RESOURCE_FLAG_NONE) {
         result = static_cast<WisTextureUsageFlags>(result | WisTextureUsageFlagsHostCopy);
+    }
+    if (value & D3D12_RESOURCE_FLAG_NONE) {
+        result = static_cast<WisTextureUsageFlags>(result | WisTextureUsageFlagsVideoDecodeDst);
+    }
+    if (value & D3D12_RESOURCE_FLAG_NONE) {
+        result = static_cast<WisTextureUsageFlags>(result | WisTextureUsageFlagsVideoDecodeSrc);
+    }
+    if (value & D3D12_RESOURCE_FLAG_NONE) {
+        result = static_cast<WisTextureUsageFlags>(result | WisTextureUsageFlagsVideoDecodeDpb);
     }
     return result;
 }

@@ -1286,6 +1286,8 @@ enum class BufferUsageFlags : uint32_t {
     AccelerationStructureBuffer = (1u << 7), ///< Buffer is used as an acceleration structure buffer.
     AccelerationStructureInput = (1u << 8), ///< Buffer is used as a read only acceleration instance input buffer.
     ShaderBindingTable = (1u << 9), ///< Buffer is used as a shader binding table buffer.
+    VideoDecodeDst = (1u << 10), ///< Buffer is used as an output of the video decoding operation.
+    VideoDecodeSrc = (1u << 11), ///< Buffer is used as an input of the video decoding operation.
 };
 WISDOM_DEFINE_ENUM_OPERATORS(BufferUsageFlags)
 
@@ -1303,6 +1305,9 @@ enum class TextureUsageFlags : uint32_t {
     ShaderResource = (1u << 4), ///< Texture is used as a shader resource.
     UnorderedAccess = (1u << 5), ///< Texture is used as an unordered access resource.
     HostCopy = (1u << 7), ///< Texture is used for host copy operations. Works with GPUUpload heap.
+    VideoDecodeDst = (1u << 6), ///< Texture is used as a destination for video decode operations.
+    VideoDecodeSrc = (1u << 8), ///< Texture is used as a source for video decode operations.
+    VideoDecodeDpb = (1u << 9), ///< Texture is used as a DPB storage for video decode.
 };
 WISDOM_DEFINE_ENUM_OPERATORS(TextureUsageFlags)
 

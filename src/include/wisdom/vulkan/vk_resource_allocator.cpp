@@ -9,13 +9,18 @@
 namespace wis::detail {
 inline VkImageCreateInfo VKFillImageDesc(const WisTextureDesc& desc) noexcept
 {
+    VkImageUsageFlags usage = wis::detail::VKConvert(desc.usage_flags);
     VkImageCreateInfo info{
         .sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,
         .pNext = nullptr,
-        .flags = 0,
+        .flags = (usage
+                  & (VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR | VK_IMAGE_USAGE_VIDEO_DECODE_SRC_BIT_KHR
+                     | VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR))
+                   ? VK_IMAGE_CREATE_VIDEO_PROFILE_INDEPENDENT_BIT_KHR
+                   : VkImageCreateFlags{0},
         .format = wis::detail::VKConvert(desc.format),
         .samples = VK_SAMPLE_COUNT_1_BIT,
-        .usage = wis::detail::VKConvert(desc.usage_flags),
+        .usage = usage,
         .sharingMode = VK_SHARING_MODE_EXCLUSIVE,
         .initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
     };
@@ -110,6 +115,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateBuffer(
         .size = wis::aligned_size(desc->size_bytes, 265u), // align to uniform buffer alignment for safety
         .usage = (VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT | wis::detail::VKConvert(desc->usage_flags)),
     };
+
+    buffer_info.flags = (buffer_info.usage
+                         & (VK_BUFFER_USAGE_VIDEO_DECODE_DST_BIT_KHR | VK_BUFFER_USAGE_VIDEO_DECODE_SRC_BIT_KHR))
+                          ? VK_BUFFER_CREATE_VIDEO_PROFILE_INDEPENDENT_BIT_KHR
+                          : 0;
 
     VmaAllocationCreateFlags flags = wis::detail::VKConvert(desc->memory_flags);
     if (desc->memory_flags & WisMemoryFlagsMapped) {

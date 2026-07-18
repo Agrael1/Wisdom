@@ -37,6 +37,12 @@ std::optional<Graphics> Graphics::Create(
     out.emplace();
     auto& g = *out;
 
+    // stash dimensions / format for later use
+    g.framewidth = width;
+    g.frameheight = height;
+    g.codec_profile = codec_profile;
+    g.out_format = output_format;
+
     if (!g.platform.Init()) {
         std::printf("Failed to initialize SDL platform\n");
         out.reset();
@@ -163,6 +169,35 @@ std::optional<Graphics> Graphics::Create(
         }
     }
 
+    // Get the resource allocator for texture / buffer creation
+    g.allocator = g.device.GetResourceAllocator(result);
+    if (!check_result(result, "GetResourceAllocator")) {
+        out.reset();
+        return out;
+    }
+
+    // Create the decode-output texture (NV12 / P010 etc.)
+    {
+        wis::TextureDesc tex_desc{
+            .width = width,
+            .height = height,
+            .depth_or_array_size = 1,
+            .mip_levels = 1,
+            .format = output_format,
+            .sample_count = wis::SampleCount::S1,
+            .layout = wis::TextureLayout::Texture2D,
+            .usage_flags = wis::TextureUsageFlags::VideoDecodeDst,
+            .flags = wis::TextureFlags::None,
+            .memory_type = wis::MemoryType::Default,
+            .memory_flags = wis::MemoryFlags::None,
+        };
+        g.decode_output = g.allocator.CreateTexture(tex_desc, result);
+        if (!check_result(result, "CreateTexture(decode output)")) {
+            out.reset();
+            return out;
+        }
+    }
+
     std::printf("H.265 decoder created: %dx%d, dpb=16\n", width, height);
     std::printf("H.265 session parameters created\n");
     return out;
@@ -175,6 +210,81 @@ int Graphics::Frame()
     result = video_cl.Begin();
     if (!check_result(result, "VideoDecodeCommandList::Begin")) {
         return -1;
+    }
+
+    // Transition output texture: Undefined → VideoDecodeWrite
+    {
+        wis::TextureBarrier barrier{
+            .sync_before = wis::BarrierSync::None,
+            .sync_after = wis::BarrierSync::VideoDecode,
+            .access_before = wis::ResourceAccess::None,
+            .access_after = wis::ResourceAccess::VideoDecodeWrite,
+            .state_before = wis::TextureState::Undefined,
+            .state_after = wis::TextureState::VideoDecodeWrite,
+            .flags = wis::BarrierFlags::PlanarImage,
+            .texture = decode_output.GetView(),
+            .subresource_range = {0, 1, 0, 1, 0, 2},
+            .queue_type_before = wis::CommandQueueType::VideoDecode,
+            .queue_type_after = wis::CommandQueueType::VideoDecode,
+        };
+        wis::BarrierGroup barrier_group{
+            .texture_barriers = wis::span{&barrier, 1},
+        };
+        video_cl.InsertBarriers(barrier_group);
+    }
+
+    // Frame-level picture info for H.265
+    wis::StdVideoDecodeH265PictureInfo pic_info{};
+    pic_info.flags.IrapPicFlag = 1;
+    pic_info.flags.IdrPicFlag = 1;
+    pic_info.flags.IsReference = 1;
+    pic_info.flags.short_term_ref_pic_set_sps_flag = 1;
+    pic_info.sps_video_parameter_set_id = 0;
+    pic_info.pps_seq_parameter_set_id = 0;
+    pic_info.pps_pic_parameter_set_id = 0;
+    pic_info.PicOrderCntVal = 0;
+
+    wis::VideoDecodeOutputDesc output_desc{
+        .output_texture = decode_output.GetView(),
+        .format = out_format,
+        .subresource = 0,
+    };
+
+    wis::VideoDecodePictureDesc picture_desc{
+        .codec = codec_profile,
+        .av1_picture_info = nullptr,
+        .h265_picture_info = &pic_info,
+        .av1_reference_info = nullptr,
+        .h265_reference_info = nullptr,
+        .reference_frame_count = 0,
+    };
+
+    wis::VideoDecodeInputDesc input_desc{
+        .bitstream_buffer = decode_input,
+        .offset = 0,
+        .size = 0,
+    };
+    video_cl.DecodeFrame(decoder, input_desc, output_desc, picture_desc);
+
+    // Transition output texture: VideoDecodeWrite → Common
+    {
+        wis::TextureBarrier barrier{
+            .sync_before = wis::BarrierSync::VideoDecode,
+            .sync_after = wis::BarrierSync::None,
+            .access_before = wis::ResourceAccess::VideoDecodeWrite,
+            .access_after = wis::ResourceAccess::None,
+            .state_before = wis::TextureState::VideoDecodeWrite,
+            .state_after = wis::TextureState::Common,
+            .flags = wis::BarrierFlags::PlanarImage,
+            .texture = decode_output.GetView(),
+            .subresource_range = {0, 1, 0, 1, 0, 2},
+            .queue_type_before = wis::CommandQueueType::VideoDecode,
+            .queue_type_after = wis::CommandQueueType::VideoDecode,
+        };
+        wis::BarrierGroup barrier_group{
+            .texture_barriers = wis::span{&barrier, 1},
+        };
+        video_cl.InsertBarriers(barrier_group);
     }
 
     result = video_cl.End();
