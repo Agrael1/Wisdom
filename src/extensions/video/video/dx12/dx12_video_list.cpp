@@ -66,6 +66,7 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisDX12VideoDecodeCommandListInsertBarriers(
 WIS_EXTERN_C WISDOM_VIDEO_API void wisDX12VideoDecodeCommandListDecodeFrame(
     const WisDX12VideoDecodeCommandList* command_list,
     const WisDX12VideoDecoder* decoder,
+    const WisDX12VideoDecoderParameters* parameters,
     const WisDX12VideoDecodeInputDesc* input_desc,
     const WisDX12VideoDecodeOutputDesc* output_desc,
     const WisDX12VideoDecodePictureDesc* picture_desc

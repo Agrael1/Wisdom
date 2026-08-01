@@ -1696,6 +1696,7 @@ public:
     /**
      * @brief Provided by Wisdom 0.7.1. Records a video decode command to the command list.
      * @param decoder The video decoder that will be used for decoding the video frame.
+     * @param parameters The video decoder parameters that will be used for decoding the video frame.
      * @param input_desc Description of the input data for the video decode operation.
      * @param output_desc Description of the output texture for the decoded video frame.
      * @param picture_desc Codec-specific picture information for the decode operation.
@@ -1703,6 +1704,7 @@ public:
      * */
     inline void DecodeFrame(
         const wis::DX12VideoDecoder& decoder,
+        const wis::DX12VideoDecoderParameters& parameters,
         const wis::DX12VideoDecodeInputDesc& input_desc,
         const wis::DX12VideoDecodeOutputDesc& output_desc,
         const wis::DX12VideoDecodePictureDesc& picture_desc
@@ -1711,6 +1713,7 @@ public:
         ::wisDX12VideoDecodeCommandListDecodeFrame(
             &_impl_storage,
             reinterpret_cast<const WisDX12VideoDecoder*>(&decoder),
+            reinterpret_cast<const WisDX12VideoDecoderParameters*>(&parameters),
             reinterpret_cast<const WisDX12VideoDecodeInputDesc*>(&input_desc),
             reinterpret_cast<const WisDX12VideoDecodeOutputDesc*>(&output_desc),
             reinterpret_cast<const WisDX12VideoDecodePictureDesc*>(&picture_desc)
@@ -2015,6 +2018,7 @@ public:
     /**
      * @brief Provided by Wisdom 0.7.1. Records a video decode command to the command list.
      * @param decoder The video decoder that will be used for decoding the video frame.
+     * @param parameters The video decoder parameters that will be used for decoding the video frame.
      * @param input_desc Description of the input data for the video decode operation.
      * @param output_desc Description of the output texture for the decoded video frame.
      * @param picture_desc Codec-specific picture information for the decode operation.
@@ -2022,6 +2026,7 @@ public:
      * */
     inline void DecodeFrame(
         const wis::VKVideoDecoder& decoder,
+        const wis::VKVideoDecoderParameters& parameters,
         const wis::VKVideoDecodeInputDesc& input_desc,
         const wis::VKVideoDecodeOutputDesc& output_desc,
         const wis::VKVideoDecodePictureDesc& picture_desc
@@ -2030,6 +2035,7 @@ public:
         ::wisVKVideoDecodeCommandListDecodeFrame(
             &_impl_storage,
             reinterpret_cast<const WisVKVideoDecoder*>(&decoder),
+            reinterpret_cast<const WisVKVideoDecoderParameters*>(&parameters),
             reinterpret_cast<const WisVKVideoDecodeInputDesc*>(&input_desc),
             reinterpret_cast<const WisVKVideoDecodeOutputDesc*>(&output_desc),
             reinterpret_cast<const WisVKVideoDecodePictureDesc*>(&picture_desc)

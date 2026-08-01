@@ -1740,6 +1740,7 @@ WIS_INLINE WISDOM_VIDEO_API void wisDX12VideoDecodeCommandListInsertBarriers(
  * @brief Provided by Wisdom 0.7.1. Records a video decode command to the command list.
  * @param self is a pointer to the valid WisVideoDecodeCommandList instance.
  * @param decoder The video decoder that will be used for decoding the video frame.
+ * @param parameters The video decoder parameters that will be used for decoding the video frame.
  * @param input_desc Description of the input data for the video decode operation.
  * @param output_desc Description of the output texture for the decoded video frame.
  * @param picture_desc Codec-specific picture information for the decode operation.
@@ -1748,6 +1749,7 @@ WIS_INLINE WISDOM_VIDEO_API void wisDX12VideoDecodeCommandListInsertBarriers(
 WIS_INLINE WISDOM_VIDEO_API void wisDX12VideoDecodeCommandListDecodeFrame(
     const WisDX12VideoDecodeCommandList* self,
     const WisDX12VideoDecoder* decoder,
+    const WisDX12VideoDecoderParameters* parameters,
     const WisDX12VideoDecodeInputDesc* input_desc,
     const WisDX12VideoDecodeOutputDesc* output_desc,
     const WisDX12VideoDecodePictureDesc* picture_desc
@@ -1983,6 +1985,7 @@ WIS_INLINE WISDOM_VIDEO_API void wisVKVideoDecodeCommandListInsertBarriers(
  * @brief Provided by Wisdom 0.7.1. Records a video decode command to the command list.
  * @param self is a pointer to the valid WisVideoDecodeCommandList instance.
  * @param decoder The video decoder that will be used for decoding the video frame.
+ * @param parameters The video decoder parameters that will be used for decoding the video frame.
  * @param input_desc Description of the input data for the video decode operation.
  * @param output_desc Description of the output texture for the decoded video frame.
  * @param picture_desc Codec-specific picture information for the decode operation.
@@ -1991,6 +1994,7 @@ WIS_INLINE WISDOM_VIDEO_API void wisVKVideoDecodeCommandListInsertBarriers(
 WIS_INLINE WISDOM_VIDEO_API void wisVKVideoDecodeCommandListDecodeFrame(
     const WisVKVideoDecodeCommandList* self,
     const WisVKVideoDecoder* decoder,
+    const WisVKVideoDecoderParameters* parameters,
     const WisVKVideoDecodeInputDesc* input_desc,
     const WisVKVideoDecodeOutputDesc* output_desc,
     const WisVKVideoDecodePictureDesc* picture_desc

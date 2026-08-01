@@ -12,6 +12,7 @@
  * // Provided by Wisdom 0.7.1.
  * void wisVideoDecodeCommandListDecodeFrame(const WisVideoDecodeCommandList* self,
  *                                           const WisVideoDecoder*           decoder,
+ *                                           const WisVideoDecoderParameters* parameters,
  *                                           const WisVideoDecodeInputDesc*   input_desc,
  *                                           const WisVideoDecodeOutputDesc*  output_desc,
  *                                           const WisVideoDecodePictureDesc* picture_desc);
@@ -22,6 +23,7 @@
  * // Provided by Wisdom 0.7.1.
  * void wisVKVideoDecodeCommandListDecodeFrame(const WisVKVideoDecodeCommandList* self,
  *                                             const WisVKVideoDecoder*           decoder,
+ *                                             const WisVKVideoDecoderParameters* parameters,
  *                                             const WisVKVideoDecodeInputDesc*   input_desc,
  *                                             const WisVKVideoDecodeOutputDesc*  output_desc,
  *                                             const WisVKVideoDecodePictureDesc* picture_desc);
@@ -29,6 +31,7 @@
  * // Provided by Wisdom 0.7.1.
  * void wisDX12VideoDecodeCommandListDecodeFrame(const WisDX12VideoDecodeCommandList* self,
  *                                               const WisDX12VideoDecoder*           decoder,
+ *                                               const WisDX12VideoDecoderParameters* parameters,
  *                                               const WisDX12VideoDecodeInputDesc*   input_desc,
  *                                               const WisDX12VideoDecodeOutputDesc*  output_desc,
  *                                               const WisDX12VideoDecodePictureDesc* picture_desc);
@@ -40,6 +43,7 @@
  * namespace wis{
  * // Provided by Wisdom 0.7.1.
  * void VideoDecodeCommandList::DecodeFrame(const wis::VideoDecoder&           decoder,
+ *                                          const wis::VideoDecoderParameters& parameters,
  *                                          const wis::VideoDecodeInputDesc&   input_desc,
  *                                          const wis::VideoDecodeOutputDesc&  output_desc,
  *                                          const wis::VideoDecodePictureDesc& picture_desc) const noexcept;
@@ -51,12 +55,14 @@
  * namespace wis{
  * // Provided by Wisdom 0.7.1.
  * void VKVideoDecodeCommandList::DecodeFrame(const wis::VKVideoDecoder&           decoder,
+ *                                            const wis::VKVideoDecoderParameters& parameters,
  *                                            const wis::VKVideoDecodeInputDesc&   input_desc,
  *                                            const wis::VKVideoDecodeOutputDesc&  output_desc,
  *                                            const wis::VKVideoDecodePictureDesc& picture_desc) const noexcept;
  *
  * // Provided by Wisdom 0.7.1.
  * void DX12VideoDecodeCommandList::DecodeFrame(const wis::DX12VideoDecoder&           decoder,
+ *                                              const wis::DX12VideoDecoderParameters& parameters,
  *                                              const wis::DX12VideoDecodeInputDesc&   input_desc,
  *                                              const wis::DX12VideoDecodeOutputDesc&  output_desc,
  *                                              const wis::DX12VideoDecodePictureDesc& picture_desc) const noexcept;
@@ -70,6 +76,7 @@
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisVideoDecodeCommandList instance.
  * - `decoder` The video decoder that will be used for decoding the video frame.
+ * - `parameters` The video decoder parameters that will be used for decoding the video frame.
  * - `input_desc` Description of the input data for the video decode operation.
  * - `output_desc` Description of the output texture for the decoded video frame.
  * - `picture_desc` Codec-specific picture information for the decode operation.

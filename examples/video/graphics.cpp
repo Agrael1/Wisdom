@@ -377,7 +377,7 @@ int Graphics::DecodeFrame(const SliceData& slice)
         .offset = 0,
         .size = input_size,
     };
-    video_cl.DecodeFrame(decoder, input_desc, output_desc, picture_desc);
+    video_cl.DecodeFrame(decoder, decoder_params, input_desc, output_desc, picture_desc);
 
     // Transition output texture: VideoDecodeWrite -> Common
     {

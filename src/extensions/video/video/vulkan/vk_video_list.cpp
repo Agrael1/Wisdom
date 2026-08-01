@@ -70,6 +70,7 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisVKVideoDecodeCommandListInsertBarriers(
 WIS_EXTERN_C WISDOM_VIDEO_API void wisVKVideoDecodeCommandListDecodeFrame(
     const WisVKVideoDecodeCommandList* command_list,
     const WisVKVideoDecoder* decoder,
+    const WisVKVideoDecoderParameters* parameters,
     const WisVKVideoDecodeInputDesc* input_desc,
     const WisVKVideoDecodeOutputDesc* output_desc,
     const WisVKVideoDecodePictureDesc* picture_desc
@@ -79,6 +80,7 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisVKVideoDecodeCommandListDecodeFrame(
 
     auto& impl = wis::from_handle_ref<const wis::impl::VKVideoDecodeCommandListImpl>(command_list);
     auto& decoder_impl = wis::from_handle_ref<const wis::impl::VKVideoDecoderImpl>(decoder);
+    auto& parameters_impl = wis::from_handle_ref<const wis::impl::VKVideoDecoderParametersImpl>(parameters);
 
     auto& device_table = impl.command_pool_header->header.device_header->header.device_table;
     auto device = impl.command_pool_header->header.device;
@@ -202,6 +204,7 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisVKVideoDecodeCommandListDecodeFrame(
         .pNext = nullptr,
         .flags = 0,
         .videoSession = decoder_impl.video_session,
+        .videoSessionParameters = parameters_impl.video_session_parameters,
         .referenceSlotCount = is_reference ? 1u : 0u,
         .pReferenceSlots = is_reference ? &setup_reference_slot : nullptr,
     };

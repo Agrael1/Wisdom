@@ -7,7 +7,7 @@
  * <hr>
  *
  * \cond WIS_GEN_CODE
- *  * C version:
+ * C version:
  * ```c
  * // Provided by Wisdom 0.7.1.
  * typedef struct  WisVideoCodecCaps {
@@ -20,17 +20,19 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.1.
- * struct  VideoCodecCaps
+ * struct  VideoCodecCaps {
+ *     bool          supported;
+ *     std::uint64_t min_bitstream_buffer_size_alignment;
+ * };
+ * }
  * ```
- *
  * \endcond
  *
  * @section WisVideoCodecCaps_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- *  * - `supported` True if the requested codec configuration is supported by the device.
+ * - `supported` True if the requested codec configuration is supported by the device.
  * - `min_bitstream_buffer_size_alignment` Minimum required alignment for compressed bitstream buffers in bytes.
- *
  * \endcond
  *
  * @section WisVideoCodecCaps_descr Description
@@ -42,5 +44,7 @@
  * @section WisVideoCodecCaps_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
+ * @see Functions:
+ * wisVideoDecodingExtensionQueryCodecCaps
  * \endcond
  */
