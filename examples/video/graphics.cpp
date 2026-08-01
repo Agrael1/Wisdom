@@ -232,7 +232,8 @@ std::optional<Graphics> Graphics::Create(
             .format = output_format,
             .sample_count = wis::SampleCount::S1,
             .layout = wis::TextureLayout::Texture2D,
-            .usage_flags = wis::TextureUsageFlags::VideoDecodeDst | wis::TextureUsageFlags::VideoDecodeDpb,
+            .usage_flags = wis::TextureUsageFlags::VideoDecodeDst | wis::TextureUsageFlags::VideoDecodeDpb
+                         | wis::TextureUsageFlags::ShaderResource,
             .flags = wis::TextureFlags::None,
             .memory_type = wis::MemoryType::Default,
             .memory_flags = wis::MemoryFlags::None,

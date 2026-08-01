@@ -16,7 +16,7 @@ inline VkImageCreateInfo VKFillImageDesc(const WisTextureDesc& desc) noexcept
         .flags = (usage
                   & (VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR | VK_IMAGE_USAGE_VIDEO_DECODE_SRC_BIT_KHR
                      | VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR))
-                   ? VK_IMAGE_CREATE_VIDEO_PROFILE_INDEPENDENT_BIT_KHR
+                   ? VK_IMAGE_CREATE_VIDEO_PROFILE_INDEPENDENT_BIT_KHR | VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT
                    : VkImageCreateFlags{0},
         .format = wis::detail::VKConvert(desc.format),
         .samples = VK_SAMPLE_COUNT_1_BIT,
