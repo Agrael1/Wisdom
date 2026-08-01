@@ -3,6 +3,8 @@
 #include "h265_bitstream_parser_state.h"
 #include "h265_common.h"
 
+#include <cstring>
+
 inline bool check_result(wis::Result result, const char* where)
 {
     if (result.status == wis::Status::Ok) {
@@ -53,6 +55,7 @@ std::optional<Graphics> Graphics::Create(
     wis::DataFormat output_format,
     uint32_t width,
     uint32_t height,
+    uint64_t decode_input_buffer_size,
     const wis::VideoDecodeH265Desc* h265_params
 )
 {
@@ -227,9 +230,8 @@ std::optional<Graphics> Graphics::Create(
 
     // Create the decode-input buffer for bitstream data
     {
-        const uint64_t buffer_size = 64 * 1024;
         wis::BufferDesc buf_desc{
-            .size_bytes = buffer_size,
+            .size_bytes = decode_input_buffer_size,
             .usage_flags = wis::BufferUsageFlags::VideoDecodeSrc,
             .memory_type = wis::MemoryType::Upload,
             .memory_flags = wis::MemoryFlags::Mapped,
@@ -243,7 +245,7 @@ std::optional<Graphics> Graphics::Create(
 
     std::printf("H.265 decoder created: %dx%d, dpb=16\n", width, height);
     std::printf("H.265 session parameters created\n");
-    std::printf("H.265 input buffer created: 64KB\n");
+    std::printf("H.265 input buffer created: %llu bytes\n", static_cast<unsigned long long>(decode_input_buffer_size));
     return out;
 }
 
@@ -258,12 +260,22 @@ int Graphics::DecodeFrame(const SliceData& slice)
 
     // Upload slice data to the decode input buffer
     {
+        constexpr uint64_t bitstream_alignment = 256;
+        const uint64_t padded_size = (static_cast<uint64_t>(slice.data.size()) + bitstream_alignment - 1) /
+                                     bitstream_alignment * bitstream_alignment;
         void* mapped_ptr = decode_input.Map();
         if (!mapped_ptr) {
             std::printf("Failed to map decode input buffer\n");
             return -1;
         }
         std::memcpy(mapped_ptr, slice.data.data(), slice.data.size());
+        if (padded_size > slice.data.size()) {
+            std::memset(
+                static_cast<std::byte*>(mapped_ptr) + slice.data.size(),
+                0,
+                static_cast<size_t>(padded_size - slice.data.size())
+            );
+        }
     }
 
     // Transition output texture: Undefined -> VideoDecodeWrite
@@ -336,10 +348,13 @@ int Graphics::DecodeFrame(const SliceData& slice)
         .reference_frame_count = 0,
     };
 
+    constexpr uint64_t bitstream_alignment = 256;
+    const uint64_t input_size = (static_cast<uint64_t>(slice.data.size()) + bitstream_alignment - 1) /
+                                 bitstream_alignment * bitstream_alignment;
     wis::VideoDecodeInputDesc input_desc{
         .bitstream_buffer = decode_input,
         .offset = 0,
-        .size = slice.data.size(),
+        .size = input_size,
     };
     video_cl.DecodeFrame(decoder, input_desc, output_desc, picture_desc);
 

@@ -28,6 +28,7 @@ public:
         wis::DataFormat output_format,
         uint32_t width,
         uint32_t height,
+        uint64_t decode_input_buffer_size,
         const wis::VideoDecodeH265Desc* h265_params = nullptr
     );
 

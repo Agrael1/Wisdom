@@ -89,6 +89,11 @@ static std::vector<NalUnit> ParseNalUnitsFromMdat(
     return nalus;
 }
 
+static uint64_t AlignUp(uint64_t value, uint64_t alignment)
+{
+    return (value + alignment - 1) / alignment * alignment;
+}
+
 // ---------------------------------------------------------------------------
 // Convert parsed h265nal state to wisdom StdVideoH265 types
 // ---------------------------------------------------------------------------
@@ -483,11 +488,12 @@ int App::Start()
                 converted.vps.size(), converted.sps.size(), converted.pps.size());
 
     // Parse NAL units from mdat for actual bitstream data
+    uint64_t max_slice_size = 0;
     if (!mdat_payload.empty()) {
         nal_units = ParseNalUnitsFromMdat(mdat_payload, length_size_minus_one);
         std::printf("Parsed %zu NAL units from mdat\n", nal_units.size());
-        
-        // Count slice NALs
+
+        // Count slice NALs and find the largest upload size we need
         size_t slice_count = 0;
         for (auto& nalu : nal_units) {
             // NAL unit types: 1=TRAIL_N, 2=TRAIL_R, 3=TSA_N, 4=TSA_R, 5=STSA_N, 6=STSA_R, 
@@ -495,12 +501,27 @@ int App::Start()
             // 18=BLA_N_LP, 19=IDR_W_RADL, 20=IDR_N_LP, 21=CRA_NUT
             if (nalu.nal_unit_type >= 1 && nalu.nal_unit_type <= 21) {
                 slice_count++;
+                if (nalu.data.size() > max_slice_size) {
+                    max_slice_size = static_cast<uint64_t>(nalu.data.size());
+                }
             }
         }
         std::printf("  Slice NALs (types 1-21): %zu\n", slice_count);
     }
 
-    auto graphics = Graphics::Create(codec_profile, output_format, width, height, &converted.desc);
+    constexpr uint64_t bitstream_alignment = 256;
+    uint64_t decode_input_buffer_size = AlignUp(max_slice_size, bitstream_alignment);
+    if (decode_input_buffer_size == 0) {
+        decode_input_buffer_size = bitstream_alignment;
+    }
+    std::printf(
+        "Bitstream upload buffer: %llu bytes (largest slice %llu, aligned to %llu)\n",
+        static_cast<unsigned long long>(decode_input_buffer_size),
+        static_cast<unsigned long long>(max_slice_size),
+        static_cast<unsigned long long>(bitstream_alignment)
+    );
+
+    auto graphics = Graphics::Create(codec_profile, output_format, width, height, decode_input_buffer_size, &converted.desc);
     if (!graphics) {
         return -1;
     }
