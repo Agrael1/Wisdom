@@ -317,6 +317,7 @@ int Graphics::DecodeFrame(const SliceData& slice)
 
     // Build picture info from slice header
     wis::StdVideoDecodeH265PictureInfo pic_info{};
+    wis::StdVideoDecodeH265ReferenceInfo ref_info{};
     {
         // Parse slice header
         auto slice_header = h265nal::H265SliceSegmentHeaderParser::ParseSliceSegmentHeader(
@@ -352,6 +353,8 @@ int Graphics::DecodeFrame(const SliceData& slice)
         }
     }
 
+    ref_info.PicOrderCntVal = pic_info.PicOrderCntVal;
+
     wis::VideoDecodeOutputDesc output_desc{
         .output_texture = decode_output.GetView(),
         .format = out_format,
@@ -363,7 +366,7 @@ int Graphics::DecodeFrame(const SliceData& slice)
         .av1_picture_info = nullptr,
         .h265_picture_info = &pic_info,
         .av1_reference_info = nullptr,
-        .h265_reference_info = nullptr,
+        .h265_reference_info = &ref_info,
         .reference_frame_count = 0,
     };
 

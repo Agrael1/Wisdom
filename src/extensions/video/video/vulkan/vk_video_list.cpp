@@ -163,7 +163,7 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisVKVideoDecodeCommandListDecodeFrame(
         .sType = VK_STRUCTURE_TYPE_VIDEO_PICTURE_RESOURCE_INFO_KHR,
         .pNext = nullptr,
         .codedOffset = {0, 0},
-        .codedExtent = {0, 0},
+        .codedExtent = {decoder_impl.width, decoder_impl.height},
         .baseArrayLayer = subresource,
         .imageViewBinding = output_image_view,
     };
@@ -188,7 +188,7 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisVKVideoDecodeCommandListDecodeFrame(
     if (is_reference) {
         setup_reference_slot.sType = VK_STRUCTURE_TYPE_VIDEO_REFERENCE_SLOT_INFO_KHR;
         setup_reference_slot.pNext = dpb_slot_pnext;
-        setup_reference_slot.slotIndex = -1;
+        setup_reference_slot.slotIndex = 0;
         setup_reference_slot.pPictureResource = &target_pic_resource;
     }
 
