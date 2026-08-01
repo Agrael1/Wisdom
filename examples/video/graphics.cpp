@@ -1,4 +1,22 @@
 #include "graphics.hpp"
+#include "h265_slice_parser.h"
+#include "h265_bitstream_parser_state.h"
+#include "h265_common.h"
+
+inline bool check_result(wis::Result result, const char* where)
+{
+    if (result.status == wis::Status::Ok) {
+        return true;
+    }
+    std::printf(
+        "%s failed: %d, platform_code: %d, error: %s\n",
+        where,
+        static_cast<int>(result.status),
+        result.platform_code,
+        result.error ? result.error : "None"
+    );
+    return false;
+}
 
 void Graphics::log_callback(wis::Severity severity, const char* message, uint64_t, void*)
 {
@@ -198,12 +216,29 @@ std::optional<Graphics> Graphics::Create(
         }
     }
 
+    // Create the decode-input buffer for bitstream data
+    {
+        const uint64_t buffer_size = 64 * 1024;
+        wis::BufferDesc buf_desc{
+            .size_bytes = buffer_size,
+            .usage_flags = wis::BufferUsageFlags::VideoDecodeSrc,
+            .memory_type = wis::MemoryType::Upload,
+            .memory_flags = wis::MemoryFlags::Mapped,
+        };
+        g.decode_input = g.allocator.CreateBuffer(buf_desc, result);
+        if (!check_result(result, "CreateBuffer(decode input)")) {
+            out.reset();
+            return out;
+        }
+    }
+
     std::printf("H.265 decoder created: %dx%d, dpb=16\n", width, height);
     std::printf("H.265 session parameters created\n");
+    std::printf("H.265 input buffer created: 64KB\n");
     return out;
 }
 
-int Graphics::Frame()
+int Graphics::DecodeFrame(const SliceData& slice)
 {
     wis::Result result;
 
@@ -212,7 +247,17 @@ int Graphics::Frame()
         return -1;
     }
 
-    // Transition output texture: Undefined → VideoDecodeWrite
+    // Upload slice data to the decode input buffer
+    {
+        void* mapped_ptr = decode_input.Map();
+        if (!mapped_ptr) {
+            std::printf("Failed to map decode input buffer\n");
+            return -1;
+        }
+        std::memcpy(mapped_ptr, slice.data.data(), slice.data.size());
+    }
+
+    // Transition output texture: Undefined -> VideoDecodeWrite
     {
         wis::TextureBarrier barrier{
             .sync_before = wis::BarrierSync::None,
@@ -233,16 +278,39 @@ int Graphics::Frame()
         video_cl.InsertBarriers(barrier_group);
     }
 
-    // Frame-level picture info for H.265
+    // Build picture info from slice header
     wis::StdVideoDecodeH265PictureInfo pic_info{};
-    pic_info.flags.IrapPicFlag = 1;
-    pic_info.flags.IdrPicFlag = 1;
-    pic_info.flags.IsReference = 1;
-    pic_info.flags.short_term_ref_pic_set_sps_flag = 1;
-    pic_info.sps_video_parameter_set_id = 0;
-    pic_info.pps_seq_parameter_set_id = 0;
-    pic_info.pps_pic_parameter_set_id = 0;
-    pic_info.PicOrderCntVal = 0;
+    {
+        h265nal::H265BitstreamParserState parser_state;
+        // Parse slice header
+        auto slice_header = h265nal::H265SliceSegmentHeaderParser::ParseSliceSegmentHeader(
+            slice.data.data() + 2, slice.data.size() - 2, slice.nal_unit_type, &parser_state);
+        
+        if (slice_header) {
+            pic_info.flags.IrapPicFlag = (slice.nal_unit_type >= 16 && slice.nal_unit_type <= 21) ? 1 : 0;
+            pic_info.flags.IdrPicFlag = (slice.nal_unit_type == 19 || slice.nal_unit_type == 20) ? 1 : 0;
+            pic_info.flags.IsReference = (slice.nal_unit_type <= 21) ? 1 : 0;
+            pic_info.flags.short_term_ref_pic_set_sps_flag = slice_header->short_term_ref_pic_set_sps_flag;
+            pic_info.sps_video_parameter_set_id = 0;
+            pic_info.pps_seq_parameter_set_id = slice_header->slice_pic_parameter_set_id;
+            pic_info.pps_pic_parameter_set_id = slice_header->slice_pic_parameter_set_id;
+            pic_info.PicOrderCntVal = static_cast<int32_t>(slice_header->slice_pic_order_cnt_lsb);
+            pic_info.NumDeltaPocsOfRefRpsIdx = 0;
+            pic_info.NumBitsForSTRefPicSetInSlice = 0;
+        } else {
+            // Default for first frame (IDR)
+            pic_info.flags.IrapPicFlag = 1;
+            pic_info.flags.IdrPicFlag = 1;
+            pic_info.flags.IsReference = 1;
+            pic_info.flags.short_term_ref_pic_set_sps_flag = 1;
+            pic_info.sps_video_parameter_set_id = 0;
+            pic_info.pps_seq_parameter_set_id = 0;
+            pic_info.pps_pic_parameter_set_id = 0;
+            pic_info.PicOrderCntVal = 0;
+            pic_info.NumDeltaPocsOfRefRpsIdx = 0;
+            pic_info.NumBitsForSTRefPicSetInSlice = 0;
+        }
+    }
 
     wis::VideoDecodeOutputDesc output_desc{
         .output_texture = decode_output.GetView(),
@@ -262,11 +330,11 @@ int Graphics::Frame()
     wis::VideoDecodeInputDesc input_desc{
         .bitstream_buffer = decode_input,
         .offset = 0,
-        .size = 0,
+        .size = slice.data.size(),
     };
     video_cl.DecodeFrame(decoder, input_desc, output_desc, picture_desc);
 
-    // Transition output texture: VideoDecodeWrite → Common
+    // Transition output texture: VideoDecodeWrite -> Common
     {
         wis::TextureBarrier barrier{
             .sync_before = wis::BarrierSync::VideoDecode,
@@ -308,6 +376,7 @@ int Graphics::Frame()
         return -1;
     }
 
-    std::printf("Video decode command list submitted and completed\n");
+    std::printf("Slice decoded successfully (type=%u, size=%zu bytes)\n", 
+                slice.nal_unit_type, slice.data.size());
     return 0;
 }

@@ -4,21 +4,15 @@
 #include <cstdio>
 #include <optional>
 #include <sdl_backend_cpp.h>
+#include <span>
+#include <vector>
+#include <cstdint>
 
-inline bool check_result(wis::Result result, const char* where)
-{
-    if (result.status == wis::Status::Ok) {
-        return true;
-    }
-    std::printf(
-        "%s failed: %d, platform_code: %d, error: %s\n",
-        where,
-        static_cast<int>(result.status),
-        result.platform_code,
-        result.error ? result.error : "None"
-    );
-    return false;
-}
+struct SliceData {
+    std::vector<uint8_t> data;
+    uint32_t nal_unit_type;
+    uint32_t temporal_id;
+};
 
 class Graphics
 {
@@ -32,7 +26,8 @@ public:
         uint32_t height,
         const wis::VideoDecodeH265Desc* h265_params = nullptr);
 
-    int Frame();
+    // Decode a single frame with the given slice NAL unit
+    int DecodeFrame(const SliceData& slice);
 
 private:
     SDLPlatformCpp platform;

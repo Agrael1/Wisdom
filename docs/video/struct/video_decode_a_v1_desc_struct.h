@@ -7,7 +7,7 @@
  * <hr>
  *
  * \cond WIS_GEN_CODE
- *  * C version:
+ * C version:
  * ```c
  * // Provided by Wisdom 0.7.1.
  * typedef struct  WisVideoDecodeAV1Desc {
@@ -19,17 +19,18 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.1.
- * struct  VideoDecodeAV1Desc
+ * struct  VideoDecodeAV1Desc {
+ *     wis::StdVideoAV1SequenceHeader sequence_header;
+ * };
+ * }
  * ```
- *
  * \endcond
  *
  * @section WisVideoDecodeAV1Desc_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- *  * - `sequence_header` The AV1 sequence header containing profile, tier, level, chroma format, bit depth, and all
+ * - `sequence_header` The AV1 sequence header containing profile, tier, level, chroma format, bit depth, and all
  * sequence-level flags.
- *
  * \endcond
  *
  * @section WisVideoDecodeAV1Desc_descr Description
@@ -41,5 +42,7 @@
  * @section WisVideoDecodeAV1Desc_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
+ * @see Structs:
+ * WisVideoDecodeParameterDesc
  * \endcond
  */

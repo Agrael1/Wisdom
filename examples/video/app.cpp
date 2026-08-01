@@ -1,10 +1,93 @@
 #include "app.hpp"
+#include "h265_bitstream_parser.h"
 #include "h265_common.h"
 #include "h265_configuration_box_parser.h"
 #include "mbmff.hpp"
 
 #include <video/generated/cpp_api.hpp>
 #include <map>
+#include <vector>
+#include <cstdint>
+
+// ---------------------------------------------------------------------------
+// Find mdat box in MP4 file
+// ---------------------------------------------------------------------------
+static std::span<const std::byte> FindMdatBox(std::span<const std::byte> data)
+{
+    mbmff::recursive_box_iterator it(data);
+    for (; it != it.end(); ++it) {
+        auto box_result = *it;
+        if (!box_result || box_result->type() != mbmff::box_type::mdat) {
+            continue;
+        }
+        return box_result->payload;
+    }
+    return {};
+}
+
+// ---------------------------------------------------------------------------
+// Parse NAL units from mdat box (length-prefixed format from MP4)
+// ---------------------------------------------------------------------------
+static std::vector<NalUnit> ParseNalUnitsFromMdat(
+    std::span<const std::byte> mdat_payload,
+    uint8_t length_size_minus_one)
+{
+    std::vector<NalUnit> nalus;
+
+    const uint8_t* data = reinterpret_cast<const uint8_t*>(mdat_payload.data());
+    size_t length = mdat_payload.size();
+    size_t offset = 0;
+
+    // Length size in bytes (1, 2, or 4)
+    uint8_t length_size = length_size_minus_one + 1;
+
+    while (offset < length) {
+        if (offset + length_size > length) {
+            break; // Not enough data for length prefix
+        }
+
+        // Read NAL unit length
+        uint32_t nal_length = 0;
+        for (uint8_t i = 0; i < length_size; ++i) {
+            nal_length = (nal_length << 8) | data[offset + i];
+        }
+        offset += length_size;
+
+        if (offset + nal_length > length) {
+            break; // NAL unit extends beyond buffer
+        }
+
+        // Parse NAL unit header (first 2 bytes)
+        if (nal_length < 2) {
+            offset += nal_length;
+            continue;
+        }
+
+        uint8_t first_byte = data[offset];
+        uint8_t second_byte = data[offset + 1];
+
+        uint32_t forbidden_zero_bit = (first_byte >> 7) & 0x1;
+        uint32_t nal_unit_type = (first_byte >> 1) & 0x3F;
+        uint32_t nuh_layer_id = ((first_byte & 0x1) << 5) | ((second_byte >> 3) & 0x1F);
+        uint32_t temporal_id = second_byte & 0x7;
+
+        if (forbidden_zero_bit != 0) {
+            offset += nal_length;
+            continue; // Invalid NAL unit
+        }
+
+        // Copy NAL unit data (including header)
+        NalUnit nalu;
+        nalu.nal_unit_type = nal_unit_type;
+        nalu.temporal_id = temporal_id;
+        nalu.data.assign(data + offset, data + offset + nal_length);
+        nalus.push_back(std::move(nalu));
+
+        offset += nal_length;
+    }
+
+    return nalus;
+}
 
 // ---------------------------------------------------------------------------
 // Convert parsed h265nal state to wisdom StdVideoH265 types
@@ -18,7 +101,7 @@ struct ConvertedH265Params {
     std::vector<wis::StdVideoH265ProfileTierLevel> vps_ptl;
     std::vector<wis::StdVideoH265ProfileTierLevel> sps_ptl;
 
-    std::map<uint32_t, uint32_t> sps_to_vps; // sps_id → vps_id
+    std::map<uint32_t, uint32_t> sps_to_vps; // sps_id -> vps_id
 };
 
 static void ConvertVps(wis::StdVideoH265VideoParameterSet& out,
@@ -204,8 +287,8 @@ static void ConvertPps(wis::StdVideoH265PictureParameterSet& out,
     // copy row_height_minus1 – pad/truncate to 21
     for (size_t j = 0; j < 21; ++j) {
         out.row_height_minus1[j] = j < in.row_height_minus1.size()
-                                       ? static_cast<uint16_t>(in.row_height_minus1[j])
-                                       : 0;
+                                        ? static_cast<uint16_t>(in.row_height_minus1[j])
+                                        : 0;
     }
 }
 
@@ -213,7 +296,7 @@ static ConvertedH265Params ConvertH265Params(const h265nal::H265BitstreamParserS
 {
     ConvertedH265Params r;
 
-    // build SPS→VPS id mapping
+    // build SPS->VPS id mapping
     for (auto& [id, sps] : state.sps) {
         r.sps_to_vps[sps->sps_seq_parameter_set_id] = sps->sps_video_parameter_set_id;
     }
@@ -276,6 +359,14 @@ std::span<const std::byte> App::GetHvcC()
     std::span<const std::byte> hvcC_payload;
     mbmff::hvcC_data hvcC{};
 
+    // Find mdat box
+    mdat_payload = FindMdatBox(data);
+    if (mdat_payload.empty()) {
+        std::printf("No mdat box found in '%s'\n", file_path.data());
+    } else {
+        std::printf("Found mdat box: %zu bytes\n", mdat_payload.size());
+    }
+
     mbmff::recursive_box_iterator it(data);
     for (; it != it.end(); ++it) {
         auto box_result = *it;
@@ -292,6 +383,9 @@ std::span<const std::byte> App::GetHvcC()
         std::printf("No hvcC box found in '%s'\n", file_path.data());
         return hvcC_payload;
     }
+
+    // Store NAL length size for parsing mdat
+    length_size_minus_one = hvcC.length_size_minus_one;
 
     std::printf("Found hvcC box:\n");
     std::printf("  Configuration version: %u\n", hvcC.configuration_version);
@@ -388,6 +482,24 @@ int App::Start()
     std::printf("Converted H265 params: %zu VPS, %zu SPS, %zu PPS\n",
                 converted.vps.size(), converted.sps.size(), converted.pps.size());
 
+    // Parse NAL units from mdat for actual bitstream data
+    if (!mdat_payload.empty()) {
+        nal_units = ParseNalUnitsFromMdat(mdat_payload, length_size_minus_one);
+        std::printf("Parsed %zu NAL units from mdat\n", nal_units.size());
+        
+        // Count slice NALs
+        size_t slice_count = 0;
+        for (auto& nalu : nal_units) {
+            // NAL unit types: 1=TRAIL_N, 2=TRAIL_R, 3=TSA_N, 4=TSA_R, 5=STSA_N, 6=STSA_R, 
+            // 7=RADL_N, 8=RADL_R, 9=RASL_N, 10=RASL_R, 16=BLA_W_LP, 17=BLA_W_RADL, 
+            // 18=BLA_N_LP, 19=IDR_W_RADL, 20=IDR_N_LP, 21=CRA_NUT
+            if (nalu.nal_unit_type >= 1 && nalu.nal_unit_type <= 21) {
+                slice_count++;
+            }
+        }
+        std::printf("  Slice NALs (types 1-21): %zu\n", slice_count);
+    }
+
     auto graphics = Graphics::Create(codec_profile, output_format, width, height, &converted.desc);
     if (!graphics) {
         return -1;
@@ -398,8 +510,24 @@ int App::Start()
         return -1;
     }
     
-    graphics->Frame();
-
+    // Decode each slice NAL unit
+    int slice_index = 0;
+    for (auto& nalu : nal_units) {
+        if (nalu.nal_unit_type >= 1 && nalu.nal_unit_type <= 21) {
+            SliceData slice;
+            slice.data = std::move(nalu.data);
+            slice.nal_unit_type = nalu.nal_unit_type;
+            slice.temporal_id = nalu.temporal_id;
+            
+            std::printf("Decoding slice %d (type=%u, temporal_id=%u, size=%zu bytes)\n",
+                        slice_index++, slice.nal_unit_type, slice.temporal_id, slice.data.size());
+            
+            int result = graphics->DecodeFrame(slice);
+            if (result != 0) {
+                std::printf("Failed to decode slice %d\n", slice_index - 1);
+            }
+        }
+    }
 
     SDL_DestroyWindow(window);
 
