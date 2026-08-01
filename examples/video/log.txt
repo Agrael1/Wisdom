@@ -23,23 +23,3 @@ H.265 decoder created: 3960x5940, dpb=16
 H.265 session parameters created
 H.265 input buffer created: 1443584 bytes
 Decoding slice 0 (type=19, temporal_id=1, size=1443509 bytes)
-[ERROR] vkCmdBeginVideoCodingKHR(): pBeginInfo->pReferenceSlots[0].pPictureResource->imageViewBinding (VkImageView 0xc000000000c created from VkImage 0x90000000009) was not created with VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR thus it cannot be used as a reference picture with VkVideoSessionKHR 0x40000000004 that was created with a decode operation.
-VkImage 0x90000000009 was created with VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR.
-The Vulkan spec states: If videoSession was created with a decode operation and the slotIndex member of any element of pReferenceSlots is not negative, then the image view specified in pPictureResource->imageViewBinding for that element must have been created with the VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR usage flag set (https://docs.vulkan.org/spec/latest/chapters/videocoding.html#VUID-VkVideoBeginCodingInfoKHR-slotIndex-07245)
-[ERROR] vkCmdDecodeVideoKHR(): pDecodeInfo->pNext<VkVideoDecodeH265PictureInfoKHR>.sliceSegmentCount must be greater than 0.
-The Vulkan spec states: sliceSegmentCount must be greater than 0 (https://docs.vulkan.org/spec/latest/chapters/videocoding.html#VUID-VkVideoDecodeH265PictureInfoKHR-sliceSegmentCount-arraylength)
-[ERROR] vkCmdDecodeVideoKHR(): Cannot use VkImage 0x90000000009 (layer=0 mip=0) with specific layout VK_IMAGE_LAYOUT_VIDEO_DECODE_DPB_KHR that doesn't match the previous known layout VK_IMAGE_LAYOUT_VIDEO_DECODE_DST_KHR.
-The Vulkan spec states: If pDecodeInfo->pSetupReferenceSlot is not NULL, then the image subresource referred to by pDecodeInfo->pSetupReferenceSlot->pPictureResource must be in the VK_IMAGE_LAYOUT_VIDEO_DECODE_DPB_KHR layout at the time the video decode operation is executed on the device , unless the unifiedImageLayoutsVideo feature is enabled, in which case it may be in the VK_IMAGE_LAYOUT_GENERAL layout (https://docs.vulkan.org/spec/latest/chapters/videocoding.html#VUID-vkCmdDecodeVideoKHR-pDecodeInfo-10803)
-[ERROR] vkCmdDecodeVideoKHR(): Cannot use VkImage 0x90000000009 (layer=0 mip=0) with specific layout VK_IMAGE_LAYOUT_VIDEO_DECODE_DPB_KHR that doesn't match the previous known layout VK_IMAGE_LAYOUT_VIDEO_DECODE_DST_KHR.
-The Vulkan spec states: If pDecodeInfo->pSetupReferenceSlot is not NULL and pDecodeInfo->pSetupReferenceSlot->pPictureResource refers to the same image subresource as pDecodeInfo->dstPictureResource, then the image subresource referred to by pDecodeInfo->dstPictureResource must be in the VK_IMAGE_LAYOUT_VIDEO_DECODE_DPB_KHR layout at the time the video decode operation is executed on the device , unless the unifiedImageLayoutsVideo feature is enabled, in which case it may be in the VK_IMAGE_LAYOUT_GENERAL layout (https://docs.vulkan.org/spec/latest/chapters/videocoding.html#VUID-vkCmdDecodeVideoKHR-pDecodeInfo-10802)
-[ERROR] vkCmdBeginVideoCodingKHR(): DPB slot index 0 is not active in VkVideoSessionKHR 0x40000000004.
-The Vulkan spec states: If the slotIndex member of any element of pBeginInfo->pReferenceSlots is not negative, then it must specify the index of a DPB slot that is in the active state in pBeginInfo->videoSession at the time the command is executed on the device (https://docs.vulkan.org/spec/latest/chapters/videocoding.html#VUID-vkCmdBeginVideoCodingKHR-slotIndex-07239)
-[ERROR] vkCmdDecodeVideoKHR(): Bound video session VkVideoSessionKHR 0x40000000004 is uninitialized.
-The Vulkan spec states: The bound video session must not be in uninitialized state at the time the command is executed on the device (https://docs.vulkan.org/spec/latest/chapters/videocoding.html#VUID-vkCmdDecodeVideoKHR-None-07011)
-[ERROR] vkCmdDecodeVideoKHR(): Bound video session VkVideoSessionKHR 0x40000000004 is uninitialized.
-The Vulkan spec states: The bound video session must not be in uninitialized state at the time the command is executed on the device (https://docs.vulkan.org/spec/latest/chapters/videocoding.html#VUID-vkCmdDecodeVideoKHR-None-07011)
-Slice decoded successfully (type=19, size=1443509 bytes)
-[VERBOSE] Unloading layer library C:\WINDOWS\System32\DriverStore\FileRepository\nv_dispwi.inf_amd64_7e4c3265eccb89fa\nvoglv64.dll
-[VERBOSE] Unloading layer library C:\WINDOWS\System32\DriverStore\FileRepository\nv_dispwi.inf_amd64_7e4c3265eccb89fa\nvoglv64.dll
-[VERBOSE] Unloading layer library C:\ProgramData\obs-studio-hook\graphics-hook64.dll
-[VERBOSE] Unloading layer library C:\VulkanSDK\1.4.341.1\Bin\VkLayer_khronos_validation.dll

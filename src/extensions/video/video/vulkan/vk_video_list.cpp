@@ -119,6 +119,7 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisVKVideoDecodeCommandListDecodeFrame(
     VkVideoDecodeH265PictureInfoKHR h265_info{};
     VkVideoDecodeAV1DpbSlotInfoKHR av1_dpb_slot{};
     VkVideoDecodeH265DpbSlotInfoKHR h265_dpb_slot{};
+    uint32_t h265_slice_segment_offsets[1]{};
     void* codec_pnext = nullptr;
     void* dpb_slot_pnext = nullptr;
 
@@ -148,8 +149,11 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisVKVideoDecodeCommandListDecodeFrame(
         h265_info.pStdPictureInfo = reinterpret_cast<const StdVideoDecodeH265PictureInfo*>(
             picture_desc->h265_picture_info
         );
-        h265_info.sliceSegmentCount = 0;
-        h265_info.pSliceSegmentOffsets = nullptr;
+
+        // TODO: Handle multiple slice segments if needed. For now, we assume a single slice segment.
+        h265_slice_segment_offsets[0] = 0;
+        h265_info.sliceSegmentCount = 1;
+        h265_info.pSliceSegmentOffsets = h265_slice_segment_offsets;
         codec_pnext = &h265_info;
 
         h265_dpb_slot.sType = VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_DPB_SLOT_INFO_KHR;
@@ -170,33 +174,7 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisVKVideoDecodeCommandListDecodeFrame(
         .imageViewBinding = output_image_view,
     };
 
-    // Setup reference slot for current frame (if it will be used as reference)
     VkVideoReferenceSlotInfoKHR setup_reference_slot{};
-    bool is_reference = false;
-    if (picture_desc->codec >= WisStdCodecProfileAV1Main && picture_desc->codec <= WisStdCodecProfileAV1Professional) {
-        if (picture_desc->av1_picture_info && picture_desc->av1_picture_info->refresh_frame_flags != 0) {
-            is_reference = true;
-        }
-    } else if (
-        (picture_desc->codec >= WisStdCodecProfileH265Main
-         && picture_desc->codec <= WisStdCodecProfileH265FormatRangeExt)
-        && picture_desc->h265_picture_info
-    ) {
-        if (picture_desc->h265_picture_info->flags.IsReference) {
-            is_reference = true;
-        }
-    }
-
-    if (is_reference) {
-        setup_reference_slot.sType = VK_STRUCTURE_TYPE_VIDEO_REFERENCE_SLOT_INFO_KHR;
-        setup_reference_slot.pNext = dpb_slot_pnext;
-        setup_reference_slot.slotIndex = 0;
-        setup_reference_slot.pPictureResource = &target_pic_resource;
-    }
-
-    // Reference slots for inter-frame prediction (currently empty, future enhancement)
-    uint32_t ref_slot_count = 0;
-    const VkVideoReferenceSlotInfoKHR* ref_slots = nullptr;
 
     // Begin video coding scope
     VkVideoBeginCodingInfoKHR begin_info{
@@ -205,10 +183,17 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisVKVideoDecodeCommandListDecodeFrame(
         .flags = 0,
         .videoSession = decoder_impl.video_session,
         .videoSessionParameters = parameters_impl.video_session_parameters,
-        .referenceSlotCount = is_reference ? 1u : 0u,
-        .pReferenceSlots = is_reference ? &setup_reference_slot : nullptr,
+        .referenceSlotCount = 0,
+        .pReferenceSlots = nullptr,
     };
     impl.command_list_table->vkCmdBeginVideoCodingKHR(impl.command_buffer, &begin_info);
+
+    VkVideoCodingControlInfoKHR control_info{
+        .sType = VK_STRUCTURE_TYPE_VIDEO_CODING_CONTROL_INFO_KHR,
+        .pNext = nullptr,
+        .flags = VK_VIDEO_CODING_CONTROL_RESET_BIT_KHR,
+    };
+    impl.command_list_table->vkCmdControlVideoCodingKHR(impl.command_buffer, &control_info);
 
     // Decode frame
     VkVideoDecodeInfoKHR vk_decode_info{
@@ -219,9 +204,9 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisVKVideoDecodeCommandListDecodeFrame(
         .srcBufferOffset = input_desc->offset,
         .srcBufferRange = input_desc->size,
         .dstPictureResource = target_pic_resource,
-        .pSetupReferenceSlot = is_reference ? &setup_reference_slot : nullptr,
-        .referenceSlotCount = ref_slot_count,
-        .pReferenceSlots = ref_slots,
+        .pSetupReferenceSlot = nullptr,
+        .referenceSlotCount = 0,
+        .pReferenceSlots = nullptr,
     };
     impl.command_list_table->vkCmdDecodeVideoKHR(impl.command_buffer, &vk_decode_info);
 

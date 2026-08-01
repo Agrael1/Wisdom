@@ -82,6 +82,7 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisDX12VideoDecodeCommandListDecodeFrame(
     };
 
     // Codec-specific frame arguments
+    // TODO: Slice controls for H265: DXVA_Slice_HEVC_Short and D3D12_VIDEO_DECODE_ARGUMENT_TYPE_SLICE_CONTROL
     D3D12_VIDEO_DECODE_FRAME_ARGUMENT frame_args[8]{};
     uint32_t frame_arg_count = 0;
 

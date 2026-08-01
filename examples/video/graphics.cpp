@@ -182,7 +182,7 @@ std::optional<Graphics> Graphics::Create(
         .height = height,
         .image_format = output_format,
         .codec_profile = codec_profile,
-        .decode_picture_buffer_count = 16,
+        .decode_picture_buffer_count = 0,
     };
 
     g.decoder = g.video_ext.CreateDecoder(decoder_desc, result);
@@ -232,7 +232,7 @@ std::optional<Graphics> Graphics::Create(
             .format = output_format,
             .sample_count = wis::SampleCount::S1,
             .layout = wis::TextureLayout::Texture2D,
-            .usage_flags = wis::TextureUsageFlags::VideoDecodeDst,
+            .usage_flags = wis::TextureUsageFlags::VideoDecodeDst | wis::TextureUsageFlags::VideoDecodeDpb,
             .flags = wis::TextureFlags::None,
             .memory_type = wis::MemoryType::Default,
             .memory_flags = wis::MemoryFlags::None,
@@ -259,7 +259,7 @@ std::optional<Graphics> Graphics::Create(
         }
     }
 
-    std::printf("H.265 decoder created: %dx%d, dpb=16\n", width, height);
+    std::printf("H.265 decoder created: %dx%d, dpb=0\n", width, height);
     std::printf("H.265 session parameters created\n");
     std::printf("H.265 input buffer created: %llu bytes\n", static_cast<unsigned long long>(decode_input_buffer_size));
     return out;
@@ -292,27 +292,6 @@ int Graphics::DecodeFrame(const SliceData& slice)
                 static_cast<size_t>(padded_size - slice.data.size())
             );
         }
-    }
-
-    // Transition output texture: Undefined -> VideoDecodeWrite
-    {
-        wis::TextureBarrier barrier{
-            .sync_before = wis::BarrierSync::None,
-            .sync_after = wis::BarrierSync::VideoDecode,
-            .access_before = wis::ResourceAccess::None,
-            .access_after = wis::ResourceAccess::VideoDecodeWrite,
-            .state_before = wis::TextureState::Undefined,
-            .state_after = wis::TextureState::VideoDecodeWrite,
-            .flags = wis::BarrierFlags::PlanarImage,
-            .texture = decode_output.GetView(),
-            .subresource_range = {0, 1, 0, 1, 0, 2},
-            .queue_type_before = wis::CommandQueueType::VideoDecode,
-            .queue_type_after = wis::CommandQueueType::VideoDecode,
-        };
-        wis::BarrierGroup barrier_group{
-            .texture_barriers = wis::span{&barrier, 1},
-        };
-        video_cl.InsertBarriers(barrier_group);
     }
 
     // Build picture info from slice header
@@ -377,9 +356,30 @@ int Graphics::DecodeFrame(const SliceData& slice)
         .offset = 0,
         .size = input_size,
     };
+
+    // Transition output texture into the layout required for this frame.
+    {
+        wis::TextureBarrier barrier{
+            .sync_before = wis::BarrierSync::None,
+            .sync_after = wis::BarrierSync::VideoDecode,
+            .access_before = wis::ResourceAccess::None,
+            .access_after = wis::ResourceAccess::VideoDecodeWrite,
+            .state_before = wis::TextureState::Undefined,
+            .state_after = wis::TextureState::VideoDecodeWrite,
+            .flags = wis::BarrierFlags::PlanarImage,
+            .texture = decode_output.GetView(),
+            .subresource_range = {0, 1, 0, 1, 0, 2},
+            .queue_type_before = wis::CommandQueueType::VideoDecode,
+            .queue_type_after = wis::CommandQueueType::VideoDecode,
+        };
+        wis::BarrierGroup barrier_group{
+            .texture_barriers = wis::span{&barrier, 1},
+        };
+        video_cl.InsertBarriers(barrier_group);
+    }
     video_cl.DecodeFrame(decoder, decoder_params, input_desc, output_desc, picture_desc);
 
-    // Transition output texture: VideoDecodeWrite -> Common
+    // Transition output texture back to Common.
     {
         wis::TextureBarrier barrier{
             .sync_before = wis::BarrierSync::VideoDecode,
