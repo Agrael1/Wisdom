@@ -631,8 +631,7 @@ WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionCreateDecoder
         }
     });
 
-    for (uint32_t j = 0; j < memory_req_count / reasonable_req_count; j++) {
-        uint32_t batch_start = j * reasonable_req_count;
+    for (uint32_t batch_start = 0; batch_start < memory_req_count; batch_start += reasonable_req_count) {
         uint32_t batch_size = std::min(reasonable_req_count, memory_req_count - batch_start);
 
         for (uint32_t i = 0; i < batch_size; i++) {
@@ -666,16 +665,21 @@ WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionCreateDecoder
 
             // Chain the allocation together
             if (top_allocation) {
-                vmaSetAllocationUserData(device_header.allocator, top_allocation, static_cast<void*>(allocation));
+                vmaSetAllocationUserData(device_header.allocator, allocation, static_cast<void*>(top_allocation));
             }
             top_allocation = allocation;
         }
-        video_table.vkBindVideoSessionMemoryKHR(impl.device, video_session, batch_size, bind_infos);
+
+        vr = video_table.vkBindVideoSessionMemoryKHR(impl.device, video_session, batch_size, bind_infos);
+        if (vr != VK_SUCCESS) {
+            return wis::detail::make_result<wis::detail::Func(), "Failed to bind video session memory.">(vr);
+        }
     }
+    bind_guard.Release();
 
     new (video_decoder) wis::impl::VKVideoDecoderImpl{
         .video_session = session_guard.Release(),
-        .video_memory = bind_guard.Release(),
+        .video_memory = top_allocation,
 
         // Codec profiles are defined with step of 32, so this gives us the codec type
         .codec = WisVideoCodecFlags(1u << (decoder_desc->codec_profile / 32u)),

@@ -18,8 +18,13 @@ inline bool check_result(wis::Result result, const char* where)
     return false;
 }
 
-void Graphics::log_callback(wis::Severity severity, const char* message, uint64_t, void*)
+void Graphics::log_callback(wis::Severity severity, const char* message, uint64_t, void* data)
 {
+    const CallbackData* callback_data = static_cast<const CallbackData*>(data);
+    if (!callback_data || !callback_data->device_created.load(std::memory_order::relaxed)) {
+        return;
+    }
+
     const char* severity_str = "UNKNOWN";
     switch (severity) {
     case wis::Severity::Verbose:
@@ -60,6 +65,7 @@ std::optional<Graphics> Graphics::Create(
     g.frameheight = height;
     g.codec_profile = codec_profile;
     g.out_format = output_format;
+    g.callback_data = std::make_unique<CallbackData>();
 
     if (!g.platform.Init()) {
         std::printf("Failed to initialize SDL platform\n");
@@ -70,6 +76,7 @@ std::optional<Graphics> Graphics::Create(
     wis::DebugDesc debug_desc = {
         .enable_debug_layer = true,
         .callback = log_callback,
+        .user_data = g.callback_data.get(),
     };
 
     wis::InstanceExtensionHeader* instance_exts[] = {g.platform.Extension()};
@@ -105,6 +112,8 @@ std::optional<Graphics> Graphics::Create(
             break;
         }
     }
+
+    g.callback_data->device_created.store(true, std::memory_order::relaxed);
 
     if (!g.device) {
         std::printf("Failed to create device with VideoDecode queue\n");

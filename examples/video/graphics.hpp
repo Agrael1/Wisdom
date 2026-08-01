@@ -1,17 +1,21 @@
 #pragma once
 #include <wisdom/wisdom.hpp>
 #include <wisdom/wisdom_video.hpp>
+#include <sdl_backend_cpp.h>
+#include <cstdint>
 #include <cstdio>
 #include <optional>
-#include <sdl_backend_cpp.h>
 #include <span>
 #include <vector>
-#include <cstdint>
 
 struct SliceData {
     std::vector<uint8_t> data;
-    uint32_t nal_unit_type;
-    uint32_t temporal_id;
+    uint32_t nal_unit_type = 0;
+    uint32_t temporal_id = 0;
+};
+
+struct CallbackData {
+    std::atomic<bool> device_created{false};
 };
 
 class Graphics
@@ -24,12 +28,15 @@ public:
         wis::DataFormat output_format,
         uint32_t width,
         uint32_t height,
-        const wis::VideoDecodeH265Desc* h265_params = nullptr);
+        const wis::VideoDecodeH265Desc* h265_params = nullptr
+    );
 
     // Decode a single frame with the given slice NAL unit
     int DecodeFrame(const SliceData& slice);
 
 private:
+    std::unique_ptr<CallbackData> callback_data;
+
     SDLPlatformCpp platform;
     wis::Device device;
     wis::VideoDecodingExtension video_ext{wis::VideoCodecFlags::H265};
