@@ -85,17 +85,19 @@ TEST_CASE("video.check_support")
         if (result.status == wis::Status::Ok) {
             for (auto profile : profiles) {
                 for (auto format : formats) {
-                    result = video_extension.QueryCodecCaps({
+                    wis::VideoCodecDesc codec_desc{
                         .codec_profile = profile,
                         .image_format = format,
                         .width = 1920,
                         .height = 1080,
-                    });
-                    if (result.status == wis::Status::Ok) {
+                    };
+                    auto caps = video_extension.QueryCodecCaps(codec_desc, result);
+                    if (result.status == wis::Status::Ok && caps.supported) {
                         std::cout << std::format(
-                            "Codec supported: profile {}, format {}\n",
+                            "Codec supported: profile {}, format {}, alignment {}\n",
                             static_cast<int>(profile),
-                            static_cast<int>(format)
+                            static_cast<int>(format),
+                            caps.min_bitstream_buffer_size_alignment
                         );
                         any_supported = true;
                     }

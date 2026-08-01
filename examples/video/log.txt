@@ -24,7 +24,6 @@ H.265 decoder created: 3960x5940, dpb=16
 H.265 session parameters created
 H.265 input buffer created: 1443584 bytes
 Decoding slice 0 (type=19, temporal_id=1, size=1443509 bytes)
-non-existent PPS id: 0
 [ERROR] vkCmdBeginVideoCodingKHR(): pBeginInfo->pReferenceSlots[0].pNext<VkVideoDecodeH265DpbSlotInfoKHR>.pStdReferenceInfo is NULL.
 The Vulkan spec states: pStdReferenceInfo must be a valid pointer to a valid StdVideoDecodeH265ReferenceInfo value (https://docs.vulkan.org/spec/latest/chapters/videocoding.html#VUID-VkVideoDecodeH265DpbSlotInfoKHR-pStdReferenceInfo-parameter)
 [ERROR] vkCmdBeginVideoCodingKHR(): pBeginInfo->pReferenceSlots[0].pPictureResource->codedExtent (width = 0, height = 0) is outside of the range (width = 144, height = 144)-(width = 3960, height = 5940) supported by VkVideoSessionKHR 0x40000000004.

@@ -430,11 +430,17 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisVKDestroyVideoDecodingExtension(WisVKVideo
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_VIDEO_API WisResult
-wisVKVideoDecodingExtensionQueryCodecCaps(WisVKVideoDecodingExtension* self, const WisVideoCodecDesc* codec_desc)
+WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionQueryCodecCaps(
+    WisVKVideoDecodingExtension* self,
+    const WisVideoCodecDesc* codec_desc,
+    WisVideoCodecCaps* caps
+)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKVideoDecodingExtensionImpl>(self);
     auto& video_table = impl.decoding_control_block->header.video_table;
+    caps->supported = false;
+    caps->min_bitstream_buffer_size_alignment = 0;
+
     VkVideoDecodeCapabilitiesKHR decode_caps{
         .sType = VK_STRUCTURE_TYPE_VIDEO_DECODE_CAPABILITIES_KHR,
     };
@@ -457,14 +463,14 @@ wisVKVideoDecodingExtensionQueryCodecCaps(WisVKVideoDecodingExtension* self, con
 
     auto vr = video_table.vkGetPhysicalDeviceVideoCapabilitiesKHR(impl.adapter, &profile_info, &video_caps);
     if (vr != VK_SUCCESS) {
-        return wis::detail::make_result<wis::detail::Func(), "Unsupported codec parameter combination.">(vr);
+        return wis::detail::make_result<wis::detail::Func(), "Failed to query video capabilities.">(vr);
     }
 
-    // Check size
-    if (codec_desc->width > video_caps.maxCodedExtent.width || codec_desc->height > video_caps.maxCodedExtent.height) {
-        return wis::detail::make_result<
-            wis::detail::Func(),
-            "Requested resolution exceeds the maximum supported coded extent.">(VK_ERROR_FEATURE_NOT_PRESENT);
+    caps->min_bitstream_buffer_size_alignment = static_cast<uint64_t>(video_caps.minBitstreamBufferSizeAlignment);
+    caps->supported = codec_desc->width <= video_caps.maxCodedExtent.width
+                      && codec_desc->height <= video_caps.maxCodedExtent.height;
+    if (!caps->supported) {
+        return wis::detail::vk_success;
     }
 
     // Fill out the decode info based on the queried capabilities
@@ -522,13 +528,12 @@ wisVKVideoDecodingExtensionQueryCodecCaps(WisVKVideoDecodingExtension* self, con
     VkFormat requested_vk_format = wis::detail::VKConvert(codec_desc->image_format);
     for (const auto& prop : format_props) {
         if (prop.format == requested_vk_format) {
+            caps->supported = true;
             return wis::detail::vk_success;
         }
     }
 
-    return wis::detail::make_result<wis::detail::Func(), "Requested Format is not supported for selected codec.">(
-        VK_ERROR_FORMAT_NOT_SUPPORTED
-    );
+    return wis::detail::vk_success;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

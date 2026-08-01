@@ -1461,6 +1461,18 @@ struct VideoCodecDesc {
 };
 
 /**
+ * @brief Provided by Wisdom 0.7.1. Codec capability data returned by a decode capability query.
+ *
+ * */
+struct VideoCodecCaps {
+    bool supported; ///< True if the requested codec configuration is supported by the device.
+    /**
+     * @brief Minimum required alignment for compressed bitstream buffers in bytes.
+     * */
+    std::uint64_t min_bitstream_buffer_size_alignment;
+};
+
+/**
  * @brief Provided by Wisdom 0.7.1. Information about a video decode operation.
  *
  * */
@@ -1734,16 +1746,27 @@ public:
      * @param codec_desc Information about the video codec to query capabilities for. The 'codec' field should specify
      * the codec to check, and the function will fill in the supported bit depths and chroma subsampling formats for
      * that codec.
-     * @return Result denoting the outcome of operation.
+     * @param out_result denoting the outcome of operation.
+     * @return caps Capability data for the requested codec configuration.
      *
      * */
-    inline wis::Result QueryCodecCaps(const wis::VideoCodecDesc& codec_desc) noexcept
+    WIS_NODISCARD inline wis::VideoCodecCaps QueryCodecCaps(
+        const wis::VideoCodecDesc& codec_desc,
+        wis::Result& out_result
+    ) noexcept
     {
+        wis::VideoCodecCaps caps{};
         const WisResult wis_result = ::wisDX12VideoDecodingExtensionQueryCodecCaps(
             &_impl_storage,
-            reinterpret_cast<const WisVideoCodecDesc*>(&codec_desc)
+            reinterpret_cast<const WisVideoCodecDesc*>(&codec_desc),
+            reinterpret_cast<WisVideoCodecCaps*>(&caps)
         );
-        return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
+        out_result = wis::Result{
+            static_cast<wis::Status>(wis_result.status),
+            wis_result.platform_code,
+            wis_result.error
+        };
+        return caps;
     }
     /**
      * @brief Provided by Wisdom 0.7.1. Creates a video decoder instance.
@@ -2042,16 +2065,27 @@ public:
      * @param codec_desc Information about the video codec to query capabilities for. The 'codec' field should specify
      * the codec to check, and the function will fill in the supported bit depths and chroma subsampling formats for
      * that codec.
-     * @return Result denoting the outcome of operation.
+     * @param out_result denoting the outcome of operation.
+     * @return caps Capability data for the requested codec configuration.
      *
      * */
-    inline wis::Result QueryCodecCaps(const wis::VideoCodecDesc& codec_desc) noexcept
+    WIS_NODISCARD inline wis::VideoCodecCaps QueryCodecCaps(
+        const wis::VideoCodecDesc& codec_desc,
+        wis::Result& out_result
+    ) noexcept
     {
+        wis::VideoCodecCaps caps{};
         const WisResult wis_result = ::wisVKVideoDecodingExtensionQueryCodecCaps(
             &_impl_storage,
-            reinterpret_cast<const WisVideoCodecDesc*>(&codec_desc)
+            reinterpret_cast<const WisVideoCodecDesc*>(&codec_desc),
+            reinterpret_cast<WisVideoCodecCaps*>(&caps)
         );
-        return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
+        out_result = wis::Result{
+            static_cast<wis::Status>(wis_result.status),
+            wis_result.platform_code,
+            wis_result.error
+        };
+        return caps;
     }
     /**
      * @brief Provided by Wisdom 0.7.1. Creates a video decoder instance.

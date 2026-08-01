@@ -32,7 +32,7 @@ public:
         wis::DataFormat output_format,
         uint32_t width,
         uint32_t height,
-        uint64_t decode_input_buffer_size,
+        uint64_t max_slice_size,
         h265nal::H265BitstreamParserState* parser_state,
         const wis::VideoDecodeH265Desc* h265_params = nullptr
     );
@@ -59,5 +59,6 @@ private:
     uint32_t frameheight = 0;
     wis::StdCodecProfile codec_profile{};
     wis::DataFormat out_format{};
+    uint64_t bitstream_alignment = 256;
     h265nal::H265BitstreamParserState* parser_state = nullptr;
 };

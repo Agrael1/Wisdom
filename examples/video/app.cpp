@@ -504,24 +504,12 @@ int App::Start()
         std::printf("  Slice NALs (types 1-21): %zu\n", slice_count);
     }
 
-    constexpr uint64_t bitstream_alignment = 256;
-    uint64_t decode_input_buffer_size = wis::aligned_size(max_slice_size, bitstream_alignment);
-    if (decode_input_buffer_size == 0) {
-        decode_input_buffer_size = bitstream_alignment;
-    }
-    std::printf(
-        "Bitstream upload buffer: %llu bytes (largest slice %llu, aligned to %llu)\n",
-        static_cast<unsigned long long>(decode_input_buffer_size),
-        static_cast<unsigned long long>(max_slice_size),
-        static_cast<unsigned long long>(bitstream_alignment)
-    );
-
     auto graphics = Graphics::Create(
         codec_profile,
         output_format,
         width,
         height,
-        decode_input_buffer_size,
+        max_slice_size,
         &parser_state,
         &converted.desc
     );

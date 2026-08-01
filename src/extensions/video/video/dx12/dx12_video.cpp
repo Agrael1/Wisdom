@@ -203,10 +203,16 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisDX12DestroyVideoDecodingExtension(WisDX12V
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_VIDEO_API WisResult
-wisDX12VideoDecodingExtensionQueryCodecCaps(WisDX12VideoDecodingExtension* self, const WisVideoCodecDesc* codec_desc)
+WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisDX12VideoDecodingExtensionQueryCodecCaps(
+    WisDX12VideoDecodingExtension* self,
+    const WisVideoCodecDesc* codec_desc,
+    WisVideoCodecCaps* caps
+)
 {
     auto& impl = wis::from_handle_ref<wis::impl::DX12VideoDecodingExtensionImpl>(self);
+    caps->supported = false;
+    caps->min_bitstream_buffer_size_alignment = 256;
+
     D3D12_FEATURE_DATA_VIDEO_DECODE_SUPPORT decode_support{
         .Width = codec_desc->width,
         .Height = codec_desc->height,
@@ -220,25 +226,20 @@ wisDX12VideoDecodingExtensionQueryCodecCaps(WisDX12VideoDecodingExtension* self,
     );
 
     if (!wis::detail::succeeded(decode_profile_result.platform_code)) {
-        return decode_profile_result;
+        return wis::detail::dx_success;
     }
 
     // clang-format off
     HRESULT hr = impl.device->CheckFeatureSupport(
-                         D3D12_FEATURE_VIDEO_DECODE_SUPPORT, 
-                         &decode_support, 
+                         D3D12_FEATURE_VIDEO_DECODE_SUPPORT,
+                         &decode_support,
                          sizeof(decode_support));
     // clang-format on
     if (!wis::detail::succeeded(hr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to query video decode support.">(hr);
     }
 
-    if ((decode_support.SupportFlags & D3D12_VIDEO_DECODE_SUPPORT_FLAG_SUPPORTED) == 0) {
-        return wis::detail::make_result<
-            wis::detail::Func(),
-            "Hardware does not support this specific decode configuration.">(E_NOTIMPL);
-    }
-
+    caps->supported = (decode_support.SupportFlags & D3D12_VIDEO_DECODE_SUPPORT_FLAG_SUPPORTED) != 0;
     return wis::detail::dx_success;
 }
 

@@ -55,7 +55,7 @@ std::optional<Graphics> Graphics::Create(
     wis::DataFormat output_format,
     uint32_t width,
     uint32_t height,
-    uint64_t decode_input_buffer_size,
+    uint64_t max_slice_size,
     h265nal::H265BitstreamParserState* parser_state,
     const wis::VideoDecodeH265Desc* h265_params
 )
@@ -132,11 +132,25 @@ std::optional<Graphics> Graphics::Create(
         .width = width,
         .height = height,
     };
-    auto caps_result = g.video_ext.QueryCodecCaps(codec_query);
-    if (caps_result.status == wis::Status::Ok) {
-        std::printf("Codec %dx%d supported\n", width, height);
+    uint64_t decode_input_buffer_size = max_slice_size;
+    wis::Result caps_result;
+    auto caps = g.video_ext.QueryCodecCaps(codec_query, caps_result);
+    if (caps_result.status == wis::Status::Ok && caps.supported) {
+        g.bitstream_alignment = caps.min_bitstream_buffer_size_alignment;
+        decode_input_buffer_size = wis::aligned_size(max_slice_size, g.bitstream_alignment);
+        if (decode_input_buffer_size == 0) {
+            decode_input_buffer_size = g.bitstream_alignment;
+        }
+        std::printf(
+            "Codec %dx%d supported (bitstream alignment %llu)\n",
+            width,
+            height,
+            static_cast<unsigned long long>(caps.min_bitstream_buffer_size_alignment)
+        );
     } else {
         std::printf("Codec %dx%d NOT supported\n", width, height);
+        out.reset();
+        return out;
     }
 
     g.video_queue = g.device.CreateCommandQueue(wis::CommandQueueType::VideoDecode, result);
@@ -262,9 +276,9 @@ int Graphics::DecodeFrame(const SliceData& slice)
 
     // Upload slice data to the decode input buffer
     {
-        constexpr uint64_t bitstream_alignment = 256;
-        const uint64_t padded_size = (static_cast<uint64_t>(slice.data.size()) + bitstream_alignment - 1) /
-                                     bitstream_alignment * bitstream_alignment;
+        const uint64_t padded_size =
+            (static_cast<uint64_t>(slice.data.size()) + bitstream_alignment - 1) / bitstream_alignment *
+            bitstream_alignment;
         void* mapped_ptr = decode_input.Map();
         if (!mapped_ptr) {
             std::printf("Failed to map decode input buffer\n");
@@ -353,9 +367,8 @@ int Graphics::DecodeFrame(const SliceData& slice)
         .reference_frame_count = 0,
     };
 
-    constexpr uint64_t bitstream_alignment = 256;
-    const uint64_t input_size = (static_cast<uint64_t>(slice.data.size()) + bitstream_alignment - 1) /
-                                 bitstream_alignment * bitstream_alignment;
+    const uint64_t input_size =
+        (static_cast<uint64_t>(slice.data.size()) + bitstream_alignment - 1) / bitstream_alignment * bitstream_alignment;
     wis::VideoDecodeInputDesc input_desc{
         .bitstream_buffer = decode_input,
         .offset = 0,

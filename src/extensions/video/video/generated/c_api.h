@@ -1437,6 +1437,18 @@ typedef struct WisVideoCodecDesc {
 } WisVideoCodecDesc;
 
 /**
+ * @brief Provided by Wisdom 0.7.1. Codec capability data returned by a decode capability query.
+ *
+ * */
+typedef struct WisVideoCodecCaps {
+    bool supported; ///< True if the requested codec configuration is supported by the device.
+    /**
+     * @brief Minimum required alignment for compressed bitstream buffers in bytes.
+     * */
+    uint64_t min_bitstream_buffer_size_alignment;
+} WisVideoCodecCaps;
+
+/**
  * @brief Provided by Wisdom 0.7.1. Information about a video decode operation.
  *
  * */
@@ -1639,11 +1651,15 @@ WIS_INLINE WISDOM_VIDEO_API void wisDX12InitVideoDecodingExtension(
  * @param self is a pointer to the valid WisVideoDecodingExtension instance.
  * @param codec_desc Information about the video codec to query capabilities for. The 'codec' field should specify the
  * codec to check, and the function will fill in the supported bit depths and chroma subsampling formats for that codec.
+ * @param caps Capability data for the requested codec configuration.
  * @return Result denoting the outcome of operation.
  *
  * */
-WIS_INLINE WISDOM_VIDEO_API WisResult
-wisDX12VideoDecodingExtensionQueryCodecCaps(WisDX12VideoDecodingExtension* self, const WisVideoCodecDesc* codec_desc);
+WIS_INLINE WISDOM_VIDEO_API WisResult wisDX12VideoDecodingExtensionQueryCodecCaps(
+    WisDX12VideoDecodingExtension* self,
+    const WisVideoCodecDesc* codec_desc,
+    WisVideoCodecCaps* caps
+);
 
 /**
  * @brief Provided by Wisdom 0.7.1. Creates a video decoder instance.
@@ -1878,11 +1894,15 @@ WIS_INLINE WISDOM_VIDEO_API void wisVKInitVideoDecodingExtension(
  * @param self is a pointer to the valid WisVideoDecodingExtension instance.
  * @param codec_desc Information about the video codec to query capabilities for. The 'codec' field should specify the
  * codec to check, and the function will fill in the supported bit depths and chroma subsampling formats for that codec.
+ * @param caps Capability data for the requested codec configuration.
  * @return Result denoting the outcome of operation.
  *
  * */
-WIS_INLINE WISDOM_VIDEO_API WisResult
-wisVKVideoDecodingExtensionQueryCodecCaps(WisVKVideoDecodingExtension* self, const WisVideoCodecDesc* codec_desc);
+WIS_INLINE WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionQueryCodecCaps(
+    WisVKVideoDecodingExtension* self,
+    const WisVideoCodecDesc* codec_desc,
+    WisVideoCodecCaps* caps
+);
 
 /**
  * @brief Provided by Wisdom 0.7.1. Creates a video decoder instance.

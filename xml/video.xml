@@ -84,6 +84,11 @@
         <member type="u32" name="height" doc="Max height of the video frame in pixels."/>
       </type>
 
+      <type name="VideoCodecCaps" category="struct" version="0.7.1" doc="Codec capability data returned by a decode capability query.">
+        <member type="bool" name="supported" doc="True if the requested codec configuration is supported by the device."/>
+        <member type="u64" name="min_bitstream_buffer_size_alignment" doc="Minimum required alignment for compressed bitstream buffers in bytes."/>
+      </type>
+
       <type name="VideoDecoderDesc" category="struct" version="0.7.1" doc="Information about a video decode operation.">
         <member type="u32" name="width" doc="Width of the video frame in pixels."/>
         <member type="u32" name="height" doc="Height of the video frame in pixels."/>
@@ -165,7 +170,7 @@
 
     <functions>
       <func name="QueryCodecCaps" version="0.7.1" for="VideoDecodingExtension" doc="Checks if video decode is supported on the current device.">
-        <ret type="Result" doc="Result of the query operation. Returns 'Success' if video decode is supported for the specified codec, or an appropriate error code if not."/>
+        <ret type="VideoCodecCaps" name="caps" result="true" doc="Capability data for the requested codec configuration."/>
         <arg type="VideoCodecDesc" name="codec_desc" mod="const,ref" doc="Information about the video codec to query capabilities for. The 'codec' field should specify the codec to check, and the function will fill in the supported bit depths and chroma subsampling formats for that codec."/>
       </func>
       <func name="CreateDecoder" version="0.7.1" for="VideoDecodingExtension" mod="const" doc="Creates a video decoder instance.">
