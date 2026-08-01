@@ -8,6 +8,10 @@
 #include <span>
 #include <vector>
 
+namespace h265nal {
+struct H265BitstreamParserState;
+}
+
 struct SliceData {
     std::vector<uint8_t> data;
     uint32_t nal_unit_type = 0;
@@ -29,6 +33,7 @@ public:
         uint32_t width,
         uint32_t height,
         uint64_t decode_input_buffer_size,
+        h265nal::H265BitstreamParserState* parser_state,
         const wis::VideoDecodeH265Desc* h265_params = nullptr
     );
 
@@ -54,4 +59,5 @@ private:
     uint32_t frameheight = 0;
     wis::StdCodecProfile codec_profile{};
     wis::DataFormat out_format{};
+    h265nal::H265BitstreamParserState* parser_state = nullptr;
 };

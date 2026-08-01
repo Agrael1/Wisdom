@@ -89,11 +89,6 @@ static std::vector<NalUnit> ParseNalUnitsFromMdat(
     return nalus;
 }
 
-static uint64_t AlignUp(uint64_t value, uint64_t alignment)
-{
-    return (value + alignment - 1) / alignment * alignment;
-}
-
 // ---------------------------------------------------------------------------
 // Convert parsed h265nal state to wisdom StdVideoH265 types
 // ---------------------------------------------------------------------------
@@ -510,7 +505,7 @@ int App::Start()
     }
 
     constexpr uint64_t bitstream_alignment = 256;
-    uint64_t decode_input_buffer_size = AlignUp(max_slice_size, bitstream_alignment);
+    uint64_t decode_input_buffer_size = wis::aligned_size(max_slice_size, bitstream_alignment);
     if (decode_input_buffer_size == 0) {
         decode_input_buffer_size = bitstream_alignment;
     }
@@ -521,7 +516,15 @@ int App::Start()
         static_cast<unsigned long long>(bitstream_alignment)
     );
 
-    auto graphics = Graphics::Create(codec_profile, output_format, width, height, decode_input_buffer_size, &converted.desc);
+    auto graphics = Graphics::Create(
+        codec_profile,
+        output_format,
+        width,
+        height,
+        decode_input_buffer_size,
+        &parser_state,
+        &converted.desc
+    );
     if (!graphics) {
         return -1;
     }

@@ -56,6 +56,7 @@ std::optional<Graphics> Graphics::Create(
     uint32_t width,
     uint32_t height,
     uint64_t decode_input_buffer_size,
+    h265nal::H265BitstreamParserState* parser_state,
     const wis::VideoDecodeH265Desc* h265_params
 )
 {
@@ -68,6 +69,7 @@ std::optional<Graphics> Graphics::Create(
     g.frameheight = height;
     g.codec_profile = codec_profile;
     g.out_format = output_format;
+    g.parser_state = parser_state;
     g.callback_data = std::make_unique<CallbackData>();
 
     if (!g.platform.Init()) {
@@ -302,10 +304,13 @@ int Graphics::DecodeFrame(const SliceData& slice)
     // Build picture info from slice header
     wis::StdVideoDecodeH265PictureInfo pic_info{};
     {
-        h265nal::H265BitstreamParserState parser_state;
         // Parse slice header
         auto slice_header = h265nal::H265SliceSegmentHeaderParser::ParseSliceSegmentHeader(
-            slice.data.data() + 2, slice.data.size() - 2, slice.nal_unit_type, &parser_state);
+            slice.data.data() + 2,
+            slice.data.size() - 2,
+            slice.nal_unit_type,
+            parser_state
+        );
         
         if (slice_header) {
             pic_info.flags.IrapPicFlag = (slice.nal_unit_type >= 16 && slice.nal_unit_type <= 21) ? 1 : 0;
