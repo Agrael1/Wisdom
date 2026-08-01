@@ -1576,6 +1576,11 @@ enum class ViewHeapFlags : uint32_t {
      * multisample-related usage.
      * */
     AllowMultisample = (1u << 0),
+    /**
+     * @brief Allows the view heap to be used with video targets. If not set, the view heap does not enable video
+     * target-related usage.
+     * */
+    AllowVideoTargets = (1u << 0),
 };
 WISDOM_DEFINE_ENUM_OPERATORS(ViewHeapFlags)
 
@@ -3090,6 +3095,28 @@ public:
     ) const noexcept
     {
         return (::wisDX12ViewHeapWriteDepthStencil(
+            &_impl_storage,
+            reinterpret_cast<const WisDX12Texture*>(&texture),
+            reinterpret_cast<const WisRenderTargetDesc*>(&render_target),
+            index
+        ));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.1. Writes a texture view for video decode output and returns the texture view
+     * handle for it. The heap must have been created with `wis::ViewHeapFlags::AllowVideoTargets`
+     * @param texture describes a pointer to wis::Texture to write the view for.
+     * @param render_target specifies a pointer to wis::RenderTargetDesc, which describes the texture view to write.
+     * @param index defines the index in the view heap to write the view to.
+     * @return u64 CPU descriptor handle for the view heap.
+     *
+     * */
+    WIS_NODISCARD inline std::uint64_t WriteVideoDecodeTarget(
+        const wis::DX12Texture& texture,
+        const wis::RenderTargetDesc& render_target,
+        std::uint32_t index
+    ) const noexcept
+    {
+        return (::wisDX12ViewHeapWriteVideoDecodeTarget(
             &_impl_storage,
             reinterpret_cast<const WisDX12Texture*>(&texture),
             reinterpret_cast<const WisRenderTargetDesc*>(&render_target),
@@ -5133,6 +5160,28 @@ public:
     ) const noexcept
     {
         return (::wisVKViewHeapWriteDepthStencil(
+            &_impl_storage,
+            reinterpret_cast<const WisVKTexture*>(&texture),
+            reinterpret_cast<const WisRenderTargetDesc*>(&render_target),
+            index
+        ));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.1. Writes a texture view for video decode output and returns the texture view
+     * handle for it. The heap must have been created with `wis::ViewHeapFlags::AllowVideoTargets`
+     * @param texture describes a pointer to wis::Texture to write the view for.
+     * @param render_target specifies a pointer to wis::RenderTargetDesc, which describes the texture view to write.
+     * @param index defines the index in the view heap to write the view to.
+     * @return u64 CPU descriptor handle for the view heap.
+     *
+     * */
+    WIS_NODISCARD inline std::uint64_t WriteVideoDecodeTarget(
+        const wis::VKTexture& texture,
+        const wis::RenderTargetDesc& render_target,
+        std::uint32_t index
+    ) const noexcept
+    {
+        return (::wisVKViewHeapWriteVideoDecodeTarget(
             &_impl_storage,
             reinterpret_cast<const WisVKTexture*>(&texture),
             reinterpret_cast<const WisRenderTargetDesc*>(&render_target),

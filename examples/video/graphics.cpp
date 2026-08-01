@@ -1,7 +1,7 @@
 #include "graphics.hpp"
-#include "h265_slice_parser.h"
 #include "h265_bitstream_parser_state.h"
 #include "h265_common.h"
+#include "h265_slice_parser.h"
 
 #include <cstring>
 
@@ -244,6 +244,28 @@ std::optional<Graphics> Graphics::Create(
         }
     }
 
+    g.decode_output_view_heap = g.device.CreateViewHeap(
+        wis::ViewHeapType::RenderTarget,
+        1,
+        wis::ViewHeapFlags::AllowVideoTargets,
+        result
+    );
+    if (!check_result(result, "CreateViewHeap(decode output)")) {
+        out.reset();
+        return out;
+    }
+    {
+        wis::RenderTargetDesc view_desc{
+            .format = output_format,
+            .layout = wis::TextureLayout::Texture2D,
+            .mip_level = 0,
+            .base_array_layer = 0,
+            .array_layer_count = 1,
+            .plane_slice = 0,
+        };
+        g.decode_output_view = g.decode_output_view_heap.WriteVideoDecodeTarget(g.decode_output, view_desc, 0);
+    }
+
     // Create the decode-input buffer for bitstream data
     {
         wis::BufferDesc buf_desc{
@@ -276,9 +298,8 @@ int Graphics::DecodeFrame(const SliceData& slice)
 
     // Upload slice data to the decode input buffer
     {
-        const uint64_t padded_size =
-            (static_cast<uint64_t>(slice.data.size()) + bitstream_alignment - 1) / bitstream_alignment *
-            bitstream_alignment;
+        const uint64_t padded_size = (static_cast<uint64_t>(slice.data.size()) + bitstream_alignment - 1)
+                                   / bitstream_alignment * bitstream_alignment;
         void* mapped_ptr = decode_input.Map();
         if (!mapped_ptr) {
             std::printf("Failed to map decode input buffer\n");
@@ -305,7 +326,7 @@ int Graphics::DecodeFrame(const SliceData& slice)
             slice.nal_unit_type,
             parser_state
         );
-        
+
         if (slice_header) {
             pic_info.flags.IrapPicFlag = (slice.nal_unit_type >= 16 && slice.nal_unit_type <= 21) ? 1 : 0;
             pic_info.flags.IdrPicFlag = (slice.nal_unit_type == 19 || slice.nal_unit_type == 20) ? 1 : 0;
@@ -334,12 +355,6 @@ int Graphics::DecodeFrame(const SliceData& slice)
 
     ref_info.PicOrderCntVal = pic_info.PicOrderCntVal;
 
-    wis::VideoDecodeOutputDesc output_desc{
-        .output_texture = decode_output.GetView(),
-        .format = out_format,
-        .subresource = 0,
-    };
-
     wis::VideoDecodePictureDesc picture_desc{
         .codec = codec_profile,
         .av1_picture_info = nullptr,
@@ -349,8 +364,8 @@ int Graphics::DecodeFrame(const SliceData& slice)
         .reference_frame_count = 0,
     };
 
-    const uint64_t input_size =
-        (static_cast<uint64_t>(slice.data.size()) + bitstream_alignment - 1) / bitstream_alignment * bitstream_alignment;
+    const uint64_t input_size = (static_cast<uint64_t>(slice.data.size()) + bitstream_alignment - 1)
+                              / bitstream_alignment * bitstream_alignment;
     wis::VideoDecodeInputDesc input_desc{
         .bitstream_buffer = decode_input,
         .offset = 0,
@@ -377,7 +392,7 @@ int Graphics::DecodeFrame(const SliceData& slice)
         };
         video_cl.InsertBarriers(barrier_group);
     }
-    video_cl.DecodeFrame(decoder, decoder_params, input_desc, output_desc, picture_desc);
+    video_cl.DecodeFrame(decoder, decoder_params, input_desc, picture_desc, decode_output_view);
 
     // Transition output texture back to Common.
     {
@@ -421,7 +436,6 @@ int Graphics::DecodeFrame(const SliceData& slice)
         return -1;
     }
 
-    std::printf("Slice decoded successfully (type=%u, size=%zu bytes)\n", 
-                slice.nal_unit_type, slice.data.size());
+    std::printf("Slice decoded successfully (type=%u, size=%zu bytes)\n", slice.nal_unit_type, slice.data.size());
     return 0;
 }

@@ -1588,6 +1588,11 @@ typedef enum WisViewHeapFlags {
      * multisample-related usage.
      * */
     WisViewHeapFlagsAllowMultisample = (1u << 0),
+    /**
+     * @brief Allows the view heap to be used with video targets. If not set, the view heap does not enable video
+     * target-related usage.
+     * */
+    WisViewHeapFlagsAllowVideoTargets = (1u << 0),
 } WisViewHeapFlags;
 
 /**
@@ -3798,6 +3803,23 @@ WIS_INLINE WISDOM_API uint64_t wisDX12ViewHeapWriteDepthStencil(
 );
 
 /**
+ * @brief Provided by Wisdom 0.7.1. Writes a texture view for video decode output and returns the texture view handle
+ * for it. The heap must have been created with `WisViewHeapFlagsAllowVideoTargets`
+ * @param self is a pointer to the valid WisViewHeap instance.
+ * @param texture describes a pointer to WisTexture to write the view for.
+ * @param render_target specifies a pointer to WisRenderTargetDesc, which describes the texture view to write.
+ * @param index defines the index in the view heap to write the view to.
+ * @return u64 CPU descriptor handle for the view heap.
+ *
+ * */
+WIS_INLINE WISDOM_API uint64_t wisDX12ViewHeapWriteVideoDecodeTarget(
+    const WisDX12ViewHeap* self,
+    const WisDX12Texture* texture,
+    const WisRenderTargetDesc* render_target,
+    uint32_t index
+);
+
+/**
  * @brief Provided by Wisdom 0.7.0. Returns the CPU descriptor handle for the view heap.
  * @param self is a pointer to the valid WisViewHeap instance.
  * @param index defines the index in the view heap to get the descriptor from.
@@ -5485,6 +5507,23 @@ WIS_INLINE WISDOM_API uint64_t wisVKViewHeapWriteRenderTarget(
  *
  * */
 WIS_INLINE WISDOM_API uint64_t wisVKViewHeapWriteDepthStencil(
+    const WisVKViewHeap* self,
+    const WisVKTexture* texture,
+    const WisRenderTargetDesc* render_target,
+    uint32_t index
+);
+
+/**
+ * @brief Provided by Wisdom 0.7.1. Writes a texture view for video decode output and returns the texture view handle
+ * for it. The heap must have been created with `WisViewHeapFlagsAllowVideoTargets`
+ * @param self is a pointer to the valid WisViewHeap instance.
+ * @param texture describes a pointer to WisTexture to write the view for.
+ * @param render_target specifies a pointer to WisRenderTargetDesc, which describes the texture view to write.
+ * @param index defines the index in the view heap to write the view to.
+ * @return u64 CPU descriptor handle for the view heap.
+ *
+ * */
+WIS_INLINE WISDOM_API uint64_t wisVKViewHeapWriteVideoDecodeTarget(
     const WisVKViewHeap* self,
     const WisVKTexture* texture,
     const WisRenderTargetDesc* render_target,

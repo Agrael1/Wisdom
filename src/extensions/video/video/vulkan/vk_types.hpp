@@ -24,8 +24,6 @@ struct VKVideoDecoderImpl {
     VkVideoSessionKHR video_session;
     VmaAllocation video_memory;
     WisVideoCodecFlags codec;
-    uint32_t width;
-    uint32_t height;
     detail::VKVideoDecodingControlBlock* decoding_control_block;
 };
 

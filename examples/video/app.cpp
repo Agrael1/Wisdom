@@ -504,6 +504,11 @@ int App::Start()
         std::printf("  Slice NALs (types 1-21): %zu\n", slice_count);
     }
 
+    SDL_Window* window = SDL_CreateWindow("Wisdom H.265 Decode", 800, 600, 0);
+    if (!window) {
+        return -1;
+    }
+
     auto graphics = Graphics::Create(
         codec_profile,
         output_format,
@@ -514,11 +519,7 @@ int App::Start()
         &converted.desc
     );
     if (!graphics) {
-        return -1;
-    }
-
-    SDL_Window* window = SDL_CreateWindow("Wisdom Hello Triangle C++", 800, 600, 0);
-    if (!window) {
+        SDL_DestroyWindow(window);
         return -1;
     }
     

@@ -688,8 +688,6 @@ WIS_EXTERN_C WISDOM_VIDEO_API WisResult wisVKVideoDecodingExtensionCreateDecoder
 
         // Codec profiles are defined with step of 32, so this gives us the codec type
         .codec = WisVideoCodecFlags(1u << (decoder_desc->codec_profile / 32u)),
-        .width = decoder_desc->width,
-        .height = decoder_desc->height,
         .decoding_control_block = impl.decoding_control_block,
     };
     impl.decoding_control_block->AddRef(); // video decoder holds a reference to the device control block

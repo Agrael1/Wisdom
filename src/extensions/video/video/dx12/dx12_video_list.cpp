@@ -68,17 +68,20 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisDX12VideoDecodeCommandListDecodeFrame(
     const WisDX12VideoDecoder* decoder,
     const WisDX12VideoDecoderParameters* parameters,
     const WisDX12VideoDecodeInputDesc* input_desc,
-    const WisDX12VideoDecodeOutputDesc* output_desc,
-    const WisDX12VideoDecodePictureDesc* picture_desc
+    const WisDX12VideoDecodePictureDesc* picture_desc,
+    uint64_t out_cpu_handle
 )
 {
     auto& impl = wis::from_handle_ref<const wis::impl::DX12VideoDecodeCommandListImpl>(command_list);
     auto& decoder_impl = wis::from_handle_ref<const wis::impl::DX12VideoDecoderImpl>(decoder);
 
+    // convert to metadata pointer
+    auto* aux = wis::detail::DX12DecodeViewAddress(out_cpu_handle);
+
     // Output stream arguments
     D3D12_VIDEO_DECODE_OUTPUT_STREAM_ARGUMENTS1 output_args{
-        .pOutputTexture2D = std::bit_cast<ID3D12Resource*>(output_desc->output_texture),
-        .OutputSubresource = output_desc->subresource,
+        .pOutputTexture2D = aux->resource,
+        .OutputSubresource = aux->base_subresource,
     };
 
     // Codec-specific frame arguments

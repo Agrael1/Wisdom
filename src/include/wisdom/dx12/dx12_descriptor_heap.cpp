@@ -631,6 +631,28 @@ WIS_EXTERN_C WISDOM_API uint64_t wisDX12ViewHeapWriteDepthStencil(
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API uint64_t wisDX12ViewHeapWriteVideoDecodeTarget(
+    const WisDX12ViewHeap* self,
+    const WisDX12Texture* texture,
+    const WisRenderTargetDesc* render_target,
+    uint32_t index
+)
+{
+    auto& heap = wis::from_handle_ref<const wis::impl::DX12ViewHeapImpl>(self);
+    auto& tex = wis::from_handle_ref<const wis::impl::DX12TextureImpl>(texture);
+    if (!heap.aux_data) {
+        return 0;
+    }
+
+    auto& aux = heap.aux_data[index];
+    aux.handle = {0};
+    aux.resource = tex.resource;
+    aux.format = static_cast<uint16_t>(wis::detail::DX12Convert(render_target->format));
+    wis::detail::DX12FillRTVAuxData(aux, *render_target, tex.resource->GetDesc(), render_target->plane_slice, false);
+    return wis::detail::DX12EncodeViewAddress(&aux);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API uint64_t wisDX12ViewHeapGetViewAddress(const WisDX12ViewHeap* self, uint32_t index)
 {
     auto& heap = wis::from_handle_ref<const wis::impl::DX12ViewHeapImpl>(self);
@@ -663,6 +685,14 @@ WIS_EXTERN_C WISDOM_API void wisDX12ViewHeapCopyViews(
         {src_handle_ptr},
         heap.type
     );
+
+    // copy aux data if present
+    if (heap.aux_data) {
+        auto* dst_aux_base = heap.aux_data + dst_index;
+        if (auto* src_aux_base = wis::detail::DX12DecodeViewAddress(src_ptr)) {
+            std::copy_n(src_aux_base + src_index, count, dst_aux_base);
+        }
+    }
 }
 
 //----------------------------------------------------------------------------------------------------------------------

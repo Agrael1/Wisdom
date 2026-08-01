@@ -53,6 +53,8 @@ private:
     wis::VideoDecoder decoder;
     wis::VideoDecoderParameters decoder_params;
     wis::ResourceAllocator allocator;
+    wis::ViewHeap decode_output_view_heap;
+    uint64_t decode_output_view;
     wis::Texture decode_output;
     wis::Buffer decode_input;
     uint32_t framewidth = 0;

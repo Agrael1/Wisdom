@@ -34,7 +34,6 @@ using VideoDecodingExtension = wis::DX12VideoDecodingExtension;
 //==============================================================
 
 using VideoDecodeInputDesc = wis::DX12VideoDecodeInputDesc;
-using VideoDecodeOutputDesc = wis::DX12VideoDecodeOutputDesc;
 using VideoDecodePictureDesc = wis::DX12VideoDecodePictureDesc;
 
 } // namespace wis
@@ -57,7 +56,6 @@ using VideoDecodingExtension = wis::VKVideoDecodingExtension;
 //==============================================================
 
 using VideoDecodeInputDesc = wis::VKVideoDecodeInputDesc;
-using VideoDecodeOutputDesc = wis::VKVideoDecodeOutputDesc;
 using VideoDecodePictureDesc = wis::VKVideoDecodePictureDesc;
 
 } // namespace wis

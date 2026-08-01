@@ -1558,17 +1558,6 @@ struct DX12VideoDecodeInputDesc {
 };
 
 /**
- * @brief Provided by Wisdom 0.7.1. Description of the output for a video decode operation. Specifies the target texture
- * for decoded video frames.
- *
- * */
-struct DX12VideoDecodeOutputDesc {
-    wis::DX12TextureView output_texture; ///< The texture that will receive the decoded video frame.
-    wis::DataFormat format; ///< The data format of the output texture.
-    std::uint32_t subresource; ///< The subresource index of the texture to decode into.
-};
-
-/**
  * @brief Provided by Wisdom 0.7.1. Variant type for video decode picture descriptions. Specifies the codec-specific
  * parameters for a video decode operation.
  *
@@ -1698,16 +1687,17 @@ public:
      * @param decoder The video decoder that will be used for decoding the video frame.
      * @param parameters The video decoder parameters that will be used for decoding the video frame.
      * @param input_desc Description of the input data for the video decode operation.
-     * @param output_desc Description of the output texture for the decoded video frame.
      * @param picture_desc Codec-specific picture information for the decode operation.
+     * @param output_cpu_handle Handle from ViewHeap that was created for texture that receives the video decoding
+     * result. Handle must have been created using wis::ViewHeap::WriteVideoDecodeTarget.
      *
      * */
     inline void DecodeFrame(
         const wis::DX12VideoDecoder& decoder,
         const wis::DX12VideoDecoderParameters& parameters,
         const wis::DX12VideoDecodeInputDesc& input_desc,
-        const wis::DX12VideoDecodeOutputDesc& output_desc,
-        const wis::DX12VideoDecodePictureDesc& picture_desc
+        const wis::DX12VideoDecodePictureDesc& picture_desc,
+        std::uint64_t output_cpu_handle
     ) const noexcept
     {
         ::wisDX12VideoDecodeCommandListDecodeFrame(
@@ -1715,8 +1705,8 @@ public:
             reinterpret_cast<const WisDX12VideoDecoder*>(&decoder),
             reinterpret_cast<const WisDX12VideoDecoderParameters*>(&parameters),
             reinterpret_cast<const WisDX12VideoDecodeInputDesc*>(&input_desc),
-            reinterpret_cast<const WisDX12VideoDecodeOutputDesc*>(&output_desc),
-            reinterpret_cast<const WisDX12VideoDecodePictureDesc*>(&picture_desc)
+            reinterpret_cast<const WisDX12VideoDecodePictureDesc*>(&picture_desc),
+            output_cpu_handle
         );
     }
 };
@@ -1880,17 +1870,6 @@ struct VKVideoDecodeInputDesc {
 };
 
 /**
- * @brief Provided by Wisdom 0.7.1. Description of the output for a video decode operation. Specifies the target texture
- * for decoded video frames.
- *
- * */
-struct VKVideoDecodeOutputDesc {
-    wis::VKTextureView output_texture; ///< The texture that will receive the decoded video frame.
-    wis::DataFormat format; ///< The data format of the output texture.
-    std::uint32_t subresource; ///< The subresource index of the texture to decode into.
-};
-
-/**
  * @brief Provided by Wisdom 0.7.1. Variant type for video decode picture descriptions. Specifies the codec-specific
  * parameters for a video decode operation.
  *
@@ -2020,16 +1999,17 @@ public:
      * @param decoder The video decoder that will be used for decoding the video frame.
      * @param parameters The video decoder parameters that will be used for decoding the video frame.
      * @param input_desc Description of the input data for the video decode operation.
-     * @param output_desc Description of the output texture for the decoded video frame.
      * @param picture_desc Codec-specific picture information for the decode operation.
+     * @param output_cpu_handle Handle from ViewHeap that was created for texture that receives the video decoding
+     * result. Handle must have been created using wis::ViewHeap::WriteVideoDecodeTarget.
      *
      * */
     inline void DecodeFrame(
         const wis::VKVideoDecoder& decoder,
         const wis::VKVideoDecoderParameters& parameters,
         const wis::VKVideoDecodeInputDesc& input_desc,
-        const wis::VKVideoDecodeOutputDesc& output_desc,
-        const wis::VKVideoDecodePictureDesc& picture_desc
+        const wis::VKVideoDecodePictureDesc& picture_desc,
+        std::uint64_t output_cpu_handle
     ) const noexcept
     {
         ::wisVKVideoDecodeCommandListDecodeFrame(
@@ -2037,8 +2017,8 @@ public:
             reinterpret_cast<const WisVKVideoDecoder*>(&decoder),
             reinterpret_cast<const WisVKVideoDecoderParameters*>(&parameters),
             reinterpret_cast<const WisVKVideoDecodeInputDesc*>(&input_desc),
-            reinterpret_cast<const WisVKVideoDecodeOutputDesc*>(&output_desc),
-            reinterpret_cast<const WisVKVideoDecodePictureDesc*>(&picture_desc)
+            reinterpret_cast<const WisVKVideoDecodePictureDesc*>(&picture_desc),
+            output_cpu_handle
         );
     }
 };

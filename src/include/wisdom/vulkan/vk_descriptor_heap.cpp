@@ -637,6 +637,17 @@ WIS_EXTERN_C WISDOM_API uint64_t wisVKViewHeapWriteDepthStencil(
 }
 
 //----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API uint64_t wisVKViewHeapWriteVideoDecodeTarget(
+    const WisVKViewHeap* self,
+    const WisVKTexture* texture,
+    const WisRenderTargetDesc* render_target,
+    uint32_t index
+)
+{
+    return wisVKViewHeapWriteRenderTarget(self, texture, render_target, index);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
 WIS_EXTERN_C WISDOM_API uint64_t wisVKViewHeapGetViewAddress(const WisVKViewHeap* self, uint32_t index)
 {
     auto& heap = wis::from_handle_ref<const wis::impl::VKViewHeapImpl>(self);

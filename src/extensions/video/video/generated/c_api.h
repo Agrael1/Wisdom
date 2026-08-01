@@ -1564,17 +1564,6 @@ typedef struct WisDX12VideoDecodeInputDesc {
 } WisDX12VideoDecodeInputDesc;
 
 /**
- * @brief Provided by Wisdom 0.7.1. Description of the output for a video decode operation. Specifies the target texture
- * for decoded video frames.
- *
- * */
-typedef struct WisDX12VideoDecodeOutputDesc {
-    WisDX12TextureView output_texture; ///< The texture that will receive the decoded video frame.
-    WisDataFormat format; ///< The data format of the output texture.
-    uint32_t subresource; ///< The subresource index of the texture to decode into.
-} WisDX12VideoDecodeOutputDesc;
-
-/**
  * @brief Provided by Wisdom 0.7.1. Variant type for video decode picture descriptions. Specifies the codec-specific
  * parameters for a video decode operation.
  *
@@ -1742,8 +1731,9 @@ WIS_INLINE WISDOM_VIDEO_API void wisDX12VideoDecodeCommandListInsertBarriers(
  * @param decoder The video decoder that will be used for decoding the video frame.
  * @param parameters The video decoder parameters that will be used for decoding the video frame.
  * @param input_desc Description of the input data for the video decode operation.
- * @param output_desc Description of the output texture for the decoded video frame.
  * @param picture_desc Codec-specific picture information for the decode operation.
+ * @param output_cpu_handle Handle from ViewHeap that was created for texture that receives the video decoding result.
+ * Handle must have been created using wisViewHeapWriteVideoDecodeTarget.
  *
  * */
 WIS_INLINE WISDOM_VIDEO_API void wisDX12VideoDecodeCommandListDecodeFrame(
@@ -1751,8 +1741,8 @@ WIS_INLINE WISDOM_VIDEO_API void wisDX12VideoDecodeCommandListDecodeFrame(
     const WisDX12VideoDecoder* decoder,
     const WisDX12VideoDecoderParameters* parameters,
     const WisDX12VideoDecodeInputDesc* input_desc,
-    const WisDX12VideoDecodeOutputDesc* output_desc,
-    const WisDX12VideoDecodePictureDesc* picture_desc
+    const WisDX12VideoDecodePictureDesc* picture_desc,
+    uint64_t output_cpu_handle
 );
 
 #endif // WISDOM_DX12
@@ -1807,17 +1797,6 @@ typedef struct WisVKVideoDecodeInputDesc {
     uint64_t offset; ///< Offset in the buffer where the bistream data is located.
     uint64_t size; ///< Size of the bitstream data in bytes.
 } WisVKVideoDecodeInputDesc;
-
-/**
- * @brief Provided by Wisdom 0.7.1. Description of the output for a video decode operation. Specifies the target texture
- * for decoded video frames.
- *
- * */
-typedef struct WisVKVideoDecodeOutputDesc {
-    WisVKTextureView output_texture; ///< The texture that will receive the decoded video frame.
-    WisDataFormat format; ///< The data format of the output texture.
-    uint32_t subresource; ///< The subresource index of the texture to decode into.
-} WisVKVideoDecodeOutputDesc;
 
 /**
  * @brief Provided by Wisdom 0.7.1. Variant type for video decode picture descriptions. Specifies the codec-specific
@@ -1987,8 +1966,9 @@ WIS_INLINE WISDOM_VIDEO_API void wisVKVideoDecodeCommandListInsertBarriers(
  * @param decoder The video decoder that will be used for decoding the video frame.
  * @param parameters The video decoder parameters that will be used for decoding the video frame.
  * @param input_desc Description of the input data for the video decode operation.
- * @param output_desc Description of the output texture for the decoded video frame.
  * @param picture_desc Codec-specific picture information for the decode operation.
+ * @param output_cpu_handle Handle from ViewHeap that was created for texture that receives the video decoding result.
+ * Handle must have been created using wisViewHeapWriteVideoDecodeTarget.
  *
  * */
 WIS_INLINE WISDOM_VIDEO_API void wisVKVideoDecodeCommandListDecodeFrame(
@@ -1996,8 +1976,8 @@ WIS_INLINE WISDOM_VIDEO_API void wisVKVideoDecodeCommandListDecodeFrame(
     const WisVKVideoDecoder* decoder,
     const WisVKVideoDecoderParameters* parameters,
     const WisVKVideoDecodeInputDesc* input_desc,
-    const WisVKVideoDecodeOutputDesc* output_desc,
-    const WisVKVideoDecodePictureDesc* picture_desc
+    const WisVKVideoDecodePictureDesc* picture_desc,
+    uint64_t output_cpu_handle
 );
 
 #endif // WISDOM_VULKAN

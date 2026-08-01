@@ -12,6 +12,7 @@
  * typedef enum WisViewHeapFlags {
  *     WisViewHeapFlagsNone = 0,
  *     WisViewHeapFlagsAllowMultisample = (1u << 0),
+ *     WisViewHeapFlagsAllowVideoTargets = (1u << 0),
  * } WisViewHeapFlags;
  * ```
  * C++ version:
@@ -21,6 +22,7 @@
  * enum class ViewHeapFlags : uint32_t {
  *     None = 0,
  *     AllowMultisample = (1u << 0),
+ *     AllowVideoTargets = (1u << 0),
  * };
  * }
  * ```
@@ -37,6 +39,8 @@
  * - `WisViewHeapFlagsNone = 0`: No flags set. View heap is regular.
  * - `WisViewHeapFlagsAllowMultisample = (1 << 0)`: Allows the view heap to be used with multisampled resources. If not
  * set, the view heap does not enable multisample-related usage.
+ * - `WisViewHeapFlagsAllowVideoTargets = (1 << 0)`: Allows the view heap to be used with video targets. If not set, the
+ * view heap does not enable video target-related usage.
  * \endcond
  *
  *
