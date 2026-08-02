@@ -22,6 +22,8 @@
  *     WisTextureFlags      flags;
  *     WisMemoryType        memory_type;
  *     WisMemoryFlags       memory_flags;
+ *     const WisDataFormat* cast_formats;
+ *     size_t               cast_format_count;
  * } WisTextureDesc;
  *
  * ```
@@ -30,17 +32,18 @@
  * namespace wis{
  * // Provided by Wisdom 0.7.0.
  * struct  TextureDesc {
- *     std::uint32_t          width;
- *     std::uint32_t          height;
- *     std::uint16_t          depth_or_array_size;
- *     std::uint16_t          mip_levels;
- *     wis::DataFormat        format;
- *     wis::SampleCount       sample_count;
- *     wis::TextureLayout     layout;
- *     wis::TextureUsageFlags usage_flags;
- *     wis::TextureFlags      flags;
- *     wis::MemoryType        memory_type;
- *     wis::MemoryFlags       memory_flags;
+ *     std::uint32_t                    width;
+ *     std::uint32_t                    height;
+ *     std::uint16_t                    depth_or_array_size;
+ *     std::uint16_t                    mip_levels;
+ *     wis::DataFormat                  format;
+ *     wis::SampleCount                 sample_count;
+ *     wis::TextureLayout               layout;
+ *     wis::TextureUsageFlags           usage_flags;
+ *     wis::TextureFlags                flags;
+ *     wis::MemoryType                  memory_type;
+ *     wis::MemoryFlags                 memory_flags;
+ *     wis::span<const wis::DataFormat> cast_formats;
  * };
  * }
  * ```
@@ -60,6 +63,9 @@
  * - `flags` describes texture flags. Describe additional options for the texture.
  * - `memory_type` specifies where the texture will be allocated.
  * - `memory_flags` describes the flags of the memory to allocate for the texture.
+ * - `cast_formats` points to an array of formats that can be used to cast the texture to another format. Used for
+ * format casting in shaders.
+ * - `cast_format_count` defines the number of the number of cast formats in the `WisTextureDesc::cast_formats` array.
  * \endcond
  *
  * @section WisTextureDesc_descr Description

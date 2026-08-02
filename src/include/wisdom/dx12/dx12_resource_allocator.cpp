@@ -1,6 +1,7 @@
 #ifndef WIS_DX12_RESOURCE_ALLOCATOR_CPP
 #define WIS_DX12_RESOURCE_ALLOCATOR_CPP
 
+#include <wisdom/bridge/span.hpp>
 #include <wisdom/dx12/detail/dx12_utils.hpp>
 #include <wisdom/dx12/dx12_types.hpp>
 #include <wisdom/generated/c_api.h>
@@ -14,6 +15,7 @@ inline WisResult DX12CreateResource(
     const D3D12_RESOURCE_DESC1& res_desc,
     D3D12_BARRIER_LAYOUT initial_layout,
     D3D12MA::Allocator* allocator,
+    wis::span<const DXGI_FORMAT> cast_formats,
     void* buffer
 ) noexcept
 {
@@ -30,8 +32,8 @@ inline WisResult DX12CreateResource(
         &res_desc,
         initial_layout,
         nullptr,
-        0,
-        nullptr,
+        static_cast<uint32_t>(cast_formats.size()),
+        cast_formats.data(),
         allocation.put_unchecked(),
         resource.iid(),
         resource.put_void_unchecked()
@@ -150,7 +152,14 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12ResourceAllocatorCreateBuffer(
         .Flags = wis::detail::DX12Convert(desc->memory_flags),
         .HeapType = wis::detail::DX12Convert(desc->memory_type),
     };
-    return wis::detail::DX12CreateResource(all_desc, buffer_desc, D3D12_BARRIER_LAYOUT_UNDEFINED, allocator, buffer);
+    return wis::detail::DX12CreateResource(
+        all_desc,
+        buffer_desc,
+        D3D12_BARRIER_LAYOUT_UNDEFINED,
+        allocator,
+        {},
+        buffer
+    );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -166,7 +175,68 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12ResourceAllocatorCreateTexture(
         .Flags = wis::detail::DX12Convert(desc->memory_flags),
         .HeapType = wis::detail::DX12Convert(desc->memory_type),
     };
-    return wis::detail::DX12CreateResource(all_desc, tex_desc, D3D12_BARRIER_LAYOUT_UNDEFINED, impl.allocator, buffer);
+
+    // planar formats are uncastable
+    if (desc->format >= WisDataFormatNV12) {
+        return wis::detail::DX12CreateResource(
+            all_desc,
+            tex_desc,
+            D3D12_BARRIER_LAYOUT_UNDEFINED,
+            impl.allocator,
+            {},
+            buffer
+        );
+    }
+
+    static constexpr uint32_t max_cast_formats = 16;
+    DXGI_FORMAT cast_formats[max_cast_formats];
+    wis::span<DXGI_FORMAT> cast_formats_span;
+    std::unique_ptr<DXGI_FORMAT[]> cast_formats_ptr;
+
+    bool directly_mappable = true;
+    uint32_t format_index = 0;
+    for (; format_index < desc->cast_format_count; format_index++) {
+        auto format = desc->cast_formats[format_index];
+        if (static_cast<uint32_t>(format) >= 256) {
+            directly_mappable = false;
+
+            if (desc->cast_format_count > max_cast_formats) {
+                cast_formats_ptr = std::make_unique<DXGI_FORMAT[]>(desc->cast_format_count);
+                cast_formats_span = {cast_formats_ptr.get(), desc->cast_format_count};
+            } else {
+                cast_formats_span = {cast_formats, desc->cast_format_count};
+            }
+
+            // Copy the compatible formats into the span [0->format_index)
+            std::memcpy(cast_formats_span.data(), desc->cast_formats, format_index);
+
+            // Convert the rest
+            for (uint32_t i = format_index; i < desc->cast_format_count; i++) {
+                cast_formats_span[i] = wis::detail::DX12Convert(desc->cast_formats[i]);
+            }
+
+            break;
+        }
+    }
+
+    if (directly_mappable) {
+        return wis::detail::DX12CreateResource(
+            all_desc,
+            tex_desc,
+            D3D12_BARRIER_LAYOUT_UNDEFINED,
+            impl.allocator,
+            {reinterpret_cast<const DXGI_FORMAT*>(desc->cast_formats), desc->cast_format_count},
+            buffer
+        );
+    }
+    return wis::detail::DX12CreateResource(
+        all_desc,
+        tex_desc,
+        D3D12_BARRIER_LAYOUT_UNDEFINED,
+        impl.allocator,
+        cast_formats_span,
+        buffer
+    );
 }
 
 #endif // WIS_DX12_RESOURCE_ALLOCATOR_CPP

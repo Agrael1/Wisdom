@@ -25,6 +25,7 @@ struct CallbackData {
 class Graphics
 {
     static void log_callback(wis::Severity severity, const char* message, uint64_t, void*);
+    static constexpr uint32_t kSwapchainImages = 3;
 
 public:
     static std::optional<Graphics> Create(
@@ -34,11 +35,14 @@ public:
         uint32_t height,
         uint64_t max_slice_size,
         h265nal::H265BitstreamParserState* parser_state,
+        SDL_Window* window,
         const wis::VideoDecodeH265Desc* h265_params = nullptr
     );
 
     // Decode a single frame with the given slice NAL unit
     int DecodeFrame(const SliceData& slice);
+    void InitRenderingResources(SDL_Window* window);
+    void RenderFrame();
 
 private:
     std::unique_ptr<CallbackData> callback_data;
@@ -53,8 +57,8 @@ private:
     wis::VideoDecoder decoder;
     wis::VideoDecoderParameters decoder_params;
     wis::ResourceAllocator allocator;
-    wis::ViewHeap decode_output_view_heap;
-    uint64_t decode_output_view;
+    wis::ViewHeap view_heap;
+    uint64_t decode_output_view = 0;
     wis::Texture decode_output;
     wis::Buffer decode_input;
     uint32_t framewidth = 0;
@@ -63,4 +67,29 @@ private:
     wis::DataFormat out_format{};
     uint64_t bitstream_alignment = 256;
     h265nal::H265BitstreamParserState* parser_state = nullptr;
+
+    // Rendering resources
+    wis::CommandQueue render_queue;
+    wis::CommandAllocator render_alloc;
+    wis::CommandList render_cl;
+    wis::DataFormat render_format{};
+    wis::Swapchain swapchain;
+    uint32_t swapchain_width = 0;
+    uint32_t swapchain_height = 0;
+    wis::DataFormat luma_sample_format{};
+    wis::DataFormat chroma_sample_format{};
+
+    wis::DescriptorHeap desc_heap;
+    wis::DescriptorHeap sampler_heap;
+    wis::RootSignature root_signature;
+    wis::Pipeline pipeline_state;
+    wis::Fence render_fence;
+    uint64_t fence_value = 0;
+    uint64_t decode_fence_value = 0;
+    wis::Buffer plane_copy_buffer;
+    wis::Texture luma_texture;
+    wis::Texture chroma_texture;
+
+    wis::Texture swapchain_textures[kSwapchainImages];
+    uint64_t swapchain_views[kSwapchainImages]{};
 };

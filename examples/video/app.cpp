@@ -2,9 +2,11 @@
 #include "h265_bitstream_parser.h"
 #include "h265_common.h"
 #include "h265_configuration_box_parser.h"
+#include "h265_nal_unit_parser.h"
 #include "mbmff.hpp"
 
 #include <video/generated/cpp_api.hpp>
+#include <memory>
 #include <map>
 #include <vector>
 #include <cstdint>
@@ -30,7 +32,8 @@ static std::span<const std::byte> FindMdatBox(std::span<const std::byte> data)
 // ---------------------------------------------------------------------------
 static std::vector<NalUnit> ParseNalUnitsFromMdat(
     std::span<const std::byte> mdat_payload,
-    uint8_t length_size_minus_one)
+    uint8_t length_size_minus_one,
+    h265nal::H265BitstreamParserState* parser_state)
 {
     std::vector<NalUnit> nalus;
 
@@ -57,29 +60,20 @@ static std::vector<NalUnit> ParseNalUnitsFromMdat(
             break; // NAL unit extends beyond buffer
         }
 
-        // Parse NAL unit header (first 2 bytes)
-        if (nal_length < 2) {
+        auto nal = h265nal::H265NalUnitParser::ParseNalUnit(
+            data + offset,
+            nal_length,
+            parser_state,
+            h265nal::ParsingOptions{}
+        );
+        if (!nal || !nal->nal_unit_header) {
             offset += nal_length;
             continue;
         }
 
-        uint8_t first_byte = data[offset];
-        uint8_t second_byte = data[offset + 1];
-
-        uint32_t forbidden_zero_bit = (first_byte >> 7) & 0x1;
-        uint32_t nal_unit_type = (first_byte >> 1) & 0x3F;
-        uint32_t nuh_layer_id = ((first_byte & 0x1) << 5) | ((second_byte >> 3) & 0x1F);
-        uint32_t temporal_id = second_byte & 0x7;
-
-        if (forbidden_zero_bit != 0) {
-            offset += nal_length;
-            continue; // Invalid NAL unit
-        }
-
-        // Copy NAL unit data (including header)
         NalUnit nalu;
-        nalu.nal_unit_type = nal_unit_type;
-        nalu.temporal_id = temporal_id;
+        nalu.nal_unit_type = nal->nal_unit_header->nal_unit_type;
+        nalu.temporal_id = (data[offset + 1] & 0x7);
         nalu.data.assign(data + offset, data + offset + nal_length);
         nalus.push_back(std::move(nalu));
 
@@ -446,6 +440,10 @@ int App::Start()
         return -1;
     }
 
+    // Pad the dimensions to the next multiple of 16 for GPU decoding
+    width = (width + 15) / 16 * 16;
+    height = (height + 15) / 16 * 16;
+
     std::printf(
         "Video parameters: %ux%u, chroma=%u, bitdepth=%u, profile=%u\n\n",
         width,
@@ -485,7 +483,7 @@ int App::Start()
     // Parse NAL units from mdat for actual bitstream data
     uint64_t max_slice_size = 0;
     if (!mdat_payload.empty()) {
-        nal_units = ParseNalUnitsFromMdat(mdat_payload, length_size_minus_one);
+        nal_units = ParseNalUnitsFromMdat(mdat_payload, length_size_minus_one, &parser_state);
         std::printf("Parsed %zu NAL units from mdat\n", nal_units.size());
 
         // Count slice NALs and find the largest upload size we need
@@ -516,6 +514,7 @@ int App::Start()
         height,
         max_slice_size,
         &parser_state,
+        window,
         &converted.desc
     );
     if (!graphics) {
@@ -538,7 +537,10 @@ int App::Start()
             int result = graphics->DecodeFrame(slice);
             if (result != 0) {
                 std::printf("Failed to decode slice %d\n", slice_index - 1);
+                continue;
             }
+
+            graphics->RenderFrame();
         }
     }
 

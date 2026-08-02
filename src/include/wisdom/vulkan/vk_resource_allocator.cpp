@@ -16,7 +16,7 @@ inline VkImageCreateInfo VKFillImageDesc(const WisTextureDesc& desc) noexcept
         .flags = (usage
                   & (VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR | VK_IMAGE_USAGE_VIDEO_DECODE_SRC_BIT_KHR
                      | VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR))
-                   ? VK_IMAGE_CREATE_VIDEO_PROFILE_INDEPENDENT_BIT_KHR | VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT
+                   ? VK_IMAGE_CREATE_VIDEO_PROFILE_INDEPENDENT_BIT_KHR
                    : VkImageCreateFlags{0},
         .format = wis::detail::VKConvert(desc.format),
         .samples = VK_SAMPLE_COUNT_1_BIT,
@@ -193,6 +193,36 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKResourceAllocatorCreateTexture(
     }
 
     VkImageCreateInfo image_info = wis::detail::VKFillImageDesc(*desc);
+
+    // Castable formats
+    static constexpr size_t max_cast_formats = 16;
+
+    VkFormat cast_formats[max_cast_formats];
+    std::unique_ptr<VkFormat[]> cast_formats_ptr;
+    wis::span<VkFormat> cast_formats_span;
+    VkImageFormatListCreateInfo format_list_info{
+        .sType = VK_STRUCTURE_TYPE_IMAGE_FORMAT_LIST_CREATE_INFO,
+        .pNext = nullptr,
+        .viewFormatCount = static_cast<uint32_t>(desc->cast_format_count) + 1,
+    };
+    size_t fmt_count = desc->cast_format_count + 1; // +1 for the main format
+
+    if (desc->cast_format_count > 0) {
+        if (desc->cast_format_count > max_cast_formats - 1) {
+            cast_formats_ptr = std::make_unique<VkFormat[]>(fmt_count);
+            cast_formats_span = {cast_formats_ptr.get(), fmt_count};
+        } else {
+            cast_formats_span = {cast_formats, fmt_count};
+        }
+
+        cast_formats_span[0] = wis::detail::VKConvert(desc->format);
+        for (size_t i = 1; i < fmt_count; ++i) {
+            cast_formats_span[i] = wis::detail::VKConvert(desc->cast_formats[i - 1]);
+        }
+        format_list_info.pViewFormats = cast_formats_span.data();
+        image_info.pNext = &format_list_info;
+        image_info.flags |= VK_IMAGE_CREATE_MUTABLE_FORMAT_BIT;
+    }
 
     VmaAllocationCreateFlags flags = wis::detail::VKConvert(desc->memory_flags) & ~VMA_ALLOCATION_CREATE_MAPPED_BIT;
     VmaAllocationCreateInfo alloc_info{

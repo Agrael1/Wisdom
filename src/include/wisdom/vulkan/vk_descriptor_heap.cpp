@@ -512,8 +512,14 @@ WISDOM_API WisResult wisVKDescriptorHeapWriteTexture(
         .size = heap.descriptor_size,
     };
 
+    VkImageViewUsageCreateInfo usage_info{
+        .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_USAGE_CREATE_INFO,
+        .pNext = nullptr,
+        .usage = VK_IMAGE_USAGE_SAMPLED_BIT
+    };
     VkImageViewCreateInfo view_create_info = wis::detail::VKGetSRVDesc(*data);
     view_create_info.image = std::bit_cast<VkImage>(view);
+    view_create_info.pNext = &usage_info;
 
     VkImageDescriptorInfoEXT image_desc{
         .sType = VK_STRUCTURE_TYPE_IMAGE_DESCRIPTOR_INFO_EXT,
@@ -659,7 +665,7 @@ WIS_EXTERN_C WISDOM_API uint64_t wisVKViewHeapWriteVideoDecodeTarget(
         .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_USAGE_CREATE_INFO,
         .pNext = nullptr,
         .usage = VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR
-    }; 
+    };
     return wis::detail::VKViewHeapWriteRenderTarget(self, texture, render_target, index, &usage_info);
 }
 

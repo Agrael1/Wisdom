@@ -9,8 +9,8 @@
 #include <cstdint>
 
 struct NalUnit {
-    uint32_t nal_unit_type;
-    uint32_t temporal_id;
+    uint32_t nal_unit_type = 0;
+    uint32_t temporal_id = 0;
     std::vector<uint8_t> data;
 };
 

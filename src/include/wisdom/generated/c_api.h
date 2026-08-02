@@ -1892,6 +1892,15 @@ typedef struct WisTextureDesc {
     WisTextureFlags flags; ///< describes texture flags. Describe additional options for the texture.
     WisMemoryType memory_type; ///< specifies where the texture will be allocated.
     WisMemoryFlags memory_flags; ///< describes the flags of the memory to allocate for the texture.
+    /**
+     * @brief points to an array of formats that can be used to cast the texture to another format. Used for format
+     * casting in shaders.
+     * */
+    const WisDataFormat* cast_formats;
+    /**
+     * @brief defines the number of the number of cast formats in the `WisTextureDesc::cast_formats` array.
+     * */
+    size_t cast_format_count;
 } WisTextureDesc;
 
 /**

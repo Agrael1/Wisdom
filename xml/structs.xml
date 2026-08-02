@@ -153,6 +153,8 @@
       <member type="TextureFlags" name="flags" doc="describes texture flags. Describe additional options for the texture."/>
       <member type="MemoryType" name="memory_type" doc="specifies where the texture will be allocated."/>
       <member type="MemoryFlags" name="memory_flags" default="None" doc="describes the flags of the memory to allocate for the texture."/>
+      <member type="DataFormat" name="cast_formats" mod="const,span" doc="points to an array of formats that can be used to cast the texture to another format. Used for format casting in shaders."/>
+      <member type="size" name="cast_format_count" default="0" doc="defines the number of the number of cast formats in the {TextureDesc::cast_formats} array."/>
     </type>
 
     <type name="PushConstantDataDesc" category="struct" version="0.7.0" doc="Push constant set description for {CommandList::SetPushConstants}.">
