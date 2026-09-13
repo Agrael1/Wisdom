@@ -43,8 +43,12 @@ struct VKScopeGuard {
     VKScopeGuard(const VKScopeGuard&) = delete;
     VKScopeGuard& operator=(const VKScopeGuard&) = delete;
 
-    HandleType* PutUnchecked() noexcept { return &handle; }
-    HandleType Release() noexcept { return std::exchange(handle, nullptr); }
+    HandleType* PutUnchecked() noexcept {
+        return &handle;
+    }
+    HandleType Release() noexcept {
+        return std::exchange(handle, nullptr);
+    }
 };
 
 template <typename HandleType, typename F>
@@ -143,7 +147,7 @@ public:
         // Get device handle if possible
         uint64_t device = 0;
         for (auto&& obj :
-             wis::span<const VkDebugUtilsObjectNameInfoEXT>{pCallbackData->pObjects, pCallbackData->objectCount}) {
+                wis::span<const VkDebugUtilsObjectNameInfoEXT> {pCallbackData->pObjects, pCallbackData->objectCount}) {
             if (obj.objectType == VK_OBJECT_TYPE_DEVICE) {
                 device = obj.objectHandle;
                 break;
@@ -269,8 +273,8 @@ public:
         // Destroy semaphores
         auto& last_family = queue_families[family_count - 1];
         std::binary_semaphore* begin = reinterpret_cast<std::binary_semaphore*>(
-            reinterpret_cast<uint8_t*>(this) + sizeof(*this)
-        );
+                                           reinterpret_cast<uint8_t*>(this) + sizeof(*this)
+                                       );
         std::binary_semaphore* end = last_family.semaphore_offset + last_family.queue_count + begin;
         for (std::binary_semaphore* sem = begin; sem < end; ++sem) {
             sem->release();
@@ -291,7 +295,7 @@ public:
             return nullptr; // No valid family index for this queue type
         }
         return reinterpret_cast<std::binary_semaphore*>(reinterpret_cast<uint8_t*>(this) + sizeof(*this))
-             + queue_families[type].semaphore_offset + queue_index;
+               + queue_families[type].semaphore_offset + queue_index;
     }
 };
 
@@ -324,11 +328,11 @@ struct VKSwapchainHeader {
     VkSurfaceKHR surface; // store surface handle for later use in presentation and swapchain recreation
     VkPhysicalDevice physical_device; // store physical device for later use in swapchain recreation
     PFN_vkGetPhysicalDeviceSurfaceCapabilities2KHR
-        vkGetPhysicalDeviceSurfaceCapabilities2KHR; // store function pointer for later use in swapchain recreation
+    vkGetPhysicalDeviceSurfaceCapabilities2KHR; // store function pointer for later use in swapchain recreation
 
     VkSwapchainCreateInfoKHR create_info; // store create info for later use in presentation and swapchain recreation
     VkSwapchainPresentScalingCreateInfoKHR
-        scaling_create_info; // store scaling create info for later use in presentation and swapchain recreation
+    scaling_create_info; // store scaling create info for later use in presentation and swapchain recreation
 
     VkPresentModeKHR modes[reasonable_mode_count];
     uint8_t mode_count;
@@ -337,29 +341,29 @@ struct VKSwapchainHeader {
 
     wis::span<const VkSemaphore> GetImageAvailableSemaphores() const noexcept
     {
-        return wis::span<const VkSemaphore>{reinterpret_cast<const VkSemaphore*>(this + 1), create_info.minImageCount};
+        return wis::span<const VkSemaphore> {reinterpret_cast<const VkSemaphore*>(this + 1), create_info.minImageCount};
     }
     wis::span<const VkSemaphore> GetRenderFinishedSemaphores() const noexcept
     {
-        return wis::span<const VkSemaphore>{
+        return wis::span<const VkSemaphore> {
             reinterpret_cast<const VkSemaphore*>(this + 1) + create_info.minImageCount,
             create_info.minImageCount
         };
     }
     wis::span<const VkSemaphore> GetSemaphores() const noexcept
     {
-        return wis::span<const VkSemaphore>{
+        return wis::span<const VkSemaphore> {
             reinterpret_cast<const VkSemaphore*>(this + 1),
             create_info.minImageCount * 2
         };
     }
     wis::span<const VkPresentModeKHR> GetSupportedPresentModes() const noexcept
     {
-        return wis::span<const VkPresentModeKHR>{modes, mode_count};
+        return wis::span<const VkPresentModeKHR> {modes, mode_count};
     }
     wis::span<VkSurfaceFormatKHR> GetSupportedFormats() noexcept
     {
-        return wis::span<VkSurfaceFormatKHR>{
+        return wis::span<VkSurfaceFormatKHR> {
             reinterpret_cast<VkSurfaceFormatKHR*>(this + 1) + create_info.minImageCount * 2,
             format_count
         };
@@ -396,24 +400,24 @@ struct alignas(void*) VKRootSignatureControlBlock {
 
     wis::span<const uint32_t> GetRootBindingOffsets() const noexcept
     {
-        return wis::span<const uint32_t>{reinterpret_cast<const uint32_t*>(this + 1), root_parameter_count};
+        return wis::span<const uint32_t> {reinterpret_cast<const uint32_t*>(this + 1), root_parameter_count};
     }
 
     wis::span<uint32_t> GetRootBindingOffsets() noexcept
     {
-        return wis::span<uint32_t>{reinterpret_cast<uint32_t*>(this + 1), root_parameter_count};
+        return wis::span<uint32_t> {reinterpret_cast<uint32_t*>(this + 1), root_parameter_count};
     }
 
     wis::span<VkDescriptorSetAndBindingMappingEXT> GetMappings() noexcept
     {
-        return wis::span<VkDescriptorSetAndBindingMappingEXT>{
+        return wis::span<VkDescriptorSetAndBindingMappingEXT> {
             reinterpret_cast<VkDescriptorSetAndBindingMappingEXT*>(GetRootBindingOffsets().end()),
             mapping_count
         };
     }
     wis::span<const VkDescriptorSetAndBindingMappingEXT> GetMappings() const noexcept
     {
-        return wis::span<const VkDescriptorSetAndBindingMappingEXT>{
+        return wis::span<const VkDescriptorSetAndBindingMappingEXT> {
             reinterpret_cast<const VkDescriptorSetAndBindingMappingEXT*>(GetRootBindingOffsets().end()),
             mapping_count
         };
@@ -622,8 +626,8 @@ inline void VKReleaseSwapchain(VkSwapchainKHR swap, VKSwapchainControlBlock* hea
 //----------------------------------------------------------------------------------------------------------------------
 // Barrier helper constants
 constexpr static uint32_t vk_max_barrier_size = std::max(
-    {sizeof(VkBufferMemoryBarrier), sizeof(VkImageMemoryBarrier2), sizeof(VkMemoryBarrier2)}
-);
+{sizeof(VkBufferMemoryBarrier), sizeof(VkImageMemoryBarrier2), sizeof(VkMemoryBarrier2)}
+         );
 constexpr static uint32_t vk_static_barrier_size = WIS_TRANSIENT_MAX_BARRIER_COUNT * vk_max_barrier_size;
 
 template <typename Impl>
@@ -646,8 +650,8 @@ inline std::array<wis::span<uint8_t>, 3> VKAllocateBarriers(
 {
     std::array<wis::span<uint8_t>, 3> spans;
     std::size_t needed_size = barriers.buffer_barrier_count * sizeof(VkBufferMemoryBarrier2)
-                            + barriers.texture_barrier_count * sizeof(VkImageMemoryBarrier2)
-                            + barriers.global_barrier_count * sizeof(VkMemoryBarrier2);
+                              + barriers.texture_barrier_count * sizeof(VkImageMemoryBarrier2)
+                              + barriers.global_barrier_count * sizeof(VkMemoryBarrier2);
 
     if (needed_size <= vk_static_barrier_size) {
         spans[0] = {local_scratch, barriers.buffer_barrier_count * sizeof(VkBufferMemoryBarrier2)};
@@ -731,7 +735,7 @@ inline void VKInsertBarriers(const Impl& impl, const WisVKBarrierGroup* barriers
         return;
     }
 
-    uint8_t local_scratch[vk_static_barrier_size]{};
+    uint8_t local_scratch[vk_static_barrier_size] {};
 
     auto [buffer_span, texture_span, global_span] = VKAllocateBarriers(impl, local_scratch, *barriers);
 
@@ -783,8 +787,8 @@ inline void VKInsertBarriers(const Impl& impl, const WisVKBarrierGroup* barriers
 
         if (src.queue_type_before != src.queue_type_after) {
             if (impl.maintenance9
-                && (impl.queue_indices[src.queue_type_before].compatible_to_families
-                    & (1 << impl.queue_indices[src.queue_type_after].family_index))) {
+                    && (impl.queue_indices[src.queue_type_before].compatible_to_families
+                        & (1 << impl.queue_indices[src.queue_type_after].family_index))) {
                 if (src.queue_type_before == impl.queue_type) {
                     real_texture_barrier_count--;
                     continue;

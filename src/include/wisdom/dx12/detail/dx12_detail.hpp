@@ -57,11 +57,11 @@ public:
     {
         if (info_queue) {
             const auto hr = info_queue->RegisterMessageCallback(
-                DX12CallbackThunk,
-                D3D12_MESSAGE_CALLBACK_FLAG_NONE,
-                this,
-                &cookie
-            );
+                                DX12CallbackThunk,
+                                D3D12_MESSAGE_CALLBACK_FLAG_NONE,
+                                this,
+                                &cookie
+                            );
             // Debug layer creation failure is allowed to silently fail
             (void)hr;
         }
@@ -136,18 +136,18 @@ struct DX12RootSignatureKey {
 
 //----------------------------------------------------------------------------------------------------------------------
 struct DX12ShaderHeader {
-    uint64_t hash[2]{}; // Hash of the shader bytecode, used for caching and identification purposes.
+    uint64_t hash[2] {}; // Hash of the shader bytecode, used for caching and identification purposes.
     std::size_t size = 0; // Size of the shader bytecode in bytes.
 
     // bytecode follows immediately after the header in memory.
 
     wis::span<const std::byte> GetBytecode() const noexcept
     {
-        return wis::span<const std::byte>{reinterpret_cast<const std::byte*>(this + 1), size};
+        return wis::span<const std::byte> {reinterpret_cast<const std::byte*>(this + 1), size};
     }
     wis::span<std::byte> GetMutableBytecode() noexcept
     {
-        return wis::span<std::byte>{reinterpret_cast<std::byte*>(this + 1), size};
+        return wis::span<std::byte> {reinterpret_cast<std::byte*>(this + 1), size};
     }
 };
 
@@ -244,7 +244,7 @@ inline constexpr uint32_t DX12GetCopyPlaneSlice(WisBarrierFlags flags, uint16_t 
 //----------------------------------------------------------------------------------------------------------------------
 // Barrier helper constants
 constexpr static uint32_t dx12_max_barrier_size = std::max(
-    {sizeof(D3D12_BUFFER_BARRIER), sizeof(D3D12_TEXTURE_BARRIER), sizeof(D3D12_GLOBAL_BARRIER)}
+{sizeof(D3D12_BUFFER_BARRIER), sizeof(D3D12_TEXTURE_BARRIER), sizeof(D3D12_GLOBAL_BARRIER)}
 );
 constexpr static uint32_t dx12_static_size = wis::TransientMaxBarrierCount * dx12_max_barrier_size;
 
@@ -268,8 +268,8 @@ inline std::array<wis::span<uint8_t>, 3> DX12AllocateBarriers(
 {
     std::array<wis::span<uint8_t>, 3> spans;
     std::size_t needed_size = barriers.buffer_barrier_count * sizeof(D3D12_BUFFER_BARRIER)
-                            + barriers.texture_barrier_count * sizeof(D3D12_TEXTURE_BARRIER)
-                            + barriers.global_barrier_count * sizeof(D3D12_GLOBAL_BARRIER);
+                              + barriers.texture_barrier_count * sizeof(D3D12_TEXTURE_BARRIER)
+                              + barriers.global_barrier_count * sizeof(D3D12_GLOBAL_BARRIER);
 
     if (needed_size <= dx12_static_size) {
         spans[0] = {local_scratch, barriers.buffer_barrier_count * sizeof(D3D12_BUFFER_BARRIER)};
@@ -403,7 +403,7 @@ inline void DX12InsertBarriers(
         return;
     }
 
-    uint8_t local_scratch[dx12_static_size]{};
+    uint8_t local_scratch[dx12_static_size] {};
 
     auto [buffer_span, texture_span, global_span] = DX12AllocateBarriers(impl, local_scratch, *barriers);
 
@@ -444,13 +444,13 @@ inline void DX12InsertBarriers(
         bool release_barrier = qfot_barrier && src.queue_type_before == queue_type;
 
         auto layout_before = DX12GetOptimalBarrierLayout(
-            queue_type,
-            acquire_barrier ? WisTextureStateCommon : src.state_before
-        );
+                                 queue_type,
+                                 acquire_barrier ? WisTextureStateCommon : src.state_before
+                             );
         auto layout_after = DX12GetOptimalBarrierLayout(
-            queue_type,
-            release_barrier ? WisTextureStateCommon : src.state_after
-        );
+                                queue_type,
+                                release_barrier ? WisTextureStateCommon : src.state_after
+                            );
 
         texture_barriers_span[i] = D3D12_TEXTURE_BARRIER{
             .SyncBefore = DX12Convert(src.sync_before),
@@ -461,16 +461,16 @@ inline void DX12InsertBarriers(
             .LayoutAfter = layout_after,
             .pResource = std::bit_cast<ID3D12Resource*>(src.texture),
             .Subresources =
-                {
-                    .IndexOrFirstMipLevel = src.subresource_range.base_mip_level,
-                    .NumMipLevels = src.subresource_range.mip_level_count,
-                    .FirstArraySlice = src.subresource_range.base_array_layer,
-                    .NumArraySlices = src.subresource_range.array_layer_count,
-                    .FirstPlane = src.flags & WisBarrierFlagsPlanarImage ? src.subresource_range.plane_slice : 0u,
-                    .NumPlanes = src.flags & WisBarrierFlagsPlanarImage ? src.subresource_range.plane_slice_count : 1u,
-                },
+            {
+                .IndexOrFirstMipLevel = src.subresource_range.base_mip_level,
+                .NumMipLevels = src.subresource_range.mip_level_count,
+                .FirstArraySlice = src.subresource_range.base_array_layer,
+                .NumArraySlices = src.subresource_range.array_layer_count,
+                .FirstPlane = src.flags & WisBarrierFlagsPlanarImage ? src.subresource_range.plane_slice : 0u,
+                .NumPlanes = src.flags & WisBarrierFlagsPlanarImage ? src.subresource_range.plane_slice_count : 1u,
+            },
             .Flags = src.state_before == WisTextureStateUndefined ? D3D12_TEXTURE_BARRIER_FLAG_DISCARD
-                                                                  : D3D12_TEXTURE_BARRIER_FLAG_NONE,
+            : D3D12_TEXTURE_BARRIER_FLAG_NONE,
         };
     }
 
@@ -488,16 +488,19 @@ inline void DX12InsertBarriers(
         };
     }
 
-    D3D12_BARRIER_GROUP groups[]{
-        {.Type = D3D12_BARRIER_TYPE_BUFFER,
-         .NumBarriers = real_buffer_barrier_count,
-         .pBufferBarriers = buffer_barriers_span.data()},
-        {.Type = D3D12_BARRIER_TYPE_TEXTURE,
-         .NumBarriers = static_cast<uint32_t>(barriers->texture_barrier_count),
-         .pTextureBarriers = texture_barriers_span.data()},
-        {.Type = D3D12_BARRIER_TYPE_GLOBAL,
-         .NumBarriers = static_cast<uint32_t>(barriers->global_barrier_count),
-         .pGlobalBarriers = global_barriers_span.data()}
+    D3D12_BARRIER_GROUP groups[] {
+        {   .Type = D3D12_BARRIER_TYPE_BUFFER,
+            .NumBarriers = real_buffer_barrier_count,
+            .pBufferBarriers = buffer_barriers_span.data()
+        },
+        {   .Type = D3D12_BARRIER_TYPE_TEXTURE,
+            .NumBarriers = static_cast<uint32_t>(barriers->texture_barrier_count),
+            .pTextureBarriers = texture_barriers_span.data()
+        },
+        {   .Type = D3D12_BARRIER_TYPE_GLOBAL,
+            .NumBarriers = static_cast<uint32_t>(barriers->global_barrier_count),
+            .pGlobalBarriers = global_barriers_span.data()
+        }
     };
     list->Barrier(std::size(groups), groups);
 }
