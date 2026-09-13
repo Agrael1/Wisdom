@@ -30,11 +30,8 @@ class WisdomConan(ConanFile):
         version_file_path = os.path.join(self.recipe_folder, "version/VERSION")
         
         try:
-            # Read the file and strip any whitespace/newlines
             self.version = load(self, version_file_path).strip()
         except Exception as e:
-            # It is highly recommended to provide a fallback or clear error 
-            # so the recipe doesn't cryptically crash if the file is missing
             self.output.warning(f"Could not read version file: {e}")
             self.version = "0.0.0"
 
