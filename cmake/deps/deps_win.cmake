@@ -25,8 +25,8 @@ else()
             D3D12MA_USING_DIRECTX_HEADERS=1
     )
 
-    # Guaranteed backwards compatibility. 
-    # Using origin/main to ensure we get the latest headers, 
+    # Guaranteed backwards compatibility.
+    # Using origin/main to ensure we get the latest headers,
     # which are compatible with the latest SDKs.
     CPMAddPackage(
             NAME dxheaders

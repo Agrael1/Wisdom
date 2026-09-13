@@ -533,13 +533,13 @@ A two-plane format with a single 8-bit Y plane followed by an interleaved UV pla
         <impl name="vk" value="VK_FORMAT_G8_B8R8_2PLANE_420_UNORM"/>
         <impl name="dx" value="DXGI_FORMAT_NV12"/>
       </value>
-      
+
       <value name="P010" value="257" version="0.7.1" doc="P010 video format.
 A two-plane format similar to NV12, but with 10 bits per channel instead of 8. The Y plane contains 10-bit luma information, and the UV plane contains interleaved 10-bit chroma information. This format is used for high-quality video encoding and decoding, providing improved color fidelity compared to NV12.">
         <impl name="vk" value="VK_FORMAT_G10X6_B10X6R10X6_2PLANE_420_UNORM_3PACK16"/>
         <impl name="dx" value="DXGI_FORMAT_P010"/>
       </value>
-      
+
       <value name="P012" value="258" version="0.7.1" doc="P012 video format.
 A two-plane format similar to P010, but with 12 bits per channel instead of 10. The Y plane contains 12-bit luma information, and the UV plane contains interleaved 12-bit chroma information. This format is used for professional video applications that require higher color fidelity and dynamic range than P010.">
         <impl name="vk" value="VK_FORMAT_G12X4_B12X4R12X4_2PLANE_420_UNORM_3PACK16"/>

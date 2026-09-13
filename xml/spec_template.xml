@@ -3,24 +3,24 @@
   <module name="Template" version="0.7.1" base_dir="extensions/template/template" doc_dir="template">
     <types>
       <!--Enums-->
-      
+
 
       <!--Bitmasks-->
-      
+
 
       <!--Structs-->
     </types>
 
     <handles>
-      
+
     </handles>
 
     <functions>
-      
+
     </functions>
 
     <constants>
-      
+
     </constants>
   </module>
 </registry>
