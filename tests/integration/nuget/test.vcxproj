@@ -23,7 +23,7 @@
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  
+
   <ItemGroup>
     <ClCompile Include="entry_main.cpp" />
   </ItemGroup>

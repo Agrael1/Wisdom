@@ -26,8 +26,8 @@ target_include_directories(
             $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 target_link_libraries(wisdom-platform-headers INTERFACE wis::wisdom-headers)
-target_compile_definitions(
-  wisdom-platform-headers INTERFACE WISDOM_PLATFORM_STATIC=1)
+target_compile_definitions(wisdom-platform-headers
+                           INTERFACE WISDOM_PLATFORM_STATIC=1)
 
 install(
   TARGETS wisdom-platform-headers
@@ -49,9 +49,8 @@ if(WISDOM_BUILD_STATIC)
     wisdom-platform PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
                            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
-  set_target_properties(
-    wisdom-platform PROPERTIES CXX_STANDARD 20
-                               DEBUG_POSTFIX d)
+  set_target_properties(wisdom-platform PROPERTIES CXX_STANDARD 20 DEBUG_POSTFIX
+                                                                   d)
 
   install(
     TARGETS wisdom-platform

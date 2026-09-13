@@ -246,8 +246,7 @@ const VkExtensionProperties* wis::VKDeviceExtensionCollector::GetExtensionProper
     return nullptr;
 }
 
-wis::VKDeviceExtensionCollector::InitBuffer wis::VKDeviceExtensionCollector::GetInitBuffer(
-    WisResult& out_res
+wis::VKDeviceExtensionCollector::InitBuffer wis::VKDeviceExtensionCollector::GetInitBuffer(WisResult& out_res
 ) const noexcept
 {
     InitBuffer result;

@@ -23,11 +23,8 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyPipelineCache(WisVKPipelineCache* self)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisVKPipelineCacheSerialize(
-    const WisVKPipelineCache* self,
-    uint8_t* data,
-    size_t data_size
-)
+WIS_EXTERN_C WISDOM_API WisResult
+wisVKPipelineCacheSerialize(const WisVKPipelineCache* self, uint8_t* data, size_t data_size)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::VKPipelineCacheImpl>(self);
     auto& table = impl.device_header->header.device_table;

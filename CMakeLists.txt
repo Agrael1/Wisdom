@@ -26,7 +26,8 @@ option(WISDOM_BUILD_SHARED "Build the dynamic lib." ON)
 option(WISDOM_BUILD_PLATFORM "Build unified platform extension library." ON)
 option(WISDOM_BUILD_DOCS "Build the documentation." OFF)
 option(WISDOM_USE_AGILITY_SDK "Download and use DirectX 12 Agility SDK." ON)
-option(WISDOM_USE_CONAN "Use Conan to manage dependencies. Only for library builds." OFF)
+option(WISDOM_USE_CONAN
+       "Use Conan to manage dependencies. Only for library builds." OFF)
 
 # DXC deployment options
 set(WISDOM_VULKAN_HEADER_PATH
@@ -34,8 +35,8 @@ set(WISDOM_VULKAN_HEADER_PATH
     CACHE PATH "Path to custom Vulkan Headers (optional)")
 
 # Conan includes Vulkan Headers.
-if (WISDOM_USE_CONAN)
-    set(WISDOM_VULKAN ON)
+if(WISDOM_USE_CONAN)
+  set(WISDOM_VULKAN ON)
 endif()
 
 # Load all dependencies
@@ -100,13 +101,16 @@ set(CPACK_PACKAGE_NAME ${PROJECT_NAME})
 set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
 set(CPACK_PACKAGE_VENDOR "Agrael")
 set(CPACK_NUGET_PACKAGE_AUTHORS "Agrael")
-set(CPACK_PACKAGE_DESCRIPTION "A Low-level thin multiplatform and extensible Graphics API layer over Vulkan and DX12")
+set(CPACK_PACKAGE_DESCRIPTION
+    "A Low-level thin multiplatform and extensible Graphics API layer over Vulkan and DX12"
+)
 set(CPACK_PACKAGE_HOMEPAGE_URL "https://agrael1.github.io/Wisdom/")
 set(CPACK_NUGET_PACKAGE_REPOSITORY_URL "https://github.com/Agrael1/Wisdom.git")
 set(CPACK_NUGET_PACKAGE_ICON "favicon.png") # pulled from installed files
 set(CPACK_NUGET_PACKAGE_REPOSITORY_TYPE git)
 set(CPACK_NUGET_PACKAGE_LICENSE_EXPRESSION "MIT")
 set(CPACK_NUGET_PACKAGE_README "README.md") # pulled from installed files
-set(CPACK_PROJECT_CONFIG_FILE "${CMAKE_CURRENT_LIST_DIR}/cmake/install/cpack-options.cmake")
+set(CPACK_PROJECT_CONFIG_FILE
+    "${CMAKE_CURRENT_LIST_DIR}/cmake/install/cpack-options.cmake")
 
 include(CPack)

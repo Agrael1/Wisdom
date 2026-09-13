@@ -11,11 +11,11 @@
 
 #include <vk_mem_alloc.h>
 
+#include <algorithm>
 #include <array>
 #include <atomic>
 #include <bit>
 #include <semaphore>
-#include <algorithm>
 #include <utility>
 
 namespace wis::impl {

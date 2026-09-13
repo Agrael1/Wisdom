@@ -2,13 +2,13 @@
 #include <tinyxml2.h>
 #include <array>
 #include <filesystem>
+#include <format>
 #include <optional>
 #include <span>
 #include <string>
 #include <string_view>
 #include <unordered_map>
 #include <unordered_set>
-#include <format>
 
 #include "types.hpp"
 

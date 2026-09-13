@@ -5,7 +5,7 @@ if(NOT WISDOM_USE_CONAN)
     set(CPM_DONT_UPDATE_MODULE_PATH ON)
     set(GET_CPM_FILE "${CMAKE_CURRENT_LIST_DIR}/deps/get_cpm.cmake")
     set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
-    
+
     # Set CPM source cache
     if (NOT CPM_SOURCE_CACHE)
         set(CPM_SOURCE_CACHE "${CMAKE_CURRENT_BINARY_DIR}/_deps_cache")

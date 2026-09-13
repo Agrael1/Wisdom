@@ -350,10 +350,11 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListBeginRenderPass(
                 {
                     .Type = wis::detail::DX12Convert(src.load_op),
                 },
-            .EndingAccess = {
-                .Type = src.resolve_desc ? D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_RESOLVE
-                                         : wis::detail::DX12Convert(src.store_op),
-            },
+            .EndingAccess =
+                {
+                    .Type = src.resolve_desc ? D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_RESOLVE
+                                             : wis::detail::DX12Convert(src.store_op),
+                },
         };
         if (src.load_op == WisLoadOpClear) {
             render_targets[i].BeginningAccess.Clear.ClearValue = {
@@ -380,8 +381,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListBeginRenderPass(
 
                 // Encode the other parameters
                 .pSubresourceParameters = static_cast<
-                    const D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS*>(
-                    static_cast<const void*>(dst)
+                    const D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS*>(static_cast<const void*>(dst)
                 ),
                 .Format = static_cast<DXGI_FORMAT>(dst->format),
                 .ResolveMode = wis::detail::DX12Convert(resolve.mode),
@@ -423,11 +423,12 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListBeginRenderPass(
                           : src.resolve_depth_desc ? D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_RESOLVE
                                                    : wis::detail::DX12Convert(src.store_op_depth),
                 },
-            .StencilEndingAccess = {
-                .Type = ignore_stencil           ? D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS
-                      : src.resolve_stencil_desc ? D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_RESOLVE
-                                                 : wis::detail::DX12Convert(src.store_op_stencil),
-            },
+            .StencilEndingAccess =
+                {
+                    .Type = ignore_stencil           ? D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_NO_ACCESS
+                          : src.resolve_stencil_desc ? D3D12_RENDER_PASS_ENDING_ACCESS_TYPE_RESOLVE
+                                                     : wis::detail::DX12Convert(src.store_op_stencil),
+                },
         };
 
         if (src.resolve_depth_desc) {
@@ -449,8 +450,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListBeginRenderPass(
 
                 // Encode the other parameters
                 .pSubresourceParameters = static_cast<
-                    const D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS*>(
-                    static_cast<const void*>(dst)
+                    const D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS*>(static_cast<const void*>(dst)
                 ),
                 .Format = static_cast<DXGI_FORMAT>(dst->format),
                 .ResolveMode = wis::detail::DX12Convert(resolve.mode),
@@ -476,8 +476,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListBeginRenderPass(
                 .SubresourceCount = layer_count,
                 // Encode the other parameters
                 .pSubresourceParameters = static_cast<
-                    const D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS*>(
-                    static_cast<const void*>(dst)
+                    const D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS*>(static_cast<const void*>(dst)
                 ),
                 .Format = static_cast<DXGI_FORMAT>(dst->format),
                 .ResolveMode = wis::detail::DX12Convert(resolve.mode),
@@ -501,8 +500,7 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListBeginRenderPass(
 
             auto& dst = render_targets[i].EndingAccess.Resolve;
             auto* src_aux = wis::detail::DX12DecodeViewAddress(src.target);
-            auto* dst_aux = reinterpret_cast<const wis::detail::DX12RenderTargetViewAuxData*>(
-                dst.pSubresourceParameters
+            auto* dst_aux = reinterpret_cast<const wis::detail::DX12RenderTargetViewAuxData*>(dst.pSubresourceParameters
             );
 
             wis::span<D3D12_RENDER_PASS_ENDING_ACCESS_RESOLVE_SUBRESOURCE_PARAMETERS> subresource_params{
@@ -514,12 +512,13 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListBeginRenderPass(
                 subresource_params[j] = {
                     .SrcSubresource = src_aux->base_subresource + j * src_aux->subresource_stride,
                     .DstSubresource = dst_aux->base_subresource + j * dst_aux->subresource_stride,
-                    .SrcRect = {
-                        .left = 0,
-                        .top = 0,
-                        .right = static_cast<LONG>(width),
-                        .bottom = static_cast<LONG>(height),
-                    },
+                    .SrcRect =
+                        {
+                            .left = 0,
+                            .top = 0,
+                            .right = static_cast<LONG>(width),
+                            .bottom = static_cast<LONG>(height),
+                        },
                 };
             }
             dst.pSubresourceParameters = subresource_params.data();
@@ -552,12 +551,13 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListBeginRenderPass(
                             .SrcSubresource = aux->base_subresource + j * aux->subresource_stride,
                             .DstSubresource = (dst_depth_aux ? dst_depth_aux->base_subresource : 0)
                                             + j * (dst_depth_aux ? dst_depth_aux->subresource_stride : 0),
-                            .SrcRect = {
-                                .left = 0,
-                                .top = 0,
-                                .right = static_cast<LONG>(width),
-                                .bottom = static_cast<LONG>(height),
-                            },
+                            .SrcRect =
+                                {
+                                    .left = 0,
+                                    .top = 0,
+                                    .right = static_cast<LONG>(width),
+                                    .bottom = static_cast<LONG>(height),
+                                },
                         };
                     }
                     depth_stencil.DepthEndingAccess.Resolve.pSubresourceParameters = subresource_params.data();
@@ -584,12 +584,13 @@ WIS_EXTERN_C WISDOM_API void wisDX12CommandListBeginRenderPass(
                         .SrcSubresource = aux->base_stencil_subresource + j * aux->subresource_stride,
                         .DstSubresource = (dst_stencil_aux ? dst_stencil_aux->base_stencil_subresource : 0)
                                         + j * (dst_stencil_aux ? dst_stencil_aux->subresource_stride : 0),
-                        .SrcRect = {
-                            .left = 0,
-                            .top = 0,
-                            .right = static_cast<LONG>(width),
-                            .bottom = static_cast<LONG>(height),
-                        },
+                        .SrcRect =
+                            {
+                                .left = 0,
+                                .top = 0,
+                                .right = static_cast<LONG>(width),
+                                .bottom = static_cast<LONG>(height),
+                            },
                     };
                 }
                 depth_stencil.StencilEndingAccess.Resolve.pSubresourceParameters = subresource_params.data();

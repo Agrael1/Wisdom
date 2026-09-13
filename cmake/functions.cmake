@@ -14,7 +14,7 @@ if (WIN32)
                 TLS_VERIFY ON
                 TLS_VERSION 1.2
         )
-    
+
         # Check download status
         list(GET download_status 0 status_code)
         if (NOT status_code EQUAL 0)
@@ -24,13 +24,13 @@ if (WIN32)
             message(STATUS "File downloaded successfully to ${FILE_PATH}")
         endif ()
     endfunction(_ww_load_nuget)
-    
+
     # Find NuGet executable
     function(_ww_find_nuget)
         if (NOT WISDOM_WINDOWS)
             return()
         endif ()
-        
+
         # Check provided with WISDOM_NUGET_PATH
         if (WISDOM_NUGET_PATH)
             find_program(
@@ -56,20 +56,20 @@ if (WIN32)
                 NUGET_EXE
                 NAMES nuget
                 PATHS ${CMAKE_CURRENT_BINARY_DIR}/NuGet)
-    
+
         if (NOT NUGET_EXE)
             _ww_load_nuget()
             set(NUGET_EXE "${CMAKE_CURRENT_BINARY_DIR}/NuGet/NuGet.exe" CACHE INTERNAL "Path to NuGet.exe")
         endif ()
     endfunction(_ww_find_nuget)
-    
+
     # Load a NuGet dependency
     function(_ww_load_nuget_dependency NUGET PLUGIN_NAME ALIAS OUT_DIR)
         if (${ALIAS}_DIR)
             message("${ALIAS}_DIR already set, skipping download.")
             return()
         endif ()
-    
+
         execute_process(COMMAND ${NUGET} install "${PLUGIN_NAME}" -OutputDirectory ${OUT_DIR})
         file(GLOB PLUGIN_DIRS ${OUT_DIR}/${PLUGIN_NAME}.*)
         list(LENGTH PLUGIN_DIRS PLUGIN_DIRS_L)
@@ -77,7 +77,7 @@ if (WIN32)
             #Sort directories by version in descending order, so the first dir is top version
             list(SORT PLUGIN_DIRS COMPARE NATURAL ORDER DESCENDING)
             list(GET PLUGIN_DIRS 0 PLUGIN_DIRX)
-    
+
             #Remove older version
             MATH(EXPR PLUGIN_DIRS_L "${PLUGIN_DIRS_L}-1")
             foreach (I RANGE 1 ${PLUGIN_DIRS_L})
@@ -87,7 +87,7 @@ if (WIN32)
         else ()
             list(GET PLUGIN_DIRS 0 PLUGIN_DIRX)
         endif ()
-    
+
         set(${ALIAS}_DIR ${PLUGIN_DIRX} CACHE STRING "${PLUGIN_NAME} PATH" FORCE)
     endfunction(_ww_load_nuget_dependency)
 endif()
@@ -100,8 +100,8 @@ function(_ww_load_latest_dxc)
     endif ()
 
     set(DXC_API_FILE "${CMAKE_CURRENT_BINARY_DIR}/dxc_latest_api.json")
-    file(DOWNLOAD 
-        "https://api.github.com/repos/microsoft/DirectXShaderCompiler/releases/latest" 
+    file(DOWNLOAD
+        "https://api.github.com/repos/microsoft/DirectXShaderCompiler/releases/latest"
         "${DXC_API_FILE}"
         STATUS api_status
     )
@@ -135,7 +135,7 @@ function(_ww_load_latest_dxc)
         set(DXC_LINK ${DXC_LINUX_LINK})
     endif ()
 
-    
+
     # Download DXC using CPM
     include(FetchContent)
     FetchContent_Declare(
@@ -440,9 +440,9 @@ function(wis_load_agility_sdk)
     message("Setting up DirectX 12 Agility...")
     _ww_load_nuget_dependency(${NUGET_EXE} "Microsoft.Direct3D.D3D12" DXA
             ${CMAKE_CURRENT_BINARY_DIR})
-    
+
     string(REGEX MATCH "([0-9]+)\\.([0-9]+)\\.([0-9]+)$" VERSION_MATCH ${DXA_DIR})
-    
+
     message("Agility version: ${CMAKE_MATCH_1}.${CMAKE_MATCH_2}.${CMAKE_MATCH_3}")
     set(DXA_VERSION
             ${CMAKE_MATCH_1}.${CMAKE_MATCH_2}.${CMAKE_MATCH_3}
@@ -450,7 +450,7 @@ function(wis_load_agility_sdk)
     set(VERSION_MINOR
             ${CMAKE_MATCH_2}
             CACHE INTERNAL "")
-    
+
     set(DXA_HEADERS ${DXA_DIR}/build/native/include)
     set(DXA_SRC ${DXA_DIR}/build/native/src)
     set(DXA_BIN ${DXA_DIR}/build/native/bin/x64)
@@ -460,19 +460,19 @@ function(wis_load_agility_sdk)
     set(DXAGILITY_DEBUG_DLL
             ${DXA_BIN}/d3d12SDKLayers.dll
             CACHE INTERNAL "")
-    
+
     add_library(DX12AgilityCore MODULE IMPORTED GLOBAL)
     set_property(TARGET DX12AgilityCore PROPERTY IMPORTED_LOCATION
             ${DXAGILITY_DLL})
-    
+
     add_library(DX12AgilitySDKLayers MODULE IMPORTED GLOBAL)
     set_property(TARGET DX12AgilitySDKLayers PROPERTY IMPORTED_LOCATION
             ${DXAGILITY_DEBUG_DLL})
-    
+
     # Header interface library
     add_library(DX12Agility STATIC)
     add_library(wis::DX12Agility ALIAS DX12Agility)
-    
+
     target_include_directories(
             DX12Agility SYSTEM BEFORE
             PUBLIC $<BUILD_INTERFACE:${DXA_HEADERS}> $<INSTALL_INTERFACE:include/d3dx12>
@@ -489,7 +489,7 @@ function(wis_load_agility_sdk)
             LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
             ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
             PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
-    
+
     install(
             IMPORTED_RUNTIME_ARTIFACTS
             DX12AgilityCore
@@ -500,9 +500,9 @@ function(wis_load_agility_sdk)
             LIBRARY
             DESTINATION
             ${CMAKE_INSTALL_BINDIR})
-    
+
     install(DIRECTORY ${DXA_HEADERS}/ DESTINATION include/d3dx12)
-    
+
     set_target_properties(DX12Agility PROPERTIES
         DX12SDKVER ${VERSION_MINOR}
         DEBUG_POSTFIX d
@@ -585,9 +585,8 @@ function(wis_install_agility_win32)
 
     if (wis_install_agility_win32_PATCH_EXE)
         wis_patch_agility_executable(
-            ${wis_install_agility_win32_TARGET} 
+            ${wis_install_agility_win32_TARGET}
             ${CMAKE_CURRENT_BINARY_DIR}/export_agility.c
         )
     endif()
 endfunction()
-

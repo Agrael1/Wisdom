@@ -211,7 +211,8 @@ void Generator::WriteCAPI(std::filesystem::path dir)
 #include "wisdom_exports.h"
 )";
 
-    auto api_macro = module.name == "Core" ? "WIS_INLINE WISDOM_API " : std::format("WIS_INLINE WISDOM_{}_API ", header_guard);
+    auto api_macro = module.name == "Core" ? "WIS_INLINE WISDOM_API "
+                                           : std::format("WIS_INLINE WISDOM_{}_API ", header_guard);
 
     // Write header
     // clang-format off
@@ -1932,7 +1933,8 @@ std::string Generator::GetRefs(std::string_view for_type)
     return refs;
 }
 
-std::string Generator::GetFunctionCallParameters(const WisFunction& func, Backend backend) {
+std::string Generator::GetFunctionCallParameters(const WisFunction& func, Backend backend)
+{
     constexpr static std::string_view arg_prefix = ",\n    ";
     std::string body;
     for (size_t i = 0; i < func.parameters.size(); ++i) {

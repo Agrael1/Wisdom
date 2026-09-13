@@ -28,7 +28,7 @@ TEST_CASE("check_platform_support")
     );
 
     // Expect partial success
-    REQUIRE(result.status >= 0); 
+    REQUIRE(result.status >= 0);
 
 #ifdef WISDOM_WINDOWS
     printf("XCB supported: %s\n", wisXCBExtensionSupported(&xcb_extension) ? "Yes" : "No");
@@ -42,7 +42,6 @@ TEST_CASE("check_platform_support")
     bool xlib_supported = wisXlibExtensionSupported(&xlib_extension);
     bool wayland_supported = wisWaylandExtensionSupported(&wayland_extension);
     bool win32_supported = wisWin32ExtensionSupported(&win32_extension);
-
 
     printf("XCB supported: %s\n", xcb_supported ? "Yes" : "No");
     printf("Xlib supported: %s\n", xlib_supported ? "Yes" : "No");

@@ -132,11 +132,8 @@ WIS_INLINE WISDOM_PLATFORM_API bool wisDX12Win32ExtensionSupported(WisDX12Win32E
  * @return Result denoting the outcome of operation.
  *
  * */
-WIS_INLINE WISDOM_PLATFORM_API WisResult wisDX12UWPExtensionCreateSurface(
-    WisDX12UWPExtension* self,
-    const WisUWPWindowDesc* info,
-    WisDX12Surface* surface
-);
+WIS_INLINE WISDOM_PLATFORM_API WisResult
+wisDX12UWPExtensionCreateSurface(WisDX12UWPExtension* self, const WisUWPWindowDesc* info, WisDX12Surface* surface);
 
 #endif // WISDOM_DX12
 
@@ -229,11 +226,8 @@ WIS_INLINE WISDOM_PLATFORM_API void wisVKInitWin32Extension(WisVKWin32Extension*
  * @return Result denoting the outcome of operation.
  *
  * */
-WIS_INLINE WISDOM_PLATFORM_API WisResult wisVKXlibExtensionCreateSurface(
-    WisVKXlibExtension* self,
-    const WisXlibWindowDesc* info,
-    WisVKSurface* surface
-);
+WIS_INLINE WISDOM_PLATFORM_API WisResult
+wisVKXlibExtensionCreateSurface(WisVKXlibExtension* self, const WisXlibWindowDesc* info, WisVKSurface* surface);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Checks if the Xlib surface extension is supported on the current platform.
@@ -251,11 +245,8 @@ WIS_INLINE WISDOM_PLATFORM_API bool wisVKXlibExtensionSupported(WisVKXlibExtensi
  * @return Result denoting the outcome of operation.
  *
  * */
-WIS_INLINE WISDOM_PLATFORM_API WisResult wisVKXCBExtensionCreateSurface(
-    WisVKXCBExtension* self,
-    const WisXCBWindowDesc* info,
-    WisVKSurface* surface
-);
+WIS_INLINE WISDOM_PLATFORM_API WisResult
+wisVKXCBExtensionCreateSurface(WisVKXCBExtension* self, const WisXCBWindowDesc* info, WisVKSurface* surface);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Checks if the XCB surface extension is supported on the current platform.
@@ -295,11 +286,8 @@ WIS_INLINE WISDOM_PLATFORM_API bool wisVKWaylandExtensionSupported(WisVKWaylandE
  * @return Result denoting the outcome of operation.
  *
  * */
-WIS_INLINE WISDOM_PLATFORM_API WisResult wisVKWin32ExtensionCreateSurface(
-    WisVKWin32Extension* self,
-    const WisWin32WindowDesc* info,
-    WisVKSurface* surface
-);
+WIS_INLINE WISDOM_PLATFORM_API WisResult
+wisVKWin32ExtensionCreateSurface(WisVKWin32Extension* self, const WisWin32WindowDesc* info, WisVKSurface* surface);
 
 /**
  * @brief Provided by Wisdom 0.7.0. Checks if the Win32 surface extension is supported on the current platform. Always

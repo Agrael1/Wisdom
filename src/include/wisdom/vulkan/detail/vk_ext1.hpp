@@ -190,8 +190,7 @@ public:
                 static_cast<uint32_t>(descriptor_heap_properties.minSamplerHeapReservedRangeWithEmbedded),
                 features.sampler_desc_size
             );
-            features.descriptor_heap_alignment = static_cast<uint32_t>(
-                descriptor_heap_properties.resourceHeapAlignment
+            features.descriptor_heap_alignment = static_cast<uint32_t>(descriptor_heap_properties.resourceHeapAlignment
             );
             features.sampler_heap_alignment = static_cast<uint32_t>(descriptor_heap_properties.samplerHeapAlignment);
             features.max_descriptor_heap_size = descriptor_heap_properties.maxResourceHeapSize;

@@ -39,11 +39,8 @@ WIS_EXTERN_C WISDOM_API size_t wisDX12AdapterQueryGetAdapterCount(const WisDX12A
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisDX12AdapterQueryGetAdapterDesc(
-    const WisDX12AdapterQuery* self,
-    size_t index,
-    WisAdapterDesc* desc
-)
+WIS_EXTERN_C WISDOM_API WisResult
+wisDX12AdapterQueryGetAdapterDesc(const WisDX12AdapterQuery* self, size_t index, WisAdapterDesc* desc)
 {
     WisResult res = wis::detail::dx_success;
     auto& impl = wis::from_handle_ref<const wis::impl::DX12AdapterQueryImpl>(self);

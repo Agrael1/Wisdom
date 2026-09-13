@@ -48,10 +48,10 @@ if ($NoRun) {
     Write-Host "Skipping execution of Test App due to -NoRun flag..." -ForegroundColor Cyan
 } else {
     # 6. Run the compiled executable
-    # NOTE: Because it's a dynamic build, Windows needs to find wisdom-shared.dll. 
+    # NOTE: Because it's a dynamic build, Windows needs to find wisdom-shared.dll.
     # We temporarily add the extracted /bin folder to the environment PATH just for this run.
     $env:PATH = "$($ExtractedRoot.FullName)\bin;$env:PATH"
-    
+
     Write-Host "Running Test App..."
     & (Join-Path $CmakeBuildDir "Release\TestApp.exe")
     Write-Host "Running Test App..."
