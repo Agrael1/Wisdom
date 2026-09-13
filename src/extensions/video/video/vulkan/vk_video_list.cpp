@@ -167,7 +167,6 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisVKVideoDecodeCommandListDecodeFrame(
         .flags = 0
     };
     impl.command_list_table->vkCmdEndVideoCodingKHR(impl.command_buffer, &end_info);
-
-    }
+}
 
 #endif // WIS_VK_VIDEO_CPP

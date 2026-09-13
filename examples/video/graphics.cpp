@@ -430,7 +430,7 @@ int Graphics::DecodeFrame(const SliceData& slice)
         .access_after = wis::ResourceAccess::VideoDecodeWrite,
         .state_before = wis::TextureState::Undefined,
         .state_after = wis::TextureState::VideoDecodeWrite,
-        .flags = wis::BarrierFlags::PlanarImage,
+        .flags = wis::BarrierFlags::None,
         .texture = decode_output.GetView(),
         .subresource_range = {0, 1, 0, 1, 0, 2},
         .queue_type_before = wis::CommandQueueType::VideoDecode,
@@ -668,11 +668,129 @@ void Graphics::InitRenderingResources(SDL_Window* window)
 void Graphics::RenderFrame()
 {
     wis::Result result;
+
+    // Make sure the graphics queue does not start using the decoded texture
+    // before the video decode queue has actually finished writing to it.
+    result = render_queue.WaitFence(fence.GetView(), decode_fence_value);
+    if (!check_result(result, "RenderQueue::WaitFence(decode)")) {
+        return;
+    }
+
     result = render_alloc.Reset();
+    if (!check_result(result, "RenderCommandAllocator::Reset")) {
+        return;
+    }
 
     result = render_cl.Begin();
+    if (!check_result(result, "RenderCommandList::Begin")) {
+        return;
+    }
+
+    uint32_t swapchain_index = swapchain.GetCurrentIndex(result);
+    if (!check_result(result, "Swapchain::GetCurrentIndex")) {
+        return;
+    }
+
+    wis::Texture& target_texture = swapchain_textures[swapchain_index];
+    uint64_t target_rtv = swapchain_views[swapchain_index];
+
+    // Transition the decoded texture for shader read and the swapchain image for render target.
+    wis::TextureBarrier pre_barriers[]{
+        {
+            .sync_before = wis::BarrierSync::None,
+            .sync_after = wis::BarrierSync::RenderTarget,
+            .access_before = wis::ResourceAccess::None,
+            .access_after = wis::ResourceAccess::RenderTarget,
+            .state_before = wis::TextureState::Undefined,
+            .state_after = wis::TextureState::RenderTarget,
+            .flags = wis::BarrierFlags::None,
+            .texture = target_texture.GetView(),
+            .subresource_range = {0, 1, 0, 1, 0, 1},
+            .queue_type_before = wis::CommandQueueType::Graphics,
+            .queue_type_after = wis::CommandQueueType::Graphics,
+        },
+    };
+    wis::BarrierGroup pre_barrier_group{
+        .texture_barriers = wis::span{pre_barriers, 1},
+    };
+    render_cl.InsertBarriers(pre_barrier_group);
+
+    wis::Viewport viewport{
+        .x = 0.0f,
+        .y = 0.0f,
+        .width = static_cast<float>(swapchain_width),
+        .height = static_cast<float>(swapchain_height),
+        .min_depth = 0.0f,
+        .max_depth = 1.0f,
+    };
+    wis::Rect scissor{
+        .x = 0,
+        .y = 0,
+        .width = swapchain_width,
+        .height = swapchain_height,
+    };
+
+    wis::RenderPassDesc render_pass{};
+    render_pass.render_targets[0] = {
+        .target = target_rtv,
+        .load_op = wis::LoadOp::Clear,
+        .store_op = wis::StoreOp::Store,
+        .clear_value = {0.0f, 0.0f, 0.0f, 1.0f},
+    };
+    render_pass.render_target_count = 1;
+    render_pass.flags = wis::RenderPassFlags::None;
+
+    render_cl.SetDescriptorHeaps(&desc_heap, &sampler_heap);
+    render_cl.SetRootSignature(root_signature.GetView(), wis::PipelineType::Graphics);
+    render_cl.SetPipeline(pipeline_state.GetView(), wis::PipelineType::Graphics);
+
+    wis::DescriptorTableDataDesc srv_table{
+        .pipeline = wis::PipelineType::Graphics,
+        .root_index = 0,
+        .heap_type = wis::DescriptorHeapType::Descriptor,
+        .heap_offset = 0,
+    };
+    render_cl.SetDescriptorTable(srv_table);
+
+    wis::DescriptorTableDataDesc sampler_table{
+        .pipeline = wis::PipelineType::Graphics,
+        .root_index = 1,
+        .heap_type = wis::DescriptorHeapType::Sampler,
+        .heap_offset = 0,
+    };
+    render_cl.SetDescriptorTable(sampler_table);
+
+    render_cl.SetViewports({&viewport, 1});
+    render_cl.SetScissors({&scissor, 1});
+    render_cl.SetPrimitiveTopology(wis::PrimitiveTopology::TriangleList);
+
+    render_cl.BeginRenderPass(render_pass);
+    render_cl.Draw(3, 1, 0, 0);
+    render_cl.EndRenderPass();
+
+    // Transition the swapchain image to present state.
+    wis::TextureBarrier post_barrier{
+        .sync_before = wis::BarrierSync::RenderTarget,
+        .sync_after = wis::BarrierSync::None,
+        .access_before = wis::ResourceAccess::RenderTarget,
+        .access_after = wis::ResourceAccess::None,
+        .state_before = wis::TextureState::RenderTarget,
+        .state_after = wis::TextureState::Present,
+        .flags = wis::BarrierFlags::None,
+        .texture = target_texture.GetView(),
+        .subresource_range = {0, 1, 0, 1, 0, 1},
+        .queue_type_before = wis::CommandQueueType::Graphics,
+        .queue_type_after = wis::CommandQueueType::Graphics,
+    };
+    wis::BarrierGroup post_barrier_group{
+        .texture_barriers = wis::span{&post_barrier, 1},
+    };
+    render_cl.InsertBarriers(post_barrier_group);
 
     result = render_cl.End();
+    if (!check_result(result, "RenderCommandList::End")) {
+        return;
+    }
 
     // Submit the render command list and present the swapchain
     wis::CommandListView list_view = render_cl.GetView();
