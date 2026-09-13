@@ -1,12 +1,8 @@
 import os
 
 from conan import ConanFile
-from conan.tools.cmake import CMake
-from conan.tools.cmake import cmake_layout
-from conan.tools.cmake import CMakeDeps
-from conan.tools.cmake import CMakeToolchain
-from conan.tools.files import copy
-from conan.tools.files import load
+from conan.tools.cmake import CMake, CMakeDeps, CMakeToolchain, cmake_layout
+from conan.tools.files import copy, load
 
 
 class WisdomConan(ConanFile):
