@@ -8,13 +8,7 @@ set(WISDOM_CORE_DEFINITIONS
     $<BUILD_INTERFACE:$<$<BOOL:${WISDOM_VULKAN}>:WISDOM_VULKAN=1>>)
 
 if(WISDOM_DX12)
-  list(
-    APPEND
-    WISDOM_CORE_LIBS
-    DXGI
-    DXGUID
-    d3d12
-    GPUOpen::D3D12MemoryAllocator)
+  list(APPEND WISDOM_CORE_LIBS DXGI DXGUID d3d12 GPUOpen::D3D12MemoryAllocator)
 
   list(
     APPEND
