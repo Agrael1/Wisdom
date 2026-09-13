@@ -6,6 +6,7 @@ from conan.tools.files import copy, load
 
 
 class WisdomConan(ConanFile):
+    """ """
     name = "wisdom"
     package_type = "library"
 
@@ -28,6 +29,7 @@ class WisdomConan(ConanFile):
 
     # keep it for now, but remove when we are at CCI
     def set_version(self):
+        """ """
         version_file_path = os.path.join(self.recipe_folder, "version/VERSION")
 
         try:
@@ -37,6 +39,7 @@ class WisdomConan(ConanFile):
             self.version = "0.0.0"
 
     def requirements(self):
+        """ """
         # If windows platform support is enabled, we need to require the D3D12 Memory Allocator
         if self.settings.os == "Windows":
             self.requires(
@@ -45,6 +48,7 @@ class WisdomConan(ConanFile):
         self.requires("vulkan-memory-allocator/3.3.0", transitive_headers=True)
 
     def export_sources(self):
+        """ """
         copy(
             self,
             "*",
@@ -66,17 +70,21 @@ class WisdomConan(ConanFile):
         )
 
     def config_options(self):
+        """ """
         if self.settings.os == "Windows":
             self.options.rm_safe("fPIC")
 
     def configure(self):
+        """ """
         if self.options.shared:
             self.options.rm_safe("fPIC")
 
     def layout(self):
+        """ """
         cmake_layout(self)
 
     def generate(self):
+        """ """
         deps = CMakeDeps(self)
         deps.generate()
 
@@ -103,15 +111,18 @@ class WisdomConan(ConanFile):
         tc.generate()
 
     def build(self):
+        """ """
         cmake = CMake(self)
         cmake.configure()
         cmake.build()
 
     def package(self):
+        """ """
         cmake = CMake(self)
         cmake.install()
 
     def package_info(self):
+        """ """
         # The overarching file namespace (find_package(wisdom))
         self.cpp_info.set_property("cmake_file_name", "Wisdom")
 
