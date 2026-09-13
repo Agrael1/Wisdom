@@ -9,6 +9,7 @@ from conan.tools.cmake import CMakeToolchain
 
 class WisdomTestConan(ConanFile):
     """ """
+
     settings = "os", "compiler", "build_type", "arch"
     generators = "CMakeDeps"
 
