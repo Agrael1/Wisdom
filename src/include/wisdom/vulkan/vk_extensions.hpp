@@ -39,21 +39,31 @@ struct CStringHash {
 // hash for VkExtensionProperties
 struct VkExtensionPropertiesHash {
     using is_transparent = void;
-    std::size_t operator()(const VkExtensionProperties& ext) const noexcept { return CStringHash{}(ext.extensionName); }
-    std::size_t operator()(const char* name) const noexcept { return CStringHash{}(name); }
+    std::size_t operator()(const VkExtensionProperties& ext) const noexcept {
+        return CStringHash{}(ext.extensionName);
+    }
+    std::size_t operator()(const char* name) const noexcept {
+        return CStringHash{}(name);
+    }
 };
 
 //----------------------------------------------------------------------------------------------------------------------
 struct VkLayerPropertiesHash {
     using is_transparent = void;
-    std::size_t operator()(const VkLayerProperties& layer) const noexcept { return CStringHash{}(layer.layerName); }
-    std::size_t operator()(const char* name) const noexcept { return CStringHash{}(name); }
+    std::size_t operator()(const VkLayerProperties& layer) const noexcept {
+        return CStringHash{}(layer.layerName);
+    }
+    std::size_t operator()(const char* name) const noexcept {
+        return CStringHash{}(name);
+    }
 };
 
 // Equality helpers
 //----------------------------------------------------------------------------------------------------------------------
 struct CStringEqual {
-    bool operator()(const char* a, const char* b) const { return std::strncmp(a, b, VK_MAX_EXTENSION_NAME_SIZE) == 0; }
+    bool operator()(const char* a, const char* b) const {
+        return std::strncmp(a, b, VK_MAX_EXTENSION_NAME_SIZE) == 0;
+    }
 };
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -92,13 +102,13 @@ struct VkLayerPropertiesEqual {
 
 using CStringSet = std::unordered_set<const char*, CStringHash, CStringEqual>;
 using VkExtensionPropertiesSet = std::
-    unordered_set<VkExtensionProperties, VkExtensionPropertiesHash, VkExtensionPropertiesEqual>;
+                                 unordered_set<VkExtensionProperties, VkExtensionPropertiesHash, VkExtensionPropertiesEqual>;
 using VkLayerPropertiesSet = std::unordered_set<VkLayerProperties, VkLayerPropertiesHash, VkLayerPropertiesEqual>;
 } // namespace detail
 
 //----------------------------------------------------------------------------------------------------------------------
 struct WISDOM_API VKInstanceExtensionCollector {
-    constexpr static const char* instance_extensions[]{
+    constexpr static const char* instance_extensions[] {
         VK_KHR_SURFACE_EXTENSION_NAME,
         VK_EXT_SURFACE_MAINTENANCE_1_EXTENSION_NAME,
         VK_KHR_GET_SURFACE_CAPABILITIES_2_EXTENSION_NAME,
@@ -226,7 +236,9 @@ private:
 template <typename T>
 struct VKInstanceExtensionImpl : public VKInstanceExtensionHeader {
     VKInstanceExtensionImpl() noexcept
-        : VKInstanceExtensionHeader{&VKInstanceExtensionImpl<T>::InitThunk}
+        : VKInstanceExtensionHeader {
+        &VKInstanceExtensionImpl<T>::InitThunk
+    }
     {
         assert(
             std::uintptr_t(static_cast<T*>(this)) == std::uintptr_t(static_cast<VKInstanceExtensionHeader*>(this))
@@ -245,9 +257,9 @@ private:
             return reinterpret_cast<T*>(self)->CollectInfo(*collector);
         }
         return reinterpret_cast<T*>(self)->Init(
-            const_cast<const impl::VKInstanceImpl&>(*instance_impl),
-            const_cast<const VKInstanceExtensionCollector&>(*collector)
-        );
+                   const_cast<const impl::VKInstanceImpl&>(*instance_impl),
+                   const_cast<const VKInstanceExtensionCollector&>(*collector)
+               );
     }
 
 public:
@@ -267,7 +279,9 @@ public:
 template <typename T>
 struct VKDeviceExtensionImpl : public VKDeviceExtensionHeader {
     VKDeviceExtensionImpl() noexcept
-        : VKDeviceExtensionHeader{&VKDeviceExtensionImpl<T>::InitThunk}
+        : VKDeviceExtensionHeader {
+        &VKDeviceExtensionImpl<T>::InitThunk
+    }
     {
         assert(
             std::uintptr_t(static_cast<T*>(this)) == std::uintptr_t(static_cast<VKDeviceExtensionHeader*>(this))
@@ -286,9 +300,9 @@ private:
             return reinterpret_cast<T*>(self)->CollectInfo(*collector);
         }
         return reinterpret_cast<T*>(self)->Init(
-            const_cast<const impl::VKDeviceImpl&>(*device_impl),
-            const_cast<const VKDeviceExtensionCollector&>(*collector)
-        );
+                   const_cast<const impl::VKDeviceImpl&>(*device_impl),
+                   const_cast<const VKDeviceExtensionCollector&>(*collector)
+               );
     }
 
 public:

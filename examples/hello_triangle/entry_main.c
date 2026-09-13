@@ -238,8 +238,8 @@ static bool init_app(HelloTriangleApp* app, SDL_Window* window)
                                 wisGetSurfaceView(&surface),
                                 WisDataFormatRGB10A2Unorm
                             )
-                              ? WisDataFormatRGB10A2Unorm
-                              : WisDataFormatBGRA8Unorm;
+                            ? WisDataFormatRGB10A2Unorm
+                            : WisDataFormatBGRA8Unorm;
 
     WisSwapchainDesc swapchain_desc = {
         .width = app->width,
@@ -273,10 +273,10 @@ static bool init_app(HelloTriangleApp* app, SDL_Window* window)
 
     for (uint32_t i = 0; i < FRAMES_IN_FLIGHT; ++i) {
         result = wisDeviceCreateCommandAllocator(
-            &app->device,
-            WisCommandQueueTypeGraphics,
-            &app->frames[i].command_allocator
-        );
+                     &app->device,
+                     WisCommandQueueTypeGraphics,
+                     &app->frames[i].command_allocator
+                 );
         if (!check_result(result, "wisDeviceCreateCommandAllocator")) {
             return false;
         }
@@ -453,11 +453,12 @@ static void draw_frame(HelloTriangleApp* app, float angle)
 
     WisRenderPassDesc render_pass = {
         .render_targets = {{
-            .target = target_rtv,
-            .load_op = WisLoadOpClear,
-            .store_op = WisStoreOpStore,
-            .clear_value = {0.1f, 0.1f, 0.15f, 1.0f},
-        }},
+                .target = target_rtv,
+                .load_op = WisLoadOpClear,
+                .store_op = WisStoreOpStore,
+                .clear_value = {0.1f, 0.1f, 0.15f, 1.0f},
+            }
+        },
         .render_target_count = 1,
     };
 

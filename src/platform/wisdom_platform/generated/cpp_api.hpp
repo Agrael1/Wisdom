@@ -70,7 +70,9 @@ struct UWPWindowDesc {
 
 namespace wis {
 struct DX12Win32ExtensionDeleter {
-    void operator()(WisDX12Win32Extension* handle) noexcept { ::wisDX12DestroyWin32Extension(handle); }
+    void operator()(WisDX12Win32Extension* handle) noexcept {
+        ::wisDX12DestroyWin32Extension(handle);
+    }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Extension for Win32 surface creation functions.
@@ -78,7 +80,7 @@ struct DX12Win32ExtensionDeleter {
  * */
 class DX12Win32Extension
     : public wis::impl::
-          Implements<wis::impl::DX12Win32ExtensionImpl, WisDX12Win32Extension, wis::DX12Win32ExtensionDeleter>
+      Implements<wis::impl::DX12Win32ExtensionImpl, WisDX12Win32Extension, wis::DX12Win32ExtensionDeleter>
 {
 public:
     DX12Win32Extension() noexcept
@@ -87,7 +89,9 @@ public:
         ::wisDX12InitWin32Extension(GetStorage());
     }
     // Operator & overload
-    wis::DX12InstanceExtensionHeader* operator&() noexcept { return &GetMutableInternal().header; }
+    wis::DX12InstanceExtensionHeader* operator&() noexcept {
+        return &GetMutableInternal().header;
+    }
 
 public:
     /**
@@ -104,10 +108,10 @@ public:
     {
         wis::DX12Surface surface{};
         const WisResult wis_result = ::wisDX12Win32ExtensionCreateSurface(
-            &_impl_storage,
-            reinterpret_cast<const WisWin32WindowDesc*>(&info),
-            surface.GetStorage()
-        );
+                                         &_impl_storage,
+                                         reinterpret_cast<const WisWin32WindowDesc*>(&info),
+                                         surface.GetStorage()
+                                     );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -121,11 +125,15 @@ public:
      * @return bool true if the extension is supported, false otherwise.
      *
      * */
-    WIS_NODISCARD inline bool Supported() noexcept { return (::wisDX12Win32ExtensionSupported(&_impl_storage)); }
+    WIS_NODISCARD inline bool Supported() noexcept {
+        return (::wisDX12Win32ExtensionSupported(&_impl_storage));
+    }
 };
 
 struct DX12UWPExtensionDeleter {
-    void operator()(WisDX12UWPExtension* handle) noexcept { ::wisDX12DestroyUWPExtension(handle); }
+    void operator()(WisDX12UWPExtension* handle) noexcept {
+        ::wisDX12DestroyUWPExtension(handle);
+    }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Extension for UWP surface creation functions.
@@ -141,7 +149,9 @@ public:
         ::wisDX12InitUWPExtension(GetStorage());
     }
     // Operator & overload
-    wis::DX12InstanceExtensionHeader* operator&() noexcept { return &GetMutableInternal().header; }
+    wis::DX12InstanceExtensionHeader* operator&() noexcept {
+        return &GetMutableInternal().header;
+    }
 
 public:
     /**
@@ -158,10 +168,10 @@ public:
     {
         wis::DX12Surface surface{};
         const WisResult wis_result = ::wisDX12UWPExtensionCreateSurface(
-            &_impl_storage,
-            reinterpret_cast<const WisUWPWindowDesc*>(&info),
-            surface.GetStorage()
-        );
+                                         &_impl_storage,
+                                         reinterpret_cast<const WisUWPWindowDesc*>(&info),
+                                         surface.GetStorage()
+                                     );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -179,7 +189,9 @@ public:
 
 namespace wis {
 struct VKXlibExtensionDeleter {
-    void operator()(WisVKXlibExtension* handle) noexcept { ::wisVKDestroyXlibExtension(handle); }
+    void operator()(WisVKXlibExtension* handle) noexcept {
+        ::wisVKDestroyXlibExtension(handle);
+    }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Extension for Xlib surface creation functions.
@@ -195,7 +207,9 @@ public:
         ::wisVKInitXlibExtension(GetStorage());
     }
     // Operator & overload
-    wis::VKInstanceExtensionHeader* operator&() noexcept { return &GetMutableInternal().header; }
+    wis::VKInstanceExtensionHeader* operator&() noexcept {
+        return &GetMutableInternal().header;
+    }
 
 public:
     /**
@@ -209,10 +223,10 @@ public:
     {
         wis::VKSurface surface{};
         const WisResult wis_result = ::wisVKXlibExtensionCreateSurface(
-            &_impl_storage,
-            reinterpret_cast<const WisXlibWindowDesc*>(&info),
-            surface.GetStorage()
-        );
+                                         &_impl_storage,
+                                         reinterpret_cast<const WisXlibWindowDesc*>(&info),
+                                         surface.GetStorage()
+                                     );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -225,11 +239,15 @@ public:
      * @return bool true if the extension is supported, false otherwise.
      *
      * */
-    WIS_NODISCARD inline bool Supported() noexcept { return (::wisVKXlibExtensionSupported(&_impl_storage)); }
+    WIS_NODISCARD inline bool Supported() noexcept {
+        return (::wisVKXlibExtensionSupported(&_impl_storage));
+    }
 };
 
 struct VKXCBExtensionDeleter {
-    void operator()(WisVKXCBExtension* handle) noexcept { ::wisVKDestroyXCBExtension(handle); }
+    void operator()(WisVKXCBExtension* handle) noexcept {
+        ::wisVKDestroyXCBExtension(handle);
+    }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Extension for Xlib surface creation functions.
@@ -245,7 +263,9 @@ public:
         ::wisVKInitXCBExtension(GetStorage());
     }
     // Operator & overload
-    wis::VKInstanceExtensionHeader* operator&() noexcept { return &GetMutableInternal().header; }
+    wis::VKInstanceExtensionHeader* operator&() noexcept {
+        return &GetMutableInternal().header;
+    }
 
 public:
     /**
@@ -259,10 +279,10 @@ public:
     {
         wis::VKSurface surface{};
         const WisResult wis_result = ::wisVKXCBExtensionCreateSurface(
-            &_impl_storage,
-            reinterpret_cast<const WisXCBWindowDesc*>(&info),
-            surface.GetStorage()
-        );
+                                         &_impl_storage,
+                                         reinterpret_cast<const WisXCBWindowDesc*>(&info),
+                                         surface.GetStorage()
+                                     );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -275,11 +295,15 @@ public:
      * @return bool true if the extension is supported, false otherwise.
      *
      * */
-    WIS_NODISCARD inline bool Supported() noexcept { return (::wisVKXCBExtensionSupported(&_impl_storage)); }
+    WIS_NODISCARD inline bool Supported() noexcept {
+        return (::wisVKXCBExtensionSupported(&_impl_storage));
+    }
 };
 
 struct VKWaylandExtensionDeleter {
-    void operator()(WisVKWaylandExtension* handle) noexcept { ::wisVKDestroyWaylandExtension(handle); }
+    void operator()(WisVKWaylandExtension* handle) noexcept {
+        ::wisVKDestroyWaylandExtension(handle);
+    }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Extension for Xlib surface creation functions.
@@ -287,7 +311,7 @@ struct VKWaylandExtensionDeleter {
  * */
 class VKWaylandExtension
     : public wis::impl::
-          Implements<wis::impl::VKWaylandExtensionImpl, WisVKWaylandExtension, wis::VKWaylandExtensionDeleter>
+      Implements<wis::impl::VKWaylandExtensionImpl, WisVKWaylandExtension, wis::VKWaylandExtensionDeleter>
 {
 public:
     VKWaylandExtension() noexcept
@@ -296,7 +320,9 @@ public:
         ::wisVKInitWaylandExtension(GetStorage());
     }
     // Operator & overload
-    wis::VKInstanceExtensionHeader* operator&() noexcept { return &GetMutableInternal().header; }
+    wis::VKInstanceExtensionHeader* operator&() noexcept {
+        return &GetMutableInternal().header;
+    }
 
 public:
     /**
@@ -313,10 +339,10 @@ public:
     {
         wis::VKSurface surface{};
         const WisResult wis_result = ::wisVKWaylandExtensionCreateSurface(
-            &_impl_storage,
-            reinterpret_cast<const WisWaylandWindowDesc*>(&info),
-            surface.GetStorage()
-        );
+                                         &_impl_storage,
+                                         reinterpret_cast<const WisWaylandWindowDesc*>(&info),
+                                         surface.GetStorage()
+                                     );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -329,11 +355,15 @@ public:
      * @return bool true if the extension is supported, false otherwise.
      *
      * */
-    WIS_NODISCARD inline bool Supported() noexcept { return (::wisVKWaylandExtensionSupported(&_impl_storage)); }
+    WIS_NODISCARD inline bool Supported() noexcept {
+        return (::wisVKWaylandExtensionSupported(&_impl_storage));
+    }
 };
 
 struct VKWin32ExtensionDeleter {
-    void operator()(WisVKWin32Extension* handle) noexcept { ::wisVKDestroyWin32Extension(handle); }
+    void operator()(WisVKWin32Extension* handle) noexcept {
+        ::wisVKDestroyWin32Extension(handle);
+    }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Extension for Win32 surface creation functions.
@@ -349,7 +379,9 @@ public:
         ::wisVKInitWin32Extension(GetStorage());
     }
     // Operator & overload
-    wis::VKInstanceExtensionHeader* operator&() noexcept { return &GetMutableInternal().header; }
+    wis::VKInstanceExtensionHeader* operator&() noexcept {
+        return &GetMutableInternal().header;
+    }
 
 public:
     /**
@@ -366,10 +398,10 @@ public:
     {
         wis::VKSurface surface{};
         const WisResult wis_result = ::wisVKWin32ExtensionCreateSurface(
-            &_impl_storage,
-            reinterpret_cast<const WisWin32WindowDesc*>(&info),
-            surface.GetStorage()
-        );
+                                         &_impl_storage,
+                                         reinterpret_cast<const WisWin32WindowDesc*>(&info),
+                                         surface.GetStorage()
+                                     );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -383,7 +415,9 @@ public:
      * @return bool true if the extension is supported, false otherwise.
      *
      * */
-    WIS_NODISCARD inline bool Supported() noexcept { return (::wisVKWin32ExtensionSupported(&_impl_storage)); }
+    WIS_NODISCARD inline bool Supported() noexcept {
+        return (::wisVKWin32ExtensionSupported(&_impl_storage));
+    }
 };
 
 } // namespace wis

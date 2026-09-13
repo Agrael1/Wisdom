@@ -29,7 +29,7 @@ constexpr VkSpirvResourceTypeFlagsEXT GetResourceTypeFlags(const WisDescriptorTy
         return VK_SPIRV_RESOURCE_TYPE_READ_WRITE_STORAGE_BUFFER_BIT_EXT;
     case WisDescriptorTypeBuffer:
         return VK_SPIRV_RESOURCE_TYPE_READ_WRITE_STORAGE_BUFFER_BIT_EXT
-             | VK_SPIRV_RESOURCE_TYPE_READ_ONLY_STORAGE_BUFFER_BIT_EXT;
+               | VK_SPIRV_RESOURCE_TYPE_READ_ONLY_STORAGE_BUFFER_BIT_EXT;
     case WisDescriptorTypeAccelerationStructure:
         return VK_SPIRV_RESOURCE_TYPE_ACCELERATION_STRUCTURE_BIT_EXT;
     default:
@@ -132,16 +132,16 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandQueue(
     using QueueTypeUnderlying = std::underlying_type_t<WisCommandQueueType>;
     if (static_cast<QueueTypeUnderlying>(type) < 0 || static_cast<size_t>(type) >= WisCommandQueueTypeCount) {
         return wis::detail::make_result<wis::detail::Func(), "Invalid command queue type specified">(
-            VK_ERROR_INITIALIZATION_FAILED
-        );
+                   VK_ERROR_INITIALIZATION_FAILED
+               );
     }
 
     // Get queue family index based on type
     uint8_t queue_family_index = device.device_header->header.queue_residency[static_cast<size_t>(type)];
     if (queue_family_index == wis::detail::VKQueueFamilyProperties::invalid_family_index) {
         return wis::detail::make_result<
-            wis::detail::Func(),
-            "No suitable queue family found for the requested queue type">(VK_ERROR_FEATURE_NOT_PRESENT);
+               wis::detail::Func(),
+               "No suitable queue family found for the requested queue type">(VK_ERROR_FEATURE_NOT_PRESENT);
     }
 
     auto& queue_family = device.device_header->header.queue_families[queue_family_index];
@@ -183,24 +183,24 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateCommandAllocator(
     using QueueTypeUnderlying = std::underlying_type_t<WisCommandQueueType>;
     if (static_cast<QueueTypeUnderlying>(type) < 0 || static_cast<size_t>(type) >= WisCommandQueueTypeCount) {
         return wis::detail::make_result<wis::detail::Func(), "Invalid command queue type specified">(
-            VK_ERROR_INITIALIZATION_FAILED
-        );
+                   VK_ERROR_INITIALIZATION_FAILED
+               );
     }
 
     // Get queue family index based on type
     uint8_t queue_family_index = device.device_header->header.queue_residency[static_cast<size_t>(type)];
     if (queue_family_index == wis::detail::VKQueueFamilyProperties::invalid_family_index) {
         return wis::detail::make_result<
-            wis::detail::Func(),
-            "No suitable queue family found for the requested queue type">(VK_ERROR_FEATURE_NOT_PRESENT);
+               wis::detail::Func(),
+               "No suitable queue family found for the requested queue type">(VK_ERROR_FEATURE_NOT_PRESENT);
     }
 
     std::unique_ptr<wis::detail::VKCommandPoolControlBlock>
-        pool_control_block = wis::make_unique<wis::detail::VKCommandPoolControlBlock>();
+    pool_control_block = wis::make_unique<wis::detail::VKCommandPoolControlBlock>();
     if (!pool_control_block) {
         return wis::detail::make_result<
-            wis::detail::Func(),
-            "Failed to allocate memory for command pool control block">(VK_ERROR_OUT_OF_HOST_MEMORY);
+               wis::detail::Func(),
+               "Failed to allocate memory for command pool control block">(VK_ERROR_OUT_OF_HOST_MEMORY);
     }
 
     uint8_t queue_family = device.device_header->header.queue_families[queue_family_index].family_index;
@@ -301,8 +301,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(
     // 0. If heap is supported
     if (!features.descriptor_heap) {
         return wis::detail::make_result<
-            wis::detail::Func(),
-            "Descriptor heaps are not supported by this Vulkan device">(VK_ERROR_FEATURE_NOT_PRESENT);
+               wis::detail::Func(),
+               "Descriptor heaps are not supported by this Vulkan device">(VK_ERROR_FEATURE_NOT_PRESENT);
     }
 
     // 1. Calculate descriptor memory requirements based on desc
@@ -311,32 +311,32 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(
     bool embedded_samplers = !(desc->flags & WisDescriptorHeapFlagsDisallowEmbeddedSamplers);
 
     std::size_t heap_alignment = is_shader_heap ? is_sampler_heap ? features.sampler_heap_alignment
-                                                                  : features.descriptor_heap_alignment
-                                                : __STDCPP_DEFAULT_NEW_ALIGNMENT__;
+                                 : features.descriptor_heap_alignment
+                                 : __STDCPP_DEFAULT_NEW_ALIGNMENT__;
 
     std::size_t descriptor_size = is_sampler_heap ? features.sampler_desc_size : features.resource_desc_size;
 
     std::size_t reserved_size = is_shader_heap ? is_sampler_heap ? embedded_samplers
-                                                                     ? features.sampler_heap_reserved_size_with_embedded
-                                                                     : features.sampler_heap_reserved_size
-                                                                 : features.descriptor_heap_reserved_size
-                                               : 0;
+                                ? features.sampler_heap_reserved_size_with_embedded
+                                : features.sampler_heap_reserved_size
+                                : features.descriptor_heap_reserved_size
+                                : 0;
 
     std::size_t max_heap_size = is_shader_heap
-                                  ? is_sampler_heap ? features.max_sampler_heap_size : features.max_descriptor_heap_size
-                                  : std::numeric_limits<std::size_t>::max();
+                                ? is_sampler_heap ? features.max_sampler_heap_size : features.max_descriptor_heap_size
+                                : std::numeric_limits<std::size_t>::max();
 
     std::size_t required_size = wis::aligned_size(
-        desc->descriptor_count * descriptor_size + reserved_size,
-        heap_alignment
-    );
+                                    desc->descriptor_count * descriptor_size + reserved_size,
+                                    heap_alignment
+                                );
 
     if (is_shader_heap && required_size > max_heap_size) {
         return wis::detail::make_result<
-            wis::detail::Func(),
-            "Requested descriptor heap size exceeds the maximum supported by this Vulkan device">(
-            VK_ERROR_INITIALIZATION_FAILED
-        );
+               wis::detail::Func(),
+               "Requested descriptor heap size exceeds the maximum supported by this Vulkan device">(
+                   VK_ERROR_INITIALIZATION_FAILED
+               );
     }
 
     if (!is_shader_heap) {
@@ -344,8 +344,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(
         VkBuffer buffer = reinterpret_cast<VkBuffer>(std::malloc(required_size));
         if (!buffer) {
             return wis::detail::make_result<
-                wis::detail::Func(),
-                "Failed to allocate memory for non-shader visible descriptor heap">(VK_ERROR_OUT_OF_HOST_MEMORY);
+                   wis::detail::Func(),
+                   "Failed to allocate memory for non-shader visible descriptor heap">(VK_ERROR_OUT_OF_HOST_MEMORY);
         }
 
         // Fill descriptor heap impl
@@ -375,7 +375,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(
     };
     VmaAllocationCreateInfo alloc_info{
         .flags = VMA_ALLOCATION_CREATE_DEDICATED_MEMORY_BIT | VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT
-               | VMA_ALLOCATION_CREATE_MAPPED_BIT,
+        | VMA_ALLOCATION_CREATE_MAPPED_BIT,
         .usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE,
         .requiredFlags = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
         .preferredFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
@@ -385,18 +385,18 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateDescriptorHeap(
     VmaAllocation allocation = VK_NULL_HANDLE;
     VmaAllocationInfo alloc_info_out{};
     VkResult vr = vmaCreateBufferWithAlignment(
-        header.allocator,
-        &buffer_info,
-        &alloc_info,
-        heap_alignment,
-        &buffer,
-        &allocation,
-        &alloc_info_out
-    );
+                      header.allocator,
+                      &buffer_info,
+                      &alloc_info,
+                      heap_alignment,
+                      &buffer,
+                      &allocation,
+                      &alloc_info_out
+                  );
 
     if (!wis::detail::succeeded(vr)) {
         return wis::detail::
-            make_result<wis::detail::Func(), "Failed to create buffer for shader visible descriptor heap">(vr);
+               make_result<wis::detail::Func(), "Failed to create buffer for shader visible descriptor heap">(vr);
     }
 
     // Get GPU address of the buffer
@@ -432,11 +432,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateViewHeap(
 {
     (void)flags;
     auto& device = *wis::from_handle<const wis::impl::VKDeviceImpl>(self);
-    wis::detail::VKRenderTargetView* view_heap = new (std::nothrow) wis::detail::VKRenderTargetView[capacity]{};
+    wis::detail::VKRenderTargetView* view_heap = new (std::nothrow) wis::detail::VKRenderTargetView[capacity] {};
     if (!view_heap) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to allocate memory for view heap">(
-            VK_ERROR_OUT_OF_HOST_MEMORY
-        );
+                   VK_ERROR_OUT_OF_HOST_MEMORY
+               );
     }
 
     new (heap) wis::impl::VKViewHeapImpl{
@@ -461,8 +461,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(
 
     if (!features.descriptor_heap) {
         return wis::detail::make_result<
-            wis::detail::Func(),
-            "Descriptor heaps are not supported by this Vulkan device">(VK_ERROR_FEATURE_NOT_PRESENT);
+               wis::detail::Func(),
+               "Descriptor heaps are not supported by this Vulkan device">(VK_ERROR_FEATURE_NOT_PRESENT);
     }
 
     // Use only 64 DWORDs, same as DX12
@@ -472,8 +472,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(
         const auto& push_constant = desc->push_constants[i];
         if (push_constant.size_bytes % 4 != 0) {
             return wis::detail::make_result<wis::detail::Func(), "Push constant size must be divisible by 4 bytes">(
-                VK_ERROR_INITIALIZATION_FAILED
-            );
+                       VK_ERROR_INITIALIZATION_FAILED
+                   );
         }
         push_constant_size += push_constant.size_bytes;
     }
@@ -481,36 +481,36 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(
 
     // 1. Count the number of root parameters needed
     std::size_t total_dwords_needed = push_constant_size + desc->push_descriptor_count * 2
-                                    + desc->descriptor_table_count;
+                                      + desc->descriptor_table_count;
 
     if (total_dwords_needed > max_root_parameters) {
         return wis::detail::make_result<
-            wis::detail::Func(),
-            "Root signature requires more than 64 DWORDs, which is not supported by this implementation">(
-            VK_ERROR_INITIALIZATION_FAILED
-        );
+               wis::detail::Func(),
+               "Root signature requires more than 64 DWORDs, which is not supported by this implementation">(
+                   VK_ERROR_INITIALIZATION_FAILED
+               );
     }
 
     // 2. Count the number of VkDescriptorSetAndBindingMappingEXT structures
     // Hard part is to pack the tables into a contiguous arrays for each shader type
     uint32_t total_table_count = 0;
     std::array<uint32_t, WisShaderVisibilityCount> table_counts_per_shader = wis::detail::GetMapCountPerShaderType(
-        *desc
-    );
-    std::array<wis::detail::VKMappingOffsetInfo, WisShaderVisibilityCount>
-        local_offsets_per_shader = wis::detail::GetMappingOffsetPerShaderType(
-            table_counts_per_shader,
-            total_table_count
+            *desc
         );
+    std::array<wis::detail::VKMappingOffsetInfo, WisShaderVisibilityCount>
+    local_offsets_per_shader = wis::detail::GetMappingOffsetPerShaderType(
+                                   table_counts_per_shader,
+                                   total_table_count
+                               );
 
     std::size_t root_param_count = desc->push_constant_count + desc->push_descriptor_count
-                                 + desc->descriptor_table_count;
+                                   + desc->descriptor_table_count;
     std::size_t static_sampler_count = 0;
 
     // allocate root signature table
     std::size_t root_sig_size = sizeof(wis::detail::VKRootSignatureControlBlock)
-                              + wis::aligned_size(root_param_count, 2u) * sizeof(uint32_t)
-                              + // Root parameter binding indices, aligned to 8 bytes
+                                + wis::aligned_size(root_param_count, 2u) * sizeof(uint32_t)
+                                + // Root parameter binding indices, aligned to 8 bytes
                                 total_table_count * sizeof(VkDescriptorSetAndBindingMappingEXT);
 
     std::unique_ptr<wis::detail::VKRootSignatureControlBlock> root_sig_control_block{
@@ -532,17 +532,17 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(
         }
 
         rootsig_header->shader_mapping_offset[i] = local_offsets_per_shader[i].offset
-                                                 - (local_offsets_per_shader[i].even
-                                                        ? 0
-                                                        : table_counts_per_shader[0]); // If even, "all" maps are after
+            - (local_offsets_per_shader[i].even
+               ? 0
+               : table_counts_per_shader[0]); // If even, "all" maps are after
         // this stage, if odd, "all" maps
         // are before this stage
 
         rootsig_header
-            ->shader_mapping_sizes[i] = table_counts_per_shader[i]
-                                      + (local_offsets_per_shader[i].even
-                                             ? 0
-                                             : table_counts_per_shader[0]); // If even, this stage maps + "all"
+        ->shader_mapping_sizes[i] = table_counts_per_shader[i]
+                                    + (local_offsets_per_shader[i].even
+                                       ? 0
+                                       : table_counts_per_shader[0]); // If even, this stage maps + "all"
         // maps, if odd, only this stage maps
 
         if (!all_offset) {
@@ -608,16 +608,16 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateRootSignature(
             uint32_t local_count = entry.count;
             uint32_t local_offset = heap_byte_offset;
             uint32_t heap_stride = entry.type == WisDescriptorTypeSampler ? features.sampler_desc_size
-                                                                          : features.resource_desc_size;
+                                   : features.resource_desc_size;
 
             // Check for unbounded array
             if (entry.count == std::numeric_limits<uint32_t>::max()) {
                 if (j != src.entry_count - 1) {
                     return wis::detail::make_result<
-                        wis::detail::Func(),
-                        "Unbounded array descriptor table entry must be the last entry in the table">(
-                        VK_ERROR_INITIALIZATION_FAILED
-                    );
+                           wis::detail::Func(),
+                           "Unbounded array descriptor table entry must be the last entry in the table">(
+                               VK_ERROR_INITIALIZATION_FAILED
+                           );
                 }
                 local_count = 1;
             }
@@ -698,14 +698,15 @@ WIS_EXTERN_C WISDOM_API void wisVKDeviceQueryProperties(const WisVKDevice* self,
                 auto& family_index = header.queue_residency[i];
                 bool supported = family_index != wis::detail::VKQueueFamilyProperties::invalid_family_index;
                 WisCommandQueuePriority priority = WisCommandQueuePriority(
-                    supported ? (header.queue_families[family_index].queue_priority) : 0
-                );
+                                                       supported ? (header.queue_families[family_index].queue_priority) : 0
+                                                   );
 
                 props->supported_queues[i] = supported;
                 props->max_queue_priority[i] = priority;
             }
             props->relaxed_queue_transition = header.features.maintenance9;
-        } break;
+        }
+        break;
         case WisQueryPropertyTypeDeviceDescriptorHeapProperties: {
             auto* props = static_cast<WisDeviceDescriptorHeapProperties*>(next);
             if (!header.features.descriptor_heap) {
@@ -713,20 +714,21 @@ WIS_EXTERN_C WISDOM_API void wisVKDeviceQueryProperties(const WisVKDevice* self,
             }
 
             auto real_dheap_size = header.features.max_descriptor_heap_size
-                                 - header.features.descriptor_heap_reserved_size;
+                                   - header.features.descriptor_heap_reserved_size;
             auto real_sheap_size = header.features.max_sampler_heap_size - header.features.sampler_heap_reserved_size;
             auto real_sheap_size_with_embedded = header.features.max_sampler_heap_size
-                                               - header.features.sampler_heap_reserved_size_with_embedded;
+                                                 - header.features.sampler_heap_reserved_size_with_embedded;
 
             props->max_descriptor_heap_size = real_dheap_size / header.features.resource_desc_size;
             props->max_sampler_heap_size = real_sheap_size / header.features.sampler_desc_size;
             props->max_sampler_heap_size_with_embedded = real_sheap_size_with_embedded
-                                                       / header.features.sampler_desc_size;
+                / header.features.sampler_desc_size;
             props->descriptor_increment_size = header.features.resource_desc_size;
             props->sampler_increment_size = header.features.sampler_desc_size;
             props->render_target_increment_size = sizeof(wis::detail::VKRenderTargetView);
             props->depth_stencil_increment_size = sizeof(wis::detail::VKRenderTargetView);
-        } break;
+        }
+        break;
         case WisQueryPropertyTypeDeviceMemoryProperties: {
             auto* props = static_cast<WisDeviceMemoryProperties*>(next);
             props->host_image_copy_supported = header.features.host_image_copy;
@@ -757,20 +759,22 @@ WIS_EXTERN_C WISDOM_API void wisVKDeviceQueryProperties(const WisVKDevice* self,
 
                 const VkMemoryPropertyFlags flags = mem_props->memoryTypes[i].propertyFlags;
                 if ((flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) && (flags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
-                    && (flags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)) {
+                        && (flags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)) {
                     props->gpu_upload_supported = true;
                     break;
                 }
             }
 
-        } break;
+        }
+        break;
         case WisQueryPropertyTypeDeviceBindingProperties: {
             auto* props = static_cast<WisDeviceBindingProperties*>(next);
             props->max_vertex_input_bindings = header.features.max_vertex_bindings;
             props->max_vertex_input_attributes = header.features.max_vertex_attributes;
             props->multiple_viewports_supported = header.features.multiple_viewports;
             props->address_commands_supported = header.features.address_commands;
-        } break;
+        }
+        break;
         default:
             break;
         }
@@ -814,8 +818,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreatePipelineCache(
 {
     if (data_size > 0 && data_size < sizeof(VkPipelineCacheHeaderVersionOne)) {
         return wis::detail::make_result<
-            wis::detail::Func(),
-            "Data size is too small to contain a valid pipeline cache header">(VK_ERROR_INITIALIZATION_FAILED);
+               wis::detail::Func(),
+               "Data size is too small to contain a valid pipeline cache header">(VK_ERROR_INITIALIZATION_FAILED);
     }
 
     auto& device = *wis::from_handle<const wis::impl::VKDeviceImpl>(self);
@@ -842,9 +846,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreatePipelineCache(
 
         if (std::memcmp(initial_data, &cache_header_correct, sizeof(VkPipelineCacheHeaderVersionOne)) != 0) {
             return wis::detail::make_result<
-                wis::detail::Func(),
-                "Initial data pipeline cache header does not match the device's pipeline cache header, indicating it "
-                "is incompatible">(VK_ERROR_INITIALIZATION_FAILED);
+                   wis::detail::Func(),
+                   "Initial data pipeline cache header does not match the device's pipeline cache header, indicating it "
+                   "is incompatible">(VK_ERROR_INITIALIZATION_FAILED);
         }
     }
 
@@ -863,7 +867,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreatePipelineCache(
     }
 
     auto& cache_impl = *new (cache)
-                           wis::impl::VKPipelineCacheImpl{.cache = cache_handle, .device_header = device.device_header};
+                       wis::impl::VKPipelineCacheImpl{.cache = cache_handle, .device_header = device.device_header};
     device.device_header->AddRef();
 
     return wis::detail::vk_success;
@@ -895,8 +899,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateShader(
     }
 
     auto& shader_impl = *new (
-        shader
-    ) wis::impl::VKShaderImpl{.shader_module = shader_handle, .device_header = device.device_header};
+                            shader
+                        ) wis::impl::VKShaderImpl{.shader_module = shader_handle, .device_header = device.device_header};
     device.device_header->AddRef();
     return wis::detail::vk_success;
 }
@@ -936,13 +940,14 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateComputePipeline(
         .pNext = &pipeline_flags_info,
         .flags = 0,
         .stage =
-            {.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
-             .pNext = &mapping,
-             .flags = 0,
-             .stage = VK_SHADER_STAGE_COMPUTE_BIT,
-             .module = shader,
-             .pName = "main",
-             .pSpecializationInfo = nullptr},
+        {   .sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+            .pNext = &mapping,
+            .flags = 0,
+            .stage = VK_SHADER_STAGE_COMPUTE_BIT,
+            .module = shader,
+            .pName = "main",
+            .pSpecializationInfo = nullptr
+        },
         .layout = nullptr
     };
 
@@ -954,8 +959,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateComputePipeline(
     }
 
     auto& pipeline_impl = *new (
-        pipeline
-    ) wis::impl::VKPipelineImpl{.pipeline = pipeline_handle, .device_header = device.device_header};
+                              pipeline
+                          ) wis::impl::VKPipelineImpl{.pipeline = pipeline_handle, .device_header = device.device_header};
     pipeline_impl.device_header->AddRef();
     return wis::detail::vk_success;
 }
@@ -974,8 +979,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(
 
     if (!rsig) {
         return wis::detail::make_result<wis::detail::Func(), "Root signature cannot be null for graphics pipeline">(
-            VK_ERROR_INITIALIZATION_FAILED
-        );
+                   VK_ERROR_INITIALIZATION_FAILED
+               );
     }
 
     //--Shader stages
@@ -997,7 +1002,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(
     };
     VkShaderDescriptorSetAndBindingMappingInfoEXT mappings[max_shader_stages];
     VkPipelineShaderStageCreateInfo
-        shader_stages[max_shader_stages]; // intentionally uninitialized, will be filled based on provided shaders
+    shader_stages[max_shader_stages]; // intentionally uninitialized, will be filled based on provided shaders
 
     for (uint32_t i = 0; i < max_shader_stages; i++) {
         auto smodule = shader_modules[i];
@@ -1048,12 +1053,12 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(
     uint32_t ia_count = desc->input_layout.attribute_count;
     if (desc->input_layout.attribute_count > wis::MinSupportedInputAttributes * 2) {
         dynamic_vertex_attributes = wis::make_unique<VkVertexInputAttributeDescription[]>(
-            desc->input_layout.attribute_count
-        );
+                                        desc->input_layout.attribute_count
+                                    );
         if (!dynamic_vertex_attributes) {
             return wis::detail::make_result<
-                wis::detail::Func(),
-                "Failed to allocate memory for vertex input attribute descriptions">(VK_ERROR_OUT_OF_HOST_MEMORY);
+                   wis::detail::Func(),
+                   "Failed to allocate memory for vertex input attribute descriptions">(VK_ERROR_OUT_OF_HOST_MEMORY);
         }
 
         ia_span = {dynamic_vertex_attributes.get(), ia_count};
@@ -1077,11 +1082,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(
         .flags = 0,
         .vertexBindingDescriptionCount = static_cast<uint32_t>(desc->input_layout.binding_count),
         .pVertexBindingDescriptions = desc->input_layout.binding_count
-                                        ? reinterpret_cast<const VkVertexInputBindingDescription*>(
-                                              desc->input_layout.bindings
-                                          ) // strict aliasing violation, but we control the data and it's guaranteed
-                                        // to be compatible
-                                        : nullptr,
+        ? reinterpret_cast<const VkVertexInputBindingDescription*>(
+            desc->input_layout.bindings
+        ) // strict aliasing violation, but we control the data and it's guaranteed
+        // to be compatible
+        : nullptr,
         .vertexAttributeDescriptionCount = static_cast<uint32_t>(desc->input_layout.attribute_count),
         .pVertexAttributeDescriptions = desc->input_layout.attribute_count ? ia_span.data() : nullptr,
     };
@@ -1173,8 +1178,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(
     uint32_t rt_count = desc->render_attachments.attachments_count;
     if (rt_count > wis::MaxRenderTargets) {
         return wis::detail::make_result<
-            wis::detail::Func(),
-            "Exceeded maximum number of render target attachments (8)">(VK_ERROR_UNKNOWN);
+               wis::detail::Func(),
+               "Exceeded maximum number of render target attachments (8)">(VK_ERROR_UNKNOWN);
     }
     VkFormat rt_formats[wis::MaxRenderTargets];
     for (uint32_t i = 0; i < rt_count; i++) {
@@ -1242,25 +1247,25 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(
             .depthBoundsTestEnable = ds.depth_bound_test,
             .stencilTestEnable = ds.stencil_enable,
             .front =
-                VkStencilOpState{
-                    .failOp = wis::detail::VKConvert(ds.stencil_front.fail_op),
-                    .passOp = wis::detail::VKConvert(ds.stencil_front.pass_op),
-                    .depthFailOp = wis::detail::VKConvert(ds.stencil_front.depth_fail_op),
-                    .compareOp = wis::detail::VKConvert(ds.stencil_front.stencil_comp),
-                    .compareMask = ds.stencil_front.read_mask,
-                    .writeMask = ds.stencil_front.write_mask,
-                    .reference = 0,
-                },
+            VkStencilOpState{
+                .failOp = wis::detail::VKConvert(ds.stencil_front.fail_op),
+                .passOp = wis::detail::VKConvert(ds.stencil_front.pass_op),
+                .depthFailOp = wis::detail::VKConvert(ds.stencil_front.depth_fail_op),
+                .compareOp = wis::detail::VKConvert(ds.stencil_front.stencil_comp),
+                .compareMask = ds.stencil_front.read_mask,
+                .writeMask = ds.stencil_front.write_mask,
+                .reference = 0,
+            },
             .back =
-                VkStencilOpState{
-                    .failOp = wis::detail::VKConvert(ds.stencil_back.fail_op),
-                    .passOp = wis::detail::VKConvert(ds.stencil_back.pass_op),
-                    .depthFailOp = wis::detail::VKConvert(ds.stencil_back.depth_fail_op),
-                    .compareOp = wis::detail::VKConvert(ds.stencil_back.stencil_comp),
-                    .compareMask = ds.stencil_back.read_mask,
-                    .writeMask = ds.stencil_back.write_mask,
-                    .reference = 0,
-                },
+            VkStencilOpState{
+                .failOp = wis::detail::VKConvert(ds.stencil_back.fail_op),
+                .passOp = wis::detail::VKConvert(ds.stencil_back.pass_op),
+                .depthFailOp = wis::detail::VKConvert(ds.stencil_back.depth_fail_op),
+                .compareOp = wis::detail::VKConvert(ds.stencil_back.stencil_comp),
+                .compareMask = ds.stencil_back.read_mask,
+                .writeMask = ds.stencil_back.write_mask,
+                .reference = 0,
+            },
             .minDepthBounds = 0.0f,
             .maxDepthBounds = 1.0f,
         };
@@ -1276,7 +1281,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(
         .dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO,
         .alphaBlendOp = VK_BLEND_OP_ADD,
         .colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT
-                        | VK_COLOR_COMPONENT_A_BIT,
+        | VK_COLOR_COMPONENT_A_BIT,
     };
     VkPipelineColorBlendAttachmentState color_blend_attachment[wis::MaxRenderTargets];
     VkPipelineColorBlendStateCreateInfo color_blending;
@@ -1399,21 +1404,21 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateGraphicsPipeline(
 
     VkPipeline pipeline_handle = VK_NULL_HANDLE;
     auto vr = table.vkCreateGraphicsPipelines(
-        device.device,
-        std::bit_cast<VkPipelineCache>(desc->cache),
-        1u,
-        &info,
-        nullptr,
-        &pipeline_handle
-    );
+                  device.device,
+                  std::bit_cast<VkPipelineCache>(desc->cache),
+                  1u,
+                  &info,
+                  nullptr,
+                  &pipeline_handle
+              );
 
     if (!wis::detail::succeeded(vr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to create a graphics pipeline">(vr);
     }
 
     auto& pipeline_impl = *new (
-        pipeline
-    ) wis::impl::VKPipelineImpl{.pipeline = pipeline_handle, .device_header = device.device_header};
+                              pipeline
+                          ) wis::impl::VKPipelineImpl{.pipeline = pipeline_handle, .device_header = device.device_header};
     device.device_header->AddRef();
 
     return wis::detail::vk_success;
@@ -1453,8 +1458,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceGetSurfaceParameters(
     *params = {
         .min_swapchain_images = capabilities.surfaceCapabilities.minImageCount,
         .max_swapchain_images = capabilities.surfaceCapabilities.maxImageCount == 0
-                                  ? wis::AbsoluteMaxSwapchainImages
-                                  : capabilities.surfaceCapabilities.maxImageCount,
+        ? wis::AbsoluteMaxSwapchainImages
+        : capabilities.surfaceCapabilities.maxImageCount,
         .alpha_modes_supported = alpha,
         .texture_usage_flags_supported = wis::detail::VKConvert(capabilities.surfaceCapabilities.supportedUsageFlags),
         .stereo_supported = capabilities.surfaceCapabilities.maxImageArrayLayers > 1,
@@ -1496,11 +1501,11 @@ WIS_EXTERN_C WISDOM_API bool wisVKDeviceGetFormatPresentationSupport(
     }
 
     vr = atable.vkGetPhysicalDeviceSurfaceFormatsKHR(
-        device.physical_device,
-        vk_surface,
-        &format_count,
-        format_span.data()
-    );
+             device.physical_device,
+             vk_surface,
+             &format_count,
+             format_span.data()
+         );
     if (!wis::detail::succeeded(vr)) {
         return false;
     }
@@ -1537,15 +1542,15 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateSwapchain(
     uint32_t format_count = 0;
 
     auto vr = atable.vkGetPhysicalDeviceSurfaceFormatsKHR(
-        device.physical_device,
-        surface_impl.surface,
-        &format_count,
-        nullptr
-    );
+                  device.physical_device,
+                  surface_impl.surface,
+                  &format_count,
+                  nullptr
+              );
     if (!wis::detail::succeeded(vr) || format_count == 0) {
         return wis::detail::make_result<
-            wis::detail::Func(),
-            "Failed to get surface formats or no formats supported by the surface">(VK_ERROR_INITIALIZATION_FAILED);
+               wis::detail::Func(),
+               "Failed to get surface formats or no formats supported by the surface">(VK_ERROR_INITIALIZATION_FAILED);
     }
 
     if (format_count > reasonable_format_count) {
@@ -1560,11 +1565,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateSwapchain(
     }
 
     vr = atable.vkGetPhysicalDeviceSurfaceFormatsKHR(
-        device.physical_device,
-        surface_impl.surface,
-        &format_count,
-        format_span.data()
-    );
+             device.physical_device,
+             surface_impl.surface,
+             &format_count,
+             format_span.data()
+         );
     if (!wis::detail::succeeded(vr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to get surface formats">(vr);
     }
@@ -1576,10 +1581,10 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateSwapchain(
 
     if (format_it == format_span.end()) {
         return wis::detail::make_result<
-            wis::detail::Func(),
-            "The requested format is not supported for presentation on the given surface">(
-            VK_ERROR_FORMAT_NOT_SUPPORTED
-        );
+               wis::detail::Func(),
+               "The requested format is not supported for presentation on the given surface">(
+                   VK_ERROR_FORMAT_NOT_SUPPORTED
+               );
     }
 
     // Query surface props
@@ -1597,19 +1602,19 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateSwapchain(
 
     // validate requested parameters against capabilities
     if (desc->image_count < capabilities.surfaceCapabilities.minImageCount
-        || (capabilities.surfaceCapabilities.maxImageCount != 0
-            && desc->image_count > capabilities.surfaceCapabilities.maxImageCount)) {
+            || (capabilities.surfaceCapabilities.maxImageCount != 0
+                && desc->image_count > capabilities.surfaceCapabilities.maxImageCount)) {
         return wis::detail::make_result<
-            wis::detail::Func(),
-            "Requested swapchain image count is out of bounds for the given surface">(VK_ERROR_INITIALIZATION_FAILED);
+               wis::detail::Func(),
+               "Requested swapchain image count is out of bounds for the given surface">(VK_ERROR_INITIALIZATION_FAILED);
     }
     if (desc->flags & WisSwapchainFlagsStereo) {
         if (capabilities.surfaceCapabilities.maxImageArrayLayers == 1) {
             return wis::detail::make_result<
-                wis::detail::Func(),
-                "Stereo swapchain requested but the surface does not support image array layers">(
-                VK_ERROR_INITIALIZATION_FAILED
-            );
+                   wis::detail::Func(),
+                   "Stereo swapchain requested but the surface does not support image array layers">(
+                       VK_ERROR_INITIALIZATION_FAILED
+                   );
         }
         array_layer_count++;
     }
@@ -1650,14 +1655,14 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateSwapchain(
     // Create swapchain control block in a single allocation with the header to ensure they are close together in
     // memory, which is important for cache performance since the header is accessed on every frame.
     std::size_t header_size = sizeof(wis::detail::VKSwapchainControlBlock) + desc->image_count * sizeof(VkSemaphore) * 2
-                            + // semaphores for present and render complete for each image
+                              + // semaphores for present and render complete for each image
                               format_count
-                                  * sizeof(VkSurfaceFormatKHR); // store supported formats for use in mode switching
+                              * sizeof(VkSurfaceFormatKHR); // store supported formats for use in mode switching
     std::unique_ptr<std::byte[]> header_storage{new (std::nothrow) std::byte[header_size]};
     if (!header_storage) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to allocate memory for swapchain control block">(
-            VK_ERROR_OUT_OF_HOST_MEMORY
-        );
+                   VK_ERROR_OUT_OF_HOST_MEMORY
+               );
     }
     wis::detail::VKSwapchainControlBlock* header = new (header_storage.get()) wis::detail::VKSwapchainControlBlock;
 
@@ -1672,8 +1677,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateSwapchain(
 
     // Copy the supported formats for use in mode switching
     auto* format_storage = reinterpret_cast<VkSurfaceFormatKHR*>(
-        reinterpret_cast<VkSemaphore*>(header + 1) + desc->image_count * 2
-    ); // format storage is immediately after the semaphores
+                               reinterpret_cast<VkSemaphore*>(header + 1) + desc->image_count * 2
+                           ); // format storage is immediately after the semaphores
     for (uint32_t i = 0; i < format_count; i++) {
         format_storage[i] = format_span[i];
     }
@@ -1700,18 +1705,18 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateSwapchain(
         .imageFormat = vk_format,
         .imageColorSpace = format_it->colorSpace,
         .imageExtent =
-            {
-                .width = std::clamp(
-                    desc->width,
-                    capabilities.surfaceCapabilities.minImageExtent.width,
-                    capabilities.surfaceCapabilities.maxImageExtent.width
-                ),
-                .height = std::clamp(
-                    desc->height,
-                    capabilities.surfaceCapabilities.minImageExtent.height,
-                    capabilities.surfaceCapabilities.maxImageExtent.height
-                ),
-            },
+        {
+            .width = std::clamp(
+            desc->width,
+            capabilities.surfaceCapabilities.minImageExtent.width,
+            capabilities.surfaceCapabilities.maxImageExtent.width
+            ),
+            .height = std::clamp(
+            desc->height,
+            capabilities.surfaceCapabilities.minImageExtent.height,
+            capabilities.surfaceCapabilities.maxImageExtent.height
+            ),
+        },
         .imageArrayLayers = array_layer_count,
         .imageUsage = wis::detail::VKConvert(desc->texture_usage_flags),
         .imageSharingMode = VK_SHARING_MODE_EXCLUSIVE,
@@ -1751,7 +1756,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateSwapchain(
             }
             stable.vkDestroySwapchainKHR(device.device, swapchain_handle, nullptr);
             return wis::detail::
-                make_result<wis::detail::Func(), "Failed to create synchronization primitives for the swapchain">(vr);
+                   make_result<wis::detail::Func(), "Failed to create synchronization primitives for the swapchain">(vr);
         }
     }
 
@@ -1769,7 +1774,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateSwapchain(
         }
         stable.vkDestroySwapchainKHR(device.device, swapchain_handle, nullptr);
         return wis::detail::
-            make_result<wis::detail::Func(), "Failed to create synchronization primitives for the swapchain">(vr);
+               make_result<wis::detail::Func(), "Failed to create synchronization primitives for the swapchain">(vr);
     }
 
     swap_head.surface_header = surface_impl.surface_header;
@@ -1795,13 +1800,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateSwapchain(
 
         // Acquire the next image index for the new swapchain to update internal state
         auto result = impl.swapchain_table->vkAcquireNextImageKHR(
-            impl.device,
-            impl.swapchain,
-            impl.lazy_acquire ? 0 : std::numeric_limits<uint64_t>::max(),
-            semaphores[impl.acquire_index],
-            nullptr,
-            &impl.present_index
-        );
+                          impl.device,
+                          impl.swapchain,
+                          impl.lazy_acquire ? 0 : std::numeric_limits<uint64_t>::max(),
+                          semaphores[impl.acquire_index],
+                          nullptr,
+                          &impl.present_index
+                      );
 
         if (result != VK_SUCCESS) {
             return result; // Caller can choose to handle timeout differently (e.g. by skipping rendering and trying
@@ -1826,7 +1831,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateSwapchain(
         };
         impl.acquire_index = (impl.acquire_index + 1) % swapchain_header.create_info.minImageCount;
         return swapchain_table.vkQueueSubmit2(impl.present_queue, 1, &desc2, nullptr);
-    }(swap_impl);
+    }
+    (swap_impl);
 
     if (!wis::detail::succeeded(vr)) {
         for (uint32_t j = 0; j < desc->image_count * 2; j++) {
@@ -1841,7 +1847,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceCreateSwapchain(
         ); // ensure the destructor doesn't attempt to clean up a partially initialized swapchain
 
         return wis::detail::
-            make_result<wis::detail::Func(), "Failed to acquire next image for the swapchain after creation">(vr);
+               make_result<wis::detail::Func(), "Failed to acquire next image for the swapchain after creation">(vr);
     }
 
     return wis::detail::vk_success;
@@ -1874,8 +1880,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceGetFormatProperties(
 
     if (features & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) {
         support_flags |= WisFormatSupportFlagsShaderResource | WisFormatSupportFlagsTexture1D
-                       | WisFormatSupportFlagsTexture2D | WisFormatSupportFlagsTexture3D
-                       | WisFormatSupportFlagsTextureCube;
+                         | WisFormatSupportFlagsTexture2D | WisFormatSupportFlagsTexture3D
+                         | WisFormatSupportFlagsTextureCube;
     }
     if (features & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) {
         support_flags |= WisFormatSupportFlagsRenderTarget;
@@ -1894,42 +1900,42 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceGetFormatProperties(
     if (features & VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) {
         VkImageFormatProperties image_props{};
         if (wis::detail::succeeded(atable.vkGetPhysicalDeviceImageFormatProperties(
-                device.physical_device,
-                vk_format,
-                VK_IMAGE_TYPE_2D,
-                VK_IMAGE_TILING_OPTIMAL,
-                VK_IMAGE_USAGE_SAMPLED_BIT,
-                0,
-                &image_props
-            ))) {
+                                       device.physical_device,
+                                       vk_format,
+                                       VK_IMAGE_TYPE_2D,
+                                       VK_IMAGE_TILING_OPTIMAL,
+                                       VK_IMAGE_USAGE_SAMPLED_BIT,
+                                       0,
+                                       &image_props
+                                   ))) {
             sample_counts |= image_props.sampleCounts;
         }
     }
     if (features & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) {
         VkImageFormatProperties image_props{};
         if (wis::detail::succeeded(atable.vkGetPhysicalDeviceImageFormatProperties(
-                device.physical_device,
-                vk_format,
-                VK_IMAGE_TYPE_2D,
-                VK_IMAGE_TILING_OPTIMAL,
-                VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-                0,
-                &image_props
-            ))) {
+                                       device.physical_device,
+                                       vk_format,
+                                       VK_IMAGE_TYPE_2D,
+                                       VK_IMAGE_TILING_OPTIMAL,
+                                       VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+                                       0,
+                                       &image_props
+                                   ))) {
             sample_counts |= image_props.sampleCounts;
         }
     }
     if (features & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
         VkImageFormatProperties image_props{};
         if (wis::detail::succeeded(atable.vkGetPhysicalDeviceImageFormatProperties(
-                device.physical_device,
-                vk_format,
-                VK_IMAGE_TYPE_2D,
-                VK_IMAGE_TILING_OPTIMAL,
-                VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-                0,
-                &image_props
-            ))) {
+                                       device.physical_device,
+                                       vk_format,
+                                       VK_IMAGE_TYPE_2D,
+                                       VK_IMAGE_TILING_OPTIMAL,
+                                       VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
+                                       0,
+                                       &image_props
+                                   ))) {
             sample_counts |= image_props.sampleCounts;
         }
     }
@@ -1947,7 +1953,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisVKDeviceGetFormatProperties(
 
     if (max_sample_count > WisSampleCountS1) {
         if (features & VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT
-            || features & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
+                || features & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT) {
             support_flags |= WisFormatSupportFlagsMultisampleRenderTarget;
         }
         support_flags |= WisFormatSupportFlagsMultisampleResolve;

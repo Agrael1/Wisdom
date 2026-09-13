@@ -25,7 +25,9 @@ public:
     void ParseFile(std::filesystem::path file);
     void WriteModuleAPI();
     void WriteModuleAPIDoc(std::string_view module_name = {});
-    auto GetFiles() const { return std::span<const std::filesystem::path>{files}; }
+    auto GetFiles() const {
+        return std::span<const std::filesystem::path> {files};
+    }
 
 public:
     void ParseIncludes(tinyxml2::XMLElement* includes);
@@ -253,7 +255,7 @@ public:
             }
         }
         return pre_doc ? std::format("    {}\n    {}\n", documentation, value_decl)
-                       : std::format("{}{}\n", value_decl, documentation);
+               : std::format("{}{}\n", value_decl, documentation);
     }
 
     template <Lang lang = Lang::C, typename T>
@@ -267,9 +269,9 @@ public:
                     // This arg
                     if (!type.this_type.empty()) {
                         args += std::format(
-                            "@param self is a pointer to the valid {{{}::}} instance.\n",
-                            type.this_type
-                        );
+                                    "@param self is a pointer to the valid {{{}::}} instance.\n",
+                                    type.this_type
+                                );
                     }
 
                     // Function arguments
@@ -354,9 +356,9 @@ public:
             }
             if (member.modifier & Modifier::Span) {
                 return std::format(
-                    "wis::span<{}>",
-                    attributes_pre + GetCPPFullTypename(member.type, backend) + attributes_inter
-                );
+                           "wis::span<{}>",
+                           attributes_pre + GetCPPFullTypename(member.type, backend) + attributes_inter
+                       );
             }
             return attributes_pre + GetCPPFullTypename(member.type, backend) + attributes_inter;
         } else {

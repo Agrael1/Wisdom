@@ -16,14 +16,14 @@ GetInstanceExtensions(WisResult& result, const wis::impl::VKMainGlobal& table) n
     VkResult vr = table.vkEnumerateInstanceExtensionProperties(nullptr, &ext_count, nullptr);
     if (!wis::detail::succeeded(vr)) {
         result = wis::detail::
-            make_result<wis::detail::Func(), "Failed to enumerate Vulkan instance extension properties">(vr);
+                 make_result<wis::detail::Func(), "Failed to enumerate Vulkan instance extension properties">(vr);
         return exts;
     }
     std::unique_ptr<VkExtensionProperties[]> ext_props_raw = make_unique<VkExtensionProperties[]>(ext_count);
     if (!ext_props_raw) {
         result = wis::detail::make_result<wis::detail::Func(), "Not enough memory for extension properties">(
-            VK_ERROR_OUT_OF_HOST_MEMORY
-        );
+                     VK_ERROR_OUT_OF_HOST_MEMORY
+                 );
         return exts;
     }
     vr = table.vkEnumerateInstanceExtensionProperties(nullptr, &ext_count, ext_props_raw.get());
@@ -33,8 +33,8 @@ GetInstanceExtensions(WisResult& result, const wis::impl::VKMainGlobal& table) n
         exts.reserve(ext_count);
     } catch (const std::bad_alloc&) {
         result = wis::detail::make_result<wis::detail::Func(), "Not enough memory for extensions">(
-            VK_ERROR_OUT_OF_HOST_MEMORY
-        );
+                     VK_ERROR_OUT_OF_HOST_MEMORY
+                 );
         return exts;
     }
     for (const auto& i : wis::span{ext_props_raw.get(), ext_count}) {
@@ -58,15 +58,15 @@ inline std::unordered_set<VkLayerProperties, VkLayerPropertiesHash, VkLayerPrope
     VkResult vr = table.vkEnumerateInstanceLayerProperties(&layer_count, nullptr);
     if (!wis::detail::succeeded(vr)) {
         result = wis::detail::make_result<wis::detail::Func(), "Failed to enumerate Vulkan instance layer properties">(
-            vr
-        );
+                     vr
+                 );
         return layers;
     }
     std::unique_ptr<VkLayerProperties[]> layer_props_raw = make_unique<VkLayerProperties[]>(layer_count);
     if (!layer_props_raw) {
         result = wis::detail::make_result<wis::detail::Func(), "Not enough memory for layer properties">(
-            VK_ERROR_OUT_OF_HOST_MEMORY
-        );
+                     VK_ERROR_OUT_OF_HOST_MEMORY
+                 );
         return layers;
     }
     vr = table.vkEnumerateInstanceLayerProperties(&layer_count, layer_props_raw.get());
@@ -75,8 +75,8 @@ inline std::unordered_set<VkLayerProperties, VkLayerPropertiesHash, VkLayerPrope
         layers.reserve(layer_count);
     } catch (const std::bad_alloc&) {
         result = wis::detail::make_result<wis::detail::Func(), "Not enough memory for layers">(
-            VK_ERROR_OUT_OF_HOST_MEMORY
-        );
+                     VK_ERROR_OUT_OF_HOST_MEMORY
+                 );
         return layers;
     }
     for (const auto& i : wis::span{layer_props_raw.get(), layer_count}) {
@@ -99,14 +99,14 @@ GetDeviceExtensions(
     VkResult vr = adapter_table.vkEnumerateDeviceExtensionProperties(physical_device, nullptr, &ext_count, nullptr);
     if (!wis::detail::succeeded(vr)) {
         result = wis::detail::
-            make_result<wis::detail::Func(), "Failed to enumerate Vulkan device extension properties">(vr);
+                 make_result<wis::detail::Func(), "Failed to enumerate Vulkan device extension properties">(vr);
         return exts;
     }
     std::unique_ptr<VkExtensionProperties[]> ext_props_raw = make_unique<VkExtensionProperties[]>(ext_count);
     if (!ext_props_raw) {
         result = wis::detail::make_result<wis::detail::Func(), "Not enough memory for extension properties">(
-            VK_ERROR_OUT_OF_HOST_MEMORY
-        );
+                     VK_ERROR_OUT_OF_HOST_MEMORY
+                 );
         return exts;
     }
     vr = adapter_table.vkEnumerateDeviceExtensionProperties(physical_device, nullptr, &ext_count, ext_props_raw.get());
@@ -115,8 +115,8 @@ GetDeviceExtensions(
         exts.reserve(ext_count);
     } catch (const std::bad_alloc&) {
         result = wis::detail::make_result<wis::detail::Func(), "Not enough memory for extensions">(
-            VK_ERROR_OUT_OF_HOST_MEMORY
-        );
+                     VK_ERROR_OUT_OF_HOST_MEMORY
+                 );
         return exts;
     }
     for (const auto& i : wis::span{ext_props_raw.get(), ext_count}) {
@@ -142,8 +142,8 @@ wis::VKInstanceExtensionCollector::VKInstanceExtensionCollector(
         enabled_layer_names_set.reserve(wis::detail::size(available_layers_set));
     } catch (const std::bad_alloc&) {
         out_result = wis::detail::make_result<wis::detail::Func(), "Not enough memory for extension and layer sets">(
-            VK_ERROR_OUT_OF_HOST_MEMORY
-        );
+                         VK_ERROR_OUT_OF_HOST_MEMORY
+                     );
         return;
     }
     for (const auto& ext : instance_extensions) {
@@ -163,8 +163,8 @@ wis::VKInstanceExtensionCollector::ExtReturn wis::VKInstanceExtensionCollector::
     auto names_array = make_unique<const char*[]>(ext_count + layer_count);
     if (!names_array) {
         out_res = wis::detail::make_result<wis::detail::Func(), "Not enough memory for extension and layer names">(
-            VK_ERROR_OUT_OF_HOST_MEMORY
-        );
+                      VK_ERROR_OUT_OF_HOST_MEMORY
+                  );
         return result;
     }
     std::size_t index = 0;
@@ -213,8 +213,8 @@ wis::VKDeviceExtensionCollector::VKDeviceExtensionCollector(
         enabled_extension_names_set.reserve(wis::detail::size(available_extensions_set));
     } catch (const std::bad_alloc&) {
         res = wis::detail::make_result<wis::detail::Func(), "Not enough memory for extension set">(
-            VK_ERROR_OUT_OF_HOST_MEMORY
-        );
+                  VK_ERROR_OUT_OF_HOST_MEMORY
+              );
         return;
     }
     res = wis::detail::vk_success;
@@ -275,8 +275,8 @@ wis::VKDeviceExtensionCollector::InitBuffer wis::VKDeviceExtensionCollector::Get
     std::unique_ptr<std::uint64_t[]> buffer(new (std::nothrow) std::uint64_t[total_size / sizeof(std::uint64_t)]);
     if (!buffer) {
         out_res = wis::detail::make_result<wis::detail::Func(), "Not enough memory for device init buffer">(
-            VK_ERROR_OUT_OF_HOST_MEMORY
-        );
+                      VK_ERROR_OUT_OF_HOST_MEMORY
+                  );
         return result;
     }
 

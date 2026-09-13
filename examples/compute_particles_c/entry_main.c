@@ -268,10 +268,10 @@ void ResizeDepth(BasicRenderer* renderer, uint32_t width, uint32_t height)
             .memory_flags = WisMemoryFlagsNone,
         };
         WisResult result = wisResourceAllocatorCreateTexture(
-            &renderer->allocator,
-            &depth_desc,
-            &renderer->depth_texture[i]
-        );
+                               &renderer->allocator,
+                               &depth_desc,
+                               &renderer->depth_texture[i]
+                           );
         printf(
             "CreateDepthTexture[%u] result: %d, platform_code: %d, error: %s\n",
             i,
@@ -285,7 +285,7 @@ void ResizeDepth(BasicRenderer* renderer, uint32_t width, uint32_t height)
             .array_layer_count = 1,
         };
         wisViewHeapWriteDepthStencil(&renderer->dsv_heap, &renderer->depth_texture[i], &dsv_desc, i);
-        barriers[i] = (WisTextureBarrier){
+        barriers[i] = (WisTextureBarrier) {
             .sync_before = WisBarrierSyncNone,
             .sync_after = WisBarrierSyncNone,
             .access_before = WisResourceAccessNone,
@@ -311,10 +311,10 @@ void ResizeDepth(BasicRenderer* renderer, uint32_t width, uint32_t height)
 
     // insert a fence
     result = wisCommandQueueSignalFence(
-        &renderer->gfx_queue,
-        wisGetFenceView(&renderer->aux_fence),
-        ++renderer->aux_fence_value
-    );
+                 &renderer->gfx_queue,
+                 wisGetFenceView(&renderer->aux_fence),
+                 ++renderer->aux_fence_value
+             );
     result = wisFenceWait(&renderer->aux_fence, renderer->aux_fence_value, UINT64_MAX);
 }
 
@@ -403,11 +403,11 @@ void InitRenderer(BasicRenderer* renderer, SDL_Window* window)
     WisInstanceExtensionHeader* extensions[] = {platform.platform_extension};
     WisInstance instance = {0};
     WisResult result = wisCreateInstance(
-        &debug_desc,
-        extensions,
-        sizeof(extensions) / sizeof(WisInstanceExtensionHeader*),
-        &instance
-    );
+                           &debug_desc,
+                           extensions,
+                           sizeof(extensions) / sizeof(WisInstanceExtensionHeader*),
+                           &instance
+                       );
     printf(
         "CreateInstance result: %d, platform_code: %d, error: %s\n",
         result.status,
@@ -433,10 +433,10 @@ void InitRenderer(BasicRenderer* renderer, SDL_Window* window)
 
     // Query format support and choose swapchain format
     bool present_support = wisDeviceGetFormatPresentationSupport(
-        &renderer->device,
-        wisGetSurfaceView(&surface),
-        WisDataFormatRGB10A2Unorm
-    );
+                               &renderer->device,
+                               wisGetSurfaceView(&surface),
+                               WisDataFormatRGB10A2Unorm
+                           );
     if (present_support) {
         renderer->swapchain_format = WisDataFormatRGB10A2Unorm;
         printf("Surface supports the desired swapchain format.\n");
@@ -458,12 +458,12 @@ void InitRenderer(BasicRenderer* renderer, SDL_Window* window)
         .composite_alpha = WisCompositeAlphaOpaque,
     };
     result = wisDeviceCreateSwapchain(
-        &renderer->device,
-        &surface,
-        &renderer->gfx_queue,
-        &swapchain_desc,
-        &renderer->swapchain
-    );
+                 &renderer->device,
+                 &surface,
+                 &renderer->gfx_queue,
+                 &swapchain_desc,
+                 &renderer->swapchain
+             );
 
     // Destroy instance as we no longer need it
     wisDestroySurface(&surface);
@@ -489,10 +489,10 @@ void InitRenderer(BasicRenderer* renderer, SDL_Window* window)
 
     for (uint32_t i = 0; i < FRAMES_IN_FLIGHT; ++i) {
         result = wisDeviceCreateCommandAllocator(
-            &renderer->device,
-            WisCommandQueueTypeGraphics,
-            &renderer->frames[i].command_allocator
-        );
+                     &renderer->device,
+                     WisCommandQueueTypeGraphics,
+                     &renderer->frames[i].command_allocator
+                 );
         printf(
             "CreateCommandAllocator[%u] result: %d, platform_code: %d, error: %s\n",
             i,
@@ -502,9 +502,9 @@ void InitRenderer(BasicRenderer* renderer, SDL_Window* window)
         );
 
         result = wisCommandAllocatorCreateCommandList(
-            &renderer->frames[i].command_allocator,
-            &renderer->frames[i].command_list
-        );
+                     &renderer->frames[i].command_allocator,
+                     &renderer->frames[i].command_list
+                 );
         printf(
             "CreateCommandList[%u] result: %d, platform_code: %d, error: %s\n",
             i,
@@ -578,10 +578,10 @@ void DestoyRenderer(BasicRenderer* renderer)
 {
     if (renderer->next_fence_value > 0) {
         WisResult result = wisCommandQueueSignalFence(
-            &renderer->gfx_queue,
-            wisGetFenceView(&renderer->fence),
-            ++renderer->next_fence_value
-        );
+                               &renderer->gfx_queue,
+                               wisGetFenceView(&renderer->fence),
+                               ++renderer->next_fence_value
+                           );
         printf(
             "Flush SignalFence result: %d, platform_code: %d, error: %s\n",
             result.status,
@@ -626,10 +626,10 @@ void DestoyRenderer(BasicRenderer* renderer)
 void WaitForFinish(BasicRenderer* renderer)
 {
     WisResult result = wisCommandQueueSignalFence(
-        &renderer->gfx_queue,
-        wisGetFenceView(&renderer->fence),
-        renderer->next_fence_value
-    );
+                           &renderer->gfx_queue,
+                           wisGetFenceView(&renderer->fence),
+                           renderer->next_fence_value
+                       );
     printf(
         "WaitForFinish SignalFence result: %d, platform_code: %d, error: %s\n",
         result.status,
@@ -667,10 +667,10 @@ void InitRenderTask(BasicRenderTask* task, BasicRenderer* renderer)
         .push_descriptor_count = 1,
     };
     WisResult result = wisDeviceCreateRootSignature(
-        &renderer->device,
-        &compute_root_signature_desc,
-        &task->compute_signature
-    );
+                           &renderer->device,
+                           &compute_root_signature_desc,
+                           &task->compute_signature
+                       );
     printf(
         "CreateRootSignature for ComputeShader result: %d, platform_code: %d, error: %s\n",
         result.status,
@@ -797,10 +797,10 @@ void InitResourceContainer(ResourceContainer* container, BasicRenderer* renderer
         .memory_type = WisMemoryTypeDeviceLocal,
     };
     WisResult result = wisResourceAllocatorCreateBuffer(
-        &renderer->allocator,
-        &particle_buffer_desc,
-        &container->particle_buffer
-    );
+                           &renderer->allocator,
+                           &particle_buffer_desc,
+                           &container->particle_buffer
+                       );
     printf(
         "Create ParticleBuffer result: %d, platform_code: %d, error: %s\n",
         result.status,
@@ -1009,10 +1009,12 @@ void Render(BasicRenderer* renderer, const ResourceContainer* resources, const B
     WisRenderPassDesc render_pass_desc = {
         .flags = 0,
         .render_targets =
-            {{.target = swap_rt,
-              .load_op = WisLoadOpClear,
-              .store_op = WisStoreOpStore,
-              .clear_value = {0.5f, 1.0f, 1.0f, 1.0f}}},
+        {   {   .target = swap_rt,
+                .load_op = WisLoadOpClear,
+                .store_op = WisStoreOpStore,
+                .clear_value = {0.5f, 1.0f, 1.0f, 1.0f}
+            }
+        },
         .render_target_count = 1,
         .depth_stencil = {
             .target = wisViewHeapGetViewAddress(&renderer->dsv_heap, renderer->frame_index),
@@ -1086,10 +1088,10 @@ void Render(BasicRenderer* renderer, const ResourceContainer* resources, const B
 
     frame->fence_value = renderer->next_fence_value;
     result = wisCommandQueueSignalFence(
-        &renderer->gfx_queue,
-        wisGetFenceView(&renderer->fence),
-        renderer->next_fence_value
-    );
+                 &renderer->gfx_queue,
+                 wisGetFenceView(&renderer->fence),
+                 renderer->next_fence_value
+             );
     print_info(
         "Frame[%u] SignalFence result: %d, platform_code: %d, error: %s\n",
         renderer->frame_index,
@@ -1155,7 +1157,8 @@ void HandleEvents(bool* running, BasicRenderer* renderer)
 
             ResizeDepth(renderer, update_desc.width, update_desc.height);
 
-        } break;
+        }
+        break;
         default:
             break;
         }
