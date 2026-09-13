@@ -24,5 +24,6 @@
  * \cond WIS_GEN_REFS
  * @see Functions:
  * wisDestroyResourceAllocator, wisDeviceGetResourceAllocator, wisResourceAllocatorCreateBuffer,
- * wisResourceAllocatorCreateTexture \endcond
+ * wisResourceAllocatorCreateTexture
+ * \endcond
  */

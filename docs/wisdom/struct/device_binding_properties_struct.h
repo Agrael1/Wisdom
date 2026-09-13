@@ -49,7 +49,8 @@
  * - `multiple_viewports_supported` indicates if multiple viewports are supported. If true, the device supports up to 16
  * viewports and scissor rectangles. If false, only one viewport and scissor rectangle is supported.
  * - `address_commands_supported` indicates if commands with buffer addresses are supported. If true, the device
- * supports commands that take buffer addresses directly, such as wisCommandListSetVertexBuffers2. \endcond
+ * supports commands that take buffer addresses directly, such as wisCommandListSetVertexBuffers2.
+ * \endcond
  *
  * @section WisDeviceBindingProperties_descr Description
  * <hr>

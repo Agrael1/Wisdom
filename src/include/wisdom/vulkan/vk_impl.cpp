@@ -10,6 +10,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDestroyBuffer(WisVKBuffer* self)
 {
     auto& impl = wis::from_handle_ref<wis::impl::VKBufferImpl>(self);
     if (impl.buffer != VK_NULL_HANDLE) {
+
         // get allocator
         VmaAllocator allocator = impl.device_header->header.allocator;
 

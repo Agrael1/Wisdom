@@ -1,3 +1,163 @@
+if (WIN32)
+    # Load NuGet.exe for Windows builds
+    function(_ww_load_nuget)
+        # Latest NuGet is at https://dist.nuget.org/win-x86-commandline/latest/nuget.exe
+        # Secure download with hash verification
+        set(FILE_URL "https://dist.nuget.org/win-x86-commandline/latest/nuget.exe")
+        set(FILE_PATH "${CMAKE_CURRENT_BINARY_DIR}/NuGet/NuGet.exe")
+        file(DOWNLOAD
+                ${FILE_URL}
+                ${FILE_PATH}
+                STATUS download_status
+                LOG download_log
+                TIMEOUT 300
+                TLS_VERIFY ON
+                TLS_VERSION 1.2
+        )
+
+        # Check download status
+        list(GET download_status 0 status_code)
+        if (NOT status_code EQUAL 0)
+            list(GET download_status 1 status_string)
+            message(FATAL_ERROR "Download failed: ${status_string}")
+        else ()
+            message(STATUS "File downloaded successfully to ${FILE_PATH}")
+        endif ()
+    endfunction(_ww_load_nuget)
+
+    # Find NuGet executable
+    function(_ww_find_nuget)
+        if (NOT WISDOM_WINDOWS)
+            return()
+        endif ()
+
+        # Check provided with WISDOM_NUGET_PATH
+        if (WISDOM_NUGET_PATH)
+            find_program(
+                    NUGET_EXE
+                    NAMES nuget
+                    PATHS ${WISDOM_NUGET_PATH})
+            if (NUGET_EXE)
+                message("NUGET.EXE found at WISDOM_NUGET_PATH: ${NUGET_EXE}")
+                return()
+            endif ()
+        endif()
+
+        find_program(
+                NUGET_EXE
+                NAMES nuget)
+        if (NUGET_EXE)
+            message("NUGET.EXE found: ${NUGET_EXE}")
+            return()
+        endif()
+
+        message("NUGET.EXE not found. Downloading...")
+        find_program(
+                NUGET_EXE
+                NAMES nuget
+                PATHS ${CMAKE_CURRENT_BINARY_DIR}/NuGet)
+
+        if (NOT NUGET_EXE)
+            _ww_load_nuget()
+            set(NUGET_EXE "${CMAKE_CURRENT_BINARY_DIR}/NuGet/NuGet.exe" CACHE INTERNAL "Path to NuGet.exe")
+        endif ()
+    endfunction(_ww_find_nuget)
+
+    # Load a NuGet dependency
+    function(_ww_load_nuget_dependency NUGET PLUGIN_NAME ALIAS OUT_DIR)
+        if (${ALIAS}_DIR)
+            message("${ALIAS}_DIR already set, skipping download.")
+            return()
+        endif ()
+
+        execute_process(COMMAND ${NUGET} install "${PLUGIN_NAME}" -OutputDirectory ${OUT_DIR})
+        file(GLOB PLUGIN_DIRS ${OUT_DIR}/${PLUGIN_NAME}.*)
+        list(LENGTH PLUGIN_DIRS PLUGIN_DIRS_L)
+        if (${PLUGIN_DIRS_L} GREATER 1)
+            #Sort directories by version in descending order, so the first dir is top version
+            list(SORT PLUGIN_DIRS COMPARE NATURAL ORDER DESCENDING)
+            list(GET PLUGIN_DIRS 0 PLUGIN_DIRX)
+
+            #Remove older version
+            MATH(EXPR PLUGIN_DIRS_L "${PLUGIN_DIRS_L}-1")
+            foreach (I RANGE 1 ${PLUGIN_DIRS_L})
+                list(GET PLUGIN_DIRS ${I} OLD)
+                file(REMOVE_RECURSE ${OLD})
+            endforeach ()
+        else ()
+            list(GET PLUGIN_DIRS 0 PLUGIN_DIRX)
+        endif ()
+
+        set(${ALIAS}_DIR ${PLUGIN_DIRX} CACHE STRING "${PLUGIN_NAME} PATH" FORCE)
+    endfunction(_ww_load_nuget_dependency)
+endif()
+
+# Function to download the latest DXC release from GitHub API
+function(_ww_load_latest_dxc)
+    if (dxc_SOURCE_DIR)
+        message(STATUS "DXC already downloaded, skipping.")
+        return()
+    endif ()
+
+    set(DXC_API_FILE "${CMAKE_CURRENT_BINARY_DIR}/dxc_latest_api.json")
+    file(DOWNLOAD
+        "https://api.github.com/repos/microsoft/DirectXShaderCompiler/releases/latest"
+        "${DXC_API_FILE}"
+        STATUS api_status
+    )
+
+    list(GET api_status 0 api_err)
+    if(api_err)
+        message(WARNING "Wisdom: Failed to query DXC latest release from GitHub API: ${api_status}")
+    endif()
+
+    file(READ "${DXC_API_FILE}" DXC_JSON)
+
+    # Take the first URL that ends with .zip (Windows release) from the JSON response
+    if(DXC_JSON AND DXC_JSON MATCHES "\"browser_download_url\":[ \t\r\n]*\"([^\"]+\\.zip)\"")
+        set(DXC_WINDOWS_LINK "${CMAKE_MATCH_1}")
+    else()
+        message(WARNING "Wisdom: Could not parse DXC zip URL from GitHub API response.")
+        set(DXC_WINDOWS_LINK "https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.9.2602/dxc_2026_02_20.zip")
+    endif()
+
+    # Take the first URL that ends with .tar.gz (Linux release) from the JSON response
+    if(DXC_JSON AND DXC_JSON MATCHES "\"browser_download_url\":[ \t\r\n]*\"([^\"]+\\.tar\\.gz)\"")
+        set(DXC_LINUX_LINK "${CMAKE_MATCH_1}")
+    else()
+        message(WARNING "Wisdom: Could not parse DXC tar.gz URL from GitHub API response.")
+        set(DXC_LINUX_LINK "https://github.com/microsoft/DirectXShaderCompiler/releases/download/v1.9.2602/linux_dxc_2026_02_20.x86_64.tar.gz")
+    endif()
+
+    if (WISDOM_WINDOWS)
+        set(DXC_LINK ${DXC_WINDOWS_LINK})
+    else ()
+        set(DXC_LINK ${DXC_LINUX_LINK})
+    endif ()
+
+
+    # Download DXC using CPM
+    include(FetchContent)
+    FetchContent_Declare(
+        dxc
+        URL "${DXC_LINK}"
+        DOWNLOAD_EXTRACT_TIMESTAMP TRUE
+    )
+    FetchContent_MakeAvailable(dxc)
+    set(dxc_SOURCE_DIR ${dxc_SOURCE_DIR} CACHE INTERNAL "")
+
+    if (WIN32)
+        set(DXC_EXECUTABLE
+                ${dxc_SOURCE_DIR}/bin/x64/dxc.exe
+                CACHE INTERNAL "")
+    else ()
+        set(DXC_EXECUTABLE
+                ${dxc_SOURCE_DIR}/bin/dxc
+                CACHE INTERNAL "")
+    endif ()
+endfunction()
+
+
 # Function to detect platform and set relevant variables
 function(wisdom_detect_platform)
     set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/ecm")
@@ -76,85 +236,67 @@ function(wisdom_detect_platform)
 endfunction()
 
 
-# Function for installing DirectX SDK for UWP
-function(wis_export_agility_file)
-    set(options)
-    set(oneValueArgs PATH)
+
+# Function to load DXC
+# Arguments:
+#   DOWNLOAD_LATEST: Download the latest DXC from GitHub
+#   DXC_PATH: Custom path to DXC installation (should contain bin/dxc.exe or bin/dxc)
+function(wis_load_dxc)
+    set(options DOWNLOAD_LATEST)
+    set(oneValueArgs DXC_PATH)
     set(multiValueArgs)
+    cmake_parse_arguments(wis_load_dxc "${options}" "${oneValueArgs}"
+            "${multiValueArgs}" ${ARGN})
 
-    cmake_parse_arguments(wis_export_agility_file
-            "${options}" "${oneValueArgs}" "${multiValueArgs}"
-            ${ARGN})
+    # If DXC is already configured, skip loading
+    if (DXC_EXECUTABLE)
+        return()
+    endif()
 
-    get_property(DX12SDKVER TARGET wis::DX12Agility PROPERTY DX12SDKVER)
+    # Error if none of the above are available
 
-    set(EXPORT_AGILITY "_declspec(dllexport) const unsigned D3D12SDKVersion = ${DX12SDKVER};
-						_declspec(dllexport) const char* D3D12SDKPath = \".\\\\D3D12\\\\\";"
-    )
-    file(WRITE ${wis_export_agility_file_PATH} "${EXPORT_AGILITY}")
+    # Option 1: DOWNLOAD_LATEST (highest priority)
+    if (wis_load_dxc_DOWNLOAD_LATEST)
+        message(STATUS "DOWNLOAD_LATEST option enabled, downloading latest DXC from GitHub")
+        _ww_load_latest_dxc()
+        return()
+    endif()
+
+    # Option 2: Custom DXC path (DXC_PATH)
+    if (WISDOM_DXC_PATH)
+        # Verify that the executable exists
+        if (NOT EXISTS ${DXC_EXECUTABLE})
+            message(WARNING "Custom DXC executable not found at: ${DXC_EXECUTABLE}")
+            message(FATAL_ERROR "Please verify WISDOM_DXC_PATH is correct")
+        else ()
+            message(STATUS "Found custom DXC executable: ${DXC_EXECUTABLE}")
+        endif ()
+
+        message(STATUS "Using custom DXC path: ${WISDOM_DXC_PATH}")
+        if (WIN32)
+            set(DXC_EXECUTABLE "${WISDOM_DXC_PATH}/bin/dxc.exe" CACHE INTERNAL "")
+        else ()
+            set(DXC_EXECUTABLE "${WISDOM_DXC_PATH}/bin/dxc" CACHE INTERNAL "")
+        endif ()
+        return()
+    endif()
+
+    # Option 3: Try to use Vulkan SDK's DXC (if WISDOM_VULKAN is enabled and no custom path)
+    if (WISDOM_VULKAN AND Vulkan_dxc_EXECUTABLE)
+        # Use Vulkan SDK's DXC
+        find_program(DXCOMPILER dxc HINTS ${Vulkan_dxc_EXECUTABLE} ENV VULKAN_SDK PATH_SUFFIXES bin)
+
+        if (DXCOMPILER)
+            message(STATUS "Found Vulkan SDK DXC: ${DXCOMPILER}")
+            set(DXC_EXECUTABLE ${DXCOMPILER} CACHE INTERNAL "")
+        else ()
+            message(FATAL_ERROR "Vulkan SDK DXC not found in Vulkan SDK")
+        endif ()
+    endif()
+
+    # Error if DXC_EXECUTABLE is still not set
+    message(FATAL_ERROR "DXC executable not found. Please configure DXC using wis_load_dxc() with either DOWNLOAD_LATEST or DXC_PATH options, or ensure that the Vulkan SDK is installed and contains DXC.")
 endfunction()
-
-function(wis_make_exports_dx PROJECT)
-    wis_export_agility_file(PATH ${CMAKE_CURRENT_BINARY_DIR}/exports.c)
-
-    target_sources(${PROJECT} PRIVATE
-            ${CMAKE_CURRENT_BINARY_DIR}/exports.c
-    )
-endfunction()
-
-function(wis_install_dx_uwp PROJECT)
-    message("Installing DirectX Agility SDK Dependency")
-    wis_export_agility_file(PATH "${CMAKE_CURRENT_BINARY_DIR}/exports.c")
-
-    target_sources(${PROJECT} PRIVATE
-            ${CMAKE_CURRENT_BINARY_DIR}/exports.c
-    )
-
-    message("DX12AgilityCore: ${DXAGILITY_DLL}")
-    set_property(SOURCE ${DXAGILITY_DLL} PROPERTY VS_DEPLOYMENT_CONTENT 1)
-    set_property(SOURCE ${DXAGILITY_DLL} PROPERTY VS_DEPLOYMENT_LOCATION "D3D12")
-    target_sources(${PROJECT} PRIVATE ${DXAGILITY_DLL})
-
-    message("DX12AgilitySDKLayers: ${DXAGILITY_DEBUG_DLL}")
-    set_property(SOURCE ${DXAGILITY_DEBUG_DLL} PROPERTY VS_DEPLOYMENT_CONTENT 1)
-    set_property(SOURCE ${DXAGILITY_DEBUG_DLL} PROPERTY VS_DEPLOYMENT_LOCATION "D3D12")
-    target_sources(${PROJECT} PRIVATE ${DXAGILITY_DEBUG_DLL})
-endfunction()
-
-# Function for installing DirectX SDK
-function(wis_install_dx_win32 PROJECT)
-    message("Installing DirectX Agility SDK Dependency")
-    wis_export_agility_file(PATH "${CMAKE_CURRENT_BINARY_DIR}/exports.c")
-
-    target_sources(${PROJECT} PRIVATE
-            ${CMAKE_CURRENT_BINARY_DIR}/exports.c
-    )
-
-    get_filename_component(DXAGILITY_DLL_NAME ${DXAGILITY_DLL} NAME)
-    add_custom_command(TARGET ${PROJECT} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DXAGILITY_DLL} $<TARGET_FILE_DIR:${PROJECT}>/D3D12/${DXAGILITY_DLL_NAME}
-            COMMAND_EXPAND_LISTS
-            COMMENT "Copying DX12 Agility Core..."
-    )
-
-
-    get_filename_component(DXAGILITY_DEBUG_DLL_NAME ${DXAGILITY_DEBUG_DLL} NAME)
-    add_custom_command(TARGET ${PROJECT} POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy ${DXAGILITY_DEBUG_DLL} $<TARGET_FILE_DIR:${PROJECT}>/D3D12/${DXAGILITY_DEBUG_DLL_NAME}
-            COMMAND_EXPAND_LISTS
-            COMMENT "Copying DX12 Agility SDKLayers..."
-    )
-endfunction()
-
-# Function for installing Wisdom Dependencies
-function(wis_install_deps PROJECT)
-    if (WIN32 AND NOT WINDOWS_STORE)
-        wis_install_dx_win32(${PROJECT})
-    elseif (WINDOWS_STORE)
-        wis_install_dx_uwp(${PROJECT})
-    endif (WIN32 AND NOT WINDOWS_STORE)
-endfunction()
-
 
 # Function for compiling shaders
 # Arguments:
@@ -174,12 +316,13 @@ function(wis_compile_shader)
     cmake_parse_arguments(wis_compile_shader "${options}" "${oneValueArgs}"
             "${multiValueArgs}" ${ARGN})
 
-    if (NOT wis_compile_shader_DXC)
-        if (NOT DXC_EXECUTABLE)
-            find_program(wis_compile_shader_DXC dxc)
+    if (NOT wis_compile_shader_DXC OR NOT EXISTS ${wis_compile_shader_DXC})
+        if (DXC_EXECUTABLE)
+            set (wis_compile_shader_DXC ${DXC_EXECUTABLE})
         else ()
-            set(wis_compile_shader_DXC ${DXC_EXECUTABLE})
-        endif ()
+            message(FATAL_ERROR "wis_compile_shader: DXC not found. "
+                "Please configure DXC using wis_load_dxc(), or provide a valid DXC path via DXC argument.")
+        endif()
     endif ()
 
     if (NOT wis_compile_shader_TARGET)
@@ -279,4 +422,171 @@ function(wis_compile_shader)
             COMMENT "SPV ${SHADER}"
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             VERBATIM)
+endfunction()
+
+# Function to load DirectX 12 Agility SDK using NuGet
+# Creates 3 targets:
+# - DX12AgilityCore: The core Agility DLL (D3D12Core.dll)
+# - DX12AgilitySDKLayers: The SDK Layers DLL (d3d12SDKLayers.dll)
+# - DX12Agility: A helper static library that includes the Agility headers, for easy consumption by users. This is the main target that users should link against.
+function(wis_load_agility_sdk)
+    if (NOT WISDOM_WINDOWS)
+        return()
+    endif ()
+
+    _ww_find_nuget()
+
+    # DirectX 12 Agility SDK
+    message("Setting up DirectX 12 Agility...")
+    _ww_load_nuget_dependency(${NUGET_EXE} "Microsoft.Direct3D.D3D12" DXA
+            ${CMAKE_CURRENT_BINARY_DIR})
+
+    string(REGEX MATCH "([0-9]+)\\.([0-9]+)\\.([0-9]+)$" VERSION_MATCH ${DXA_DIR})
+
+    message("Agility version: ${CMAKE_MATCH_1}.${CMAKE_MATCH_2}.${CMAKE_MATCH_3}")
+    set(DXA_VERSION
+            ${CMAKE_MATCH_1}.${CMAKE_MATCH_2}.${CMAKE_MATCH_3}
+            CACHE INTERNAL "")
+    set(VERSION_MINOR
+            ${CMAKE_MATCH_2}
+            CACHE INTERNAL "")
+
+    set(DXA_HEADERS ${DXA_DIR}/build/native/include)
+    set(DXA_SRC ${DXA_DIR}/build/native/src)
+    set(DXA_BIN ${DXA_DIR}/build/native/bin/x64)
+    set(DXAGILITY_DLL
+            ${DXA_BIN}/D3D12Core.dll
+            CACHE INTERNAL "")
+    set(DXAGILITY_DEBUG_DLL
+            ${DXA_BIN}/d3d12SDKLayers.dll
+            CACHE INTERNAL "")
+
+    add_library(DX12AgilityCore MODULE IMPORTED GLOBAL)
+    set_property(TARGET DX12AgilityCore PROPERTY IMPORTED_LOCATION
+            ${DXAGILITY_DLL})
+
+    add_library(DX12AgilitySDKLayers MODULE IMPORTED GLOBAL)
+    set_property(TARGET DX12AgilitySDKLayers PROPERTY IMPORTED_LOCATION
+            ${DXAGILITY_DEBUG_DLL})
+
+    # Header interface library
+    add_library(DX12Agility STATIC)
+    add_library(wis::DX12Agility ALIAS DX12Agility)
+
+    target_include_directories(
+            DX12Agility SYSTEM BEFORE
+            PUBLIC $<BUILD_INTERFACE:${DXA_HEADERS}> $<INSTALL_INTERFACE:include/d3dx12>
+            PRIVATE $<BUILD_INTERFACE:${DXA_HEADERS}/d3dx12>)
+    target_sources(DX12Agility
+            PRIVATE ${DXA_SRC}/d3dx12/d3dx12_property_format_table.cpp)
+    target_compile_definitions(DX12Agility PUBLIC
+            DX12SDKVER=${VERSION_MINOR}
+    )
+    install(
+            TARGETS DX12Agility
+            EXPORT wisdom-targets
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+            LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+            PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+    install(
+            IMPORTED_RUNTIME_ARTIFACTS
+            DX12AgilityCore
+            DX12AgilitySDKLayers
+            RUNTIME
+            DESTINATION
+            ${CMAKE_INSTALL_BINDIR}
+            LIBRARY
+            DESTINATION
+            ${CMAKE_INSTALL_BINDIR})
+
+    install(DIRECTORY ${DXA_HEADERS}/ DESTINATION include/d3dx12)
+
+    set_target_properties(DX12Agility PROPERTIES
+        DX12SDKVER ${VERSION_MINOR}
+        DEBUG_POSTFIX d
+    )
+
+    set_property(
+        TARGET DX12Agility
+        APPEND
+        PROPERTY EXPORT_PROPERTIES DX12SDKVER)
+
+endfunction()
+
+# Function for patching executable to export DX12 Agility symbols on Windows
+function(wis_patch_agility_executable TARGET EXPORT_PATH)
+    if (NOT WISDOM_WINDOWS)
+        return()
+    endif()
+
+    get_target_property(target_type ${TARGET} TYPE)
+
+    if(NOT target_type STREQUAL "EXECUTABLE")
+        message(FATAL_ERROR "Target ${TARGET} is not an executable. DX12 Agility patching can only be applied to executables.")
+    endif()
+
+    # Check if the DX12Agility target is available
+    if (NOT TARGET DX12Agility)
+        message(FATAL_ERROR "DX12Agility target not found. Make sure to call wis_load_agility_sdk() before patching the executable.")
+    endif()
+
+    # Generate a source file that exports the required symbols for the DX12 Agility SDK. This is necessary to ensure that the application can load the Agility DLLs at runtime.
+    get_property(DX12SDKVER TARGET DX12Agility PROPERTY DX12SDKVER)
+    set(EXPORT_AGILITY "_declspec(dllexport) const unsigned D3D12SDKVersion = ${DX12SDKVER};
+						_declspec(dllexport) const char* D3D12SDKPath = \".\\\\D3D12\\\\\";"
+    )
+    file(WRITE ${EXPORT_PATH} "${EXPORT_AGILITY}")
+
+    # Add the generated file to the target sources to ensure it's compiled and linked into the executable
+    target_sources(${TARGET} PRIVATE ${EXPORT_PATH})
+endfunction()
+
+# Function for installing DirectX SDK
+# Arguments:
+#   TARGET: Target to copy the DLLs to
+#   PATCH_EXE: Whether to patch the executable to export the DX12 Agility symbols (default: OFF)
+function(wis_install_agility_win32)
+    cmake_parse_arguments(wis_install_agility_win32 "PATCH_EXE" "TARGET"
+            "" ${ARGN})
+
+    # Check if project is an executable
+    if (NOT TARGET ${wis_install_agility_win32_TARGET})
+        message(FATAL_ERROR "Target ${wis_install_agility_win32_TARGET} not found")
+    endif()
+
+    get_target_property(target_type ${wis_install_agility_win32_TARGET} TYPE)
+
+    if(NOT target_type STREQUAL "EXECUTABLE")
+        message(FATAL_ERROR "Target ${wis_install_agility_win32_TARGET} is not an executable. DX12 Agility patching can only be applied to executables.")
+    endif()
+
+    message("Installing DirectX Agility SDK Dependency")
+    if (EXISTS ${DXAGILITY_DLL})
+        message("DX12 Agility Core found: ${DXAGILITY_DLL}")
+        get_filename_component(DXAGILITY_DLL_NAME ${DXAGILITY_DLL} NAME)
+        add_custom_command(TARGET ${wis_install_agility_win32_TARGET} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DXAGILITY_DLL} $<TARGET_FILE_DIR:${wis_install_agility_win32_TARGET}>/D3D12/${DXAGILITY_DLL_NAME}
+                COMMAND_EXPAND_LISTS
+                COMMENT "Copying DX12 Agility Core..."
+        )
+    endif()
+
+    if (EXISTS ${DXAGILITY_DEBUG_DLL})
+        message("DX12 Agility SDKLayers found: ${DXAGILITY_DEBUG_DLL}")
+        get_filename_component(DXAGILITY_DEBUG_DLL_NAME ${DXAGILITY_DEBUG_DLL} NAME)
+        add_custom_command(TARGET ${wis_install_agility_win32_TARGET} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy ${DXAGILITY_DEBUG_DLL} $<TARGET_FILE_DIR:${wis_install_agility_win32_TARGET}>/D3D12/${DXAGILITY_DEBUG_DLL_NAME}
+                COMMAND_EXPAND_LISTS
+                COMMENT "Copying DX12 Agility SDKLayers..."
+        )
+    endif()
+
+    if (wis_install_agility_win32_PATCH_EXE)
+        wis_patch_agility_executable(
+            ${wis_install_agility_win32_TARGET}
+            ${CMAKE_CURRENT_BINARY_DIR}/export_agility.c
+        )
+    endif()
 endfunction()

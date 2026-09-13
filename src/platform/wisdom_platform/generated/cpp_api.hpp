@@ -82,7 +82,7 @@ class DX12Win32Extension
 {
 public:
     DX12Win32Extension() noexcept
-        : ImplType(std::in_place)
+        : ImplType(wis::in_place)
     {
         ::wisDX12InitWin32Extension(GetStorage());
     }
@@ -102,7 +102,7 @@ public:
         wis::Result& out_result
     ) noexcept
     {
-        wis::DX12Surface surface;
+        wis::DX12Surface surface{};
         const WisResult wis_result = ::wisDX12Win32ExtensionCreateSurface(
             &_impl_storage,
             reinterpret_cast<const WisWin32WindowDesc*>(&info),
@@ -136,7 +136,7 @@ class DX12UWPExtension
 {
 public:
     DX12UWPExtension() noexcept
-        : ImplType(std::in_place)
+        : ImplType(wis::in_place)
     {
         ::wisDX12InitUWPExtension(GetStorage());
     }
@@ -156,7 +156,7 @@ public:
         wis::Result& out_result
     ) noexcept
     {
-        wis::DX12Surface surface;
+        wis::DX12Surface surface{};
         const WisResult wis_result = ::wisDX12UWPExtensionCreateSurface(
             &_impl_storage,
             reinterpret_cast<const WisUWPWindowDesc*>(&info),
@@ -190,7 +190,7 @@ class VKXlibExtension
 {
 public:
     VKXlibExtension() noexcept
-        : ImplType(std::in_place)
+        : ImplType(wis::in_place)
     {
         ::wisVKInitXlibExtension(GetStorage());
     }
@@ -207,7 +207,7 @@ public:
      * */
     WIS_NODISCARD inline wis::VKSurface CreateSurface(const wis::XlibWindowDesc& info, wis::Result& out_result) noexcept
     {
-        wis::VKSurface surface;
+        wis::VKSurface surface{};
         const WisResult wis_result = ::wisVKXlibExtensionCreateSurface(
             &_impl_storage,
             reinterpret_cast<const WisXlibWindowDesc*>(&info),
@@ -240,7 +240,7 @@ class VKXCBExtension
 {
 public:
     VKXCBExtension() noexcept
-        : ImplType(std::in_place)
+        : ImplType(wis::in_place)
     {
         ::wisVKInitXCBExtension(GetStorage());
     }
@@ -257,7 +257,7 @@ public:
      * */
     WIS_NODISCARD inline wis::VKSurface CreateSurface(const wis::XCBWindowDesc& info, wis::Result& out_result) noexcept
     {
-        wis::VKSurface surface;
+        wis::VKSurface surface{};
         const WisResult wis_result = ::wisVKXCBExtensionCreateSurface(
             &_impl_storage,
             reinterpret_cast<const WisXCBWindowDesc*>(&info),
@@ -291,7 +291,7 @@ class VKWaylandExtension
 {
 public:
     VKWaylandExtension() noexcept
-        : ImplType(std::in_place)
+        : ImplType(wis::in_place)
     {
         ::wisVKInitWaylandExtension(GetStorage());
     }
@@ -311,7 +311,7 @@ public:
         wis::Result& out_result
     ) noexcept
     {
-        wis::VKSurface surface;
+        wis::VKSurface surface{};
         const WisResult wis_result = ::wisVKWaylandExtensionCreateSurface(
             &_impl_storage,
             reinterpret_cast<const WisWaylandWindowDesc*>(&info),
@@ -344,7 +344,7 @@ class VKWin32Extension
 {
 public:
     VKWin32Extension() noexcept
-        : ImplType(std::in_place)
+        : ImplType(wis::in_place)
     {
         ::wisVKInitWin32Extension(GetStorage());
     }
@@ -364,7 +364,7 @@ public:
         wis::Result& out_result
     ) noexcept
     {
-        wis::VKSurface surface;
+        wis::VKSurface surface{};
         const WisResult wis_result = ::wisVKWin32ExtensionCreateSurface(
             &_impl_storage,
             reinterpret_cast<const WisWin32WindowDesc*>(&info),

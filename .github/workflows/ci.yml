@@ -34,7 +34,7 @@ jobs:
       
       - name: Configure CMake
         run: cmake --preset win-msvc-release
-      
+
       - name: Build
         run: cmake --build --preset win-msvc-release
 

@@ -8,14 +8,7 @@ set(WISDOM_CORE_DEFINITIONS
     $<BUILD_INTERFACE:$<$<BOOL:${WISDOM_VULKAN}>:WISDOM_VULKAN=1>>)
 
 if(WISDOM_DX12)
-  list(
-    APPEND
-    WISDOM_CORE_LIBS
-    DXGI
-    DXGUID
-    d3d12
-    DX12Allocator
-    DX12Agility)
+  list(APPEND WISDOM_CORE_LIBS DXGI DXGUID d3d12 GPUOpen::D3D12MemoryAllocator)
 
   list(
     APPEND
@@ -117,7 +110,6 @@ if(WISDOM_BUILD_SHARED)
     wisdom-shared
     PROPERTIES CXX_STANDARD 20
                POSITION_INDEPENDENT_CODE ON
-               # UNITY_BUILD ON
                DEBUG_POSTFIX d)
 
   include(GenerateExportHeader)

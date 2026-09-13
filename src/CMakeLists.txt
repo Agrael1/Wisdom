@@ -4,3 +4,5 @@ add_subdirectory(include)
 if(WISDOM_BUILD_PLATFORM)
   add_subdirectory(platform)
 endif()
+
+add_subdirectory(extensions)

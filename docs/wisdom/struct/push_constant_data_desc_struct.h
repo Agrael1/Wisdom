@@ -43,7 +43,8 @@
  * - `data_size` defines the size of the data in bytes. It @wis_must be less than or equal to the maximum push constant
  * size defined by the device and 4-byte aligned.
  * - `push_offset` specifies the offset in bytes from the start of the push constant root parameter to set the data to.
- * It @wis_must be less than the maximum push constant size defined by the device and 4-byte aligned. \endcond
+ * It @wis_must be less than the maximum push constant size defined by the device and 4-byte aligned.
+ * \endcond
  *
  * @section WisPushConstantDataDesc_descr Description
  * <hr>

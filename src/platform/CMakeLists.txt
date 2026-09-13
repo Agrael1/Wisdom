@@ -26,8 +26,8 @@ target_include_directories(
             $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 target_link_libraries(wisdom-platform-headers INTERFACE wis::wisdom-headers)
-target_compile_definitions(
-  wisdom-platform-headers INTERFACE WISDOM_PLATFORM_STATIC=1)
+target_compile_definitions(wisdom-platform-headers
+                           INTERFACE WISDOM_PLATFORM_STATIC=1)
 
 install(
   TARGETS wisdom-platform-headers
@@ -49,9 +49,8 @@ if(WISDOM_BUILD_STATIC)
     wisdom-platform PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
                            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
-  set_target_properties(
-    wisdom-platform PROPERTIES CXX_STANDARD 20 # UNITY_BUILD ON
-                               DEBUG_POSTFIX d)
+  set_target_properties(wisdom-platform PROPERTIES CXX_STANDARD 20 DEBUG_POSTFIX
+                                                                   d)
 
   install(
     TARGETS wisdom-platform
@@ -67,7 +66,7 @@ if(WISDOM_BUILD_SHARED)
   add_library(wisdom-platform-shared SHARED ${WISDOM_PLATFORM_SOURCES})
   add_library(wis::wisdom-platform-shared ALIAS wisdom-platform-shared)
 
-  target_link_libraries(wisdom-platform-shared PRIVATE wisdom)
+  target_link_libraries(wisdom-platform-shared PRIVATE wisdom-shared)
   target_include_directories(
     wisdom-platform-shared
     PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
@@ -80,7 +79,6 @@ if(WISDOM_BUILD_SHARED)
   set_target_properties(
     wisdom-platform-shared
     PROPERTIES CXX_STANDARD 20
-               # UNITY_BUILD ON
                POSITION_INDEPENDENT_CODE ON
                DEBUG_POSTFIX d)
 

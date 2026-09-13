@@ -28,5 +28,6 @@
  * wisDeviceCreateViewHeap, wisDeviceQueryProperties, wisDeviceWaitForMultipleFences, wisDeviceCreatePipelineCache,
  * wisDeviceCreateShader, wisDeviceCreateComputePipeline, wisDeviceCreateGraphicsPipeline,
  * wisDeviceGetFormatPresentationSupport, wisDeviceGetSurfaceParameters, wisDeviceCreateSwapchain,
- * wisDeviceGetFormatProperties \endcond
+ * wisDeviceGetFormatProperties
+ * \endcond
  */

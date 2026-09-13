@@ -28,7 +28,7 @@ TEST_CASE("check_platform_support")
     );
 
     // Expect partial success
-    REQUIRE(result.status >= 0); 
+    REQUIRE(result.status >= 0);
 
 #ifdef WISDOM_WINDOWS
     printf("XCB supported: %s\n", wisXCBExtensionSupported(&xcb_extension) ? "Yes" : "No");
@@ -43,7 +43,6 @@ TEST_CASE("check_platform_support")
     bool wayland_supported = wisWaylandExtensionSupported(&wayland_extension);
     bool win32_supported = wisWin32ExtensionSupported(&win32_extension);
 
-
     printf("XCB supported: %s\n", xcb_supported ? "Yes" : "No");
     printf("Xlib supported: %s\n", xlib_supported ? "Yes" : "No");
     printf("Wayland supported: %s\n", wayland_supported ? "Yes" : "No");
@@ -52,4 +51,17 @@ TEST_CASE("check_platform_support")
     // At least one of the Linux surface extensions should be supported
     REQUIRE(xcb_supported || xlib_supported || wayland_supported);
 #endif
+
+    wisDestroyInstance(&instance);
+    REQUIRE(!wisHandleValid(&instance));
+
+    wisDestroyXCBExtension(&xcb_extension);
+    wisDestroyXlibExtension(&xlib_extension);
+    wisDestroyWaylandExtension(&wayland_extension);
+    wisDestroyWin32Extension(&win32_extension);
+
+    REQUIRE(!wisHandleValid(&xcb_extension));
+    REQUIRE(!wisHandleValid(&xlib_extension));
+    REQUIRE(!wisHandleValid(&wayland_extension));
+    REQUIRE(!wisHandleValid(&win32_extension));
 }

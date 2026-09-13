@@ -9,22 +9,22 @@
  * \cond WIS_GEN_CODE
  *  C Version:
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * bool wisXCBExtensionSupported(WisXCBExtension* self);
  * ```
  * <details>
  * <summary>C Implementation Specific Version:</summary>
  * ```c
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * bool wisVKXCBExtensionSupported(WisVKXCBExtension* self);
- * 
+ *
  * ```
  * </details>
- * 
+ *
  * C++ Version:
  * ```cpp
  * namespace wis{
- * // Provided by Wisdom 0.7.0. 
+ * // Provided by Wisdom 0.7.0.
  * WIS_NODISCARD bool VKXCBExtension::Supported() noexcept;
  * }
  * ```
@@ -34,7 +34,7 @@
  * <hr>
  * \cond WIS_GEN_DESC
  * - **this** `self` self is a pointer to the valid WisXCBExtension instance.
- * 
+ *
  * - **return** true if the extension is supported, false otherwise.
  * \endcond
  *

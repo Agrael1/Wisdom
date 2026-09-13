@@ -1,7 +1,6 @@
 #ifndef WIS_DX12_DEVICE_CPP
 #define WIS_DX12_DEVICE_CPP
 
-#include <wisdom/bridge/format.hpp>
 #include <wisdom/dx12/detail/dx12_detail.hpp>
 #include <wisdom/dx12/detail/dx12_utils.hpp>
 #include <wisdom/generated/cpp_api.hpp>
@@ -10,7 +9,11 @@
 #include <wisdom/util/com_ptr.hpp>
 #include <wisdom/util/xxhash.h>
 
-#include <d3dx12/d3dx12_pipeline_state_stream.h>
+#ifdef DX12SDKVER
+#    include <d3dx12/d3dx12_pipeline_state_stream.h>
+#else
+#    include <directx/d3dx12_pipeline_state_stream.h>
+#endif
 
 #include <bit>
 #include <cassert>
@@ -471,9 +474,9 @@ WIS_EXTERN_C WISDOM_API void wisDX12DeviceQueryProperties(const WisDX12Device* s
             if (wis::detail::succeeded(
                     device.device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS16, &options16, sizeof(options16))
                 )) {
+
                 props->gpu_upload_supported = options16.GPUUploadHeapSupported;
                 props->host_image_copy_supported = options16.GPUUploadHeapSupported;
-                props->supported_initial_transitions = 0b0001'1111'1111'1111; // All thansitions are supported
             }
         } break;
         case WisQueryPropertyTypeDeviceBindingProperties: {
@@ -650,7 +653,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateComputePipeline(
     wis::com_ptr<ID3D12PipelineState> pipeline_state;
 
     // Calculate hash of pipeline state description for caching purposes
-    wchar_t name_buffer[256] = {};
+    static constexpr std::size_t hash_input_size = 256;
+    wchar_t name_buffer[hash_input_size] = {};
 
     if (cache) {
         // Get root signature hash
@@ -670,7 +674,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateComputePipeline(
         XXH128_hash_t pso_hash = XXH3_128bits(rehash_input, sizeof(rehash_input));
 
         // convert hash to hex string for use as pipeline cache key
-        wis::format_to(name_buffer, L"CPSO_{:016x}{:016x}", pso_hash.low64, pso_hash.high64);
+        std::swprintf(name_buffer, hash_input_size, L"CPSO_%016llx%016llx", pso_hash.low64, pso_hash.high64);
 
         // Try to load pipeline from cache first if available
         HRESULT hr = cache->LoadPipeline(
@@ -979,7 +983,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(
     };
     wis::com_ptr<ID3D12PipelineState> pipeline_state;
 
-    wchar_t name_buffer[128] = {};
+    static constexpr std::size_t hash_input_size = 256;
+    wchar_t name_buffer[hash_input_size] = {};
     if (cache) {
         uint32_t name_offset = 0; // max 7
         struct RehashInput {
@@ -1024,7 +1029,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12DeviceCreateGraphicsPipeline(
         XXH128_hash_t pso_hash = XXH3_128bits(&rehash_input, sizeof(rehash_input));
 
         // convert hash to hex string for use as pipeline cache key
-        wis::format_to(name_buffer + name_offset, L"PSO_{:016x}{:016x}", pso_hash.low64, pso_hash.high64);
+        std::swprintf(
+            name_buffer + name_offset,
+            hash_input_size - name_offset,
+            L"PSO_%016llx%016llx",
+            pso_hash.low64,
+            pso_hash.high64
+        );
 
         // Try to load pipeline from cache first if available
         HRESULT hr = cache->LoadPipeline(

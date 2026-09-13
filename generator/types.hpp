@@ -105,7 +105,7 @@ struct WisEnumValue {
     std::string_view doc;
     std::string_view version;
     std::array<std::string_view, 3> converts;
-    int64_t value = 0;
+    std::string_view value;
 };
 struct WisEnum {
     std::string_view name;
@@ -153,6 +153,7 @@ struct WisStructMember {
     std::string_view type;
     std::string_view array_size;
     Modifier modifier;
+    uint32_t bits; // for bitfield
     std::string_view default_value;
     std::string_view doc;
 };
@@ -188,6 +189,7 @@ struct WisHandle {
     Extends extends = Extends::None; // handle for extension
     std::array<uint32_t, 2> sizes{};
     std::array<uint32_t, 2> view_sizes{};
+    std::string_view view_override; // optional
 
     std::list<std::string> functions; // must be string to hold destructors
 

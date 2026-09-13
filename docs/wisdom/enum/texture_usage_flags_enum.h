@@ -18,6 +18,9 @@
  *     WisTextureUsageFlagsShaderResource = (1u << 4),
  *     WisTextureUsageFlagsUnorderedAccess = (1u << 5),
  *     WisTextureUsageFlagsHostCopy = (1u << 7),
+ *     WisTextureUsageFlagsVideoDecodeDst = (1u << 6),
+ *     WisTextureUsageFlagsVideoDecodeSrc = (1u << 8),
+ *     WisTextureUsageFlagsVideoDecodeDpb = (1u << 9),
  * } WisTextureUsageFlags;
  * ```
  * C++ version:
@@ -33,6 +36,9 @@
  *     ShaderResource = (1u << 4),
  *     UnorderedAccess = (1u << 5),
  *     HostCopy = (1u << 7),
+ *     VideoDecodeDst = (1u << 6),
+ *     VideoDecodeSrc = (1u << 8),
+ *     VideoDecodeDpb = (1u << 9),
  * };
  * }
  * ```
@@ -55,6 +61,9 @@
  * - `WisTextureUsageFlagsShaderResource = (1 << 4)`: Texture is used as a shader resource.
  * - `WisTextureUsageFlagsUnorderedAccess = (1 << 5)`: Texture is used as an unordered access resource.
  * - `WisTextureUsageFlagsHostCopy = (1 << 7)`: Texture is used for host copy operations. Works with GPUUpload heap.
+ * - `WisTextureUsageFlagsVideoDecodeDst = (1 << 6)`: Texture is used as a destination for video decode operations.
+ * - `WisTextureUsageFlagsVideoDecodeSrc = (1 << 8)`: Texture is used as a source for video decode operations.
+ * - `WisTextureUsageFlagsVideoDecodeDpb = (1 << 9)`: Texture is used as a DPB storage for video decode.
  * \endcond
  *
  *

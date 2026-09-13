@@ -706,12 +706,31 @@ WIS_EXTERN_C WISDOM_API void wisVKDeviceQueryProperties(const WisVKDevice* self,
         case WisQueryPropertyTypeDeviceMemoryProperties: {
             auto* props = static_cast<WisDeviceMemoryProperties*>(next);
             props->host_image_copy_supported = header.features.host_image_copy;
-            props->supported_initial_transitions = header.features.supported_image_layout_transitions;
 
             const VkPhysicalDeviceMemoryProperties* mem_props;
             vmaGetMemoryProperties(header.allocator, &mem_props);
 
+            // Find largest VRAM heap.
+            uint64_t largest_vram_heap_size = 0;
+            uint32_t largest_vram_heap_index = 0;
+            for (uint32_t i = 0; i < mem_props->memoryHeapCount; ++i) {
+                if (mem_props->memoryHeaps[i].flags & VK_MEMORY_HEAP_DEVICE_LOCAL_BIT) {
+                    auto heap_size = mem_props->memoryHeaps[i].size;
+                    if (heap_size > largest_vram_heap_size) {
+                        largest_vram_heap_size = heap_size;
+                        largest_vram_heap_index = i;
+                    }
+                }
+            }
+
+            // Scan memory types to find one that is HOST_VISIBLE, HOST_COHERENT and DEVICE_LOCAL, and belongs to the
+            // largest VRAM heap.
+            props->gpu_upload_supported = false;
             for (uint32_t i = 0; i < mem_props->memoryTypeCount; ++i) {
+                if ((mem_props->memoryTypes[i].heapIndex != largest_vram_heap_index)) {
+                    continue;
+                }
+
                 const VkMemoryPropertyFlags flags = mem_props->memoryTypes[i].propertyFlags;
                 if ((flags & VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT) && (flags & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)
                     && (flags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)) {
@@ -719,6 +738,7 @@ WIS_EXTERN_C WISDOM_API void wisVKDeviceQueryProperties(const WisVKDevice* self,
                     break;
                 }
             }
+
         } break;
         case WisQueryPropertyTypeDeviceBindingProperties: {
             auto* props = static_cast<WisDeviceBindingProperties*>(next);

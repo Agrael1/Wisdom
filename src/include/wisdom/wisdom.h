@@ -144,6 +144,7 @@ typedef struct WisDX12IndexBufferDesc WisIndexBufferDesc;
 #    define wisDescriptorHeapCopyDescriptors            wisDX12DescriptorHeapCopyDescriptors
 #    define wisViewHeapWriteRenderTarget                wisDX12ViewHeapWriteRenderTarget
 #    define wisViewHeapWriteDepthStencil                wisDX12ViewHeapWriteDepthStencil
+#    define wisViewHeapWriteVideoDecodeTarget           wisDX12ViewHeapWriteVideoDecodeTarget
 #    define wisViewHeapGetViewAddress                   wisDX12ViewHeapGetViewAddress
 #    define wisViewHeapCopyViews                        wisDX12ViewHeapCopyViews
 #    define wisViewHeapGetCPUHandle                     wisDX12ViewHeapGetCPUHandle
@@ -312,6 +313,7 @@ typedef struct WisVKIndexBufferDesc WisIndexBufferDesc;
 #    define wisDescriptorHeapCopyDescriptors            wisVKDescriptorHeapCopyDescriptors
 #    define wisViewHeapWriteRenderTarget                wisVKViewHeapWriteRenderTarget
 #    define wisViewHeapWriteDepthStencil                wisVKViewHeapWriteDepthStencil
+#    define wisViewHeapWriteVideoDecodeTarget           wisVKViewHeapWriteVideoDecodeTarget
 #    define wisViewHeapGetViewAddress                   wisVKViewHeapGetViewAddress
 #    define wisViewHeapCopyViews                        wisVKViewHeapCopyViews
 #    define wisViewHeapGetCPUHandle                     wisVKViewHeapGetCPUHandle

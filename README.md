@@ -97,6 +97,7 @@ Vulkan library is loaded dynamically, so it is not required to have Vulkan SDK i
 - `WISDOM_BUILD_STATIC=ON` build static library version.
 - `WISDOM_BUILD_SHARED=ON` build shared/dynamic library version.
 - `WISDOM_BUILD_PLATFORM=ON` build unified platform extension library.
+- `WISDOM_USE_AGILITY_SDK=OFF` download and build with Agility SDK instead of Windows SDK, this allows using latest DirectX 12 features on older Windows versions, but requires additional setup and dependencies. Default is `OFF`, which uses Windows SDK that comes with the system and DirectX-Headers.
 - `WISDOM_BUILD_DOCS=OFF` build documentation with Doxygen, default is dependent on whether you are building the library as a top project (ON) or as a part/dep for other (OFF)
 
 - `WISDOM_DXC_PATH="Path/to/dxc"` use system DXC compiler instead of the one provided with the library (default uses the one provided)
@@ -115,8 +116,8 @@ To link library simply use `target_link_libraries(${YOUR_TARGET} PUBLIC wis::wis
 
 Available targets are:
 
-- `wis::wisdom | wis::wisdom-headers` - functional library
-- `wis::platform | wis::wisdom-platform-headers` - platform specific extensions (Surface)
+- `wis::wisdom | wis::wisdom-headers | wis::wisdom-shared` - functional library
+- `wis::platform | wis::wisdom-platform-headers | wis::wisdom-platform-shared` - platform specific extensions (Surface)
 
 There is also Conan package available for consumption, it can't be loaded to Conan Center yet,
 but you can add it manually by downloading the repo and executing `conan create .` command in the root of the repository.

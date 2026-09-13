@@ -33,5 +33,6 @@
  * wisCommandListDrawIndexed, wisCommandListBeginRenderPass, wisCommandListEndRenderPass, wisCommandListCopyBuffer,
  * wisCommandListCopyBufferToTexture, wisCommandListCopyTextureToBuffer, wisCommandListCopyTexture,
  * wisCommandListSetVertexBuffers, wisCommandListSetVertexBuffers2, wisCommandListSetIndexBuffer,
- * wisCommandListSetIndexBuffer2, wisCommandListSetBlendFactors \endcond
+ * wisCommandListSetIndexBuffer2, wisCommandListSetBlendFactors
+ * \endcond
  */

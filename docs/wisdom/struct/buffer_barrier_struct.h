@@ -117,7 +117,8 @@
  * - `queue_type_before` defines type of the queue the barrier is executed on before the synchronization point. Used for
  * cross-queue barriers.
  * - `queue_type_after` indicates type of the queue the barrier is executed on after the synchronization point. Used for
- * cross-queue barriers. \endcond
+ * cross-queue barriers.
+ * \endcond
  *
  * @section WisBufferBarrier_descr Description
  * <hr>

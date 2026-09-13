@@ -48,7 +48,7 @@ void Generator::ParseStruct(tinyxml2::XMLElement* type)
     if (auto* size = type->FindAttribute("version")) {
         ref.version = size->Value();
     } else {
-        throw std::runtime_error(wis::format("Struct {} is missing version attribute.", name));
+        throw std::runtime_error(std::format("Struct {} is missing version attribute.", name));
     }
 
     if (auto* mod = type->FindAttribute("mod")) {
@@ -80,6 +80,9 @@ void Generator::ParseStruct(tinyxml2::XMLElement* type)
         if (auto* doc = member->FindAttribute("doc")) {
             m.doc = doc->Value();
         }
+        if (auto* bits = member->FindAttribute("bits")) {
+            m.bits = std::stoul(bits->Value());
+        }
     }
 }
 
@@ -87,14 +90,14 @@ void Generator::ParseStruct(tinyxml2::XMLElement* type)
 std::string Generator::MakeCStruct(const WisStruct& s, DocKind kind)
 {
     auto full_name = GetCFullTypename(s.name, Backend::Any);
-    std::string st_decl = wis::format(
+    std::string st_decl = std::format(
         "typedef struct {} {} {{\n",
         s.modifier & Modifier::Nodiscard ? "WIS_NODISCARD" : "",
         full_name
     );
     if (!s.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation(s, kind);
-        st_decl = wis::format("{}\n{}", xdoc, st_decl);
+        st_decl = std::format("{}\n{}", xdoc, st_decl);
     }
 
     // Calculate maximum type length for alignment
@@ -107,21 +110,21 @@ std::string Generator::MakeCStruct(const WisStruct& s, DocKind kind)
     for (auto& m : s.members) {
         st_decl += MakeValueDocumentation(s, m, MakeCMemberDeclaration(m, max_type_length), kind);
     }
-    st_decl += wis::format("}} {};\n\n", full_name);
+    st_decl += std::format("}} {};\n\n", full_name);
     return st_decl;
 }
 
 //----------------------------------------------------------------------------------------------------------------------
 std::string Generator::MakeCPPStruct(const WisStruct& s, DocKind kind)
 {
-    std::string st_decl = wis::format(
+    std::string st_decl = std::format(
         "struct {} {} {{\n",
         s.modifier & Modifier::Nodiscard ? "WIS_NODISCARD" : "",
         s.name
     );
     if (!s.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation<Lang::CPP>(s, kind);
-        st_decl = wis::format("{}\n{}", xdoc, st_decl);
+        st_decl = std::format("{}\n{}", xdoc, st_decl);
     }
 
     // Calculate maximum type length for alignment
@@ -157,12 +160,16 @@ std::string Generator::MakeCMemberDeclaration(const WisStructMember& member, siz
     std::string array_modifier;
 
     if (!member.array_size.empty()) {
-        array_modifier = wis::format("[{}]", member.array_size);
+        array_modifier = std::format("[{}]", member.array_size);
     }
 
     // Pad the type string to align_width
     size_t padding = align_width > type_string.length() ? align_width - type_string.length() : 0;
     std::string padded_type = type_string + std::string(padding, ' ');
+
+    if (member.bits > 0) {
+        return std::format("    {} {} : {}{};", padded_type, member.name, member.bits, array_modifier);
+    }
 
     return std::format("    {} {}{};", padded_type, member.name, array_modifier);
 }
@@ -173,12 +180,17 @@ std::string Generator::MakeCPPMemberDeclaration(const WisStructMember& member, s
     std::string type_string = GetMemberTypeString<Lang::CPP>(member, backend);
 
     if (!member.array_size.empty()) {
-        type_string = wis::format("std::array<{}, {}>", type_string, member.array_size);
+        type_string = std::format("std::array<{}, {}>", type_string, member.array_size);
     }
 
     // Pad the type string to align_width
     size_t padding = align_width > type_string.length() ? align_width - type_string.length() : 0;
     std::string padded_type = type_string + std::string(padding, ' ');
+
+    // Bitfield
+    if (member.bits > 0) {
+        return std::format("    {} {} : {};", padded_type, member.name, member.bits);
+    }
 
     return std::format("    {} {};", padded_type, member.name);
 }
@@ -188,7 +200,7 @@ std::string Generator::MakeStructDescription(const WisStruct& s)
 {
     std::string description;
     for (auto& m : s.members) {
-        description += wis::format("- `{}` {}\n", m.name, m.doc.empty() ? "No description." : m.doc);
+        description += std::format("- `{}` {}\n", m.name, m.doc.empty() ? "No description." : m.doc);
     }
     return description;
 }
@@ -201,17 +213,18 @@ void Generator::WriteStructDocumentation(std::filesystem::path struct_output_pat
     for (const auto& struct_name : struct_names) {
         // Make a folder for enums starting with this letter
         std::filesystem::path struct_file_path = struct_output_path
-                                               / wis::format("{}_struct.h", MakeSnakeCase(struct_name));
+                                               / std::format("{}_struct.h", MakeSnakeCase(struct_name));
         auto& struct_ref = struct_map[struct_name];
+        files.push_back(struct_file_path);
 
-        std::string struct_template_content = wis::format(
+        std::string struct_template_content = std::format(
             " * C version:\n```c\n{}```\n"
             "C++ version:\n```cpp\nnamespace wis{{\n{}}}\n```\n",
             MakeCStruct(struct_ref, DocKind::VersionOnly),
             MakeCPPStruct(struct_ref, DocKind::VersionOnly)
         );
 
-        std::string struct_description = wis::format(" * {}", MakeStructDescription(struct_ref));
+        std::string struct_description = std::format(" * {}", MakeStructDescription(struct_ref));
         std::string struct_refs = GetRefs(struct_name);
         std::string vuids = MakeValidationForType(struct_name);
 

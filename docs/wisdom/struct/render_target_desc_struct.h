@@ -59,6 +59,6 @@
  * <hr>
  * \cond WIS_GEN_REFS
  * @see Functions:
- * wisViewHeapWriteRenderTarget, wisViewHeapWriteDepthStencil
+ * wisViewHeapWriteRenderTarget, wisViewHeapWriteDepthStencil, wisViewHeapWriteVideoDecodeTarget
  * \endcond
  */

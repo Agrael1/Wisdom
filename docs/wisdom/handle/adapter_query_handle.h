@@ -28,5 +28,6 @@
  * \cond WIS_GEN_REFS
  * @see Functions:
  * wisDestroyAdapterQuery, wisInstanceQueryAdapters, wisAdapterQueryGetAdapterCount, wisAdapterQueryGetAdapterDesc,
- * wisAdapterQueryGetSurfaceSupport, wisAdapterQueryCreateDevice \endcond
+ * wisAdapterQueryGetSurfaceSupport, wisAdapterQueryCreateDevice
+ * \endcond
  */

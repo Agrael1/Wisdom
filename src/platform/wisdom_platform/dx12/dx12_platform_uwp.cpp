@@ -35,6 +35,7 @@ WIS_EXTERN_C WISDOM_PLATFORM_API void wisDX12DestroyUWPExtension(WisDX12UWPExten
         impl.factory->Release();
         impl.factory = nullptr;
     }
+    impl.header.init_fptr = nullptr;
 }
 
 //----------------------------------------------------------------------------------------------------------------------

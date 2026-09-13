@@ -55,7 +55,8 @@
  * - `WisTextureLayoutTexture3D = 8`: Texture is 3D volume.
  * - `WisTextureLayoutTextureCube = 9`: Texture is a cube map. Behaves similarly to Texture2DArray with 6 layers.
  * - `WisTextureLayoutTextureCubeArray = 10`: Texture is an array of cube maps. Behaves similarly to Texture2DArray with
- * 6 layers per cube map. \endcond
+ * 6 layers per cube map.
+ * \endcond
  *
  *
  * @section WisTextureLayout_see_also See Also

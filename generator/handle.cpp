@@ -87,6 +87,40 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
             create.modifier = Modifier::Construct;
             create.version = version;
             create.doc = create_doc;
+
+            if (auto* init = type->FirstChildElement("init")) {
+                if (auto* vers = init->FindAttribute("version")) {
+                    create.version = vers->Value();
+                }
+
+                if (auto* doc = init->FindAttribute("doc")) {
+                    create.doc = doc->Value();
+                }
+
+                // Parse parameters
+                for (auto* param = init->FirstChildElement("arg"); param; param = param->NextSiblingElement("arg")) {
+                    auto& p = create.parameters.emplace_back();
+                    p.type = param->FindAttribute("type")->Value();
+
+                    if (auto* name_attr = param->FindAttribute("name")) {
+                        p.name = name_attr->Value();
+                    } else {
+                        throw std::runtime_error(std::format("Function {} has a parameter with no name.", create_name));
+                    }
+                    if (auto* def = param->FindAttribute("default")) {
+                        p.default_value = def->Value();
+                    }
+                    if (auto* mod = param->FindAttribute("mod")) {
+                        p.modifier = GetModifiers(mod->Value());
+                    }
+                    if (auto* doc = param->FindAttribute("doc")) {
+                        p.doc = doc->Value();
+                    }
+                    create.FilterBackend(GetTypeBackendSupport(p.type));
+                    TryMakeRef(p.type, create_key);
+                }
+            }
+
             create.FilterBackend(ref.GetBackend());
             type_map[iref] = TypeKind::Function;
             module_map[active_module_name].functions_in_order.emplace_back(create_key);
@@ -97,6 +131,11 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
         bool has_view = false;
         for (auto* impl = type->FirstChildElement("view"); impl; impl = impl->NextSiblingElement("view")) {
             has_view = true;
+            auto voverride = impl->FindAttribute("type");
+            if (voverride) {
+                ref.view_override = voverride->Value();
+            }
+
             auto impl_for = impl->FindAttribute("for");
             if (!impl_for) {
                 // if "for" attribute is missing, we can assume it's for both
@@ -111,9 +150,9 @@ void Generator::ParseHandles(tinyxml2::XMLElement* types)
 
             uint32_t size = impl->UnsignedAttribute("size", 0);
             if (backend == Backend::DX12) {
-                ref.sizes[0] = size;
+                ref.view_sizes[0] = size;
             } else if (backend == Backend::Vulkan) {
-                ref.sizes[1] = size;
+                ref.view_sizes[1] = size;
             }
         }
 
@@ -132,31 +171,33 @@ std::string Generator::MakeCHandle(const WisHandle& s, Backend backend, DocKind 
     auto extends_macro = s.extends == Extends::None
                            ? std::string("WIS_DEFINE_HANDLE")
                            : (s.extends == Extends::Instance
-                                  ? wis::format("WIS_DEFINE_{}_INSTANCE_EXT_HANDLE", impl_string)
-                                  : wis::format("WIS_DEFINE_{}_DEVICE_EXT_HANDLE", impl_string));
+                                  ? std::format("WIS_DEFINE_{}_INSTANCE_EXT_HANDLE", impl_string)
+                                  : std::format("WIS_DEFINE_{}_DEVICE_EXT_HANDLE", impl_string));
 
     auto full_name = GetCFullTypename(s.name, backend);
 
-    std::string st_decl = wis::format("{}({},{});\n", extends_macro, full_name, s.GetSize(backend));
+    std::string st_decl = std::format("{}({},{});\n", extends_macro, full_name, s.GetSize(backend));
     if (!s.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation(s, kind);
-        st_decl = wis::format("{}\n{}", xdoc, st_decl);
+        st_decl = std::format("{}\n{}", xdoc, st_decl);
     }
-    if (s.GetViewSize(backend) > 0) {
-        std::string view_decl = wis::format("WIS_DEFINE_HANDLE_VIEW({},{});\n", full_name, s.GetViewSize(backend));
+    if (s.GetViewSize(backend) > 0 && s.view_override.empty()) {
+        std::string view_decl = std::format("WIS_DEFINE_HANDLE_VIEW({},{});\n", full_name, s.GetViewSize(backend));
         st_decl += view_decl;
     }
 
-    if (kind == DocKind::Full && s.GetViewSize(backend) > 0) {
+    if (kind == DocKind::Full && (s.GetViewSize(backend) > 0 || !s.view_override.empty())) {
         // Add view extraction function
-        st_decl += wis::format(
+        auto view_name = s.view_override.empty() ? full_name : GetCFullTypename(s.view_override, backend);
+
+        st_decl += std::format(
             "\nstatic inline {}View wisGet{}{}View(const {}* handle){{\n",
-            full_name,
+            view_name,
             impl_string,
             s.name,
             full_name
         );
-        st_decl += wis::format("    {}View v;\n", full_name);
+        st_decl += std::format("    {}View v;\n", view_name);
         st_decl += "    memcpy(&v, handle, sizeof(v));\n"
                    "    return v;\n}\n";
     }
@@ -170,7 +211,7 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, Backend backend, DocKin
     auto impl_string = GetBackendSuffix(backend);
     auto full_name = GetCFullTypename(s.name, backend);
 
-    std::string deleter = wis::format(
+    std::string deleter = std::format(
         "struct {}{}Deleter {{\n    "
         "void operator()({}* handle) noexcept {{\n        ",
         impl_string,
@@ -178,7 +219,7 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, Backend backend, DocKin
         full_name
     );
 
-    std::string st_decl = wis::format(
+    std::string st_decl = std::format(
         "class {}{} : public wis::impl::Implements<wis::impl::{}{}Impl,{}, wis::{}{}Deleter>{{\npublic:\n",
         impl_string,
         s.name,
@@ -191,39 +232,38 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, Backend backend, DocKin
 
     if (!s.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation<Lang::CPP>(s, kind);
-        st_decl = wis::format("{}\n{}", xdoc, st_decl);
+        st_decl = std::format("{}\n{}", xdoc, st_decl);
     }
 
     std::string ctor_decl;
     // Use constructor from base
-    if (s.extends != Extends::None) {
-        ctor_decl += wis::format("{}{}() noexcept\n:ImplType(std::in_place)\n{{\n    ", impl_string, s.name);
-    } else {
+    if (s.extends == Extends::None) {
         ctor_decl += "    using ImplType::ImplType;\n";
     }
     std::string st_decl2 = "public:\n";
 
-    if (s.GetViewSize(backend) > 0) {
+    if (s.GetViewSize(backend) > 0 || !s.view_override.empty()) {
         // Strict aliasing rules prevent us from doing a simple cast, so we have to memcpy the data to a new view struct
-        st_decl2 += wis::format(
+        auto view_name = s.view_override.empty() ? s.name : s.view_override;
+        st_decl2 += std::format(
             "    WIS_NODISCARD {}{}View GetView() const noexcept {{\n"
             "        {}{}View v;\n"
             "        std::memcpy(&v, &_impl_storage, sizeof(v));\n"
             "        return v;\n"
             "    }}\n",
             impl_string,
-            s.name,
+            view_name,
             impl_string,
-            s.name
+            view_name
         );
 
         // add conversion operator to view
-        st_decl2 += wis::format(
+        st_decl2 += std::format(
             "    WIS_NODISCARD operator {}{}View() const noexcept {{\n"
             "        return GetView();\n"
             "    }}\n",
             impl_string,
-            s.name
+            view_name
         );
     }
 
@@ -231,18 +271,61 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, Backend backend, DocKin
     for (const auto& func_name : s.functions) {
         FunctionKey func_key{s.name, func_name};
         auto& func_ref = function_map[func_key];
-        auto c_name = wis::format(
+        auto c_name = std::format(
             "wis{}{}{}",
             impl_string,
             func_ref.modifier & (Destroy | Construct) ? "" : func_ref.this_type,
             func_ref.name
         );
         if (func_ref.modifier & Modifier::Destroy) {
-            deleter += wis::format("            ::{}(handle);\n", c_name);
+            deleter += std::format("            ::{}(handle);\n", c_name);
             continue;
         }
         if (func_ref.modifier & Modifier::Construct) {
-            ctor_decl += wis::format("        ::{}(GetStorage());\n    }}\n", c_name);
+            // Build the init function parameter list for the constructor
+            std::string params;
+            std::string args = "GetStorage(), " + GetFunctionCallParameters(func_ref, backend);
+            if (func_ref.parameters.empty()) {
+                args.pop_back();
+                args.pop_back();
+            }
+
+            bool last_was_span = false;
+            for (size_t i = 0; i < func_ref.parameters.size(); ++i) {
+                if (last_was_span) {
+                    last_was_span = false;
+                    continue;
+                }
+
+                const auto& p = func_ref.parameters[i];
+                if (p.modifier & Modifier::Span) {
+                    last_was_span = true;
+                }
+
+                std::string type_str = GetMemberTypeString<Lang::CPP>(p, backend);
+                params += std::format("{} {}", type_str, p.name);
+
+                // edge case for spans - if last argument was a span, skip the next one (the size)
+                // That means we need to check if i<func.parameters.size()-2 for the comma
+                bool span_last = (p.modifier & Modifier::Span) != 0 && (i == func_ref.parameters.size() - 2);
+
+                if (i < func_ref.parameters.size() - 1 && !span_last) {
+                    params += ",\n";
+                }
+            }
+
+            ctor_decl += std::format(
+                "    {}{}({}) noexcept\n"
+                "    :ImplType(wis::in_place)\n"
+                "    {{\n"
+                "        ::{}({});\n"
+                "    }}\n",
+                impl_string,
+                s.name,
+                params,
+                c_name,
+                args
+            );
             continue;
         }
 
@@ -252,7 +335,7 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, Backend backend, DocKin
     if (s.extends != Extends::None) {
         auto header = s.extends == Extends::Instance ? GetCPPFullTypename("InstanceExtensionHeader", backend)
                                                      : GetCPPFullTypename("DeviceExtensionHeader", backend);
-        ctor_decl += wis::format(
+        ctor_decl += std::format(
             "        // Operator & overload\n"
             "{}* operator&() noexcept {{\n"
             "    return &GetMutableInternal().header;\n"
@@ -274,7 +357,7 @@ std::string Generator::MakeCPPView(const WisHandle& s, Backend backend, DocKind 
 
     std::string view_decl;
     if (s.GetViewSize(backend) > 0) {
-        view_decl = wis::format("using {}{}View = {}View;\n", impl_string, s.name, full_name);
+        view_decl = std::format("using {}{}View = {}View;\n", impl_string, s.name, full_name);
     }
     return view_decl;
 }
@@ -289,18 +372,19 @@ void Generator::WriteHandleDocumentation(std::filesystem::path handle_output_pat
         // Make a folder for enums starting with this letter
         std::filesystem::create_directories(handle_output_path);
         std::filesystem::path handle_file_path = handle_output_path
-                                               / wis::format("{}_handle.h", MakeSnakeCase(handle_name));
+                                               / std::format("{}_handle.h", MakeSnakeCase(handle_name));
         auto& handle_ref = handle_map[handle_name];
+        files.push_back(handle_file_path);
 
         std::string vk_code;
         std::string dx_code;
         if (has(backend, Backend::Vulkan)) {
             vk_code = MakeCHandle(handle_ref, Backend::Vulkan, DocKind::VersionOnly);
-            vk_code = wis::format(" Vulkan Version:\n```c\n{}```\n", vk_code);
+            vk_code = std::format(" Vulkan Version:\n```c\n{}```\n", vk_code);
         }
         if (has(backend, Backend::DX12)) {
             dx_code = MakeCHandle(handle_ref, Backend::DX12, DocKind::VersionOnly);
-            dx_code = wis::format(" DX12 Version:\n```c\n{}```\n", dx_code);
+            dx_code = std::format(" DX12 Version:\n```c\n{}```\n", dx_code);
         }
 
         std::string handle_template_content = " * " + vk_code + dx_code;

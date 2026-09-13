@@ -43,7 +43,8 @@
  * different alpha mode. Used to determine the supported alpha modes for the swapchain.
  * - `texture_usage_flags_supported` specifies bitmask of supported texture usage flags for the swapchain images.
  * - `stereo_supported` indicates if stereo rendering is supported. If true, the surface can be used to create a
- * swapchain with stereo support. \endcond
+ * swapchain with stereo support.
+ * \endcond
  *
  * @section WisSurfaceParameters_descr Description
  * <hr>

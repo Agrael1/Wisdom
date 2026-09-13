@@ -29,6 +29,7 @@ endif()
 
 # compile shaders from folder shaders and put them in the binary output
 # directory
+wis_load_dxc(DOWNLOAD_LATEST)
 
 add_custom_target(wis_test_compile_shaders)
 file(GLOB SHADERS ${CMAKE_CURRENT_SOURCE_DIR}/shaders/*)
@@ -46,6 +47,13 @@ add_custom_target(
   DEPENDS SDL3-shared)
 
 include(cmake/deps.cmake)
+
+# Copy assets folder
+add_custom_target(
+  copy_assets
+  COMMAND ${CMAKE_COMMAND} -E echo "Copying assets to example binaries..."
+  COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/assets
+          ${EXAMPLE_BIN_OUTPUT}/assets)
 
 add_example_suite(backend)
 add_example_suite(compute_particles_c)

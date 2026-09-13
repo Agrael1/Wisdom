@@ -193,6 +193,12 @@ struct VKMainCommandList {
     PFN_vkCmdBindVertexBuffers3KHR vkCmdBindVertexBuffers3KHR;
     PFN_vkCmdBindIndexBuffer3KHR vkCmdBindIndexBuffer3KHR;
 
+    // Video decode functions (placed here, for lesser space consumption)
+    PFN_vkCmdBeginVideoCodingKHR vkCmdBeginVideoCodingKHR;
+    PFN_vkCmdControlVideoCodingKHR vkCmdControlVideoCodingKHR;
+    PFN_vkCmdDecodeVideoKHR vkCmdDecodeVideoKHR;
+    PFN_vkCmdEndVideoCodingKHR vkCmdEndVideoCodingKHR;
+
 public:
     bool Init(VkDevice device, PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr) noexcept
     {
@@ -232,6 +238,12 @@ public:
 
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkCmdBindVertexBuffers3KHR);
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkCmdBindIndexBuffer3KHR);
+
+        ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkCmdBeginVideoCodingKHR);
+        ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkCmdControlVideoCodingKHR);
+        ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkCmdDecodeVideoKHR);
+        ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkCmdEndVideoCodingKHR);
+
         return true;
     }
 };
@@ -324,6 +336,8 @@ struct VKMainDevice {
     PFN_vkGetMemoryWin32HandleKHR vkGetMemoryWin32HandleKHR;
 #endif //_WIN32
 
+    PFN_vkDestroyAccelerationStructureKHR vkDestroyAccelerationStructureKHR;
+
 public:
     bool Init(VkDevice device, PFN_vkGetDeviceProcAddr vkGetDeviceProcAddr) noexcept
     {
@@ -408,6 +422,7 @@ public:
 #ifdef _WIN32
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkGetMemoryWin32HandleKHR);
 #endif //_WIN32
+        ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkDestroyAccelerationStructureKHR);
         return true;
     }
 };

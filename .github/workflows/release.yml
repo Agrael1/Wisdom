@@ -220,7 +220,45 @@ jobs:
       - name: Build and Package
         shell: pwsh
         run: |
-          .\package.ps1 -Format all -Clean -OutputDir './artifacts'
+          .\scripts\package.ps1 -Format all -Configuration both -Clean -OutputDir './artifacts'
+
+      - name: Validate package contents
+        shell: pwsh
+        run: |
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+
+          $nugetPackage = Get-ChildItem -Path artifacts/*.nupkg | Select-Object -First 1
+          if (-not $nugetPackage) {
+            throw "NuGet package was not generated."
+          }
+
+          $nugetArchive = [System.IO.Compression.ZipFile]::OpenRead($nugetPackage.FullName)
+          try {
+            $nugetHasAgility = $nugetArchive.Entries | Where-Object { $_.FullName -match '(?i)D3D12Core\.dll|d3d12SDKLayers\.dll|d3dx12/' }
+            if ($nugetHasAgility) {
+              throw "NuGet package must not include Agility SDK files."
+            }
+          }
+          finally {
+            $nugetArchive.Dispose()
+          }
+
+          $zipPackage = Get-ChildItem -Path artifacts/*.zip | Select-Object -First 1
+          if (-not $zipPackage) {
+            throw "ZIP package was not generated."
+          }
+
+          $zipArchive = [System.IO.Compression.ZipFile]::OpenRead($zipPackage.FullName)
+          try {
+            $zipHasCore = $zipArchive.Entries | Where-Object { $_.FullName -match '(?i)D3D12Core\.dll' }
+            $zipHasLayers = $zipArchive.Entries | Where-Object { $_.FullName -match '(?i)d3d12SDKLayers\.dll' }
+            if (-not $zipHasCore -or -not $zipHasLayers) {
+              throw "ZIP package must include Agility SDK runtime files (D3D12Core.dll and d3d12SDKLayers.dll)."
+            }
+          }
+          finally {
+            $zipArchive.Dispose()
+          }
       
       - name: Upload NuGet Package
         uses: actions/upload-artifact@v4
@@ -262,13 +300,13 @@ jobs:
         uses: lukka/get-cmake@latest
 
       - name: Configure CMake (Debug)
-        run: cmake --preset linux-gcc-debug-lib -DWISDOM_VULKAN_HEADER_PATH=${{ github.workspace }}/vulkan-headers/include
+        run: cmake --preset linux-gcc-debug-lib -DWISDOM_VULKAN_HEADER_PATH=${{ github.workspace }}/vulkan-headers/include -DCMAKE_UNITY_BUILD=ON
 
       - name: Build (Debug)
         run: cmake --build --preset linux-gcc-debug-lib
 
       - name: Configure CMake (Release)
-        run: cmake --preset linux-gcc-lib -DWISDOM_VULKAN_HEADER_PATH=${{ github.workspace }}/vulkan-headers/include
+        run: cmake --preset linux-gcc-lib -DWISDOM_VULKAN_HEADER_PATH=${{ github.workspace }}/vulkan-headers/include -DCMAKE_UNITY_BUILD=ON
 
       - name: Build (Release)
         run: cmake --build --preset linux-gcc-lib
@@ -333,6 +371,8 @@ jobs:
     needs: [version, release]
     if: ${{ !failure() && !cancelled() && needs.version.outputs.publish_nuget == 'true' }}
     runs-on: windows-latest
+    permissions:
+      id-token: write
     
     steps:
       - name: Download NuGet Package
@@ -347,9 +387,15 @@ jobs:
         shell: pwsh
         run: |
           Get-ChildItem -Path . -Recurse | Select-Object FullName
-      
+
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: Agrael
+
       - name: Publish to NuGet.org
-        run: dotnet nuget push wisdom.*.nupkg --api-key "${{ secrets.NUGET_APIKEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+        run: dotnet nuget push wisdom.*.nupkg --api-key ${{steps.login.outputs.NUGET_API_KEY}} --source https://api.nuget.org/v3/index.json --skip-duplicate
 
   # Step 6: Build and deploy documentation
   docs:

@@ -37,7 +37,8 @@
  * - `WisDescriptorMemoryTypeCpuOnly = 0`: Descriptors are only visible to CPU. May be used for copying descriptors to
  * the GPU visible pool.
  * - `WisDescriptorMemoryTypeShaderVisible = 1`: Descriptors are visible to GPU. Descriptors can be bound to the GPU
- * pipeline directly, but can't be copied from. \endcond
+ * pipeline directly, but can't be copied from.
+ * \endcond
  *
  *
  * @section WisDescriptorMemoryType_see_also See Also

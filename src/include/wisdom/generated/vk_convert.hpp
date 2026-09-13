@@ -5,6 +5,7 @@
 #    error "This is a C++ only header"
 #endif // __cplusplus
 
+#include <vk_mem_alloc.h>
 #include <vulkan/vulkan.h>
 #include "c_api.h"
 
@@ -148,6 +149,14 @@ constexpr inline VkFormat VKConvert(WisDataFormat value) noexcept
         return VK_FORMAT_BC7_SRGB_BLOCK;
     case WisDataFormatBGRA4Unorm:
         return VK_FORMAT_A4R4G4B4_UNORM_PACK16;
+    case WisDataFormatNV12:
+        return VK_FORMAT_G8_B8R8_2PLANE_420_UNORM;
+    case WisDataFormatP010:
+        return VK_FORMAT_G10X6_B10X6R10X6_2PLANE_420_UNORM_3PACK16;
+    case WisDataFormatP012:
+        return VK_FORMAT_G12X4_B12X4R12X4_2PLANE_420_UNORM_3PACK16;
+    case WisDataFormatP016:
+        return VK_FORMAT_G16_B16R16_2PLANE_420_UNORM;
     default:
         return static_cast<VkFormat>(0);
     }
@@ -407,6 +416,8 @@ constexpr inline VkImageLayout VKConvert(WisTextureState value) noexcept
         return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
     case WisTextureStateResolveRenderTargetDst:
         return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    case WisTextureStateVideoDecodeDPB:
+        return VK_IMAGE_LAYOUT_VIDEO_DECODE_DPB_KHR;
     default:
         return static_cast<VkImageLayout>(0);
     }
@@ -743,6 +754,12 @@ constexpr inline VkBufferUsageFlags VKConvert(WisBufferUsageFlags value) noexcep
     if (value & WisBufferUsageFlagsShaderBindingTable) {
         result |= VK_BUFFER_USAGE_SHADER_BINDING_TABLE_BIT_KHR;
     }
+    if (value & WisBufferUsageFlagsVideoDecodeDst) {
+        result |= VK_BUFFER_USAGE_VIDEO_DECODE_DST_BIT_KHR;
+    }
+    if (value & WisBufferUsageFlagsVideoDecodeSrc) {
+        result |= VK_BUFFER_USAGE_VIDEO_DECODE_SRC_BIT_KHR;
+    }
     return result;
 }
 
@@ -770,6 +787,15 @@ constexpr inline VkImageUsageFlags VKConvert(WisTextureUsageFlags value) noexcep
     if (value & WisTextureUsageFlagsHostCopy) {
         result |= VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT;
     }
+    if (value & WisTextureUsageFlagsVideoDecodeDst) {
+        result |= VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR;
+    }
+    if (value & WisTextureUsageFlagsVideoDecodeSrc) {
+        result |= VK_IMAGE_USAGE_VIDEO_DECODE_SRC_BIT_KHR;
+    }
+    if (value & WisTextureUsageFlagsVideoDecodeDpb) {
+        result |= VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR;
+    }
     return result;
 }
 
@@ -796,6 +822,15 @@ constexpr inline WisTextureUsageFlags VKConvert(VkImageUsageFlags value) noexcep
     }
     if (value & VK_IMAGE_USAGE_HOST_TRANSFER_BIT_EXT) {
         result = static_cast<WisTextureUsageFlags>(result | WisTextureUsageFlagsHostCopy);
+    }
+    if (value & VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR) {
+        result = static_cast<WisTextureUsageFlags>(result | WisTextureUsageFlagsVideoDecodeDst);
+    }
+    if (value & VK_IMAGE_USAGE_VIDEO_DECODE_SRC_BIT_KHR) {
+        result = static_cast<WisTextureUsageFlags>(result | WisTextureUsageFlagsVideoDecodeSrc);
+    }
+    if (value & VK_IMAGE_USAGE_VIDEO_DECODE_DPB_BIT_KHR) {
+        result = static_cast<WisTextureUsageFlags>(result | WisTextureUsageFlagsVideoDecodeDpb);
     }
     return result;
 }

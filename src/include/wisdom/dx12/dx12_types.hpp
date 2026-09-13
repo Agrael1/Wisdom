@@ -5,8 +5,6 @@
 #endif // __cplusplus
 
 #include <wisdom/util/com_ptr.hpp>
-
-#include <d3d12.h>
 #include <D3D12MemAlloc.h>
 #include <dxgi1_6.h>
 

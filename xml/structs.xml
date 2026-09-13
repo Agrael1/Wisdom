@@ -153,6 +153,8 @@
       <member type="TextureFlags" name="flags" doc="describes texture flags. Describe additional options for the texture."/>
       <member type="MemoryType" name="memory_type" doc="specifies where the texture will be allocated."/>
       <member type="MemoryFlags" name="memory_flags" default="None" doc="describes the flags of the memory to allocate for the texture."/>
+      <member type="DataFormat" name="cast_formats" mod="const,span" doc="points to an array of formats that can be used to cast the texture to another format. Used for format casting in shaders."/>
+      <member type="size" name="cast_format_count" default="0" doc="defines the number of the number of cast formats in the {TextureDesc::cast_formats} array."/>
     </type>
 
     <type name="PushConstantDataDesc" category="struct" version="0.7.0" doc="Push constant set description for {CommandList::SetPushConstants}.">
@@ -464,7 +466,6 @@ Viewport is considered from Top Left corner.">
       <!-- Memory -->
       <member type="bool" name="gpu_upload_supported" doc="describes if GPU upload memory type is supported. This memory type allows mapping the memory and writing to it from CPU, while being accessible from GPU. It is usually implemented as write-combined memory on integrated GPUs and as a part of shared system memory on discrete GPUs."/>
       <member type="bool" name="host_image_copy_supported" doc="indicates if host image copy is supported. This feature allows copying data directly from CPU memory to optimal tiled image layout on GPU, without the need for an intermediate staging buffer. It is supported on Windows 10 22H2 and later with WDDM 3.0 or later. On Vulkan it requires `VK_EXT_host_image_copy` extension."/>
-      <member type="u32" name="supported_initial_transitions" doc="defines bitfield of supported initial resource state transitions for buffers and textures. If a transition is supported, the corresponding bit is set to `1`, otherwise `0`. Bit positions are the same as in {TextureState::} enum. {TextureState::Undefined} is always supported."/>
     </type>
 
     <type name="FormatProperties" category="struct" version="0.7.0" doc="Data format properties. Used to query support and capabilities of specific data formats.">
