@@ -11,6 +11,7 @@ from conan.tools.files import load
 
 class WisdomConan(ConanFile):
     """ """
+
     name = "wisdom"
     package_type = "library"
 
