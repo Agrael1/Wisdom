@@ -47,9 +47,8 @@ class WisdomConan(ConanFile):
         """ """
         # If windows platform support is enabled, we need to require the D3D12 Memory Allocator
         if self.settings.os == "Windows":
-            self.requires(
-                "d3d12-memory-allocator/[>=3.0.1 <4]", transitive_headers=True
-            )
+            self.requires("d3d12-memory-allocator/[>=3.0.1 <4]",
+                          transitive_headers=True)
         self.requires("vulkan-memory-allocator/3.3.0", transitive_headers=True)
 
     def export_sources(self):
@@ -102,7 +101,8 @@ class WisdomConan(ConanFile):
         tc.variables["WISDOM_BUILD_EXAMPLES"] = False
         tc.variables["WISDOM_BUILD_TESTS"] = False
         tc.variables["WISDOM_BUILD_DOCS"] = False
-        tc.variables["WISDOM_BUILD_STATIC"] = not self.options.get_safe("shared")
+        tc.variables["WISDOM_BUILD_STATIC"] = not self.options.get_safe(
+            "shared")
         tc.variables["WISDOM_BUILD_SHARED"] = self.options.get_safe("shared")
         tc.variables["WISDOM_BUILD_PLATFORM"] = self.options.build_platform
         tc.variables["WISDOM_USE_AGILITY_SDK"] = False
@@ -139,15 +139,13 @@ class WisdomConan(ConanFile):
         if self.options.get_safe("shared"):
             # Core Shared
             self.cpp_info.components["core"].set_property(
-                "cmake_target_name", "wis::wisdom-shared"
-            )
+                "cmake_target_name", "wis::wisdom-shared")
             self.cpp_info.components["core"].libs = [f"wisdom-shared{suffix}"]
 
             # Platform Shared
             if self.options.build_platform:
                 self.cpp_info.components["platform"].set_property(
-                    "cmake_target_name", "wis::wisdom-platform-shared"
-                )
+                    "cmake_target_name", "wis::wisdom-platform-shared")
                 self.cpp_info.components["platform"].requires = ["core"]
                 self.cpp_info.components["platform"].libs = [
                     f"wisdom-platform-shared{suffix}"
@@ -155,29 +153,29 @@ class WisdomConan(ConanFile):
         else:
             # Core Static
             self.cpp_info.components["core"].set_property(
-                "cmake_target_name", "wis::wisdom"
-            )
-            self.cpp_info.components["core"].libs = [f"wisdom{suffix}", f"vkma{suffix}"]
+                "cmake_target_name", "wis::wisdom")
+            self.cpp_info.components["core"].libs = [
+                f"wisdom{suffix}", f"vkma{suffix}"
+            ]
 
             # Platform Static
             if self.options.build_platform:
                 self.cpp_info.components["platform"].set_property(
-                    "cmake_target_name", "wis::wisdom-platform"
-                )
+                    "cmake_target_name", "wis::wisdom-platform")
                 self.cpp_info.components["platform"].requires = ["core"]
-                self.cpp_info.components["platform"].libs = [f"wisdom-platform{suffix}"]
+                self.cpp_info.components["platform"].libs = [
+                    f"wisdom-platform{suffix}"
+                ]
 
         self.cpp_info.components["core"].requires = [
             "vulkan-memory-allocator::vulkan-memory-allocator"
         ]
         if self.settings.os == "Windows":
-            self.cpp_info.components["core"].defines.extend(
-                [
-                    "D3D12MA_USING_DIRECTX_HEADERS=1",
-                    "VK_USE_PLATFORM_WIN32_KHR=1",
-                ]
-            )
+            self.cpp_info.components["core"].defines.extend([
+                "D3D12MA_USING_DIRECTX_HEADERS=1",
+                "VK_USE_PLATFORM_WIN32_KHR=1",
+            ])
             self.cpp_info.components["core"].requires.extend(
-                ["d3d12-memory-allocator::d3d12-memory-allocator"]
-            )
-            self.cpp_info.components["core"].system_libs.extend(["dxgi", "DXGUID"])
+                ["d3d12-memory-allocator::d3d12-memory-allocator"])
+            self.cpp_info.components["core"].system_libs.extend(
+                ["dxgi", "DXGUID"])
