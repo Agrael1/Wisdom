@@ -30,9 +30,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CreateInstance(
     if (debug_layer) {
         wis::com_ptr<ID3D12Debug> debug_controller;
         auto hr2 = D3D12GetDebugInterface(
-                       IID_ID3D12Debug,
-                       reinterpret_cast<void**>(debug_controller.put_void_unchecked())
-                   );
+            IID_ID3D12Debug,
+            reinterpret_cast<void**>(debug_controller.put_void_unchecked())
+        );
         if (wis::detail::succeeded(hr2)) {
             debug_controller->EnableDebugLayer();
             wis::com_ptr<wis::detail::DX12DebugLayer> debug_layer_impl{
@@ -51,7 +51,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12CreateInstance(
     };
 
     WisResult res = wis::detail::dx_success;
-    for (auto* ext : wis::span<WisDX12InstanceExtensionHeader*> {extensions, extension_count}) {
+    for (auto* ext : wis::span<WisDX12InstanceExtensionHeader*>{extensions, extension_count}) {
         if (auto* table = wis::from_handle<wis::DX12InstanceExtensionHeader>(ext); table && table->init_fptr) {
             res = table->init_fptr(table, impl);
             if (res.status != WisStatusOk) {
@@ -80,11 +80,8 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroyInstance(WisDX12Instance* self)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisDX12InstanceQueryAdapters(
-    const WisDX12Instance* self,
-    WisAdapterPreference preference,
-    WisDX12AdapterQuery* query
-)
+WIS_EXTERN_C WISDOM_API WisResult
+wisDX12InstanceQueryAdapters(const WisDX12Instance* self, WisAdapterPreference preference, WisDX12AdapterQuery* query)
 {
     const auto& instance_impl = wis::from_handle_ref<const wis::impl::DX12InstanceImpl>(self);
     wis::com_ptr<IDXGIFactory6> factory_ref{instance_impl.factory}; // hold a reference
@@ -103,11 +100,11 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12InstanceQueryAdapters(
     // Dynamic reallocation loop
     while (true) {
         auto hr = factory_ref->EnumAdapterByGpuPreference(
-                      static_cast<uint32_t>(count),
-                      wis::detail::DX12Convert(preference),
-                      IID_IDXGIAdapter4,
-                      reinterpret_cast<void**>(adapters.get() + count)
-                  );
+            static_cast<uint32_t>(count),
+            wis::detail::DX12Convert(preference),
+            IID_IDXGIAdapter4,
+            reinterpret_cast<void**>(adapters.get() + count)
+        );
 
         if (hr == DXGI_ERROR_NOT_FOUND) {
             break;
@@ -126,8 +123,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12InstanceQueryAdapters(
             auto new_adapters = wis::make_unique<IDXGIAdapter4*[]>(capacity);
             if (!new_adapters) {
                 return wis::detail::make_result<wis::detail::Func(), "Out of memory while enumerating adapters">(
-                           E_OUTOFMEMORY
-                       );
+                    E_OUTOFMEMORY
+                );
             }
 
             std::memmove(new_adapters.get(), adapters.get(), count * sizeof(IDXGIAdapter4*));

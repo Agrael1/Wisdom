@@ -21,11 +21,11 @@ TEST_CASE("check_platform_support")
         &win32_extension.header,
     };
     WisResult result = wisCreateInstance(
-                           NULL,
-                           extensions,
-                           sizeof(extensions) / sizeof(WisInstanceExtensionHeader*),
-                           &instance
-                       );
+        NULL,
+        extensions,
+        sizeof(extensions) / sizeof(WisInstanceExtensionHeader*),
+        &instance
+    );
 
     // Expect partial success
     REQUIRE(result.status >= 0);
@@ -42,7 +42,6 @@ TEST_CASE("check_platform_support")
     bool xlib_supported = wisXlibExtensionSupported(&xlib_extension);
     bool wayland_supported = wisWaylandExtensionSupported(&wayland_extension);
     bool win32_supported = wisWin32ExtensionSupported(&win32_extension);
-
 
     printf("XCB supported: %s\n", xcb_supported ? "Yes" : "No");
     printf("Xlib supported: %s\n", xlib_supported ? "Yes" : "No");

@@ -16,12 +16,8 @@ WIS_EXTERN_C WISDOM_API void wisDX12DestroySwapchain(WisDX12Swapchain* self)
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisDX12SwapchainPresent(
-    const WisDX12Swapchain* self,
-    WisPresentFlags flags,
-    const WisRect* rects,
-    size_t rect_count
-)
+WIS_EXTERN_C WISDOM_API WisResult
+wisDX12SwapchainPresent(const WisDX12Swapchain* self, WisPresentFlags flags, const WisRect* rects, size_t rect_count)
 {
     auto& swapchain = wis::from_handle_ref<const wis::impl::DX12SwapchainImpl>(self);
     UINT dx_flags = swapchain.vsync ? 0 : swapchain.flags & DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
@@ -50,8 +46,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12SwapchainPresent(
 
     if (hr == DXGI_ERROR_WAS_STILL_DRAWING) {
         return wis::detail::make_result<
-               wis::detail::Func(),
-               "Previous frame is still being presented, cannot present again yet">(WisStatusTimeout, hr);
+            wis::detail::Func(),
+            "Previous frame is still being presented, cannot present again yet">(WisStatusTimeout, hr);
     }
 
     if (!wis::detail::succeeded(hr)) {
@@ -68,10 +64,8 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12SwapchainGetCurrentIndex(const WisDX12S
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisDX12SwapchainUpdate(
-    const WisDX12Swapchain* self,
-    const WisSwapchainUpdateDesc* desc
-)
+WIS_EXTERN_C WISDOM_API WisResult
+wisDX12SwapchainUpdate(const WisDX12Swapchain* self, const WisSwapchainUpdateDesc* desc)
 {
     auto& swapchain = wis::from_handle_ref<const wis::impl::DX12SwapchainImpl>(self);
 
@@ -91,7 +85,7 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12SwapchainUpdate(
     }
 
     auto hr = swapchain.swapchain
-              ->ResizeBuffers(image_count, width, height, wis::detail::DX12Convert(desc->format), swapchain.flags);
+                  ->ResizeBuffers(image_count, width, height, wis::detail::DX12Convert(desc->format), swapchain.flags);
 
     if (!wis::detail::succeeded(hr)) {
         return wis::detail::make_result<wis::detail::Func(), "Failed to resize swap chain buffers">(hr);
@@ -104,17 +98,14 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12SwapchainUpdate(
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-WIS_EXTERN_C WISDOM_API WisResult wisDX12SwapchainGetTextures(
-    const WisDX12Swapchain* self,
-    WisDX12Texture* buffers,
-    size_t buffer_count
-)
+WIS_EXTERN_C WISDOM_API WisResult
+wisDX12SwapchainGetTextures(const WisDX12Swapchain* self, WisDX12Texture* buffers, size_t buffer_count)
 {
     auto& impl = wis::from_handle_ref<const wis::impl::DX12SwapchainImpl>(self);
     if (buffer_count < impl.backbuffer_count) {
         return wis::detail::make_result<
-               wis::detail::Func(),
-               "Provided buffer count is less than the number of swapchain backbuffers">(E_INVALIDARG);
+            wis::detail::Func(),
+            "Provided buffer count is less than the number of swapchain backbuffers">(E_INVALIDARG);
     }
 
     for (uint32_t i = 0; i < impl.backbuffer_count; i++) {

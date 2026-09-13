@@ -21,23 +21,23 @@ inline WisResult DX12CreateResource(
 {
     if (all_desc.HeapType == D3D12_HEAP_TYPE_GPU_UPLOAD && !allocator->IsGPUUploadHeapSupported()) {
         return wis::detail::make_result<wis::detail::Func(), "GPU Upload Heaps are not supported on this system">(
-                   E_NOTIMPL
-               );
+            E_NOTIMPL
+        );
     }
 
     wis::com_ptr<ID3D12Resource> resource;
     wis::com_ptr<D3D12MA::Allocation> allocation;
     HRESULT hr = allocator->CreateResource3(
-                     &all_desc,
-                     &res_desc,
-                     initial_layout,
-                     nullptr,
-                     static_cast<uint32_t>(cast_formats.size()),
-                     cast_formats.data(),
-                     allocation.put_unchecked(),
-                     resource.iid(),
-                     resource.put_void_unchecked()
-                 );
+        &all_desc,
+        &res_desc,
+        initial_layout,
+        nullptr,
+        static_cast<uint32_t>(cast_formats.size()),
+        cast_formats.data(),
+        allocation.put_unchecked(),
+        resource.iid(),
+        resource.put_void_unchecked()
+    );
 
     if (!wis::detail::succeeded(hr)) {
         return wis::detail::make_result<wis::detail::Func(), "Resource Allocation failed">(hr);
@@ -131,9 +131,9 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12ResourceAllocatorCreateBuffer(
 {
     auto& [allocator, device] = wis::from_handle_ref<const wis::impl::DX12ResourceAllocatorImpl>(self);
     uint64_t size = wis::aligned_size(
-                        desc->size_bytes,
-                        static_cast<uint64_t>(D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT)
-                    );
+        desc->size_bytes,
+        static_cast<uint64_t>(D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT)
+    );
     D3D12_RESOURCE_DESC1 buffer_desc{
         .Dimension = D3D12_RESOURCE_DIMENSION_BUFFER,
         .Alignment = 0,
@@ -153,13 +153,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12ResourceAllocatorCreateBuffer(
         .HeapType = wis::detail::DX12Convert(desc->memory_type),
     };
     return wis::detail::DX12CreateResource(
-               all_desc,
-               buffer_desc,
-               D3D12_BARRIER_LAYOUT_UNDEFINED,
-               allocator,
-               {},
-               buffer
-           );
+        all_desc,
+        buffer_desc,
+        D3D12_BARRIER_LAYOUT_UNDEFINED,
+        allocator,
+        {},
+        buffer
+    );
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -179,13 +179,13 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12ResourceAllocatorCreateTexture(
     // planar formats are uncastable
     if (desc->format >= WisDataFormatNV12) {
         return wis::detail::DX12CreateResource(
-                   all_desc,
-                   tex_desc,
-                   D3D12_BARRIER_LAYOUT_UNDEFINED,
-                   impl.allocator,
-                   {},
-                   buffer
-               );
+            all_desc,
+            tex_desc,
+            D3D12_BARRIER_LAYOUT_UNDEFINED,
+            impl.allocator,
+            {},
+            buffer
+        );
     }
 
     static constexpr uint32_t max_cast_formats = 16;
@@ -221,22 +221,22 @@ WIS_EXTERN_C WISDOM_API WisResult wisDX12ResourceAllocatorCreateTexture(
 
     if (directly_mappable) {
         return wis::detail::DX12CreateResource(
-                   all_desc,
-                   tex_desc,
-                   D3D12_BARRIER_LAYOUT_UNDEFINED,
-                   impl.allocator,
-        {reinterpret_cast<const DXGI_FORMAT*>(desc->cast_formats), desc->cast_format_count},
-        buffer
-               );
+            all_desc,
+            tex_desc,
+            D3D12_BARRIER_LAYOUT_UNDEFINED,
+            impl.allocator,
+            {reinterpret_cast<const DXGI_FORMAT*>(desc->cast_formats), desc->cast_format_count},
+            buffer
+        );
     }
     return wis::detail::DX12CreateResource(
-               all_desc,
-               tex_desc,
-               D3D12_BARRIER_LAYOUT_UNDEFINED,
-               impl.allocator,
-               cast_formats_span,
-               buffer
-           );
+        all_desc,
+        tex_desc,
+        D3D12_BARRIER_LAYOUT_UNDEFINED,
+        impl.allocator,
+        cast_formats_span,
+        buffer
+    );
 }
 
 #endif // WIS_DX12_RESOURCE_ALLOCATOR_CPP
