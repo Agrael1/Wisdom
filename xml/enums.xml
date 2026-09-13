@@ -1801,6 +1801,7 @@ Affect which part of the depth stencil buffer is used.">
       <impl_type for="dx" name="D3D12_DESCRIPTOR_HEAP_FLAGS"/>
       <value name="None" value="0" doc="No flags set. View heap is regular."/>
       <value name="AllowMultisample" bit="0" doc="Allows the view heap to be used with multisampled resources. If not set, the view heap does not enable multisample-related usage."/>
+      <value name="AllowVideoTargets" bit="0" doc="Allows the view heap to be used with video targets. If not set, the view heap does not enable video target-related usage."/>
     </type>
 
     <type name="FormatSupportFlags" category="bitmask" version="0.7.0" doc="Format support flags.

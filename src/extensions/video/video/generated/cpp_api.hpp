@@ -1461,6 +1461,18 @@ struct VideoCodecDesc {
 };
 
 /**
+ * @brief Provided by Wisdom 0.7.1. Codec capability data returned by a decode capability query.
+ *
+ * */
+struct VideoCodecCaps {
+    bool supported; ///< True if the requested codec configuration is supported by the device.
+    /**
+     * @brief Minimum required alignment for compressed bitstream buffers in bytes.
+     * */
+    std::uint64_t min_bitstream_buffer_size_alignment;
+};
+
+/**
  * @brief Provided by Wisdom 0.7.1. Information about a video decode operation.
  *
  * */
@@ -1543,17 +1555,6 @@ struct DX12VideoDecodeInputDesc {
     wis::DX12BufferView bitstream_buffer;
     std::uint64_t offset; ///< Offset in the buffer where the bistream data is located.
     std::uint64_t size; ///< Size of the bitstream data in bytes.
-};
-
-/**
- * @brief Provided by Wisdom 0.7.1. Description of the output for a video decode operation. Specifies the target texture
- * for decoded video frames.
- *
- * */
-struct DX12VideoDecodeOutputDesc {
-    wis::DX12TextureView output_texture; ///< The texture that will receive the decoded video frame.
-    wis::DataFormat format; ///< The data format of the output texture.
-    std::uint32_t subresource; ///< The subresource index of the texture to decode into.
 };
 
 /**
@@ -1684,24 +1685,28 @@ public:
     /**
      * @brief Provided by Wisdom 0.7.1. Records a video decode command to the command list.
      * @param decoder The video decoder that will be used for decoding the video frame.
+     * @param parameters The video decoder parameters that will be used for decoding the video frame.
      * @param input_desc Description of the input data for the video decode operation.
-     * @param output_desc Description of the output texture for the decoded video frame.
      * @param picture_desc Codec-specific picture information for the decode operation.
+     * @param output_cpu_handle Handle from ViewHeap that was created for texture that receives the video decoding
+     * result. Handle must have been created using wis::ViewHeap::WriteVideoDecodeTarget.
      *
      * */
     inline void DecodeFrame(
         const wis::DX12VideoDecoder& decoder,
+        const wis::DX12VideoDecoderParameters& parameters,
         const wis::DX12VideoDecodeInputDesc& input_desc,
-        const wis::DX12VideoDecodeOutputDesc& output_desc,
-        const wis::DX12VideoDecodePictureDesc& picture_desc
+        const wis::DX12VideoDecodePictureDesc& picture_desc,
+        std::uint64_t output_cpu_handle
     ) const noexcept
     {
         ::wisDX12VideoDecodeCommandListDecodeFrame(
             &_impl_storage,
             reinterpret_cast<const WisDX12VideoDecoder*>(&decoder),
+            reinterpret_cast<const WisDX12VideoDecoderParameters*>(&parameters),
             reinterpret_cast<const WisDX12VideoDecodeInputDesc*>(&input_desc),
-            reinterpret_cast<const WisDX12VideoDecodeOutputDesc*>(&output_desc),
-            reinterpret_cast<const WisDX12VideoDecodePictureDesc*>(&picture_desc)
+            reinterpret_cast<const WisDX12VideoDecodePictureDesc*>(&picture_desc),
+            output_cpu_handle
         );
     }
 };
@@ -1734,16 +1739,27 @@ public:
      * @param codec_desc Information about the video codec to query capabilities for. The 'codec' field should specify
      * the codec to check, and the function will fill in the supported bit depths and chroma subsampling formats for
      * that codec.
-     * @return Result denoting the outcome of operation.
+     * @param out_result denoting the outcome of operation.
+     * @return caps Capability data for the requested codec configuration.
      *
      * */
-    inline wis::Result QueryCodecCaps(const wis::VideoCodecDesc& codec_desc) noexcept
+    WIS_NODISCARD inline wis::VideoCodecCaps QueryCodecCaps(
+        const wis::VideoCodecDesc& codec_desc,
+        wis::Result& out_result
+    ) noexcept
     {
+        wis::VideoCodecCaps caps{};
         const WisResult wis_result = ::wisDX12VideoDecodingExtensionQueryCodecCaps(
             &_impl_storage,
-            reinterpret_cast<const WisVideoCodecDesc*>(&codec_desc)
+            reinterpret_cast<const WisVideoCodecDesc*>(&codec_desc),
+            reinterpret_cast<WisVideoCodecCaps*>(&caps)
         );
-        return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
+        out_result = wis::Result{
+            static_cast<wis::Status>(wis_result.status),
+            wis_result.platform_code,
+            wis_result.error
+        };
+        return caps;
     }
     /**
      * @brief Provided by Wisdom 0.7.1. Creates a video decoder instance.
@@ -1851,17 +1867,6 @@ struct VKVideoDecodeInputDesc {
     wis::VKBufferView bitstream_buffer;
     std::uint64_t offset; ///< Offset in the buffer where the bistream data is located.
     std::uint64_t size; ///< Size of the bitstream data in bytes.
-};
-
-/**
- * @brief Provided by Wisdom 0.7.1. Description of the output for a video decode operation. Specifies the target texture
- * for decoded video frames.
- *
- * */
-struct VKVideoDecodeOutputDesc {
-    wis::VKTextureView output_texture; ///< The texture that will receive the decoded video frame.
-    wis::DataFormat format; ///< The data format of the output texture.
-    std::uint32_t subresource; ///< The subresource index of the texture to decode into.
 };
 
 /**
@@ -1992,24 +1997,28 @@ public:
     /**
      * @brief Provided by Wisdom 0.7.1. Records a video decode command to the command list.
      * @param decoder The video decoder that will be used for decoding the video frame.
+     * @param parameters The video decoder parameters that will be used for decoding the video frame.
      * @param input_desc Description of the input data for the video decode operation.
-     * @param output_desc Description of the output texture for the decoded video frame.
      * @param picture_desc Codec-specific picture information for the decode operation.
+     * @param output_cpu_handle Handle from ViewHeap that was created for texture that receives the video decoding
+     * result. Handle must have been created using wis::ViewHeap::WriteVideoDecodeTarget.
      *
      * */
     inline void DecodeFrame(
         const wis::VKVideoDecoder& decoder,
+        const wis::VKVideoDecoderParameters& parameters,
         const wis::VKVideoDecodeInputDesc& input_desc,
-        const wis::VKVideoDecodeOutputDesc& output_desc,
-        const wis::VKVideoDecodePictureDesc& picture_desc
+        const wis::VKVideoDecodePictureDesc& picture_desc,
+        std::uint64_t output_cpu_handle
     ) const noexcept
     {
         ::wisVKVideoDecodeCommandListDecodeFrame(
             &_impl_storage,
             reinterpret_cast<const WisVKVideoDecoder*>(&decoder),
+            reinterpret_cast<const WisVKVideoDecoderParameters*>(&parameters),
             reinterpret_cast<const WisVKVideoDecodeInputDesc*>(&input_desc),
-            reinterpret_cast<const WisVKVideoDecodeOutputDesc*>(&output_desc),
-            reinterpret_cast<const WisVKVideoDecodePictureDesc*>(&picture_desc)
+            reinterpret_cast<const WisVKVideoDecodePictureDesc*>(&picture_desc),
+            output_cpu_handle
         );
     }
 };
@@ -2042,16 +2051,27 @@ public:
      * @param codec_desc Information about the video codec to query capabilities for. The 'codec' field should specify
      * the codec to check, and the function will fill in the supported bit depths and chroma subsampling formats for
      * that codec.
-     * @return Result denoting the outcome of operation.
+     * @param out_result denoting the outcome of operation.
+     * @return caps Capability data for the requested codec configuration.
      *
      * */
-    inline wis::Result QueryCodecCaps(const wis::VideoCodecDesc& codec_desc) noexcept
+    WIS_NODISCARD inline wis::VideoCodecCaps QueryCodecCaps(
+        const wis::VideoCodecDesc& codec_desc,
+        wis::Result& out_result
+    ) noexcept
     {
+        wis::VideoCodecCaps caps{};
         const WisResult wis_result = ::wisVKVideoDecodingExtensionQueryCodecCaps(
             &_impl_storage,
-            reinterpret_cast<const WisVideoCodecDesc*>(&codec_desc)
+            reinterpret_cast<const WisVideoCodecDesc*>(&codec_desc),
+            reinterpret_cast<WisVideoCodecCaps*>(&caps)
         );
-        return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
+        out_result = wis::Result{
+            static_cast<wis::Status>(wis_result.status),
+            wis_result.platform_code,
+            wis_result.error
+        };
+        return caps;
     }
     /**
      * @brief Provided by Wisdom 0.7.1. Creates a video decoder instance.

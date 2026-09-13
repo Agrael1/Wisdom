@@ -219,6 +219,102 @@ inline VkImageViewCreateInfo VKGetUAVDesc(const WisTextureBinding& binding) noex
     }
     return srv_desc;
 }
+
+inline uint64_t VKViewHeapWriteRenderTarget(
+    const WisVKViewHeap* self,
+    const WisVKTexture* texture,
+    const WisRenderTargetDesc* render_target,
+    uint32_t index,
+    void* pNext = nullptr
+)
+{
+    auto& heap = wis::from_handle_ref<const wis::impl::VKViewHeapImpl>(self);
+    auto& tex = wis::from_handle_ref<const wis::impl::VKTextureImpl>(texture);
+    auto& header = heap.device_header->header;
+
+    // simply create image view
+    auto vk_format = wis::detail::VKConvert(render_target->format);
+    VkImageViewCreateInfo info{
+        .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+        .pNext = pNext,
+        .image = tex.image,
+        .format = vk_format,
+    };
+    info.subresourceRange.aspectMask = wis::detail::VKAspectFlags(vk_format);
+
+    switch (render_target->layout) {
+    case WisTextureLayoutTexture1D:
+        info.viewType = VK_IMAGE_VIEW_TYPE_1D;
+        info.subresourceRange.baseMipLevel = render_target->mip_level;
+        info.subresourceRange.levelCount = 1;
+        info.subresourceRange.baseArrayLayer = 0, info.subresourceRange.layerCount = 1;
+        break;
+    case WisTextureLayoutTexture2D:
+        info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        info.subresourceRange.baseMipLevel = render_target->mip_level;
+        info.subresourceRange.levelCount = 1;
+        info.subresourceRange.baseArrayLayer = 0, info.subresourceRange.layerCount = 1;
+        break;
+    case WisTextureLayoutTexture3D:
+        info.viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+        info.subresourceRange.baseMipLevel = render_target->mip_level;
+        info.subresourceRange.levelCount = 1;
+        info.subresourceRange.baseArrayLayer = render_target->base_array_layer;
+        info.subresourceRange.layerCount = render_target->array_layer_count;
+        break;
+    case WisTextureLayoutTexture1DArray:
+        info.viewType = VK_IMAGE_VIEW_TYPE_1D_ARRAY;
+        info.subresourceRange.baseMipLevel = render_target->mip_level;
+        info.subresourceRange.levelCount = 1;
+        info.subresourceRange.baseArrayLayer = render_target->base_array_layer;
+        info.subresourceRange.layerCount = render_target->array_layer_count;
+        break;
+    case WisTextureLayoutTexture2DArray:
+        info.viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+        info.subresourceRange.baseMipLevel = render_target->mip_level;
+        info.subresourceRange.levelCount = 1;
+        info.subresourceRange.baseArrayLayer = render_target->base_array_layer;
+        info.subresourceRange.layerCount = render_target->array_layer_count;
+        break;
+    case WisTextureLayoutTexture2DMS:
+        info.viewType = VK_IMAGE_VIEW_TYPE_2D;
+        info.subresourceRange.baseMipLevel = 0;
+        info.subresourceRange.levelCount = 1;
+        info.subresourceRange.baseArrayLayer = 0;
+        info.subresourceRange.layerCount = 1;
+        break;
+    case WisTextureLayoutTexture2DMSArray:
+        info.viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+        info.subresourceRange.baseMipLevel = 0;
+        info.subresourceRange.levelCount = 1;
+        info.subresourceRange.baseArrayLayer = render_target->base_array_layer;
+        info.subresourceRange.layerCount = render_target->array_layer_count;
+        break;
+    default:
+        break;
+    }
+
+    // Get at index position in the view heap
+    wis::detail::VKRenderTargetView& out_render_target = heap.view_heap[index];
+    if (out_render_target.view != VK_NULL_HANDLE) {
+        header.device_table.vkDestroyImageView(header.device, out_render_target.view, nullptr);
+    }
+
+    VkImageView view = VK_NULL_HANDLE;
+    auto vr = header.device_table.vkCreateImageView(header.device, &info, nullptr, &view);
+    if (!wis::detail::succeeded(vr)) {
+        return 0; // Failed to create image view, return 0 as an invalid handle
+    }
+
+    out_render_target = {
+        .view = view,
+        .width = tex.width,
+        .height = tex.height,
+        .array_layer_count = tex.depth_or_array_size,
+    };
+
+    return std::bit_cast<uint64_t>(&out_render_target);
+}
 } // namespace wis::detail
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -416,8 +512,14 @@ WISDOM_API WisResult wisVKDescriptorHeapWriteTexture(
         .size = heap.descriptor_size,
     };
 
+    VkImageViewUsageCreateInfo usage_info{
+        .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_USAGE_CREATE_INFO,
+        .pNext = nullptr,
+        .usage = VK_IMAGE_USAGE_SAMPLED_BIT
+    };
     VkImageViewCreateInfo view_create_info = wis::detail::VKGetSRVDesc(*data);
     view_create_info.image = std::bit_cast<VkImage>(view);
+    view_create_info.pNext = &usage_info;
 
     VkImageDescriptorInfoEXT image_desc{
         .sType = VK_STRUCTURE_TYPE_IMAGE_DESCRIPTOR_INFO_EXT,
@@ -535,92 +637,7 @@ WIS_EXTERN_C WISDOM_API uint64_t wisVKViewHeapWriteRenderTarget(
     uint32_t index
 )
 {
-    auto& heap = wis::from_handle_ref<const wis::impl::VKViewHeapImpl>(self);
-    auto& tex = wis::from_handle_ref<const wis::impl::VKTextureImpl>(texture);
-    auto& header = heap.device_header->header;
-
-    // simply create image view
-    auto vk_format = wis::detail::VKConvert(render_target->format);
-    VkImageViewCreateInfo info{
-        .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-        .pNext = nullptr,
-        .image = tex.image,
-        .format = vk_format,
-    };
-    info.subresourceRange.aspectMask = wis::detail::VKAspectFlags(vk_format);
-
-    switch (render_target->layout) {
-    case WisTextureLayoutTexture1D:
-        info.viewType = VK_IMAGE_VIEW_TYPE_1D;
-        info.subresourceRange.baseMipLevel = render_target->mip_level;
-        info.subresourceRange.levelCount = 1;
-        info.subresourceRange.baseArrayLayer = 0, info.subresourceRange.layerCount = 1;
-        break;
-    case WisTextureLayoutTexture2D:
-        info.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        info.subresourceRange.baseMipLevel = render_target->mip_level;
-        info.subresourceRange.levelCount = 1;
-        info.subresourceRange.baseArrayLayer = 0, info.subresourceRange.layerCount = 1;
-        break;
-    case WisTextureLayoutTexture3D:
-        info.viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
-        info.subresourceRange.baseMipLevel = render_target->mip_level;
-        info.subresourceRange.levelCount = 1;
-        info.subresourceRange.baseArrayLayer = render_target->base_array_layer;
-        info.subresourceRange.layerCount = render_target->array_layer_count;
-        break;
-    case WisTextureLayoutTexture1DArray:
-        info.viewType = VK_IMAGE_VIEW_TYPE_1D_ARRAY;
-        info.subresourceRange.baseMipLevel = render_target->mip_level;
-        info.subresourceRange.levelCount = 1;
-        info.subresourceRange.baseArrayLayer = render_target->base_array_layer;
-        info.subresourceRange.layerCount = render_target->array_layer_count;
-        break;
-    case WisTextureLayoutTexture2DArray:
-        info.viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
-        info.subresourceRange.baseMipLevel = render_target->mip_level;
-        info.subresourceRange.levelCount = 1;
-        info.subresourceRange.baseArrayLayer = render_target->base_array_layer;
-        info.subresourceRange.layerCount = render_target->array_layer_count;
-        break;
-    case WisTextureLayoutTexture2DMS:
-        info.viewType = VK_IMAGE_VIEW_TYPE_2D;
-        info.subresourceRange.baseMipLevel = 0;
-        info.subresourceRange.levelCount = 1;
-        info.subresourceRange.baseArrayLayer = 0;
-        info.subresourceRange.layerCount = 1;
-        break;
-    case WisTextureLayoutTexture2DMSArray:
-        info.viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
-        info.subresourceRange.baseMipLevel = 0;
-        info.subresourceRange.levelCount = 1;
-        info.subresourceRange.baseArrayLayer = render_target->base_array_layer;
-        info.subresourceRange.layerCount = render_target->array_layer_count;
-        break;
-    default:
-        break;
-    }
-
-    // Get at index position in the view heap
-    wis::detail::VKRenderTargetView& out_render_target = heap.view_heap[index];
-    if (out_render_target.view != VK_NULL_HANDLE) {
-        header.device_table.vkDestroyImageView(header.device, out_render_target.view, nullptr);
-    }
-
-    VkImageView view = VK_NULL_HANDLE;
-    auto vr = header.device_table.vkCreateImageView(header.device, &info, nullptr, &view);
-    if (!wis::detail::succeeded(vr)) {
-        return 0; // Failed to create image view, return 0 as an invalid handle
-    }
-
-    out_render_target = {
-        .view = view,
-        .width = tex.width,
-        .height = tex.height,
-        .array_layer_count = tex.depth_or_array_size,
-    };
-
-    return std::bit_cast<uint64_t>(&out_render_target);
+    return wis::detail::VKViewHeapWriteRenderTarget(self, texture, render_target, index);
 }
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -634,6 +651,22 @@ WIS_EXTERN_C WISDOM_API uint64_t wisVKViewHeapWriteDepthStencil(
     // For Vulkan, depth stencil view is essentially the same as render target view with different aspect mask, so we
     // can reuse the same function
     return wisVKViewHeapWriteRenderTarget(self, texture, render_target, index);
+}
+
+//----------------------------------------------------------------------------------------------------------------------
+WIS_EXTERN_C WISDOM_API uint64_t wisVKViewHeapWriteVideoDecodeTarget(
+    const WisVKViewHeap* self,
+    const WisVKTexture* texture,
+    const WisRenderTargetDesc* render_target,
+    uint32_t index
+)
+{
+    VkImageViewUsageCreateInfo usage_info{
+        .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_USAGE_CREATE_INFO,
+        .pNext = nullptr,
+        .usage = VK_IMAGE_USAGE_VIDEO_DECODE_DST_BIT_KHR
+    };
+    return wis::detail::VKViewHeapWriteRenderTarget(self, texture, render_target, index, &usage_info);
 }
 
 //----------------------------------------------------------------------------------------------------------------------

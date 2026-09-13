@@ -23,6 +23,6 @@
  * <hr>
  * \cond WIS_GEN_REFS
  * @see Functions:
- * wisDestroyVideoDecoderParameters, wisVideoDecodingExtensionCreateParameters
+ * wisDestroyVideoDecoderParameters, wisVideoDecodingExtensionCreateParameters, wisVideoDecodeCommandListDecodeFrame
  * \endcond
  */

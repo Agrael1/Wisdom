@@ -1576,6 +1576,11 @@ enum class ViewHeapFlags : uint32_t {
      * multisample-related usage.
      * */
     AllowMultisample = (1u << 0),
+    /**
+     * @brief Allows the view heap to be used with video targets. If not set, the view heap does not enable video
+     * target-related usage.
+     * */
+    AllowVideoTargets = (1u << 0),
 };
 WISDOM_DEFINE_ENUM_OPERATORS(ViewHeapFlags)
 
@@ -1865,7 +1870,10 @@ struct BufferDesc {
 struct TextureDesc {
     std::uint32_t width; ///< defines texture width in pixels.
     std::uint32_t height; ///< describes texture height in pixels.
-    std::uint16_t depth_or_array_size; ///< describes texture depth in pixels. Used only for 3D textures.
+    /**
+     * @brief describes texture depth in pixels. Used only for 3D textures.
+     * */
+    std::uint16_t depth_or_array_size;
     std::uint16_t mip_levels; ///< defines number of mip levels in the texture.
     wis::DataFormat format; ///< describes texture format.
     /**
@@ -1873,10 +1881,18 @@ struct TextureDesc {
      * */
     wis::SampleCount sample_count;
     wis::TextureLayout layout; ///< specifies texture layout. Default is `wis::TextureLayout::Texture2D`.
-    wis::TextureUsageFlags usage_flags; ///< describes texture usage flags. Describe how the texture will be used.
+    /**
+     * @brief describes texture usage flags. Describe how the texture will be used.
+     * */
+    wis::TextureUsageFlags usage_flags;
     wis::TextureFlags flags; ///< describes texture flags. Describe additional options for the texture.
     wis::MemoryType memory_type; ///< specifies where the texture will be allocated.
     wis::MemoryFlags memory_flags; ///< describes the flags of the memory to allocate for the texture.
+    /**
+     * @brief points to an array of formats that can be used to cast the texture to another format. Used for format
+     * casting in shaders.
+     * */
+    wis::span<const wis::DataFormat> cast_formats;
 };
 
 /**
@@ -3090,6 +3106,28 @@ public:
     ) const noexcept
     {
         return (::wisDX12ViewHeapWriteDepthStencil(
+            &_impl_storage,
+            reinterpret_cast<const WisDX12Texture*>(&texture),
+            reinterpret_cast<const WisRenderTargetDesc*>(&render_target),
+            index
+        ));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.1. Writes a texture view for video decode output and returns the texture view
+     * handle for it. The heap must have been created with `wis::ViewHeapFlags::AllowVideoTargets`
+     * @param texture describes a pointer to wis::Texture to write the view for.
+     * @param render_target specifies a pointer to wis::RenderTargetDesc, which describes the texture view to write.
+     * @param index defines the index in the view heap to write the view to.
+     * @return u64 CPU descriptor handle for the view heap.
+     *
+     * */
+    WIS_NODISCARD inline std::uint64_t WriteVideoDecodeTarget(
+        const wis::DX12Texture& texture,
+        const wis::RenderTargetDesc& render_target,
+        std::uint32_t index
+    ) const noexcept
+    {
+        return (::wisDX12ViewHeapWriteVideoDecodeTarget(
             &_impl_storage,
             reinterpret_cast<const WisDX12Texture*>(&texture),
             reinterpret_cast<const WisRenderTargetDesc*>(&render_target),
@@ -5133,6 +5171,28 @@ public:
     ) const noexcept
     {
         return (::wisVKViewHeapWriteDepthStencil(
+            &_impl_storage,
+            reinterpret_cast<const WisVKTexture*>(&texture),
+            reinterpret_cast<const WisRenderTargetDesc*>(&render_target),
+            index
+        ));
+    }
+    /**
+     * @brief Provided by Wisdom 0.7.1. Writes a texture view for video decode output and returns the texture view
+     * handle for it. The heap must have been created with `wis::ViewHeapFlags::AllowVideoTargets`
+     * @param texture describes a pointer to wis::Texture to write the view for.
+     * @param render_target specifies a pointer to wis::RenderTargetDesc, which describes the texture view to write.
+     * @param index defines the index in the view heap to write the view to.
+     * @return u64 CPU descriptor handle for the view heap.
+     *
+     * */
+    WIS_NODISCARD inline std::uint64_t WriteVideoDecodeTarget(
+        const wis::VKTexture& texture,
+        const wis::RenderTargetDesc& render_target,
+        std::uint32_t index
+    ) const noexcept
+    {
+        return (::wisVKViewHeapWriteVideoDecodeTarget(
             &_impl_storage,
             reinterpret_cast<const WisVKTexture*>(&texture),
             reinterpret_cast<const WisRenderTargetDesc*>(&render_target),

@@ -195,6 +195,7 @@ struct VKMainCommandList {
 
     // Video decode functions (placed here, for lesser space consumption)
     PFN_vkCmdBeginVideoCodingKHR vkCmdBeginVideoCodingKHR;
+    PFN_vkCmdControlVideoCodingKHR vkCmdControlVideoCodingKHR;
     PFN_vkCmdDecodeVideoKHR vkCmdDecodeVideoKHR;
     PFN_vkCmdEndVideoCodingKHR vkCmdEndVideoCodingKHR;
 
@@ -239,6 +240,7 @@ public:
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkCmdBindIndexBuffer3KHR);
 
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkCmdBeginVideoCodingKHR);
+        ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkCmdControlVideoCodingKHR);
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkCmdDecodeVideoKHR);
         ASSIGN_DEVICE_PROC_ADDR_OPTIONAL(device, vkCmdEndVideoCodingKHR);
 

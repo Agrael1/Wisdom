@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 3.22)
 project(generator)
 
 include(format.cmake)
@@ -48,3 +49,11 @@ endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES CXX_STANDARD 20)
 target_precompile_headers(${PROJECT_NAME} PRIVATE "pch.hpp")
+
+# Also generate video extension API by running generator with "video" argument
+add_custom_target(generate-video-api
+  COMMAND ${PROJECT_NAME} video
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/..
+  COMMENT "Generating Video extension API"
+  DEPENDS ${PROJECT_NAME}
+  VERBATIM)

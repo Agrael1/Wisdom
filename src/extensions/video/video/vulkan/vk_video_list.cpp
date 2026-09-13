@@ -70,55 +70,24 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisVKVideoDecodeCommandListInsertBarriers(
 WIS_EXTERN_C WISDOM_VIDEO_API void wisVKVideoDecodeCommandListDecodeFrame(
     const WisVKVideoDecodeCommandList* command_list,
     const WisVKVideoDecoder* decoder,
+    const WisVKVideoDecoderParameters* parameters,
     const WisVKVideoDecodeInputDesc* input_desc,
-    const WisVKVideoDecodeOutputDesc* output_desc,
-    const WisVKVideoDecodePictureDesc* picture_desc
+    const WisVKVideoDecodePictureDesc* picture_desc,
+    uint64_t output_cpu_handle
 )
 {
-    using wis::detail::VKConvert;
-
     auto& impl = wis::from_handle_ref<const wis::impl::VKVideoDecodeCommandListImpl>(command_list);
     auto& decoder_impl = wis::from_handle_ref<const wis::impl::VKVideoDecoderImpl>(decoder);
+    auto& parameters_impl = wis::from_handle_ref<const wis::impl::VKVideoDecoderParametersImpl>(parameters);
 
-    auto& device_table = impl.command_pool_header->header.device_header->header.device_table;
-    auto device = impl.command_pool_header->header.device;
+    // Extract output image view and format
+    auto& output_image_view = *std::bit_cast<const wis::detail::VKRenderTargetView*>(output_cpu_handle);
 
-    // Extract output image and format
-    VkImage output_image = std::bit_cast<VkImage>(output_desc->output_texture);
-    VkFormat output_format = VKConvert(output_desc->format);
-    uint32_t subresource = output_desc->subresource;
-
-    // Create temporary image view for the output
-    VkImageViewCreateInfo view_info{
-        .sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
-        .pNext = nullptr,
-        .flags = 0,
-        .image = output_image,
-        .viewType = VK_IMAGE_VIEW_TYPE_2D,
-        .format = output_format,
-        .components =
-            {VK_COMPONENT_SWIZZLE_IDENTITY,
-             VK_COMPONENT_SWIZZLE_IDENTITY,
-             VK_COMPONENT_SWIZZLE_IDENTITY,
-             VK_COMPONENT_SWIZZLE_IDENTITY},
-        .subresourceRange = {
-            .aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
-            .baseMipLevel = 0,
-            .levelCount = 1,
-            .baseArrayLayer = subresource,
-            .layerCount = 1
-        },
-    };
-    VkImageView output_image_view = VK_NULL_HANDLE;
-    device_table.vkCreateImageView(device, &view_info, nullptr, &output_image_view);
-
-    // Codec-specific picture info and DPB slot info
+    // Codec-specific picture info.
     VkVideoDecodeAV1PictureInfoKHR av1_info{};
     VkVideoDecodeH265PictureInfoKHR h265_info{};
-    VkVideoDecodeAV1DpbSlotInfoKHR av1_dpb_slot{};
-    VkVideoDecodeH265DpbSlotInfoKHR h265_dpb_slot{};
+    uint32_t h265_slice_segment_offsets[1]{};
     void* codec_pnext = nullptr;
-    void* dpb_slot_pnext = nullptr;
 
     if (picture_desc->codec >= WisStdCodecProfileAV1Main && picture_desc->codec <= WisStdCodecProfileAV1Professional) {
         av1_info.sType = VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_PICTURE_INFO_KHR;
@@ -131,13 +100,6 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisVKVideoDecodeCommandListDecodeFrame(
             idx = -1;
         }
         codec_pnext = &av1_info;
-
-        av1_dpb_slot.sType = VK_STRUCTURE_TYPE_VIDEO_DECODE_AV1_DPB_SLOT_INFO_KHR;
-        av1_dpb_slot.pNext = nullptr;
-        av1_dpb_slot.pStdReferenceInfo = reinterpret_cast<const StdVideoDecodeAV1ReferenceInfo*>(
-            picture_desc->av1_reference_info
-        );
-        dpb_slot_pnext = &av1_dpb_slot;
     } else if (
         picture_desc->codec >= WisStdCodecProfileH265Main && picture_desc->codec <= WisStdCodecProfileH265FormatRangeExt
     ) {
@@ -146,16 +108,12 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisVKVideoDecodeCommandListDecodeFrame(
         h265_info.pStdPictureInfo = reinterpret_cast<const StdVideoDecodeH265PictureInfo*>(
             picture_desc->h265_picture_info
         );
-        h265_info.sliceSegmentCount = 0;
-        h265_info.pSliceSegmentOffsets = nullptr;
-        codec_pnext = &h265_info;
 
-        h265_dpb_slot.sType = VK_STRUCTURE_TYPE_VIDEO_DECODE_H265_DPB_SLOT_INFO_KHR;
-        h265_dpb_slot.pNext = nullptr;
-        h265_dpb_slot.pStdReferenceInfo = reinterpret_cast<const StdVideoDecodeH265ReferenceInfo*>(
-            picture_desc->h265_reference_info
-        );
-        dpb_slot_pnext = &h265_dpb_slot;
+        // TODO: Handle multiple slice segments if needed. For now, we assume a single slice segment.
+        h265_slice_segment_offsets[0] = 0;
+        h265_info.sliceSegmentCount = 1;
+        h265_info.pSliceSegmentOffsets = h265_slice_segment_offsets;
+        codec_pnext = &h265_info;
     }
 
     // Build target picture resource
@@ -163,38 +121,10 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisVKVideoDecodeCommandListDecodeFrame(
         .sType = VK_STRUCTURE_TYPE_VIDEO_PICTURE_RESOURCE_INFO_KHR,
         .pNext = nullptr,
         .codedOffset = {0, 0},
-        .codedExtent = {0, 0},
-        .baseArrayLayer = subresource,
-        .imageViewBinding = output_image_view,
+        .codedExtent = {output_image_view.width, output_image_view.height},
+        .baseArrayLayer = 0,
+        .imageViewBinding = output_image_view.view,
     };
-
-    // Setup reference slot for current frame (if it will be used as reference)
-    VkVideoReferenceSlotInfoKHR setup_reference_slot{};
-    bool is_reference = false;
-    if (picture_desc->codec >= WisStdCodecProfileAV1Main && picture_desc->codec <= WisStdCodecProfileAV1Professional) {
-        if (picture_desc->av1_picture_info && picture_desc->av1_picture_info->refresh_frame_flags != 0) {
-            is_reference = true;
-        }
-    } else if (
-        (picture_desc->codec >= WisStdCodecProfileH265Main
-         && picture_desc->codec <= WisStdCodecProfileH265FormatRangeExt)
-        && picture_desc->h265_picture_info
-    ) {
-        if (picture_desc->h265_picture_info->flags.IsReference) {
-            is_reference = true;
-        }
-    }
-
-    if (is_reference) {
-        setup_reference_slot.sType = VK_STRUCTURE_TYPE_VIDEO_REFERENCE_SLOT_INFO_KHR;
-        setup_reference_slot.pNext = dpb_slot_pnext;
-        setup_reference_slot.slotIndex = -1;
-        setup_reference_slot.pPictureResource = &target_pic_resource;
-    }
-
-    // Reference slots for inter-frame prediction (currently empty, future enhancement)
-    uint32_t ref_slot_count = 0;
-    const VkVideoReferenceSlotInfoKHR* ref_slots = nullptr;
 
     // Begin video coding scope
     VkVideoBeginCodingInfoKHR begin_info{
@@ -202,10 +132,18 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisVKVideoDecodeCommandListDecodeFrame(
         .pNext = nullptr,
         .flags = 0,
         .videoSession = decoder_impl.video_session,
-        .referenceSlotCount = is_reference ? 1u : 0u,
-        .pReferenceSlots = is_reference ? &setup_reference_slot : nullptr,
+        .videoSessionParameters = parameters_impl.video_session_parameters,
+        .referenceSlotCount = 0,
+        .pReferenceSlots = nullptr,
     };
     impl.command_list_table->vkCmdBeginVideoCodingKHR(impl.command_buffer, &begin_info);
+
+    VkVideoCodingControlInfoKHR control_info{
+        .sType = VK_STRUCTURE_TYPE_VIDEO_CODING_CONTROL_INFO_KHR,
+        .pNext = nullptr,
+        .flags = VK_VIDEO_CODING_CONTROL_RESET_BIT_KHR,
+    };
+    impl.command_list_table->vkCmdControlVideoCodingKHR(impl.command_buffer, &control_info);
 
     // Decode frame
     VkVideoDecodeInfoKHR vk_decode_info{
@@ -216,9 +154,9 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisVKVideoDecodeCommandListDecodeFrame(
         .srcBufferOffset = input_desc->offset,
         .srcBufferRange = input_desc->size,
         .dstPictureResource = target_pic_resource,
-        .pSetupReferenceSlot = is_reference ? &setup_reference_slot : nullptr,
-        .referenceSlotCount = ref_slot_count,
-        .pReferenceSlots = ref_slots,
+        .pSetupReferenceSlot = nullptr,
+        .referenceSlotCount = 0,
+        .pReferenceSlots = nullptr,
     };
     impl.command_list_table->vkCmdDecodeVideoKHR(impl.command_buffer, &vk_decode_info);
 
@@ -229,9 +167,6 @@ WIS_EXTERN_C WISDOM_VIDEO_API void wisVKVideoDecodeCommandListDecodeFrame(
         .flags = 0
     };
     impl.command_list_table->vkCmdEndVideoCodingKHR(impl.command_buffer, &end_info);
-
-    // Destroy temporary image view
-    device_table.vkDestroyImageView(device, output_image_view, nullptr);
 }
 
 #endif // WIS_VK_VIDEO_CPP

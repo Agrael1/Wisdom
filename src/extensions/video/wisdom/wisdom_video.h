@@ -32,7 +32,6 @@ typedef struct WisDX12VideoDecodingExtension WisVideoDecodingExtension;
 //==============================================================
 
 typedef struct WisDX12VideoDecodeInputDesc WisVideoDecodeInputDesc;
-typedef struct WisDX12VideoDecodeOutputDesc WisVideoDecodeOutputDesc;
 typedef struct WisDX12VideoDecodePictureDesc WisVideoDecodePictureDesc;
 
 //==============================================================
@@ -69,7 +68,6 @@ typedef struct WisVKVideoDecodingExtension WisVideoDecodingExtension;
 //==============================================================
 
 typedef struct WisVKVideoDecodeInputDesc WisVideoDecodeInputDesc;
-typedef struct WisVKVideoDecodeOutputDesc WisVideoDecodeOutputDesc;
 typedef struct WisVKVideoDecodePictureDesc WisVideoDecodePictureDesc;
 
 //==============================================================

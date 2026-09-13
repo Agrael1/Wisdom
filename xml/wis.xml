@@ -324,6 +324,12 @@ Can still be enqueued after the signal.">
         <arg type="RenderTargetDesc" name="render_target" mod="const,ref" doc="specifies a pointer to {RenderTargetDesc::}, which describes the depth stencil view to write."/>
         <arg type="u32" name="index" doc="defines the index in the view heap to write the descriptor to."/>
       </func>
+      <func for="ViewHeap" name="WriteVideoDecodeTarget" version="0.7.1" mod="const" doc="Writes a texture view for video decode output and returns the texture view handle for it. The heap must have been created with {ViewHeapFlags::AllowVideoTargets}">
+        <ret type="u64" name="result" doc="CPU descriptor handle for the view heap."/>
+        <arg type="Texture" name="texture" mod="const,ref" doc="describes a pointer to {Texture::} to write the view for."/>
+        <arg type="RenderTargetDesc" name="render_target" mod="const,ref" doc="specifies a pointer to {RenderTargetDesc::}, which describes the texture view to write."/>
+        <arg type="u32" name="index" doc="defines the index in the view heap to write the view to."/>
+      </func>
       <func for="ViewHeap" name="GetViewAddress" version="0.7.0" mod="const" doc="Returns the CPU descriptor handle for the view heap.">
         <ret type="u64" name="view" doc="Address of a view in heap."/>
         <arg type="u32" name="index" doc="defines the index in the view heap to get the descriptor from."/>

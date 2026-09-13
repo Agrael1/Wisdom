@@ -7,7 +7,7 @@
  * <hr>
  *
  * \cond WIS_GEN_CODE
- *  * C version:
+ * C version:
  * ```c
  * // Provided by Wisdom 0.7.1.
  * typedef struct  WisVideoDecodeParameterDesc {
@@ -21,18 +21,21 @@
  * ```cpp
  * namespace wis{
  * // Provided by Wisdom 0.7.1.
- * struct  VideoDecodeParameterDesc
+ * struct  VideoDecodeParameterDesc {
+ *     wis::StdCodecProfile            codec;
+ *     const wis::VideoDecodeAV1Desc*  av1;
+ *     const wis::VideoDecodeH265Desc* h265;
+ * };
+ * }
  * ```
- *
  * \endcond
  *
  * @section WisVideoDecodeParameterDesc_memb Members
  * <hr>
  * \cond WIS_GEN_DESC
- *  * - `codec` Codec type selector. Determines which parameter set is valid.
+ * - `codec` Codec type selector. Determines which parameter set is valid.
  * - `av1` AV1 decoder parameters (valid when codec is an AV1 profile).
  * - `h265` H.265 decoder parameters (valid when codec is an H.265 profile).
- *
  * \endcond
  *
  * @section WisVideoDecodeParameterDesc_descr Description
@@ -44,5 +47,7 @@
  * @section WisVideoDecodeParameterDesc_see_also See Also
  * <hr>
  * \cond WIS_GEN_REFS
+ * @see Functions:
+ * wisVideoDecodingExtensionCreateParameters
  * \endcond
  */

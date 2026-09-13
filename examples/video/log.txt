@@ -1,0 +1,25 @@
+Loaded 1443850 bytes from 'assets/hevc_sample.heic'
+Found mdat box: 1443513 bytes
+Found hvcC box:
+  Configuration version: 1
+  Profile space: 0
+  Tier flag: 0
+  Profile IDC: 3
+  Level IDC: 180
+  Chroma format: 1
+  Bit depth luma: 8
+  Bit depth chroma: 8
+  NAL length size: 4
+  Number of NAL arrays: 3
+
+Video parameters: 3960x5940, chroma=1, bitdepth=8, profile=180
+
+Converted H265 params: 1 VPS, 1 SPS, 1 PPS
+Parsed 1 NAL units from mdat
+  Slice NALs (types 1-21): 1
+Created device on adapter 0
+Codec 3960x5940 supported (bitstream alignment 256)
+H.265 decoder created: 3960x5940, dpb=16
+H.265 session parameters created
+H.265 input buffer created: 1443584 bytes
+Decoding slice 0 (type=19, temporal_id=1, size=1443509 bytes)
