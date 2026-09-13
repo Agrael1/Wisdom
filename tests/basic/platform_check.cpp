@@ -21,11 +21,11 @@ TEST_CASE("check_platform_support")
         &win32_extension.header,
     };
     WisResult result = wisCreateInstance(
-                           NULL,
-                           extensions,
-                           sizeof(extensions) / sizeof(WisInstanceExtensionHeader*),
-                           &instance
-                       );
+        NULL,
+        extensions,
+        sizeof(extensions) / sizeof(WisInstanceExtensionHeader*),
+        &instance
+    );
 
     // Expect partial success
     REQUIRE(result.status >= 0);

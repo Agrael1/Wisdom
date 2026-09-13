@@ -53,7 +53,7 @@ void Generator::ParseBitmask(tinyxml2::XMLElement* type)
     }
 
     for (auto* impl_type = type->FirstChildElement("impl_type"); impl_type;
-            impl_type = impl_type->NextSiblingElement("impl_type")) {
+         impl_type = impl_type->NextSiblingElement("impl_type")) {
         auto impl_for = impl_type->FindAttribute("for")->Value();
         auto backend = ParseBackend(impl_for);
         auto impl_name = impl_type->FindAttribute("name")->Value();
@@ -114,11 +114,11 @@ std::string Generator::MakeCBitmask(const WisBitmask& s, DocKind kind)
     for (auto& m : s.values) {
         if (m.is_bit) {
             st_decl += MakeValueDocumentation(
-                           s,
-                           m,
-                           std::format("    Wis{}{} = (1u << {}),", s.name, m.name, m.value_or_bit),
-                           kind
-                       );
+                s,
+                m,
+                std::format("    Wis{}{} = (1u << {}),", s.name, m.name, m.value_or_bit),
+                kind
+            );
             continue;
         }
         st_decl += MakeValueDocumentation(s, m, std::format("    Wis{}{} = {},", s.name, m.name, m.value_or_bit), kind);
@@ -139,11 +139,11 @@ std::string Generator::MakeCPPBitmask(const WisBitmask& s, DocKind kind)
     for (auto& m : s.values) {
         if (m.is_bit) {
             st_decl += MakeValueDocumentation<Lang::CPP>(
-                           s,
-                           m,
-                           std::format("    {} = (1u << {}),", m.name, m.value_or_bit),
-                           kind
-                       );
+                s,
+                m,
+                std::format("    {} = (1u << {}),", m.name, m.value_or_bit),
+                kind
+            );
             continue;
         }
         st_decl += MakeValueDocumentation<Lang::CPP>(s, m, std::format("    {} = {},", m.name, m.value_or_bit), kind);
@@ -210,19 +210,19 @@ std::string Generator::MakeBitmaskConverter(const WisBitmask& s, Backend backend
 
     if (cvt.direct) {
         converters = std::format(
-                         "constexpr inline {} {}Convert({} value) noexcept {{\n    return static_cast<{}>(value);\n}}\n\n",
-                         cvt.value,
-                         backend_tag,
-                         GetCFullTypename(s.name, backend),
-                         cvt.value
-                     );
+            "constexpr inline {} {}Convert({} value) noexcept {{\n    return static_cast<{}>(value);\n}}\n\n",
+            cvt.value,
+            backend_tag,
+            GetCFullTypename(s.name, backend),
+            cvt.value
+        );
     } else {
         converters = std::format(
-                         "constexpr inline {} {}Convert({} value) noexcept {{\n",
-                         cvt.value,
-                         backend_tag,
-                         GetCFullTypename(s.name, backend)
-                     );
+            "constexpr inline {} {}Convert({} value) noexcept {{\n",
+            cvt.value,
+            backend_tag,
+            GetCFullTypename(s.name, backend)
+        );
 
         // Start with default value
         converters += std::format("    {} result = static_cast<{}>(0);\n", cvt.value, cvt.value);
@@ -233,12 +233,12 @@ std::string Generator::MakeBitmaskConverter(const WisBitmask& s, Backend backend
                     continue;
                 }
                 converters += std::format(
-                                  "    if (value & {}{}) {{ result = static_cast<{}>(result | {}); }}\n",
-                                  GetCFullTypename(s.name, backend),
-                                  m.name,
-                                  cvt.value,
-                                  convert_value
-                              );
+                    "    if (value & {}{}) {{ result = static_cast<{}>(result | {}); }}\n",
+                    GetCFullTypename(s.name, backend),
+                    m.name,
+                    cvt.value,
+                    convert_value
+                );
             }
         } else {
             for (auto& m : s.values) {
@@ -247,11 +247,11 @@ std::string Generator::MakeBitmaskConverter(const WisBitmask& s, Backend backend
                     continue;
                 }
                 converters += std::format(
-                                  "    if (value & {}{}) {{ result |= {}; }}\n",
-                                  GetCFullTypename(s.name, backend),
-                                  m.name,
-                                  convert_value
-                              );
+                    "    if (value & {}{}) {{ result |= {}; }}\n",
+                    GetCFullTypename(s.name, backend),
+                    m.name,
+                    convert_value
+                );
             }
         }
 
@@ -261,19 +261,19 @@ std::string Generator::MakeBitmaskConverter(const WisBitmask& s, Backend backend
     if (cvt.convert_back) {
         if (cvt.direct) {
             converters += std::format(
-                              "constexpr inline {} {}Convert({} value) noexcept {{\n    return static_cast<{}>(value);\n}}\n\n",
-                              wisdom_type,
-                              backend_tag,
-                              cvt.value,
-                              wisdom_type
-                          );
+                "constexpr inline {} {}Convert({} value) noexcept {{\n    return static_cast<{}>(value);\n}}\n\n",
+                wisdom_type,
+                backend_tag,
+                cvt.value,
+                wisdom_type
+            );
         } else {
             converters += std::format(
-                              "constexpr inline {} {}Convert({} value) noexcept {{\n",
-                              wisdom_type,
-                              backend_tag,
-                              cvt.value
-                          );
+                "constexpr inline {} {}Convert({} value) noexcept {{\n",
+                wisdom_type,
+                backend_tag,
+                cvt.value
+            );
             converters += std::format("    {} result = static_cast<{}>(0);\n", wisdom_type, wisdom_type);
 
             for (auto& m : s.values) {
@@ -282,12 +282,12 @@ std::string Generator::MakeBitmaskConverter(const WisBitmask& s, Backend backend
                     continue;
                 }
                 converters += std::format(
-                                  "    if (value & {}) {{ result = static_cast<{}>(result | {}{}); }}\n",
-                                  convert_value,
-                                  wisdom_type,
-                                  wisdom_type,
-                                  m.name
-                              );
+                    "    if (value & {}) {{ result = static_cast<{}>(result | {}{}); }}\n",
+                    convert_value,
+                    wisdom_type,
+                    wisdom_type,
+                    m.name
+                );
             }
 
             converters += std::format("    return result;\n}}\n\n");
@@ -310,11 +310,11 @@ void Generator::WriteBitmaskDocumentation(std::filesystem::path enum_output_path
         files.push_back(enum_file_path);
 
         std::string enum_template_content = std::format(
-                                                " * C version:\n```c\n{}```\n"
-                                                "C++ version:\n```cpp\nnamespace wis{{\n{}}}\n```\n",
-                                                MakeCBitmask(enum_ref, DocKind::VersionOnly),
-                                                MakeCPPBitmask(enum_ref, DocKind::VersionOnly)
-                                            );
+            " * C version:\n```c\n{}```\n"
+            "C++ version:\n```cpp\nnamespace wis{{\n{}}}\n```\n",
+            MakeCBitmask(enum_ref, DocKind::VersionOnly),
+            MakeCPPBitmask(enum_ref, DocKind::VersionOnly)
+        );
         std::string enum_description = std::format(" * {}", MakeBitmaskDescription(enum_ref));
         std::string enum_refs = GetRefs(enum_name);
         ReplaceAll(enum_template_content, "\n", "\n * ");

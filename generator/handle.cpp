@@ -169,10 +169,10 @@ std::string Generator::MakeCHandle(const WisHandle& s, Backend backend, DocKind 
     auto impl_string = GetBackendSuffix(backend);
 
     auto extends_macro = s.extends == Extends::None
-                         ? std::string("WIS_DEFINE_HANDLE")
-                         : (s.extends == Extends::Instance
-                            ? std::format("WIS_DEFINE_{}_INSTANCE_EXT_HANDLE", impl_string)
-                            : std::format("WIS_DEFINE_{}_DEVICE_EXT_HANDLE", impl_string));
+                           ? std::string("WIS_DEFINE_HANDLE")
+                           : (s.extends == Extends::Instance
+                                  ? std::format("WIS_DEFINE_{}_INSTANCE_EXT_HANDLE", impl_string)
+                                  : std::format("WIS_DEFINE_{}_DEVICE_EXT_HANDLE", impl_string));
 
     auto full_name = GetCFullTypename(s.name, backend);
 
@@ -191,12 +191,12 @@ std::string Generator::MakeCHandle(const WisHandle& s, Backend backend, DocKind 
         auto view_name = s.view_override.empty() ? full_name : GetCFullTypename(s.view_override, backend);
 
         st_decl += std::format(
-                       "\nstatic inline {}View wisGet{}{}View(const {}* handle){{\n",
-                       view_name,
-                       impl_string,
-                       s.name,
-                       full_name
-                   );
+            "\nstatic inline {}View wisGet{}{}View(const {}* handle){{\n",
+            view_name,
+            impl_string,
+            s.name,
+            full_name
+        );
         st_decl += std::format("    {}View v;\n", view_name);
         st_decl += "    memcpy(&v, handle, sizeof(v));\n"
                    "    return v;\n}\n";
@@ -212,23 +212,23 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, Backend backend, DocKin
     auto full_name = GetCFullTypename(s.name, backend);
 
     std::string deleter = std::format(
-                              "struct {}{}Deleter {{\n    "
-                              "void operator()({}* handle) noexcept {{\n        ",
-                              impl_string,
-                              s.name,
-                              full_name
-                          );
+        "struct {}{}Deleter {{\n    "
+        "void operator()({}* handle) noexcept {{\n        ",
+        impl_string,
+        s.name,
+        full_name
+    );
 
     std::string st_decl = std::format(
-                              "class {}{} : public wis::impl::Implements<wis::impl::{}{}Impl,{}, wis::{}{}Deleter>{{\npublic:\n",
-                              impl_string,
-                              s.name,
-                              impl_string,
-                              s.name,
-                              full_name,
-                              impl_string,
-                              s.name
-                          );
+        "class {}{} : public wis::impl::Implements<wis::impl::{}{}Impl,{}, wis::{}{}Deleter>{{\npublic:\n",
+        impl_string,
+        s.name,
+        impl_string,
+        s.name,
+        full_name,
+        impl_string,
+        s.name
+    );
 
     if (!s.doc.empty()) {
         std::string xdoc = MakeTypeDocumentation<Lang::CPP>(s, kind);
@@ -246,25 +246,25 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, Backend backend, DocKin
         // Strict aliasing rules prevent us from doing a simple cast, so we have to memcpy the data to a new view struct
         auto view_name = s.view_override.empty() ? s.name : s.view_override;
         st_decl2 += std::format(
-                        "    WIS_NODISCARD {}{}View GetView() const noexcept {{\n"
-                        "        {}{}View v;\n"
-                        "        std::memcpy(&v, &_impl_storage, sizeof(v));\n"
-                        "        return v;\n"
-                        "    }}\n",
-                        impl_string,
-                        view_name,
-                        impl_string,
-                        view_name
-                    );
+            "    WIS_NODISCARD {}{}View GetView() const noexcept {{\n"
+            "        {}{}View v;\n"
+            "        std::memcpy(&v, &_impl_storage, sizeof(v));\n"
+            "        return v;\n"
+            "    }}\n",
+            impl_string,
+            view_name,
+            impl_string,
+            view_name
+        );
 
         // add conversion operator to view
         st_decl2 += std::format(
-                        "    WIS_NODISCARD operator {}{}View() const noexcept {{\n"
-                        "        return GetView();\n"
-                        "    }}\n",
-                        impl_string,
-                        view_name
-                    );
+            "    WIS_NODISCARD operator {}{}View() const noexcept {{\n"
+            "        return GetView();\n"
+            "    }}\n",
+            impl_string,
+            view_name
+        );
     }
 
     // Add all the functions
@@ -272,11 +272,11 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, Backend backend, DocKin
         FunctionKey func_key{s.name, func_name};
         auto& func_ref = function_map[func_key];
         auto c_name = std::format(
-                          "wis{}{}{}",
-                          impl_string,
-                          func_ref.modifier & (Destroy | Construct) ? "" : func_ref.this_type,
-                          func_ref.name
-                      );
+            "wis{}{}{}",
+            impl_string,
+            func_ref.modifier & (Destroy | Construct) ? "" : func_ref.this_type,
+            func_ref.name
+        );
         if (func_ref.modifier & Modifier::Destroy) {
             deleter += std::format("            ::{}(handle);\n", c_name);
             continue;
@@ -315,17 +315,17 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, Backend backend, DocKin
             }
 
             ctor_decl += std::format(
-                             "    {}{}({}) noexcept\n"
-                             "    :ImplType(wis::in_place)\n"
-                             "    {{\n"
-                             "        ::{}({});\n"
-                             "    }}\n",
-                             impl_string,
-                             s.name,
-                             params,
-                             c_name,
-                             args
-                         );
+                "    {}{}({}) noexcept\n"
+                "    :ImplType(wis::in_place)\n"
+                "    {{\n"
+                "        ::{}({});\n"
+                "    }}\n",
+                impl_string,
+                s.name,
+                params,
+                c_name,
+                args
+            );
             continue;
         }
 
@@ -334,14 +334,14 @@ std::string Generator::MakeCPPHandle(const WisHandle& s, Backend backend, DocKin
 
     if (s.extends != Extends::None) {
         auto header = s.extends == Extends::Instance ? GetCPPFullTypename("InstanceExtensionHeader", backend)
-                      : GetCPPFullTypename("DeviceExtensionHeader", backend);
+                                                     : GetCPPFullTypename("DeviceExtensionHeader", backend);
         ctor_decl += std::format(
-                         "        // Operator & overload\n"
-                         "{}* operator&() noexcept {{\n"
-                         "    return &GetMutableInternal().header;\n"
-                         "}}\n",
-                         header
-                     );
+            "        // Operator & overload\n"
+            "{}* operator&() noexcept {{\n"
+            "    return &GetMutableInternal().header;\n"
+            "}}\n",
+            header
+        );
     }
 
     deleter += "    }\n};\n";
@@ -372,7 +372,7 @@ void Generator::WriteHandleDocumentation(std::filesystem::path handle_output_pat
         // Make a folder for enums starting with this letter
         std::filesystem::create_directories(handle_output_path);
         std::filesystem::path handle_file_path = handle_output_path
-            / std::format("{}_handle.h", MakeSnakeCase(handle_name));
+                                               / std::format("{}_handle.h", MakeSnakeCase(handle_name));
         auto& handle_ref = handle_map[handle_name];
         files.push_back(handle_file_path);
 

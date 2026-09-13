@@ -2868,9 +2868,7 @@ struct DX12IndexBufferDesc {
 };
 
 struct DX12TextureDeleter {
-    void operator()(WisDX12Texture* handle) noexcept {
-        ::wisDX12DestroyTexture(handle);
-    }
+    void operator()(WisDX12Texture* handle) noexcept { ::wisDX12DestroyTexture(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a GPU texture resource.
@@ -2888,9 +2886,7 @@ public:
         std::memcpy(&v, &_impl_storage, sizeof(v));
         return v;
     }
-    WIS_NODISCARD operator DX12TextureView() const noexcept {
-        return GetView();
-    }
+    WIS_NODISCARD operator DX12TextureView() const noexcept { return GetView(); }
     /**
      * @brief Provided by Wisdom 0.7.0. Writes data directly to the texture subresource. Texture @wis_must be in
      * `wis::TextureState::Common` and @wis_mustnot be a depth or planar texture.
@@ -2903,18 +2899,16 @@ public:
     inline wis::Result WriteSubresource(const void* source_data, const wis::TextureRegion& target_region) const noexcept
     {
         const WisResult wis_result = ::wisDX12TextureWriteSubresource(
-                                         &_impl_storage,
-                                         source_data,
-                                         reinterpret_cast<const WisTextureRegion*>(&target_region)
-                                     );
+            &_impl_storage,
+            source_data,
+            reinterpret_cast<const WisTextureRegion*>(&target_region)
+        );
         return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     }
 };
 
 struct DX12BufferDeleter {
-    void operator()(WisDX12Buffer* handle) noexcept {
-        ::wisDX12DestroyBuffer(handle);
-    }
+    void operator()(WisDX12Buffer* handle) noexcept { ::wisDX12DestroyBuffer(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a GPU buffer resource.
@@ -2932,17 +2926,13 @@ public:
         std::memcpy(&v, &_impl_storage, sizeof(v));
         return v;
     }
-    WIS_NODISCARD operator DX12BufferView() const noexcept {
-        return GetView();
-    }
+    WIS_NODISCARD operator DX12BufferView() const noexcept { return GetView(); }
     /**
      * @brief Provided by Wisdom 0.7.0. Maps the buffer memory to CPU accessible address space.
      * @return void points to the pointer, which is filled with the address of the mapped memory on success.
      *
      * */
-    WIS_NODISCARD inline void* Map() const noexcept {
-        return (::wisDX12BufferMap(&_impl_storage));
-    }
+    WIS_NODISCARD inline void* Map() const noexcept { return (::wisDX12BufferMap(&_impl_storage)); }
     /**
      * @brief Provided by Wisdom 0.7.0. Gets the GPU virtual address of the buffer.
      * @return u64 Address of the buffer on GPU.
@@ -2955,9 +2945,7 @@ public:
 };
 
 struct DX12SwapchainDeleter {
-    void operator()(WisDX12Swapchain* handle) noexcept {
-        ::wisDX12DestroySwapchain(handle);
-    }
+    void operator()(WisDX12Swapchain* handle) noexcept { ::wisDX12DestroySwapchain(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a swapchain, which is a collection of render targets used for
@@ -2981,11 +2969,11 @@ public:
     inline wis::Result Present(wis::PresentFlags flags, wis::span<const wis::Rect> rects) const noexcept
     {
         const WisResult wis_result = ::wisDX12SwapchainPresent(
-                                         &_impl_storage,
-                                         static_cast<WisPresentFlags>(flags),
-                                         reinterpret_cast<const WisRect*>(rects.data()),
-                                         rects.size()
-                                     );
+            &_impl_storage,
+            static_cast<WisPresentFlags>(flags),
+            reinterpret_cast<const WisRect*>(rects.data()),
+            rects.size()
+        );
         return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     }
     /**
@@ -2999,9 +2987,9 @@ public:
     {
         std::uint32_t index{};
         const WisResult wis_result = ::wisDX12SwapchainGetCurrentIndex(
-                                         &_impl_storage,
-                                         reinterpret_cast<uint32_t*>(&index)
-                                     );
+            &_impl_storage,
+            reinterpret_cast<uint32_t*>(&index)
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -3019,9 +3007,9 @@ public:
     inline wis::Result Update(const wis::SwapchainUpdateDesc& desc) const noexcept
     {
         const WisResult wis_result = ::wisDX12SwapchainUpdate(
-                                         &_impl_storage,
-                                         reinterpret_cast<const WisSwapchainUpdateDesc*>(&desc)
-                                     );
+            &_impl_storage,
+            reinterpret_cast<const WisSwapchainUpdateDesc*>(&desc)
+        );
         return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     }
     /**
@@ -3033,18 +3021,16 @@ public:
     inline wis::Result GetTextures(wis::span<wis::DX12Texture> buffers) const noexcept
     {
         const WisResult wis_result = ::wisDX12SwapchainGetTextures(
-                                         &_impl_storage,
-                                         reinterpret_cast<WisDX12Texture*>(buffers.data()),
-                                         buffers.size()
-                                     );
+            &_impl_storage,
+            reinterpret_cast<WisDX12Texture*>(buffers.data()),
+            buffers.size()
+        );
         return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     }
 };
 
 struct DX12SurfaceDeleter {
-    void operator()(WisDX12Surface* handle) noexcept {
-        ::wisDX12DestroySurface(handle);
-    }
+    void operator()(WisDX12Surface* handle) noexcept { ::wisDX12DestroySurface(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a GPU surface, which can be used as a target for rendering and
@@ -3063,15 +3049,11 @@ public:
         std::memcpy(&v, &_impl_storage, sizeof(v));
         return v;
     }
-    WIS_NODISCARD operator DX12SurfaceView() const noexcept {
-        return GetView();
-    }
+    WIS_NODISCARD operator DX12SurfaceView() const noexcept { return GetView(); }
 };
 
 struct DX12ViewHeapDeleter {
-    void operator()(WisDX12ViewHeap* handle) noexcept {
-        ::wisDX12DestroyViewHeap(handle);
-    }
+    void operator()(WisDX12ViewHeap* handle) noexcept { ::wisDX12DestroyViewHeap(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a storage for resource views used in contiguous array.
@@ -3101,11 +3083,11 @@ public:
     ) const noexcept
     {
         return (::wisDX12ViewHeapWriteRenderTarget(
-                    &_impl_storage,
-                    reinterpret_cast<const WisDX12Texture*>(&texture),
-                    reinterpret_cast<const WisRenderTargetDesc*>(&render_target),
-                    index
-                ));
+            &_impl_storage,
+            reinterpret_cast<const WisDX12Texture*>(&texture),
+            reinterpret_cast<const WisRenderTargetDesc*>(&render_target),
+            index
+        ));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Writes a depth stencil view to the view heap and returns the CPU descriptor
@@ -3124,11 +3106,11 @@ public:
     ) const noexcept
     {
         return (::wisDX12ViewHeapWriteDepthStencil(
-                    &_impl_storage,
-                    reinterpret_cast<const WisDX12Texture*>(&texture),
-                    reinterpret_cast<const WisRenderTargetDesc*>(&render_target),
-                    index
-                ));
+            &_impl_storage,
+            reinterpret_cast<const WisDX12Texture*>(&texture),
+            reinterpret_cast<const WisRenderTargetDesc*>(&render_target),
+            index
+        ));
     }
     /**
      * @brief Provided by Wisdom 0.7.1. Writes a texture view for video decode output and returns the texture view
@@ -3146,11 +3128,11 @@ public:
     ) const noexcept
     {
         return (::wisDX12ViewHeapWriteVideoDecodeTarget(
-                    &_impl_storage,
-                    reinterpret_cast<const WisDX12Texture*>(&texture),
-                    reinterpret_cast<const WisRenderTargetDesc*>(&render_target),
-                    index
-                ));
+            &_impl_storage,
+            reinterpret_cast<const WisDX12Texture*>(&texture),
+            reinterpret_cast<const WisRenderTargetDesc*>(&render_target),
+            index
+        ));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Returns the CPU descriptor handle for the view heap.
@@ -3191,9 +3173,7 @@ public:
 };
 
 struct DX12PipelineDeleter {
-    void operator()(WisDX12Pipeline* handle) noexcept {
-        ::wisDX12DestroyPipeline(handle);
-    }
+    void operator()(WisDX12Pipeline* handle) noexcept { ::wisDX12DestroyPipeline(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a GPU pipeline state object, which encapsulates the state of the
@@ -3213,15 +3193,11 @@ public:
         std::memcpy(&v, &_impl_storage, sizeof(v));
         return v;
     }
-    WIS_NODISCARD operator DX12PipelineView() const noexcept {
-        return GetView();
-    }
+    WIS_NODISCARD operator DX12PipelineView() const noexcept { return GetView(); }
 };
 
 struct DX12ShaderDeleter {
-    void operator()(WisDX12Shader* handle) noexcept {
-        ::wisDX12DestroyShader(handle);
-    }
+    void operator()(WisDX12Shader* handle) noexcept { ::wisDX12DestroyShader(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a GPU shader module, which contains shader code and allows to
@@ -3240,15 +3216,11 @@ public:
         std::memcpy(&v, &_impl_storage, sizeof(v));
         return v;
     }
-    WIS_NODISCARD operator DX12ShaderView() const noexcept {
-        return GetView();
-    }
+    WIS_NODISCARD operator DX12ShaderView() const noexcept { return GetView(); }
 };
 
 struct DX12PipelineCacheDeleter {
-    void operator()(WisDX12PipelineCache* handle) noexcept {
-        ::wisDX12DestroyPipelineCache(handle);
-    }
+    void operator()(WisDX12PipelineCache* handle) noexcept { ::wisDX12DestroyPipelineCache(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a cache for pipeline state objects, which allows to reuse already
@@ -3257,7 +3229,7 @@ struct DX12PipelineCacheDeleter {
  * */
 class DX12PipelineCache
     : public wis::impl::
-      Implements<wis::impl::DX12PipelineCacheImpl, WisDX12PipelineCache, wis::DX12PipelineCacheDeleter>
+          Implements<wis::impl::DX12PipelineCacheImpl, WisDX12PipelineCache, wis::DX12PipelineCacheDeleter>
 {
 public:
     using ImplType::ImplType;
@@ -3269,9 +3241,7 @@ public:
         std::memcpy(&v, &_impl_storage, sizeof(v));
         return v;
     }
-    WIS_NODISCARD operator DX12PipelineCacheView() const noexcept {
-        return GetView();
-    }
+    WIS_NODISCARD operator DX12PipelineCacheView() const noexcept { return GetView(); }
     /**
      * @brief Provided by Wisdom 0.7.0. Gets the data from the pipeline cache.
      * @param data points to an array that is filled with serialized cache data on success.
@@ -3281,10 +3251,10 @@ public:
     inline wis::Result Serialize(wis::span<std::uint8_t> data) const noexcept
     {
         const WisResult wis_result = ::wisDX12PipelineCacheSerialize(
-                                         &_impl_storage,
-                                         reinterpret_cast<uint8_t*>(data.data()),
-                                         data.size()
-                                     );
+            &_impl_storage,
+            reinterpret_cast<uint8_t*>(data.data()),
+            data.size()
+        );
         return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     }
     /**
@@ -3299,9 +3269,7 @@ public:
 };
 
 struct DX12DescriptorHeapDeleter {
-    void operator()(WisDX12DescriptorHeap* handle) noexcept {
-        ::wisDX12DestroyDescriptorHeap(handle);
-    }
+    void operator()(WisDX12DescriptorHeap* handle) noexcept { ::wisDX12DestroyDescriptorHeap(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a storage for descriptors used in contiguous array.
@@ -3309,7 +3277,7 @@ struct DX12DescriptorHeapDeleter {
  * */
 class DX12DescriptorHeap
     : public wis::impl::
-      Implements<wis::impl::DX12DescriptorHeapImpl, WisDX12DescriptorHeap, wis::DX12DescriptorHeapDeleter>
+          Implements<wis::impl::DX12DescriptorHeapImpl, WisDX12DescriptorHeap, wis::DX12DescriptorHeapDeleter>
 {
 public:
     using ImplType::ImplType;
@@ -3335,10 +3303,10 @@ public:
     inline wis::Result WriteConstantBuffer(const wis::ConstantBufferBinding& data, std::uint32_t index) const noexcept
     {
         const WisResult wis_result = ::wisDX12DescriptorHeapWriteConstantBuffer(
-                                         &_impl_storage,
-                                         reinterpret_cast<const WisConstantBufferBinding*>(&data),
-                                         index
-                                     );
+            &_impl_storage,
+            reinterpret_cast<const WisConstantBufferBinding*>(&data),
+            index
+        );
         return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     }
     /**
@@ -3357,11 +3325,11 @@ public:
     ) const noexcept
     {
         const WisResult wis_result = ::wisDX12DescriptorHeapWriteStructuredBuffer(
-                                         &_impl_storage,
-                                         buffer,
-                                         reinterpret_cast<const WisBufferBinding*>(&data),
-                                         index
-                                     );
+            &_impl_storage,
+            buffer,
+            reinterpret_cast<const WisBufferBinding*>(&data),
+            index
+        );
         return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     }
     /**
@@ -3380,11 +3348,11 @@ public:
     ) const noexcept
     {
         const WisResult wis_result = ::wisDX12DescriptorHeapWriteRWStructuredBuffer(
-                                         &_impl_storage,
-                                         buffer,
-                                         reinterpret_cast<const WisBufferBinding*>(&data),
-                                         index
-                                     );
+            &_impl_storage,
+            buffer,
+            reinterpret_cast<const WisBufferBinding*>(&data),
+            index
+        );
         return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     }
     /**
@@ -3397,10 +3365,10 @@ public:
     inline wis::Result WriteSampler(const wis::SamplerDesc& sampler, std::uint32_t index) const noexcept
     {
         const WisResult wis_result = ::wisDX12DescriptorHeapWriteSampler(
-                                         &_impl_storage,
-                                         reinterpret_cast<const WisSamplerDesc*>(&sampler),
-                                         index
-                                     );
+            &_impl_storage,
+            reinterpret_cast<const WisSamplerDesc*>(&sampler),
+            index
+        );
         return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     }
     /**
@@ -3412,14 +3380,14 @@ public:
      *
      * */
     inline wis::Result WriteTexture(wis::DX12TextureView texture, const wis::TextureBinding& data, std::uint32_t index)
-    const noexcept
+        const noexcept
     {
         const WisResult wis_result = ::wisDX12DescriptorHeapWriteTexture(
-                                         &_impl_storage,
-                                         texture,
-                                         reinterpret_cast<const WisTextureBinding*>(&data),
-                                         index
-                                     );
+            &_impl_storage,
+            texture,
+            reinterpret_cast<const WisTextureBinding*>(&data),
+            index
+        );
         return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     }
     /**
@@ -3437,11 +3405,11 @@ public:
     ) const noexcept
     {
         const WisResult wis_result = ::wisDX12DescriptorHeapWriteRWTexture(
-                                         &_impl_storage,
-                                         texture,
-                                         reinterpret_cast<const WisTextureBinding*>(&data),
-                                         index
-                                     );
+            &_impl_storage,
+            texture,
+            reinterpret_cast<const WisTextureBinding*>(&data),
+            index
+        );
         return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     }
     /**
@@ -3477,9 +3445,7 @@ public:
 };
 
 struct DX12RootSignatureDeleter {
-    void operator()(WisDX12RootSignature* handle) noexcept {
-        ::wisDX12DestroyRootSignature(handle);
-    }
+    void operator()(WisDX12RootSignature* handle) noexcept { ::wisDX12DestroyRootSignature(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a pipeline layout and a constant data storage, which defines
@@ -3488,7 +3454,7 @@ struct DX12RootSignatureDeleter {
  * */
 class DX12RootSignature
     : public wis::impl::
-      Implements<wis::impl::DX12RootSignatureImpl, WisDX12RootSignature, wis::DX12RootSignatureDeleter>
+          Implements<wis::impl::DX12RootSignatureImpl, WisDX12RootSignature, wis::DX12RootSignatureDeleter>
 {
 public:
     using ImplType::ImplType;
@@ -3500,15 +3466,11 @@ public:
         std::memcpy(&v, &_impl_storage, sizeof(v));
         return v;
     }
-    WIS_NODISCARD operator DX12RootSignatureView() const noexcept {
-        return GetView();
-    }
+    WIS_NODISCARD operator DX12RootSignatureView() const noexcept { return GetView(); }
 };
 
 struct DX12ResourceAllocatorDeleter {
-    void operator()(WisDX12ResourceAllocator* handle) noexcept {
-        ::wisDX12DestroyResourceAllocator(handle);
-    }
+    void operator()(WisDX12ResourceAllocator* handle) noexcept { ::wisDX12DestroyResourceAllocator(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class for allocating and managing GPU resources like buffers and textures.
@@ -3516,7 +3478,7 @@ struct DX12ResourceAllocatorDeleter {
  * */
 class DX12ResourceAllocator
     : public wis::impl::
-      Implements<wis::impl::DX12ResourceAllocatorImpl, WisDX12ResourceAllocator, wis::DX12ResourceAllocatorDeleter>
+          Implements<wis::impl::DX12ResourceAllocatorImpl, WisDX12ResourceAllocator, wis::DX12ResourceAllocatorDeleter>
 {
 public:
     using ImplType::ImplType;
@@ -3530,14 +3492,14 @@ public:
      *
      * */
     WIS_NODISCARD inline wis::DX12Buffer CreateBuffer(const wis::BufferDesc& desc, wis::Result& out_result)
-    const noexcept
+        const noexcept
     {
         wis::DX12Buffer buffer{};
         const WisResult wis_result = ::wisDX12ResourceAllocatorCreateBuffer(
-                                         &_impl_storage,
-                                         reinterpret_cast<const WisBufferDesc*>(&desc),
-                                         buffer.GetStorage()
-                                     );
+            &_impl_storage,
+            reinterpret_cast<const WisBufferDesc*>(&desc),
+            buffer.GetStorage()
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -3553,14 +3515,14 @@ public:
      *
      * */
     WIS_NODISCARD inline wis::DX12Texture CreateTexture(const wis::TextureDesc& desc, wis::Result& out_result)
-    const noexcept
+        const noexcept
     {
         wis::DX12Texture texture{};
         const WisResult wis_result = ::wisDX12ResourceAllocatorCreateTexture(
-                                         &_impl_storage,
-                                         reinterpret_cast<const WisTextureDesc*>(&desc),
-                                         texture.GetStorage()
-                                     );
+            &_impl_storage,
+            reinterpret_cast<const WisTextureDesc*>(&desc),
+            texture.GetStorage()
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -3571,9 +3533,7 @@ public:
 };
 
 struct DX12FenceDeleter {
-    void operator()(WisDX12Fence* handle) noexcept {
-        ::wisDX12DestroyFence(handle);
-    }
+    void operator()(WisDX12Fence* handle) noexcept { ::wisDX12DestroyFence(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a fence for GPU-CPU and GPU-GPU synchronization.
@@ -3591,9 +3551,7 @@ public:
         std::memcpy(&v, &_impl_storage, sizeof(v));
         return v;
     }
-    WIS_NODISCARD operator DX12FenceView() const noexcept {
-        return GetView();
-    }
+    WIS_NODISCARD operator DX12FenceView() const noexcept { return GetView(); }
     /**
      * @brief Provided by Wisdom 0.7.0. Get the current value of the fence.
      * @return u64 Value of the fence.
@@ -3629,9 +3587,7 @@ public:
 };
 
 struct DX12CommandListDeleter {
-    void operator()(WisDX12CommandList* handle) noexcept {
-        ::wisDX12DestroyCommandList(handle);
-    }
+    void operator()(WisDX12CommandList* handle) noexcept { ::wisDX12DestroyCommandList(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a command list for recording GPU commands.
@@ -3650,9 +3606,7 @@ public:
         std::memcpy(&v, &_impl_storage, sizeof(v));
         return v;
     }
-    WIS_NODISCARD operator DX12CommandListView() const noexcept {
-        return GetView();
-    }
+    WIS_NODISCARD operator DX12CommandListView() const noexcept { return GetView(); }
     /**
      * @brief Provided by Wisdom 0.7.0. Opens the command list, so commands can be recorded to it.
      * @return Result denoting the outcome of operation.
@@ -3831,7 +3785,7 @@ public:
      *
      * */
     inline void Dispatch(std::uint32_t group_count_x, std::uint32_t group_count_y, std::uint32_t group_count_z)
-    const noexcept
+        const noexcept
     {
         ::wisDX12CommandListDispatch(&_impl_storage, group_count_x, group_count_y, group_count_z);
     }
@@ -3892,9 +3846,7 @@ public:
      * @brief Provided by Wisdom 0.7.0. Ends the current render pass.
      *
      * */
-    inline void EndRenderPass() const noexcept {
-        ::wisDX12CommandListEndRenderPass(&_impl_storage);
-    }
+    inline void EndRenderPass() const noexcept { ::wisDX12CommandListEndRenderPass(&_impl_storage); }
     /**
      * @brief Provided by Wisdom 0.7.0. Copies regions from one buffer to another.
      * @param dst_buffer defines a pointer to the destination buffer.
@@ -4063,7 +4015,7 @@ public:
      *
      * */
     inline void SetBlendFactors(float blend_factor_r, float blend_factor_g, float blend_factor_b, float blend_factor_a)
-    const noexcept
+        const noexcept
     {
         ::wisDX12CommandListSetBlendFactors(
             &_impl_storage,
@@ -4076,9 +4028,7 @@ public:
 };
 
 struct DX12CommandAllocatorDeleter {
-    void operator()(WisDX12CommandAllocator* handle) noexcept {
-        ::wisDX12DestroyCommandAllocator(handle);
-    }
+    void operator()(WisDX12CommandAllocator* handle) noexcept { ::wisDX12DestroyCommandAllocator(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a pool allocator for command lists for recording GPU commands.
@@ -4086,7 +4036,7 @@ struct DX12CommandAllocatorDeleter {
  * */
 class DX12CommandAllocator
     : public wis::impl::
-      Implements<wis::impl::DX12CommandAllocatorImpl, WisDX12CommandAllocator, wis::DX12CommandAllocatorDeleter>
+          Implements<wis::impl::DX12CommandAllocatorImpl, WisDX12CommandAllocator, wis::DX12CommandAllocatorDeleter>
 {
 public:
     using ImplType::ImplType;
@@ -4123,9 +4073,7 @@ public:
 };
 
 struct DX12CommandQueueDeleter {
-    void operator()(WisDX12CommandQueue* handle) noexcept {
-        ::wisDX12DestroyCommandQueue(handle);
-    }
+    void operator()(WisDX12CommandQueue* handle) noexcept { ::wisDX12DestroyCommandQueue(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a command queue for submitting command lists to the GPU.
@@ -4147,10 +4095,10 @@ public:
     inline wis::Result Submit(wis::span<const wis::DX12CommandListView> lists) const noexcept
     {
         const WisResult wis_result = ::wisDX12CommandQueueSubmit(
-                                         &_impl_storage,
-                                         reinterpret_cast<const WisDX12CommandListView*>(lists.data()),
-                                         lists.size()
-                                     );
+            &_impl_storage,
+            reinterpret_cast<const WisDX12CommandListView*>(lists.data()),
+            lists.size()
+        );
         return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     }
     /**
@@ -4182,9 +4130,7 @@ public:
 };
 
 struct DX12DeviceDeleter {
-    void operator()(WisDX12Device* handle) noexcept {
-        ::wisDX12DestroyDevice(handle);
-    }
+    void operator()(WisDX12Device* handle) noexcept { ::wisDX12DestroyDevice(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Central class representing logical device.
@@ -4204,14 +4150,14 @@ public:
      *
      * */
     WIS_NODISCARD inline wis::DX12CommandQueue CreateCommandQueue(wis::CommandQueueType type, wis::Result& out_result)
-    const noexcept
+        const noexcept
     {
         wis::DX12CommandQueue queue{};
         const WisResult wis_result = ::wisDX12DeviceCreateCommandQueue(
-                                         &_impl_storage,
-                                         static_cast<WisCommandQueueType>(type),
-                                         queue.GetStorage()
-                                     );
+            &_impl_storage,
+            static_cast<WisCommandQueueType>(type),
+            queue.GetStorage()
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -4233,10 +4179,10 @@ public:
     {
         wis::DX12CommandAllocator allocator{};
         const WisResult wis_result = ::wisDX12DeviceCreateCommandAllocator(
-                                         &_impl_storage,
-                                         static_cast<WisCommandQueueType>(type),
-                                         allocator.GetStorage()
-                                     );
+            &_impl_storage,
+            static_cast<WisCommandQueueType>(type),
+            allocator.GetStorage()
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -4293,10 +4239,10 @@ public:
     {
         wis::DX12RootSignature layout{};
         const WisResult wis_result = ::wisDX12DeviceCreateRootSignature(
-                                         &_impl_storage,
-                                         reinterpret_cast<const WisRootSignatureDesc*>(&desc),
-                                         layout.GetStorage()
-                                     );
+            &_impl_storage,
+            reinterpret_cast<const WisRootSignatureDesc*>(&desc),
+            layout.GetStorage()
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -4318,10 +4264,10 @@ public:
     {
         wis::DX12DescriptorHeap heap{};
         const WisResult wis_result = ::wisDX12DeviceCreateDescriptorHeap(
-                                         &_impl_storage,
-                                         reinterpret_cast<const WisDescriptorHeapDesc*>(&desc),
-                                         heap.GetStorage()
-                                     );
+            &_impl_storage,
+            reinterpret_cast<const WisDescriptorHeapDesc*>(&desc),
+            heap.GetStorage()
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -4347,12 +4293,12 @@ public:
     {
         wis::DX12ViewHeap heap{};
         const WisResult wis_result = ::wisDX12DeviceCreateViewHeap(
-                                         &_impl_storage,
-                                         static_cast<WisViewHeapType>(type),
-                                         capacity,
-                                         static_cast<WisViewHeapFlags>(flags),
-                                         heap.GetStorage()
-                                     );
+            &_impl_storage,
+            static_cast<WisViewHeapType>(type),
+            capacity,
+            static_cast<WisViewHeapFlags>(flags),
+            heap.GetStorage()
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -4391,13 +4337,13 @@ public:
     ) const noexcept
     {
         const WisResult wis_result = ::wisDX12DeviceWaitForMultipleFences(
-                                         &_impl_storage,
-                                         fences,
-                                         fence_values,
-                                         fence_count,
-                                         static_cast<WisMultiWaitType>(wait_for),
-                                         timeout
-                                     );
+            &_impl_storage,
+            fences,
+            fence_values,
+            fence_count,
+            static_cast<WisMultiWaitType>(wait_for),
+            timeout
+        );
         return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     }
     /**
@@ -4414,11 +4360,11 @@ public:
     {
         wis::DX12PipelineCache cache{};
         const WisResult wis_result = ::wisDX12DeviceCreatePipelineCache(
-                                         &_impl_storage,
-                                         reinterpret_cast<const uint8_t*>(initial_data.data()),
-                                         initial_data.size(),
-                                         cache.GetStorage()
-                                     );
+            &_impl_storage,
+            reinterpret_cast<const uint8_t*>(initial_data.data()),
+            initial_data.size(),
+            cache.GetStorage()
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -4434,15 +4380,15 @@ public:
      *
      * */
     WIS_NODISCARD inline wis::DX12Shader CreateShader(wis::span<const std::uint8_t> data, wis::Result& out_result)
-    const noexcept
+        const noexcept
     {
         wis::DX12Shader shader{};
         const WisResult wis_result = ::wisDX12DeviceCreateShader(
-                                         &_impl_storage,
-                                         reinterpret_cast<const uint8_t*>(data.data()),
-                                         data.size(),
-                                         shader.GetStorage()
-                                     );
+            &_impl_storage,
+            reinterpret_cast<const uint8_t*>(data.data()),
+            data.size(),
+            shader.GetStorage()
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -4464,10 +4410,10 @@ public:
     {
         wis::DX12Pipeline pipeline{};
         const WisResult wis_result = ::wisDX12DeviceCreateComputePipeline(
-                                         &_impl_storage,
-                                         reinterpret_cast<const WisDX12ComputePipelineDesc*>(&desc),
-                                         pipeline.GetStorage()
-                                     );
+            &_impl_storage,
+            reinterpret_cast<const WisDX12ComputePipelineDesc*>(&desc),
+            pipeline.GetStorage()
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -4489,10 +4435,10 @@ public:
     {
         wis::DX12Pipeline pipeline{};
         const WisResult wis_result = ::wisDX12DeviceCreateGraphicsPipeline(
-                                         &_impl_storage,
-                                         reinterpret_cast<const WisDX12GraphicsPipelineDesc*>(&desc),
-                                         pipeline.GetStorage()
-                                     );
+            &_impl_storage,
+            reinterpret_cast<const WisDX12GraphicsPipelineDesc*>(&desc),
+            pipeline.GetStorage()
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -4509,10 +4455,10 @@ public:
      *
      * */
     WIS_NODISCARD inline bool GetFormatPresentationSupport(wis::DX12SurfaceView surface, wis::DataFormat format)
-    const noexcept
+        const noexcept
     {
         return (::wisDX12DeviceGetFormatPresentationSupport(&_impl_storage, surface, static_cast<WisDataFormat>(format))
-               );
+        );
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Gets presentation parameters for the specified surface.
@@ -4528,10 +4474,10 @@ public:
     {
         wis::SurfaceParameters params{};
         const WisResult wis_result = ::wisDX12DeviceGetSurfaceParameters(
-                                         &_impl_storage,
-                                         surface,
-                                         reinterpret_cast<WisSurfaceParameters*>(&params)
-                                     );
+            &_impl_storage,
+            surface,
+            reinterpret_cast<WisSurfaceParameters*>(&params)
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -4558,12 +4504,12 @@ public:
     {
         wis::DX12Swapchain swapchain{};
         const WisResult wis_result = ::wisDX12DeviceCreateSwapchain(
-                                         &_impl_storage,
-                                         reinterpret_cast<const WisDX12Surface*>(&surface),
-                                         reinterpret_cast<const WisDX12CommandQueue*>(&queue),
-                                         reinterpret_cast<const WisSwapchainDesc*>(&desc),
-                                         swapchain.GetStorage()
-                                     );
+            &_impl_storage,
+            reinterpret_cast<const WisDX12Surface*>(&surface),
+            reinterpret_cast<const WisDX12CommandQueue*>(&queue),
+            reinterpret_cast<const WisSwapchainDesc*>(&desc),
+            swapchain.GetStorage()
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -4579,14 +4525,14 @@ public:
      *
      * */
     WIS_NODISCARD inline wis::FormatProperties GetFormatProperties(wis::DataFormat format, wis::Result& out_result)
-    const noexcept
+        const noexcept
     {
         wis::FormatProperties properties{};
         const WisResult wis_result = ::wisDX12DeviceGetFormatProperties(
-                                         &_impl_storage,
-                                         static_cast<WisDataFormat>(format),
-                                         reinterpret_cast<WisFormatProperties*>(&properties)
-                                     );
+            &_impl_storage,
+            static_cast<WisDataFormat>(format),
+            reinterpret_cast<WisFormatProperties*>(&properties)
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -4597,9 +4543,7 @@ public:
 };
 
 struct DX12AdapterQueryDeleter {
-    void operator()(WisDX12AdapterQuery* handle) noexcept {
-        ::wisDX12DestroyAdapterQuery(handle);
-    }
+    void operator()(WisDX12AdapterQuery* handle) noexcept { ::wisDX12DestroyAdapterQuery(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class that contains a snapshot of adapters that are present on the system.
@@ -4633,10 +4577,10 @@ public:
     {
         wis::AdapterDesc desc{};
         const WisResult wis_result = ::wisDX12AdapterQueryGetAdapterDesc(
-                                         &_impl_storage,
-                                         index,
-                                         reinterpret_cast<WisAdapterDesc*>(&desc)
-                                     );
+            &_impl_storage,
+            index,
+            reinterpret_cast<WisAdapterDesc*>(&desc)
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -4674,11 +4618,11 @@ public:
     {
         wis::DX12Device device{};
         const WisResult wis_result = ::wisDX12AdapterQueryCreateDevice(
-                                         &_impl_storage,
-                                         index,
-                                         reinterpret_cast<const WisDX12DeviceRequirements*>(&requirements),
-                                         device.GetStorage()
-                                     );
+            &_impl_storage,
+            index,
+            reinterpret_cast<const WisDX12DeviceRequirements*>(&requirements),
+            device.GetStorage()
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -4689,9 +4633,7 @@ public:
 };
 
 struct DX12InstanceDeleter {
-    void operator()(WisDX12Instance* handle) noexcept {
-        ::wisDX12DestroyInstance(handle);
-    }
+    void operator()(WisDX12Instance* handle) noexcept { ::wisDX12DestroyInstance(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class for creating adapters.
@@ -4715,14 +4657,14 @@ public:
      *
      * */
     WIS_NODISCARD inline wis::DX12AdapterQuery QueryAdapters(wis::AdapterPreference preference, wis::Result& out_result)
-    const noexcept
+        const noexcept
     {
         wis::DX12AdapterQuery query{};
         const WisResult wis_result = ::wisDX12InstanceQueryAdapters(
-                                         &_impl_storage,
-                                         static_cast<WisAdapterPreference>(preference),
-                                         query.GetStorage()
-                                     );
+            &_impl_storage,
+            static_cast<WisAdapterPreference>(preference),
+            query.GetStorage()
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -4750,11 +4692,11 @@ WIS_NODISCARD inline wis::DX12Instance DX12CreateInstance(
 {
     wis::DX12Instance instance{};
     const WisResult wis_result = ::wisDX12CreateInstance(
-                                     reinterpret_cast<const WisDebugDesc*>(debug_desc),
-                                     reinterpret_cast<WisDX12InstanceExtensionHeader**>(extensions.data()),
-                                     extensions.size(),
-                                     instance.GetStorage()
-                                 );
+        reinterpret_cast<const WisDebugDesc*>(debug_desc),
+        reinterpret_cast<WisDX12InstanceExtensionHeader**>(extensions.data()),
+        extensions.size(),
+        instance.GetStorage()
+    );
     out_result = wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     return instance;
 }
@@ -4968,9 +4910,7 @@ struct VKIndexBufferDesc {
 };
 
 struct VKTextureDeleter {
-    void operator()(WisVKTexture* handle) noexcept {
-        ::wisVKDestroyTexture(handle);
-    }
+    void operator()(WisVKTexture* handle) noexcept { ::wisVKDestroyTexture(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a GPU texture resource.
@@ -4988,9 +4928,7 @@ public:
         std::memcpy(&v, &_impl_storage, sizeof(v));
         return v;
     }
-    WIS_NODISCARD operator VKTextureView() const noexcept {
-        return GetView();
-    }
+    WIS_NODISCARD operator VKTextureView() const noexcept { return GetView(); }
     /**
      * @brief Provided by Wisdom 0.7.0. Writes data directly to the texture subresource. Texture @wis_must be in
      * `wis::TextureState::Common` and @wis_mustnot be a depth or planar texture.
@@ -5003,18 +4941,16 @@ public:
     inline wis::Result WriteSubresource(const void* source_data, const wis::TextureRegion& target_region) const noexcept
     {
         const WisResult wis_result = ::wisVKTextureWriteSubresource(
-                                         &_impl_storage,
-                                         source_data,
-                                         reinterpret_cast<const WisTextureRegion*>(&target_region)
-                                     );
+            &_impl_storage,
+            source_data,
+            reinterpret_cast<const WisTextureRegion*>(&target_region)
+        );
         return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     }
 };
 
 struct VKBufferDeleter {
-    void operator()(WisVKBuffer* handle) noexcept {
-        ::wisVKDestroyBuffer(handle);
-    }
+    void operator()(WisVKBuffer* handle) noexcept { ::wisVKDestroyBuffer(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a GPU buffer resource.
@@ -5032,17 +4968,13 @@ public:
         std::memcpy(&v, &_impl_storage, sizeof(v));
         return v;
     }
-    WIS_NODISCARD operator VKBufferView() const noexcept {
-        return GetView();
-    }
+    WIS_NODISCARD operator VKBufferView() const noexcept { return GetView(); }
     /**
      * @brief Provided by Wisdom 0.7.0. Maps the buffer memory to CPU accessible address space.
      * @return void points to the pointer, which is filled with the address of the mapped memory on success.
      *
      * */
-    WIS_NODISCARD inline void* Map() const noexcept {
-        return (::wisVKBufferMap(&_impl_storage));
-    }
+    WIS_NODISCARD inline void* Map() const noexcept { return (::wisVKBufferMap(&_impl_storage)); }
     /**
      * @brief Provided by Wisdom 0.7.0. Gets the GPU virtual address of the buffer.
      * @return u64 Address of the buffer on GPU.
@@ -5055,9 +4987,7 @@ public:
 };
 
 struct VKSwapchainDeleter {
-    void operator()(WisVKSwapchain* handle) noexcept {
-        ::wisVKDestroySwapchain(handle);
-    }
+    void operator()(WisVKSwapchain* handle) noexcept { ::wisVKDestroySwapchain(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a swapchain, which is a collection of render targets used for
@@ -5080,11 +5010,11 @@ public:
     inline wis::Result Present(wis::PresentFlags flags, wis::span<const wis::Rect> rects) const noexcept
     {
         const WisResult wis_result = ::wisVKSwapchainPresent(
-                                         &_impl_storage,
-                                         static_cast<WisPresentFlags>(flags),
-                                         reinterpret_cast<const WisRect*>(rects.data()),
-                                         rects.size()
-                                     );
+            &_impl_storage,
+            static_cast<WisPresentFlags>(flags),
+            reinterpret_cast<const WisRect*>(rects.data()),
+            rects.size()
+        );
         return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     }
     /**
@@ -5098,9 +5028,9 @@ public:
     {
         std::uint32_t index{};
         const WisResult wis_result = ::wisVKSwapchainGetCurrentIndex(
-                                         &_impl_storage,
-                                         reinterpret_cast<uint32_t*>(&index)
-                                     );
+            &_impl_storage,
+            reinterpret_cast<uint32_t*>(&index)
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -5118,9 +5048,9 @@ public:
     inline wis::Result Update(const wis::SwapchainUpdateDesc& desc) const noexcept
     {
         const WisResult wis_result = ::wisVKSwapchainUpdate(
-                                         &_impl_storage,
-                                         reinterpret_cast<const WisSwapchainUpdateDesc*>(&desc)
-                                     );
+            &_impl_storage,
+            reinterpret_cast<const WisSwapchainUpdateDesc*>(&desc)
+        );
         return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     }
     /**
@@ -5132,18 +5062,16 @@ public:
     inline wis::Result GetTextures(wis::span<wis::VKTexture> buffers) const noexcept
     {
         const WisResult wis_result = ::wisVKSwapchainGetTextures(
-                                         &_impl_storage,
-                                         reinterpret_cast<WisVKTexture*>(buffers.data()),
-                                         buffers.size()
-                                     );
+            &_impl_storage,
+            reinterpret_cast<WisVKTexture*>(buffers.data()),
+            buffers.size()
+        );
         return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     }
 };
 
 struct VKSurfaceDeleter {
-    void operator()(WisVKSurface* handle) noexcept {
-        ::wisVKDestroySurface(handle);
-    }
+    void operator()(WisVKSurface* handle) noexcept { ::wisVKDestroySurface(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a GPU surface, which can be used as a target for rendering and
@@ -5162,15 +5090,11 @@ public:
         std::memcpy(&v, &_impl_storage, sizeof(v));
         return v;
     }
-    WIS_NODISCARD operator VKSurfaceView() const noexcept {
-        return GetView();
-    }
+    WIS_NODISCARD operator VKSurfaceView() const noexcept { return GetView(); }
 };
 
 struct VKViewHeapDeleter {
-    void operator()(WisVKViewHeap* handle) noexcept {
-        ::wisVKDestroyViewHeap(handle);
-    }
+    void operator()(WisVKViewHeap* handle) noexcept { ::wisVKDestroyViewHeap(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a storage for resource views used in contiguous array.
@@ -5199,11 +5123,11 @@ public:
     ) const noexcept
     {
         return (::wisVKViewHeapWriteRenderTarget(
-                    &_impl_storage,
-                    reinterpret_cast<const WisVKTexture*>(&texture),
-                    reinterpret_cast<const WisRenderTargetDesc*>(&render_target),
-                    index
-                ));
+            &_impl_storage,
+            reinterpret_cast<const WisVKTexture*>(&texture),
+            reinterpret_cast<const WisRenderTargetDesc*>(&render_target),
+            index
+        ));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Writes a depth stencil view to the view heap and returns the CPU descriptor
@@ -5222,11 +5146,11 @@ public:
     ) const noexcept
     {
         return (::wisVKViewHeapWriteDepthStencil(
-                    &_impl_storage,
-                    reinterpret_cast<const WisVKTexture*>(&texture),
-                    reinterpret_cast<const WisRenderTargetDesc*>(&render_target),
-                    index
-                ));
+            &_impl_storage,
+            reinterpret_cast<const WisVKTexture*>(&texture),
+            reinterpret_cast<const WisRenderTargetDesc*>(&render_target),
+            index
+        ));
     }
     /**
      * @brief Provided by Wisdom 0.7.1. Writes a texture view for video decode output and returns the texture view
@@ -5244,11 +5168,11 @@ public:
     ) const noexcept
     {
         return (::wisVKViewHeapWriteVideoDecodeTarget(
-                    &_impl_storage,
-                    reinterpret_cast<const WisVKTexture*>(&texture),
-                    reinterpret_cast<const WisRenderTargetDesc*>(&render_target),
-                    index
-                ));
+            &_impl_storage,
+            reinterpret_cast<const WisVKTexture*>(&texture),
+            reinterpret_cast<const WisRenderTargetDesc*>(&render_target),
+            index
+        ));
     }
     /**
      * @brief Provided by Wisdom 0.7.0. Returns the CPU descriptor handle for the view heap.
@@ -5289,9 +5213,7 @@ public:
 };
 
 struct VKPipelineDeleter {
-    void operator()(WisVKPipeline* handle) noexcept {
-        ::wisVKDestroyPipeline(handle);
-    }
+    void operator()(WisVKPipeline* handle) noexcept { ::wisVKDestroyPipeline(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a GPU pipeline state object, which encapsulates the state of the
@@ -5310,15 +5232,11 @@ public:
         std::memcpy(&v, &_impl_storage, sizeof(v));
         return v;
     }
-    WIS_NODISCARD operator VKPipelineView() const noexcept {
-        return GetView();
-    }
+    WIS_NODISCARD operator VKPipelineView() const noexcept { return GetView(); }
 };
 
 struct VKShaderDeleter {
-    void operator()(WisVKShader* handle) noexcept {
-        ::wisVKDestroyShader(handle);
-    }
+    void operator()(WisVKShader* handle) noexcept { ::wisVKDestroyShader(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a GPU shader module, which contains shader code and allows to
@@ -5337,15 +5255,11 @@ public:
         std::memcpy(&v, &_impl_storage, sizeof(v));
         return v;
     }
-    WIS_NODISCARD operator VKShaderView() const noexcept {
-        return GetView();
-    }
+    WIS_NODISCARD operator VKShaderView() const noexcept { return GetView(); }
 };
 
 struct VKPipelineCacheDeleter {
-    void operator()(WisVKPipelineCache* handle) noexcept {
-        ::wisVKDestroyPipelineCache(handle);
-    }
+    void operator()(WisVKPipelineCache* handle) noexcept { ::wisVKDestroyPipelineCache(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a cache for pipeline state objects, which allows to reuse already
@@ -5365,9 +5279,7 @@ public:
         std::memcpy(&v, &_impl_storage, sizeof(v));
         return v;
     }
-    WIS_NODISCARD operator VKPipelineCacheView() const noexcept {
-        return GetView();
-    }
+    WIS_NODISCARD operator VKPipelineCacheView() const noexcept { return GetView(); }
     /**
      * @brief Provided by Wisdom 0.7.0. Gets the data from the pipeline cache.
      * @param data points to an array that is filled with serialized cache data on success.
@@ -5377,10 +5289,10 @@ public:
     inline wis::Result Serialize(wis::span<std::uint8_t> data) const noexcept
     {
         const WisResult wis_result = ::wisVKPipelineCacheSerialize(
-                                         &_impl_storage,
-                                         reinterpret_cast<uint8_t*>(data.data()),
-                                         data.size()
-                                     );
+            &_impl_storage,
+            reinterpret_cast<uint8_t*>(data.data()),
+            data.size()
+        );
         return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     }
     /**
@@ -5395,9 +5307,7 @@ public:
 };
 
 struct VKDescriptorHeapDeleter {
-    void operator()(WisVKDescriptorHeap* handle) noexcept {
-        ::wisVKDestroyDescriptorHeap(handle);
-    }
+    void operator()(WisVKDescriptorHeap* handle) noexcept { ::wisVKDestroyDescriptorHeap(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a storage for descriptors used in contiguous array.
@@ -5430,10 +5340,10 @@ public:
     inline wis::Result WriteConstantBuffer(const wis::ConstantBufferBinding& data, std::uint32_t index) const noexcept
     {
         const WisResult wis_result = ::wisVKDescriptorHeapWriteConstantBuffer(
-                                         &_impl_storage,
-                                         reinterpret_cast<const WisConstantBufferBinding*>(&data),
-                                         index
-                                     );
+            &_impl_storage,
+            reinterpret_cast<const WisConstantBufferBinding*>(&data),
+            index
+        );
         return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     }
     /**
@@ -5452,11 +5362,11 @@ public:
     ) const noexcept
     {
         const WisResult wis_result = ::wisVKDescriptorHeapWriteStructuredBuffer(
-                                         &_impl_storage,
-                                         buffer,
-                                         reinterpret_cast<const WisBufferBinding*>(&data),
-                                         index
-                                     );
+            &_impl_storage,
+            buffer,
+            reinterpret_cast<const WisBufferBinding*>(&data),
+            index
+        );
         return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     }
     /**
@@ -5475,11 +5385,11 @@ public:
     ) const noexcept
     {
         const WisResult wis_result = ::wisVKDescriptorHeapWriteRWStructuredBuffer(
-                                         &_impl_storage,
-                                         buffer,
-                                         reinterpret_cast<const WisBufferBinding*>(&data),
-                                         index
-                                     );
+            &_impl_storage,
+            buffer,
+            reinterpret_cast<const WisBufferBinding*>(&data),
+            index
+        );
         return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     }
     /**
@@ -5492,10 +5402,10 @@ public:
     inline wis::Result WriteSampler(const wis::SamplerDesc& sampler, std::uint32_t index) const noexcept
     {
         const WisResult wis_result = ::wisVKDescriptorHeapWriteSampler(
-                                         &_impl_storage,
-                                         reinterpret_cast<const WisSamplerDesc*>(&sampler),
-                                         index
-                                     );
+            &_impl_storage,
+            reinterpret_cast<const WisSamplerDesc*>(&sampler),
+            index
+        );
         return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     }
     /**
@@ -5507,14 +5417,14 @@ public:
      *
      * */
     inline wis::Result WriteTexture(wis::VKTextureView texture, const wis::TextureBinding& data, std::uint32_t index)
-    const noexcept
+        const noexcept
     {
         const WisResult wis_result = ::wisVKDescriptorHeapWriteTexture(
-                                         &_impl_storage,
-                                         texture,
-                                         reinterpret_cast<const WisTextureBinding*>(&data),
-                                         index
-                                     );
+            &_impl_storage,
+            texture,
+            reinterpret_cast<const WisTextureBinding*>(&data),
+            index
+        );
         return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     }
     /**
@@ -5526,14 +5436,14 @@ public:
      *
      * */
     inline wis::Result WriteRWTexture(wis::VKTextureView texture, const wis::TextureBinding& data, std::uint32_t index)
-    const noexcept
+        const noexcept
     {
         const WisResult wis_result = ::wisVKDescriptorHeapWriteRWTexture(
-                                         &_impl_storage,
-                                         texture,
-                                         reinterpret_cast<const WisTextureBinding*>(&data),
-                                         index
-                                     );
+            &_impl_storage,
+            texture,
+            reinterpret_cast<const WisTextureBinding*>(&data),
+            index
+        );
         return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     }
     /**
@@ -5569,9 +5479,7 @@ public:
 };
 
 struct VKRootSignatureDeleter {
-    void operator()(WisVKRootSignature* handle) noexcept {
-        ::wisVKDestroyRootSignature(handle);
-    }
+    void operator()(WisVKRootSignature* handle) noexcept { ::wisVKDestroyRootSignature(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a pipeline layout and a constant data storage, which defines
@@ -5591,15 +5499,11 @@ public:
         std::memcpy(&v, &_impl_storage, sizeof(v));
         return v;
     }
-    WIS_NODISCARD operator VKRootSignatureView() const noexcept {
-        return GetView();
-    }
+    WIS_NODISCARD operator VKRootSignatureView() const noexcept { return GetView(); }
 };
 
 struct VKResourceAllocatorDeleter {
-    void operator()(WisVKResourceAllocator* handle) noexcept {
-        ::wisVKDestroyResourceAllocator(handle);
-    }
+    void operator()(WisVKResourceAllocator* handle) noexcept { ::wisVKDestroyResourceAllocator(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class for allocating and managing GPU resources like buffers and textures.
@@ -5607,7 +5511,7 @@ struct VKResourceAllocatorDeleter {
  * */
 class VKResourceAllocator
     : public wis::impl::
-      Implements<wis::impl::VKResourceAllocatorImpl, WisVKResourceAllocator, wis::VKResourceAllocatorDeleter>
+          Implements<wis::impl::VKResourceAllocatorImpl, WisVKResourceAllocator, wis::VKResourceAllocatorDeleter>
 {
 public:
     using ImplType::ImplType;
@@ -5624,10 +5528,10 @@ public:
     {
         wis::VKBuffer buffer{};
         const WisResult wis_result = ::wisVKResourceAllocatorCreateBuffer(
-                                         &_impl_storage,
-                                         reinterpret_cast<const WisBufferDesc*>(&desc),
-                                         buffer.GetStorage()
-                                     );
+            &_impl_storage,
+            reinterpret_cast<const WisBufferDesc*>(&desc),
+            buffer.GetStorage()
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -5643,14 +5547,14 @@ public:
      *
      * */
     WIS_NODISCARD inline wis::VKTexture CreateTexture(const wis::TextureDesc& desc, wis::Result& out_result)
-    const noexcept
+        const noexcept
     {
         wis::VKTexture texture{};
         const WisResult wis_result = ::wisVKResourceAllocatorCreateTexture(
-                                         &_impl_storage,
-                                         reinterpret_cast<const WisTextureDesc*>(&desc),
-                                         texture.GetStorage()
-                                     );
+            &_impl_storage,
+            reinterpret_cast<const WisTextureDesc*>(&desc),
+            texture.GetStorage()
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -5661,9 +5565,7 @@ public:
 };
 
 struct VKFenceDeleter {
-    void operator()(WisVKFence* handle) noexcept {
-        ::wisVKDestroyFence(handle);
-    }
+    void operator()(WisVKFence* handle) noexcept { ::wisVKDestroyFence(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a fence for GPU-CPU and GPU-GPU synchronization.
@@ -5681,9 +5583,7 @@ public:
         std::memcpy(&v, &_impl_storage, sizeof(v));
         return v;
     }
-    WIS_NODISCARD operator VKFenceView() const noexcept {
-        return GetView();
-    }
+    WIS_NODISCARD operator VKFenceView() const noexcept { return GetView(); }
     /**
      * @brief Provided by Wisdom 0.7.0. Get the current value of the fence.
      * @return u64 Value of the fence.
@@ -5719,9 +5619,7 @@ public:
 };
 
 struct VKCommandListDeleter {
-    void operator()(WisVKCommandList* handle) noexcept {
-        ::wisVKDestroyCommandList(handle);
-    }
+    void operator()(WisVKCommandList* handle) noexcept { ::wisVKDestroyCommandList(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a command list for recording GPU commands.
@@ -5740,9 +5638,7 @@ public:
         std::memcpy(&v, &_impl_storage, sizeof(v));
         return v;
     }
-    WIS_NODISCARD operator VKCommandListView() const noexcept {
-        return GetView();
-    }
+    WIS_NODISCARD operator VKCommandListView() const noexcept { return GetView(); }
     /**
      * @brief Provided by Wisdom 0.7.0. Opens the command list, so commands can be recorded to it.
      * @return Result denoting the outcome of operation.
@@ -5918,7 +5814,7 @@ public:
      *
      * */
     inline void Dispatch(std::uint32_t group_count_x, std::uint32_t group_count_y, std::uint32_t group_count_z)
-    const noexcept
+        const noexcept
     {
         ::wisVKCommandListDispatch(&_impl_storage, group_count_x, group_count_y, group_count_z);
     }
@@ -5979,9 +5875,7 @@ public:
      * @brief Provided by Wisdom 0.7.0. Ends the current render pass.
      *
      * */
-    inline void EndRenderPass() const noexcept {
-        ::wisVKCommandListEndRenderPass(&_impl_storage);
-    }
+    inline void EndRenderPass() const noexcept { ::wisVKCommandListEndRenderPass(&_impl_storage); }
     /**
      * @brief Provided by Wisdom 0.7.0. Copies regions from one buffer to another.
      * @param dst_buffer defines a pointer to the destination buffer.
@@ -6150,7 +6044,7 @@ public:
      *
      * */
     inline void SetBlendFactors(float blend_factor_r, float blend_factor_g, float blend_factor_b, float blend_factor_a)
-    const noexcept
+        const noexcept
     {
         ::wisVKCommandListSetBlendFactors(
             &_impl_storage,
@@ -6163,9 +6057,7 @@ public:
 };
 
 struct VKCommandAllocatorDeleter {
-    void operator()(WisVKCommandAllocator* handle) noexcept {
-        ::wisVKDestroyCommandAllocator(handle);
-    }
+    void operator()(WisVKCommandAllocator* handle) noexcept { ::wisVKDestroyCommandAllocator(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a pool allocator for command lists for recording GPU commands.
@@ -6173,7 +6065,7 @@ struct VKCommandAllocatorDeleter {
  * */
 class VKCommandAllocator
     : public wis::impl::
-      Implements<wis::impl::VKCommandAllocatorImpl, WisVKCommandAllocator, wis::VKCommandAllocatorDeleter>
+          Implements<wis::impl::VKCommandAllocatorImpl, WisVKCommandAllocator, wis::VKCommandAllocatorDeleter>
 {
 public:
     using ImplType::ImplType;
@@ -6210,9 +6102,7 @@ public:
 };
 
 struct VKCommandQueueDeleter {
-    void operator()(WisVKCommandQueue* handle) noexcept {
-        ::wisVKDestroyCommandQueue(handle);
-    }
+    void operator()(WisVKCommandQueue* handle) noexcept { ::wisVKDestroyCommandQueue(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class representing a command queue for submitting command lists to the GPU.
@@ -6234,10 +6124,10 @@ public:
     inline wis::Result Submit(wis::span<const wis::VKCommandListView> lists) const noexcept
     {
         const WisResult wis_result = ::wisVKCommandQueueSubmit(
-                                         &_impl_storage,
-                                         reinterpret_cast<const WisVKCommandListView*>(lists.data()),
-                                         lists.size()
-                                     );
+            &_impl_storage,
+            reinterpret_cast<const WisVKCommandListView*>(lists.data()),
+            lists.size()
+        );
         return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     }
     /**
@@ -6269,9 +6159,7 @@ public:
 };
 
 struct VKDeviceDeleter {
-    void operator()(WisVKDevice* handle) noexcept {
-        ::wisVKDestroyDevice(handle);
-    }
+    void operator()(WisVKDevice* handle) noexcept { ::wisVKDestroyDevice(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Central class representing logical device.
@@ -6291,14 +6179,14 @@ public:
      *
      * */
     WIS_NODISCARD inline wis::VKCommandQueue CreateCommandQueue(wis::CommandQueueType type, wis::Result& out_result)
-    const noexcept
+        const noexcept
     {
         wis::VKCommandQueue queue{};
         const WisResult wis_result = ::wisVKDeviceCreateCommandQueue(
-                                         &_impl_storage,
-                                         static_cast<WisCommandQueueType>(type),
-                                         queue.GetStorage()
-                                     );
+            &_impl_storage,
+            static_cast<WisCommandQueueType>(type),
+            queue.GetStorage()
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -6320,10 +6208,10 @@ public:
     {
         wis::VKCommandAllocator allocator{};
         const WisResult wis_result = ::wisVKDeviceCreateCommandAllocator(
-                                         &_impl_storage,
-                                         static_cast<WisCommandQueueType>(type),
-                                         allocator.GetStorage()
-                                     );
+            &_impl_storage,
+            static_cast<WisCommandQueueType>(type),
+            allocator.GetStorage()
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -6380,10 +6268,10 @@ public:
     {
         wis::VKRootSignature layout{};
         const WisResult wis_result = ::wisVKDeviceCreateRootSignature(
-                                         &_impl_storage,
-                                         reinterpret_cast<const WisRootSignatureDesc*>(&desc),
-                                         layout.GetStorage()
-                                     );
+            &_impl_storage,
+            reinterpret_cast<const WisRootSignatureDesc*>(&desc),
+            layout.GetStorage()
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -6405,10 +6293,10 @@ public:
     {
         wis::VKDescriptorHeap heap{};
         const WisResult wis_result = ::wisVKDeviceCreateDescriptorHeap(
-                                         &_impl_storage,
-                                         reinterpret_cast<const WisDescriptorHeapDesc*>(&desc),
-                                         heap.GetStorage()
-                                     );
+            &_impl_storage,
+            reinterpret_cast<const WisDescriptorHeapDesc*>(&desc),
+            heap.GetStorage()
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -6434,12 +6322,12 @@ public:
     {
         wis::VKViewHeap heap{};
         const WisResult wis_result = ::wisVKDeviceCreateViewHeap(
-                                         &_impl_storage,
-                                         static_cast<WisViewHeapType>(type),
-                                         capacity,
-                                         static_cast<WisViewHeapFlags>(flags),
-                                         heap.GetStorage()
-                                     );
+            &_impl_storage,
+            static_cast<WisViewHeapType>(type),
+            capacity,
+            static_cast<WisViewHeapFlags>(flags),
+            heap.GetStorage()
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -6478,13 +6366,13 @@ public:
     ) const noexcept
     {
         const WisResult wis_result = ::wisVKDeviceWaitForMultipleFences(
-                                         &_impl_storage,
-                                         fences,
-                                         fence_values,
-                                         fence_count,
-                                         static_cast<WisMultiWaitType>(wait_for),
-                                         timeout
-                                     );
+            &_impl_storage,
+            fences,
+            fence_values,
+            fence_count,
+            static_cast<WisMultiWaitType>(wait_for),
+            timeout
+        );
         return wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     }
     /**
@@ -6501,11 +6389,11 @@ public:
     {
         wis::VKPipelineCache cache{};
         const WisResult wis_result = ::wisVKDeviceCreatePipelineCache(
-                                         &_impl_storage,
-                                         reinterpret_cast<const uint8_t*>(initial_data.data()),
-                                         initial_data.size(),
-                                         cache.GetStorage()
-                                     );
+            &_impl_storage,
+            reinterpret_cast<const uint8_t*>(initial_data.data()),
+            initial_data.size(),
+            cache.GetStorage()
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -6521,15 +6409,15 @@ public:
      *
      * */
     WIS_NODISCARD inline wis::VKShader CreateShader(wis::span<const std::uint8_t> data, wis::Result& out_result)
-    const noexcept
+        const noexcept
     {
         wis::VKShader shader{};
         const WisResult wis_result = ::wisVKDeviceCreateShader(
-                                         &_impl_storage,
-                                         reinterpret_cast<const uint8_t*>(data.data()),
-                                         data.size(),
-                                         shader.GetStorage()
-                                     );
+            &_impl_storage,
+            reinterpret_cast<const uint8_t*>(data.data()),
+            data.size(),
+            shader.GetStorage()
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -6551,10 +6439,10 @@ public:
     {
         wis::VKPipeline pipeline{};
         const WisResult wis_result = ::wisVKDeviceCreateComputePipeline(
-                                         &_impl_storage,
-                                         reinterpret_cast<const WisVKComputePipelineDesc*>(&desc),
-                                         pipeline.GetStorage()
-                                     );
+            &_impl_storage,
+            reinterpret_cast<const WisVKComputePipelineDesc*>(&desc),
+            pipeline.GetStorage()
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -6576,10 +6464,10 @@ public:
     {
         wis::VKPipeline pipeline{};
         const WisResult wis_result = ::wisVKDeviceCreateGraphicsPipeline(
-                                         &_impl_storage,
-                                         reinterpret_cast<const WisVKGraphicsPipelineDesc*>(&desc),
-                                         pipeline.GetStorage()
-                                     );
+            &_impl_storage,
+            reinterpret_cast<const WisVKGraphicsPipelineDesc*>(&desc),
+            pipeline.GetStorage()
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -6596,7 +6484,7 @@ public:
      *
      * */
     WIS_NODISCARD inline bool GetFormatPresentationSupport(wis::VKSurfaceView surface, wis::DataFormat format)
-    const noexcept
+        const noexcept
     {
         return (::wisVKDeviceGetFormatPresentationSupport(&_impl_storage, surface, static_cast<WisDataFormat>(format)));
     }
@@ -6614,10 +6502,10 @@ public:
     {
         wis::SurfaceParameters params{};
         const WisResult wis_result = ::wisVKDeviceGetSurfaceParameters(
-                                         &_impl_storage,
-                                         surface,
-                                         reinterpret_cast<WisSurfaceParameters*>(&params)
-                                     );
+            &_impl_storage,
+            surface,
+            reinterpret_cast<WisSurfaceParameters*>(&params)
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -6644,12 +6532,12 @@ public:
     {
         wis::VKSwapchain swapchain{};
         const WisResult wis_result = ::wisVKDeviceCreateSwapchain(
-                                         &_impl_storage,
-                                         reinterpret_cast<const WisVKSurface*>(&surface),
-                                         reinterpret_cast<const WisVKCommandQueue*>(&queue),
-                                         reinterpret_cast<const WisSwapchainDesc*>(&desc),
-                                         swapchain.GetStorage()
-                                     );
+            &_impl_storage,
+            reinterpret_cast<const WisVKSurface*>(&surface),
+            reinterpret_cast<const WisVKCommandQueue*>(&queue),
+            reinterpret_cast<const WisSwapchainDesc*>(&desc),
+            swapchain.GetStorage()
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -6665,14 +6553,14 @@ public:
      *
      * */
     WIS_NODISCARD inline wis::FormatProperties GetFormatProperties(wis::DataFormat format, wis::Result& out_result)
-    const noexcept
+        const noexcept
     {
         wis::FormatProperties properties{};
         const WisResult wis_result = ::wisVKDeviceGetFormatProperties(
-                                         &_impl_storage,
-                                         static_cast<WisDataFormat>(format),
-                                         reinterpret_cast<WisFormatProperties*>(&properties)
-                                     );
+            &_impl_storage,
+            static_cast<WisDataFormat>(format),
+            reinterpret_cast<WisFormatProperties*>(&properties)
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -6683,9 +6571,7 @@ public:
 };
 
 struct VKAdapterQueryDeleter {
-    void operator()(WisVKAdapterQuery* handle) noexcept {
-        ::wisVKDestroyAdapterQuery(handle);
-    }
+    void operator()(WisVKAdapterQuery* handle) noexcept { ::wisVKDestroyAdapterQuery(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class that contains a snapshot of adapters that are present on the system.
@@ -6719,10 +6605,10 @@ public:
     {
         wis::AdapterDesc desc{};
         const WisResult wis_result = ::wisVKAdapterQueryGetAdapterDesc(
-                                         &_impl_storage,
-                                         index,
-                                         reinterpret_cast<WisAdapterDesc*>(&desc)
-                                     );
+            &_impl_storage,
+            index,
+            reinterpret_cast<WisAdapterDesc*>(&desc)
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -6760,11 +6646,11 @@ public:
     {
         wis::VKDevice device{};
         const WisResult wis_result = ::wisVKAdapterQueryCreateDevice(
-                                         &_impl_storage,
-                                         index,
-                                         reinterpret_cast<const WisVKDeviceRequirements*>(&requirements),
-                                         device.GetStorage()
-                                     );
+            &_impl_storage,
+            index,
+            reinterpret_cast<const WisVKDeviceRequirements*>(&requirements),
+            device.GetStorage()
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -6775,9 +6661,7 @@ public:
 };
 
 struct VKInstanceDeleter {
-    void operator()(WisVKInstance* handle) noexcept {
-        ::wisVKDestroyInstance(handle);
-    }
+    void operator()(WisVKInstance* handle) noexcept { ::wisVKDestroyInstance(handle); }
 };
 /**
  * @brief Provided by Wisdom 0.7.0. Class for creating adapters.
@@ -6800,14 +6684,14 @@ public:
      *
      * */
     WIS_NODISCARD inline wis::VKAdapterQuery QueryAdapters(wis::AdapterPreference preference, wis::Result& out_result)
-    const noexcept
+        const noexcept
     {
         wis::VKAdapterQuery query{};
         const WisResult wis_result = ::wisVKInstanceQueryAdapters(
-                                         &_impl_storage,
-                                         static_cast<WisAdapterPreference>(preference),
-                                         query.GetStorage()
-                                     );
+            &_impl_storage,
+            static_cast<WisAdapterPreference>(preference),
+            query.GetStorage()
+        );
         out_result = wis::Result{
             static_cast<wis::Status>(wis_result.status),
             wis_result.platform_code,
@@ -6835,11 +6719,11 @@ WIS_NODISCARD inline wis::VKInstance VKCreateInstance(
 {
     wis::VKInstance instance{};
     const WisResult wis_result = ::wisVKCreateInstance(
-                                     reinterpret_cast<const WisDebugDesc*>(debug_desc),
-                                     reinterpret_cast<WisVKInstanceExtensionHeader**>(extensions.data()),
-                                     extensions.size(),
-                                     instance.GetStorage()
-                                 );
+        reinterpret_cast<const WisDebugDesc*>(debug_desc),
+        reinterpret_cast<WisVKInstanceExtensionHeader**>(extensions.data()),
+        extensions.size(),
+        instance.GetStorage()
+    );
     out_result = wis::Result{static_cast<wis::Status>(wis_result.status), wis_result.platform_code, wis_result.error};
     return instance;
 }
