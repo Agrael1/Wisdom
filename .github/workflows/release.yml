@@ -69,7 +69,8 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ github.token }}
+          ref: ${{ github.ref_name }}
 
       - name: Configure Git
         run: |
@@ -166,7 +167,7 @@ jobs:
         run: |
           git add version/VERSION
           git commit -m "chore: bump version to ${{ steps.bump.outputs.new_version }} [skip ci]"
-          git push origin ${{ github.ref_name }}
+          git push origin HEAD:${{ github.ref_name }}
 
       - name: Create and push tag
         run: |
