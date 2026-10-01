@@ -34,7 +34,7 @@ jobs:
         uses: lukka/get-cmake@latest
       
       - name: Configure CMake
-        run: cmake --preset win-msvc-release
+        run: cmake --preset win-msvc-release -DWISDOM_BUILD_EXAMPLES=ON -DWISDOM_BUILD_GENERATOR=ON
 
       - name: Build
         run: cmake --build --preset win-msvc-release
@@ -63,7 +63,7 @@ jobs:
         uses: lukka/get-cmake@latest
       
       - name: Configure CMake
-        run: cmake --preset win-msvc-release -DWISDOM_FORCE_VULKAN=ON
+        run: cmake --preset win-msvc-release -DWISDOM_FORCE_VULKAN=ON -DWISDOM_BUILD_EXAMPLES=ON
       
       - name: Build
         run: cmake --build --preset win-msvc-release
@@ -98,7 +98,7 @@ jobs:
         uses: lukka/get-cmake@latest
       
       - name: Configure CMake
-        run: cmake --preset win-clang-release -DWISDOM_FORCE_VULKAN=ON
+        run: cmake --preset win-clang-release -DWISDOM_FORCE_VULKAN=ON -DWISDOM_BUILD_EXAMPLES=ON
       
       - name: Build
         run: cmake --build --preset win-clang-release
@@ -123,7 +123,7 @@ jobs:
         uses: lukka/get-cmake@latest
 
       - name: Configure CMake
-        run: cmake --preset linux-gcc-release -DWISDOM_VULKAN_HEADER_PATH=${{ github.workspace }}/vulkan-headers/include
+        run: cmake --preset linux-gcc-release -DWISDOM_VULKAN_HEADER_PATH=${{ github.workspace }}/vulkan-headers/include -DWISDOM_BUILD_EXAMPLES=ON
       
       - name: Build
         run: cmake --build --preset linux-gcc-release

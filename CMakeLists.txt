@@ -19,7 +19,8 @@ endif()
 
 # Options
 option(WISDOM_FORCE_VULKAN "Force Vulkan support" OFF)
-option(WISDOM_BUILD_EXAMPLES "Build the example project." ${WTOP})
+option(WISDOM_BUILD_EXAMPLES "Build the example project." OFF)
+option(WISDOM_BUILD_GENERATOR "Build the API generator." OFF)
 option(WISDOM_BUILD_TESTS "Build the tests." ${WTOP})
 option(WISDOM_BUILD_STATIC "Build the static lib." ON)
 option(WISDOM_BUILD_SHARED "Build the dynamic lib." ON)
@@ -29,7 +30,7 @@ option(WISDOM_USE_AGILITY_SDK "Download and use DirectX 12 Agility SDK." ON)
 option(WISDOM_USE_CONAN
        "Use Conan to manage dependencies. Only for library builds." OFF)
 
-# DXC deployment options
+# Vulkan header options
 set(WISDOM_VULKAN_HEADER_PATH
     ""
     CACHE PATH "Path to custom Vulkan Headers (optional)")
@@ -54,6 +55,7 @@ message(
 
     WISDOM_BUILD_DOCS: ${WISDOM_BUILD_DOCS}
     WISDOM_BUILD_EXAMPLES: ${WISDOM_BUILD_EXAMPLES}
+    WISDOM_BUILD_GENERATOR: ${WISDOM_BUILD_GENERATOR}
     WISDOM_BUILD_TESTS: ${WISDOM_BUILD_TESTS}
     WISDOM_BUILD_STATIC: ${WISDOM_BUILD_STATIC}
     WISDOM_BUILD_SHARED: ${WISDOM_BUILD_SHARED}
@@ -63,7 +65,7 @@ message(
 
     WISDOM_VULKAN_HEADER_PATH: ${WISDOM_VULKAN_HEADER_PATH}")
 
-if(WISDOM_BUILD_EXAMPLES AND WISDOM_BUILD_TESTS)
+if(WISDOM_BUILD_GENERATOR)
   add_subdirectory(generator)
 endif()
 add_subdirectory(src) # add main libraries

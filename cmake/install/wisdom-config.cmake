@@ -6,13 +6,10 @@ include("${CMAKE_CURRENT_LIST_DIR}/functions.cmake")
 # Detect platform and graphics APIs
 wisdom_detect_platform()
 
-# Set DXC and DX12 Agility paths
+# Set DX12 Agility paths
 if(WISDOM_WINDOWS)
-set(DXC_EXECUTABLE "@PACKAGE_CMAKE_INSTALL_BINDIR@/dxc.exe")
 set(DXAGILITY_DLL "@PACKAGE_CMAKE_INSTALL_BINDIR@/D3D12Core.dll")
 set(DXAGILITY_DEBUG_DLL "@PACKAGE_CMAKE_INSTALL_BINDIR@/d3d12SDKLayers.dll")
-else()
-set(DXC_EXECUTABLE "@PACKAGE_CMAKE_INSTALL_BINDIR@/dxc")
 endif()
 
 include("${CMAKE_CURRENT_LIST_DIR}/wisdom-targets.cmake")

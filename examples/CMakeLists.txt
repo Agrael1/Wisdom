@@ -1,3 +1,5 @@
+include(cmake/shaders.cmake)
+
 set(EXAMPLE_BIN_OUTPUT ${CMAKE_BINARY_DIR}/bin/examples)
 
 function(add_example_suite NAME)

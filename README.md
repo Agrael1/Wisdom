@@ -23,7 +23,7 @@
 # Features
 
 - [x] Compute pipeline, Basic rendering and Multiview with stereoscopic rendering support.
-- [x] Embedded DXC shader compiler and standard HLSL language.
+- [x] Compiled shader bytecode (DXIL or SPIR-V), independent of the shader source language.
 - [x] Inline API with no virtual functions, featuring heavy inlining for C++ and C with static linkage and IPO.
 - [x] Extensibility with unparalleled internal state access, no direct code change required.
 - [x] Compatibility mode allowing C++11 and C99 API interfaces for easy legacy codebase conversion.
@@ -88,11 +88,28 @@ If you don't have Vulkan SDK installed on Windows the library will still provide
 There is also an option to directly point to Vulkan headers with `WISDOM_VULKAN_HEADER_PATH` CMake option, so you can use the library with custom Vulkan headers or without Vulkan SDK.
 Vulkan library is loaded dynamically, so it is not required to have Vulkan SDK installed to run the library.
 
+For a library-only build:
+
+```sh
+cmake -S . -B build -DWISDOM_BUILD_TESTS=OFF
+cmake --build build
+```
+
+To also build examples, configure with `-DWISDOM_BUILD_EXAMPLES=ON`. The shader compilation helpers live in `examples/cmake/shaders.cmake`; they are not installed with Wisdom.
+
+To build the API generator without examples or tests:
+
+```sh
+cmake -S . -B build-generator -DWISDOM_BUILD_GENERATOR=ON -DWISDOM_BUILD_TESTS=OFF
+cmake --build build-generator --target generator
+```
+
 # CMake Options
 
 - `WISDOM_USE_FMT=OFF` use fmt instead of `std::format` (`ON` for Linux build for GCC<13 and Clang<16)
 - `WISDOM_FORCE_VULKAN=OFF` if set `ON` forces base types to be Vulkan, useful for debugging Vulkan extensions. Vulkan is not required to run on Windows and is selected as a fallback or best-platform automatically.
-- `WISDOM_BUILD_EXAMPLES=ON` enable/disable example compilation. `ON` for top-level project, off for subproject by default.
+- `WISDOM_BUILD_EXAMPLES=OFF` enable/disable example compilation. Examples have their own SDL3 and DXC dependencies.
+- `WISDOM_BUILD_GENERATOR=OFF` build the API generator independently of examples and tests. Checked-in generated interfaces are used by normal library builds.
 - `WISDOM_BUILD_TESTS=ON` enable/disable test compilation. `ON` for top-level project, off for subproject by default.
 - `WISDOM_BUILD_STATIC=ON` build static library version.
 - `WISDOM_BUILD_SHARED=ON` build shared/dynamic library version.
@@ -100,7 +117,7 @@ Vulkan library is loaded dynamically, so it is not required to have Vulkan SDK i
 - `WISDOM_USE_AGILITY_SDK=OFF` download and build with Agility SDK instead of Windows SDK, this allows using latest DirectX 12 features on older Windows versions, but requires additional setup and dependencies. Default is `OFF`, which uses Windows SDK that comes with the system and DirectX-Headers.
 - `WISDOM_BUILD_DOCS=OFF` build documentation with Doxygen, default is dependent on whether you are building the library as a top project (ON) or as a part/dep for other (OFF)
 
-- `WISDOM_DXC_PATH="Path/to/dxc"` use system DXC compiler instead of the one provided with the library (default uses the one provided)
+- `DXC_EXECUTABLE="Path/to/bin/dxc"` use an existing shader compiler when building examples. Otherwise, examples download DXC for Windows or Linux. DXC is not a library dependency or part of the installed package.
 - `WISDOM_VULKAN_HEADER_PATH="Path/to/vulkan/Headers"` Path to custom Vulkan Headers (optional). If not set, will use the ones provided by Vulkan SDK or system.
 
 # Consumption
