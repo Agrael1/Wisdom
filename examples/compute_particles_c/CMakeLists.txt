@@ -1,38 +1,15 @@
 project(compute_particles_c-${POSTFIX})
 
-set(HEADERS)
-set(SOURCES entry_main.c)
+foreach(MODE ${WISDOM_EXAMPLES_MODES})
+  if(MODE STREQUAL "headers")
+    continue()
+  elseif(MODE STREQUAL "static")
+    set(TARGET ${PROJECT_NAME})
+  else()
+    set(TARGET ${PROJECT_NAME}-${MODE})
+  endif()
 
-if(WISDOM_BUILD_STATIC)
-  add_executable(${PROJECT_NAME} ${HEADERS} ${SOURCES})
-  target_link_libraries(
-    ${PROJECT_NAME} PUBLIC wis::wisdom wis::wisdom-platform SDL3::SDL3
-                           example_backend_c-${POSTFIX})
-  set_target_properties(
-    ${PROJECT_NAME} PROPERTIES C_STANDARD 11 RUNTIME_OUTPUT_DIRECTORY
-                                             ${EXAMPLE_BIN_OUTPUT})
-
-  target_compile_definitions(${PROJECT_NAME} PUBLIC ${ADD_DEFINITIONS})
-  add_dependencies(${PROJECT_NAME} copy_sdl wis_test_compile_shaders)
-endif()
-
-if(WISDOM_BUILD_SHARED)
-  add_executable(${PROJECT_NAME}-shared ${HEADERS} ${SOURCES})
-  target_link_libraries(
-    ${PROJECT_NAME}-shared
-    PUBLIC wis::wisdom-shared wis::wisdom-platform-shared SDL3::SDL3
-           example_backend_c-${POSTFIX})
-  set_target_properties(
-    ${PROJECT_NAME}-shared PROPERTIES C_STANDARD 11 RUNTIME_OUTPUT_DIRECTORY
-                                                    ${EXAMPLE_BIN_OUTPUT})
-
-  target_compile_definitions(${PROJECT_NAME}-shared PUBLIC ${ADD_DEFINITIONS})
-
-  # Copy dlls to output directory on Windows
-  add_dependencies(${PROJECT_NAME}-shared copy_dll copy_sdl
-                   wis_test_compile_shaders)
-endif()
-
-if(POSTFIX STREQUAL "dx12" AND WISDOM_USE_AGILITY_SDK)
-  wis_install_agility_win32(TARGET ${PROJECT_NAME})
-endif()
+  add_executable(${TARGET} entry_main.c)
+  target_link_libraries(${TARGET} PRIVATE example_backend_c-${POSTFIX}-${MODE})
+  wis_setup_example(${TARGET} ${MODE})
+endforeach()

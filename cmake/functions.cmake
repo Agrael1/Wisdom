@@ -275,12 +275,12 @@ function(wis_patch_agility_executable TARGET EXPORT_PATH)
     endif()
 
     # Check if the DX12Agility target is available
-    if (NOT TARGET DX12Agility)
+    if (NOT TARGET wis::DX12Agility)
         message(FATAL_ERROR "DX12Agility target not found. Make sure to call wis_load_agility_sdk() before patching the executable.")
     endif()
 
     # Generate a source file that exports the required symbols for the DX12 Agility SDK. This is necessary to ensure that the application can load the Agility DLLs at runtime.
-    get_property(DX12SDKVER TARGET DX12Agility PROPERTY DX12SDKVER)
+    get_property(DX12SDKVER TARGET wis::DX12Agility PROPERTY DX12SDKVER)
     set(EXPORT_AGILITY "_declspec(dllexport) const unsigned D3D12SDKVersion = ${DX12SDKVER};
 						_declspec(dllexport) const char* D3D12SDKPath = \".\\\\D3D12\\\\\";"
     )
@@ -314,6 +314,7 @@ function(wis_install_agility_win32)
         message("DX12 Agility Core found: ${DXAGILITY_DLL}")
         get_filename_component(DXAGILITY_DLL_NAME ${DXAGILITY_DLL} NAME)
         add_custom_command(TARGET ${wis_install_agility_win32_TARGET} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${wis_install_agility_win32_TARGET}>/D3D12
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DXAGILITY_DLL} $<TARGET_FILE_DIR:${wis_install_agility_win32_TARGET}>/D3D12/${DXAGILITY_DLL_NAME}
                 COMMAND_EXPAND_LISTS
                 COMMENT "Copying DX12 Agility Core..."
@@ -324,6 +325,7 @@ function(wis_install_agility_win32)
         message("DX12 Agility SDKLayers found: ${DXAGILITY_DEBUG_DLL}")
         get_filename_component(DXAGILITY_DEBUG_DLL_NAME ${DXAGILITY_DEBUG_DLL} NAME)
         add_custom_command(TARGET ${wis_install_agility_win32_TARGET} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E make_directory $<TARGET_FILE_DIR:${wis_install_agility_win32_TARGET}>/D3D12
                 COMMAND ${CMAKE_COMMAND} -E copy ${DXAGILITY_DEBUG_DLL} $<TARGET_FILE_DIR:${wis_install_agility_win32_TARGET}>/D3D12/${DXAGILITY_DEBUG_DLL_NAME}
                 COMMAND_EXPAND_LISTS
                 COMMENT "Copying DX12 Agility SDKLayers..."

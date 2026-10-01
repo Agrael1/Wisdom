@@ -1,11 +1,19 @@
-# SDL3
-CPMAddPackage(
-  NAME SDL3
-  GITHUB_REPOSITORY libsdl-org/SDL
-  GIT_TAG preview-3.1.3
-  OPTIONS
-  "SDL_WERROR OFF"
-)
+# Examples can also be configured without the library's dependency setup.
+find_package(SDL3 CONFIG QUIET)
+if((NOT TARGET SDL3::SDL3 OR WISDOM_BUILD_VIDEO) AND NOT COMMAND CPMAddPackage)
+  if(NOT CPM_SOURCE_CACHE)
+    set(CPM_SOURCE_CACHE "${CMAKE_CURRENT_BINARY_DIR}/_deps_cache")
+  endif()
+  include(${CMAKE_CURRENT_LIST_DIR}/get_cpm.cmake)
+endif()
+
+if(NOT TARGET SDL3::SDL3)
+  CPMAddPackage(
+    NAME SDL3
+    GITHUB_REPOSITORY libsdl-org/SDL
+    GIT_TAG preview-3.1.3
+    OPTIONS "SDL_WERROR OFF")
+endif()
 
 if (WISDOM_BUILD_VIDEO)
     # h265nal sets GCC-specific -W flags in debug mode unconditionally,

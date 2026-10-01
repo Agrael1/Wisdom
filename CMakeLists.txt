@@ -93,7 +93,8 @@ write_basic_package_version_file(
 configure_package_config_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/cmake/install/wisdom-config.cmake"
   "${CMAKE_CURRENT_BINARY_DIR}/wisdom-config.cmake"
-  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/wisdom)
+  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/wisdom
+  PATH_VARS CMAKE_INSTALL_BINDIR)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/wisdom-config-version.cmake
               ${CMAKE_CURRENT_BINARY_DIR}/wisdom-config.cmake
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/wisdom)

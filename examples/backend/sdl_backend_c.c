@@ -10,7 +10,7 @@
 
 SDLPlatform CreatePlatform()
 {
-    SDLPlatform platform = {0};
+    SDLPlatform platform = {SDL_PLATFORM_EXTENSION_NONE, NULL};
 #if defined(SDL_PLATFORM_WIN32)
     WisWin32Extension* win32_extension = (WisWin32Extension*)malloc(sizeof(WisWin32Extension));
     if (!win32_extension) {
@@ -104,7 +104,8 @@ WisSurface CreateSurface(const SDLPlatform* platform, SDL_Window* window)
         break;
     }
 
-    return (WisSurface){0};
+    WisSurface empty_surface = {0};
+    return empty_surface;
 }
 
 void DestroyPlatform(SDLPlatform* platform)

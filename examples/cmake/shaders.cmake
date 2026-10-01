@@ -74,54 +74,37 @@ function(wis_load_dxc)
     cmake_parse_arguments(wis_load_dxc "${options}" "${oneValueArgs}"
             "${multiValueArgs}" ${ARGN})
 
-    # If DXC is already configured, skip loading
-    if (DXC_EXECUTABLE)
+    if(DXC_EXECUTABLE)
+        if(NOT EXISTS "${DXC_EXECUTABLE}")
+            message(FATAL_ERROR "DXC executable not found at: ${DXC_EXECUTABLE}")
+        endif()
         return()
     endif()
 
-    # Error if none of the above are available
+    if(wis_load_dxc_DXC_PATH)
+        set(DXC_ROOT "${wis_load_dxc_DXC_PATH}")
+    elseif(WISDOM_DXC_PATH)
+        set(DXC_ROOT "${WISDOM_DXC_PATH}")
+    endif()
+    if(DXC_ROOT)
+        find_program(DXC_EXECUTABLE NAMES dxc dxc.exe
+                     PATHS "${DXC_ROOT}/bin" "${DXC_ROOT}/bin/x64" NO_DEFAULT_PATH REQUIRED)
+        return()
+    endif()
 
-    # Option 1: DOWNLOAD_LATEST (highest priority)
-    if (wis_load_dxc_DOWNLOAD_LATEST)
-        message(STATUS "DOWNLOAD_LATEST option enabled, downloading latest DXC from GitHub")
+    if(wis_load_dxc_DOWNLOAD_LATEST)
+        if(APPLE)
+            message(FATAL_ERROR "Set DXC_EXECUTABLE to a macOS DXC executable when building examples. Automatic DXC downloads are supported only on Windows and Linux.")
+        endif()
         _ww_load_latest_dxc()
         return()
     endif()
 
-    # Option 2: Custom DXC path (DXC_PATH)
-    if (WISDOM_DXC_PATH)
-        # Verify that the executable exists
-        if (NOT EXISTS ${DXC_EXECUTABLE})
-            message(WARNING "Custom DXC executable not found at: ${DXC_EXECUTABLE}")
-            message(FATAL_ERROR "Please verify WISDOM_DXC_PATH is correct")
-        else ()
-            message(STATUS "Found custom DXC executable: ${DXC_EXECUTABLE}")
-        endif ()
-
-        message(STATUS "Using custom DXC path: ${WISDOM_DXC_PATH}")
-        if (WIN32)
-            set(DXC_EXECUTABLE "${WISDOM_DXC_PATH}/bin/dxc.exe" CACHE INTERNAL "")
-        else ()
-            set(DXC_EXECUTABLE "${WISDOM_DXC_PATH}/bin/dxc" CACHE INTERNAL "")
-        endif ()
-        return()
+    if(Vulkan_dxc_EXECUTABLE AND EXISTS "${Vulkan_dxc_EXECUTABLE}")
+        set(DXC_EXECUTABLE "${Vulkan_dxc_EXECUTABLE}" CACHE FILEPATH "Shader compiler for examples")
+    else()
+        find_program(DXC_EXECUTABLE NAMES dxc dxc.exe REQUIRED)
     endif()
-
-    # Option 3: Try to use Vulkan SDK's DXC (if WISDOM_VULKAN is enabled and no custom path)
-    if (WISDOM_VULKAN AND Vulkan_dxc_EXECUTABLE)
-        # Use Vulkan SDK's DXC
-        find_program(DXCOMPILER dxc HINTS ${Vulkan_dxc_EXECUTABLE} ENV VULKAN_SDK PATH_SUFFIXES bin)
-
-        if (DXCOMPILER)
-            message(STATUS "Found Vulkan SDK DXC: ${DXCOMPILER}")
-            set(DXC_EXECUTABLE ${DXCOMPILER} CACHE INTERNAL "")
-        else ()
-            message(FATAL_ERROR "Vulkan SDK DXC not found in Vulkan SDK")
-        endif ()
-    endif()
-
-    # Error if DXC_EXECUTABLE is still not set
-    message(FATAL_ERROR "DXC executable not found. Please configure DXC using wis_load_dxc() with either DOWNLOAD_LATEST or DXC_PATH options, or ensure that the Vulkan SDK is installed and contains DXC.")
 endfunction()
 
 # Function for compiling shaders
