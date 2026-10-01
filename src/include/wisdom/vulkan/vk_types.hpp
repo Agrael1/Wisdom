@@ -198,5 +198,6 @@ struct VKDeviceExtensionHeader {
 #    include "vk_instance.cpp"
 #    include "vk_pipeline_cache.cpp"
 #    include "vk_resource_allocator.cpp"
+#    include "vk_swapchain.cpp"
 #endif // WISDOM_HEADER_ONLY
 #endif // WIS_VK_TYPES_HPP

@@ -170,5 +170,6 @@ struct DX12DeviceExtensionHeader {
 #    include "dx12_instance.cpp"
 #    include "dx12_pipeline_cache.cpp"
 #    include "dx12_resource_allocator.cpp"
+#    include "dx12_swapchain.cpp"
 #endif // WISDOM_HEADER_ONLY
 #endif // WIS_DX12_TYPES_HPP
