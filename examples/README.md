@@ -1,29 +1,20 @@
 # Wisdom examples
 
-Examples can be built as part of Wisdom or as a separate CMake project using an installed Wisdom package. The examples directory owns its SDL3 dependency, DXC shader tools, shaders, and assets; it can be copied to another repository without the library's source tree.
+Examples can be built as part of Wisdom or as a separate CMake project that builds Wisdom from source. The examples directory owns its SDL3 dependency, DXC shader tools, shaders, and assets; it can be copied to another repository without the library's source tree.
 
-## Build from an installed package
+## Standalone build
 
-First build and install Wisdom, with the platform extensions enabled. From the Wisdom repository root:
+Configure and build the examples directly. CMake uses Wisdom from the surrounding checkout, or downloads a pinned Wisdom revision with the required header-only support when the examples are detached. Wisdom and the example dependencies are built together; no installed Wisdom package is required.
 
 ```sh
-cmake -S . -B build/wisdom -G Ninja \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_INSTALL_PREFIX="$PWD/install" \
-  -DWISDOM_BUILD_EXAMPLES=OFF \
-  -DWISDOM_BUILD_TESTS=OFF
-cmake --build build/wisdom --parallel 4
-cmake --install build/wisdom
-
 cmake -S examples -B build/examples -G Ninja \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DCMAKE_PREFIX_PATH="$PWD/install"
+  -DCMAKE_BUILD_TYPE=Release
 cmake --build build/examples --parallel 4
 ```
 
-After copying this directory elsewhere, use `cmake -S .` from its new location and point `CMAKE_PREFIX_PATH` at the same installed package. No Wisdom source directory is required.
+After copying this directory elsewhere, use `cmake -S .` from its new location. To build against a local Wisdom checkout instead of downloading it, pass `-DCPM_wisdom_SOURCE=/path/to/Wisdom`. This also allows CI to test the exact Wisdom revision under review.
 
-On Windows, configure in a shell with the C/C++ compiler environment initialized. On Linux, the Wisdom Vulkan backend requires Vulkan headers; provide `WISDOM_VULKAN_HEADER_PATH` to both configurations when the headers are not discoverable through the Vulkan SDK. Full examples builds currently support the same Windows/Linux platforms as Wisdom.
+On Windows, configure in a shell with the C/C++ compiler environment initialized. On Linux, provide `WISDOM_VULKAN_HEADER_PATH` when Vulkan headers are not discoverable through the Vulkan SDK. Full examples builds currently support the same Windows/Linux platforms as Wisdom.
 
 ## Build from the Wisdom source tree
 
@@ -53,7 +44,7 @@ The following options select examples, independently of the library's build sett
 
 Linkage modes default to enabled when the corresponding public core and platform targets exist. For example, configure with `-DWISDOM_EXAMPLES_BUILD_STATIC=OFF -DWISDOM_EXAMPLES_BUILD_HEADERS=OFF` to build only shared examples. Each mode uses its own SDL backend and does not pull in another Wisdom linkage mode.
 
-Runtime libraries, compiled shaders, and assets are placed in `bin/examples` under the build directory. DirectX 12 examples copy available Agility SDK binaries from the Wisdom package into its `D3D12` runtime directory. C++ header-only examples still use Wisdom's transitive dependencies, such as Vulkan Memory Allocator.
+Runtime libraries, compiled shaders, and assets are placed in `bin/examples` under the build directory. DirectX 12 examples copy available Agility SDK binaries from the Wisdom build into its `D3D12` runtime directory. C++ header-only examples still use Wisdom's transitive dependencies, such as Vulkan Memory Allocator.
 
 To compile only shaders or copy assets:
 

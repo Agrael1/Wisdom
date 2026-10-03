@@ -16,8 +16,9 @@ function(wis_setup_example TARGET MODE)
   target_link_libraries(${TARGET} PRIVATE ${WISDOM_EXAMPLE_CORE}
                                         ${WISDOM_EXAMPLE_PLATFORM} SDL3::SDL3)
   target_compile_definitions(${TARGET} PRIVATE ${ADD_DEFINITIONS})
-  set_target_properties(${TARGET} PROPERTIES C_STANDARD 11 CXX_STANDARD 20
-                                            RUNTIME_OUTPUT_DIRECTORY ${EXAMPLE_BIN_OUTPUT})
+  set_target_properties(
+    ${TARGET} PROPERTIES C_STANDARD 11 CXX_STANDARD 20 RUNTIME_OUTPUT_DIRECTORY
+                        ${EXAMPLE_BIN_OUTPUT})
   if(MODE STREQUAL "headers")
     set_target_properties(${TARGET} PROPERTIES CXX_STANDARD 23)
   endif()
@@ -26,7 +27,8 @@ function(wis_setup_example TARGET MODE)
   foreach(LIBRARY SDL3::SDL3 ${WISDOM_EXAMPLE_CORE} ${WISDOM_EXAMPLE_PLATFORM})
     get_target_property(LIBRARY_TYPE ${LIBRARY} TYPE)
     if(LIBRARY_TYPE STREQUAL "SHARED_LIBRARY")
-      add_custom_command(TARGET ${TARGET} POST_BUILD
+      add_custom_command(
+        TARGET ${TARGET} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${LIBRARY}>
                 $<TARGET_FILE_DIR:${TARGET}>
         VERBATIM)

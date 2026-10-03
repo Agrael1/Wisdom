@@ -95,7 +95,7 @@ cmake -S . -B build -DWISDOM_BUILD_TESTS=OFF
 cmake --build build
 ```
 
-To also build examples, configure with `-DWISDOM_BUILD_EXAMPLES=ON`. Examples can also be built independently against an installed Wisdom package; see [examples/README.md](examples/README.md). The shader compilation helpers live in `examples/cmake/shaders.cmake`; they are not installed with Wisdom.
+To also build examples, configure with `-DWISDOM_BUILD_EXAMPLES=ON`. Examples can also be built independently, downloading and building Wisdom from source; see [examples/README.md](examples/README.md). The shader compilation helpers live in `examples/cmake/shaders.cmake`; they are not installed with Wisdom.
 
 To build the API generator without examples or tests:
 

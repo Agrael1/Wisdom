@@ -275,12 +275,12 @@ function(wis_patch_agility_executable TARGET EXPORT_PATH)
     endif()
 
     # Check if the DX12Agility target is available
-    if (NOT TARGET wis::DX12Agility)
+    if (NOT TARGET DX12Agility)
         message(FATAL_ERROR "DX12Agility target not found. Make sure to call wis_load_agility_sdk() before patching the executable.")
     endif()
 
     # Generate a source file that exports the required symbols for the DX12 Agility SDK. This is necessary to ensure that the application can load the Agility DLLs at runtime.
-    get_property(DX12SDKVER TARGET wis::DX12Agility PROPERTY DX12SDKVER)
+    get_property(DX12SDKVER TARGET DX12Agility PROPERTY DX12SDKVER)
     set(EXPORT_AGILITY "_declspec(dllexport) const unsigned D3D12SDKVersion = ${DX12SDKVER};
 						_declspec(dllexport) const char* D3D12SDKPath = \".\\\\D3D12\\\\\";"
     )

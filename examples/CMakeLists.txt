@@ -1,9 +1,8 @@
 cmake_minimum_required(VERSION 3.22)
 project(wisdom-examples LANGUAGES C CXX)
 
-if(NOT TARGET wis::wisdom-headers)
-  find_package(wisdom CONFIG REQUIRED)
-endif()
+# Load dependencies before detecting the available Wisdom targets.
+include(cmake/deps.cmake)
 
 set(WISDOM_EXAMPLES_STATIC_AVAILABLE OFF)
 set(WISDOM_EXAMPLES_SHARED_AVAILABLE OFF)
@@ -18,9 +17,13 @@ if(TARGET wis::wisdom-headers AND TARGET wis::wisdom-platform-headers)
   set(WISDOM_EXAMPLES_HEADERS_AVAILABLE ON)
 endif()
 
-option(WISDOM_EXAMPLES_BUILD_STATIC "Build statically linked examples." ${WISDOM_EXAMPLES_STATIC_AVAILABLE})
-option(WISDOM_EXAMPLES_BUILD_SHARED "Build dynamically linked examples." ${WISDOM_EXAMPLES_SHARED_AVAILABLE})
-option(WISDOM_EXAMPLES_BUILD_HEADERS "Build header-only C++ examples." ${WISDOM_EXAMPLES_HEADERS_AVAILABLE})
+# Options
+option(WISDOM_EXAMPLES_BUILD_STATIC "Build statically linked examples."
+       ${WISDOM_EXAMPLES_STATIC_AVAILABLE})
+option(WISDOM_EXAMPLES_BUILD_SHARED "Build dynamically linked examples."
+       ${WISDOM_EXAMPLES_SHARED_AVAILABLE})
+option(WISDOM_EXAMPLES_BUILD_HEADERS "Build header-only C++ examples."
+       ${WISDOM_EXAMPLES_HEADERS_AVAILABLE})
 option(WISDOM_EXAMPLES_VULKAN "Build Vulkan examples." ${WISDOM_VULKAN})
 option(WISDOM_EXAMPLES_DX12 "Build DirectX 12 examples." ${WISDOM_DX12})
 
@@ -28,7 +31,11 @@ set(WISDOM_EXAMPLES_MODES)
 foreach(MODE STATIC SHARED HEADERS)
   if(WISDOM_EXAMPLES_BUILD_${MODE})
     if(NOT WISDOM_EXAMPLES_${MODE}_AVAILABLE)
-      message(FATAL_ERROR "The installed Wisdom package does not provide the ${MODE} core and platform targets. Build Wisdom with the required libraries and WISDOM_BUILD_PLATFORM=ON, or disable WISDOM_EXAMPLES_BUILD_${MODE}.")
+      message(
+        FATAL_ERROR
+          "Wisdom does not provide the ${MODE} core and platform targets. "
+          "Enable the required libraries and WISDOM_BUILD_PLATFORM, or disable "
+          "WISDOM_EXAMPLES_BUILD_${MODE}.")
     endif()
     string(TOLOWER ${MODE} MODE_NAME)
     list(APPEND WISDOM_EXAMPLES_MODES ${MODE_NAME})
@@ -43,7 +50,6 @@ endif()
 
 set(EXAMPLE_BIN_OUTPUT ${CMAKE_BINARY_DIR}/bin/examples)
 file(MAKE_DIRECTORY ${EXAMPLE_BIN_OUTPUT})
-include(cmake/deps.cmake)
 include(cmake/shaders.cmake)
 include(cmake/functions.cmake)
 

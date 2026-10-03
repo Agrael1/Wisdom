@@ -10,6 +10,7 @@ foreach(MODE ${WISDOM_EXAMPLES_MODES})
   endif()
 
   add_executable(${TARGET} entry_main.c)
-  target_link_libraries(${TARGET} PRIVATE example_backend_c-${POSTFIX}-${MODE})
+  target_link_libraries(
+    ${TARGET} PRIVATE example_backend_c-${POSTFIX}-${MODE})
   wis_setup_example(${TARGET} ${MODE})
 endforeach()
