@@ -2,13 +2,6 @@ name: CI
 
 on:
   pull_request:
-  push:
-    branches:
-      - "feat/**"
-      - "fix/**"
-      - "dev/**"
-    tags-ignore:
-      - "**"
   workflow_call: # Allow this workflow to be called by other workflows
   workflow_dispatch:
 
@@ -24,6 +17,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          submodules: recursive
 
       - name: Setup MSVC
         uses: ilammy/msvc-dev-cmd@v1
@@ -46,6 +41,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          submodules: recursive
 
       - name: Setup MSVC
         uses: ilammy/msvc-dev-cmd@v1
@@ -75,6 +72,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          submodules: recursive
 
       - name: Setup Clang
         uses: egor-tensin/setup-clang@v1
@@ -110,6 +109,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          submodules: recursive
 
       - name: Install Dependencies
         run: |

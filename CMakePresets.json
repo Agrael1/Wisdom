@@ -42,7 +42,8 @@
       "displayName": "Linux GCC Debug",
       "description": "GCC Debug build",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
+        "CMAKE_BUILD_TYPE": "Debug",
+        "WISDOM_BUILD_EXAMPLES": true
       }
     },
     {
@@ -108,7 +109,8 @@
       "displayName": "Linux Clang Debug",
       "description": "Clang Debug build",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
+        "CMAKE_BUILD_TYPE": "Debug",
+        "WISDOM_BUILD_EXAMPLES": true
       }
     },
     {
@@ -168,7 +170,8 @@
       "displayName": "Windows MSVC Debug",
       "description": "MSVC Debug build",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
+        "CMAKE_BUILD_TYPE": "Debug",
+        "WISDOM_BUILD_EXAMPLES": true
       }
     },
     {
@@ -242,7 +245,8 @@
       "displayName": "Windows Clang Debug",
       "description": "Clang Debug build",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
+        "CMAKE_BUILD_TYPE": "Debug",
+        "WISDOM_BUILD_EXAMPLES": true
       }
     },
     {
@@ -304,7 +308,8 @@
       "displayName": "Windows Clang-CL Debug",
       "description": "Clang-CL Debug build",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
+        "CMAKE_BUILD_TYPE": "Debug",
+        "WISDOM_BUILD_EXAMPLES": true
       }
     },
     {
@@ -348,7 +353,8 @@
       "displayName": "Windows MinGW Debug",
       "description": "MinGW Debug build",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
+        "CMAKE_BUILD_TYPE": "Debug",
+        "WISDOM_BUILD_EXAMPLES": true
       }
     },
     {
@@ -421,7 +427,8 @@
       "displayName": "macOS Debug",
       "description": "macOS Debug build with default compiler",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug"
+        "CMAKE_BUILD_TYPE": "Debug",
+        "WISDOM_BUILD_EXAMPLES": true
       }
     },
     {
