@@ -2,13 +2,6 @@ name: CI
 
 on:
   pull_request:
-  push:
-    branches:
-      - "feat/**"
-      - "fix/**"
-      - "dev/**"
-    tags-ignore:
-      - "**"
   workflow_call: # Allow this workflow to be called by other workflows
   workflow_dispatch:
 
