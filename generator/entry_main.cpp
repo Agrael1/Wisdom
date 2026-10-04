@@ -13,7 +13,7 @@ void FormatFiles(std::span<const std::filesystem::path> files)
 
     // break into chunks of 16 files to avoid command line length limits on some platforms
     for (size_t i = 0; i < files.size(); i += 16) {
-        auto chunk_end = std::min(16ull, files.size() - i);
+        auto chunk_end = std::min<size_t>(16, files.size() - i);
 
         std::string cmd;
         for (auto f : files.subspan(i, chunk_end)) {
