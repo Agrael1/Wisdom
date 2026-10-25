@@ -6,10 +6,10 @@ constexpr inline std::string_view clang_format_exe = CLANG_FORMAT_EXECUTABLE;
 //--------------------------------------------------------------
 struct Args {
     std::filesystem::path input_directory = Generator::default_input_dir;
-    std::string formatter{clang_format_exe};
     std::filesystem::path clang_format_file;
     std::filesystem::path core_module{"wis.xml"};
     std::vector<std::string> modules;
+    std::string formatter{clang_format_exe};
 };
 
 //--------------------------------------------------------------
@@ -188,7 +188,8 @@ static void FormatFiles(
         std::cout << "Wisdom Vk Utils: Formatting:\n" << cmd << '\n';
         std::string style = !clang_format_file.empty() ? std::format("--style=file:{}", clang_format_file)
                                                        : "--style=file";
-        std::string command = std::format("\"{}\" -i \"{}\" {}", formatter, style, cmd);
+
+        std::string command = std::format("\"\"{}\" -i \"{}\" {}\"", formatter, style, cmd);
 
         int ret = 0;
         for (uint32_t i = 0; (ret = std::system(command.c_str())) != 0 && i < repeats; ++i)
@@ -213,16 +214,20 @@ int main(int argc, char** argv)
     // Load core module first to ensure all types are available for platform modules
     g.ParseFile(core_file);
 
+    std::vector<std::string_view> modules_to_generate;
     if (args.modules.empty()) {
-        g.WriteModuleAPI();
-        g.WriteModuleAPIDoc();
+        modules_to_generate.emplace_back(g.GetActiveModuleName());
     } else {
         for (const auto& module_name : args.modules) {
             auto module_path = args.input_directory / (module_name + ".xml");
             g.ParseFile(module_path);
-            g.WriteModuleAPI();
-            g.WriteModuleAPIDoc();
+            modules_to_generate.emplace_back(g.GetActiveModuleName());
         }
+    }
+
+    for (std::string_view module_name : modules_to_generate) {
+        g.WriteModuleAPI(module_name);
+        g.WriteModuleAPIDoc(module_name);
     }
 
     FormatFiles(g.GetFiles(), args.formatter, args.clang_format_file.string());

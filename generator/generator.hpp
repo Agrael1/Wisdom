@@ -27,9 +27,10 @@ public:
 
 public:
     void ParseFile(std::filesystem::path file);
-    void WriteModuleAPI();
+    void WriteModuleAPI(std::string_view module_name = {});
     void WriteModuleAPIDoc(std::string_view module_name = {});
     auto GetFiles() const { return std::span<const std::filesystem::path>{files}; }
+    std::string_view GetActiveModuleName() const noexcept { return active_module_name; }
 
 public:
     void ParseIncludes(tinyxml2::XMLElement* includes);

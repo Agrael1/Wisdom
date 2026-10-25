@@ -171,7 +171,8 @@
       "description": "MSVC Debug build",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "Debug",
-        "WISDOM_BUILD_EXAMPLES": true
+        "WISDOM_BUILD_EXAMPLES": true,
+        "WISDOM_BUILD_GENERATOR": true
       }
     },
     {

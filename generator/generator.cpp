@@ -54,13 +54,22 @@ void Generator::ParseFile(std::filesystem::path file)
     }
 }
 
-void Generator::WriteModuleAPI()
+void Generator::WriteModuleAPI(std::string_view module_name)
 {
-    auto it = module_map.find(active_module_name);
+    if (module_name.empty()) {
+        module_name = active_module_name;
+    }
+    if (module_name.empty()) {
+        throw std::runtime_error("Module name for API output is empty.");
+    }
+
+    auto it = module_map.find(module_name);
     if (it == module_map.end()) {
         throw std::runtime_error("Module metadata is not available for API output.");
     }
 
+    auto previous_module = active_module_name;
+    active_module_name = module_name;
     auto& module = it->second;
     std::filesystem::path cpp_output_path = std::filesystem::path(main_output_dir) / module.gen_path;
     std::filesystem::path cpp_output_path_api = cpp_output_path / "generated";
@@ -72,6 +81,7 @@ void Generator::WriteModuleAPI()
     auto independent_path = cpp_output_path / "../wisdom";
     WriteCIndependentAPI(independent_path);
     WriteCPPIndependentAPI(independent_path);
+    active_module_name = previous_module;
 }
 
 void Generator::WriteModuleAPIDoc(std::string_view module_name)
