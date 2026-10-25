@@ -142,7 +142,7 @@ void Generator::ParseIncludes(tinyxml2::XMLElement* includes)
     for (auto* include = includes->FirstChildElement("include"); include;
          include = include->NextSiblingElement("include")) {
         auto file = include->GetText();
-        auto rpath = std::filesystem::path(INPUT_FILE).parent_path() / file;
+        auto rpath = input_directory / file;
         auto absolute = std::filesystem::absolute(rpath);
 
         if (std::filesystem::exists(absolute) && !documents.contains(absolute)) {

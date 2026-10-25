@@ -14,12 +14,16 @@
 
 class Generator
 {
+public:
+    static constexpr std::string_view default_input_dir = DEFAULT_INPUT_DIR;
     static constexpr std::string_view main_output_dir = CPP_OUTPUT_DIR;
     static constexpr std::string_view doc_output_dir = DOC_OUTPUT_DIR;
     static constexpr std::string_view empty_doc = " * ";
 
 public:
-    Generator() = default;
+    explicit Generator(std::filesystem::path input_directory = default_input_dir)
+        : input_directory(input_directory)
+    {}
 
 public:
     void ParseFile(std::filesystem::path file);
@@ -368,6 +372,7 @@ public:
     }
 
 private:
+    std::filesystem::path input_directory;
     std::unordered_map<std::filesystem::path, tinyxml2::XMLDocument> documents;
 
     std::unordered_map<std::string_view, TypeKind> type_map; // For quick lookup of type kinds

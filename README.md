@@ -104,6 +104,14 @@ cmake -S . -B build-generator -DWISDOM_BUILD_GENERATOR=ON -DWISDOM_BUILD_TESTS=O
 cmake --build build-generator --target generator
 ```
 
+The generator accepts a comma-separated list of module names and optional arguments. With no module names it generates the core API; module XML files and `wis.xml` are read from the default `xml` directory. For example:
+
+```sh
+build-generator/generator video -wd path/to/xml --formatter path/to/clang-format --clang-format-file path/to/.clang-format
+```
+
+`-wd` and `--work-directory` select the directory containing input XML files. `--formatter` overrides the `clang-format` executable found at configure time, and `--clang-format-file` selects its formatting configuration. Use `--help` to list all options.
+
 # CMake Options
 
 - `WISDOM_USE_FMT=OFF` use fmt instead of `std::format` (`ON` for Linux build for GCC<13 and Clang<16)

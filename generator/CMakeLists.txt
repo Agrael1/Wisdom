@@ -34,7 +34,7 @@ target_compile_definitions(
   ${PROJECT_NAME}
   PRIVATE CLANG_FORMAT_EXECUTABLE="${CLANG_FORMAT_EXECUTABLE}"
           WISDOM_VERSION="${WISDOM_VERSION}"
-          "INPUT_FILE=\"${CMAKE_CURRENT_SOURCE_DIR}/../xml/wis.xml\""
+          "DEFAULT_INPUT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../xml\""
           "CPP_OUTPUT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../src\""
           "DOC_OUTPUT_DIR=\"${CMAKE_CURRENT_SOURCE_DIR}/../docs\"")
 target_include_directories(
