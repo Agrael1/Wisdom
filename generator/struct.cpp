@@ -1,38 +1,6 @@
 #include "generator.hpp"
 
 //----------------------------------------------------------------------------------------------------------------------
-static inline constexpr char template_struct[] =
-    R"(/**
- * @struct {0}
- * @ingroup Structures {3}
- *
- *
- * @section {0}_spec Specification
- * <hr>
- *
- * \cond WIS_GEN_CODE
- * {1}
- * \endcond
- *
- * @section {0}_memb Members
- * <hr>
- * \cond WIS_GEN_DESC
- * {2}
- * \endcond
- *
- * @section {0}_descr Description
- * <hr>
- *
- * \cond WIS_GEN_WIS_IDS
- * \endcond
- *
- * @section {0}_see_also See Also
- * <hr>
- * \cond WIS_GEN_REFS
- * \endcond
- */)";
-
-//----------------------------------------------------------------------------------------------------------------------
 void Generator::ParseStruct(tinyxml2::XMLElement* type)
 {
     auto name = type->FindAttribute("name")->Value();
@@ -196,16 +164,6 @@ std::string Generator::MakeCPPMemberDeclaration(const WisStructMember& member, s
 }
 
 //----------------------------------------------------------------------------------------------------------------------
-std::string Generator::MakeStructDescription(const WisStruct& s)
-{
-    std::string description;
-    for (auto& m : s.members) {
-        description += std::format("- `{}` {}\n", m.name, m.doc.empty() ? "No description." : m.doc);
-    }
-    return description;
-}
-
-//----------------------------------------------------------------------------------------------------------------------
 void Generator::WriteStructDocumentation(std::filesystem::path struct_output_path)
 {
     std::filesystem::create_directories(struct_output_path);
@@ -235,7 +193,7 @@ void Generator::WriteStructDocumentation(std::filesystem::path struct_output_pat
 
         WriteDocumentation(
             struct_file_path,
-            template_struct,
+            struct_documentation_template,
             GetCFullTypename(struct_name, Backend::Any),
             struct_template_content,
             vuids,

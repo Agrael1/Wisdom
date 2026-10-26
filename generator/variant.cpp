@@ -1,38 +1,6 @@
 #include "generator.hpp"
 
 //----------------------------------------------------------------------------------------------------------------------
-static inline constexpr char template_struct[] =
-    R"(/**
- * @struct {0}
- * @ingroup Structures {3}
- *
- *
- * @section {0}_spec Specification
- * <hr>
- *
- * \cond WIS_GEN_CODE
- * {1}
- * \endcond
- *
- * @section {0}_memb Members
- * <hr>
- * \cond WIS_GEN_DESC
- * {2}
- * \endcond
- *
- * @section {0}_descr Description
- * <hr>
- *
- * \cond WIS_GEN_WIS_IDS
- * \endcond
- *
- * @section {0}_see_also See Also
- * <hr>
- * \cond WIS_GEN_REFS
- * \endcond
- */)";
-
-//----------------------------------------------------------------------------------------------------------------------
 void Generator::ParseVariant(tinyxml2::XMLElement* type)
 {
     auto name = type->FindAttribute("name")->Value();
@@ -154,15 +122,6 @@ std::string Generator::MakeCPPVariant(const WisStruct& s, Backend backend, DocKi
     return st_decl;
 }
 
-std::string Generator::MakeVariantDescription(const WisStruct& s)
-{
-    std::string description;
-    for (auto& m : s.members) {
-        description += std::format("- `{}` {}\n", m.name, m.doc.empty() ? "No description." : m.doc);
-    }
-    return description;
-}
-
 //----------------------------------------------------------------------------------------------------------------------
 void Generator::WriteVariantDocumentation(std::filesystem::path struct_output_path)
 {
@@ -209,7 +168,7 @@ void Generator::WriteVariantDocumentation(std::filesystem::path struct_output_pa
 
         std::string variant_template_content = GetSpecificationCode(c_code, cimpl_code, cpp_code, cimpl_code_cpp);
 
-        std::string variant_description = std::format(" * {}", MakeVariantDescription(variant_ref));
+        std::string variant_description = std::format(" * {}", MakeStructDescription(variant_ref));
         std::string variant_refs = GetRefs(variant_name);
         std::string vuids = MakeValidationForType(variant_name);
 
@@ -219,7 +178,7 @@ void Generator::WriteVariantDocumentation(std::filesystem::path struct_output_pa
 
         WriteDocumentation(
             variant_file_path,
-            template_struct,
+            struct_documentation_template,
             GetCFullTypename(variant_name, Backend::Any),
             variant_template_content,
             vuids,

@@ -43,5 +43,22 @@ int main()
             passed = false;
         }
     }
+    WisStruct aggregate{};
+    if (!Generator::MakeStructDescription(aggregate).empty()) {
+        std::cerr << "Failed: empty aggregate description\n";
+        passed = false;
+    }
+    WisStructMember documented{};
+    documented.name = "first";
+    documented.doc = "First line.\nSecond line.";
+    aggregate.members.push_back(documented);
+    WisStructMember undocumented{};
+    undocumented.name = "second";
+    aggregate.members.push_back(undocumented);
+    const auto description = Generator::MakeStructDescription(aggregate);
+    if (description != "- `first` First line.\nSecond line.\n- `second` No description.\n") {
+        std::cerr << "Failed: ordered member descriptions and fallback\nActual:\n" << description;
+        passed = false;
+    }
     return passed ? 0 : 1;
 }

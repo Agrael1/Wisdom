@@ -19,6 +19,7 @@ public:
     static constexpr std::string_view main_output_dir = CPP_OUTPUT_DIR;
     static constexpr std::string_view doc_output_dir = DOC_OUTPUT_DIR;
     static constexpr std::string_view empty_doc = " * ";
+    static const std::string_view struct_documentation_template;
 
 public:
     explicit Generator(
@@ -78,8 +79,7 @@ public:
     std::string MakeBitmaskDescription(const WisBitmask& s);
     std::string MakeEnumConverter(const WisEnum& s, Backend backend);
     std::string MakeBitmaskConverter(const WisBitmask& s, Backend backend);
-    std::string MakeStructDescription(const WisStruct& s);
-    std::string MakeVariantDescription(const WisStruct& s);
+    static std::string MakeStructDescription(const WisStruct& s);
     std::string MakeFunctionDescription(const WisFunction& s);
     std::string MakeDelegateDescription(const WisFunction& s);
     std::string MakeValidationDescription(const Validation& v);
@@ -168,7 +168,7 @@ public:
     static ImplOs GetImplOs(std::string_view os) noexcept;
     static Extends GetExtends(std::string_view extends_str) noexcept;
     static std::string FinalizeNormativeDocumentation(std::string doc);
-    static void ReplaceAll(std::string& str, const std::string& from, const std::string& to);
+    static void ReplaceAll(std::string& str, std::string_view from, std::string_view to);
     static InlineTypeInfo FindInlineType(std::string_view str);
     static std::string MakeVersionString(std::string_view version, bool newline = false);
     static std::string MakeSnakeCase(std::string_view str);
