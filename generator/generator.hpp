@@ -21,8 +21,14 @@ public:
     static constexpr std::string_view empty_doc = " * ";
 
 public:
-    explicit Generator(std::filesystem::path input_directory = default_input_dir)
+    explicit Generator(
+        std::filesystem::path input_directory = default_input_dir,
+        std::filesystem::path code_output_directory = main_output_dir,
+        std::filesystem::path documentation_output_directory = doc_output_dir
+    )
         : input_directory(input_directory)
+        , code_output_directory(code_output_directory)
+        , documentation_output_directory(documentation_output_directory)
     {}
 
 public:
@@ -374,6 +380,8 @@ public:
 
 private:
     std::filesystem::path input_directory;
+    std::filesystem::path code_output_directory;
+    std::filesystem::path documentation_output_directory;
     std::unordered_map<std::filesystem::path, tinyxml2::XMLDocument> documents;
 
     std::unordered_map<std::string_view, TypeKind> type_map; // For quick lookup of type kinds

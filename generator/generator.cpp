@@ -71,14 +71,16 @@ void Generator::WriteModuleAPI(std::string_view module_name)
     auto previous_module = active_module_name;
     active_module_name = module_name;
     auto& module = it->second;
-    std::filesystem::path cpp_output_path = std::filesystem::path(main_output_dir) / module.gen_path;
+    std::filesystem::path cpp_output_path = code_output_directory / module.gen_path;
     std::filesystem::path cpp_output_path_api = cpp_output_path / "generated";
+    std::filesystem::create_directories(cpp_output_path_api);
     WriteCAPI(cpp_output_path_api);
     WriteCPPAPI(cpp_output_path_api);
 
     WriteConversions(cpp_output_path_api);
 
     auto independent_path = cpp_output_path / "../wisdom";
+    std::filesystem::create_directories(independent_path);
     WriteCIndependentAPI(independent_path);
     WriteCPPIndependentAPI(independent_path);
     active_module_name = previous_module;
@@ -101,7 +103,7 @@ void Generator::WriteModuleAPIDoc(std::string_view module_name)
     auto previous_module = active_module_name;
     active_module_name = module_name;
 
-    std::filesystem::path module_doc_output_path = std::filesystem::path(doc_output_dir) / it->second.doc_path;
+    std::filesystem::path module_doc_output_path = documentation_output_directory / it->second.doc_path;
     std::filesystem::path enum_output_path = module_doc_output_path / "enum";
     std::filesystem::path struct_output_path = module_doc_output_path / "struct";
     std::filesystem::path handle_output_path = module_doc_output_path / "handle";

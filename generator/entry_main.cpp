@@ -6,10 +6,14 @@ constexpr inline std::string_view clang_format_exe = CLANG_FORMAT_EXECUTABLE;
 //--------------------------------------------------------------
 struct Args {
     std::filesystem::path input_directory = Generator::default_input_dir;
+    std::filesystem::path code_output_directory = Generator::main_output_dir;
+    std::filesystem::path documentation_output_directory = Generator::doc_output_dir;
     std::filesystem::path clang_format_file;
     std::filesystem::path core_module{"wis.xml"};
     std::vector<std::string> modules;
     std::string formatter{clang_format_exe};
+    bool generate_code = true;
+    bool generate_docs = true;
 };
 
 //--------------------------------------------------------------
@@ -20,6 +24,10 @@ static void PrintUsage(std::string_view executable)
                  "Generate the core API when no module name is provided; otherwise generate each named module.\n"
                  "Options:\n"
                  "  -wd, --work-directory <path>        Directory containing wis.xml and module XML files\n"
+                 "  -o:c, --out:code <path>             Code output root (default: " CPP_OUTPUT_DIR ")\n"
+                 "  -o:d, --out:doc <path>              Documentation output root (default: " DOC_OUTPUT_DIR ")\n"
+                 "        --no-code                     Skip code generation\n"
+                 "        --no-docs                     Skip documentation generation\n"
                  "  -f,  --formatter <path>             clang-format executable to use\n"
                  "  -cf, --clang-format-file <path>     clang-format configuration file\n"
                  "  -c,  --core                         Set core file\n"
@@ -61,6 +69,23 @@ static int ReadLongArg(std::span<char*> argv, int i, Args& out_args)
 {
     std::string_view arg = argv[i];
     switch (arg[2]) {
+    case 'n':
+        if (arg == "--no-code") {
+            out_args.generate_code = false;
+            return 0;
+        } else if (arg == "--no-docs") {
+            out_args.generate_docs = false;
+            return 0;
+        }
+        std::cerr << "Invalid argument: " << arg << '\n';
+        break;
+    case 'o':
+        if (arg.starts_with("--out:code")) {
+            return ReadValue(argv, i, arg, out_args.code_output_directory, 10);
+        } else if (arg.starts_with("--out:doc")) {
+            return ReadValue(argv, i, arg, out_args.documentation_output_directory, 9);
+        }
+        break;
     case 'w':
         if (arg.starts_with("--work-directory")) {
             return ReadValue(argv, i, arg, out_args.input_directory, 16);
@@ -95,6 +120,13 @@ static int ReadShortArg(std::span<char*> argv, int i, Args& out_args)
     // assume offset == 1
     std::string_view arg = argv[i];
     switch (arg[1]) {
+    case 'o':
+        if (arg.starts_with("-o:c")) {
+            return ReadValue(argv, i, arg, out_args.code_output_directory, 4);
+        } else if (arg.starts_with("-o:d")) {
+            return ReadValue(argv, i, arg, out_args.documentation_output_directory, 4);
+        }
+        break;
     case 'w':
         if (arg.starts_with("-wd")) {
             return ReadValue(argv, i, arg, out_args.input_directory, 3);
@@ -205,10 +237,21 @@ int main(int argc, char** argv)
 {
     auto [rc, args] = ParseArgs({argv, std::size_t(argc)});
     if (rc < 0) {
-        return 0;
+        return 1;
     }
 
-    Generator g(args.input_directory);
+    if (!args.generate_code && !args.generate_docs) {
+        std::cerr << "No output selected: --no-code and --no-docs cannot be used together.\n";
+        return 1;
+    }
+
+    if ((args.generate_code && args.code_output_directory.empty())
+        || (args.generate_docs && args.documentation_output_directory.empty())) {
+        std::cerr << "Output directory paths must not be empty.\n";
+        return 1;
+    }
+
+    Generator g(args.input_directory, args.code_output_directory, args.documentation_output_directory);
     auto core_file = args.core_module.is_absolute() ? args.core_module : args.input_directory / args.core_module;
 
     // Load core module first to ensure all types are available for platform modules
@@ -226,8 +269,12 @@ int main(int argc, char** argv)
     }
 
     for (std::string_view module_name : modules_to_generate) {
-        g.WriteModuleAPI(module_name);
-        g.WriteModuleAPIDoc(module_name);
+        if (args.generate_code) {
+            g.WriteModuleAPI(module_name);
+        }
+        if (args.generate_docs) {
+            g.WriteModuleAPIDoc(module_name);
+        }
     }
 
     FormatFiles(g.GetFiles(), args.formatter, args.clang_format_file.string());
