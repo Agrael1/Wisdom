@@ -167,6 +167,7 @@ public:
     static Backend ParseBackend(std::string_view backend) noexcept;
     static ImplOs GetImplOs(std::string_view os) noexcept;
     static Extends GetExtends(std::string_view extends_str) noexcept;
+    static std::string FinalizeNormativeDocumentation(std::string doc);
     static void ReplaceAll(std::string& str, const std::string& from, const std::string& to);
     static InlineTypeInfo FindInlineType(std::string_view str);
     static std::string MakeVersionString(std::string_view version, bool newline = false);

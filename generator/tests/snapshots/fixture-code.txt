@@ -1,0 +1,6 @@
+f27a9fbf6c6f4825 7645 include/fixture/generated/c_api.h
+6fe4c9dda5dd7a75 8572 include/fixture/generated/cpp_api.hpp
+62047198fb003a03 1045 include/fixture/generated/dx12_convert.hpp
+e27802a37a5c5ef1 1165 include/fixture/generated/vk_convert.hpp
+cb9cd6c1c9bd77f6 3045 include/wisdom/wisdom_fixture.h
+a779b86e3501315f 4464 include/wisdom/wisdom_fixture.hpp

@@ -11,6 +11,9 @@ if(NOT tinyxml2_FOUND AND NOT TARGET tinyxml2::tinyxml2)
 
   # Load tinyxml2
   message("Loading tinyxml2...")
+  if(NOT COMMAND CPMAddPackage)
+    include("${CMAKE_CURRENT_SOURCE_DIR}/../cmake/deps/get_cpm.cmake")
+  endif()
   cpmaddpackage(NAME tinyxml2 GITHUB_REPOSITORY leethomason/tinyxml2 GIT_TAG
                 origin/master)
 endif()
@@ -19,6 +22,7 @@ add_executable(${PROJECT_NAME})
 target_sources(
   ${PROJECT_NAME}
   PRIVATE "entry_main.cpp"
+          "documentation.cpp"
           "generator.cpp"
           "generator.hpp"
           "enum.cpp"
@@ -58,3 +62,7 @@ add_custom_target(
   COMMENT "Generating Video extension API"
   DEPENDS ${PROJECT_NAME}
   VERBATIM)
+
+if(WISDOM_BUILD_TESTS)
+  add_subdirectory(tests)
+endif()

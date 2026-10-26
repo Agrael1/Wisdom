@@ -1,0 +1,4 @@
+eb115b128620a6c2 3236 platform/wisdom/wisdom_platform.h
+426ae6a0a418ef3d 1275 platform/wisdom/wisdom_platform.hpp
+74b3b270decc4d64 11827 platform/wisdom_platform/generated/c_api.h
+f7e5491086836d89 12619 platform/wisdom_platform/generated/cpp_api.hpp

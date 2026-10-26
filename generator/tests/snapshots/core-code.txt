@@ -1,0 +1,6 @@
+bcb750f17935dc5c 267276 include/wisdom/generated/c_api.h
+750031a0c4d0d568 261315 include/wisdom/generated/cpp_api.hpp
+24570b9b79e5e8f9 27254 include/wisdom/generated/dx12_convert.hpp
+b98aa4111b267e71 32077 include/wisdom/generated/vk_convert.hpp
+ebb90a4b93f93471 20060 include/wisdom/wisdom.h
+340fb901d70aa347 7597 include/wisdom/wisdom.hpp

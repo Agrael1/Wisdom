@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<registry>
+  <types>
+    <type name="Status" category="enum" type="u32" version="1.2.3" doc="Operation status.">
+      <impl_type for="dx" name="NativeStatus" default="NativeUnknown" convert_back="true"/>
+      <impl_type for="vk" name="VkStatus" direct="true" convert_back="true"/>
+      <value name="Ok" value="0" doc="Operation succeeded.">
+        <impl name="dx" value="NativeOk"/>
+        <impl name="vk" value="VK_OK"/>
+      </value>
+      <value name="Error" value="1" version="1.2.4" doc="Operation failed.">
+        <impl name="dx" value="NativeError"/>
+      </value>
+    </type>
+    <type name="TestFlags" category="bitmask" type="u32" version="1.2.3" doc="Test flags.">
+      <impl_type for="dx" name="NativeFlags" direct="true" convert_back="true"/>
+      <impl_type for="vk" name="VkFlags" convert_back="true"/>
+      <value name="None" value="0" doc="No flags."/>
+      <value name="Read" bit="0" version="1.2.3" doc="Read access.">
+        <impl name="vk" value="VK_READ"/>
+      </value>
+      <value name="Write" bit="1" version="1.2.4" doc="Write access.">
+        <impl name="vk" value="VK_WRITE"/>
+      </value>
+    </type>
+  </types>
+</registry>

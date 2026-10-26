@@ -71,6 +71,7 @@ endif()
 add_subdirectory(src) # add main libraries
 
 if(WISDOM_BUILD_TESTS)
+  enable_testing()
   add_subdirectory(tests)
 endif()
 

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<registry>
+  <module name="Fixture" version="1.2.3" base_dir="include/fixture" doc_dir="fixture">
+    <includes>
+      <include>common.xml</include>
+    </includes>
+    <handles>
+      <handle name="TestHandle" version="1.2.3" doc="A shared handle.">
+        <impl for="dx" size="2"/>
+        <impl for="vk" size="3"/>
+        <view size="1"/>
+      </handle>
+      <handle name="DxHandle" version="1.2.3" doc="A DX12-only handle.">
+        <impl for="dx" size="1"/>
+      </handle>
+      <handle name="VkHandle" version="1.2.3" doc="A Vulkan-only handle.">
+        <impl for="vk" size="1"/>
+        <view for="vk" size="1"/>
+      </handle>
+    </handles>
+    <types>
+      <type name="Result" category="struct" version="1.2.3" doc="Operation result.">
+        <member name="status" type="Status" doc="Result status."/>
+        <member name="platform_code" type="i32" default="0" doc="Native result code."/>
+        <member name="error" type="char" mod="const,ptr" doc="Error description."/>
+      </type>
+      <type name="TestCallback" category="delegate" version="1.2.3" doc="Receives a count.">
+        <arg name="count" type="u32" doc="Item count."/>
+      </type>
+      <type name="TestConfig" category="struct" version="1.2.3" doc="Test configuration. Values must be valid.">
+        <member name="flags" type="TestFlags" default="0" doc="Access flags."/>
+        <member name="samples" type="u32" array="4" doc="Sample values."/>
+        <member name="enabled" type="u32" bits="1" doc="Whether enabled."/>
+        <member name="values" type="u32" mod="const,span" doc="Input values."/>
+        <member name="value_count" type="u32" doc="Number of input values."/>
+        <member name="callback" type="TestCallback" doc="Optional callback."/>
+      </type>
+      <type name="TestPayload" category="variant" version="1.2.3" doc="Shared payload.">
+        <member name="handle" type="TestHandleView" doc="A shared handle view."/>
+      </type>
+      <type name="VkPayload" category="variant" version="1.2.3" doc="Vulkan-only payload.">
+        <member name="handle" type="VkHandleView" doc="A Vulkan handle view."/>
+      </type>
+      <type name="COnlyPayload" category="variant" version="1.2.3" mod="c-only" doc="C-only payload.">
+        <member name="value" type="u32" doc="Payload value."/>
+      </type>
+    </types>
+    <functions>
+      <func name="GetCount" version="1.2.3" doc="Returns the count.">
+        <ret type="u32" name="count" doc="Item count."/>
+      </func>
+      <func name="CheckStatus" version="1.2.3" doc="Checks status.">
+        <ret type="Result" doc="Operation result."/>
+      </func>
+      <func name="CreateObject" version="1.2.3" doc="Creates a {TestHandle::}.">
+        <ret type="TestHandle" name="handle" result="true" doc="Created handle."/>
+        <arg name="config" type="TestConfig" mod="const,ref" doc="Configuration."/>
+      </func>
+      <func name="DoWork" for="TestHandle" version="1.2.3" doc="Performs work.">
+        <arg name="values" type="u32" mod="const,span" doc="Input values."/>
+        <arg name="value_count" type="u32" doc="Number of values."/>
+      </func>
+    </functions>
+    <validations>
+      <validation for="TestConfig">
+        <vuid id="values-valid" severity="error" msg="Values must be valid."/>
+      </validation>
+    </validations>
+    <constants>
+      <value type="u32" name="TestLimit" value="4" version="1.2.3" doc="Maximum item count."/>
+    </constants>
+  </module>
+</registry>
